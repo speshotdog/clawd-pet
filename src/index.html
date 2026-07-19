@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>HotDog</title>
+  <link rel="stylesheet" href="pet.css" />
+</head>
+<body>
+  <div id="stage" class="idle">
+    <div id="bubble"></div>
+    <div id="zzz">z<span>z</span></div>
+    <svg id="pet" viewBox="0 0 311 346" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="155" cy="338" rx="100" ry="9" />
+      <g id="root">
+        <g id="body">
+          <!-- 四肢（畫在身體後面，關節藏進輪廓裡，可獨立旋轉） -->
+          <g id="legL"><image href="legL.png" x="0" y="0" width="311" height="346" /></g>
+          <g id="legR"><image href="legR.png" x="0" y="0" width="311" height="346" /></g>
+          <g id="pawR"><image href="pawR.png" x="0" y="0" width="311" height="346" /></g>
+          <!-- 原圖本體（去背+去白邊，四肢已拆出） -->
+          <image href="body.png" x="0" y="0" width="311" height="346" />
+          <!-- 蓋住原圖畫死的眼睛（取樣自周圍底色；不隨視線移動） -->
+          <ellipse cx="95" cy="103" rx="15" ry="19" fill="#E6CD98" />
+          <ellipse cx="133" cy="107" rx="14.5" ry="19.5" fill="#E6CD98" />
+          <!-- 臉（可動圖層） -->
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><ellipse cx="95" cy="103" rx="10" ry="14" fill="#000" transform="rotate(10 95 103)" /></g>
+              <g class="eye"><ellipse cx="133" cy="107" rx="9.5" ry="14.5" fill="#000" transform="rotate(10 133 107)" /></g>
+            </g>
+            <g id="eyes-happy">
+              <path d="M84 107 Q95 94 106 107" />
+              <path d="M122 111 Q133 98 144 111" />
+            </g>
+            <g id="eyes-closed">
+              <path d="M85 104 Q95 112 105 104" />
+              <path d="M123 108 Q133 116 143 108" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <script src="pet.js"></script>
+</body>
+</html>
