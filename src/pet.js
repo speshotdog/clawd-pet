@@ -52,6 +52,7 @@ window.onunhandledrejection = (e) => jlog(`REJECT ${e.reason}`);
 // 夥伴視窗由 URL query 指定角色（?char=fox）；主視窗看 localStorage
 const _urlChar = new URLSearchParams(location.search).get('char');
 const IS_COMPANION = !!_urlChar;
+const MY_LABEL = IS_COMPANION ? 'pet2' : 'main';
 const CHAR = _urlChar || localStorage.getItem('petchar') || 'dog';
 const CFG = CHAR_CFG[CHAR] || CHAR_CFG.dog;
 const otherChar = (c) => (c === 'dog' ? 'fox' : 'dog');
@@ -450,13 +451,16 @@ async function maybeWalk() {
 // ---------- 常駐動畫迴圈 ----------
 // 用限速 rAF 取代 CSS 無限動畫：透明視窗的每一幀都要 DWM 重新合成，
 // 30fps（睡覺 15fps）比放任 CSS 跑螢幕更新率省 75% 以上的合成量。
+// T_OFFSET：多人模式下兩個視窗同秒起跑會導致呼吸/彈跳/搖尾完全同相，
+// 各自加一個隨機相位讓動作錯開
+const T_OFFSET = Math.random() * 7;
 let lastFrame = 0;
 function animate(now) {
   requestAnimationFrame(animate);
   const budget = isSleeping() ? 66 : 33;
   if (now - lastFrame < budget) return;
   lastFrame = now;
-  const t = now / 1000;
+  const t = now / 1000 + T_OFFSET;
 
   let tf = '';
   if (grabbed) {
@@ -574,6 +578,8 @@ async function main() {
   }
 
   await TAURI.event.listen('cursor', ({ payload }) => {
+    // 事件實際上是廣播；只吃標給自己視窗的座標（吃到別窗的會導致穿透狂切）
+    if (payload.w && payload.w !== MY_LABEL) return;
     // payload: 游標相對視窗左上角的實體像素座標（dpr 即時讀，避免適配後失準）
     const dpr = window.devicePixelRatio || 1;
     const cx = payload.x / dpr;
@@ -595,7 +601,7 @@ async function main() {
   await win.onMoved(onWindowMoved);
 
   scheduleBlink();
-  setTimeout(maybeWalk, 20_000);
+  setTimeout(maybeWalk, 12_000 + Math.random() * 18_000);  // 錯開首次散步
 
   // 開場時段問候
   setTimeout(() => {
@@ -603,13 +609,13 @@ async function main() {
     say(h < 5 ? '夜貓子…' : h < 11 ? '早安！' : h < 18 ? '午安～' : '晚上好！', 2200);
   }, 1500);
 
-  // 偶爾自言自語（依心情/飢餓換台詞）
+  // 偶爾自言自語（依心情/飢餓換台詞；週期加抖動避免多人模式同時開口）
   setInterval(() => {
     if (!isSleeping() && !grabbed && Math.random() < 0.25) {
       const pool = stats.fullness < 30 ? LINES_HUNGRY : stats.mood < 35 ? LINES_SAD : LINES_IDLE;
       say(pool[Math.floor(Math.random() * pool.length)], 1400);
     }
-  }, 75_000);
+  }, 70_000 + Math.random() * 20_000);
 
   // 肚子餓提醒（垂眼 + 泡泡）
   setInterval(() => {
@@ -622,20 +628,26 @@ async function main() {
 
   jlog(`main() listeners phase char=${CHAR} companion=${IS_COMPANION}`);
 
-  // 選單指令（餵食 / 巡邏切換）
+  // 選單指令。格式「label:指令」——事件實際上是廣播，只執行標給自己的
   await TAURI.event.listen('pet-cmd', ({ payload }) => {
-    jlog(`pet-cmd received: ${payload}`);
-    if (payload === 'feed') feed();
-    else if (payload === 'patrol') togglePatrol();
-    else if (payload === 'multi' && !IS_COMPANION) {
+    if (typeof payload !== 'string') return;
+    const sep = payload.indexOf(':');
+    if (sep < 0) return;
+    const tgt = payload.slice(0, sep);
+    const cmd = payload.slice(sep + 1);
+    jlog(`pet-cmd ${payload} -> ${tgt === MY_LABEL ? 'act' : 'skip'}`);
+    if (tgt !== MY_LABEL) return;
+    if (cmd === 'feed') feed();
+    else if (cmd === 'patrol') togglePatrol();
+    else if (cmd === 'multi' && !IS_COMPANION) {
       // 多人模式開關：夥伴視窗的角色永遠是主角色的「另一位」
       const on = !multiOn();
       localStorage.setItem('petmulti', on ? '1' : '0');
       TAURI.core.invoke('set_companion', { on, character: otherChar(CHAR) }).catch(() => {});
       say(on ? '夥伴來了！' : '夥伴回家了～', 1800);
     }
-    else if (typeof payload === 'string' && payload.startsWith('char:')) {
-      const next = payload.slice(5);
+    else if (cmd.startsWith('char:')) {
+      const next = cmd.slice(5);
       if (next !== CHAR && CHAR_CFG[next]) {
         localStorage.setItem('petchar', next);
         location.reload();   // 重載以乾淨狀態實例化新角色（夥伴由重載後的開機檢查換角）

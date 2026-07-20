@@ -474,11 +474,16 @@ fn show_menu(
 // ------------------------------------------------------------
 fn spawn_cursor_thread(win: WebviewWindow) {
     std::thread::spawn(move || {
+        let label = win.label().to_string();
         let mut last: (i32, i32) = (i32::MIN, i32::MIN);
         loop {
             std::thread::sleep(Duration::from_millis(60));
             let (cx, cy) = cursor_pos();
             let (Ok(pos), Ok(size)) = (win.outer_position(), win.outer_size()) else {
+                // 視窗沒了（夥伴被收回）就讓執行緒收工，避免殭屍執行緒
+                if win.app_handle().get_webview_window(&label).is_none() {
+                    return;
+                }
                 continue;
             };
             let rx = cx - pos.x;
@@ -492,7 +497,14 @@ fn spawn_cursor_thread(win: WebviewWindow) {
                 continue;
             }
             last = (cx, cy);
-            let _ = win.emit("cursor", serde_json::json!({ "x": rx, "y": ry }));
+            // 注意：emit/emit_to 對 JS 端預設 listener（target=Any）都是廣播效果，
+            // 兩個視窗會互吃對方座標造成穿透狂切（游標閃爍）——
+            // 座標裡帶上目標視窗 label，由前端自行過濾
+            let _ = win.emit_to(
+                label.as_str(),
+                "cursor",
+                serde_json::json!({ "x": rx, "y": ry, "w": label }),
+            );
         }
     });
 }
@@ -530,7 +542,7 @@ fn spawn_claude_listener(app: AppHandle) {
             // 多人模式切換（自動化/測試用）：交給主視窗的 JS 統一管理狀態
             if req.contains("/pet/multi") {
                 if let Some(w) = app.get_webview_window("main") {
-                    let _ = w.emit("pet-cmd", "multi");
+                    let _ = w.emit_to("main", "pet-cmd", "main:multi");
                 }
             }
             // 前端 JS 的日誌通道（除錯用）
@@ -681,35 +693,36 @@ fn main() {
                         }
                     }
                 }
+                // pet-cmd 一律「label:指令」格式，前端過濾自己的
                 "p_feed" => {
                     if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit("pet-cmd", "feed");
+                        let _ = w.emit_to("main", "pet-cmd", "main:feed");
                     }
                 }
                 "p_patrol" => {
                     if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit("pet-cmd", "patrol");
+                        let _ = w.emit_to("main", "pet-cmd", "main:patrol");
                     }
                 }
                 "p_char_dog" => {
                     if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit("pet-cmd", "char:dog");
+                        let _ = w.emit_to("main", "pet-cmd", "main:char:dog");
                     }
                 }
                 "p_char_fox" => {
                     if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit("pet-cmd", "char:fox");
+                        let _ = w.emit_to("main", "pet-cmd", "main:char:fox");
                     }
                 }
                 "p_multi" | "q_close" => {
                     // 多人模式開關統一由主視窗 JS 管理（localStorage + set_companion）
                     if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit("pet-cmd", "multi");
+                        let _ = w.emit_to("main", "pet-cmd", "main:multi");
                     }
                 }
                 "q_feed" => {
                     if let Some(w) = app.get_webview_window("pet2") {
-                        let _ = w.emit("pet-cmd", "feed");
+                        let _ = w.emit_to("pet2", "pet-cmd", "pet2:feed");
                     }
                 }
                 "p_autostart" => {
