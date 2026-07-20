@@ -4,6 +4,7 @@
   "description": "A tiny Claude-style desktop buddy",
   "private": true,
   "scripts": {
+    "setup": "powershell -NoProfile -ExecutionPolicy Bypass -File setup.ps1",
     "dev": "tauri dev",
     "build": "tauri build",
     "tauri": "tauri"

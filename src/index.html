@@ -8,16 +8,30 @@
 <body>
   <div id="stage" class="idle">
     <div id="bubble"></div>
+    <div id="workbar"><div id="workfill"></div></div>
+    <div id="workcount"></div>
+    <div id="sweat">💦</div>
     <div id="zzz">z<span>z</span></div>
+    <!-- 角色由 pet.js 依 localStorage 的 petchar 從下方 template 實例化 -->
+  </div>
+
+  <!-- ================= 角色：熱狗狗狗（PNG 拆件） ================= -->
+  <template id="char-dog">
     <svg id="pet" viewBox="0 0 311 346" xmlns="http://www.w3.org/2000/svg"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 腿的存根頂部是平切直邊，旋轉時直角會戳出身體輪廓（膝蓋刺刺感）；
+             用圓角裁切把直角修圓（裁切跟著腿一起旋轉，超界時只露圓肩不露尖角） -->
+        <clipPath id="clipLegL"><rect x="60" y="306" width="66" height="70" rx="14" /></clipPath>
+        <clipPath id="clipLegR"><rect x="138" y="306" width="62" height="70" rx="14" /></clipPath>
+      </defs>
       <ellipse id="shadow" cx="155" cy="338" rx="100" ry="9" />
       <g id="root">
         <g id="body">
           <!-- 四肢（畫在身體後面，關節藏進輪廓裡，可獨立旋轉） -->
-          <g id="legL"><image href="legL.png" x="0" y="0" width="311" height="346" /></g>
-          <g id="legR"><image href="legR.png" x="0" y="0" width="311" height="346" /></g>
+          <g id="legL"><image href="legL.png" x="0" y="0" width="311" height="346" clip-path="url(#clipLegL)" /></g>
+          <g id="legR"><image href="legR.png" x="0" y="0" width="311" height="346" clip-path="url(#clipLegR)" /></g>
           <g id="pawR"><image href="pawR.png" x="0" y="0" width="311" height="346" /></g>
           <!-- 原圖本體（去背+去白邊，四肢已拆出） -->
           <image href="body.png" x="0" y="0" width="311" height="346" />
@@ -42,7 +56,53 @@
         </g>
       </g>
     </svg>
-  </div>
+  </template>
+
+  <!-- ================= 角色：女僕狐狐（image.png 直接拆件，同狗狗工法） ================= -->
+  <template id="char-fox">
+    <svg id="pet" viewBox="61 94 495 467" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 切割邊是直邊，旋轉時直角會露出毛刺；圓角裁切跟著部件轉，只露圓肩 -->
+        <clipPath id="clipFoxLegL"><rect x="228" y="493" width="70" height="64" rx="13" /></clipPath>
+        <clipPath id="clipFoxLegR"><rect x="336" y="493" width="70" height="62" rx="13" /></clipPath>
+        <clipPath id="clipFoxArm"><rect x="66" y="248" width="192" height="220" rx="18" /></clipPath>
+        <clipPath id="clipFoxTail"><rect x="432" y="348" width="118" height="210" rx="18" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="308" cy="550" rx="150" ry="9" />
+      <g id="root">
+        <g id="body">
+          <!-- 部件（畫在身體後面，切割縫藏在輪廓／暗色交界裡） -->
+          <g id="tail"><image href="fox-tail.png" x="0" y="0" width="635" height="618" clip-path="url(#clipFoxTail)" /></g>
+          <g id="legL"><image href="fox-legL.png" x="0" y="0" width="635" height="618" clip-path="url(#clipFoxLegL)" /></g>
+          <g id="legR"><image href="fox-legR.png" x="0" y="0" width="635" height="618" clip-path="url(#clipFoxLegR)" /></g>
+          <g id="pawR"><image href="fox-arm.png" x="0" y="0" width="635" height="618" clip-path="url(#clipFoxArm)" /></g>
+          <!-- 原圖本體（去背＋去花，部件已拆出） -->
+          <image href="fox-body.png" x="0" y="0" width="635" height="618" />
+          <!-- 蓋住原圖畫死的眼睛（毛色純白；不隨視線移動的底） -->
+          <ellipse cx="295" cy="290" rx="14" ry="18" fill="#FFFFFF" />
+          <ellipse cx="337" cy="294" rx="14" ry="18" fill="#FFFFFF" />
+          <!-- 臉（可動圖層） -->
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><ellipse cx="295" cy="290" rx="9" ry="13.5" fill="#000" /></g>
+              <g class="eye"><ellipse cx="337" cy="294" rx="9" ry="13.5" fill="#000" /></g>
+            </g>
+            <g id="eyes-happy">
+              <path style="stroke-width:15" d="M276 296 Q291 280 306 296" />
+              <path style="stroke-width:15" d="M326 300 Q341 284 356 300" />
+            </g>
+            <g id="eyes-closed">
+              <path style="stroke-width:15" d="M277 289 Q291 301 305 289" />
+              <path style="stroke-width:15" d="M327 293 Q341 305 355 293" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
   <script src="pet.js"></script>
 </body>
 </html>

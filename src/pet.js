@@ -4,11 +4,65 @@
 const TAURI = window.__TAURI__;
 const stage = document.getElementById('stage');
 const bubble = document.getElementById('bubble');
-const body = document.getElementById('body');
+const workbar = document.getElementById('workbar');
+const workfill = document.getElementById('workfill');
+const workcount = document.getElementById('workcount');
+const sweat = document.getElementById('sweat');
 const zzz = document.getElementById('zzz');
+
+// ---------- 角色系統：從 template 實例化選定角色 ----------
+// 每個角色是一個 <template>，內含同一套結構 id（pet/body/face/legL/legR/pawR/眼睛組），
+// 一次只實例化一隻，所以 id 不會衝突；可選部件（tail/earL/earR）有就會動。
+const CHAR_CFG = {
+  dog: {
+    // 兩角色「頭頂（頭皮，不算耳朵）」等高：都落在 CSS y=57
+    height: 161,                             // CSS 顯示高度
+    limbScale: 1,                            // 四肢擺幅倍率
+    center: { x: 81, y: 106 },              // 臉的中心（視窗 CSS 座標）
+    legL: [91, 301], legR: [158, 305], pawR: [277, 264],  // 四肢樞紐（viewBox 座標）
+    up: -1,                                  // pawR 舉起的旋轉方向（SVG 順時針為正）
+    hit(px, py) {
+      const hx = px - 102, hy = py - 105;
+      if ((hx * hx) / (65 * 65) + (hy * hy) / (48 * 48) <= 1) return true;  // 頭+雙耳
+      if (px >= 29 && px <= 171 && py >= 144 && py <= 218) return true;     // 軀幹
+      return false;
+    },
+  },
+  fox: {
+    // viewBox 61 94 495 467（原圖 635x618 的子窗）；頭皮鞍部 y=152 → 高度 184 時頭頂在 CSS y=57
+    height: 184,
+    limbScale: 0.55,   // 部件切割縫較淺，擺幅縮小避免毛刺
+    center: { x: 103, y: 112 },
+    legL: [258, 503], legR: [368, 503], pawR: [246, 400],
+    tail: [441, 443],
+    up: -1,
+    hit(px, py) {
+      const hx = px - 104, hy = py - 90;
+      if ((hx * hx) / (52 * 52) + (hy * hy) / (48 * 48) <= 1) return true;  // 頭+雙耳
+      if (px >= 54 && px <= 193 && py >= 139 && py <= 216) return true;     // 裙+尾巴
+      return false;
+    },
+  },
+};
+// 夥伴視窗由 URL query 指定角色（?char=fox）；主視窗看 localStorage
+const _urlChar = new URLSearchParams(location.search).get('char');
+const IS_COMPANION = !!_urlChar;
+const CHAR = _urlChar || localStorage.getItem('petchar') || 'dog';
+const CFG = CHAR_CFG[CHAR] || CHAR_CFG.dog;
+const otherChar = (c) => (c === 'dog' ? 'fox' : 'dog');
+const multiOn = () => localStorage.getItem('petmulti') === '1';
+{
+  const tpl = document.getElementById('char-' + CHAR) || document.getElementById('char-dog');
+  stage.appendChild(tpl.content.cloneNode(true));
+  document.getElementById('pet').style.height = CFG.height + 'px';
+}
+const body = document.getElementById('body');
 const legL = document.getElementById('legL');
 const legR = document.getElementById('legR');
 const pawR = document.getElementById('pawR');
+const tailEl = document.getElementById('tail');    // 可選（狐）
+const earLEl = document.getElementById('earL');    // 可選（狐）
+const earREl = document.getElementById('earR');    // 可選（狐）
 
 // 四肢旋轉（樞紐在 viewBox 座標；值沒變就不寫屬性）
 const _limbCache = new Map();
@@ -19,7 +73,7 @@ function setLimb(el, deg, px, py) {
   el.setAttribute('transform', `rotate(${v} ${px} ${py})`);
 }
 
-const CENTER = { x: 81, y: 108 };        // 臉的中心（視窗 CSS 座標）
+const CENTER = CFG.center;
 const SLEEP_AFTER_MS = 90_000;
 const LINES_CLICK = ['嗨嗨！', '啾！', '今天也加油 ♪', '(=´ω`=)', '呼嚕嚕…', '☆'];
 const LINES_IDLE = ['……', '♪', '在忙嗎？'];
@@ -41,11 +95,14 @@ function saveStats() {
 function addMood(n) { stats.mood = Math.max(0, Math.min(100, stats.mood + n)); saveStats(); }
 
 // 數值隨時間流失：每 30 秒一格；餓肚子時心情掉更快
-setInterval(() => {
-  stats.fullness = Math.max(0, stats.fullness - 0.4);
-  stats.mood = Math.max(0, stats.mood - (stats.fullness < 30 ? 0.6 : 0.25));
-  saveStats();
-}, 30_000);
+// （多人模式下 stats 共用 localStorage，只讓主視窗扣，避免雙倍衰減）
+if (!IS_COMPANION) {
+  setInterval(() => {
+    stats.fullness = Math.max(0, stats.fullness - 0.4);
+    stats.mood = Math.max(0, stats.mood - (stats.fullness < 30 ? 0.6 : 0.25));
+    saveStats();
+  }, 30_000);
+}
 
 let lastActivity = Date.now();
 let typingUntil = 0;
@@ -59,17 +116,18 @@ function isSleeping() { return stage.classList.contains('sleep'); }
 
 function wake() {
   lastActivity = Date.now();
-  if (isSleeping()) setState('sleep', false);
+  if (isSleeping()) {
+    setState('sleep', false);
+    // 剛睡醒伸個懶腰（瞇眼、拉長身體、抬手）
+    if (!grabbed && !walking) {
+      setState('stretch', true);
+      setTimeout(() => setState('stretch', false), 1150);
+    }
+  }
 }
 
-// ---------- 逐像素（幾何）命中判定 ----------
-// 200x220 視窗、角色底部置中（顯示尺寸 142x158）：頭部橢圓 + 軀幹矩形（CSS 座標）。
-function hitTest(px, py) {
-  const hx = px - 102, hy = py - 107;
-  if ((hx * hx) / (64 * 64) + (hy * hy) / (47 * 47) <= 1) return true;  // 頭+雙耳
-  if (px >= 30 && px <= 170 && py >= 145 && py <= 218) return true;     // 軀幹
-  return false;
-}
+// ---------- 逐像素（幾何）命中判定：依角色設定 ----------
+const hitTest = CFG.hit;
 
 // ---------- 面向（角色原圖面朝左；往右走時整隻水平翻轉） ----------
 const petEl = document.getElementById('pet');
@@ -100,6 +158,19 @@ function scheduleBlink() {
   }, 2500 + Math.random() * 3500);
 }
 
+// ---------- 耳朵抖動（有耳朵部件的角色才會動） ----------
+let earTwitch = 0;   // -1 左耳、1 右耳、0 無
+function scheduleEarTwitch() {
+  setTimeout(() => {
+    if (earLEl && !isSleeping() && !grabbed) {
+      earTwitch = Math.random() < 0.5 ? -1 : 1;
+      setTimeout(() => { earTwitch = 0; }, 260);
+    }
+    scheduleEarTwitch();
+  }, 5000 + Math.random() * 8000);
+}
+scheduleEarTwitch();
+
 // ---------- 泡泡 ----------
 let bubbleTimer = null;
 function say(text, ms = 1800) {
@@ -127,6 +198,13 @@ function endGrab(bounce) {
   if (bounce) {
     setState('drop', true);
     setTimeout(() => setState('drop', false), 600);
+    // 落地後偶爾抖抖毛
+    if (Math.random() < 0.4) {
+      setTimeout(() => {
+        setState('shake', true);
+        setTimeout(() => setState('shake', false), 520);
+      }, 620);
+    }
   }
   wake();
 }
@@ -172,6 +250,8 @@ document.addEventListener('contextmenu', (e) => {
     mood: Math.round(stats.mood),
     fullness: Math.round(stats.fullness),
     patrol: patrolOn,
+    character: CHAR,
+    multi: multiOn(),
   });
 });
 
@@ -237,30 +317,90 @@ function onTyping() {
   if (!grabbed && !walking) setState('work', true);
 }
 
-// ---------- Claude Code 連動 ----------
-let claudeBusy = false;
+// ---------- Claude 工作進度條（偽進度：快起步、漸進逼近 95%，stop 時補滿） ----------
+let barProgress = 0;
+let barHideTimer = null;
+function barShow() {
+  clearTimeout(barHideTimer);
+  barProgress = 0;
+  workfill.classList.remove('done');
+  workfill.style.width = '0%';
+  workbar.classList.add('show');
+}
+function barFinish(ok) {
+  if (!workbar.classList.contains('show')) return;
+  barProgress = 1;
+  workfill.style.width = '100%';
+  if (ok) workfill.classList.add('done');
+  clearTimeout(barHideTimer);
+  barHideTimer = setTimeout(() => workbar.classList.remove('show'), 800);
+}
+
+// ---------- Claude Code 連動（多工計數：每個 session 的 start/stop 各記一筆） ----------
+let claudeCount = 0;
+let claudeStartAt = 0;   // 第一件工作開始的時間（冒汗判定用）
 let claudeSafety = null;
+const claudeBusy = () => claudeCount > 0;
+
+function updateWorkCount() {
+  if (claudeCount >= 2) {
+    workcount.textContent = '×' + claudeCount;
+    workcount.classList.add('show');
+  } else {
+    workcount.classList.remove('show');
+  }
+}
+
+function claudeAllDone(ok) {
+  claudeCount = 0;
+  claudeStartAt = 0;
+  clearTimeout(claudeSafety);
+  updateWorkCount();
+  sweat.classList.remove('show');
+  setState('work', false);
+  barFinish(ok);
+}
+
 function onClaudeEvent(evt) {
   wake();
   if (evt === 'start') {
-    claudeBusy = true;
+    claudeCount += 1;
+    if (claudeCount === 1) {
+      claudeStartAt = Date.now();
+      barShow();
+      say('Claude 開工！', 1600);
+    } else {
+      say(`同時 ${claudeCount} 件工作！`, 1600);
+    }
     setState('work', true);
-    say('Claude 開工！', 1600);
-    // 保險：萬一漏接 stop，10 分鐘後自動解除
+    updateWorkCount();
+    // 保險：萬一漏接 stop，最後一次 start 後 10 分鐘自動全部解除
     clearTimeout(claudeSafety);
-    claudeSafety = setTimeout(() => { claudeBusy = false; }, 600_000);
+    claudeSafety = setTimeout(() => claudeAllDone(true), 600_000);
   } else if (evt === 'stop') {
-    claudeBusy = false;
-    clearTimeout(claudeSafety);
-    setState('work', false);
-    setState('spin', true);
-    setTimeout(() => setState('spin', false), 750);
-    say('搞定！✓', 2000);
-    addMood(5);
+    claudeCount = Math.max(0, claudeCount - 1);
+    if (claudeCount === 0) {
+      claudeAllDone(true);
+      setState('spin', true);
+      setTimeout(() => setState('spin', false), 750);
+      say('搞定！✓', 2000);
+      addMood(5);
+    } else {
+      updateWorkCount();
+      say(`完成一件！剩 ${claudeCount} 件`, 1500);
+    }
+  } else if (evt === 'wait') {
+    // Claude 停在權限確認等你按——舉手提醒（保持工作狀態，回合還沒結束）
+    setState('ask', true);
+    setTimeout(() => setState('ask', false), 4000);
+    say('需要你確認一下！', 4000);
   } else if (evt === 'error') {
-    claudeBusy = false;
-    clearTimeout(claudeSafety);
-    setState('work', false);
+    claudeCount = Math.max(0, claudeCount - 1);
+    if (claudeCount === 0) {
+      claudeAllDone(false);
+    } else {
+      updateWorkCount();
+    }
     setState('sad', true);
     setTimeout(() => setState('sad', false), 2500);
     say('嗯…出錯了', 2000);
@@ -330,15 +470,47 @@ function animate(now) {
     const s = Math.sin((t * 2 * Math.PI) / 0.9);
     aL = 8 + 3 * s; aR = -8 - 3 * s; aP = 10 * s;
   } else if (walking || stage.classList.contains('work')) {
+    // 擺幅 13°：存根平切邊的直角掃出量壓在輪廓線厚度內（17° 會露出膝蓋尖角）
     const s = Math.sin((t * 2 * Math.PI) / 0.4);
-    aL = 17 * s; aR = -17 * s;
-    aP = 13 * Math.sin((t * 2 * Math.PI) / 0.4 + 1.2);
+    aL = 13 * s; aR = -13 * s;
+    aP = 11 * Math.sin((t * 2 * Math.PI) / 0.4 + 1.2);
+  } else if (stage.classList.contains('ask')) {
+    aP = CFG.up * (26 + 3 * Math.sin((t * 2 * Math.PI) / 0.7));  // 舉手（微晃）等你確認
+  } else if (stage.classList.contains('yum')) {
+    const s = Math.sin((t * 2 * Math.PI) / 0.22);
+    aL = 7 * s; aR = -7 * s;   // 吃飯開心踏踏
+  } else if (stage.classList.contains('stretch')) {
+    aL = -7; aR = 7; aP = CFG.up * 16;  // 伸懶腰：腿撐開、手掌抬起
   } else if (stage.classList.contains('hi')) {
     aP = 22 * Math.sin((t * 2 * Math.PI) / 0.3);
   }
-  setLimb(legL, aL, 91, 301);
-  setLimb(legR, aR, 158, 305);
-  setLimb(pawR, aP, 277, 264);
+  // 依角色縮放擺幅（切割縫淺的角色擺小一點，避免露出接縫）
+  aL *= CFG.limbScale; aR *= CFG.limbScale; aP *= CFG.limbScale;
+  setLimb(legL, aL, ...CFG.legL);
+  setLimb(legR, aR, ...CFG.legR);
+  setLimb(pawR, aP, ...CFG.pawR);
+
+  // 可選部件（狐）：尾巴——閒置慢搖、走路/工作快搖、開心猛搖
+  if (tailEl) {
+    let aT = 1.5 * Math.sin((t * 2 * Math.PI) / 2.8);
+    if (walking || stage.classList.contains('work')) aT = 3 * Math.sin((t * 2 * Math.PI) / 0.5);
+    if (stage.classList.contains('hi') || stage.classList.contains('yum') || stage.classList.contains('spin')) {
+      aT = 5 * Math.sin((t * 2 * Math.PI) / 0.25);
+    }
+    setLimb(tailEl, aT, ...CFG.tail);
+  }
+  // 可選部件（狐）：耳朵偶爾抖一下
+  if (earLEl && CFG.earL) {
+    setLimb(earLEl, earTwitch === -1 ? -9 * Math.sin((t * 2 * Math.PI) / 0.26) : 0, ...CFG.earL);
+    setLimb(earREl, earTwitch === 1 ? 9 * Math.sin((t * 2 * Math.PI) / 0.26) : 0, ...CFG.earR);
+  }
+
+  // Claude 進度條：偽進度逼近 95%＋斜紋流動（只在顯示時動，不加閒置成本）
+  if (claudeBusy() && workbar.classList.contains('show')) {
+    barProgress += (0.95 - barProgress) * 0.008;
+    workfill.style.width = `${(barProgress * 100).toFixed(1)}%`;
+    workfill.style.backgroundPosition = `${((t * 22) % 14.6).toFixed(1)}px 0`;
+  }
 
   if (isSleeping()) {
     const z = (t % 2.6) / 2.6;
@@ -353,11 +525,13 @@ requestAnimationFrame(animate);
 // ---------- 主迴圈（低頻） ----------
 setInterval(() => {
   const now = Date.now();
-  if (stage.classList.contains('work') && now > typingUntil && !claudeBusy) setState('work', false);
+  if (stage.classList.contains('work') && now > typingUntil && !claudeBusy()) setState('work', false);
   if (!isSleeping() && now - lastActivity > SLEEP_AFTER_MS && !grabbed && !walking) {
     setState('sleep', true);
     setState('work', false);
   }
+  // 長任務冒汗：連續工作超過 30 秒
+  sweat.classList.toggle('show', claudeBusy() && claudeStartAt > 0 && now - claudeStartAt > 30_000);
 }, 500);
 
 // ---------- 後端事件 ----------
@@ -369,10 +543,29 @@ async function main() {
     return;
   }
   const win = TAURI.window.getCurrentWindow();
-  const dpr = window.devicePixelRatio || 1;
+
+  // 視窗適配：把真實 devicePixelRatio 回報給後端，讓實體視窗剛好裝下
+  // 200x220 CSS。後端的 GetDpiForWindow 只看得到「顯示縮放」，量不到
+  // Windows「文字大小」的疊乘（例：150%×125% = dpr 1.875），會裁切角色。
+  function fitWindow() {
+    TAURI.core.invoke('fit_window', { dpr: window.devicePixelRatio || 1 }).catch(() => {});
+  }
+  // dpr 改變（拖到不同縮放的螢幕、改系統設定）就重新適配
+  function watchDpr() {
+    matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
+      .addEventListener('change', () => { fitWindow(); watchDpr(); }, { once: true });
+  }
+  fitWindow();
+  watchDpr();
+
+  // 多人模式：開機還原夥伴視窗（只有主視窗負責；換角色重載後也走這裡換角）
+  if (!IS_COMPANION && multiOn()) {
+    TAURI.core.invoke('set_companion', { on: true, character: otherChar(CHAR) }).catch(() => {});
+  }
 
   await TAURI.event.listen('cursor', ({ payload }) => {
-    // payload: 游標相對視窗左上角的實體像素座標
+    // payload: 游標相對視窗左上角的實體像素座標（dpr 即時讀，避免適配後失準）
+    const dpr = window.devicePixelRatio || 1;
     const cx = payload.x / dpr;
     const cy = payload.y / dpr;
     const inside = cx >= 0 && cx < 200 && cy >= 0 && cy < 220;
@@ -421,6 +614,20 @@ async function main() {
   await TAURI.event.listen('pet-cmd', ({ payload }) => {
     if (payload === 'feed') feed();
     else if (payload === 'patrol') togglePatrol();
+    else if (payload === 'multi' && !IS_COMPANION) {
+      // 多人模式開關：夥伴視窗的角色永遠是主角色的「另一位」
+      const on = !multiOn();
+      localStorage.setItem('petmulti', on ? '1' : '0');
+      TAURI.core.invoke('set_companion', { on, character: otherChar(CHAR) }).catch(() => {});
+      say(on ? '夥伴來了！' : '夥伴回家了～', 1800);
+    }
+    else if (typeof payload === 'string' && payload.startsWith('char:')) {
+      const next = payload.slice(5);
+      if (next !== CHAR && CHAR_CFG[next]) {
+        localStorage.setItem('petchar', next);
+        location.reload();   // 重載以乾淨狀態實例化新角色（夥伴由重載後的開機檢查換角）
+      }
+    }
   });
 
   // Claude Code 連動事件
