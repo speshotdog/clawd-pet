@@ -47,6 +47,15 @@ extern "system" {
 const SPI_GETWORKAREA: u32 = 0x0030;
 const MONITOR_DEFAULTTONEAREST: u32 = 2;
 
+// 除錯日誌（主控台已隱藏，寫到 %TEMP%\clawd-debug.log）
+fn dlog(msg: &str) {
+    use std::io::Write;
+    let p = std::env::temp_dir().join("clawd-debug.log");
+    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(p) {
+        let _ = writeln!(f, "{msg}");
+    }
+}
+
 fn cursor_pos() -> (i32, i32) {
     let mut p = Point { x: 0, y: 0 };
     unsafe { GetCursorPos(&mut p) };
@@ -330,9 +339,16 @@ fn show_menu(
     patrol: bool,
     character: String,
     multi: bool,
+    x: f64,
+    y: f64,
 ) {
+    dlog(&format!("show_menu invoked from {}", window.label()));
     let win = window.clone();
+    // 選單錨定在視窗內的點擊位置（實體像素）。不能用預設的「游標位置」——
+    // 多螢幕＋DPI 疊乘時會定位到畫面外，隱形模態選單會卡死整個主執行緒
+    let pos = tauri::Position::Physical(tauri::PhysicalPosition::new(x as i32, y as i32));
     let _ = window.run_on_main_thread(move || {
+        dlog("show_menu on main thread");
         let app = win.app_handle();
         // 夥伴視窗：精簡選單（狀態＋餵食＋收回夥伴）
         if win.label() != "main" {
@@ -351,7 +367,8 @@ fn show_menu(
                     .items(&[&feed, &close])
                     .build()
                 {
-                    let _ = menu.popup(win.as_ref().window());
+                    let r = menu.popup_at(win.as_ref().window(), pos);
+                    dlog(&format!("pet2 popup result: {:?}", r.err()));
                 }
             }
             return;
@@ -407,8 +424,13 @@ fn show_menu(
                 .items(&[&hide, &home, &auto, &quit])
                 .build()
             {
-                let _ = menu.popup(win.as_ref().window());
+                let r = menu.popup_at(win.as_ref().window(), pos);
+                dlog(&format!("main popup result: {:?}", r.err()));
+            } else {
+                dlog("main menu build FAILED");
             }
+        } else {
+            dlog("main menu item build FAILED");
         }
     });
 }
@@ -477,6 +499,16 @@ fn spawn_claude_listener(app: AppHandle) {
                 if let Some(w) = app.get_webview_window("main") {
                     let _ = w.emit("pet-cmd", "multi");
                 }
+            }
+            // 遠端關閉（選單失效時的保險出口）
+            if req.contains("/pet/quit") {
+                dlog("http quit");
+                for label in ["main", "pet2"] {
+                    if let Some(w) = app.get_webview_window(label) {
+                        save_pos(&w);
+                    }
+                }
+                app.exit(0);
             }
             let _ = s.write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok");
         }
@@ -588,11 +620,13 @@ fn main() {
                         let _ = autostart_item.set_checked(on);
                     }
                     "quit" => {
+                        dlog("tray quit clicked");
                         for label in ["main", "pet2"] {
                             if let Some(w) = app.get_webview_window(label) {
                                 save_pos(&w);
                             }
                         }
+                        dlog("tray quit: calling app.exit");
                         app.exit(0);
                     }
                     _ => {}
@@ -656,6 +690,7 @@ fn main() {
                     let _ = tray_auto.set_checked(on);
                 }
                 "p_quit" => {
+                    dlog("menu p_quit clicked");
                     for label in ["main", "pet2"] {
                         if let Some(w) = app.get_webview_window(label) {
                             save_pos(&w);

@@ -246,12 +246,17 @@ stage.addEventListener('pointerup', () => {
 // 右鍵 = 自訂選單（並擋掉 WebView 內建的影像選單）
 document.addEventListener('contextmenu', (e) => {
   e.preventDefault();
+  // 座標用「相對視窗的實體像素」傳給後端錨定選單位置——
+  // 預設的游標定位在多螢幕+DPI疊乘環境會開到畫面外，變成隱形模態選單卡死主執行緒
+  const dpr = window.devicePixelRatio || 1;
   if (TAURI) TAURI.core.invoke('show_menu', {
     mood: Math.round(stats.mood),
     fullness: Math.round(stats.fullness),
     patrol: patrolOn,
     character: CHAR,
     multi: multiOn(),
+    x: e.clientX * dpr,
+    y: e.clientY * dpr,
   });
 });
 
