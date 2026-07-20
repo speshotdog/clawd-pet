@@ -264,6 +264,12 @@ fn set_companion(app: AppHandle, on: bool, character: String) {
     });
 }
 
+// 指令：讓視窗間互傳 pet-cmd（例：主視窗把 Claude 工作分派數同步給夥伴）
+#[tauri::command]
+fn relay(app: AppHandle, payload: String) {
+    let _ = app.emit("pet-cmd", payload);
+}
+
 // 統一的退出流程：存位置 → 先銷毀夥伴視窗 → app.exit；
 // 事件迴圈若退不出來（pet2 曾卡死過 app.exit），1.5 秒後硬退保底
 fn quit_app(app: &AppHandle) {
@@ -602,7 +608,8 @@ fn main() {
             show_menu,
             snap_bottom,
             fit_window,
-            set_companion
+            set_companion,
+            relay
         ])
         .on_window_event(|window, event| {
             // 換到不同縮放比的螢幕：依新 DPI 重設實體尺寸，否則內容會被裁切
@@ -700,8 +707,12 @@ fn main() {
                     }
                 }
                 "p_patrol" => {
+                    // 巡邏是全家一起的行程：兩隻都收到
                     if let Some(w) = app.get_webview_window("main") {
                         let _ = w.emit_to("main", "pet-cmd", "main:patrol");
+                    }
+                    if let Some(w) = app.get_webview_window("pet2") {
+                        let _ = w.emit_to("pet2", "pet-cmd", "pet2:patrol");
                     }
                 }
                 "p_char_dog" => {

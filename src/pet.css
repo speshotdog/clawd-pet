@@ -72,6 +72,20 @@ html, body {
 }
 #stage.blink .eye { transform: scaleY(0.08); }
 
+/* ---------- 睡覺：躺平在地板、臉朝上（原圖面朝左，順時針轉 90° 臉即朝上）
+   施加在 #pet（svg 元素）與 flip 同層——inner <g> 的 CSS transform 在部分
+   WebView 版本不生效；用 keyframes 而非 transition（transition 曾卡死凍結
+   整個 transform）。躺下有動畫；起身瞬間回正（接伸懶腰動畫） ---------- */
+#stage.sleep #pet {
+  transform: translateX(-50%) translateY(var(--sleepShift, 0px)) rotate(90deg);
+  animation: liedown 0.8s cubic-bezier(0.45, 0.05, 0.35, 1);
+}
+
+@keyframes liedown {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(-50%) translateY(var(--sleepShift, 0px)) rotate(90deg); }
+}
+
 /* ---------- 被抓起 ---------- */
 #stage.grabbed { cursor: grabbing; }
 #stage.grabbed .eye { transform: scaleY(1.18); }

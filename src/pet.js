@@ -21,6 +21,7 @@ const CHAR_CFG = {
     center: { x: 81, y: 106 },              // 臉的中心（視窗 CSS 座標）
     legL: [91, 301], legR: [158, 305], pawR: [277, 264],  // 四肢樞紐（viewBox 座標）
     up: -1,                                  // pawR 舉起的旋轉方向（SVG 順時針為正）
+    sleepShift: '8px',
     hit(px, py) {
       const hx = px - 102, hy = py - 105;
       if ((hx * hx) / (65 * 65) + (hy * hy) / (48 * 48) <= 1) return true;  // 頭+雙耳
@@ -36,6 +37,7 @@ const CHAR_CFG = {
     legL: [258, 503], legR: [368, 503], pawR: [246, 400],
     tail: [441, 443],
     up: -1,
+    sleepShift: '-6px',
     hit(px, py) {
       const hx = px - 104, hy = py - 90;
       if ((hx * hx) / (52 * 52) + (hy * hy) / (48 * 48) <= 1) return true;  // 頭+雙耳
@@ -61,6 +63,8 @@ const multiOn = () => localStorage.getItem('petmulti') === '1';
   const tpl = document.getElementById('char-' + CHAR) || document.getElementById('char-dog');
   stage.appendChild(tpl.content.cloneNode(true));
   document.getElementById('pet').style.height = CFG.height + 'px';
+  // 睡覺躺平時的落地微調（依角色體型不同）
+  stage.style.setProperty('--sleepShift', CFG.sleepShift || '0px');
 }
 const body = document.getElementById('body');
 const legL = document.getElementById('legL');
@@ -347,35 +351,69 @@ function barFinish(ok) {
   barHideTimer = setTimeout(() => workbar.classList.remove('show'), 800);
 }
 
-// ---------- Claude Code 連動（多工計數：每個 session 的 start/stop 各記一筆） ----------
+// ---------- Claude Code 連動（多工計數＋夥伴分流） ----------
+// 主視窗是唯一計數者。有夥伴時工作對半分（主拿 ceil、夥伴拿 floor），
+// 份數用 relay 指令同步給夥伴（pet2:cshare:N）。
+// 沒夥伴卻來了第 2 件工作 → 隨機臨時召喚一位分擔，全部完工 10 秒後自動回家
+// （夥伴本來就在＝手動開的多人模式，就不回家）。
 let claudeCount = 0;
-let claudeStartAt = 0;   // 第一件工作開始的時間（冒汗判定用）
+let claudeStartAt = 0;   // 自己開始工作的時間（冒汗判定用）
 let claudeSafety = null;
-const claudeBusy = () => claudeCount > 0;
+let helperTemp = false;  // 夥伴是臨時召喚來的
+let helperGoneTimer = null;
+let myShare = 0;         // 夥伴視窗：目前被分派的份數（由主視窗 relay 驅動）
+const claudeBusy = () => (IS_COMPANION ? myShare > 0 : claudeCount > 0);
+const companionActive = () => multiOn() || helperTemp;
+const randomChar = () => {
+  const pool = Object.keys(CHAR_CFG);
+  return pool[Math.floor(Math.random() * pool.length)];
+};
 
-function updateWorkCount() {
-  if (claudeCount >= 2) {
-    workcount.textContent = '×' + claudeCount;
+function updateWorkCount(n) {
+  if (n >= 2) {
+    workcount.textContent = '×' + n;
     workcount.classList.add('show');
   } else {
     workcount.classList.remove('show');
   }
 }
 
+// 主視窗：同步夥伴份數＋更新自己的徽章
+function syncShare() {
+  if (IS_COMPANION || !TAURI) return;
+  const share = companionActive() ? Math.floor(claudeCount / 2) : 0;
+  TAURI.core.invoke('relay', { payload: `pet2:cshare:${share}` }).catch(() => {});
+  updateWorkCount(companionActive() ? Math.ceil(claudeCount / 2) : claudeCount);
+}
+
 function claudeAllDone(ok) {
   claudeCount = 0;
   claudeStartAt = 0;
   clearTimeout(claudeSafety);
-  updateWorkCount();
+  updateWorkCount(0);
+  syncShare();
   sweat.classList.remove('show');
   setState('work', false);
   barFinish(ok);
+  // 臨時夥伴：完工 10 秒後自動回家（期間有新工作就留下）
+  if (helperTemp) {
+    clearTimeout(helperGoneTimer);
+    helperGoneTimer = setTimeout(() => {
+      if (helperTemp && claudeCount === 0) {
+        helperTemp = false;
+        TAURI.core.invoke('set_companion', { on: false, character: 'dog' }).catch(() => {});
+        say('謝謝幫忙～', 1600);
+      }
+    }, 10_000);
+  }
 }
 
 function onClaudeEvent(evt) {
+  if (IS_COMPANION) return;   // 夥伴不聽原始事件，只聽主視窗分派的 cshare
   wake();
   if (evt === 'start') {
     claudeCount += 1;
+    clearTimeout(helperGoneTimer);
     if (claudeCount === 1) {
       claudeStartAt = Date.now();
       barShow();
@@ -384,7 +422,14 @@ function onClaudeEvent(evt) {
       say(`同時 ${claudeCount} 件工作！`, 1600);
     }
     setState('work', true);
-    updateWorkCount();
+    // 複數工作但沒有夥伴 → 隨機臨時召喚一位來分擔
+    if (claudeCount >= 2 && !companionActive()) {
+      helperTemp = true;
+      TAURI.core.invoke('set_companion', { on: true, character: randomChar() }).catch(() => {});
+      say('叫夥伴來幫忙！', 1800);
+      setTimeout(syncShare, 3000);   // 等夥伴開機完再同步一次份數
+    }
+    syncShare();
     // 保險：萬一漏接 stop，最後一次 start 後 10 分鐘自動全部解除
     clearTimeout(claudeSafety);
     claudeSafety = setTimeout(() => claudeAllDone(true), 600_000);
@@ -397,7 +442,7 @@ function onClaudeEvent(evt) {
       say('搞定！✓', 2000);
       addMood(5);
     } else {
-      updateWorkCount();
+      syncShare();
       say(`完成一件！剩 ${claudeCount} 件`, 1500);
     }
   } else if (evt === 'wait') {
@@ -410,11 +455,33 @@ function onClaudeEvent(evt) {
     if (claudeCount === 0) {
       claudeAllDone(false);
     } else {
-      updateWorkCount();
+      syncShare();
     }
     setState('sad', true);
     setTimeout(() => setState('sad', false), 2500);
     say('嗯…出錯了', 2000);
+  }
+}
+
+// 夥伴視窗：接收主視窗分派的份數
+function setCompanionShare(n) {
+  const was = myShare;
+  myShare = n;
+  updateWorkCount(n);
+  if (n >= 1 && was === 0) {
+    wake();
+    setState('work', true);
+    claudeStartAt = Date.now();
+    barShow();
+    say('我來幫忙！', 1600);
+  } else if (n === 0 && was >= 1) {
+    claudeStartAt = 0;
+    sweat.classList.remove('show');
+    setState('work', false);
+    barFinish(true);
+    setState('spin', true);
+    setTimeout(() => setState('spin', false), 750);
+    say('這邊搞定！✓', 1800);
   }
 }
 
@@ -541,6 +608,7 @@ setInterval(() => {
   const now = Date.now();
   if (stage.classList.contains('work') && now > typingUntil && !claudeBusy()) setState('work', false);
   if (!isSleeping() && now - lastActivity > SLEEP_AFTER_MS && !grabbed && !walking) {
+    setFacing(false);   // 躺下動畫以面朝左為前提（翻轉時會變臉朝下）
     setState('sleep', true);
     setState('work', false);
   }
@@ -639,9 +707,14 @@ async function main() {
     if (tgt !== MY_LABEL) return;
     if (cmd === 'feed') feed();
     else if (cmd === 'patrol') togglePatrol();
+    else if (cmd.startsWith('cshare:') && IS_COMPANION) {
+      setCompanionShare(parseInt(cmd.slice(7), 10) || 0);
+    }
     else if (cmd === 'multi' && !IS_COMPANION) {
       // 多人模式開關：夥伴視窗的角色永遠是主角色的「另一位」
       const on = !multiOn();
+      helperTemp = false;               // 手動切換後夥伴身分轉正/收回，不再自動回家
+      clearTimeout(helperGoneTimer);
       localStorage.setItem('petmulti', on ? '1' : '0');
       TAURI.core.invoke('set_companion', { on, character: otherChar(CHAR) }).catch(() => {});
       say(on ? '夥伴來了！' : '夥伴回家了～', 1800);
