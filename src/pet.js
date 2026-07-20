@@ -44,6 +44,11 @@ const CHAR_CFG = {
     },
   },
 };
+// 除錯日誌：打到後端寫進 %TEMP%\clawd-debug.log
+const jlog = (m) => { try { fetch('http://127.0.0.1:17872/pet/log/' + encodeURIComponent(m)).catch(() => {}); } catch (_) {} };
+window.onerror = (msg, src, line) => jlog(`ERROR ${msg} @${line}`);
+window.onunhandledrejection = (e) => jlog(`REJECT ${e.reason}`);
+
 // 夥伴視窗由 URL query 指定角色（?char=fox）；主視窗看 localStorage
 const _urlChar = new URLSearchParams(location.search).get('char');
 const IS_COMPANION = !!_urlChar;
@@ -615,8 +620,11 @@ async function main() {
     }
   }, 50_000);
 
+  jlog(`main() listeners phase char=${CHAR} companion=${IS_COMPANION}`);
+
   // 選單指令（餵食 / 巡邏切換）
   await TAURI.event.listen('pet-cmd', ({ payload }) => {
+    jlog(`pet-cmd received: ${payload}`);
     if (payload === 'feed') feed();
     else if (payload === 'patrol') togglePatrol();
     else if (payload === 'multi' && !IS_COMPANION) {
@@ -637,6 +645,7 @@ async function main() {
 
   // Claude Code 連動事件
   await TAURI.event.listen('claude-event', ({ payload }) => onClaudeEvent(payload));
+  jlog('main() complete, all listeners registered');
 }
 
 main();

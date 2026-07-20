@@ -228,29 +228,62 @@ fn setup_pet_window(win: &WebviewWindow) {
 // ------------------------------------------------------------
 #[tauri::command]
 fn set_companion(app: AppHandle, on: bool, character: String) {
+    dlog(&format!("set_companion on={on} char={character}"));
+    // 視窗建立必須在「非主執行緒」做：build() 會同步等 WebView2 初始化，
+    // 而初始化需要主執行緒泵訊息——在主執行緒（或主執行緒閉包）裡呼叫會自我死鎖。
+    std::thread::spawn(move || {
+        dlog("companion worker enter");
+        if let Some(w) = app.get_webview_window("pet2") {
+            save_pos(&w);
+            let _ = w.destroy();
+            dlog("pet2 destroyed");
+        }
+        if !on {
+            return;
+        }
+        let url = format!("index.html?char={character}");
+        let r = WebviewWindowBuilder::new(&app, "pet2", WebviewUrl::App(url.into()))
+            .title("HotDogPal")
+            .inner_size(200.0, 220.0)
+            .transparent(true)
+            .decorations(false)
+            .always_on_top(true)
+            .skip_taskbar(true)
+            .resizable(false)
+            .maximizable(false)
+            .minimizable(false)
+            .shadow(false)
+            .build();
+        match r {
+            Ok(w) => {
+                setup_pet_window(&w);
+                dlog("pet2 created");
+            }
+            Err(e) => dlog(&format!("pet2 create FAILED: {e:?}")),
+        }
+    });
+}
+
+// 統一的退出流程：存位置 → 先銷毀夥伴視窗 → app.exit；
+// 事件迴圈若退不出來（pet2 曾卡死過 app.exit），1.5 秒後硬退保底
+fn quit_app(app: &AppHandle) {
+    dlog("quit_app");
+    for label in ["main", "pet2"] {
+        if let Some(w) = app.get_webview_window(label) {
+            save_pos(&w);
+        }
+    }
     if let Some(w) = app.get_webview_window("pet2") {
-        save_pos(&w);
-        let _ = w.close();
+        let _ = w.destroy();
     }
-    if !on {
-        return;
-    }
-    let url = format!("index.html?char={character}");
-    if let Ok(w) = WebviewWindowBuilder::new(&app, "pet2", WebviewUrl::App(url.into()))
-        .title("HotDogPal")
-        .inner_size(200.0, 220.0)
-        .transparent(true)
-        .decorations(false)
-        .always_on_top(true)
-        .skip_taskbar(true)
-        .resizable(false)
-        .maximizable(false)
-        .minimizable(false)
-        .shadow(false)
-        .build()
-    {
-        setup_pet_window(&w);
-    }
+    let app2 = app.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(300));
+        app2.exit(0);
+        std::thread::sleep(Duration::from_millis(1500));
+        dlog("hard exit fallback");
+        std::process::exit(0);
+    });
 }
 
 // ------------------------------------------------------------
@@ -500,15 +533,16 @@ fn spawn_claude_listener(app: AppHandle) {
                     let _ = w.emit("pet-cmd", "multi");
                 }
             }
+            // 前端 JS 的日誌通道（除錯用）
+            if let Some(i) = req.find("/pet/log/") {
+                let tail = &req[i + 9..];
+                let msg: String = tail.chars().take_while(|c| !c.is_whitespace()).collect();
+                dlog(&format!("js: {}", msg.replace("%20", " ")));
+            }
             // 遠端關閉（選單失效時的保險出口）
             if req.contains("/pet/quit") {
                 dlog("http quit");
-                for label in ["main", "pet2"] {
-                    if let Some(w) = app.get_webview_window(label) {
-                        save_pos(&w);
-                    }
-                }
-                app.exit(0);
+                quit_app(&app);
             }
             let _ = s.write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok");
         }
@@ -621,13 +655,7 @@ fn main() {
                     }
                     "quit" => {
                         dlog("tray quit clicked");
-                        for label in ["main", "pet2"] {
-                            if let Some(w) = app.get_webview_window(label) {
-                                save_pos(&w);
-                            }
-                        }
-                        dlog("tray quit: calling app.exit");
-                        app.exit(0);
+                        quit_app(app);
                     }
                     _ => {}
                 })
@@ -691,12 +719,7 @@ fn main() {
                 }
                 "p_quit" => {
                     dlog("menu p_quit clicked");
-                    for label in ["main", "pet2"] {
-                        if let Some(w) = app.get_webview_window(label) {
-                            save_pos(&w);
-                        }
-                    }
-                    app.exit(0);
+                    quit_app(app);
                 }
                 _ => {}
             });
