@@ -103,6 +103,90 @@
     </svg>
   </template>
 
+  <!-- ================= 角色：膠布（拿小刀的鹿角狗，同工法拆件） ================= -->
+  <template id="char-jiaobu">
+    <svg id="pet" viewBox="121 63 553 635" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 裁切矩形比挖除區外擴 8px：圓角只咬空白邊，不吃存根覆蓋區 -->
+        <clipPath id="clipJbLegL"><rect x="160" y="621" width="148" height="97" rx="14" /></clipPath>
+        <clipPath id="clipJbLegR"><rect x="470" y="621" width="148" height="97" rx="14" /></clipPath>
+        <clipPath id="clipJbPaw"><rect x="368" y="408" width="196" height="136" rx="10" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="397" cy="688" rx="175" ry="12" />
+      <g id="root">
+        <g id="body">
+          <!-- 部件（腿與尾巴畫在身體後面；尾巴存根全程被 body 蓋住，不需裁切） -->
+          <g id="tail"><image href="jiaobu-tail.png" x="0" y="0" width="768" height="768" /></g>
+          <g id="legL"><image href="jiaobu-legL.png" x="0" y="0" width="768" height="768" clip-path="url(#clipJbLegL)" /></g>
+          <g id="legR"><image href="jiaobu-legR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipJbLegR)" /></g>
+          <!-- 原圖本體（刀與手掌處已補毛色） -->
+          <image href="jiaobu-body.png" x="0" y="0" width="768" height="768" />
+          <!-- 刀臂在本體前面：舉刀時露出的底下是補好的毛色，不會破洞 -->
+          <g id="pawR"><image href="jiaobu-pawR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipJbPaw)" /></g>
+          <!-- 蓋住原圖畫死的眼睛 -->
+          <ellipse cx="308" cy="323" rx="17" ry="25" fill="#CEB278" />
+          <ellipse cx="404" cy="320" rx="17" ry="25" fill="#CEB278" />
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><ellipse cx="308" cy="323" rx="12" ry="20" fill="#000" /></g>
+              <g class="eye"><ellipse cx="404" cy="320" rx="12" ry="20" fill="#000" /></g>
+            </g>
+            <g id="eyes-happy">
+              <path style="stroke-width:15" d="M293 327 Q308 309 323 327" />
+              <path style="stroke-width:15" d="M389 324 Q404 306 419 324" />
+            </g>
+            <g id="eyes-closed">
+              <path style="stroke-width:15" d="M294 317 Q308 329 322 317" />
+              <path style="stroke-width:15" d="M390 314 Q404 326 418 314" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
+  <!-- ================= 角色：玥玥（灰色長吻小獸，同工法拆件） ================= -->
+  <template id="char-yueyue">
+    <svg id="pet" viewBox="40 21 688 726" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <clipPath id="clipYyLegL"><rect x="42" y="658" width="221" height="108" rx="14" /></clipPath>
+        <clipPath id="clipYyLegR"><rect x="447" y="658" width="176" height="108" rx="14" /></clipPath>
+        <clipPath id="clipYyArm"><rect x="30" y="392" width="130" height="162" rx="12" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="380" cy="738" rx="210" ry="12" />
+      <g id="root">
+        <g id="body">
+          <!-- 手臂根部與身體是灰對灰平色交界，切邊移動時隱形 -->
+          <g id="tail"><image href="yueyue-tail.png" x="0" y="0" width="768" height="768" /></g>
+          <g id="legL"><image href="yueyue-legL.png" x="0" y="0" width="768" height="768" clip-path="url(#clipYyLegL)" /></g>
+          <g id="legR"><image href="yueyue-legR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipYyLegR)" /></g>
+          <g id="pawR"><image href="yueyue-pawR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipYyArm)" /></g>
+          <image href="yueyue-body.png" x="0" y="0" width="768" height="768" />
+          <ellipse cx="347" cy="226" rx="16" ry="24" fill="#A29F97" />
+          <ellipse cx="404" cy="234" rx="16" ry="24" fill="#A29F97" />
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><ellipse cx="347" cy="226" rx="9" ry="15" fill="#000" /></g>
+              <g class="eye"><ellipse cx="404" cy="234" rx="9" ry="15" fill="#000" /></g>
+            </g>
+            <g id="eyes-happy">
+              <path style="stroke-width:16" d="M333 231 Q347 215 361 231" />
+              <path style="stroke-width:16" d="M390 239 Q404 223 418 239" />
+            </g>
+            <g id="eyes-closed">
+              <path style="stroke-width:16" d="M334 221 Q347 233 360 221" />
+              <path style="stroke-width:16" d="M391 229 Q404 241 417 229" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
   <script src="pet.js"></script>
 </body>
 </html>

@@ -45,6 +45,40 @@ const CHAR_CFG = {
       return false;
     },
   },
+  jiaobu: {
+    // viewBox 121 63 553 635；頭皮鞍部（雙角間）y=181 → 高度 198 時頭頂在 CSS y=57
+    height: 198,
+    limbScale: 0.5,    // 存根切割縫，擺幅減半藏縫
+    center: { x: 87, y: 100 },
+    legL: [234, 650], legR: [544, 650],
+    pawR: [533, 452],  // 樞紐放手肘斷口上：舉刀時斷口零位移
+    tail: [604, 560],
+    up: 1,             // 刀尖在樞紐左上，順時針才是舉起
+    sleepShift: '0px',
+    hit(px, py) {
+      const hx = px - 87, hy = py - 92;
+      if ((hx * hx) / (58 * 58) + (hy * hy) / (42 * 42) <= 1) return true;  // 頭
+      if (px >= 18 && px <= 182 && py >= 126 && py <= 218) return true;     // 軀幹
+      return false;
+    },
+  },
+  yueyue: {
+    // viewBox 40 21 688 726；頭皮鞍部（雙耳間）y=157 → 高度 198 時頭頂在 CSS y=57
+    height: 198,
+    limbScale: 0.5,
+    center: { x: 98, y: 77 },
+    legL: [150, 690], legR: [535, 692],
+    pawR: [145, 515],  // 樞紐放臂根下緣：舉手時下端幾乎不掃動
+    tail: [635, 525],
+    up: 1,             // 拳頭在樞紐左側，順時針上舉
+    sleepShift: '0px',
+    hit(px, py) {
+      const hx = px - 85, hy = py - 75;
+      if ((hx * hx) / (72 * 72) + (hy * hy) / (52 * 52) <= 1) return true;  // 頭+雙耳
+      if (px >= 8 && px <= 190 && py >= 122 && py <= 218) return true;      // 軀幹+尾巴
+      return false;
+    },
+  },
 };
 // 除錯日誌：打到後端寫進 %TEMP%\clawd-debug.log
 const jlog = (m) => { try { fetch('http://127.0.0.1:17872/pet/log/' + encodeURIComponent(m)).catch(() => {}); } catch (_) {} };
@@ -57,7 +91,10 @@ const IS_COMPANION = !!_urlChar;
 const MY_LABEL = IS_COMPANION ? 'pet2' : 'main';
 const CHAR = _urlChar || localStorage.getItem('petchar') || 'dog';
 const CFG = CHAR_CFG[CHAR] || CHAR_CFG.dog;
-const otherChar = (c) => (c === 'dog' ? 'fox' : 'dog');
+const otherChar = (c) => {
+  const pool = Object.keys(CHAR_CFG).filter((k) => k !== c);
+  return pool[Math.floor(Math.random() * pool.length)];
+};
 const multiOn = () => localStorage.getItem('petmulti') === '1';
 {
   const tpl = document.getElementById('char-' + CHAR) || document.getElementById('char-dog');

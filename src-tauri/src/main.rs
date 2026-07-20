@@ -418,6 +418,12 @@ fn show_menu(
         let ch_fox = CheckMenuItemBuilder::with_id("p_char_fox", "角色：女僕狐狐")
             .checked(character == "fox")
             .build(app);
+        let ch_jiaobu = CheckMenuItemBuilder::with_id("p_char_jiaobu", "角色：膠布")
+            .checked(character == "jiaobu")
+            .build(app);
+        let ch_yueyue = CheckMenuItemBuilder::with_id("p_char_yueyue", "角色：玥玥")
+            .checked(character == "yueyue")
+            .build(app);
         let stat_mood = MenuItemBuilder::with_id("p_s1", format!("心情　　{}", stat_bar(mood)))
             .enabled(false)
             .build(app);
@@ -445,20 +451,22 @@ fn show_menu(
             Ok(multi_item),
             Ok(ch_dog),
             Ok(ch_fox),
+            Ok(ch_jiaobu),
+            Ok(ch_yueyue),
             Ok(hide),
             Ok(home),
             Ok(auto),
             Ok(quit),
         ) = (
-            stat_mood, stat_full, feed, patrol_item, multi_item, ch_dog, ch_fox, hide, home,
-            auto, quit,
+            stat_mood, stat_full, feed, patrol_item, multi_item, ch_dog, ch_fox, ch_jiaobu,
+            ch_yueyue, hide, home, auto, quit,
         ) {
             if let Ok(menu) = MenuBuilder::new(app)
                 .items(&[&s1, &s2])
                 .separator()
                 .items(&[&feed, &patrol_item, &multi_item])
                 .separator()
-                .items(&[&ch_dog, &ch_fox])
+                .items(&[&ch_dog, &ch_fox, &ch_jiaobu, &ch_yueyue])
                 .separator()
                 .items(&[&hide, &home, &auto, &quit])
                 .build()
@@ -723,6 +731,16 @@ fn main() {
                 "p_char_fox" => {
                     if let Some(w) = app.get_webview_window("main") {
                         let _ = w.emit_to("main", "pet-cmd", "main:char:fox");
+                    }
+                }
+                "p_char_jiaobu" => {
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit_to("main", "pet-cmd", "main:char:jiaobu");
+                    }
+                }
+                "p_char_yueyue" => {
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit_to("main", "pet-cmd", "main:char:yueyue");
                     }
                 }
                 "p_multi" | "q_close" => {
