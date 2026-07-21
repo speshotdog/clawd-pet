@@ -1,0 +1,139 @@
+{
+  "char": "jiaobu",
+  "part": "pawRc",
+  "tags": [
+    "n3",
+    "n1_5",
+    "0",
+    "p1_5",
+    "p3"
+  ],
+  "thresholds": {
+    "DARK_DROP": 45,
+    "DARK_ABS": 110,
+    "LIGHT_ABS": 150
+  },
+  "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_jiaobu_pawRc.png",
+  "frames": [
+    {
+      "tag": "n3",
+      "deg": "n3",
+      "blackline_px": 362,
+      "blackline_maxcomp": 113,
+      "blackline_bbox": [
+        163,
+        269,
+        36,
+        11
+      ],
+      "blackline_aspect": 3.27,
+      "darken_px": 462,
+      "max_darken": 164,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 263,
+      "ghost_maxcomp": 88,
+      "ghost_bbox": [
+        163,
+        269,
+        31,
+        11
+      ]
+    },
+    {
+      "tag": "n1_5",
+      "deg": "n1_5",
+      "blackline_px": 196,
+      "blackline_maxcomp": 42,
+      "blackline_bbox": [
+        173,
+        269,
+        21,
+        9
+      ],
+      "blackline_aspect": 2.33,
+      "darken_px": 257,
+      "max_darken": 154,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 111,
+      "ghost_maxcomp": 27,
+      "ghost_bbox": [
+        173,
+        270,
+        17,
+        8
+      ]
+    },
+    {
+      "tag": "0",
+      "deg": "0",
+      "blackline_px": 0,
+      "blackline_maxcomp": 0,
+      "blackline_bbox": null,
+      "blackline_aspect": 0.0,
+      "darken_px": 0,
+      "max_darken": 0,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 0,
+      "ghost_maxcomp": 0,
+      "ghost_bbox": null
+    },
+    {
+      "tag": "p1_5",
+      "deg": "p1_5",
+      "blackline_px": 250,
+      "blackline_maxcomp": 45,
+      "blackline_bbox": [
+        174,
+        250,
+        22,
+        14
+      ],
+      "blackline_aspect": 1.57,
+      "darken_px": 293,
+      "max_darken": 205,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 160,
+      "ghost_maxcomp": 29,
+      "ghost_bbox": [
+        157,
+        202,
+        16,
+        6
+      ]
+    },
+    {
+      "tag": "p3",
+      "deg": "p3",
+      "blackline_px": 456,
+      "blackline_maxcomp": 104,
+      "blackline_bbox": [
+        156,
+        200,
+        24,
+        16
+      ],
+      "blackline_aspect": 1.5,
+      "darken_px": 515,
+      "max_darken": 206,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 342,
+      "ghost_maxcomp": 90,
+      "ghost_bbox": [
+        156,
+        200,
+        24,
+        16
+      ]
+    }
+  ]
+}

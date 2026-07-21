@@ -1,0 +1,85 @@
+{
+  "char": "yueyue",
+  "part": "tail",
+  "tags": [
+    "n5",
+    "0",
+    "p5"
+  ],
+  "thresholds": {
+    "DARK_DROP": 45,
+    "DARK_ABS": 110,
+    "LIGHT_ABS": 150
+  },
+  "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_yueyue_tail.png",
+  "frames": [
+    {
+      "tag": "n5",
+      "deg": "n5",
+      "blackline_px": 687,
+      "blackline_maxcomp": 409,
+      "blackline_bbox": [
+        286,
+        259,
+        16,
+        50
+      ],
+      "blackline_aspect": 3.12,
+      "darken_px": 693,
+      "max_darken": 113,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 521,
+      "ghost_maxcomp": 352,
+      "ghost_bbox": [
+        286,
+        260,
+        16,
+        48
+      ]
+    },
+    {
+      "tag": "0",
+      "deg": "0",
+      "blackline_px": 0,
+      "blackline_maxcomp": 0,
+      "blackline_bbox": null,
+      "blackline_aspect": 0.0,
+      "darken_px": 0,
+      "max_darken": 0,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 0,
+      "ghost_maxcomp": 0,
+      "ghost_bbox": null
+    },
+    {
+      "tag": "p5",
+      "deg": "p5",
+      "blackline_px": 676,
+      "blackline_maxcomp": 557,
+      "blackline_bbox": [
+        291,
+        202,
+        49,
+        107
+      ],
+      "blackline_aspect": 2.18,
+      "darken_px": 678,
+      "max_darken": 113,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 538,
+      "ghost_maxcomp": 458,
+      "ghost_bbox": [
+        292,
+        203,
+        47,
+        105
+      ]
+    }
+  ]
+}

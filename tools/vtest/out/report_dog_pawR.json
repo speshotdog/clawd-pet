@@ -1,0 +1,90 @@
+{
+  "char": "dog",
+  "part": "pawR",
+  "tags": [
+    "n22",
+    "0",
+    "p22"
+  ],
+  "thresholds": {
+    "DARK_DROP": 45,
+    "DARK_ABS": 110,
+    "LIGHT_ABS": 150
+  },
+  "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_dog_pawR.png",
+  "frames": [
+    {
+      "tag": "n22",
+      "deg": "n22",
+      "blackline_px": 23,
+      "blackline_maxcomp": 23,
+      "blackline_bbox": [
+        247,
+        234,
+        9,
+        7
+      ],
+      "blackline_aspect": 1.29,
+      "darken_px": 24,
+      "max_darken": 199,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 15,
+      "ghost_maxcomp": 12,
+      "ghost_bbox": [
+        250,
+        234,
+        6,
+        5
+      ]
+    },
+    {
+      "tag": "0",
+      "deg": "0",
+      "blackline_px": 0,
+      "blackline_maxcomp": 0,
+      "blackline_bbox": null,
+      "blackline_aspect": 0.0,
+      "darken_px": 0,
+      "max_darken": 0,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 0,
+      "ghost_maxcomp": 0,
+      "ghost_bbox": null
+    },
+    {
+      "tag": "p22",
+      "deg": "p22",
+      "blackline_px": 41,
+      "blackline_maxcomp": 41,
+      "blackline_bbox": [
+        247,
+        229,
+        9,
+        9
+      ],
+      "blackline_aspect": 1.0,
+      "darken_px": 45,
+      "max_darken": 206,
+      "gap_px": 7,
+      "gap_maxcomp": 7,
+      "gap_bbox": [
+        248,
+        220,
+        4,
+        2
+      ],
+      "ghost_px": 31,
+      "ghost_maxcomp": 31,
+      "ghost_bbox": [
+        247,
+        230,
+        9,
+        8
+      ]
+    }
+  ]
+}

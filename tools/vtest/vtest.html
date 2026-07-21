@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<title>vtest — 實機管線驗證台</title>
+<style>body{margin:0;background:#888;font-family:monospace;color:#eee}#log{padding:8px;white-space:pre-wrap}</style>
+</head>
+<body>
+<div id="log">vtest ready</div>
+<script>
+// ============================================================================
+// 實機管線驗證台 (real-machine pipeline test bench)
+//  走真 Chromium(Skia) 的 SVG 光柵化，不是 PIL。
+//  流程：fetch /src/index.html 取角色 template → PNG href 內嵌成 data URL →
+//        依 VT_CFG 設角色物理尺度 → 對指定部件 setAttribute 旋轉角 →
+//        XMLSerializer → new Image() → canvas.drawImage 光柵化到「實體尺度」→
+//        toDataURL → POST 到收檔伺服器。全同步(await)，不依賴 rAF/CSS 動畫。
+// ============================================================================
+const DPR = 1.875;                 // WebView2 dpr（顯示縮放1.5×文字1.25）
+const RECV = 'http://localhost:17997';
+const SRC  = '/src/';              // 資產同源路徑（page 伺服器 root = repo root）
+
+// 各角色顯示高度(CSS)——取自 pet.js CHAR_CFG，物理尺度 = height × DPR
+const VT_CFG = {
+  dog:     { height: 161,   tpl: 'char-dog' },
+  jiaobu:  { height: 198,   tpl: 'char-jiaobu' },
+  yueyue:  { height: 198,   tpl: 'char-yueyue' },
+};
+
+const logEl = document.getElementById('log');
+const log = (m) => { logEl.textContent += '\n' + m; };
+
+let _indexText = null;
+async function getIndex() {
+  if (!_indexText) _indexText = await (await fetch(SRC + 'index.html')).text();
+  return _indexText;
+}
+
+// 抓某角色 template 的 <svg>，回傳 clone 的 svg DOM 節點
+async function getSvg(char) {
+  const html = await getIndex();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const tpl = doc.getElementById(VT_CFG[char].tpl);
+  if (!tpl) throw new Error('no template ' + VT_CFG[char].tpl);
+  const svg = tpl.content.querySelector('svg').cloneNode(true);
+  return svg;
+}
+
+// 把 svg 內所有 <image> 的 href fetch 成 data URL 內嵌（data-URL SVG 無法載相對路徑）
+const _pngCache = new Map();
+async function pngDataUrl(href) {
+  if (_pngCache.has(href)) return _pngCache.get(href);
+  const blob = await (await fetch(SRC + href)).blob();
+  const durl = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
+  _pngCache.set(href, durl);
+  return durl;
+}
+async function inlineImages(svg) {
+  const imgs = [...svg.querySelectorAll('image')];
+  for (const im of imgs) {
+    const href = im.getAttribute('href') || im.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+    if (!href || href.startsWith('data:')) continue;
+    const durl = await pngDataUrl(href);
+    im.setAttribute('href', durl);
+    im.removeAttributeNS('http://www.w3.org/1999/xlink', 'href');
+  }
+}
+
+// 光柵化一個 pose：char 角色、transforms = {partId: deg}，回傳 dataURL(PNG)
+async function rasterize(char, transforms) {
+  const svg = await getSvg(char);
+  await inlineImages(svg);
+
+  // 物理尺度：由 viewBox 與顯示高度 × DPR 推出
+  const vb = svg.getAttribute('viewBox').split(/\s+/).map(Number); // x y w h
+  const H = Math.round(VT_CFG[char].height * DPR);
+  const W = Math.round(vb[2] / vb[3] * H);
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+
+  // 設部件旋轉（沿用 pet.js setLimb 的 rotate(deg px py)，px py = CHAR pivot）
+  for (const [pid, spec] of Object.entries(transforms)) {
+    const g = svg.querySelector('#' + pid);
+    if (!g) throw new Error('no part #' + pid + ' in ' + char);
+    g.setAttribute('transform', `rotate(${spec.deg} ${spec.px} ${spec.py})`);
+  }
+
+  const xml = new XMLSerializer().serializeToString(svg);
+  const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+  const img = new Image();
+  img.src = svgUrl;
+  await img.decode();
+
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  ctx.drawImage(img, 0, 0, W, H);
+  return { dataURL: c.toDataURL('image/png'), W, H };
+}
+
+async function saveFrame(name, dataURL) {
+  await fetch(RECV + '/save?name=' + encodeURIComponent(name), { method: 'POST', body: dataURL });
+}
+
+// 對一個部件掃描角度：frames = [{tag, part, pivot:[px,py], deg}], 存成 out/<char>_<part>_<tag>.png
+// 回傳存檔清單與尺寸
+async function scan(char, frames) {
+  const out = [];
+  for (const f of frames) {
+    const transforms = {};
+    transforms[f.part] = { deg: f.deg, px: f.pivot[0], py: f.pivot[1] };
+    const { dataURL, W, H } = await rasterize(char, transforms);
+    const name = `${char}_${f.part}_${f.tag}`;
+    await saveFrame(name, dataURL);
+    out.push({ name, W, H, deg: f.deg });
+    log(`saved ${name} (${W}x${H}) deg=${f.deg}`);
+  }
+  return out;
+}
+
+window.VT = { rasterize, scan, saveFrame, VT_CFG, DPR };
+log('VT loaded. DPR=' + DPR);
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+{
+  "char": "jiaobu",
+  "part": "pawR",
+  "tags": [
+    "n11",
+    "n5_5",
+    "0",
+    "p5_5",
+    "p11",
+    "p14_5"
+  ],
+  "thresholds": {
+    "DARK_DROP": 45,
+    "DARK_ABS": 110,
+    "LIGHT_ABS": 150
+  },
+  "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_jiaobu_pawR.png",
+  "frames": [
+    {
+      "tag": "n11",
+      "deg": "n11",
+      "blackline_px": 1222,
+      "blackline_maxcomp": 429,
+      "blackline_bbox": [
+        157,
+        261,
+        51,
+        27
+      ],
+      "blackline_aspect": 1.89,
+      "darken_px": 1448,
+      "max_darken": 208,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 1113,
+      "ghost_maxcomp": 399,
+      "ghost_bbox": [
+        158,
+        266,
+        49,
+        22
+      ]
+    },
+    {
+      "tag": "n5_5",
+      "deg": "n5_5",
+      "blackline_px": 638,
+      "blackline_maxcomp": 205,
+      "blackline_bbox": [
+        163,
+        269,
+        39,
+        13
+      ],
+      "blackline_aspect": 3.0,
+      "darken_px": 791,
+      "max_darken": 192,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 524,
+      "ghost_maxcomp": 183,
+      "ghost_bbox": [
+        163,
+        269,
+        38,
+        13
+      ]
+    },
+    {
+      "tag": "0",
+      "deg": "0",
+      "blackline_px": 0,
+      "blackline_maxcomp": 0,
+      "blackline_bbox": null,
+      "blackline_aspect": 0.0,
+      "darken_px": 0,
+      "max_darken": 0,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 0,
+      "ghost_maxcomp": 0,
+      "ghost_bbox": null
+    },
+    {
+      "tag": "p5_5",
+      "deg": "p5_5",
+      "blackline_px": 779,
+      "blackline_maxcomp": 323,
+      "blackline_bbox": [
+        151,
+        198,
+        58,
+        44
+      ],
+      "blackline_aspect": 1.32,
+      "darken_px": 838,
+      "max_darken": 207,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 652,
+      "ghost_maxcomp": 265,
+      "ghost_bbox": [
+        155,
+        198,
+        51,
+        41
+      ]
+    },
+    {
+      "tag": "p11",
+      "deg": "p11",
+      "blackline_px": 1318,
+      "blackline_maxcomp": 672,
+      "blackline_bbox": [
+        151,
+        191,
+        81,
+        54
+      ],
+      "blackline_aspect": 1.5,
+      "darken_px": 1395,
+      "max_darken": 207,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 1190,
+      "ghost_maxcomp": 607,
+      "ghost_bbox": [
+        151,
+        191,
+        78,
+        54
+      ]
+    },
+    {
+      "tag": "p14_5",
+      "deg": "p14_5",
+      "blackline_px": 1574,
+      "blackline_maxcomp": 862,
+      "blackline_bbox": [
+        149,
+        187,
+        88,
+        58
+      ],
+      "blackline_aspect": 1.52,
+      "darken_px": 1691,
+      "max_darken": 207,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 1445,
+      "ghost_maxcomp": 798,
+      "ghost_bbox": [
+        149,
+        187,
+        88,
+        58
+      ]
+    }
+  ]
+}

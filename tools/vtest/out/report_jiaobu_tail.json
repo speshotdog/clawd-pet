@@ -1,0 +1,85 @@
+{
+  "char": "jiaobu",
+  "part": "tail",
+  "tags": [
+    "n5",
+    "0",
+    "p5"
+  ],
+  "thresholds": {
+    "DARK_DROP": 45,
+    "DARK_ABS": 110,
+    "LIGHT_ABS": 150
+  },
+  "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_jiaobu_tail.png",
+  "frames": [
+    {
+      "tag": "n5",
+      "deg": "n5",
+      "blackline_px": 10,
+      "blackline_maxcomp": 2,
+      "blackline_bbox": [
+        308,
+        297,
+        1,
+        2
+      ],
+      "blackline_aspect": 2.0,
+      "darken_px": 11,
+      "max_darken": 110,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 7,
+      "ghost_maxcomp": 2,
+      "ghost_bbox": [
+        308,
+        297,
+        1,
+        2
+      ]
+    },
+    {
+      "tag": "0",
+      "deg": "0",
+      "blackline_px": 0,
+      "blackline_maxcomp": 0,
+      "blackline_bbox": null,
+      "blackline_aspect": 0.0,
+      "darken_px": 0,
+      "max_darken": 0,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 0,
+      "ghost_maxcomp": 0,
+      "ghost_bbox": null
+    },
+    {
+      "tag": "p5",
+      "deg": "p5",
+      "blackline_px": 31,
+      "blackline_maxcomp": 10,
+      "blackline_bbox": [
+        294,
+        284,
+        7,
+        2
+      ],
+      "blackline_aspect": 3.5,
+      "darken_px": 34,
+      "max_darken": 127,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 19,
+      "ghost_maxcomp": 5,
+      "ghost_bbox": [
+        305,
+        288,
+        3,
+        2
+      ]
+    }
+  ]
+}

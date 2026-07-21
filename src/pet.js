@@ -57,6 +57,7 @@ const CHAR_CFG = {
     center: { x: 107, y: 136 },
     legL: [234, 650], legR: [544, 650],
     pawR: [533, 452],  // 樞紐放手肘斷口上：舉刀時斷口零位移
+    pawScale: 0.5,     // 實機驗證台定的乾淨上限：刀臂輪廓掃過肚子的視覺黑線在此幅度下 Gemini/人審 PASS
     tail: [604, 560],
     up: 1,             // 刀尖在樞紐左上，順時針才是舉起
     sleepShift: '0px',
@@ -74,7 +75,8 @@ const CHAR_CFG = {
     center: { x: 118, y: 113 },
     legL: [150, 690], legR: [535, 692],
     pawR: [145, 515],  // 樞紐放臂根下緣：舉手時下端幾乎不掃動
-    tail: [608, 385],  // 樞紐貼熔接縫：上緣熔接點掃動最小化（原 [635,525] 撕裂 -47%）
+    tail: [608, 385],  // 樞紐貼熔接縫：上緣熔接點掃動最小化（原 [635,525] 撕裂 -47%；驗證台掃 7 候選此值最佳）
+    tailScale: 0.2,    // 實機驗證台定的乾淨上限：尾巴可見輪廓掃動 ±1° 內 Gemini/人審 PASS
     up: 1,             // 拳頭在樞紐左側，順時針上舉
     sleepShift: '0px',
     hit(px, py) {
@@ -686,7 +688,8 @@ function animate(now) {
     aP = 22 * Math.sin((t * 2 * Math.PI) / 0.3);
   }
   // 依角色縮放擺幅（切割縫淺的角色擺小一點，避免露出接縫）
-  aL *= CFG.limbScale; aR *= CFG.limbScale; aP *= CFG.limbScale;
+  // pawScale：手臂專用的額外上限（實機驗證抓出的乾淨最大角 ÷ 全幅角），預設 1
+  aL *= CFG.limbScale; aR *= CFG.limbScale; aP *= CFG.limbScale * (CFG.pawScale || 1);
   setLimb(legL, aL, ...CFG.legL);
   setLimb(legR, aR, ...CFG.legR);
   setLimb(pawR, aP, ...CFG.pawR);
@@ -698,7 +701,8 @@ function animate(now) {
     if (stage.classList.contains('hi') || stage.classList.contains('yum') || stage.classList.contains('spin')) {
       aT = 5 * Math.sin((t * 2 * Math.PI) / 0.25);
     }
-    setLimb(tailEl, aT, ...CFG.tail);
+    // tailScale：尾巴擺幅上限（實機驗證抓出的乾淨最大角 ÷ 全幅角），預設 1
+    setLimb(tailEl, aT * (CFG.tailScale || 1), ...CFG.tail);
   }
   // 可選部件（狐）：耳朵偶爾抖一下
   if (earLEl && CFG.earL) {

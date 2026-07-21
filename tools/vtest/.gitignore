@@ -1,0 +1,8 @@
+# 原始逐角度 frame 為可重生的中間產物，不進 repo；只保留證據圖與報告。
+out/*.png
+!out/strip_*.png
+!out/overlap_*.png
+!out/PHASEB_*.png
+out/*.json
+!out/report_*.json
+!out/gemini_verdicts.json
