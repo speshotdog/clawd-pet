@@ -3,11 +3,12 @@
 // 一律用便宜的原生輪詢（GetCursorPos / GetAsyncKeyState），閒置 CPU 趨近於零。
 #![windows_subsystem = "windows"] // debug 版也不開主控台視窗
 
+use std::collections::HashMap;
 use std::sync::atomic::Ordering;
-use std::sync::Mutex;
+use std::sync::{LazyLock, Mutex};
 use std::time::{Duration, Instant};
 use tauri::{
-    menu::{CheckMenuItemBuilder, ContextMenu, MenuBuilder, MenuItemBuilder},
+    menu::{CheckMenuItemBuilder, ContextMenu, IsMenuItem, MenuBuilder, MenuItemBuilder},
     tray::TrayIconBuilder,
     AppHandle, Emitter, Manager, PhysicalPosition, WebviewUrl, WebviewWindow,
     WebviewWindowBuilder,
@@ -105,17 +106,60 @@ fn busy_end(label: &str) {
 }
 
 // 視窗邏輯尺寸（CSS px），需與 tauri.conf.json 及前端 #stage 一致
-const WIN_W: f64 = 200.0;
-const WIN_H: f64 = 220.0;
+const WIN_W: f64 = 240.0;
+const WIN_H: f64 = 256.0;
+// 玩具視窗邏輯尺寸（CSS px），需與 toy.html 的 #stage 一致
+const TOY_W: f64 = 150.0;
+const TOY_H: f64 = 120.0;
+
+// 依 label 查邏輯尺寸：寵物視窗（main / pet_*）= 240x256，玩具（toy_*）= 150x120
+fn logical_size(label: &str) -> (f64, f64) {
+    if label.starts_with("toy_") {
+        (TOY_W, TOY_H)
+    } else {
+        (WIN_W, WIN_H)
+    }
+}
+
+// 縮放檔位表（顯示名, 倍率）。選單「大小：」單選區從這張表迴圈產生；
+// 前端存 localStorage petscale（浮點字串），預設 1.0（標準）。
+const SCALES: &[(&str, f64)] = &[
+    ("迷你", 0.7),
+    ("小", 0.85),
+    ("標準", 1.0),
+    ("大", 1.15),
+    ("特大", 1.3),
+];
+
+// 角色資料表（id, 顯示名）。加新角色只動這一行；選單「角色：」單選區與
+// 「夥伴：」多選區都從這張表迴圈產生。
+const CHARS: &[(&str, &str)] = &[
+    ("dog", "熱狗狗狗"),
+    ("fox", "女僕狐狐"),
+    ("jiaobu", "膠布"),
+    ("yueyue", "玥玥"),
+    ("zhenzhen", "珍珍"),
+    ("zhenmu", "珍母"),
+];
+
+// 所有寵物視窗（主視窗 + 任意多個以 "pet_" 開頭的夥伴視窗）
+fn pet_windows(app: &AppHandle) -> Vec<WebviewWindow> {
+    app.webview_windows()
+        .into_iter()
+        .filter(|(label, _)| label == "main" || label.starts_with("pet_"))
+        .map(|(_, w)| w)
+        .collect()
+}
 
 // 把視窗實體尺寸撐到「CSS 尺寸 × 縮放比」。
 // resizable:false 會把 min/max 鎖死在建立時的尺寸，set_size 會被夾回去；
 // 暫時解鎖 → 改尺寸 → 鎖回（鎖回時 min/max 會重設為新尺寸）。
 fn resize_physical(win: &WebviewWindow, scale: f64) {
+    let (w, h) = logical_size(win.label());
     let _ = win.set_resizable(true);
     let _ = win.set_size(tauri::PhysicalSize::new(
-        (WIN_W * scale).round() as u32,
-        (WIN_H * scale).round() as u32,
+        (w * scale).round() as u32,
+        (h * scale).round() as u32,
     ));
     let _ = win.set_resizable(false);
 }
@@ -132,11 +176,17 @@ fn fix_dpi_size(win: &WebviewWindow) {
     resize_physical(win, scale);
 }
 
-// 指令：前端載入後回報真實 devicePixelRatio，把視窗撐到剛好裝下 200x220 CSS
+// 指令：前端載入後回報真實 devicePixelRatio，把視窗撐到剛好裝下 240x256 CSS
 #[tauri::command]
 fn fit_window(window: WebviewWindow, dpr: f64) {
     if (0.5..=4.0).contains(&dpr) {
         resize_physical(&window, dpr);
+        // 玩具視窗：把真實 dpr 存進物理狀態（重力/衝量要乘 scale）
+        if window.label().starts_with("toy_") {
+            if let Some(s) = TOY_STATE.lock().unwrap().get_mut(window.label()) {
+                s.scale = dpr;
+            }
+        }
     }
 }
 
@@ -211,8 +261,12 @@ fn setup_pet_window(win: &WebviewWindow) {
     } else {
         let wa = work_area();
         if let Ok(size) = win.outer_size() {
-            // 夥伴視窗預設放主寵物左邊一點
-            let off = if win.label() == "main" { 32 } else { 260 };
+            // 夥伴視窗預設放主寵物左邊一點；多個夥伴依 label 錯開避免完全重疊
+            let off = if win.label() == "main" {
+                32
+            } else {
+                260 + (win.label().bytes().map(|b| b as i32).sum::<i32>() % 6) * 70
+            };
             let _ = win.set_position(PhysicalPosition::new(
                 wa.right - size.width as i32 - off,
                 wa.bottom - size.height as i32 - 8,
@@ -224,27 +278,29 @@ fn setup_pet_window(win: &WebviewWindow) {
 }
 
 // ------------------------------------------------------------
-// 多人模式：第二隻寵物視窗（角色由 URL query 指定）
+// 多人模式：任意多個夥伴視窗，label=pet_<character>，角色由 URL query 指定
 // ------------------------------------------------------------
 #[tauri::command]
 fn set_companion(app: AppHandle, on: bool, character: String) {
     dlog(&format!("set_companion on={on} char={character}"));
+    let label = format!("pet_{character}");
     // 視窗建立必須在「非主執行緒」做：build() 會同步等 WebView2 初始化，
     // 而初始化需要主執行緒泵訊息——在主執行緒（或主執行緒閉包）裡呼叫會自我死鎖。
     std::thread::spawn(move || {
         dlog("companion worker enter");
-        if let Some(w) = app.get_webview_window("pet2") {
+        // 先銷毀同 label 的舊視窗（重複呼叫安全）
+        if let Some(w) = app.get_webview_window(&label) {
             save_pos(&w);
             let _ = w.destroy();
-            dlog("pet2 destroyed");
+            dlog(&format!("{label} destroyed"));
         }
         if !on {
             return;
         }
         let url = format!("index.html?char={character}");
-        let r = WebviewWindowBuilder::new(&app, "pet2", WebviewUrl::App(url.into()))
+        let r = WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.into()))
             .title("HotDogPal")
-            .inner_size(200.0, 220.0)
+            .inner_size(240.0, 256.0)
             .transparent(true)
             .decorations(false)
             .always_on_top(true)
@@ -257,9 +313,9 @@ fn set_companion(app: AppHandle, on: bool, character: String) {
         match r {
             Ok(w) => {
                 setup_pet_window(&w);
-                dlog("pet2 created");
+                dlog(&format!("{label} created"));
             }
-            Err(e) => dlog(&format!("pet2 create FAILED: {e:?}")),
+            Err(e) => dlog(&format!("{label} create FAILED: {e:?}")),
         }
     });
 }
@@ -270,17 +326,372 @@ fn relay(app: AppHandle, payload: String) {
     let _ = app.emit("pet-cmd", payload);
 }
 
+// ============================================================
+// 玩具系統：玩具像足球被寵物踢來踢去
+// 玩具視窗 label = toy_<id>，物理在獨立執行緒跑（僅玩具視窗存在時），
+// 收玩具（視窗銷毀）下個 tick 執行緒自動收工，無殭屍。
+// ============================================================
+
+// 玩具資料表（id, 顯示名）。加新玩具只動這一行；選單「玩具：」區從這迴圈產生。
+const TOYS: &[(&str, &str)] = &[("dino", "小恐龍")];
+
+// 物理常數（基準值以 CSS px 計，乘 dpr(scale) 得實體 px）。數值抓「可愛的感覺」：
+// 彈跳不狂、滾動 ~2 秒內停（離線模擬：初速 800,-700 → 落地 0.63s、靜止 1.83s、2 次彈跳）。
+const TOY_DT: f64 = 1.0 / 30.0; // 物理步長（秒），對應 ~33ms tick
+const TOY_GRAVITY: f64 = 2800.0; // 重力 px/s²
+const TOY_WALL_REST: f64 = 0.8; // 撞牆反彈保留係數
+const TOY_FLOOR_REST: f64 = 0.45; // 落地彈跳保留係數
+const TOY_FRICTION: f64 = 0.90; // 地面滾動每 tick 摩擦
+const TOY_STOP_V: f64 = 20.0; // 滾動速度低於此即歸零（CSS px/s）
+const TOY_BOUNCE_MIN: f64 = 60.0; // 彈跳量低於此閾值即落地靜止（CSS px/s）
+
+// 玩具物理狀態（實體像素座標；x,y = 視窗左上角）
+#[derive(Clone, Copy)]
+struct Phys {
+    x: f64,
+    y: f64,
+    vx: f64,
+    vy: f64,
+    grounded: bool,
+    grabbed: bool,
+    scale: f64,
+}
+
+impl Phys {
+    // 推進一個 tick。left/right = 視窗左上角 x 的可行範圍，ground_y = 落地時的 y。
+    fn step(&mut self, left: f64, right: f64, ground_y: f64) {
+        if self.grounded {
+            // 地面滾動：摩擦減速、撞牆反彈、貼齊地面線
+            self.x += self.vx * TOY_DT;
+            self.vx *= TOY_FRICTION;
+            if self.vx.abs() < TOY_STOP_V * self.scale {
+                self.vx = 0.0;
+            }
+            if self.x < left {
+                self.x = left;
+                self.vx = -self.vx * TOY_WALL_REST;
+            } else if self.x > right {
+                self.x = right;
+                self.vx = -self.vx * TOY_WALL_REST;
+            }
+            self.y = ground_y;
+        } else {
+            // 空中：重力、撞左右緣反彈、落地彈跳
+            self.vy += TOY_GRAVITY * self.scale * TOY_DT;
+            self.x += self.vx * TOY_DT;
+            self.y += self.vy * TOY_DT;
+            if self.x < left {
+                self.x = left;
+                self.vx = -self.vx * TOY_WALL_REST;
+            } else if self.x > right {
+                self.x = right;
+                self.vx = -self.vx * TOY_WALL_REST;
+            }
+            if self.y >= ground_y {
+                self.y = ground_y;
+                let bounce_v = self.vy * TOY_FLOOR_REST;
+                if bounce_v >= TOY_BOUNCE_MIN * self.scale {
+                    self.vy = -bounce_v; // 再彈一次
+                } else {
+                    self.vy = 0.0;
+                    self.grounded = true; // 彈跳量太小 → 落地
+                }
+            }
+        }
+    }
+    fn moving(&self) -> bool {
+        !self.grounded || self.vx != 0.0
+    }
+}
+
+// 每個玩具視窗的物理狀態，label -> Phys
+static TOY_STATE: LazyLock<Mutex<HashMap<String, Phys>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+
+// 輕量 PRNG（避免引外部 crate）：xorshift64
+struct Rng(u64);
+impl Rng {
+    fn new() -> Self {
+        let seed = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos() as u64)
+            .unwrap_or(0x9E37_79B9)
+            | 1;
+        Rng(seed)
+    }
+    fn next_u64(&mut self) -> u64 {
+        let mut x = self.0;
+        x ^= x << 13;
+        x ^= x >> 7;
+        x ^= x << 17;
+        self.0 = x;
+        x
+    }
+    fn range(&mut self, lo: f64, hi: f64) -> f64 {
+        lo + (self.next_u64() as f64 / u64::MAX as f64) * (hi - lo)
+    }
+}
+
+// 指令：玩具被拖起(true)/放下(false)。抓取時暫停物理；放下從當前位置繼續（半空放開就落下）
+#[tauri::command]
+fn toy_grab(window: WebviewWindow, grabbed: bool) {
+    let mut map = TOY_STATE.lock().unwrap();
+    if let Some(s) = map.get_mut(window.label()) {
+        s.grabbed = grabbed;
+        if !grabbed {
+            if let Ok(p) = window.outer_position() {
+                s.x = p.x as f64;
+                s.y = p.y as f64;
+            }
+            s.vx = 0.0;
+            s.vy = 0.0;
+            s.grounded = false; // 交給物理決定：貼地下 tick 立即靜止，半空則落下
+        }
+    }
+}
+
+// 指令：玩具右鍵選單（只有「收起玩具」）
+#[tauri::command]
+fn toy_menu(window: WebviewWindow, x: f64, y: f64) {
+    let win = window.clone();
+    let pos = tauri::Position::Physical(tauri::PhysicalPosition::new(x as i32, y as i32));
+    let _ = window.run_on_main_thread(move || {
+        let app = win.app_handle();
+        let label = win.label().to_string();
+        if let Ok(off) = MenuItemBuilder::with_id(format!("q_toyoff@{label}"), "收起玩具").build(app) {
+            if let Ok(menu) = MenuBuilder::new(app).items(&[&off]).build() {
+                let _ = menu.popup_at(win.as_ref().window(), pos);
+            }
+        }
+    });
+}
+
+// 指令：建立/銷毀玩具視窗（寫法比照 set_companion）
+#[tauri::command]
+fn set_toy(app: AppHandle, on: bool, toy: String) {
+    dlog(&format!("set_toy on={on} toy={toy}"));
+    let label = format!("toy_{toy}");
+    std::thread::spawn(move || {
+        // 先銷毀同 label 的舊視窗（物理執行緒下個 tick 見視窗消失即收工）
+        if let Some(w) = app.get_webview_window(&label) {
+            save_pos(&w);
+            let _ = w.destroy();
+        }
+        TOY_STATE.lock().unwrap().remove(&label);
+        if !on {
+            return;
+        }
+        let url = format!("toy.html?toy={toy}");
+        let r = WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.into()))
+            .title("ClawdToy")
+            .inner_size(TOY_W, TOY_H)
+            .transparent(true)
+            .decorations(false)
+            .always_on_top(true)
+            .skip_taskbar(true)
+            .resizable(false)
+            .maximizable(false)
+            .minimizable(false)
+            .shadow(false)
+            .build();
+        match r {
+            Ok(w) => {
+                setup_toy_window(&w);
+                dlog(&format!("{label} created"));
+            }
+            Err(e) => dlog(&format!("{label} create FAILED: {e:?}")),
+        }
+    });
+}
+
+// 玩具視窗初始化：DPI 修正、位置還原/預設（貼地）、穿透、游標執行緒、物理執行緒
+fn setup_toy_window(win: &WebviewWindow) {
+    fix_dpi_size(win); // logical_size 對 toy_* 回 150x120
+    let wa = work_area_of(win);
+    if let (Ok(size), pos) = (win.outer_size(), load_pos(win.label())) {
+        let (x, y) = if let Some((lx, ly)) = pos {
+            (
+                lx.clamp(wa.left, (wa.right - size.width as i32).max(wa.left)),
+                ly.clamp(wa.top, (wa.bottom - size.height as i32).max(wa.top)),
+            )
+        } else {
+            // 預設放主寵物左邊一段的地面上
+            (
+                wa.right - size.width as i32 - 360,
+                wa.bottom - size.height as i32,
+            )
+        };
+        let _ = win.set_position(PhysicalPosition::new(x, y));
+    }
+    let _ = win.set_ignore_cursor_events(true);
+    spawn_cursor_thread(win.clone());
+    spawn_toy_physics(win.clone());
+}
+
+// 玩具物理執行緒：~33ms tick。玩具視窗存在時才跑，銷毀即收工。
+fn spawn_toy_physics(win: WebviewWindow) {
+    let label = win.label().to_string();
+    let app = win.app_handle().clone();
+    // 初始化狀態：目前視窗位置、貼地靜止
+    {
+        let (x, y) = win
+            .outer_position()
+            .map(|p| (p.x as f64, p.y as f64))
+            .unwrap_or((0.0, 0.0));
+        TOY_STATE.lock().unwrap().insert(
+            label.clone(),
+            Phys { x, y, vx: 0.0, vy: 0.0, grounded: true, grabbed: false, scale: 1.0 },
+        );
+    }
+    std::thread::spawn(move || {
+        let mut rng = Rng::new();
+        let mut eval_acc = 0.0f64; // 追逐/踢評估累加器（每 ~1s）
+        let mut kick_cd = 0.0f64; // 踢後冷卻（秒）
+        let mut was_moving = true;
+        loop {
+            std::thread::sleep(Duration::from_millis(33));
+            // 視窗沒了（收玩具）→ 清狀態並收工
+            let Some(w) = app.get_webview_window(&label) else {
+                TOY_STATE.lock().unwrap().remove(&label);
+                return;
+            };
+            let (w_w, w_h) = match w.outer_size() {
+                Ok(s) => (s.width as f64, s.height as f64),
+                Err(_) => continue,
+            };
+            let wa = work_area_of(&w);
+            let left = wa.left as f64;
+            let right = (wa.right as f64 - w_w).max(left);
+            let ground_y = wa.bottom as f64 - w_h;
+
+            // 取狀態副本
+            let mut ph = match TOY_STATE.lock().unwrap().get(&label).copied() {
+                Some(p) => p,
+                None => return,
+            };
+
+            if ph.grabbed {
+                // 使用者拖曳中：同步實際視窗位置、暫停物理
+                if let Ok(p) = w.outer_position() {
+                    ph.x = p.x as f64;
+                    ph.y = p.y as f64;
+                }
+                ph.vx = 0.0;
+                ph.vy = 0.0;
+                if let Some(s) = TOY_STATE.lock().unwrap().get_mut(&label) {
+                    s.x = ph.x;
+                    s.y = ph.y;
+                    s.vx = 0.0;
+                    s.vy = 0.0;
+                }
+                if was_moving {
+                    let _ = w.emit_to(
+                        label.as_str(),
+                        "toy-state",
+                        serde_json::json!({ "airborne": false, "vx": 0.0, "vy": 0.0 }),
+                    );
+                    was_moving = false;
+                }
+                continue;
+            }
+
+            // 推進物理並寫回
+            ph.step(left, right, ground_y);
+            if let Some(s) = TOY_STATE.lock().unwrap().get_mut(&label) {
+                s.x = ph.x;
+                s.y = ph.y;
+                s.vx = ph.vx;
+                s.vy = ph.vy;
+                s.grounded = ph.grounded;
+            }
+
+            // 移動玩具視窗
+            let _ = w.set_position(PhysicalPosition::new(ph.x.round() as i32, ph.y.round() as i32));
+
+            // 事件：移動中才發（靜止落地時停止寫 DOM）
+            let moving = ph.moving();
+            if moving || was_moving {
+                let _ = w.emit_to(
+                    label.as_str(),
+                    "toy-state",
+                    serde_json::json!({ "airborne": !ph.grounded, "vx": ph.vx, "vy": ph.vy }),
+                );
+            }
+            was_moving = moving;
+
+            // ---- 追逐/踢評估（每 ~1s，條件：落地、非拖曳、冷卻結束）----
+            kick_cd = (kick_cd - TOY_DT).max(0.0);
+            eval_acc += TOY_DT;
+            if eval_acc >= 1.0 {
+                eval_acc = 0.0;
+                if ph.grounded && !ph.grabbed && kick_cd <= 0.0 {
+                    let toy_cx = ph.x + w_w / 2.0;
+                    // 找水平距離 < 600*scale 內最近的寵物
+                    let mut best: Option<(String, f64, f64)> = None; // (label, pet_cx, dist)
+                    for pw in pet_windows(&app) {
+                        let (Ok(pp), Ok(ps)) = (pw.outer_position(), pw.outer_size()) else {
+                            continue;
+                        };
+                        let pet_cx = pp.x as f64 + ps.width as f64 / 2.0;
+                        let dist = (pet_cx - toy_cx).abs();
+                        if dist < 600.0 * ph.scale
+                            && best.as_ref().map(|b| dist < b.2).unwrap_or(true)
+                        {
+                            best = Some((pw.label().to_string(), pet_cx, dist));
+                        }
+                    }
+                    if let Some((plabel, pet_cx, dist)) = best {
+                        let kick_dist = 130.0 * ph.scale;
+                        // side = 玩具相對寵物的方向（+1 玩具在右）
+                        let side = if toy_cx >= pet_cx { 1.0 } else { -1.0 };
+                        if dist > kick_dist {
+                            // 走過去踢：目標點 = 玩具旁 80px（別走進玩具裡）
+                            let target_cx = toy_cx - side * 80.0 * ph.scale;
+                            let dx = target_cx - pet_cx; // walk 吃實體 px
+                            let _ = w.emit_to(
+                                plabel.as_str(),
+                                "pet-cmd",
+                                format!("{plabel}:chase:{dx:.0}"),
+                            );
+                        } else {
+                            // 踢！給玩具衝量往 side 方向飛
+                            let dir = side;
+                            let vx = dir * rng.range(600.0, 1100.0) * ph.scale;
+                            let vy = -rng.range(500.0, 900.0) * ph.scale;
+                            if let Some(s) = TOY_STATE.lock().unwrap().get_mut(&label) {
+                                s.vx = vx;
+                                s.vy = vy;
+                                s.grounded = false;
+                            }
+                            let _ = w.emit_to(
+                                plabel.as_str(),
+                                "pet-cmd",
+                                format!("{plabel}:kick:{}", dir as i32),
+                            );
+                            kick_cd = 1.5;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
 // 統一的退出流程：存位置 → 先銷毀夥伴視窗 → app.exit；
 // 事件迴圈若退不出來（pet2 曾卡死過 app.exit），1.5 秒後硬退保底
 fn quit_app(app: &AppHandle) {
     dlog("quit_app");
-    for label in ["main", "pet2"] {
-        if let Some(w) = app.get_webview_window(label) {
-            save_pos(&w);
-        }
+    // 存所有寵物視窗位置，再銷毀夥伴＋玩具視窗
+    for w in pet_windows(app) {
+        save_pos(&w);
     }
-    if let Some(w) = app.get_webview_window("pet2") {
-        let _ = w.destroy();
+    for (label, w) in app.webview_windows() {
+        if label.starts_with("pet_") || label.starts_with("toy_") {
+            if label.starts_with("toy_") {
+                save_pos(&w);
+            }
+            let _ = w.destroy();
+        }
     }
     let app2 = app.clone();
     std::thread::spawn(move || {
@@ -377,7 +788,8 @@ fn show_menu(
     fullness: i32,
     patrol: bool,
     character: String,
-    multi: bool,
+    companions: Vec<String>,
+    scale: f64,
     x: f64,
     y: f64,
 ) {
@@ -389,16 +801,19 @@ fn show_menu(
     let _ = window.run_on_main_thread(move || {
         dlog("show_menu on main thread");
         let app = win.app_handle();
-        // 夥伴視窗：精簡選單（狀態＋餵食＋收回夥伴）
+        // 夥伴視窗：精簡選單（狀態＋餵食＋收回夥伴）。item id 帶自己的 label 後綴，
+        // 讓事件 handler 知道要對哪個夥伴視窗動作。
         if win.label() != "main" {
+            let label = win.label().to_string();
             let s1 = MenuItemBuilder::with_id("q_s1", format!("心情　　{}", stat_bar(mood)))
                 .enabled(false)
                 .build(app);
             let s2 = MenuItemBuilder::with_id("q_s2", format!("飽食度　{}", stat_bar(fullness)))
                 .enabled(false)
                 .build(app);
-            let feed = MenuItemBuilder::with_id("q_feed", "餵熱狗").build(app);
-            let close = MenuItemBuilder::with_id("q_close", "收回夥伴").build(app);
+            let feed = MenuItemBuilder::with_id(format!("q_feed@{label}"), "餵熱狗").build(app);
+            let close =
+                MenuItemBuilder::with_id(format!("q_close@{label}"), "收回夥伴").build(app);
             if let (Ok(s1), Ok(s2), Ok(feed), Ok(close)) = (s1, s2, feed, close) {
                 if let Ok(menu) = MenuBuilder::new(app)
                     .items(&[&s1, &s2])
@@ -407,23 +822,12 @@ fn show_menu(
                     .build()
                 {
                     let r = menu.popup_at(win.as_ref().window(), pos);
-                    dlog(&format!("pet2 popup result: {:?}", r.err()));
+                    dlog(&format!("{label} popup result: {:?}", r.err()));
                 }
             }
             return;
         }
-        let ch_dog = CheckMenuItemBuilder::with_id("p_char_dog", "角色：熱狗狗狗")
-            .checked(character == "dog")
-            .build(app);
-        let ch_fox = CheckMenuItemBuilder::with_id("p_char_fox", "角色：女僕狐狐")
-            .checked(character == "fox")
-            .build(app);
-        let ch_jiaobu = CheckMenuItemBuilder::with_id("p_char_jiaobu", "角色：膠布")
-            .checked(character == "jiaobu")
-            .build(app);
-        let ch_yueyue = CheckMenuItemBuilder::with_id("p_char_yueyue", "角色：玥玥")
-            .checked(character == "yueyue")
-            .build(app);
+        // 主視窗選單。狀態列
         let stat_mood = MenuItemBuilder::with_id("p_s1", format!("心情　　{}", stat_bar(mood)))
             .enabled(false)
             .build(app);
@@ -434,43 +838,98 @@ fn show_menu(
         let patrol_item = CheckMenuItemBuilder::with_id("p_patrol", "巡邏模式")
             .checked(patrol)
             .build(app);
-        let multi_item = CheckMenuItemBuilder::with_id("p_multi", "多人模式（找夥伴來）")
-            .checked(multi)
+        // 「角色：」單選區——目前主視窗角色（從 CHARS 迴圈產生）
+        let char_hdr = MenuItemBuilder::with_id("p_charhdr", "角色（主視窗）")
+            .enabled(false)
             .build(app);
+        let mut char_items = Vec::new();
+        for (id, name) in CHARS {
+            if let Ok(it) = CheckMenuItemBuilder::with_id(
+                format!("p_char_{id}"),
+                format!("角色：{name}"),
+            )
+            .checked(&character == id)
+            .build(app)
+            {
+                char_items.push(it);
+            }
+        }
+        // 「夥伴：」多選區——每角色一個夥伴視窗開關（主角色同字符也允許勾）
+        let comp_hdr = MenuItemBuilder::with_id("p_comphdr", "夥伴：")
+            .enabled(false)
+            .build(app);
+        let mut comp_items = Vec::new();
+        for (id, name) in CHARS {
+            let checked = companions.iter().any(|c| c == id);
+            if let Ok(it) = CheckMenuItemBuilder::with_id(format!("p_comp_{id}"), *name)
+                .checked(checked)
+                .build(app)
+            {
+                comp_items.push(it);
+            }
+        }
+        // 「玩具：」區——每種玩具一個開關（checked = 玩具視窗存在）
+        let toy_hdr = MenuItemBuilder::with_id("p_toyhdr", "玩具：")
+            .enabled(false)
+            .build(app);
+        let mut toy_items = Vec::new();
+        for (id, name) in TOYS {
+            let checked = app.get_webview_window(&format!("toy_{id}")).is_some();
+            if let Ok(it) = CheckMenuItemBuilder::with_id(format!("p_toy_{id}"), *name)
+                .checked(checked)
+                .build(app)
+            {
+                toy_items.push(it);
+            }
+        }
+        // 「大小：」區——縮放檔位單選（checked = 當前 scale，浮點容差比較）
+        let scale_hdr = MenuItemBuilder::with_id("p_scalehdr", "大小：")
+            .enabled(false)
+            .build(app);
+        let mut scale_items = Vec::new();
+        for (name, value) in SCALES {
+            let id = format!("p_scale_{}", (*value * 1000.0).round() as i64);
+            if let Ok(it) = CheckMenuItemBuilder::with_id(id, format!("大小：{name}"))
+                .checked((*value - scale).abs() < 0.01)
+                .build(app)
+            {
+                scale_items.push(it);
+            }
+        }
         let hide = MenuItemBuilder::with_id("p_hide", "躲起來（系統匣可叫回）").build(app);
         let home = MenuItemBuilder::with_id("p_home", "回到主螢幕右下角").build(app);
         let auto = CheckMenuItemBuilder::with_id("p_autostart", "開機自動啟動")
             .checked(is_autostart())
             .build(app);
         let quit = MenuItemBuilder::with_id("p_quit", "離開").build(app);
-        if let (
-            Ok(s1),
-            Ok(s2),
-            Ok(feed),
-            Ok(patrol_item),
-            Ok(multi_item),
-            Ok(ch_dog),
-            Ok(ch_fox),
-            Ok(ch_jiaobu),
-            Ok(ch_yueyue),
-            Ok(hide),
-            Ok(home),
-            Ok(auto),
-            Ok(quit),
-        ) = (
-            stat_mood, stat_full, feed, patrol_item, multi_item, ch_dog, ch_fox, ch_jiaobu,
-            ch_yueyue, hide, home, auto, quit,
-        ) {
-            if let Ok(menu) = MenuBuilder::new(app)
+        if let (Ok(s1), Ok(s2), Ok(feed), Ok(patrol_item), Ok(char_hdr), Ok(comp_hdr), Ok(toy_hdr), Ok(scale_hdr), Ok(hide), Ok(home), Ok(auto), Ok(quit)) =
+            (stat_mood, stat_full, feed, patrol_item, char_hdr, comp_hdr, toy_hdr, scale_hdr, hide, home, auto, quit)
+        {
+            let mut mb = MenuBuilder::new(app)
                 .items(&[&s1, &s2])
                 .separator()
-                .items(&[&feed, &patrol_item, &multi_item])
+                .items(&[&feed, &patrol_item])
                 .separator()
-                .items(&[&ch_dog, &ch_fox, &ch_jiaobu, &ch_yueyue])
+                .item(&char_hdr);
+            for it in &char_items {
+                mb = mb.item(it as &dyn IsMenuItem<_>);
+            }
+            mb = mb.separator().item(&comp_hdr);
+            for it in &comp_items {
+                mb = mb.item(it as &dyn IsMenuItem<_>);
+            }
+            mb = mb.separator().item(&toy_hdr);
+            for it in &toy_items {
+                mb = mb.item(it as &dyn IsMenuItem<_>);
+            }
+            mb = mb.separator().item(&scale_hdr);
+            for it in &scale_items {
+                mb = mb.item(it as &dyn IsMenuItem<_>);
+            }
+            mb = mb
                 .separator()
-                .items(&[&hide, &home, &auto, &quit])
-                .build()
-            {
+                .items(&[&hide, &home, &auto, &quit]);
+            if let Ok(menu) = mb.build() {
                 let r = menu.popup_at(win.as_ref().window(), pos);
                 dlog(&format!("main popup result: {:?}", r.err()));
             } else {
@@ -554,9 +1013,10 @@ fn spawn_claude_listener(app: AppHandle) {
                 let _ = app.emit("claude-event", evt); // 廣播給所有寵物視窗
             }
             // 多人模式切換（自動化/測試用）：交給主視窗的 JS 統一管理狀態
+            // （切換「有/無夥伴」：有→全收回，無→隨機召喚一位）
             if req.contains("/pet/multi") {
                 if let Some(w) = app.get_webview_window("main") {
-                    let _ = w.emit_to("main", "pet-cmd", "main:multi");
+                    let _ = w.emit_to("main", "pet-cmd", "main:multitest");
                 }
             }
             // 前端 JS 的日誌通道（除錯用）
@@ -617,7 +1077,10 @@ fn main() {
             snap_bottom,
             fit_window,
             set_companion,
-            relay
+            relay,
+            set_toy,
+            toy_grab,
+            toy_menu
         ])
         .on_window_event(|window, event| {
             // 換到不同縮放比的螢幕：依新 DPI 重設實體尺寸，否則內容會被裁切
@@ -669,8 +1132,12 @@ fn main() {
                             .get_webview_window("main")
                             .and_then(|w| w.is_visible().ok())
                             .unwrap_or(true);
-                        for label in ["main", "pet2"] {
-                            if let Some(w) = app.get_webview_window(label) {
+                        // 寵物視窗 + 玩具視窗一起收/放
+                        for (label, w) in app.webview_windows() {
+                            if label == "main"
+                                || label.starts_with("pet_")
+                                || label.starts_with("toy_")
+                            {
                                 if vis { let _ = w.hide(); } else { let _ = w.show(); }
                             }
                         }
@@ -688,86 +1155,160 @@ fn main() {
                 })
                 .build(app)?;
 
-            // 右鍵彈出選單的事件（p_* 開頭，與系統匣分開避免重複觸發）
+            // 右鍵彈出選單的事件（p_*/q_* 開頭，與系統匣分開避免重複觸發）
             let tray_auto = autostart.clone();
-            app.on_menu_event(move |app, event| match event.id().as_ref() {
-                "p_hide" => {
+            app.on_menu_event(move |app, event| {
+                let id = event.id().as_ref();
+                // 角色單選：p_char_<id> → 主視窗換角（reload）
+                if let Some(ch) = id.strip_prefix("p_char_") {
                     if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.hide();
+                        let _ = w.emit_to("main", "pet-cmd", format!("main:char:{ch}"));
                     }
+                    return;
                 }
-                "p_home" => {
+                // 夥伴多選：p_comp_<id> → 交主視窗 JS 切換該角色夥伴視窗
+                if let Some(ch) = id.strip_prefix("p_comp_") {
                     if let Some(w) = app.get_webview_window("main") {
-                        let wa = work_area();
-                        if let Ok(s) = w.outer_size() {
-                            let _ = w.set_position(PhysicalPosition::new(
-                                wa.right - s.width as i32 - 32,
-                                wa.bottom - s.height as i32 - 8,
-                            ));
-                            save_pos(&w);
+                        let _ = w.emit_to("main", "pet-cmd", format!("main:comp:{ch}"));
+                    }
+                    return;
+                }
+                // 玩具多選：p_toy_<id> → 交主視窗 JS 切換該玩具視窗
+                if let Some(t) = id.strip_prefix("p_toy_") {
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit_to("main", "pet-cmd", format!("main:toy:{t}"));
+                    }
+                    return;
+                }
+                // 大小單選：p_scale_<千分值> → 交主視窗 JS 換縮放（存 localStorage 後 reload）
+                if let Some(key) = id.strip_prefix("p_scale_") {
+                    if let Ok(milli) = key.parse::<f64>() {
+                        let v = milli / 1000.0;
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.emit_to("main", "pet-cmd", format!("main:scale:{v}"));
                         }
                     }
+                    return;
                 }
-                // pet-cmd 一律「label:指令」格式，前端過濾自己的
-                "p_feed" => {
+                // 玩具視窗選單：q_toyoff@<label> → 交主視窗 JS 收起該玩具（label 去 toy_ 前綴取 id）
+                if let Some(label) = id.strip_prefix("q_toyoff@") {
+                    let t = label.strip_prefix("toy_").unwrap_or(label);
                     if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit_to("main", "pet-cmd", "main:feed");
+                        let _ = w.emit_to("main", "pet-cmd", format!("main:toyoff:{t}"));
                     }
+                    return;
                 }
-                "p_patrol" => {
-                    // 巡邏是全家一起的行程：兩隻都收到
+                // 夥伴視窗選單：q_feed@<label> → 餵那隻夥伴
+                if let Some(label) = id.strip_prefix("q_feed@") {
+                    if let Some(w) = app.get_webview_window(label) {
+                        let _ = w.emit_to(label, "pet-cmd", format!("{label}:feed"));
+                    }
+                    return;
+                }
+                // 夥伴視窗選單：q_close@<label> → 交主視窗 JS 收回該角色（label 去 pet_ 前綴取 char）
+                if let Some(label) = id.strip_prefix("q_close@") {
+                    let ch = label.strip_prefix("pet_").unwrap_or(label);
                     if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit_to("main", "pet-cmd", "main:patrol");
+                        let _ = w.emit_to("main", "pet-cmd", format!("main:compoff:{ch}"));
                     }
-                    if let Some(w) = app.get_webview_window("pet2") {
-                        let _ = w.emit_to("pet2", "pet-cmd", "pet2:patrol");
+                    return;
+                }
+                match id {
+                    "p_hide" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.hide();
+                        }
                     }
-                }
-                "p_char_dog" => {
-                    if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit_to("main", "pet-cmd", "main:char:dog");
+                    "p_home" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let wa = work_area();
+                            if let Ok(s) = w.outer_size() {
+                                let _ = w.set_position(PhysicalPosition::new(
+                                    wa.right - s.width as i32 - 32,
+                                    wa.bottom - s.height as i32 - 8,
+                                ));
+                                save_pos(&w);
+                            }
+                        }
                     }
-                }
-                "p_char_fox" => {
-                    if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit_to("main", "pet-cmd", "main:char:fox");
+                    // pet-cmd 一律「label:指令」格式，前端過濾自己的
+                    "p_feed" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.emit_to("main", "pet-cmd", "main:feed");
+                        }
                     }
-                }
-                "p_char_jiaobu" => {
-                    if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit_to("main", "pet-cmd", "main:char:jiaobu");
+                    "p_patrol" => {
+                        // 巡邏是全家一起的行程：每隻寵物視窗都收到
+                        for w in pet_windows(app) {
+                            let label = w.label().to_string();
+                            let _ = w.emit_to(label.as_str(), "pet-cmd", format!("{label}:patrol"));
+                        }
                     }
-                }
-                "p_char_yueyue" => {
-                    if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit_to("main", "pet-cmd", "main:char:yueyue");
+                    "p_autostart" => {
+                        let on = !is_autostart();
+                        set_autostart(on);
+                        let _ = tray_auto.set_checked(on);
                     }
-                }
-                "p_multi" | "q_close" => {
-                    // 多人模式開關統一由主視窗 JS 管理（localStorage + set_companion）
-                    if let Some(w) = app.get_webview_window("main") {
-                        let _ = w.emit_to("main", "pet-cmd", "main:multi");
+                    "p_quit" => {
+                        dlog("menu p_quit clicked");
+                        quit_app(app);
                     }
+                    _ => {}
                 }
-                "q_feed" => {
-                    if let Some(w) = app.get_webview_window("pet2") {
-                        let _ = w.emit_to("pet2", "pet-cmd", "pet2:feed");
-                    }
-                }
-                "p_autostart" => {
-                    let on = !is_autostart();
-                    set_autostart(on);
-                    let _ = tray_auto.set_checked(on);
-                }
-                "p_quit" => {
-                    dlog("menu p_quit clicked");
-                    quit_app(app);
-                }
-                _ => {}
             });
 
             Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running clawd-pet");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // 離線驗證典型踢擊軌跡（初速 800,-700、重力 2800、scale=1）：
+    // 1) 不穿出 work_area  2) ~2 秒內落地靜止  3) 彈跳 2-4 次
+    #[test]
+    fn kick_trajectory() {
+        let left = 0.0;
+        let right = 1920.0 - TOY_W; // 視窗左上角 x 上限
+        let ground = 1040.0 - TOY_H; // 落地 y
+        let mut p = Phys {
+            x: 900.0,
+            y: ground,
+            vx: 800.0,
+            vy: -700.0,
+            grounded: false,
+            grabbed: false,
+            scale: 1.0,
+        };
+        let (mut xmin, mut xmax, mut ymax) = (p.x, p.x, p.y);
+        let mut bounces = 0;
+        let mut settle_tick: Option<usize> = None;
+        for i in 0..600 {
+            let was_air = !p.grounded;
+            let prev_vy = p.vy;
+            p.step(left, right, ground);
+            // 彈跳：這 tick 觸地後 vy 由正(下)轉負(上)且仍在空中
+            if was_air && prev_vy > 0.0 && p.vy < 0.0 && !p.grounded {
+                bounces += 1;
+            }
+            xmin = xmin.min(p.x);
+            xmax = xmax.max(p.x);
+            ymax = ymax.max(p.y);
+            if p.grounded && p.vx == 0.0 && settle_tick.is_none() {
+                settle_tick = Some(i);
+                break;
+            }
+        }
+        let settle_s = settle_tick.expect("should settle") as f64 * TOY_DT;
+        assert!(
+            xmin >= left - 0.5 && xmax <= right + 0.5,
+            "x 出界 [{xmin}, {xmax}] (allowed [{left}, {right}])"
+        );
+        assert!(ymax <= ground + 0.5, "y 穿地 {ymax} > {ground}");
+        assert!((2..=4).contains(&bounces), "彈跳次數 {bounces} 不在 2..=4");
+        assert!(settle_s <= 2.2, "落地靜止太慢 {settle_s}s");
+    }
 }

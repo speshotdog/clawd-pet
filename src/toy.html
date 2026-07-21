@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>ClawdToy</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      overflow: hidden; background: transparent;
+      user-select: none; -webkit-user-select: none;
+    }
+    #stage {
+      position: relative;
+      width: 150px;
+      height: 120px;
+      cursor: grab;
+    }
+    #stage.grabbed { cursor: grabbing; }
+    /* 落地陰影（滾動/飛行時輕微變化，靜止時穩定） */
+    #toyshadow {
+      position: absolute;
+      bottom: 3px;
+      left: 50%;
+      width: 100px;
+      height: 12px;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.18);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    /* 恐龍：寬 120 CSS px、底錨貼視窗底（留 2px） */
+    #toy {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      width: 120px;
+      height: auto;
+      transform: translateX(-50%);
+      transform-origin: 50% 90%;   /* 翻滾/擠壓的樞紐靠近底部（像玩偶翻倒） */
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <div id="toyshadow"></div>
+    <img id="toy" src="toy-dino.png" alt="dino" draggable="false" />
+  </div>
+  <script src="toy.js"></script>
+</body>
+</html>

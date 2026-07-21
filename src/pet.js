@@ -10,72 +10,111 @@ const workcount = document.getElementById('workcount');
 const sweat = document.getElementById('sweat');
 const zzz = document.getElementById('zzz');
 
+// 寵物縮放倍率（localStorage: petscale，浮點字串）。所有寵物視窗共用同一 origin
+// 的 localStorage，主視窗改完 reload、開機還原重建夥伴時大家一起套用。
+// 非法值（NaN、超界）夾回 [0.5, 2]，讀不到時 fallback 1.0（標準）。
+const SCALE = Math.min(2, Math.max(0.5, parseFloat(localStorage.getItem('petscale') || '1') || 1));
+
 // ---------- 角色系統：從 template 實例化選定角色 ----------
 // 每個角色是一個 <template>，內含同一套結構 id（pet/body/face/legL/legR/pawR/眼睛組），
 // 一次只實例化一隻，所以 id 不會衝突；可選部件（tail/earL/earR）有就會動。
 const CHAR_CFG = {
   dog: {
-    // 兩角色「頭頂（頭皮，不算耳朵）」等高：都落在 CSS y=57
+    // 兩角色「頭頂（頭皮，不算耳朵）」等高：都落在 CSS y=93
     height: 161,                             // CSS 顯示高度
     limbScale: 1,                            // 四肢擺幅倍率
-    center: { x: 81, y: 106 },              // 臉的中心（視窗 CSS 座標）
+    center: { x: 101, y: 142 },             // 臉的中心（視窗 CSS 座標）
     legL: [91, 301], legR: [158, 305], pawR: [277, 264],  // 四肢樞紐（viewBox 座標）
     up: -1,                                  // pawR 舉起的旋轉方向（SVG 順時針為正）
     sleepShift: '8px',
     hit(px, py) {
-      const hx = px - 102, hy = py - 105;
+      const hx = px - 122, hy = py - 141;
       if ((hx * hx) / (65 * 65) + (hy * hy) / (48 * 48) <= 1) return true;  // 頭+雙耳
-      if (px >= 29 && px <= 171 && py >= 144 && py <= 218) return true;     // 軀幹
+      if (px >= 49 && px <= 191 && py >= 180 && py <= 254) return true;     // 軀幹
       return false;
     },
   },
   fox: {
-    // viewBox 61 94 495 467（原圖 635x618 的子窗）；頭皮鞍部 y=152 → 高度 184 時頭頂在 CSS y=57
+    // viewBox 61 94 495 467（原圖 635x618 的子窗）；頭皮鞍部 y=152 → 高度 184 時頭頂在 CSS y=93
     height: 184,
     limbScale: 0.55,   // 部件切割縫較淺，擺幅縮小避免毛刺
-    center: { x: 103, y: 112 },
+    center: { x: 123, y: 148 },
     legL: [258, 503], legR: [368, 503], pawR: [246, 400],
     tail: [441, 443],
     up: -1,
     sleepShift: '-6px',
     hit(px, py) {
-      const hx = px - 104, hy = py - 90;
+      const hx = px - 124, hy = py - 126;
       if ((hx * hx) / (52 * 52) + (hy * hy) / (48 * 48) <= 1) return true;  // 頭+雙耳
-      if (px >= 54 && px <= 193 && py >= 139 && py <= 216) return true;     // 裙+尾巴
+      if (px >= 74 && px <= 213 && py >= 175 && py <= 252) return true;     // 裙+尾巴
       return false;
     },
   },
   jiaobu: {
-    // viewBox 121 63 553 635；頭皮鞍部（雙角間）y=181 → 高度 198 時頭頂在 CSS y=57
+    // viewBox 121 63 553 635；頭皮鞍部（雙角間）y=181 → 高度 198 時頭頂在 CSS y=93
     height: 198,
     limbScale: 0.5,    // 存根切割縫，擺幅減半藏縫
-    center: { x: 87, y: 100 },
+    center: { x: 107, y: 136 },
     legL: [234, 650], legR: [544, 650],
     pawR: [533, 452],  // 樞紐放手肘斷口上：舉刀時斷口零位移
     tail: [604, 560],
     up: 1,             // 刀尖在樞紐左上，順時針才是舉起
     sleepShift: '0px',
     hit(px, py) {
-      const hx = px - 87, hy = py - 92;
+      const hx = px - 107, hy = py - 128;
       if ((hx * hx) / (58 * 58) + (hy * hy) / (42 * 42) <= 1) return true;  // 頭
-      if (px >= 18 && px <= 182 && py >= 126 && py <= 218) return true;     // 軀幹
+      if (px >= 38 && px <= 202 && py >= 162 && py <= 254) return true;     // 軀幹
       return false;
     },
   },
   yueyue: {
-    // viewBox 40 21 688 726；頭皮鞍部（雙耳間）y=157 → 高度 198 時頭頂在 CSS y=57
+    // viewBox 40 21 688 726；頭皮鞍部（雙耳間）y=157 → 高度 198 時頭頂在 CSS y=93
     height: 198,
     limbScale: 0.5,
-    center: { x: 98, y: 77 },
+    center: { x: 118, y: 113 },
     legL: [150, 690], legR: [535, 692],
     pawR: [145, 515],  // 樞紐放臂根下緣：舉手時下端幾乎不掃動
-    tail: [635, 525],
+    tail: [608, 385],  // 樞紐貼熔接縫：上緣熔接點掃動最小化（原 [635,525] 撕裂 -47%）
     up: 1,             // 拳頭在樞紐左側，順時針上舉
     sleepShift: '0px',
     hit(px, py) {
-      const hx = px - 85, hy = py - 75;
+      const hx = px - 105, hy = py - 111;
       if ((hx * hx) / (72 * 72) + (hy * hy) / (52 * 52) <= 1) return true;  // 頭+雙耳
-      if (px >= 8 && px <= 190 && py >= 122 && py <= 218) return true;      // 軀幹+尾巴
+      if (px >= 28 && px <= 210 && py >= 158 && py <= 254) return true;      // 軀幹+尾巴
+      return false;
+    },
+  },
+  zhenzhen: {
+    // viewBox 150 139 848 844（原圖 1000x1000 的子窗）；羊毛球頂 y=147 →
+    // 解 (254-H)+(147-139)*H/844=93 得 H=162.5，頭頂落在 CSS y=93.04
+    height: 162.5,
+    limbScale: 0.5,   // 腿樁切在黑色輪廓帶（黑對黑藏縫），擺幅減半，±6.5° 零裂縫
+    center: { x: 85, y: 150 },   // 雙眼中點（視窗 CSS 座標），視線跟隨用
+    legL: [354, 910], legR: [596, 936],   // 腿樁樞紐（viewBox 座標，放切割帶中點）
+    pawR: [400, 500],   // pawR 留空（未拆手），樞紐給任意值不影響（旋轉空 g 無視覺）
+    up: -1,             // pawR 舉起方向（此角無手，保留欄位）
+    sleepShift: '0px',
+    hit(px, py) {
+      const hx = px - 120, hy = py - 172;
+      if ((hx * hx) / (81 * 81) + (hy * hy) / (80 * 80) <= 1) return true;  // 圓滾羊身
+      if (px >= 52 && px <= 188 && py >= 172 && py <= 254) return true;      // 底部
+      return false;
+    },
+  },
+  zhenmu: {
+    // viewBox 62 128 650 543（768 畫布子窗）；圓頂最高 y=135，觸手末端貼地 y=670。
+    // 解 (254-163)+(135-128)*163/543 = 93.1 → 頭頂線 CSS y≈93（誤差 0.1px）
+    height: 163,
+    limbScale: 0.5,     // 觸手細長、組內兩條共轉，擺幅 13*0.5=6.5° 藏住根部縫
+    center: { x: 100, y: 150 },       // 臉中心（豆眼中點的 CSS 座標）
+    legL: [226, 506], legR: [500, 506],  // 各組觸手根部中點（存根覆蓋帶內，接近交界）
+    pawR: [400, 400],   // pawR 留空（未拆手），樞紐給任意值（旋轉空 g 無視覺；缺欄位會 spread 爆錯）
+    up: -1,             // pawR 空，此值無實效，保留供 rig
+    sleepShift: '0px',
+    hit(px, py) {
+      const hx = px - 120, hy = py - 148;
+      if ((hx * hx) / (88 * 88) + (hy * hy) / (54 * 54) <= 1) return true;  // 圓頂
+      if (px >= 46 && px <= 191 && py >= 200 && py <= 254) return true;     // 觸手矮區
       return false;
     },
   },
@@ -88,20 +127,49 @@ window.onunhandledrejection = (e) => jlog(`REJECT ${e.reason}`);
 // 夥伴視窗由 URL query 指定角色（?char=fox）；主視窗看 localStorage
 const _urlChar = new URLSearchParams(location.search).get('char');
 const IS_COMPANION = !!_urlChar;
-const MY_LABEL = IS_COMPANION ? 'pet2' : 'main';
 const CHAR = _urlChar || localStorage.getItem('petchar') || 'dog';
+// 視窗 label 必須與 Rust 端一致：夥伴視窗 = 'pet_' + 角色 id
+const MY_LABEL = IS_COMPANION ? 'pet_' + CHAR : 'main';
 const CFG = CHAR_CFG[CHAR] || CHAR_CFG.dog;
 const otherChar = (c) => {
   const pool = Object.keys(CHAR_CFG).filter((k) => k !== c);
   return pool[Math.floor(Math.random() * pool.length)];
 };
-const multiOn = () => localStorage.getItem('petmulti') === '1';
+
+// ---------- 夥伴清單（localStorage: petcompanions = JSON array of char ids） ----------
+const compList = () => {
+  try { return JSON.parse(localStorage.getItem('petcompanions') || '[]'); }
+  catch (_) { return []; }
+};
+const setCompList = (arr) => localStorage.setItem('petcompanions', JSON.stringify(arr));
+// ---------- 玩具清單（localStorage: pettoys = JSON array of toy ids） ----------
+const toyList = () => {
+  try { return JSON.parse(localStorage.getItem('pettoys') || '[]'); }
+  catch (_) { return []; }
+};
+const setToyList = (arr) => localStorage.setItem('pettoys', JSON.stringify(arr));
+// 已知玩具 id（需與 main.rs 的 TOYS 一致）
+const TOYS_KNOWN = ['dino'];
+// 舊版 petmulti 遷移：無 petcompanions 且 petmulti=='1' → 建一位隨機夥伴
+if (!IS_COMPANION
+    && localStorage.getItem('petcompanions') === null
+    && localStorage.getItem('petmulti') === '1') {
+  setCompList([otherChar(CHAR)]);
+  localStorage.removeItem('petmulti');
+}
 {
   const tpl = document.getElementById('char-' + CHAR) || document.getElementById('char-dog');
   stage.appendChild(tpl.content.cloneNode(true));
+  // 整體縮放：stage 維持 240x256 CSS，用 transform 縮放後剛好填滿縮放後的視窗
+  // （fitWindow 傳 dpr*SCALE，Rust 把物理視窗撐到 240*SCALE*dpr）。
+  stage.style.transform = 'scale(' + SCALE + ')';
+  stage.style.transformOrigin = '0 0';
   document.getElementById('pet').style.height = CFG.height + 'px';
   // 睡覺躺平時的落地微調（依角色體型不同）
   stage.style.setProperty('--sleepShift', CFG.sleepShift || '0px');
+  // UI 元素依角色高度定位：角色頂在 stage 的 y、文字區頂（懸在頭頂上方不壓頭）
+  stage.style.setProperty('--charTop', (254 - CFG.height) + 'px');
+  stage.style.setProperty('--uiTop', Math.max(4, 254 - CFG.height - 36) + 'px');
 }
 const body = document.getElementById('body');
 const legL = document.getElementById('legL');
@@ -233,6 +301,7 @@ let moveDebounce = null;
 let grabWatchdog = null;
 let dragMoved = false;
 let hiTimer = null;
+let kickTimer = null;   // 踢玩具動作計時器
 
 // 統一的「放下/解除抓取」出口：任何路徑結束抓取都走這裡，避免狀態卡死
 function endGrab(bounce) {
@@ -301,7 +370,8 @@ document.addEventListener('contextmenu', (e) => {
     fullness: Math.round(stats.fullness),
     patrol: patrolOn,
     character: CHAR,
-    multi: multiOn(),
+    companions: compList(),
+    scale: SCALE,
     x: e.clientX * dpr,
     y: e.clientY * dpr,
   });
@@ -389,22 +459,25 @@ function barFinish(ok) {
 }
 
 // ---------- Claude Code 連動（多工計數＋夥伴分流） ----------
-// 主視窗是唯一計數者。有夥伴時工作對半分（主拿 ceil、夥伴拿 floor），
-// 份數用 relay 指令同步給夥伴（pet2:cshare:N）。
-// 沒夥伴卻來了第 2 件工作 → 隨機臨時召喚一位分擔，全部完工 10 秒後自動回家
-// （夥伴本來就在＝手動開的多人模式，就不回家）。
+// 主視窗是唯一計數者。有 N 個夥伴時工作平分 N+1 份（每份 floor，餘數歸主視窗），
+// 份數用 relay 指令同步給每個夥伴（pet_<id>:cshare:N）。
+// 沒任何夥伴卻來了第 2 件工作 → 隨機臨時召喚一位非主角色分擔，全部完工 10 秒後
+// 自動回家（本來就有手動夥伴時＝不召喚也不收回）。
 let claudeCount = 0;
 let claudeStartAt = 0;   // 自己開始工作的時間（冒汗判定用）
 let claudeSafety = null;
-let helperTemp = false;  // 夥伴是臨時召喚來的
+let helperTemp = false;  // 是否有臨時召喚來的夥伴
+let helperChar = null;   // 臨時夥伴的角色 id（收回時要指定 label）
 let helperGoneTimer = null;
 let myShare = 0;         // 夥伴視窗：目前被分派的份數（由主視窗 relay 驅動）
 const claudeBusy = () => (IS_COMPANION ? myShare > 0 : claudeCount > 0);
-const companionActive = () => multiOn() || helperTemp;
-const randomChar = () => {
-  const pool = Object.keys(CHAR_CFG);
-  return pool[Math.floor(Math.random() * pool.length)];
+// 目前實際在場的夥伴角色清單（手動清單 + 臨時召喚的那位）
+const activeComps = () => {
+  const list = compList();
+  if (helperTemp && helperChar && !list.includes(helperChar)) return list.concat(helperChar);
+  return list;
 };
+const companionActive = () => compList().length > 0 || helperTemp;
 
 function updateWorkCount(n) {
   if (n >= 2) {
@@ -415,12 +488,17 @@ function updateWorkCount(n) {
   }
 }
 
-// 主視窗：同步夥伴份數＋更新自己的徽章
+// 主視窗：把工作份數分派給每個在場夥伴＋更新自己的徽章
 function syncShare() {
   if (IS_COMPANION || !TAURI) return;
-  const share = companionActive() ? Math.floor(claudeCount / 2) : 0;
-  TAURI.core.invoke('relay', { payload: `pet2:cshare:${share}` }).catch(() => {});
-  updateWorkCount(companionActive() ? Math.ceil(claudeCount / 2) : claudeCount);
+  const comps = activeComps();
+  const n = comps.length + 1;                 // 夥伴數 + 主視窗
+  const base = Math.floor(claudeCount / n);
+  const rem = claudeCount % n;
+  comps.forEach((c) => {
+    TAURI.core.invoke('relay', { payload: `pet_${c}:cshare:${base}` }).catch(() => {});
+  });
+  updateWorkCount(base + rem);                // 主視窗拿 base + 餘數
 }
 
 function claudeAllDone(ok) {
@@ -437,8 +515,10 @@ function claudeAllDone(ok) {
     clearTimeout(helperGoneTimer);
     helperGoneTimer = setTimeout(() => {
       if (helperTemp && claudeCount === 0) {
+        const c = helperChar;
         helperTemp = false;
-        TAURI.core.invoke('set_companion', { on: false, character: 'dog' }).catch(() => {});
+        helperChar = null;
+        TAURI.core.invoke('set_companion', { on: false, character: c }).catch(() => {});
         say('謝謝幫忙～', 1600);
       }
     }, 10_000);
@@ -459,10 +539,11 @@ function onClaudeEvent(evt) {
       say(`同時 ${claudeCount} 件工作！`, 1600);
     }
     setState('work', true);
-    // 複數工作但沒有夥伴 → 隨機臨時召喚一位來分擔
+    // 複數工作但沒有任何夥伴 → 隨機臨時召喚一位非主角色來分擔
     if (claudeCount >= 2 && !companionActive()) {
       helperTemp = true;
-      TAURI.core.invoke('set_companion', { on: true, character: randomChar() }).catch(() => {});
+      helperChar = otherChar(CHAR);
+      TAURI.core.invoke('set_companion', { on: true, character: helperChar }).catch(() => {});
       say('叫夥伴來幫忙！', 1800);
       setTimeout(syncShare, 3000);   // 等夥伴開機完再同步一次份數
     }
@@ -568,7 +649,8 @@ function animate(now) {
 
   let tf = '';
   if (grabbed) {
-    tf = `scale(0.96, 1.07) rotate(${3 * Math.sin((t * 2 * Math.PI) / 0.9)}deg)`;
+    // translateY 抬 3px：1.07 縱向放大會讓 198px 高的角色腳底掃出視窗底 ~2px
+    tf = `translateY(-3px) scale(0.96, 1.07) rotate(${3 * Math.sin((t * 2 * Math.PI) / 0.9)}deg)`;
   } else {
     const period = isSleeping() ? 5.2 : 3.4;
     const b = (Math.sin((t * 2 * Math.PI) / period) + 1) / 2; // 0..1
@@ -587,8 +669,9 @@ function animate(now) {
   if (grabbed) {
     const s = Math.sin((t * 2 * Math.PI) / 0.9);
     aL = 8 + 3 * s; aR = -8 - 3 * s; aP = 10 * s;
-  } else if (walking || stage.classList.contains('work')) {
+  } else if (walking || stage.classList.contains('work') || stage.classList.contains('kick')) {
     // 擺幅 13°：存根平切邊的直角掃出量壓在輪廓線厚度內（17° 會露出膝蓋尖角）
+    // 踢玩具沿用 walk 擺腿（身體衝刺由 .kick 的 keyframes 負責）
     const s = Math.sin((t * 2 * Math.PI) / 0.4);
     aL = 13 * s; aR = -13 * s;
     aP = 11 * Math.sin((t * 2 * Math.PI) / 0.4 + 1.2);
@@ -664,10 +747,12 @@ async function main() {
   const win = TAURI.window.getCurrentWindow();
 
   // 視窗適配：把真實 devicePixelRatio 回報給後端，讓實體視窗剛好裝下
-  // 200x220 CSS。後端的 GetDpiForWindow 只看得到「顯示縮放」，量不到
+  // 240x256 CSS。後端的 GetDpiForWindow 只看得到「顯示縮放」，量不到
   // Windows「文字大小」的疊乘（例：150%×125% = dpr 1.875），會裁切角色。
   function fitWindow() {
-    TAURI.core.invoke('fit_window', { dpr: window.devicePixelRatio || 1 }).catch(() => {});
+    // 傳 dpr*SCALE：物理視窗撐到 240*SCALE*dpr，剛好裝下縮放後的 stage。
+    // fit_window 的 clamp 是 0.5..4.0，最小檔 0.7 在 dpr=1 時 =0.7 仍在界內。
+    TAURI.core.invoke('fit_window', { dpr: (window.devicePixelRatio || 1) * SCALE }).catch(() => {});
   }
   // dpr 改變（拖到不同縮放的螢幕、改系統設定）就重新適配
   function watchDpr() {
@@ -677,19 +762,28 @@ async function main() {
   fitWindow();
   watchDpr();
 
-  // 多人模式：開機還原夥伴視窗（只有主視窗負責；換角色重載後也走這裡換角）
-  if (!IS_COMPANION && multiOn()) {
-    TAURI.core.invoke('set_companion', { on: true, character: otherChar(CHAR) }).catch(() => {});
+  // 多人模式：開機還原所有夥伴視窗（只有主視窗負責；換角色重載後也走這裡重建）
+  // set_companion 會先 destroy 同 label 再建，重複呼叫安全。
+  if (!IS_COMPANION) {
+    compList().forEach((c) => {
+      TAURI.core.invoke('set_companion', { on: true, character: c }).catch(() => {});
+    });
+    // 開機還原所有玩具視窗（只有主視窗負責）
+    toyList().forEach((tid) => {
+      TAURI.core.invoke('set_toy', { on: true, toy: tid }).catch(() => {});
+    });
   }
 
   await TAURI.event.listen('cursor', ({ payload }) => {
     // 事件實際上是廣播；只吃標給自己視窗的座標（吃到別窗的會導致穿透狂切）
     if (payload.w && payload.w !== MY_LABEL) return;
     // payload: 游標相對視窗左上角的實體像素座標（dpr 即時讀，避免適配後失準）
+    // 再除以 SCALE 換回未縮放的 stage 座標系（0..240 / 0..256），
+    // 後續 inside 判定與 hitTest 沿用原座標不必改。
     const dpr = window.devicePixelRatio || 1;
-    const cx = payload.x / dpr;
-    const cy = payload.y / dpr;
-    const inside = cx >= 0 && cx < 200 && cy >= 0 && cy < 220;
+    const cx = payload.x / dpr / SCALE;
+    const cy = payload.y / dpr / SCALE;
+    const inside = cx >= 0 && cx < 240 && cy >= 0 && cy < 256;
 
     // 逐像素穿透：只有壓在角色身上才攔截滑鼠
     const wantCapture = grabbed || (inside && hitTest(cx, cy));
@@ -744,23 +838,126 @@ async function main() {
     if (tgt !== MY_LABEL) return;
     if (cmd === 'feed') feed();
     else if (cmd === 'patrol') togglePatrol();
+    else if (cmd.startsWith('chase:')) {
+      // 被玩具吸引走過去（dx = 實體 px，交給 walk）
+      if (grabbed || feeding) return;
+      if (isSleeping()) wake();      // 被玩具吵醒
+      if (walking) return;           // 走路中忽略，Rust 下秒會再導引
+      const dx = parseFloat(cmd.slice(6));
+      if (!isFinite(dx) || Math.abs(dx) < 8) return;
+      setFacing(dx > 0);
+      TAURI.core.invoke('walk', { dx }).then((durationMs) => {
+        if (durationMs > 0) {
+          walking = true;
+          setState('walk', true);
+          setGaze(dx, 20);
+          setTimeout(() => { walking = false; setState('walk', false); }, durationMs);
+        }
+      }).catch(() => {});
+    }
+    else if (cmd.startsWith('kick:')) {
+      // 踢玩具！dir = 玩具相對自己的方向（+1 右）
+      if (grabbed) return;
+      if (isSleeping()) wake();
+      const dir = parseInt(cmd.slice(5), 10) || 1;
+      setFacing(dir > 0);            // 面向玩具
+      setState('kick', true);
+      clearTimeout(kickTimer);
+      kickTimer = setTimeout(() => setState('kick', false), 450);
+      if (Math.random() < 0.5) say(Math.random() < 0.5 ? '踢～！' : '嘿！', 1200);
+      addMood(2);                    // 追到玩具算「玩」
+    }
+    else if (cmd.startsWith('toy:') && !IS_COMPANION) {
+      // 切換某玩具視窗（勾＝開，取消勾＝收）
+      const id = cmd.slice(4);
+      if (!TOYS_KNOWN.includes(id)) return;
+      const list = toyList();
+      const idx = list.indexOf(id);
+      if (idx >= 0) {
+        list.splice(idx, 1);
+        setToyList(list);
+        TAURI.core.invoke('set_toy', { on: false, toy: id }).catch(() => {});
+        say('玩具收起來了～', 1600);
+      } else {
+        list.push(id);
+        setToyList(list);
+        TAURI.core.invoke('set_toy', { on: true, toy: id }).catch(() => {});
+        say('來玩玩具！ ♪', 1600);
+      }
+    }
+    else if (cmd.startsWith('toyoff:') && !IS_COMPANION) {
+      // 只收不開（玩具視窗自己按「收起玩具」時走這條）
+      const id = cmd.slice(7);
+      const list = toyList();
+      const idx = list.indexOf(id);
+      if (idx >= 0) { list.splice(idx, 1); setToyList(list); }
+      TAURI.core.invoke('set_toy', { on: false, toy: id }).catch(() => {});
+    }
     else if (cmd.startsWith('cshare:') && IS_COMPANION) {
       setCompanionShare(parseInt(cmd.slice(7), 10) || 0);
     }
-    else if (cmd === 'multi' && !IS_COMPANION) {
-      // 多人模式開關：夥伴視窗的角色永遠是主角色的「另一位」
-      const on = !multiOn();
-      helperTemp = false;               // 手動切換後夥伴身分轉正/收回，不再自動回家
-      clearTimeout(helperGoneTimer);
-      localStorage.setItem('petmulti', on ? '1' : '0');
-      TAURI.core.invoke('set_companion', { on, character: otherChar(CHAR) }).catch(() => {});
-      say(on ? '夥伴來了！' : '夥伴回家了～', 1800);
+    else if (cmd.startsWith('comp:') && !IS_COMPANION) {
+      // 切換某角色的夥伴視窗（勾＝開，取消勾＝關）
+      const id = cmd.slice(5);
+      if (!CHAR_CFG[id]) return;
+      const list = compList();
+      const idx = list.indexOf(id);
+      if (idx >= 0) {
+        list.splice(idx, 1);
+        setCompList(list);
+        if (helperChar === id) { helperTemp = false; helperChar = null; clearTimeout(helperGoneTimer); }
+        TAURI.core.invoke('set_companion', { on: false, character: id }).catch(() => {});
+        say('夥伴回家了～', 1800);
+      } else {
+        list.push(id);
+        setCompList(list);
+        // 手動加入的角色剛好是臨時召喚那位 → 身分轉正，不再自動回家
+        if (helperChar === id) { helperTemp = false; helperChar = null; clearTimeout(helperGoneTimer); }
+        TAURI.core.invoke('set_companion', { on: true, character: id }).catch(() => {});
+        say('夥伴來了！', 1800);
+      }
+      syncShare();
+    }
+    else if (cmd.startsWith('compoff:') && !IS_COMPANION) {
+      // 只收回不開（夥伴視窗自己按「收回夥伴」時走這條）
+      const id = cmd.slice(8);
+      const list = compList();
+      const idx = list.indexOf(id);
+      if (idx >= 0) { list.splice(idx, 1); setCompList(list); }
+      if (helperChar === id) { helperTemp = false; helperChar = null; clearTimeout(helperGoneTimer); }
+      TAURI.core.invoke('set_companion', { on: false, character: id }).catch(() => {});
+      say('夥伴回家了～', 1800);
+      syncShare();
+    }
+    else if (cmd === 'multitest' && !IS_COMPANION) {
+      // 自動化/測試切換「有/無夥伴」：有→全收回，無→隨機召喚一位非主角色
+      const list = compList();
+      if (list.length > 0 || helperTemp) {
+        list.forEach((c) => TAURI.core.invoke('set_companion', { on: false, character: c }).catch(() => {}));
+        if (helperTemp && helperChar) TAURI.core.invoke('set_companion', { on: false, character: helperChar }).catch(() => {});
+        setCompList([]);
+        helperTemp = false; helperChar = null; clearTimeout(helperGoneTimer);
+      } else {
+        const c = otherChar(CHAR);
+        setCompList([c]);
+        TAURI.core.invoke('set_companion', { on: true, character: c }).catch(() => {});
+      }
+      syncShare();
     }
     else if (cmd.startsWith('char:')) {
       const next = cmd.slice(5);
       if (next !== CHAR && CHAR_CFG[next]) {
         localStorage.setItem('petchar', next);
         location.reload();   // 重載以乾淨狀態實例化新角色（夥伴由重載後的開機檢查換角）
+      }
+    }
+    else if (cmd.startsWith('scale:')) {
+      // 換寵物大小：存 localStorage 後 reload。主視窗 reload 的開機還原會用新
+      // scale 重建所有夥伴視窗（夥伴同 origin 共用 localStorage，自動同步）。
+      const v = parseFloat(cmd.slice(6));
+      if (isFinite(v) && v > 0 && Math.abs(v - SCALE) > 0.001) {
+        localStorage.setItem('petscale', String(v));
+        location.reload();
       }
     }
   });

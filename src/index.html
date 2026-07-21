@@ -112,19 +112,20 @@
         <!-- 裁切矩形比挖除區外擴 8px：圓角只咬空白邊，不吃存根覆蓋區 -->
         <clipPath id="clipJbLegL"><rect x="160" y="621" width="148" height="97" rx="14" /></clipPath>
         <clipPath id="clipJbLegR"><rect x="470" y="621" width="148" height="97" rx="14" /></clipPath>
-        <clipPath id="clipJbPaw"><rect x="368" y="408" width="196" height="136" rx="10" /></clipPath>
       </defs>
       <ellipse id="shadow" cx="397" cy="688" rx="175" ry="12" />
       <g id="root">
         <g id="body">
-          <!-- 部件（腿與尾巴畫在身體後面；尾巴存根全程被 body 蓋住，不需裁切） -->
+          <!-- 定案工法（用戶規則）：pawR 刀臂前置，body 在手臂覆蓋區底下一律補「該處毛色」、
+               不留任何手臂/刀殘留（烘靜態副本會在抬刀後露出變殘影）；被手臂切斷的描邊斷頭
+               已在 body 圖磨圓（否則旋轉時形成深-淺-深裂縫）。 -->
           <g id="tail"><image href="jiaobu-tail.png" x="0" y="0" width="768" height="768" /></g>
           <g id="legL"><image href="jiaobu-legL.png" x="0" y="0" width="768" height="768" clip-path="url(#clipJbLegL)" /></g>
           <g id="legR"><image href="jiaobu-legR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipJbLegR)" /></g>
-          <!-- 原圖本體（刀與手掌處已補毛色） -->
+          <!-- 原圖本體（手臂覆蓋區已補純毛色、斷頭已磨） -->
           <image href="jiaobu-body.png" x="0" y="0" width="768" height="768" />
-          <!-- 刀臂在本體前面：舉刀時露出的底下是補好的毛色，不會破洞 -->
-          <g id="pawR"><image href="jiaobu-pawR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipJbPaw)" /></g>
+          <!-- 刀臂前置：舉刀動作可見，移開後露出的是純毛色 -->
+          <g id="pawR"><image href="jiaobu-pawR.png" x="0" y="0" width="768" height="768" /></g>
           <!-- 蓋住原圖畫死的眼睛 -->
           <ellipse cx="308" cy="323" rx="17" ry="25" fill="#CEB278" />
           <ellipse cx="404" cy="320" rx="17" ry="25" fill="#CEB278" />
@@ -180,6 +181,102 @@
             <g id="eyes-closed">
               <path style="stroke-width:16" d="M334 221 Q347 233 360 221" />
               <path style="stroke-width:16" d="M391 229 Q404 241 417 229" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
+  <!-- ================= 角色：珍珍（圓滾白綿羊，同工法拆件） ================= -->
+  <template id="char-zhenzhen">
+    <svg id="pet" viewBox="150 139 848 844" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 腿樁切在底部黑輪廓帶；圓角裁切跟著腿旋轉，只露圓肩不露直角尖 -->
+        <clipPath id="clipZzLegL"><rect x="324" y="878" width="64" height="98" rx="16" /></clipPath>
+        <clipPath id="clipZzLegR"><rect x="570" y="910" width="54" height="72" rx="16" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="560" cy="960" rx="340" ry="14" />
+      <g id="root">
+        <g id="body">
+          <!-- 腿樁（畫在身體後面，存根藏進底部黑輪廓帶；黑對黑藏縫） -->
+          <g id="legL"><image href="zhenzhen-legL.png" x="0" y="0" width="1000" height="1000" clip-path="url(#clipZzLegL)" /></g>
+          <g id="legR"><image href="zhenzhen-legR.png" x="0" y="0" width="1000" height="1000" clip-path="url(#clipZzLegR)" /></g>
+          <!-- 條紋小角無法乾淨拆件 → pawR 留空（rig 需要此元素存在） -->
+          <g id="pawR"></g>
+          <!-- 原圖本體（去背＋去白邊，腿樁已拆出；眼睛已挖出、洞用白毛無縫補平） -->
+          <image href="zhenzhen-body.png" x="0" y="0" width="1000" height="1000" />
+          <!-- 臉（可動圖層）：用原圖拆出的眼睛部件本體來動，不重畫、不用底色橢圓蓋
+               eyeL bbox x297 y385 w87 h90 中心(340.5,430)；eyeR bbox x416 y415 w86 h88 中心(459,459) -->
+          <g id="face">
+            <!-- eyes-open：原眼部件（含閃亮高光）；.eye 的 fill-box=部件緊 bbox → 眨眼 scaleY 以眼中心擠壓 -->
+            <g id="eyes-open">
+              <g class="eye"><image href="zhenzhen-eyeL.png" x="297" y="385" width="87" height="90" /></g>
+              <g class="eye"><image href="zhenzhen-eyeR.png" x="416" y="415" width="86" height="88" /></g>
+            </g>
+            <!-- eyes-happy：同一原眼，以自身中心 scaleY(0.45) 並上移 3px（瞇瞇笑） -->
+            <g id="eyes-happy">
+              <image href="zhenzhen-eyeL.png" x="297" y="385" width="87" height="90"
+                     transform="translate(0 -3) translate(340.5 430) scale(1 0.45) translate(-340.5 -430)" />
+              <image href="zhenzhen-eyeR.png" x="416" y="415" width="86" height="88"
+                     transform="translate(0 -3) translate(459 459) scale(1 0.45) translate(-459 -459)" />
+            </g>
+            <!-- eyes-closed：同一原眼，以自身中心 scaleY(0.12) 壓扁（同眨眼視覺） -->
+            <g id="eyes-closed">
+              <image href="zhenzhen-eyeL.png" x="297" y="385" width="87" height="90"
+                     transform="translate(340.5 430) scale(1 0.12) translate(-340.5 -430)" />
+              <image href="zhenzhen-eyeR.png" x="416" y="415" width="86" height="88"
+                     transform="translate(459 459) scale(1 0.12) translate(-459 -459)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
+  <!-- ================= 角色：珍母（白色圓頂水母，同工法拆件） ================= -->
+  <template id="char-zhenmu">
+    <svg id="pet" viewBox="62 128 650 543" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 觸手存根平切頂在圓頂底粗黑輪廓帶內（body 蓋到 y514），圓角裁切防旋轉毛刺 -->
+        <clipPath id="clipZmLegL"><rect x="131" y="471" width="252" height="207" rx="16" /></clipPath>
+        <clipPath id="clipZmLegR"><rect x="368" y="471" width="264" height="196" rx="16" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="387" cy="662" rx="210" ry="12" />
+      <g id="root">
+        <g id="body">
+          <!-- 觸手兩組（畫在身體後面，存根藏在圓頂底黑輪廓帶內，body 蓋住） -->
+          <g id="legL"><image href="zhenmu-legL.png" x="0" y="0" width="768" height="768" clip-path="url(#clipZmLegL)" /></g>
+          <g id="legR"><image href="zhenmu-legR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipZmLegR)" /></g>
+          <!-- pawR 空：左側小角廣泛連身、背後白圓頂，擺動會破洞 → 烘進 body 不拆 -->
+          <g id="pawR"></g>
+          <!-- 原圖本體（圓頂＋臉＋小角＋捲角紋＋觸手根，去背去白邊；豆眼已挖出、洞用圓頂白無縫補平） -->
+          <image href="zhenmu-body.png" x="0" y="0" width="768" height="768" />
+          <!-- 臉（可動圖層）：用原圖拆出的豆眼部件本體來動，不重畫、不用底色橢圓蓋；嘴巴 ω 留在 body 不動
+               eyeL bbox x260 y304 w34 h48 中心(277,328)；eyeR bbox x351 y296 w34 h48 中心(368,320) -->
+          <g id="face">
+            <!-- eyes-open：原豆眼部件；.eye 的 fill-box=部件緊 bbox → 眨眼 scaleY 以眼中心擠壓 -->
+            <g id="eyes-open">
+              <g class="eye"><image href="zhenmu-eyeL.png" x="260" y="304" width="34" height="48" /></g>
+              <g class="eye"><image href="zhenmu-eyeR.png" x="351" y="296" width="34" height="48" /></g>
+            </g>
+            <!-- eyes-happy：同一原眼，以自身中心 scaleY(0.45) 並上移 2px（瞇瞇笑） -->
+            <g id="eyes-happy">
+              <image href="zhenmu-eyeL.png" x="260" y="304" width="34" height="48"
+                     transform="translate(0 -2) translate(277 328) scale(1 0.45) translate(-277 -328)" />
+              <image href="zhenmu-eyeR.png" x="351" y="296" width="34" height="48"
+                     transform="translate(0 -2) translate(368 320) scale(1 0.45) translate(-368 -320)" />
+            </g>
+            <!-- eyes-closed：同一原眼，以自身中心 scaleY(0.12) 壓扁（同眨眼視覺） -->
+            <g id="eyes-closed">
+              <image href="zhenmu-eyeL.png" x="260" y="304" width="34" height="48"
+                     transform="translate(277 328) scale(1 0.12) translate(-277 -328)" />
+              <image href="zhenmu-eyeR.png" x="351" y="296" width="34" height="48"
+                     transform="translate(368 320) scale(1 0.12) translate(-368 -320)" />
             </g>
           </g>
         </g>
