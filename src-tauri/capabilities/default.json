@@ -2,7 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Clawd pet windows",
-  "windows": ["main", "pet_*", "toy_*"],
+  "windows": ["main", "pet_*", "toy_*", "petmenu"],
   "permissions": [
     "core:default",
     "core:window:allow-start-dragging",

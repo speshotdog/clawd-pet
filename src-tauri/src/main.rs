@@ -20,6 +20,7 @@ struct Point {
     y: i32,
 }
 #[repr(C)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 struct Rect {
     left: i32,
     top: i32,
@@ -91,6 +92,21 @@ fn work_area_of(window: &WebviewWindow) -> Rect {
 // 每個視窗各自的「走路/拖曳中」旗標（多人模式下互不干擾）
 static BUSY_WINDOWS: Mutex<Vec<String>> = Mutex::new(Vec::new());
 
+// 前端回報的睡眠狀態。踢人評估在後端集中跑，才不會因為多人視窗各自計時而重複觸發。
+static SLEEP_STATE: LazyLock<Mutex<HashMap<String, bool>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+// 被踢與寄生的冷卻各自記錄；Instant 不落盤，重開程式自然重新開始計時。
+static KICK_COOLDOWN: LazyLock<Mutex<HashMap<String, Instant>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+static PARASITE_STATE: LazyLock<Mutex<HashMap<String, String>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new())); // 珍母 label -> 宿主 label
+static PARASITE_COOLDOWN: LazyLock<Mutex<HashMap<String, Instant>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+// The floating menu asks for this state during its first page load, then receives
+// subsequent openings through the `menu-state` event.
+static MENU_STATE: LazyLock<Mutex<serde_json::Value>> =
+    LazyLock::new(|| Mutex::new(serde_json::json!({})));
+
 fn busy_start(label: &str) -> bool {
     let mut v = BUSY_WINDOWS.lock().unwrap();
     if v.iter().any(|x| x == label) {
@@ -105,16 +121,28 @@ fn busy_end(label: &str) {
     BUSY_WINDOWS.lock().unwrap().retain(|x| x != label);
 }
 
+fn is_busy(label: &str) -> bool {
+    BUSY_WINDOWS.lock().unwrap().iter().any(|x| x == label)
+}
+
+fn is_sleeping(label: &str) -> bool {
+    SLEEP_STATE.lock().unwrap().get(label).copied().unwrap_or(false)
+}
+
 // 視窗邏輯尺寸（CSS px），需與 tauri.conf.json 及前端 #stage 一致
 const WIN_W: f64 = 240.0;
 const WIN_H: f64 = 256.0;
+const MENU_W: f64 = 300.0;
+const MENU_H: f64 = 520.0;
 // 玩具視窗邏輯尺寸（CSS px），需與 toy.html 的 #stage 一致
 const TOY_W: f64 = 150.0;
 const TOY_H: f64 = 120.0;
 
 // 依 label 查邏輯尺寸：寵物視窗（main / pet_*）= 240x256，玩具（toy_*）= 150x120
 fn logical_size(label: &str) -> (f64, f64) {
-    if label.starts_with("toy_") {
+    if label == "petmenu" {
+        (MENU_W, MENU_H)
+    } else if label.starts_with("toy_") {
         (TOY_W, TOY_H)
     } else {
         (WIN_W, WIN_H)
@@ -297,8 +325,14 @@ fn set_companion(app: AppHandle, on: bool, character: String) {
         if !on {
             return;
         }
+        // destroy() 只排程 WebView 關閉；還沒從 registry 移除時就用同 label 建新窗，
+        // 會被 Tauri 拒絕。換角 reload 會立刻重建夥伴，因此必須先等到舊 label 消失。
+        if !wait_for_window_gone(&app, &label) {
+            dlog(&format!("{label} destroy timeout before recreate"));
+            return;
+        }
         let url = format!("index.html?char={character}");
-        let r = WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.into()))
+        let build = || WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.clone().into()))
             .title("HotDogPal")
             .inner_size(240.0, 256.0)
             .transparent(true)
@@ -310,6 +344,14 @@ fn set_companion(app: AppHandle, on: bool, character: String) {
             .minimizable(false)
             .shadow(false)
             .build();
+        let r = match build() {
+            Ok(w) => Ok(w),
+            Err(e) => {
+                dlog(&format!("{label} create FAILED, retrying: {e:?}"));
+                std::thread::sleep(Duration::from_millis(500));
+                build()
+            }
+        };
         match r {
             Ok(w) => {
                 setup_pet_window(&w);
@@ -318,6 +360,17 @@ fn set_companion(app: AppHandle, on: bool, character: String) {
             Err(e) => dlog(&format!("{label} create FAILED: {e:?}")),
         }
     });
+}
+
+// WebView 的 destroy 完成時間不固定；用短輪詢避免同 label 重建競態。
+fn wait_for_window_gone(app: &AppHandle, label: &str) -> bool {
+    for _ in 0..60 { // 60 * 50ms = 3 秒上限
+        if app.get_webview_window(label).is_none() {
+            return true;
+        }
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    false
 }
 
 // 指令：讓視窗間互傳 pet-cmd（例：主視窗把 Claude 工作分派數同步給夥伴）
@@ -432,6 +485,235 @@ impl Rng {
     }
 }
 
+// 寵物視窗的實體寬高已包含「角色縮放 × dpr」，反推後可和玩具物理共用同一組 CSS 常數。
+fn window_scale(win: &WebviewWindow) -> f64 {
+    win.outer_size()
+        .map(|s| (s.height as f64 / WIN_H).max(0.01))
+        .unwrap_or(1.0)
+}
+
+// 寵物被踢或珍母掉落時共用的拋物線。工作區在開始時鎖定，避免飛越多螢幕接縫時牆壁搬家。
+// 呼叫端必須先 busy_start；落地靜止或視窗消失時才在這裡解除 busy。
+fn spawn_pet_physics(app: AppHandle, label: String, mut ph: Phys, locked_wa: Rect) {
+    std::thread::spawn(move || {
+        loop {
+            std::thread::sleep(Duration::from_millis(33));
+            let Some(win) = app.get_webview_window(&label) else {
+                busy_end(&label);
+                return;
+            };
+            let Ok(size) = win.outer_size() else { continue };
+            let left = locked_wa.left as f64;
+            let right = (locked_wa.right as f64 - size.width as f64).max(left);
+            let ground_y = locked_wa.bottom as f64 - size.height as f64;
+            ph.step(left, right, ground_y);
+            let _ = win.set_position(PhysicalPosition::new(ph.x.round() as i32, ph.y.round() as i32));
+            if ph.grounded && ph.vx == 0.0 {
+                busy_end(&label);
+                return;
+            }
+        }
+    });
+}
+
+// 睡著的角色被踢飛：先取得位置和目前 dpr，再把運動交給共用 Phys。
+fn kick_sleeping_pet(app: &AppHandle, label: &str, dir: f64, rng: &mut Rng) -> bool {
+    if !busy_start(label) {
+        return false;
+    }
+    let Some(win) = app.get_webview_window(label) else {
+        busy_end(label);
+        return false;
+    };
+    let (Ok(pos), Ok(_size)) = (win.outer_position(), win.outer_size()) else {
+        busy_end(label);
+        return false;
+    };
+    let scale = window_scale(&win);
+    let ph = Phys {
+        x: pos.x as f64,
+        y: pos.y as f64,
+        vx: dir * rng.range(500.0, 900.0) * scale,
+        vy: -rng.range(400.0, 800.0) * scale,
+        grounded: false,
+        grabbed: false,
+        scale,
+    };
+    spawn_pet_physics(app.clone(), label.to_string(), ph, work_area_of(&win));
+    true
+}
+
+// 全域睡眠評估：所有睡著的角色每十秒最多被檢查一次，附近清醒夥伴才有 8% 機率踢它。
+fn spawn_sleep_kick_evaluator(app: AppHandle) {
+    std::thread::spawn(move || {
+        let mut rng = Rng::new();
+        loop {
+            std::thread::sleep(Duration::from_secs(10));
+            let sleepers: Vec<String> = {
+                let mut state = SLEEP_STATE.lock().unwrap();
+                state.retain(|label, _| app.get_webview_window(label).is_some());
+                state.iter().filter_map(|(label, on)| on.then(|| label.clone())).collect()
+            };
+            for sleeper in sleepers {
+                if is_busy(&sleeper) || !is_sleeping(&sleeper) {
+                    continue;
+                }
+                if KICK_COOLDOWN.lock().unwrap().get(&sleeper)
+                    .map(|at| at.elapsed() < Duration::from_secs(180))
+                    .unwrap_or(false)
+                {
+                    continue;
+                }
+                let Some(sw) = app.get_webview_window(&sleeper) else { continue };
+                let (Ok(sp), Ok(ss)) = (sw.outer_position(), sw.outer_size()) else { continue };
+                let sleeper_cx = sp.x as f64 + ss.width as f64 / 2.0;
+                let sleeper_wa = work_area_of(&sw);
+                let max_dist = 250.0 * window_scale(&sw);
+                let mut kicker: Option<(String, f64)> = None;
+                for kw in pet_windows(&app) {
+                    let klabel = kw.label().to_string();
+                    if klabel == sleeper || is_sleeping(&klabel) || is_busy(&klabel)
+                        || work_area_of(&kw) != sleeper_wa
+                    {
+                        continue;
+                    }
+                    let (Ok(kp), Ok(ks)) = (kw.outer_position(), kw.outer_size()) else { continue };
+                    let kicker_cx = kp.x as f64 + ks.width as f64 / 2.0;
+                    let dist = (kicker_cx - sleeper_cx).abs();
+                    if dist < max_dist && kicker.as_ref().map(|v| dist < v.1).unwrap_or(true) {
+                        kicker = Some((klabel, dist));
+                    }
+                }
+                let Some((kicker, _)) = kicker else { continue };
+                if rng.range(0.0, 1.0) >= 0.08 {
+                    continue;
+                }
+                let Some(kw) = app.get_webview_window(&kicker) else { continue };
+                let Ok(kp) = kw.outer_position() else { continue };
+                let kicker_cx = kp.x as f64 + window_scale(&kw) * WIN_W / 2.0;
+                let dir = if sleeper_cx >= kicker_cx { 1.0 } else { -1.0 };
+                if kick_sleeping_pet(&app, &sleeper, dir, &mut rng) {
+                    KICK_COOLDOWN.lock().unwrap().insert(sleeper.clone(), Instant::now());
+                    let _ = app.emit_to(&kicker, "pet-cmd", format!("{kicker}:kick:{}", dir as i32));
+                    let _ = app.emit_to(&sleeper, "pet-cmd", format!("{sleeper}:kicked"));
+                }
+            }
+        }
+    });
+}
+
+// 睡眠狀態由前端唯一回報；重新載入或視窗關閉後，全域評估會在下一輪清掉不存在的 label。
+#[tauri::command]
+fn set_sleeping(window: WebviewWindow, on: bool) {
+    SLEEP_STATE.lock().unwrap().insert(window.label().to_string(), on);
+}
+
+// 完成寄生後把珍母從目前位置放下，並通知仍在場的雙方結束演出。
+fn finish_parasite(app: AppHandle, zhenmu: String, host: String) {
+    PARASITE_COOLDOWN.lock().unwrap().insert(zhenmu.clone(), Instant::now());
+    if let Some(w) = app.get_webview_window(&zhenmu) {
+        let _ = w.emit_to(&zhenmu, "pet-cmd", format!("{zhenmu}:parasite:0"));
+        if let Ok(pos) = w.outer_position() {
+            let scale = window_scale(&w);
+            let mut rng = Rng::new();
+            let dir = if rng.range(0.0, 1.0) < 0.5 { -1.0 } else { 1.0 };
+            let ph = Phys {
+                x: pos.x as f64,
+                y: pos.y as f64,
+                vx: dir * rng.range(100.0, 200.0) * scale,
+                vy: 0.0,
+                grounded: false,
+                grabbed: false,
+                scale,
+            };
+            spawn_pet_physics(app.clone(), zhenmu.clone(), ph, work_area_of(&w));
+        } else {
+            busy_end(&zhenmu);
+        }
+    } else {
+        busy_end(&zhenmu);
+    }
+    if let Some(w) = app.get_webview_window(&host) {
+        let _ = w.emit_to(&host, "pet-cmd", format!("{host}:parasited:0"));
+    }
+}
+
+#[tauri::command]
+fn parasite_start(window: WebviewWindow) -> bool {
+    let zhenmu = window.label().to_string();
+    if is_busy(&zhenmu)
+        || PARASITE_STATE.lock().unwrap().contains_key(&zhenmu)
+        || PARASITE_COOLDOWN.lock().unwrap().get(&zhenmu)
+            .map(|at| at.elapsed() < Duration::from_secs(300)).unwrap_or(false)
+    {
+        return false;
+    }
+    let (Ok(zp), Ok(zs)) = (window.outer_position(), window.outer_size()) else { return false };
+    let zhenmu_cx = zp.x as f64 + zs.width as f64 / 2.0;
+    let zhenmu_wa = work_area_of(&window);
+    let max_dist = 500.0 * window_scale(&window);
+    let occupied_hosts: Vec<String> = PARASITE_STATE.lock().unwrap().values().cloned().collect();
+    let mut host: Option<(String, f64)> = None;
+    for candidate in pet_windows(&window.app_handle()) {
+        let label = candidate.label().to_string();
+        if label == zhenmu || is_busy(&label) || occupied_hosts.iter().any(|h| h == &label)
+            || work_area_of(&candidate) != zhenmu_wa
+        {
+            continue;
+        }
+        let (Ok(pos), Ok(size)) = (candidate.outer_position(), candidate.outer_size()) else { continue };
+        let dist = (pos.x as f64 + size.width as f64 / 2.0 - zhenmu_cx).abs();
+        if dist < max_dist && host.as_ref().map(|h| dist < h.1).unwrap_or(true) {
+            host = Some((label, dist));
+        }
+    }
+    let Some((host, _)) = host else { return false };
+    if !busy_start(&zhenmu) {
+        return false;
+    }
+    PARASITE_STATE.lock().unwrap().insert(zhenmu.clone(), host.clone());
+    let app = window.app_handle().clone();
+    let _ = window.set_always_on_top(true); // 黏附後重新確認層級，確保珍母壓在宿主頭上。
+    let _ = app.emit_to(&zhenmu, "pet-cmd", format!("{zhenmu}:parasite:1"));
+    if let Some(w) = app.get_webview_window(&host) {
+        let _ = w.emit_to(&host, "pet-cmd", format!("{host}:parasited:1"));
+    }
+    std::thread::spawn(move || {
+        let mut rng = Rng::new();
+        let until = Instant::now() + Duration::from_secs(rng.range(60.0, 180.0) as u64);
+        loop {
+            std::thread::sleep(Duration::from_millis(50));
+            let active = PARASITE_STATE.lock().unwrap().get(&zhenmu).map(|h| h == &host).unwrap_or(false);
+            if !active {
+                return; // parasite_end 已接手結束流程
+            }
+            let (Some(zw), Some(hw)) = (app.get_webview_window(&zhenmu), app.get_webview_window(&host)) else { break };
+            let (Ok(hp), Ok(_)) = (hw.outer_position(), zw.outer_size()) else { continue };
+            // 珍母腳底 CSS y=254，宿主頭頂 CSS y=93，差值 161；實體座標要乘縮放 × dpr。
+            let y = hp.y - (161.0 * window_scale(&zw)).round() as i32;
+            let _ = zw.set_position(PhysicalPosition::new(hp.x, y));
+            if Instant::now() >= until { break; }
+        }
+        let host = PARASITE_STATE.lock().unwrap().remove(&zhenmu);
+        if let Some(host) = host {
+            finish_parasite(app, zhenmu, host);
+        }
+    });
+    true
+}
+
+#[tauri::command]
+fn parasite_end(window: WebviewWindow) -> bool {
+    let zhenmu = window.label().to_string();
+    let host = PARASITE_STATE.lock().unwrap().remove(&zhenmu);
+    if let Some(host) = host {
+        finish_parasite(window.app_handle().clone(), zhenmu, host);
+        true
+    } else {
+        false
+    }
+}
+
 // 指令：玩具被拖起(true)/放下(false)。抓取時暫停物理；放下從當前位置繼續（半空放開就落下）
 #[tauri::command]
 fn toy_grab(window: WebviewWindow, grabbed: bool) {
@@ -476,13 +758,18 @@ fn set_toy(app: AppHandle, on: bool, toy: String) {
         if let Some(w) = app.get_webview_window(&label) {
             save_pos(&w);
             let _ = w.destroy();
+            SLEEP_STATE.lock().unwrap().remove(&label);
         }
         TOY_STATE.lock().unwrap().remove(&label);
         if !on {
             return;
         }
+        if !wait_for_window_gone(&app, &label) {
+            dlog(&format!("{label} destroy timeout before recreate"));
+            return;
+        }
         let url = format!("toy.html?toy={toy}");
-        let r = WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.into()))
+        let build = || WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.clone().into()))
             .title("ClawdToy")
             .inner_size(TOY_W, TOY_H)
             .transparent(true)
@@ -494,6 +781,14 @@ fn set_toy(app: AppHandle, on: bool, toy: String) {
             .minimizable(false)
             .shadow(false)
             .build();
+        let r = match build() {
+            Ok(w) => Ok(w),
+            Err(e) => {
+                dlog(&format!("{label} create FAILED, retrying: {e:?}"));
+                std::thread::sleep(Duration::from_millis(500));
+                build()
+            }
+        };
         match r {
             Ok(w) => {
                 setup_toy_window(&w);
@@ -548,6 +843,9 @@ fn spawn_toy_physics(win: WebviewWindow) {
         let mut eval_acc = 0.0f64; // 追逐/踢評估累加器（每 ~1s）
         let mut kick_cd = 0.0f64; // 踢後冷卻（秒）
         let mut was_moving = true;
+        // 起跳時把工作區鎖住，跨螢幕縫時牆壁才不會跟著換到另一張螢幕。
+        let mut locked_wa = work_area_of(&win);
+        let mut was_grabbed = false;
         loop {
             std::thread::sleep(Duration::from_millis(33));
             // 視窗沒了（收玩具）→ 清狀態並收工
@@ -559,11 +857,6 @@ fn spawn_toy_physics(win: WebviewWindow) {
                 Ok(s) => (s.width as f64, s.height as f64),
                 Err(_) => continue,
             };
-            let wa = work_area_of(&w);
-            let left = wa.left as f64;
-            let right = (wa.right as f64 - w_w).max(left);
-            let ground_y = wa.bottom as f64 - w_h;
-
             // 取狀態副本
             let mut ph = match TOY_STATE.lock().unwrap().get(&label).copied() {
                 Some(p) => p,
@@ -592,8 +885,18 @@ fn spawn_toy_physics(win: WebviewWindow) {
                     );
                     was_moving = false;
                 }
+                was_grabbed = true;
                 continue;
             }
+
+            // 只有靜止落地時可跟著玩具更新螢幕；拖到另一螢幕後放開則立刻重鎖。
+            if was_grabbed || (ph.grounded && ph.vx == 0.0) {
+                locked_wa = work_area_of(&w);
+            }
+            was_grabbed = false;
+            let left = locked_wa.left as f64;
+            let right = (locked_wa.right as f64 - w_w).max(left);
+            let ground_y = locked_wa.bottom as f64 - w_h;
 
             // 推進物理並寫回
             ph.step(left, right, ground_y);
@@ -691,6 +994,7 @@ fn quit_app(app: &AppHandle) {
                 save_pos(&w);
             }
             let _ = w.destroy();
+            SLEEP_STATE.lock().unwrap().remove(&label);
         }
     }
     let app2 = app.clone();
@@ -776,6 +1080,184 @@ fn snap_bottom(window: WebviewWindow) {
 // ------------------------------------------------------------
 // 指令：右鍵選單（每次依當前狀態重建，事件由 app.on_menu_event 處理）
 // ------------------------------------------------------------
+#[tauri::command]
+fn get_menu_state() -> serde_json::Value {
+    MENU_STATE.lock().unwrap().clone()
+}
+
+#[tauri::command]
+fn get_autostart() -> bool {
+    is_autostart()
+}
+
+#[tauri::command]
+fn close_menu_window(app: AppHandle) {
+    if let Some(menu) = app.get_webview_window("petmenu") {
+        let _ = menu.hide();
+    }
+}
+
+// 選單尺寸必須用「算出來的實體尺寸」而不是 menu.outer_size()：
+// 第一次開啟時 fit_window 還沒跑，outer_size 是缺了文字大小疊乘的偏小值，
+// 用它 clamp 會讓選單底部多出一截沉進工作列。
+fn menu_position(source: &WebviewWindow, menu_w: i32, menu_h: i32, x: f64, y: f64) -> PhysicalPosition<i32> {
+    let source_pos = source.outer_position().unwrap_or(PhysicalPosition::new(0, 0));
+    let source_h = source.outer_size().map(|s| s.height as i32).unwrap_or(0);
+    let wa = work_area_of(source);
+    // 底線對齊角色腳底（＝寵物視窗底邊）：選單最低只到腳，不會沉進工作列
+    let bottom_limit = (source_pos.y + source_h).min(wa.bottom);
+    let left = (source_pos.x + x.round() as i32)
+        .clamp(wa.left, (wa.right - menu_w).max(wa.left));
+    let top = (source_pos.y + y.round() as i32)
+        .min(bottom_limit - menu_h)
+        .max(wa.top);
+    PhysicalPosition::new(left, top)
+}
+
+#[tauri::command]
+fn show_menu_window(
+    window: WebviewWindow,
+    mood: i32,
+    fullness: i32,
+    patrol: bool,
+    character: String,
+    companions: Vec<String>,
+    toys: Vec<String>,
+    scale: f64,
+    x: f64,
+    y: f64,
+) {
+    if window.label() != "main" {
+        return;
+    }
+    let state = serde_json::json!({
+        "mood": mood.clamp(0, 100),
+        "fullness": fullness.clamp(0, 100),
+        "patrol": patrol,
+        "character": character,
+        "companions": companions,
+        "toys": toys,
+        "scale": scale,
+        "autostart": is_autostart(),
+    });
+    *MENU_STATE.lock().unwrap() = state.clone();
+
+    let source = window.clone();
+    let app = window.app_handle().clone();
+    // 視窗建立必須在「非主執行緒」做（同 set_companion）：build() 會同步等 WebView2
+    // 初始化，而初始化需要主執行緒泵訊息——在主執行緒（含 run_on_main_thread 閉包）
+    // 呼叫會自我死鎖：選單開不出來、整個主執行緒卡死、拖曳全失效。
+    std::thread::spawn(move || {
+        let menu = if let Some(existing) = app.get_webview_window("petmenu") {
+            existing
+        } else {
+            match WebviewWindowBuilder::new(&app, "petmenu", WebviewUrl::App("menu.html".into()))
+                .title("ClawdPet Menu")
+                .inner_size(MENU_W, MENU_H)
+                .transparent(true)
+                .decorations(false)
+                .always_on_top(true)
+                .skip_taskbar(true)
+                .resizable(false)
+                .maximizable(false)
+                .minimizable(false)
+                .shadow(false)
+                .visible(false)
+                .build()
+            {
+                Ok(created) => created,
+                Err(err) => {
+                    dlog(&format!("petmenu create FAILED: {err:?}"));
+                    return;
+                }
+            }
+        };
+        // 寵物視窗實體高 = 256 × dpr × 角色縮放，反除角色縮放得真實 dpr
+        // （含文字大小疊乘），開啟當下就把選單撐到正確實體尺寸，
+        // 不等 menu.js 的 fit_window（那是 dpr 事後變化的保險）。
+        let dpr = (window_scale(&source) / scale.max(0.1)).clamp(0.5, 4.0);
+        resize_physical(&menu, dpr);
+        let menu_w = (MENU_W * dpr).round() as i32;
+        let menu_h = (MENU_H * dpr).round() as i32;
+        let _ = menu.set_position(menu_position(&source, menu_w, menu_h, x, y));
+        let _ = app.emit_to("petmenu", "menu-state", state);
+        let _ = menu.show();
+        let _ = menu.set_focus();
+    });
+}
+
+#[tauri::command]
+fn menu_action(app: AppHandle, id: String) {
+    // 選單一律不自動關閉（使用者要求：只有右上角 ✕ / ESC 會關），
+    // 唯一例外是離開 app 前順手收掉。
+    if id == "quit" {
+        close_menu_window(app.clone());
+    }
+    let emit_main = |command: String| {
+        if let Some(main) = app.get_webview_window("main") {
+            let _ = main.emit_to("main", "pet-cmd", command);
+        }
+    };
+
+    if let Some(character) = id.strip_prefix("char:") {
+        if CHARS.iter().any(|(known, _)| known == &character) {
+            emit_main(format!("main:char:{character}"));
+        }
+        return;
+    }
+    if let Some(character) = id.strip_prefix("comp:") {
+        if CHARS.iter().any(|(known, _)| known == &character) {
+            emit_main(format!("main:comp:{character}"));
+        }
+        return;
+    }
+    if let Some(toy) = id.strip_prefix("toy:") {
+        if TOYS.iter().any(|(known, _)| known == &toy) {
+            emit_main(format!("main:toy:{toy}"));
+        }
+        return;
+    }
+    if let Some(value) = id.strip_prefix("scale:") {
+        if let Ok(scale) = value.parse::<f64>() {
+            if SCALES.iter().any(|(_, known)| (*known - scale).abs() < 0.001) {
+                emit_main(format!("main:scale:{scale}"));
+            }
+        }
+        return;
+    }
+
+    match id.as_str() {
+        "feed" => emit_main("main:feed".into()),
+        "feedlove" => emit_main("main:feedlove".into()),
+        "patrol" => {
+            for pet in pet_windows(&app) {
+                let label = pet.label().to_string();
+                let _ = pet.emit_to(label.as_str(), "pet-cmd", format!("{label}:patrol"));
+            }
+        }
+        "hide" => {
+            if let Some(main) = app.get_webview_window("main") {
+                let _ = main.hide();
+            }
+        }
+        "home" => {
+            if let Some(main) = app.get_webview_window("main") {
+                let wa = work_area_of(&main);
+                if let Ok(size) = main.outer_size() {
+                    let _ = main.set_position(PhysicalPosition::new(
+                        wa.right - size.width as i32 - 32,
+                        wa.bottom - size.height as i32 - 8,
+                    ));
+                    save_pos(&main);
+                }
+            }
+        }
+        "autostart" => set_autostart(!is_autostart()),
+        "quit" => quit_app(&app),
+        _ => {}
+    }
+}
+
 fn stat_bar(v: i32) -> String {
     let filled = ((v.clamp(0, 100) + 10) / 20).clamp(0, 5) as usize;
     format!("{}{}  {}", "■".repeat(filled), "□".repeat(5 - filled), v)
@@ -812,13 +1294,14 @@ fn show_menu(
                 .enabled(false)
                 .build(app);
             let feed = MenuItemBuilder::with_id(format!("q_feed@{label}"), "餵熱狗").build(app);
+            let feedlove = MenuItemBuilder::with_id(format!("q_feedlove@{label}"), "餵愛心").build(app);
             let close =
                 MenuItemBuilder::with_id(format!("q_close@{label}"), "收回夥伴").build(app);
-            if let (Ok(s1), Ok(s2), Ok(feed), Ok(close)) = (s1, s2, feed, close) {
+            if let (Ok(s1), Ok(s2), Ok(feed), Ok(feedlove), Ok(close)) = (s1, s2, feed, feedlove, close) {
                 if let Ok(menu) = MenuBuilder::new(app)
                     .items(&[&s1, &s2])
                     .separator()
-                    .items(&[&feed, &close])
+                    .items(&[&feed, &feedlove, &close])
                     .build()
                 {
                     let r = menu.popup_at(win.as_ref().window(), pos);
@@ -835,6 +1318,7 @@ fn show_menu(
             .enabled(false)
             .build(app);
         let feed = MenuItemBuilder::with_id("p_feed", "餵熱狗").build(app);
+        let feedlove = MenuItemBuilder::with_id("p_feedlove", "餵愛心").build(app);
         let patrol_item = CheckMenuItemBuilder::with_id("p_patrol", "巡邏模式")
             .checked(patrol)
             .build(app);
@@ -902,13 +1386,13 @@ fn show_menu(
             .checked(is_autostart())
             .build(app);
         let quit = MenuItemBuilder::with_id("p_quit", "離開").build(app);
-        if let (Ok(s1), Ok(s2), Ok(feed), Ok(patrol_item), Ok(char_hdr), Ok(comp_hdr), Ok(toy_hdr), Ok(scale_hdr), Ok(hide), Ok(home), Ok(auto), Ok(quit)) =
-            (stat_mood, stat_full, feed, patrol_item, char_hdr, comp_hdr, toy_hdr, scale_hdr, hide, home, auto, quit)
+        if let (Ok(s1), Ok(s2), Ok(feed), Ok(feedlove), Ok(patrol_item), Ok(char_hdr), Ok(comp_hdr), Ok(toy_hdr), Ok(scale_hdr), Ok(hide), Ok(home), Ok(auto), Ok(quit)) =
+            (stat_mood, stat_full, feed, feedlove, patrol_item, char_hdr, comp_hdr, toy_hdr, scale_hdr, hide, home, auto, quit)
         {
             let mut mb = MenuBuilder::new(app)
                 .items(&[&s1, &s2])
                 .separator()
-                .items(&[&feed, &patrol_item])
+                .items(&[&feed, &feedlove, &patrol_item])
                 .separator()
                 .item(&char_hdr);
             for it in &char_items {
@@ -1072,17 +1556,29 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             set_click_through,
+            set_sleeping,
             walk,
             show_menu,
+            show_menu_window,
+            close_menu_window,
+            get_menu_state,
+            get_autostart,
+            menu_action,
             snap_bottom,
             fit_window,
             set_companion,
             relay,
             set_toy,
             toy_grab,
-            toy_menu
+            toy_menu,
+            parasite_start,
+            parasite_end
         ])
         .on_window_event(|window, event| {
+            if let tauri::WindowEvent::Destroyed = event {
+                // 視窗關掉後不留舊睡眠 label，避免全域踢人評估碰到已失效的狀態。
+                SLEEP_STATE.lock().unwrap().remove(window.label());
+            }
             // 換到不同縮放比的螢幕：依新 DPI 重設實體尺寸，否則內容會被裁切
             if let tauri::WindowEvent::ScaleFactorChanged { .. } = event {
                 if let Some(w) = window.app_handle().get_webview_window(window.label()) {
@@ -1108,6 +1604,7 @@ fn main() {
         .setup(|app| {
             let win = app.get_webview_window("main").expect("main window");
             setup_pet_window(&win);
+            spawn_sleep_kick_evaluator(app.handle().clone());
             spawn_typing_thread(app.handle().clone());
             spawn_claude_listener(app.handle().clone());
 
@@ -1205,6 +1702,13 @@ fn main() {
                     }
                     return;
                 }
+                // 夥伴視窗選單：q_feedlove@<label> → 餵那隻夥伴愛心
+                if let Some(label) = id.strip_prefix("q_feedlove@") {
+                    if let Some(w) = app.get_webview_window(label) {
+                        let _ = w.emit_to(label, "pet-cmd", format!("{label}:feedlove"));
+                    }
+                    return;
+                }
                 // 夥伴視窗選單：q_close@<label> → 交主視窗 JS 收回該角色（label 去 pet_ 前綴取 char）
                 if let Some(label) = id.strip_prefix("q_close@") {
                     let ch = label.strip_prefix("pet_").unwrap_or(label);
@@ -1235,6 +1739,11 @@ fn main() {
                     "p_feed" => {
                         if let Some(w) = app.get_webview_window("main") {
                             let _ = w.emit_to("main", "pet-cmd", "main:feed");
+                        }
+                    }
+                    "p_feedlove" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.emit_to("main", "pet-cmd", "main:feedlove");
                         }
                     }
                     "p_patrol" => {
@@ -1310,5 +1819,20 @@ mod tests {
         assert!(ymax <= ground + 0.5, "y 穿地 {ymax} > {ground}");
         assert!((2..=4).contains(&bounces), "彈跳次數 {bounces} 不在 2..=4");
         assert!(settle_s <= 2.2, "落地靜止太慢 {settle_s}s");
+    }
+
+    // 模擬物件在起跳螢幕的工作區內持續計算；即使實際視窗飛近另一螢幕，
+    // 只要邊界維持鎖定的 Rect，物理結果就不會越牆。
+    #[test]
+    fn latched_work_area_keeps_toy_in_bounds() {
+        let (left, right, ground) = (0.0, 1770.0, 920.0);
+        let mut p = Phys {
+            x: 1680.0, y: ground, vx: 1100.0, vy: -800.0,
+            grounded: false, grabbed: false, scale: 1.0,
+        };
+        for _ in 0..300 {
+            p.step(left, right, ground);
+            assert!(p.x >= left - 0.5 && p.x <= right + 0.5, "跨出閂鎖工作區: {}", p.x);
+        }
     }
 }

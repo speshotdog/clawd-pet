@@ -79,6 +79,7 @@ const CHAR_CFG = {
     tailScale: 0.2,    // 實機驗證台定的乾淨上限：尾巴可見輪廓掃動 ±1° 內 Gemini/人審 PASS
     up: 1,             // 拳頭在樞紐左側，順時針上舉
     sleepShift: '0px',
+    sleepImage: 'yueyue-sleep.png',
     hit(px, py) {
       const hx = px - 105, hy = py - 111;
       if ((hx * hx) / (72 * 72) + (hy * hy) / (52 * 52) <= 1) return true;  // 頭+雙耳
@@ -167,6 +168,15 @@ if (!IS_COMPANION
   stage.style.transform = 'scale(' + SCALE + ')';
   stage.style.transformOrigin = '0 0';
   document.getElementById('pet').style.height = CFG.height + 'px';
+  if (CFG.sleepImage) {
+    // 原睡圖為正方形，先以 150px 高顯示：比 198px 站姿矮且保有趴睡寬度；
+    // bottom:2px 對齊既有角色腳底（CSS y=254），日後素材比例變更只需調 CSS。
+    const sleepimg = document.createElement('img');
+    sleepimg.id = 'sleepimg';
+    sleepimg.src = CFG.sleepImage;
+    sleepimg.alt = '';
+    stage.insertBefore(sleepimg, zzz);
+  }
   // 睡覺躺平時的落地微調（依角色體型不同）
   stage.style.setProperty('--sleepShift', CFG.sleepShift || '0px');
   // UI 元素依角色高度定位：角色頂在 stage 的 y、文字區頂（懸在頭頂上方不壓頭）
@@ -197,6 +207,7 @@ const LINES_IDLE = ['……', '♪', '在忙嗎？'];
 const LINES_SAD = ['好無聊…', '陪我玩嘛', '唉…'];
 const LINES_HUNGRY = ['肚子餓了…', '想吃熱狗…', '咕嚕嚕…'];
 const LINES_YUM = ['好吃！', '嗷嗚～ ♥', '還要！'];
+const LINES_LOVE = ['最喜歡你了 ♥', '臉紅紅…', '心跳加速！'];
 
 // ---------- 心情 / 飽食度 ----------
 const stats = { mood: 70, fullness: 80 };
@@ -226,6 +237,7 @@ let typingUntil = 0;
 let dropTimer = null;
 let walking = false;
 let grabbed = false;
+let parasiting = false;
 let clickThrough = true;   // 目前是否穿透（Rust 端初始為穿透）
 
 function setState(cls, on) { stage.classList.toggle(cls, on); }
@@ -235,6 +247,8 @@ function wake() {
   lastActivity = Date.now();
   if (isSleeping()) {
     setState('sleep', false);
+    setState('sleep-img', false);
+    if (TAURI) TAURI.core.invoke('set_sleeping', { on: false }).catch(() => {});
     // 剛睡醒伸個懶腰（瞇眼、拉長身體、抬手）
     if (!grabbed && !walking) {
       setState('stretch', true);
@@ -309,26 +323,36 @@ let kickTimer = null;   // 踢玩具動作計時器
 function endGrab(bounce) {
   clearTimeout(grabWatchdog); grabWatchdog = null;
   clearTimeout(moveDebounce); moveDebounce = null;
-  if (!grabbed) return;
-  grabbed = false;
-  pressPos = null;
-  setState('grabbed', false);
-  if (bounce) {
+  const playDrop = () => {
     setState('drop', true);
     setTimeout(() => setState('drop', false), 600);
-    // 落地後偶爾抖抖毛
     if (Math.random() < 0.4) {
       setTimeout(() => {
         setState('shake', true);
         setTimeout(() => setState('shake', false), 520);
       }, 620);
     }
+  };
+  if (!grabbed) {
+    if (bounce) playDrop();
+    return;
+  }
+  grabbed = false;
+  pressPos = null;
+  setState('grabbed', false);
+  if (bounce) {
+    playDrop();
   }
   wake();
 }
 
 stage.addEventListener('pointerdown', (e) => {
   if (e.button !== 0) return;
+  // 寄生中的珍母只能被點下來，不能同時進入拖曳或摸摸流程。
+  if (CHAR === 'zhenmu' && parasiting) {
+    TAURI?.core.invoke('parasite_end').catch(() => {});
+    return;
+  }
   if (grabbed) endGrab(false);   // 保險：上一次抓取沒正常結束就先重置
   wake();
   pressPos = { x: e.screenX, y: e.screenY };
@@ -367,7 +391,8 @@ document.addEventListener('contextmenu', (e) => {
   // 座標用「相對視窗的實體像素」傳給後端錨定選單位置——
   // 預設的游標定位在多螢幕+DPI疊乘環境會開到畫面外，變成隱形模態選單卡死主執行緒
   const dpr = window.devicePixelRatio || 1;
-  if (TAURI) TAURI.core.invoke('show_menu', {
+  if (!TAURI) return;
+  const payload = {
     mood: Math.round(stats.mood),
     fullness: Math.round(stats.fullness),
     patrol: patrolOn,
@@ -376,7 +401,12 @@ document.addEventListener('contextmenu', (e) => {
     scale: SCALE,
     x: e.clientX * dpr,
     y: e.clientY * dpr,
-  });
+  };
+  if (IS_COMPANION) {
+    TAURI.core.invoke('show_menu', payload).catch(() => {});
+  } else {
+    TAURI.core.invoke('show_menu_window', { ...payload, toys: toyList() }).catch(() => {});
+  }
 });
 
 // 雙擊 = 開心轉圈
@@ -385,28 +415,46 @@ stage.addEventListener('dblclick', () => {
   setState('hi', false);
   setState('spin', true);
   setTimeout(() => setState('spin', false), 750);
+  if (CHAR === 'fox' && Math.random() < 0.35) heartBurst();
   say('轉圈圈～');
   addMood(3);
 });
 
 // ---------- 餵食 ----------
 let feeding = false;
-function feed() {
+function heartBurst() {
+  const count = 6 + Math.floor(Math.random() * 5);
+  for (let i = 0; i < count; i += 1) {
+    const heart = document.createElement('span');
+    heart.className = 'heart-burst';
+    heart.textContent = ['❤️', '💕', '💖'][Math.floor(Math.random() * 3)];
+    heart.style.left = (CENTER.x + (Math.random() * 24 - 12)) + 'px';
+    heart.style.top = (CENTER.y + (Math.random() * 16 - 8)) + 'px';
+    heart.style.setProperty('--heart-x', (Math.random() * 70 - 35).toFixed(1) + 'px');
+    heart.style.setProperty('--heart-rise', -(40 + Math.random() * 40).toFixed(1) + 'px');
+    heart.style.animationDelay = (Math.random() * 0.12).toFixed(2) + 's';
+    heart.addEventListener('animationend', () => heart.remove(), { once: true });
+    stage.appendChild(heart);
+  }
+}
+
+function feed(kind = 'hotdog') {
   wake();
   if (feeding) return;
-  if (stats.fullness > 95) { say('吃不下了啦…'); return; }
+  const love = kind === 'love';
+  if (!love && stats.fullness > 95) { say('吃不下了啦…'); return; }
   feeding = true;
-  if (isSleeping()) setState('sleep', false);
   const food = document.createElement('div');
   food.id = 'food';
-  food.textContent = '🌭';
+  food.textContent = love ? '❤️' : '🌭';
   stage.appendChild(food);
   setState('yum', true);
   setTimeout(() => {
     food.remove();
-    stats.fullness = Math.min(100, stats.fullness + 25);
-    addMood(10);
-    say(LINES_YUM[Math.floor(Math.random() * LINES_YUM.length)]);
+    stats.fullness = Math.min(100, stats.fullness + (love ? 5 : 25));
+    addMood(love ? 12 : 10);
+    say((love ? LINES_LOVE : LINES_YUM)[Math.floor(Math.random() * (love ? LINES_LOVE : LINES_YUM).length)]);
+    if (love) heartBurst();
     setState('hi', true);
     clearTimeout(hiTimer);
     hiTimer = setTimeout(() => setState('hi', false), 950);
@@ -610,7 +658,7 @@ function setCompanionShare(n) {
 async function maybeWalk() {
   const idleFor = Date.now() - lastActivity;
   const eager = patrolOn;
-  const canWalk = !grabbed && !walking && !isSleeping()
+  const canWalk = !grabbed && !walking && !parasiting && !isSleeping()
     && (eager ? idleFor > 4_000 : idleFor > 15_000)
     && Math.random() < (eager ? 0.9 : 0.5);
   if (canWalk) {
@@ -731,11 +779,14 @@ requestAnimationFrame(animate);
 setInterval(() => {
   const now = Date.now();
   if (stage.classList.contains('work') && now > typingUntil && !claudeBusy()) setState('work', false);
-  if (!isSleeping() && now - lastActivity > SLEEP_AFTER_MS && !grabbed && !walking) {
+  if (!isSleeping() && now - lastActivity > SLEEP_AFTER_MS && !grabbed && !walking && !parasiting) {
     setFacing(false);   // 躺下動畫以面朝左為前提（翻轉時會變臉朝下）
     setState('sleep', true);
+    setState('sleep-img', !!CFG.sleepImage);
     setState('work', false);
+    if (TAURI) TAURI.core.invoke('set_sleeping', { on: true }).catch(() => {});
   }
+  if (parasiting) lastActivity = now; // 黏在宿主頭上時不准因閒置重新睡著
   // 長任務冒汗：連續工作超過 30 秒
   sweat.classList.toggle('show', claudeBusy() && claudeStartAt > 0 && now - claudeStartAt > 30_000);
 }, 500);
@@ -765,6 +816,10 @@ async function main() {
   }
   fitWindow();
   watchDpr();
+  // dpr 在載入初期可能還是舊值（文字大小疊乘晚到），matchMedia 若在註冊前就變化會漏接
+  // → 開機後補幾次冪等適配（實測：夥伴重建偶發卡在 240×1.5 裁切，即此競態）
+  setTimeout(fitWindow, 600);
+  setTimeout(fitWindow, 2000);
 
   // 多人模式：開機還原所有夥伴視窗（只有主視窗負責；換角色重載後也走這裡重建）
   // set_companion 會先 destroy 同 label 再建，重複呼叫安全。
@@ -805,6 +860,13 @@ async function main() {
 
   scheduleBlink();
   setTimeout(maybeWalk, 12_000 + Math.random() * 18_000);  // 錯開首次散步
+  if (CHAR === 'zhenmu') {
+    setInterval(() => {
+      if (!grabbed && !walking && !parasiting && !isSleeping() && Math.random() < 0.12) {
+        TAURI.core.invoke('parasite_start').catch(() => {});
+      }
+    }, 20_000);
+  }
 
   // 開場時段問候
   setTimeout(() => {
@@ -841,6 +903,7 @@ async function main() {
     jlog(`pet-cmd ${payload} -> ${tgt === MY_LABEL ? 'act' : 'skip'}`);
     if (tgt !== MY_LABEL) return;
     if (cmd === 'feed') feed();
+    else if (cmd === 'feedlove') feed('love');
     else if (cmd === 'patrol') togglePatrol();
     else if (cmd.startsWith('chase:')) {
       // 被玩具吸引走過去（dx = 實體 px，交給 walk）
@@ -870,6 +933,32 @@ async function main() {
       kickTimer = setTimeout(() => setState('kick', false), 450);
       if (Math.random() < 0.5) say(Math.random() < 0.5 ? '踢～！' : '嘿！', 1200);
       addMood(2);                    // 追到玩具算「玩」
+    }
+    else if (cmd === 'kicked') {
+      wake();
+      say('哇啊！？');
+      addMood(-5);
+      endGrab(true);                 // 未被抓時也會播落地與抖毛
+    }
+    else if (cmd === 'parasite:1') {
+      parasiting = true;
+      wake();
+      setState('happy', true);
+      say('嘿嘿～');
+    }
+    else if (cmd === 'parasite:0') {
+      parasiting = false;
+      setState('happy', false);
+      lastActivity = Date.now();
+      say('下次再玩～');
+    }
+    else if (cmd === 'parasited:1') {
+      say('頭上有東西！？');
+      setState('shake', true);
+      setTimeout(() => setState('shake', false), 520);
+    }
+    else if (cmd === 'parasited:0') {
+      say('呼…');
     }
     else if (cmd.startsWith('toy:') && !IS_COMPANION) {
       // 切換某玩具視窗（勾＝開，取消勾＝收）

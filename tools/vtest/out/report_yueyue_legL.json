@@ -1,0 +1,90 @@
+{
+  "char": "yueyue",
+  "part": "legL",
+  "tags": [
+    "0",
+    "legLm6_5",
+    "legLp6_5"
+  ],
+  "thresholds": {
+    "DARK_DROP": 45,
+    "DARK_ABS": 110,
+    "LIGHT_ABS": 150
+  },
+  "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_yueyue_legL.png",
+  "frames": [
+    {
+      "tag": "0",
+      "deg": "0",
+      "blackline_px": 0,
+      "blackline_maxcomp": 0,
+      "blackline_bbox": null,
+      "blackline_aspect": 0.0,
+      "darken_px": 0,
+      "max_darken": 0,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 0,
+      "ghost_maxcomp": 0,
+      "ghost_bbox": null
+    },
+    {
+      "tag": "legLm6_5",
+      "deg": "legLm6_5",
+      "blackline_px": 32,
+      "blackline_maxcomp": 12,
+      "blackline_bbox": [
+        78,
+        339,
+        5,
+        7
+      ],
+      "blackline_aspect": 1.4,
+      "darken_px": 32,
+      "max_darken": 107,
+      "gap_px": 105,
+      "gap_maxcomp": 86,
+      "gap_bbox": [
+        92,
+        338,
+        18,
+        6
+      ],
+      "ghost_px": 17,
+      "ghost_maxcomp": 4,
+      "ghost_bbox": [
+        78,
+        342,
+        2,
+        3
+      ]
+    },
+    {
+      "tag": "legLp6_5",
+      "deg": "legLp6_5",
+      "blackline_px": 61,
+      "blackline_maxcomp": 47,
+      "blackline_bbox": [
+        22,
+        338,
+        20,
+        13
+      ],
+      "blackline_aspect": 1.54,
+      "darken_px": 62,
+      "max_darken": 113,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 40,
+      "ghost_maxcomp": 17,
+      "ghost_bbox": [
+        27,
+        341,
+        8,
+        6
+      ]
+    }
+  ]
+}

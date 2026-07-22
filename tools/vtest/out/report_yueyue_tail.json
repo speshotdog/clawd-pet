@@ -2,9 +2,11 @@
   "char": "yueyue",
   "part": "tail",
   "tags": [
-    "n5",
     "0",
-    "p5"
+    "tailm0_5",
+    "tailp0_5",
+    "tailm1",
+    "tailp1"
   ],
   "thresholds": {
     "DARK_DROP": 45,
@@ -13,32 +15,6 @@
   },
   "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_yueyue_tail.png",
   "frames": [
-    {
-      "tag": "n5",
-      "deg": "n5",
-      "blackline_px": 687,
-      "blackline_maxcomp": 409,
-      "blackline_bbox": [
-        286,
-        259,
-        16,
-        50
-      ],
-      "blackline_aspect": 3.12,
-      "darken_px": 693,
-      "max_darken": 113,
-      "gap_px": 0,
-      "gap_maxcomp": 0,
-      "gap_bbox": null,
-      "ghost_px": 521,
-      "ghost_maxcomp": 352,
-      "ghost_bbox": [
-        286,
-        260,
-        16,
-        48
-      ]
-    },
     {
       "tag": "0",
       "deg": "0",
@@ -56,29 +32,107 @@
       "ghost_bbox": null
     },
     {
-      "tag": "p5",
-      "deg": "p5",
-      "blackline_px": 676,
-      "blackline_maxcomp": 557,
+      "tag": "tailm0_5",
+      "deg": "tailm0_5",
+      "blackline_px": 54,
+      "blackline_maxcomp": 13,
       "blackline_bbox": [
         291,
-        202,
-        49,
-        107
+        298,
+        2,
+        11
       ],
-      "blackline_aspect": 2.18,
-      "darken_px": 678,
-      "max_darken": 113,
+      "blackline_aspect": 5.5,
+      "darken_px": 56,
+      "max_darken": 81,
       "gap_px": 0,
       "gap_maxcomp": 0,
       "gap_bbox": null,
-      "ghost_px": 538,
-      "ghost_maxcomp": 458,
+      "ghost_px": 7,
+      "ghost_maxcomp": 2,
       "ghost_bbox": [
         292,
-        203,
-        47,
-        105
+        294,
+        1,
+        2
+      ]
+    },
+    {
+      "tag": "tailp0_5",
+      "deg": "tailp0_5",
+      "blackline_px": 40,
+      "blackline_maxcomp": 3,
+      "blackline_bbox": [
+        337,
+        250,
+        1,
+        3
+      ],
+      "blackline_aspect": 3.0,
+      "darken_px": 40,
+      "max_darken": 86,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 7,
+      "ghost_maxcomp": 2,
+      "ghost_bbox": [
+        325,
+        279,
+        1,
+        2
+      ]
+    },
+    {
+      "tag": "tailm1",
+      "deg": "tailm1",
+      "blackline_px": 129,
+      "blackline_maxcomp": 87,
+      "blackline_bbox": [
+        287,
+        264,
+        7,
+        45
+      ],
+      "blackline_aspect": 6.43,
+      "darken_px": 132,
+      "max_darken": 111,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 51,
+      "ghost_maxcomp": 23,
+      "ghost_bbox": [
+        292,
+        290,
+        2,
+        18
+      ]
+    },
+    {
+      "tag": "tailp1",
+      "deg": "tailp1",
+      "blackline_px": 135,
+      "blackline_maxcomp": 10,
+      "blackline_bbox": [
+        317,
+        287,
+        4,
+        5
+      ],
+      "blackline_aspect": 1.25,
+      "darken_px": 136,
+      "max_darken": 108,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 50,
+      "ghost_maxcomp": 5,
+      "ghost_bbox": [
+        333,
+        259,
+        1,
+        5
       ]
     }
   ]

@@ -27,6 +27,20 @@ html, body {
 }
 #pet.flip { transform: translateX(-50%) scaleX(-1); }
 
+/* 有專屬睡圖的角色仍保留 .sleep（Zzz 與狀態邏輯共用），但不套用通用躺平變形。 */
+#sleepimg {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  display: none;
+  height: 150px;
+  width: auto;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+#stage.sleep-img #pet { display: none; }
+#stage.sleep-img #sleepimg { display: block; }
+
 /* ---------- 配色（狗狗穿熱狗裝：粗描邊貼紙風，填色寫在 SVG 裡） ---------- */
 #shadow { fill: rgba(0, 0, 0, 0.18); }
 #eyes-happy path, #eyes-closed path {
@@ -41,11 +55,13 @@ html, body {
 
 #stage.work #eyes-open,
 #stage.yum #eyes-open,
+#stage.happy #eyes-open,
 #stage.sad #eyes-open,
 #stage.stretch #eyes-open,
 #stage.sleep #eyes-open { display: none; }
 #stage.work #eyes-happy,
 #stage.yum #eyes-happy,
+#stage.happy #eyes-happy,
 #stage.stretch #eyes-happy { display: block; }
 #stage.sad #eyes-closed,
 #stage.sleep #eyes-closed { display: block; }
@@ -76,7 +92,7 @@ html, body {
    施加在 #pet（svg 元素）與 flip 同層——inner <g> 的 CSS transform 在部分
    WebView 版本不生效；用 keyframes 而非 transition（transition 曾卡死凍結
    整個 transform）。躺下有動畫；起身瞬間回正（接伸懶腰動畫） ---------- */
-#stage.sleep #pet {
+#stage.sleep:not(.sleep-img) #pet {
   transform: translateX(-50%) translateY(var(--sleepShift, 0px)) rotate(90deg);
   animation: liedown 0.8s cubic-bezier(0.45, 0.05, 0.35, 1);
 }
@@ -197,6 +213,22 @@ html, body {
   from { transform: translate(-50%, 0) rotate(-15deg); opacity: 1; }
   85%  { opacity: 1; }
   to   { transform: translate(-50%, 118px) rotate(35deg); opacity: 0; }
+}
+
+/* 愛心只在特效期間建立；每顆各自漂移後即移除，透明視窗閒置時不留 DOM。 */
+.heart-burst {
+  position: absolute;
+  z-index: 3;
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
+  animation: heartburst 1.2s ease-out forwards;
+}
+
+@keyframes heartburst {
+  from { transform: translate(-50%, 0) scale(0.65); opacity: 0; }
+  14%  { opacity: 1; }
+  to   { transform: translate(calc(-50% + var(--heart-x)), var(--heart-rise)) scale(1.15); opacity: 0; }
 }
 
 /* ---------- 對話泡泡 ---------- */

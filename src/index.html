@@ -126,21 +126,23 @@
           <image href="jiaobu-body.png" x="0" y="0" width="768" height="768" />
           <!-- 刀臂前置：舉刀動作可見，移開後露出的是純毛色 -->
           <g id="pawR"><image href="jiaobu-pawR.png" x="0" y="0" width="768" height="768" /></g>
-          <!-- 蓋住原圖畫死的眼睛 -->
-          <ellipse cx="308" cy="323" rx="17" ry="25" fill="#CEB278" />
-          <ellipse cx="404" cy="320" rx="17" ry="25" fill="#CEB278" />
           <g id="face">
+            <!-- 原圖緊裁眼件；body 的眼區已烘回原圖底色。 -->
             <g id="eyes-open">
-              <g class="eye"><ellipse cx="308" cy="323" rx="12" ry="20" fill="#000" /></g>
-              <g class="eye"><ellipse cx="404" cy="320" rx="12" ry="20" fill="#000" /></g>
+              <g class="eye"><image href="jiaobu-eyeL.png" x="294" y="303" width="28" height="42" /></g>
+              <g class="eye"><image href="jiaobu-eyeR.png" x="390" y="299" width="29" height="42" /></g>
             </g>
             <g id="eyes-happy">
-              <path style="stroke-width:15" d="M293 327 Q308 309 323 327" />
-              <path style="stroke-width:15" d="M389 324 Q404 306 419 324" />
+              <image href="jiaobu-eyeL.png" x="294" y="303" width="28" height="42"
+                     transform="translate(0 -3) translate(308 324) scale(1 0.45) translate(-308 -324)" />
+              <image href="jiaobu-eyeR.png" x="390" y="299" width="29" height="42"
+                     transform="translate(0 -3) translate(404.5 320) scale(1 0.45) translate(-404.5 -320)" />
             </g>
             <g id="eyes-closed">
-              <path style="stroke-width:15" d="M294 317 Q308 329 322 317" />
-              <path style="stroke-width:15" d="M390 314 Q404 326 418 314" />
+              <image href="jiaobu-eyeL.png" x="294" y="303" width="28" height="42"
+                     transform="translate(308 324) scale(1 0.12) translate(-308 -324)" />
+              <image href="jiaobu-eyeR.png" x="390" y="299" width="29" height="42"
+                     transform="translate(404.5 320) scale(1 0.12) translate(-404.5 -320)" />
             </g>
           </g>
         </g>
@@ -167,20 +169,23 @@
           <g id="legR"><image href="yueyue-legR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipYyLegR)" /></g>
           <g id="pawR"><image href="yueyue-pawR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipYyArm)" /></g>
           <image href="yueyue-body.png" x="0" y="0" width="768" height="768" />
-          <ellipse cx="347" cy="226" rx="16" ry="24" fill="#A29F97" />
-          <ellipse cx="404" cy="234" rx="16" ry="24" fill="#A29F97" />
           <g id="face">
+            <!-- 原圖緊裁眼件；body 的眼區已烘回原圖底色。 -->
             <g id="eyes-open">
-              <g class="eye"><ellipse cx="347" cy="226" rx="9" ry="15" fill="#000" /></g>
-              <g class="eye"><ellipse cx="404" cy="234" rx="9" ry="15" fill="#000" /></g>
+              <g class="eye"><image href="yueyue-eyeL.png" x="334" y="206" width="26" height="41" /></g>
+              <g class="eye"><image href="yueyue-eyeR.png" x="391" y="216" width="26" height="38" /></g>
             </g>
             <g id="eyes-happy">
-              <path style="stroke-width:16" d="M333 231 Q347 215 361 231" />
-              <path style="stroke-width:16" d="M390 239 Q404 223 418 239" />
+              <image href="yueyue-eyeL.png" x="334" y="206" width="26" height="41"
+                     transform="translate(0 -3) translate(347 226.5) scale(1 0.45) translate(-347 -226.5)" />
+              <image href="yueyue-eyeR.png" x="391" y="216" width="26" height="38"
+                     transform="translate(0 -3) translate(404 235) scale(1 0.45) translate(-404 -235)" />
             </g>
             <g id="eyes-closed">
-              <path style="stroke-width:16" d="M334 221 Q347 233 360 221" />
-              <path style="stroke-width:16" d="M391 229 Q404 241 417 229" />
+              <image href="yueyue-eyeL.png" x="334" y="206" width="26" height="41"
+                     transform="translate(347 226.5) scale(1 0.12) translate(-347 -226.5)" />
+              <image href="yueyue-eyeR.png" x="391" y="216" width="26" height="38"
+                     transform="translate(404 235) scale(1 0.12) translate(-404 -235)" />
             </g>
           </g>
         </g>

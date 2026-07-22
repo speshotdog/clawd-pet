@@ -150,6 +150,9 @@ async function main() {
   const win = TAURI.window.getCurrentWindow();
   fitWindow();
   watchDpr();
+  // dpr 在載入初期可能還是舊值，matchMedia 若在註冊前就變化會漏接 → 補幾次冪等適配
+  setTimeout(fitWindow, 600);
+  setTimeout(fitWindow, 2000);
 
   // 游標穿透：只有壓在恐龍身上（或拖曳中）才攔截滑鼠
   await TAURI.event.listen('cursor', ({ payload }) => {

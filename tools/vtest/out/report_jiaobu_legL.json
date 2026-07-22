@@ -1,0 +1,95 @@
+{
+  "char": "jiaobu",
+  "part": "legL",
+  "tags": [
+    "0",
+    "legLm6_5",
+    "legLp6_5"
+  ],
+  "thresholds": {
+    "DARK_DROP": 45,
+    "DARK_ABS": 110,
+    "LIGHT_ABS": 150
+  },
+  "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_jiaobu_legL.png",
+  "frames": [
+    {
+      "tag": "0",
+      "deg": "0",
+      "blackline_px": 0,
+      "blackline_maxcomp": 0,
+      "blackline_bbox": null,
+      "blackline_aspect": 0.0,
+      "darken_px": 0,
+      "max_darken": 0,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 0,
+      "ghost_maxcomp": 0,
+      "ghost_bbox": null
+    },
+    {
+      "tag": "legLm6_5",
+      "deg": "legLm6_5",
+      "blackline_px": 29,
+      "blackline_maxcomp": 10,
+      "blackline_bbox": [
+        76,
+        352,
+        6,
+        3
+      ],
+      "blackline_aspect": 2.0,
+      "darken_px": 32,
+      "max_darken": 120,
+      "gap_px": 25,
+      "gap_maxcomp": 17,
+      "gap_bbox": [
+        99,
+        340,
+        5,
+        4
+      ],
+      "ghost_px": 18,
+      "ghost_maxcomp": 5,
+      "ghost_bbox": [
+        83,
+        346,
+        3,
+        3
+      ]
+    },
+    {
+      "tag": "legLp6_5",
+      "deg": "legLp6_5",
+      "blackline_px": 16,
+      "blackline_maxcomp": 4,
+      "blackline_bbox": [
+        53,
+        349,
+        2,
+        2
+      ],
+      "blackline_aspect": 1.0,
+      "darken_px": 19,
+      "max_darken": 111,
+      "gap_px": 1,
+      "gap_maxcomp": 1,
+      "gap_bbox": [
+        98,
+        350,
+        1,
+        1
+      ],
+      "ghost_px": 8,
+      "ghost_maxcomp": 2,
+      "ghost_bbox": [
+        53,
+        349,
+        2,
+        1
+      ]
+    }
+  ]
+}

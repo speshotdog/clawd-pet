@@ -1,5 +1,5 @@
 {
-  "char": "jiaobu",
+  "char": "yueyue",
   "part": "legR",
   "tags": [
     "0",
@@ -11,7 +11,7 @@
     "DARK_ABS": 110,
     "LIGHT_ABS": 150
   },
-  "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_jiaobu_legR.png",
+  "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_yueyue_legR.png",
   "frames": [
     {
       "tag": "0",
@@ -32,25 +32,30 @@
     {
       "tag": "legRm6_5",
       "deg": "legRm6_5",
-      "blackline_px": 21,
-      "blackline_maxcomp": 8,
+      "blackline_px": 25,
+      "blackline_maxcomp": 10,
       "blackline_bbox": [
-        266,
-        340,
-        3,
-        5
+        268,
+        350,
+        6,
+        4
       ],
-      "blackline_aspect": 1.67,
-      "darken_px": 23,
-      "max_darken": 117,
-      "gap_px": 0,
-      "gap_maxcomp": 0,
-      "gap_bbox": null,
-      "ghost_px": 14,
-      "ghost_maxcomp": 5,
+      "blackline_aspect": 1.5,
+      "darken_px": 25,
+      "max_darken": 109,
+      "gap_px": 9,
+      "gap_maxcomp": 9,
+      "gap_bbox": [
+        216,
+        352,
+        1,
+        9
+      ],
+      "ghost_px": 10,
+      "ghost_maxcomp": 4,
       "ghost_bbox": [
-        262,
-        347,
+        268,
+        352,
         3,
         2
       ]
@@ -58,27 +63,27 @@
     {
       "tag": "legRp6_5",
       "deg": "legRp6_5",
-      "blackline_px": 16,
-      "blackline_maxcomp": 3,
+      "blackline_px": 73,
+      "blackline_maxcomp": 38,
       "blackline_bbox": [
-        229,
-        346,
-        2,
-        2
+        220,
+        348,
+        15,
+        10
       ],
-      "blackline_aspect": 1.0,
-      "darken_px": 18,
-      "max_darken": 126,
+      "blackline_aspect": 1.5,
+      "darken_px": 76,
+      "max_darken": 113,
       "gap_px": 0,
       "gap_maxcomp": 0,
       "gap_bbox": null,
-      "ghost_px": 9,
-      "ghost_maxcomp": 2,
+      "ghost_px": 49,
+      "ghost_maxcomp": 28,
       "ghost_bbox": [
-        227,
-        340,
-        1,
-        2
+        220,
+        348,
+        15,
+        9
       ]
     }
   ]

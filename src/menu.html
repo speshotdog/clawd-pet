@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClawdPet Menu</title>
+  <link rel="stylesheet" href="menu.css" />
+</head>
+<body>
+  <main class="menu-shell" aria-label="ClawdPet 選單">
+    <header class="menu-heading">
+      <span class="heading-sprout" aria-hidden="true">✦</span>
+      <div><strong>夥伴小屋</strong><small id="active-character">載入中…</small></div>
+      <button id="close" class="icon-button" aria-label="關閉選單">×</button>
+    </header>
+
+    <section class="status-row" aria-label="夥伴狀態">
+      <div class="status"><span>心情</span><b id="mood-value">0</b><i id="mood-bar"></i></div>
+      <div class="status"><span>飽食</span><b id="fullness-value">0</b><i id="fullness-bar"></i></div>
+    </section>
+
+    <section class="quick-actions" aria-label="快速操作">
+      <button data-action="feed"><span>🌭</span> 餵熱狗</button>
+      <button data-action="feedlove"><span>♥</span> 餵愛心</button>
+      <button id="patrol" class="wide-action" data-action="patrol"><span>⌁</span> 巡邏模式</button>
+    </section>
+
+    <section class="menu-groups" aria-label="夥伴設定">
+      <details open>
+        <summary><span>主角</span><small id="character-summary"></small></summary>
+        <div id="character-options" class="option-list"></div>
+      </details>
+      <details>
+        <summary><span>夥伴</span><small id="companion-summary"></small></summary>
+        <div id="companion-options" class="option-list"></div>
+      </details>
+      <details>
+        <summary><span>玩具</span><small id="toy-summary"></small></summary>
+        <div id="toy-options" class="option-list"></div>
+      </details>
+      <details>
+        <summary><span>大小</span><small id="scale-summary"></small></summary>
+        <div id="scale-options" class="option-list scale-list"></div>
+      </details>
+    </section>
+
+    <footer class="bottom-actions">
+      <button data-action="hide">躲起來</button>
+      <button data-action="home">回到右下角</button>
+      <button id="autostart" data-action="autostart">開機自動啟動</button>
+      <button class="danger" data-action="quit">離開夥伴</button>
+    </footer>
+  </main>
+  <script src="menu.js"></script>
+</body>
+</html>

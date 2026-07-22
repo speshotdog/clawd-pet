@@ -2,9 +2,9 @@
   "char": "jiaobu",
   "part": "tail",
   "tags": [
-    "n5",
     "0",
-    "p5"
+    "tailm5",
+    "tailp5"
   ],
   "thresholds": {
     "DARK_DROP": 45,
@@ -14,8 +14,24 @@
   "strip": "D:\\claude\\clawd-pet\\tools\\vtest\\out\\strip_jiaobu_tail.png",
   "frames": [
     {
-      "tag": "n5",
-      "deg": "n5",
+      "tag": "0",
+      "deg": "0",
+      "blackline_px": 0,
+      "blackline_maxcomp": 0,
+      "blackline_bbox": null,
+      "blackline_aspect": 0.0,
+      "darken_px": 0,
+      "max_darken": 0,
+      "gap_px": 0,
+      "gap_maxcomp": 0,
+      "gap_bbox": null,
+      "ghost_px": 0,
+      "ghost_maxcomp": 0,
+      "ghost_bbox": null
+    },
+    {
+      "tag": "tailm5",
+      "deg": "tailm5",
       "blackline_px": 10,
       "blackline_maxcomp": 2,
       "blackline_bbox": [
@@ -40,24 +56,8 @@
       ]
     },
     {
-      "tag": "0",
-      "deg": "0",
-      "blackline_px": 0,
-      "blackline_maxcomp": 0,
-      "blackline_bbox": null,
-      "blackline_aspect": 0.0,
-      "darken_px": 0,
-      "max_darken": 0,
-      "gap_px": 0,
-      "gap_maxcomp": 0,
-      "gap_bbox": null,
-      "ghost_px": 0,
-      "ghost_maxcomp": 0,
-      "ghost_bbox": null
-    },
-    {
-      "tag": "p5",
-      "deg": "p5",
+      "tag": "tailp5",
+      "deg": "tailp5",
       "blackline_px": 31,
       "blackline_maxcomp": 10,
       "blackline_bbox": [

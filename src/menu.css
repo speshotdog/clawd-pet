@@ -1,0 +1,63 @@
+:root {
+  color: #4a2f1a;
+  font-family: "Microsoft JhengHei", "Segoe UI", sans-serif;
+  font-size: 14px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+button, summary { font: inherit; }
+
+.menu-shell {
+  width: 300px;
+  height: 520px;
+  padding: 9px;
+  overflow: hidden;
+  border: 3px solid #5c3a21;
+  border-radius: 10px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.2), transparent 9%, transparent 91%, rgba(111,62,28,.12)),
+    repeating-linear-gradient(0deg, rgba(102,61,28,.045) 0 1px, transparent 1px 5px),
+    #f6e3b4;
+  box-shadow: 0 3px 0 #8b5a2b, 0 9px 18px rgba(48, 27, 14, .32);
+}
+
+.menu-heading { display: flex; align-items: center; min-height: 49px; padding: 0 4px 7px; border-bottom: 2px solid #c98c4c; }
+.heading-sprout { display: grid; place-items: center; width: 35px; height: 35px; margin-right: 7px; border: 2px solid #5c3a21; border-radius: 50%; background: #ffd24a; box-shadow: inset 0 0 0 2px #f6e3b4; color: #6c4526; font-size: 19px; }
+.menu-heading strong { display: block; font-family: Georgia, "Microsoft JhengHei", serif; font-size: 18px; letter-spacing: .08em; }
+.menu-heading small, summary small { color: #89603a; font-size: 11px; }
+.icon-button { margin-left: auto; width: 27px; height: 27px; border: 2px solid #8b5a2b; border-radius: 5px; background: #efcb8e; color: #5c3a21; font-size: 21px; line-height: 18px; cursor: pointer; }
+
+.status-row { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 8px 1px; }
+.status { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px; padding: 5px 6px; border: 2px solid #b7783d; border-radius: 5px; background: rgba(255, 250, 224, .58); font-size: 12px; }
+.status b { font-size: 12px; }
+.status i { grid-column: 1 / -1; display: block; height: 6px; border: 1px solid #8b5a2b; border-radius: 999px; background: linear-gradient(90deg, #d8704b var(--fill, 0%), #e8c98c var(--fill, 0%)); }
+
+.quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding-bottom: 8px; border-bottom: 2px solid #c98c4c; }
+button:not(.icon-button), .choice { min-height: 29px; border: 2px solid #8b5a2b; border-radius: 5px; background: #efcb8e; box-shadow: 0 2px 0 #a66a37; color: #4a2f1a; cursor: pointer; transition: transform .12s ease, background .12s ease, box-shadow .12s ease; }
+button:not(.icon-button):hover, .choice:hover { background: #ffd24a; transform: translateY(-1px); box-shadow: 0 3px 0 #855128; }
+button:not(.icon-button):active, .choice:active { transform: translateY(1px); box-shadow: none; }
+.wide-action { grid-column: 1 / -1; }
+.wide-action.is-on { background: #ffd24a; }
+
+.menu-groups { padding: 5px 0; }
+details { border-bottom: 1px solid rgba(139, 90, 43, .45); }
+summary { display: flex; align-items: center; justify-content: space-between; min-height: 29px; padding: 0 5px; cursor: pointer; font-weight: 700; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "›"; margin-right: 6px; color: #8b5a2b; font-size: 19px; transition: transform .15s ease; }
+details[open] summary::before { transform: rotate(90deg); }
+summary span { margin-right: auto; }
+.option-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 1px 3px 7px; }
+.choice { display: flex; align-items: center; gap: 5px; padding: 4px 6px; text-align: left; font-size: 12px; }
+.choice::before { content: "○"; color: #8b5a2b; font-weight: 700; }
+.choice.selected::before { content: "●"; color: #c85136; }
+.choice.selected { background: #ffe28a; }
+.choice.checked::before { content: "✓"; color: #37723f; }
+.scale-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.bottom-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding-top: 7px; border-top: 2px solid #c98c4c; }
+.bottom-actions button { font-size: 12px; }
+.bottom-actions .danger { color: #842d22; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; } }
