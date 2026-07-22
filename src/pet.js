@@ -944,7 +944,7 @@ async function main() {
       parasiting = true;
       wake();
       setState('happy', true);
-      say('嘿嘿～');
+      say('這個頭我收下了～');
     }
     else if (cmd === 'parasite:0') {
       parasiting = false;
@@ -953,7 +953,7 @@ async function main() {
       say('下次再玩～');
     }
     else if (cmd === 'parasited:1') {
-      say('頭上有東西！？');
+      say('我的臉！？');
       setState('shake', true);
       setTimeout(() => setState('shake', false), 520);
     }
