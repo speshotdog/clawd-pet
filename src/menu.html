@@ -22,10 +22,11 @@
     <section class="quick-actions" aria-label="快速操作">
       <button data-action="feed"><span>🌭</span> 餵熱狗</button>
       <button data-action="feedlove"><span>♥</span> 餵愛心</button>
-      <button id="patrol" class="wide-action" data-action="patrol"><span>⌁</span> 巡邏模式</button>
+      <button id="patrol" class="wide-action main-only" data-action="patrol"><span>⌁</span> 巡邏模式</button>
+      <button class="wide-action companion-only" data-action="recall" hidden><span>↩</span> 收回夥伴</button>
     </section>
 
-    <section class="menu-groups" aria-label="夥伴設定">
+    <section class="menu-groups main-only" aria-label="夥伴設定">
       <details open>
         <summary><span>主角</span><small id="character-summary"></small></summary>
         <div id="character-options" class="option-list"></div>
@@ -44,11 +45,11 @@
       </details>
     </section>
 
-    <footer class="bottom-actions">
+    <footer class="bottom-actions main-only">
       <button data-action="hide">躲起來</button>
       <button data-action="home">回到右下角</button>
-      <button id="autostart" data-action="autostart">開機自動啟動</button>
-      <button class="danger" data-action="quit">離開夥伴</button>
+      <button id="autostart" class="wide-action" data-action="autostart">開機自動啟動</button>
+      <button id="quit" class="wide-action danger" data-action="quit">離開夥伴</button>
     </footer>
   </main>
   <script src="menu.js"></script>

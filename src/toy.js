@@ -6,7 +6,6 @@ const stage = document.getElementById('stage');
 const toy = document.getElementById('toy');
 const shadow = document.getElementById('toyshadow');
 const TOY_ID = new URLSearchParams(location.search).get('toy') || 'dino';
-const MY_LABEL = 'toy_' + TOY_ID;
 
 // ---------- 視窗適配：回報真實 devicePixelRatio（fit_window 依 label 撐成 150x120） ----------
 function fitWindow() {
@@ -155,8 +154,9 @@ async function main() {
   setTimeout(fitWindow, 2000);
 
   // 游標穿透：只有壓在恐龍身上（或拖曳中）才攔截滑鼠
-  await TAURI.event.listen('cursor', ({ payload }) => {
-    if (payload.w && payload.w !== MY_LABEL) return;
+  // 用視窗範圍的 win.listen 註冊，後端 emit_to 只會送到本視窗（全域的
+  // TAURI.event.listen 是 target=Any，會連別的視窗的座標一起吃到）
+  await win.listen('cursor', ({ payload }) => {
     const dpr = window.devicePixelRatio || 1;
     const cx = payload.x / dpr;
     const cy = payload.y / dpr;
@@ -169,7 +169,7 @@ async function main() {
   });
 
   // 物理狀態 → 動畫
-  await TAURI.event.listen('toy-state', ({ payload }) => {
+  await win.listen('toy-state', ({ payload }) => {
     if (!payload) return;
     const wasAir = prevAirborne;
     phys = { airborne: !!payload.airborne, vx: payload.vx || 0, vy: payload.vy || 0 };

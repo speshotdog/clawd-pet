@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "setup": "powershell -NoProfile -ExecutionPolicy Bypass -File setup.ps1",
+    "test": "node --test \"tools/test/*.test.js\"",
     "dev": "tauri dev",
     "build": "tauri build",
     "tauri": "tauri"

@@ -8,10 +8,20 @@
 
 html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
 button, summary { font: inherit; }
+/* 主視窗/夥伴的區塊切換用 hidden 屬性；.bottom-actions 之類有 display 規則的
+   元素需要 !important 才蓋得掉 */
+[hidden] { display: none !important; }
 
+/* 直列 flex：頭部/狀態/快速鍵/底排固定，只有中段的設定區可捲。
+   舊版是 height:520 + overflow:hidden，展開第二組 details 就會把底排四顆鈕
+   整個裁掉且沒有捲軸——看起來就像那些功能消失了。 */
 .menu-shell {
-  width: 300px;
-  height: 520px;
+  display: flex;
+  flex-direction: column;
+  /* 尺寸由後端決定（MENU_W / MENU_H / MENU_H_COMPANION），這裡跟著視窗撐滿，
+     不要再寫死一份會跟後端不同步的數字 */
+  width: 100%;
+  height: 100%;
   padding: 9px;
   overflow: hidden;
   border: 3px solid #5c3a21;
@@ -22,6 +32,8 @@ button, summary { font: inherit; }
     #f6e3b4;
   box-shadow: 0 3px 0 #8b5a2b, 0 9px 18px rgba(48, 27, 14, .32);
 }
+
+.menu-heading, .status-row, .quick-actions, .bottom-actions { flex: none; }
 
 .menu-heading { display: flex; align-items: center; min-height: 49px; padding: 0 4px 7px; border-bottom: 2px solid #c98c4c; }
 .heading-sprout { display: grid; place-items: center; width: 35px; height: 35px; margin-right: 7px; border: 2px solid #5c3a21; border-radius: 50%; background: #ffd24a; box-shadow: inset 0 0 0 2px #f6e3b4; color: #6c4526; font-size: 19px; }
@@ -35,13 +47,18 @@ button, summary { font: inherit; }
 .status i { grid-column: 1 / -1; display: block; height: 6px; border: 1px solid #8b5a2b; border-radius: 999px; background: linear-gradient(90deg, #d8704b var(--fill, 0%), #e8c98c var(--fill, 0%)); }
 
 .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding-bottom: 8px; border-bottom: 2px solid #c98c4c; }
+/* 夥伴模式下快速鍵是最後一區，不要留一條沒有下文的分隔線 */
+body.is-companion .quick-actions { padding-bottom: 0; border-bottom: none; }
 button:not(.icon-button), .choice { min-height: 29px; border: 2px solid #8b5a2b; border-radius: 5px; background: #efcb8e; box-shadow: 0 2px 0 #a66a37; color: #4a2f1a; cursor: pointer; transition: transform .12s ease, background .12s ease, box-shadow .12s ease; }
 button:not(.icon-button):hover, .choice:hover { background: #ffd24a; transform: translateY(-1px); box-shadow: 0 3px 0 #855128; }
 button:not(.icon-button):active, .choice:active { transform: translateY(1px); box-shadow: none; }
 .wide-action { grid-column: 1 / -1; }
 .wide-action.is-on { background: #ffd24a; }
 
-.menu-groups { padding: 5px 0; }
+.menu-groups { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 5px 0; }
+.menu-groups::-webkit-scrollbar { width: 8px; }
+.menu-groups::-webkit-scrollbar-track { border-radius: 999px; background: rgba(139, 90, 43, .13); }
+.menu-groups::-webkit-scrollbar-thumb { border: 1px solid #5c3a21; border-radius: 999px; background: #c9964f; }
 details { border-bottom: 1px solid rgba(139, 90, 43, .45); }
 summary { display: flex; align-items: center; justify-content: space-between; min-height: 29px; padding: 0 5px; cursor: pointer; font-weight: 700; list-style: none; }
 summary::-webkit-details-marker { display: none; }
@@ -58,6 +75,11 @@ summary span { margin-right: auto; }
 
 .bottom-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding-top: 7px; border-top: 2px solid #c98c4c; }
 .bottom-actions button { font-size: 12px; }
-.bottom-actions .danger { color: #842d22; }
+/* 「離開夥伴」獨佔一列並與上面拉開距離：舊版它和「開機自動啟動」在同一格線裡
+   緊鄰，手滑一下整個 app 就關了 */
+.bottom-actions .danger { margin-top: 4px; border-color: #a4453a; color: #842d22; }
+.bottom-actions .danger.confirming { background: #e8a08e; border-color: #842d22; font-weight: 700; }
+
+button:focus-visible, summary:focus-visible, .choice:focus-visible { outline: 2px solid #c85136; outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; } }

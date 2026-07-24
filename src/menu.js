@@ -18,9 +18,14 @@ function setStatus(id, value) {
   $(`${id}-bar`).style.setProperty('--fill', `${safe}%`);
 }
 
+// 選項清單會被高頻重繪（心情/飽食度現在是即時同步的），內容沒變就別重建 DOM，
+// 否則按鈕會在游標底下被抽換掉，hover 與焦點都會斷。
 function renderChoices(target, entries, active, prefix, mode = 'single') {
   const selected = new Set(Array.isArray(active) ? active : [active]);
   const container = $(target);
+  const sig = `${prefix}|${[...selected].join(',')}`;
+  if (container.dataset.sig === sig) return;
+  container.dataset.sig = sig;
   container.replaceChildren(...entries.map(([id, label]) => {
     const button = document.createElement('button');
     button.className = `choice${selected.has(id) ? (mode === 'check' ? ' checked' : ' selected') : ''}`;
@@ -30,33 +35,71 @@ function renderChoices(target, entries, active, prefix, mode = 'single') {
   }));
 }
 
+// 夥伴視窗開的選單只留「狀態＋餵食＋收回夥伴」：角色/夥伴/玩具/大小、躲起來、
+// 回到右下角都是主視窗才管得動的東西。
+function applyMode(companion) {
+  document.body.classList.toggle('is-companion', companion);
+  document.querySelectorAll('.main-only').forEach((el) => { el.hidden = companion; });
+  document.querySelectorAll('.companion-only').forEach((el) => { el.hidden = !companion; });
+}
+
 function render(next) {
   state = { ...state, ...next };
+  const companion = Boolean(state.companion);
+  applyMode(companion);
   setStatus('mood', state.mood);
   setStatus('fullness', state.fullness);
   const character = nameFor(state.character);
-  $('active-character').textContent = `今天和 ${character} 一起冒險`;
+  $('active-character').textContent = companion ? `夥伴 ${character}` : `今天和 ${character} 一起冒險`;
+  if (companion) return;   // 以下都是主視窗才有的區塊
+
+  const companions = state.companions || [];
+  const toys = state.toys || [];
   $('character-summary').textContent = character;
-  $('companion-summary').textContent = (state.companions || []).length ? `${state.companions.length} 位同行` : '尚無';
-  $('toy-summary').textContent = (state.toys || []).length ? `${state.toys.length} 件` : '收起';
-  const selectedScale = SCALES.find(([value]) => Math.abs(value - state.scale) < .01)?.[1] || '標準';
-  $('scale-summary').textContent = selectedScale;
+  $('companion-summary').textContent = companions.length ? companions.map(nameFor).join('、') : '尚無';
+  $('toy-summary').textContent = toys.length ? toys.length + ' 件' : '收起';
+  $('scale-summary').textContent = SCALES.find(([value]) => Math.abs(value - state.scale) < .01)?.[1] || '標準';
   $('patrol').classList.toggle('is-on', Boolean(state.patrol));
   $('patrol').setAttribute('aria-pressed', String(Boolean(state.patrol)));
   $('autostart').classList.toggle('is-on', Boolean(state.autostart));
   $('autostart').textContent = `${state.autostart ? '✓ ' : ''}開機自動啟動`;
   renderChoices('character-options', CHARACTERS, state.character, 'char');
-  renderChoices('companion-options', CHARACTERS, state.companions || [], 'comp', 'check');
-  renderChoices('toy-options', TOYS, state.toys || [], 'toy', 'check');
+  renderChoices('companion-options', CHARACTERS, companions, 'comp', 'check');
+  renderChoices('toy-options', TOYS, toys, 'toy', 'check');
   renderChoices('scale-options', SCALES.map(([value, label]) => [String(value), label]), String(state.scale), 'scale');
 }
 
+// 手風琴：視窗高度固定，一次只展開一組才塞得下（超出時中段仍可捲動保底）
+document.querySelectorAll('details').forEach((d) => {
+  d.addEventListener('toggle', () => {
+    if (!d.open) return;
+    document.querySelectorAll('details').forEach((o) => { if (o !== d) o.open = false; });
+  });
+});
+
 async function closeMenu() {
+  disarmQuit();
   await TAURI?.core.invoke('close_menu_window').catch(() => {});
+}
+
+// 「離開夥伴」要按兩次：它就在底排，一下點錯整個 app 就關了
+let quitArmed = null;
+function disarmQuit() {
+  clearTimeout(quitArmed);
+  quitArmed = null;
+  $('quit').classList.remove('confirming');
+  $('quit').textContent = '離開夥伴';
 }
 
 async function action(id) {
   if (!id) return;
+  if (id !== 'quit' && quitArmed) disarmQuit();
+  if (id === 'quit' && !quitArmed) {
+    $('quit').classList.add('confirming');
+    $('quit').textContent = '再按一次就離開';
+    quitArmed = setTimeout(disarmQuit, 4000);
+    return;
+  }
   if (id === 'patrol') {
     state.patrol = !state.patrol;
   } else if (id === 'autostart') {
@@ -109,7 +152,8 @@ async function main() {
     TAURI.core.invoke('get_autostart').catch(() => false),
   ]);
   render({ ...initial, autostart });
-  await TAURI.event.listen('menu-state', ({ payload }) => render(payload || {}));
+  // 視窗範圍監聽：後端 emit_to("petmenu") 只送到這裡
+  await TAURI.window.getCurrentWindow().listen('menu-state', ({ payload }) => render(payload || {}));
 }
 
 main();

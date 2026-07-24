@@ -95,3 +95,23 @@ cd src-tauri && cargo build --release
   }
 }
 ```
+
+`/claude/*` 只會觸發動畫，不需要驗證，所以上面的設定照抄即可。
+
+### 控制端點（`/pet/*`）
+
+`/pet/quit`（強制關閉）、`/pet/multi`、`/pet/parasite`（測試用）會改變狀態，
+必須帶 token，否則任何本機程式——包含瀏覽器分頁用一個 `no-cors` 的 `fetch`——
+都能關掉你的寵物。token 在第一次啟動時產生並存在：
+
+```
+%LOCALAPPDATA%\com.clawd.pet\token
+```
+
+用法：
+
+```bash
+curl.exe -s "http://127.0.0.1:17872/pet/quit?t=$(cat "$LOCALAPPDATA/com.clawd.pet/token")"
+```
+
+只接受 `GET`，且路徑要完全相符（舊版是子字串比對，標頭裡撞到就會誤觸發）。
