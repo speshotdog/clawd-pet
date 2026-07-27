@@ -9,9 +9,9 @@
 
 ## 動起來長這樣
 
-<video src="https://github.com/speshotdog/clawd-pet/raw/main/docs/demo.mp4" controls width="720"></video>
+<p align="center"><img src="docs/demo.gif" width="640" alt="兩隻珍珍在桌面散步，小恐龍滾過來被踢飛" /></p>
 
-> 影片沒有自動播放的話，[點這裡看](docs/demo.mp4)。
+> 想看原畫質（含聲音）的話：[下載示範影片](docs/demo.mp4)
 
 ## 下載
 
