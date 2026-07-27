@@ -485,7 +485,10 @@
   </template>
 
   <!-- ================= 角色：羊咩（粉羊）
-       雙腳畫在同一層 → 連通元件切左右；身上那隻小手另成一層，當 pawR。 -->
+       雙腳畫在同一層 → 連通元件切左右；身上那隻小手另成一層，當 pawR。
+       ⚠ 這隻的腳畫在身體**後面**，畫師在身體上開了兩個孔讓腳透出來。腳一擺動就
+       離開那個孔、露出桌面背景 → 需要 yang-bodyback.png：補色畫在**所有部件的最後面**，
+       0° 被腳蓋住看不見，腳擺開才露出身體色。 -->
   <template id="char-yang">
     <svg id="pet" viewBox="0 0 525 485" xmlns="http://www.w3.org/2000/svg"
          xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -493,6 +496,7 @@
       <ellipse id="shadow" cx="258" cy="477" rx="141" ry="13" />
       <g id="root">
         <g id="body">
+          <image href="yang-bodyback.png" x="0" y="0" width="525" height="485" />
           <g id="legL"><image href="yang-legL.png" x="0" y="0" width="525" height="485" /></g>
           <g id="legR"><image href="yang-legR.png" x="0" y="0" width="525" height="485" /></g>
           <image href="yang-body.png" x="0" y="0" width="525" height="485" />

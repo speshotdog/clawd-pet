@@ -173,7 +173,8 @@ const CHAR_CFG = {
   },
   zhenzhen2: {
     height: 190.1,     // viewBox 0 0 587 570
-    limbScale: 1,
+    // 腿畫在身體「前面」，擺動時上端會從身體底部輪廓下滑出來（掃出量與角度成正比）
+    limbScale: 0.5,
     center: { x: 82, y: 150 },
     legL: [124, 465], legR: [378, 488],
     pawR: [293, 285],  // 無手部件（空 g）
@@ -207,7 +208,7 @@ const CHAR_CFG = {
   },
   lk: {
     height: 195.8,     // viewBox 0 0 586 587（全隊最高）
-    limbScale: 1,
+    limbScale: 0.5,    // 同珍珍：腿在身體前面，擺幅減半壓低上端掃出量
     center: { x: 107, y: 123 },
     legL: [143, 457], legR: [294, 474],
     pawR: [293, 293],  // 無手部件（空 g）

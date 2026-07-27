@@ -114,6 +114,14 @@ document.addEventListener('click', (event) => {
   if (button) action(button.dataset.action);
 });
 $('close').addEventListener('click', closeMenu);
+
+// ---------- 拖曳選單（視窗是 decorations:false，得自己接） ----------
+// 只有標題列可以拖，避免壓到底下的按鈕/展開區；✕ 按鈕不觸發。
+// capabilities 已含 petmenu 與 core:window:allow-start-dragging。
+document.querySelector('.menu-heading').addEventListener('pointerdown', (event) => {
+  if (event.button !== 0 || event.target.closest('button')) return;
+  TAURI?.window.getCurrentWindow().startDragging().catch(() => {});
+});
 window.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
 // 不做 blur 自動關閉：使用者要求選單常駐，只有右上角 ✕（或 ESC）才收。
 
