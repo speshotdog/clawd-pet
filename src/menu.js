@@ -49,7 +49,7 @@ function render(next) {
   $('patrol').classList.toggle('is-on', Boolean(state.patrol));
   $('patrol').setAttribute('aria-pressed', String(Boolean(state.patrol)));
   // 墓碑事件／殺戮模式：殺戮模式只有在墓碑事件開著時才有意義
-  for (const [key, prop] of [['murder', 'murder'], ['killmode', 'killMode']]) {
+  for (const [key, prop] of [['murder', 'murder'], ['killmode', 'killMode'], ['control', 'control']]) {
     const on = Boolean(state[prop]);
     $(key).classList.toggle('is-on', on);
     $(key).setAttribute('aria-pressed', String(on));
@@ -82,6 +82,8 @@ async function action(id) {
     state.murder = !state.murder;
   } else if (id === 'killmode') {
     state.killMode = !state.killMode;
+  } else if (id === 'control') {
+    state.control = !state.control;
   } else if (id === 'autostart') {
     state.autostart = !state.autostart;
   } else if (id.startsWith('comp:') || id.startsWith('toy:') || id.startsWith('reveal:')) {

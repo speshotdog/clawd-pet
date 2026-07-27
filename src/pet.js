@@ -346,15 +346,19 @@ const stats = { mood: 70, fullness: 80 };
 let patrolOn = false;
 let murderOn = false;   // 墓碑事件總開關
 let killMode = false;   // 殺戮模式：相遇必定得手
+let controlOn = false;  // 操作模式：←→ 移動、空白跳躍（按鍵輪詢在 Rust）
 try {
   const s = JSON.parse(localStorage.getItem('petstats') || '{}');
   if (s.stats) Object.assign(stats, s.stats);
   patrolOn = !!s.patrol;
   murderOn = !!s.murder;
   killMode = !!s.killMode;
+  controlOn = !!s.control;
 } catch (_) {}
 function saveStats() {
-  localStorage.setItem('petstats', JSON.stringify({ stats, patrol: patrolOn, murder: murderOn, killMode }));
+  localStorage.setItem('petstats', JSON.stringify({
+    stats, patrol: patrolOn, murder: murderOn, killMode, control: controlOn,
+  }));
 }
 // 位置判定在 Rust（只有後端看得到所有視窗座標），把它需要的狀態同步過去
 function syncPetInfo() {
@@ -362,6 +366,9 @@ function syncPetInfo() {
 }
 function syncMurder() {
   if (TAURI && !IS_COMPANION) TAURI.core.invoke('set_murder', { on: murderOn, killmode: killMode }).catch(() => {});
+}
+function syncControl() {
+  if (TAURI && !IS_COMPANION) TAURI.core.invoke('set_control', { on: controlOn }).catch(() => {});
 }
 function addMood(n) { stats.mood = Math.max(0, Math.min(100, stats.mood + n)); saveStats(); }
 
@@ -383,6 +390,7 @@ let grabbed = false;
 let parasiting = false;
 let dead = false;          // 被有刀的做掉了，正躺在墓碑底下
 let reviveTimer = null;
+let ctrlDir = 0;           // 操作模式下的移動方向（1=右 -1=左 0=停）
 let clickThrough = true;   // 目前是否穿透（Rust 端初始為穿透）
 
 function setState(cls, on) { stage.classList.toggle(cls, on); }
@@ -566,6 +574,7 @@ document.addEventListener('contextmenu', (e) => {
     revealed: revealedList(),
     murder: murderOn,
     killMode,
+    control: controlOn,
     scale: SCALE,
     x: e.clientX * dpr,
     y: e.clientY * dpr,
@@ -878,7 +887,8 @@ function setCompanionShare(n) {
 async function maybeWalk() {
   const idleFor = Date.now() - lastActivity;
   const eager = patrolOn;
-  const canWalk = !grabbed && !walking && !parasiting && !isSleeping() && !dead
+  // 操作模式下不自己亂走，免得跟玩家搶視窗座標
+  const canWalk = !grabbed && !walking && !parasiting && !isSleeping() && !dead && !controlOn
     && (eager ? idleFor > 4_000 : idleFor > 15_000)
     && Math.random() < (eager ? 0.9 : 0.5);
   if (canWalk) {
@@ -1041,6 +1051,7 @@ async function main() {
   // 墓碑系統：後端要知道我是誰、有沒有在巡邏，以及總開關狀態
   syncPetInfo();
   syncMurder();
+  syncControl();
   // dpr 在載入初期可能還是舊值（文字大小疊乘晚到），matchMedia 若在註冊前就變化會漏接
   // → 開機後補幾次冪等適配（實測：夥伴重建偶發卡在 240×1.5 裁切，即此競態）
   setTimeout(fitWindow, 600);
@@ -1143,6 +1154,28 @@ async function main() {
       saveStats();
       syncMurder();
       say(killMode ? '殺戮模式開啟！' : '收刀。', 2000);
+    }
+    else if (cmd === 'control' && !IS_COMPANION) {
+      controlOn = !controlOn;
+      saveStats();
+      syncControl();
+      if (!controlOn) { setState('walk', false); ctrlDir = 0; }
+      say(controlOn ? '交給你操作囉！←→ 移動、空白跳' : '我自己走就好～', 2600);
+    }
+    else if (cmd.startsWith('ctrl:') && !IS_COMPANION) {
+      // Rust 的按鍵輪詢送來的方向：1=右、-1=左、0=停。位置由後端搬，這裡只演戲。
+      const d = parseInt(cmd.slice(5), 10) || 0;
+      ctrlDir = d;
+      // walking 這個旗標同時驅動四肢擺動，所以直接設它（不是只加 .walk class）
+      walking = d !== 0;
+      if (d !== 0) {
+        wake();
+        setFacing(d > 0);
+        setGaze(d * 40, 20);
+        setState('walk', true);
+      } else {
+        setState('walk', false);
+      }
     }
     else if (cmd.startsWith('chase:')) {
       // 被玩具吸引走過去（dx = 實體 px，交給 walk）

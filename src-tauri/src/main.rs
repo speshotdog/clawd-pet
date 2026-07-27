@@ -743,6 +743,102 @@ fn revive(window: WebviewWindow) {
     DEAD_STATE.lock().unwrap().remove(window.label());
 }
 
+// ============================================================
+// 操作模式：選單開啟後用 ←/→ 操作主視窗角色，空白鍵（或 ↑）跳躍。
+// 沿用既有的 GetAsyncKeyState 輪詢，不裝全域鍵盤鉤子（README 的設計原則：
+// 鉤子會拖累遊戲輸入延遲）。
+// ⚠ 輪詢是全域的：開著這個模式時在別的視窗按方向鍵，角色一樣會跑。
+//   所以預設關閉，由使用者自己在選單開。
+// ============================================================
+const VK_SPACE: i32 = 0x20;
+const VK_LEFT: i32 = 0x25;
+const VK_UP: i32 = 0x26;
+const VK_RIGHT: i32 = 0x27;
+const CTRL_TICK_MS: u64 = 33; // 30fps，與其他常駐迴圈一致
+const CTRL_SPEED: f64 = 6.5; // 每 tick 移動的 CSS px（≈195 px/s）
+const CTRL_JUMP_V: f64 = 1000.0; // 跳躍初速 CSS px/s
+const CTRL_JUMP_VX: f64 = 170.0; // 跳躍時順著「當下按住的方向」帶一點水平位移
+
+static CONTROL_MODE: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+#[tauri::command]
+fn set_control(on: bool) {
+    CONTROL_MODE.store(on, Ordering::Relaxed);
+}
+
+fn key_down(vk: i32) -> bool {
+    (unsafe { GetAsyncKeyState(vk) } as u16) & 0x8000 != 0
+}
+
+fn spawn_control_thread(app: AppHandle) {
+    std::thread::spawn(move || {
+        let mut last_dir: i32 = 0;
+        let mut jump_was_down = false;
+        loop {
+            std::thread::sleep(Duration::from_millis(CTRL_TICK_MS));
+            if !CONTROL_MODE.load(Ordering::Relaxed) {
+                if last_dir != 0 {
+                    let _ = app.emit("pet-cmd", "main:ctrl:0".to_string());
+                    last_dir = 0;
+                }
+                continue;
+            }
+            let Some(win) = app.get_webview_window("main") else {
+                continue;
+            };
+            if is_dead("main") {
+                continue;
+            }
+            let jump = key_down(VK_SPACE) || key_down(VK_UP);
+            let dir = key_down(VK_RIGHT) as i32 - key_down(VK_LEFT) as i32;
+
+            // 跳躍：邊緣觸發，交給既有的拋物線物理（落地時它自己 busy_end）
+            if jump && !jump_was_down && !is_busy("main") {
+                jump_was_down = true;
+                if busy_start("main") {
+                    if let (Ok(pos), Ok(_)) = (win.outer_position(), win.outer_size()) {
+                        let scale = window_scale(&win);
+                        let ph = Phys {
+                            x: pos.x as f64,
+                            y: pos.y as f64,
+                            // 有按方向就往那邊跳，沒按就原地垂直跳
+                            vx: dir as f64 * CTRL_JUMP_VX * scale,
+                            vy: -CTRL_JUMP_V * scale,
+                            grounded: false,
+                            grabbed: false,
+                            scale,
+                        };
+                        spawn_pet_physics(app.clone(), "main".into(), ph, work_area_of(&win));
+                    } else {
+                        busy_end("main");
+                    }
+                }
+                continue;
+            }
+            if !jump {
+                jump_was_down = false;
+            }
+            // 被抓著/跳躍中/走路中就不接管位置，免得跟其他動作搶視窗座標
+            if is_busy("main") {
+                continue;
+            }
+            if dir != last_dir {
+                let _ = app.emit("pet-cmd", format!("main:ctrl:{dir}"));
+                last_dir = dir;
+            }
+            if dir != 0 {
+                if let (Ok(pos), Ok(size)) = (win.outer_position(), win.outer_size()) {
+                    let wa = work_area_of(&win);
+                    let step = (CTRL_SPEED * window_scale(&win)).round() as i32;
+                    let max_x = (wa.right - size.width as i32).max(wa.left);
+                    let nx = (pos.x + dir * step).clamp(wa.left, max_x);
+                    let _ = win.set_position(PhysicalPosition::new(nx, pos.y));
+                }
+            }
+        }
+    });
+}
+
 struct PetSnap {
     label: String,
     character: String,
@@ -1507,6 +1603,7 @@ fn show_menu_window(
     toys: Vec<String>,
     murder: bool,
     kill_mode: bool,
+    control: bool,
     scale: f64,
     x: f64,
     y: f64,
@@ -1521,6 +1618,7 @@ fn show_menu_window(
         "patrol": patrol,
         "murder": murder,
         "killMode": kill_mode,
+        "control": control,
         "character": character,
         "companions": companions,
         "revealed": revealed,
@@ -1631,6 +1729,7 @@ fn menu_action(app: AppHandle, id: String) {
         "feedlove" => emit_main("main:feedlove".into()),
         "murder" => emit_main("main:murder".into()),
         "killmode" => emit_main("main:killmode".into()),
+        "control" => emit_main("main:control".into()),
         "patrol" => {
             for pet in pet_windows(&app) {
                 let label = pet.label().to_string();
@@ -1736,6 +1835,12 @@ fn show_menu(
         }
         if let Ok(it) = CheckMenuItemBuilder::with_id("p_killmode", "殺戮模式（必定得手）")
             .checked(KILL_MODE.load(Ordering::Relaxed))
+            .build(app)
+        {
+            murder_items.push(it);
+        }
+        if let Ok(it) = CheckMenuItemBuilder::with_id("p_control", "操作模式（←→ 移動．空白跳）")
+            .checked(CONTROL_MODE.load(Ordering::Relaxed))
             .build(app)
         {
             murder_items.push(it);
@@ -1944,6 +2049,7 @@ fn spawn_cursor_thread(win: WebviewWindow) {
 // GET /claude/start | /claude/stop | /claude/error | /claude/wait → 轉發給前端
 // GET /pet/parasite → 對目前的珍母觸發寄生（本機測試用）
 // GET /pet/murder   → 強制跑一輪墓碑判定（本機測試用，略過巡邏/機率/冷卻）
+// GET /pet/control  → 切換操作模式（本機測試用）
 // ------------------------------------------------------------
 fn spawn_claude_listener(app: AppHandle) {
     std::thread::spawn(move || {
@@ -2004,6 +2110,12 @@ fn spawn_claude_listener(app: AppHandle) {
                         let _ = w.emit_to("main", "pet-cmd", format!("main:char:{id}"));
                         dlog(&format!("http char switch -> {id}"));
                     }
+                }
+            }
+            // 操作模式開關測試鉤子：GET /pet/control（等同選單點「操作模式」）
+            if req.contains("/pet/control") {
+                if let Some(w) = app.get_webview_window("main") {
+                    let _ = w.emit_to("main", "pet-cmd", "main:control");
                 }
             }
             // 召喚/收回指定夥伴測試鉤子：GET /pet/comp/<id>（等同選單「夥伴：」勾選）
@@ -2090,6 +2202,7 @@ fn main() {
             set_revealed,
             set_pet_info,
             set_murder,
+            set_control,
             revive,
             menu_action,
             snap_bottom,
@@ -2134,6 +2247,7 @@ fn main() {
             setup_pet_window(&win);
             spawn_sleep_kick_evaluator(app.handle().clone());
             spawn_murder_evaluator(app.handle().clone());
+            spawn_control_thread(app.handle().clone());
             spawn_typing_thread(app.handle().clone());
             spawn_claude_listener(app.handle().clone());
 
@@ -2294,6 +2408,11 @@ fn main() {
                     "p_killmode" => {
                         if let Some(w) = app.get_webview_window("main") {
                             let _ = w.emit_to("main", "pet-cmd", "main:killmode");
+                        }
+                    }
+                    "p_control" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.emit_to("main", "pet-cmd", "main:control");
                         }
                     }
                     "p_patrol" => {
