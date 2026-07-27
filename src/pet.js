@@ -334,6 +334,9 @@ window.addEventListener('storage', (e) => {
     const s = JSON.parse(e.newValue);
     if (s.stats) Object.assign(stats, s.stats);
     patrolOn = !!s.patrol;
+    // 巡邏狀態一定要跟著回報給後端，否則夥伴視窗（例如拿刀的女僕狐）在後端
+    // 會一直是開窗當下的舊值，墓碑事件與追殺都不會對它發動
+    syncPetInfo();
   } catch (_) {}
 });
 

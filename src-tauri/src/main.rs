@@ -712,6 +712,7 @@ const KNIFE_CHARS: &[&str] = &["fox", "jiaobu"];
 const MURDER_TICK_SECS: u64 = 3;
 const MURDER_RANGE: f64 = 130.0; // CSS px（再乘視窗 scale）＝「擦身而過」的距離
 const MURDER_CHANCE: f64 = 0.06; // 每次相遇的擊殺機率；殺戮模式為 1.0
+const HUNT_RANGE: f64 = 900.0; // CSS px：殺戮模式下主動追殺的搜索半徑
 const MURDER_PAIR_COOLDOWN_SECS: u64 = 45; // 同一對的相遇冷卻，避免並肩走時連環判定
 const DEAD_MAX_SECS: u64 = 60; // 保險絲：前端沒回報復活就自動解除死亡狀態
 
@@ -895,10 +896,8 @@ fn spawn_murder_evaluator(app: AppHandle) {
     });
 }
 
-// 掃一輪所有寵物視窗配對，該死的就讓它死。回傳這一輪殺掉幾個。
-// force=true（`/pet/murder` 測試鉤子）：略過巡邏條件、機率與相遇冷卻，只保留距離判定。
-fn run_murder_pass(app: &AppHandle, rng: &mut Rng, force: bool) -> usize {
-    let kill_mode = KILL_MODE.load(Ordering::Relaxed);
+// 目前在場、活著、沒在忙的寵物視窗快照（位置判定只有後端看得到）
+fn snapshot_pets(app: &AppHandle) -> Vec<PetSnap> {
     let mut pets: Vec<PetSnap> = Vec::new();
     for w in pet_windows(app) {
         let label = w.label().to_string();
@@ -920,6 +919,59 @@ fn run_murder_pass(app: &AppHandle, rng: &mut Rng, force: bool) -> usize {
             scale: window_scale(&w),
         });
     }
+    pets
+}
+
+// 殺戮模式的追殺導引：有刀的不再等「剛好擦身而過」，主動走向最近的活人。
+// 只負責把距離拉近，真正的擊殺仍由 run_murder_pass 的配對迴圈判定。
+// 回傳這一輪導引了幾隻。force=true 時略過巡邏條件（`/pet/murder?hunt=1`）。
+fn run_hunt_pass(app: &AppHandle, pets: &[PetSnap], dead_now: &[String], force: bool) -> usize {
+    let mut guided = 0usize;
+    for (i, hunter) in pets.iter().enumerate() {
+        if !has_knife(&hunter.character) || !(hunter.patrol || force) {
+            continue;
+        }
+        if dead_now.contains(&hunter.label) {
+            continue;
+        }
+        // 找同一螢幕、還活著、離得最近的一隻（另一個拿刀的也算——那就是對撞）
+        let mut best: Option<(f64, f64)> = None; // (距離, 獵物中心 x)
+        for (j, prey) in pets.iter().enumerate() {
+            if j == i || prey.wa != hunter.wa || dead_now.contains(&prey.label) {
+                continue;
+            }
+            let d = (prey.cx - hunter.cx).abs();
+            if d < HUNT_RANGE * hunter.scale && best.map(|b| d < b.0).unwrap_or(true) {
+                best = Some((d, prey.cx));
+            }
+        }
+        let Some((dist, prey_cx)) = best else { continue };
+        let reach = MURDER_RANGE * hunter.scale;
+        if dist < reach {
+            continue; // 已經在刀下，別再往前擠
+        }
+        // 目標＝獵物旁 reach 的一半，走完就落在相遇範圍內
+        let side = if prey_cx >= hunter.cx { 1.0 } else { -1.0 };
+        let dx = (prey_cx - side * reach * 0.5) - hunter.cx;
+        let _ = app.emit_to(
+            hunter.label.as_str(),
+            "pet-cmd",
+            serde_json::json!({ "cmd": "chase", "dx": dx.round() }),
+        );
+        guided += 1;
+        dlog(&format!(
+            "hunt: {} -> dist={dist:.0} dx={dx:.0}",
+            hunter.label
+        ));
+    }
+    guided
+}
+
+// 掃一輪所有寵物視窗配對，該死的就讓它死。回傳這一輪殺掉幾個。
+// force=true（`/pet/murder` 測試鉤子）：略過巡邏條件、機率與相遇冷卻，只保留距離判定。
+fn run_murder_pass(app: &AppHandle, rng: &mut Rng, force: bool) -> usize {
+    let kill_mode = KILL_MODE.load(Ordering::Relaxed);
+    let pets = snapshot_pets(app);
 
     let mut killed = 0usize;
     let mut dead_now: Vec<String> = Vec::new();
@@ -1001,6 +1053,10 @@ fn run_murder_pass(app: &AppHandle, rng: &mut Rng, force: bool) -> usize {
                 killer.label, victim.label
             ));
         }
+    }
+
+    if kill_mode {
+        run_hunt_pass(app, &pets, &dead_now, force);
     }
     killed
 }
@@ -2018,10 +2074,17 @@ fn route_control(app: &AppHandle, path: &str, query: &str, token: &str) -> (&'st
             _ => ("400 Bad Request", "unknown character"),
         },
         // 強制跑一輪墓碑判定（測試用）：略過巡邏條件、機率與相遇冷卻，只保留距離判定
+        // 立刻跑一輪判定。預設走「相遇必殺」；帶 &hunt=1 則改成只跑追殺導引，
+        // 不用真的去選單開殺戮模式就能驗證有刀的會不會走向獵物。
         "/pet/murder" => {
             let mut rng = Rng::new();
-            let n = run_murder_pass(app, &mut rng, true);
-            dlog(&format!("http murder test: killed {n}"));
+            if query_param(query, "hunt").is_some() {
+                let n = run_hunt_pass(app, &snapshot_pets(app), &[], true);
+                dlog(&format!("http hunt test: guided {n}"));
+            } else {
+                let n = run_murder_pass(app, &mut rng, true);
+                dlog(&format!("http murder test: killed {n}"));
+            }
             ("200 OK", "ok")
         }
         // 操作模式：/pet/control?t=<token> 切換，加 &on=1 / &on=0 直接指定。

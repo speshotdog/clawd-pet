@@ -22,13 +22,13 @@
     <section class="quick-actions" aria-label="快速操作">
       <button data-action="feed"><span>🌭</span> 餵熱狗</button>
       <button data-action="feedlove"><span>♥</span> 餵愛心</button>
-      <button id="patrol" class="wide-action main-only" data-action="patrol"><span>⌁</span> 巡邏模式</button>
+      <button id="patrol" class="wide-action toggle-action main-only" data-action="patrol">巡邏模式</button>
       <button class="wide-action companion-only" data-action="recall" hidden><span>↩</span> 收回夥伴</button>
       <!-- 墓碑／殺戮併成一列：這區每多一整列就從底下的設定區吃掉 ~35px，
            六顆全開一整列會把設定區壓到只剩 130px，展開任一組就爆掉。 -->
-      <button id="murder" class="main-only" data-action="murder"><span>🪦</span> 墓碑事件</button>
-      <button id="killmode" class="main-only" data-action="killmode"><span>🔪</span> 殺戮模式</button>
-      <button id="control" class="wide-action main-only" data-action="control"><span>🎮</span> 操作模式（←→ 移動．空白跳）</button>
+      <button id="murder" class="toggle-action main-only" data-action="murder" title="巡邏時拿刀的角色經過別人，有低機率把對方變成墓碑">墓碑事件</button>
+      <button id="killmode" class="toggle-action main-only" data-action="killmode">殺戮模式</button>
+      <button id="control" class="wide-action toggle-action main-only" data-action="control">操作模式（←→ 空白跳）</button>
     </section>
 
     <section class="menu-groups main-only" aria-label="夥伴設定">
@@ -57,7 +57,7 @@
     <footer class="bottom-actions main-only">
       <button data-action="hide">躲起來</button>
       <button data-action="home">回到右下角</button>
-      <button id="autostart" class="wide-action" data-action="autostart">開機自動啟動</button>
+      <button id="autostart" class="wide-action toggle-action" data-action="autostart">開機自動啟動</button>
       <button id="quit" class="wide-action danger" data-action="quit">離開夥伴</button>
     </footer>
   </main>

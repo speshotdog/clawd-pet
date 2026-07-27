@@ -55,7 +55,14 @@ button:not(.icon-button), .choice { min-height: 29px; border: 2px solid #8b5a2b;
 button:not(.icon-button):hover, .choice:hover { background: #ffd24a; transform: translateY(-1px); box-shadow: 0 3px 0 #855128; }
 button:not(.icon-button):active, .choice:active { transform: translateY(1px); box-shadow: none; }
 .wide-action { grid-column: 1 / -1; }
-.wide-action.is-on { background: #ffd24a; }
+/* 模式開關（巡邏／墓碑／殺戮／操作）：狀態用 ○ / ● 表示，與下方選項清單同一套語言。
+   ⚠ 高亮不能只掛在 .wide-action 上——墓碑與殺戮是半寬的，之前就是因此點了完全沒反應。 */
+.toggle-action::before { content: "○"; margin-right: 4px; color: #8b5a2b; font-weight: 700; }
+.toggle-action.is-on::before { content: "●"; color: #c85136; }
+.toggle-action.is-on { background: #ffd24a; box-shadow: inset 0 0 0 1px #d9a445, 0 2px 0 #a66a37; }
+/* disabled（殺戮模式在墓碑事件關著時）要看得出來是「現在不能點」而不是「壞了」 */
+.toggle-action:disabled { opacity: .45; cursor: not-allowed; }
+.toggle-action:disabled:hover { background: #efcb8e; transform: none; box-shadow: 0 2px 0 #a66a37; }
 
 .menu-groups { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 5px 0; }
 .menu-groups::-webkit-scrollbar { width: 8px; }

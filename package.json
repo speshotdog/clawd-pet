@@ -1,6 +1,6 @@
 {
   "name": "clawd-pet",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "A tiny Claude-style desktop buddy",
   "private": true,
   "scripts": {

@@ -75,8 +75,10 @@ function render(next) {
     $(key).setAttribute('aria-pressed', String(on));
   }
   $('killmode').disabled = !state.murder;
+  $('killmode').title = state.murder
+    ? '拿刀的角色會主動追殺活著的人，相遇必定得手'
+    : '需要先開啟「墓碑事件」';
   $('autostart').classList.toggle('is-on', Boolean(state.autostart));
-  $('autostart').textContent = `${state.autostart ? '✓ ' : ''}開機自動啟動`;
   // 隱藏角色：未解鎖就不列進主角/夥伴清單，但「目前主角」永遠留著，
   // 否則使用者取消勾選後主角會從清單消失變成空窗
   const revealed = new Set(state.revealed || []);
