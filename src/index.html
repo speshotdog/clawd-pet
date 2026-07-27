@@ -310,23 +310,27 @@
           <g id="tail"><image href="caihua-tail.png" x="0" y="0" width="559" height="466" /></g>
           <!-- 無手部件 → pawR 留空（rig 需要此元素存在） -->
           <g id="pawR"></g>
-          <!-- 眼睛在雙角下方那兩顆（用戶指正：吻部尖端那顆圓點是鼻孔，不是眼睛） -->
+          <!-- 眼睛在雙角下方那兩顆（用戶指正：吻部尖端那顆圓點是鼻孔，不是眼睛）
+               ⚠ 這隻的眼睛在原畫是「吊在眉毛下面連成一體」的，所以擠壓軸要放在
+               眼睛的**頂端**（transform-origin 50% 0%）而不是中心——以中心壓扁會讓
+               眼睛往內縮、頂端脫離眉毛，看起來就像眉毛被切了一刀。
+               以頂端為軸＝眼皮從眉毛往下闔，頂端永遠黏著眉毛。 -->
           <g id="face">
             <g id="eyes-open">
-              <g class="eye"><image href="caihua-eye0.png" x="172" y="143" width="25" height="37" /></g>
-              <g class="eye"><image href="caihua-eye1.png" x="217" y="144" width="26" height="39" /></g>
+              <g class="eye" style="transform-origin: 50% 0%"><image href="caihua-eye0.png" x="172" y="143" width="25" height="37" /></g>
+              <g class="eye" style="transform-origin: 50% 0%"><image href="caihua-eye1.png" x="217" y="144" width="26" height="39" /></g>
             </g>
             <g id="eyes-happy">
               <image href="caihua-eye0.png" x="172" y="143" width="25" height="37"
-                     transform="translate(0 -3) translate(184.5 161.5) scale(1 0.45) translate(-184.5 -161.5)" />
+                     transform="translate(184.5 143) scale(1 0.45) translate(-184.5 -143)" />
               <image href="caihua-eye1.png" x="217" y="144" width="26" height="39"
-                     transform="translate(0 -3) translate(230 163.5) scale(1 0.45) translate(-230 -163.5)" />
+                     transform="translate(230 144) scale(1 0.45) translate(-230 -144)" />
             </g>
             <g id="eyes-closed">
               <image href="caihua-eye0.png" x="172" y="143" width="25" height="37"
-                     transform="translate(184.5 161.5) scale(1 0.12) translate(-184.5 -161.5)" />
+                     transform="translate(184.5 143) scale(1 0.12) translate(-184.5 -143)" />
               <image href="caihua-eye1.png" x="217" y="144" width="26" height="39"
-                     transform="translate(230 163.5) scale(1 0.12) translate(-230 -163.5)" />
+                     transform="translate(230 144) scale(1 0.12) translate(-230 -144)" />
             </g>
           </g>
         </g>

@@ -134,7 +134,8 @@ const CHAR_CFG = {
     // viewBox 0 0 559 466＝群組緊裁；height = 466 × 0.3336（全域倍率，見 角色製作工法 §1.5）
     height: 155.5,
     limbScale: 1,      // body 完整無挖除區、部件是畫師自己的完整形狀 → 不必為藏縫縮擺幅
-    center: { x: 96, y: 153 },            // 雙眼中點（視窗 CSS 座標），視線跟隨用
+    center: { x: 96, y: 153 },            // 雙眼中點（視窗 CSS 座標）
+    gazeScale: 0,      // 眼睛與眉毛在原畫連成一體，平移 #face 會把眼睛扯離眉毛 → 不做視線跟隨
     legL: [66, 310], legR: [302, 294],    // 樞紐取部件最頂列中點（貼身體交界，掃動最小）
     pawR: [279, 233],  // 無手部件，樞紐值無實效（空 g）
     tail: [368, 346],  // 尾根：部件最左欄中點
@@ -441,10 +442,14 @@ function setFacing(toRight) {
 }
 
 // ---------- 視線跟隨 ----------
+// gazeScale：視線跟隨會平移整個 #face（最多 ±9/±7 CSS px）。眼睛與眉毛在原畫
+// 連成一體的角色（采華）一平移就把眼睛從眉毛底下扯開，看起來像眉毛被切斷 →
+// 那種角色設 0，只保留眨眼（眨眼已改成以眼睛頂端為軸，不會脫離眉毛）。
 function setGaze(dx, dy) {
+  const gs = CFG.gazeScale === undefined ? 1 : CFG.gazeScale;
   const dist = Math.hypot(dx, dy);
   if (dist < 1) return;
-  const k = Math.min(1, dist / 300);
+  const k = Math.min(1, dist / 300) * gs;
   const fx = flipped ? -1 : 1;  // 翻轉時視線 x 軸也要跟著反
   stage.style.setProperty('--gx', `${(dx / dist) * 9 * k * fx}px`);
   stage.style.setProperty('--gy', `${(dy / dist) * 7 * k}px`);
