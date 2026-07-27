@@ -27,6 +27,7 @@ const CHAR_CFG = {
     legL: [91, 301], legR: [158, 305], pawR: [277, 264],  // 四肢樞紐（viewBox 座標）
     up: -1,                                  // pawR 舉起的旋轉方向（SVG 順時針為正）
     sleepShift: '8px',
+    sleep: [{ img: 'dog-sleep.png', h: 90.7 }],
     hit(px, py) {
       const hx = px - 122, hy = py - 141;
       if ((hx * hx) / (65 * 65) + (hy * hy) / (48 * 48) <= 1) return true;  // 頭+雙耳
@@ -43,6 +44,7 @@ const CHAR_CFG = {
     tail: [441, 443],
     up: -1,
     sleepShift: '-6px',
+    sleep: [{ img: 'fox-sleep.png', h: 103.1 }],
     hit(px, py) {
       const hx = px - 124, hy = py - 126;
       if ((hx * hx) / (52 * 52) + (hy * hy) / (48 * 48) <= 1) return true;  // 頭+雙耳
@@ -61,6 +63,7 @@ const CHAR_CFG = {
     tail: [604, 560],
     up: 1,             // 刀尖在樞紐左上，順時針才是舉起
     sleepShift: '0px',
+    sleep: [{ img: 'jiaobu-sleep.png', h: 136.4 }],
     hit(px, py) {
       const hx = px - 107, hy = py - 128;
       if ((hx * hx) / (58 * 58) + (hy * hy) / (42 * 42) <= 1) return true;  // 頭
@@ -79,7 +82,11 @@ const CHAR_CFG = {
     tailScale: 0.2,    // 實機驗證台定的乾淨上限：尾巴可見輪廓掃動 ±1° 內 Gemini/人審 PASS
     up: 1,             // 拳頭在樞紐左側，順時針上舉
     sleepShift: '0px',
-    sleepImage: 'yueyue-sleep.png',
+    // 兩張睡姿變體，依 w 加權抽選：新版 3、舊版 1（舊版 1/4 機率）
+    sleep: [
+      { img: 'yueyue-sleep2.png', h: 112.8, w: 3 },
+      { img: 'yueyue-sleep.png', h: 102.9, w: 1 },
+    ],
     hit(px, py) {
       const hx = px - 105, hy = py - 111;
       if ((hx * hx) / (72 * 72) + (hy * hy) / (52 * 52) <= 1) return true;  // 頭+雙耳
@@ -97,6 +104,7 @@ const CHAR_CFG = {
     pawR: [400, 500],   // pawR 留空（未拆手），樞紐給任意值不影響（旋轉空 g 無視覺）
     up: -1,             // pawR 舉起方向（此角無手，保留欄位）
     sleepShift: '0px',
+    sleep: [{ img: 'zhenzhen-sleep.png', h: 132.4 }],
     hit(px, py) {
       const hx = px - 120, hy = py - 172;
       if ((hx * hx) / (81 * 81) + (hy * hy) / (80 * 80) <= 1) return true;  // 圓滾羊身
@@ -118,6 +126,113 @@ const CHAR_CFG = {
       const hx = px - 120, hy = py - 148;
       if ((hx * hx) / (88 * 88) + (hy * hy) / (54 * 54) <= 1) return true;  // 圓頂
       if (px >= 46 && px <= 191 && py >= 200 && py <= 254) return true;     // 觸手矮區
+      return false;
+    },
+  },
+  caihua: {
+    // 綠龍。素材直接取自畫師分層的 PSD（見 index.html 的 char-caihua 註解）。
+    // viewBox 0 0 559 466＝群組緊裁；height = 466 × 0.3336（全域倍率，見 角色製作工法 §1.5）
+    height: 155.5,
+    limbScale: 1,      // body 完整無挖除區、部件是畫師自己的完整形狀 → 不必為藏縫縮擺幅
+    center: { x: 96, y: 153 },            // 雙眼中點（視窗 CSS 座標），視線跟隨用
+    legL: [66, 310], legR: [302, 294],    // 樞紐取部件最頂列中點（貼身體交界，掃動最小）
+    pawR: [279, 233],  // 無手部件，樞紐值無實效（空 g）
+    tail: [368, 346],  // 尾根：部件最左欄中點
+    up: -1,
+    sleepShift: '0px',
+    sleep: [{ img: 'caihua-sleep.png', h: 86.4 }],
+    hit(px, py) {
+      const hx = px - 91, hy = py - 134;
+      if ((hx * hx) / (64 * 64) + (hy * hy) / (35 * 35) <= 1) return true;  // 頭＋雙角
+      if (px >= 27 && px <= 213 && py >= 168 && py <= 254) return true;     // 軀幹＋尾巴
+      return false;
+    },
+  },
+  // 以下五隻與采華同工法（角色製作工法 §1.8 分層素材直出）。limbScale 一律 1：
+  // body 完整無挖除區、部件是畫師自己的完整形狀，沒有接縫要靠縮擺幅來藏。
+  yueyue2: {
+    height: 175.1,     // viewBox 0 0 584 525；525 × 0.3336
+    limbScale: 1,
+    center: { x: 101, y: 141 },
+    legL: [46, 284], legR: [384, 264],
+    pawR: [292, 262],  // 無手部件（空 g）
+    tail: [372, 427],
+    up: -1,
+    sleepShift: '0px',
+    sleep: [
+      { img: 'yueyue-sleep2.png', h: 112.8, w: 3 },
+      { img: 'yueyue-sleep.png', h: 102.9, w: 1 },
+    ],
+    hit(px, py) {
+      const hx = px - 89, hy = py - 118;
+      if ((hx * hx) / (67 * 67) + (hy * hy) / (39 * 39) <= 1) return true;
+      if (px >= 23 && px <= 217 && py >= 158 && py <= 254) return true;
+      return false;
+    },
+  },
+  zhenzhen2: {
+    height: 190.1,     // viewBox 0 0 587 570
+    limbScale: 1,
+    center: { x: 82, y: 150 },
+    legL: [124, 465], legR: [378, 488],
+    pawR: [293, 285],  // 無手部件（空 g）
+    up: -1,
+    sleepShift: '0px',
+    sleep: [{ img: 'zhenzhen-sleep.png', h: 132.4 }],
+    hit(px, py) {
+      const hx = px - 121, hy = py - 107;
+      if ((hx * hx) / (97 * 97) + (hy * hy) / (43 * 43) <= 1) return true;
+      if (px >= 22 && px <= 218 && py >= 149 && py <= 254) return true;
+      return false;
+    },
+  },
+  jiaobu2: {
+    height: 183.8,     // viewBox 0 0 466 551
+    limbScale: 1,
+    center: { x: 107, y: 151 },
+    legL: [59, 323],   // 左臂：走路時擺動
+    legR: [310, 511],  // 腿長在 body 裡，legR 留空（樞紐值無實效）
+    pawR: [344, 330],  // 右臂：舉手提醒
+    tail: [384, 384],
+    up: -1,
+    sleepShift: '0px',
+    sleep: [{ img: 'jiaobu-sleep.png', h: 136.4 }],
+    hit(px, py) {
+      const hx = px - 118, hy = py - 112;
+      if ((hx * hx) / (76 * 76) + (hy * hy) / (41 * 41) <= 1) return true;
+      if (px >= 42 && px <= 197 && py >= 153 && py <= 254) return true;
+      return false;
+    },
+  },
+  lk: {
+    height: 195.8,     // viewBox 0 0 586 587（全隊最高）
+    limbScale: 1,
+    center: { x: 107, y: 123 },
+    legL: [143, 457], legR: [294, 474],
+    pawR: [293, 293],  // 無手部件（空 g）
+    up: -1,
+    sleepShift: '0px',
+    sleep: [{ img: 'lk-sleep.png', h: 140.8 }],
+    hit(px, py) {
+      const hx = px - 93, hy = py - 102;
+      if ((hx * hx) / (71 * 71) + (hy * hy) / (44 * 44) <= 1) return true;
+      if (px >= 23 && px <= 217 && py >= 146 && py <= 254) return true;
+      return false;
+    },
+  },
+  yang: {
+    height: 161.8,     // viewBox 0 0 525 485
+    limbScale: 1,
+    center: { x: 100, y: 154 },
+    legL: [130, 399], legR: [376, 393],
+    pawR: [298, 285],  // 身上那隻小手
+    up: -1,
+    sleepShift: '0px',
+    sleep: [{ img: 'yang-sleep.png', h: 100.1 }],
+    hit(px, py) {
+      const hx = px - 120, hy = py - 129;
+      if ((hx * hx) / (87 * 87) + (hy * hy) / (36 * 36) <= 1) return true;
+      if (px >= 33 && px <= 207 && py >= 165 && py <= 254) return true;
       return false;
     },
   },
@@ -152,7 +267,19 @@ const toyList = () => {
 };
 const setToyList = (arr) => localStorage.setItem('pettoys', JSON.stringify(arr));
 // 已知玩具 id（需與 main.rs 的 TOYS 一致）
-const TOYS_KNOWN = ['dino'];
+const TOYS_KNOWN = ['dino', 'ballyellow', 'beachball'];
+// ---------- 隱藏角色（localStorage: petrevealed = JSON array of char ids） ----------
+// CHARS 標了 hidden 的角色平常不出現在「主角」「夥伴」清單，得先在選單最下方的
+// 「隱藏角色」區打勾解鎖，才回到自己原本的位置。
+const revealedList = () => {
+  try { return JSON.parse(localStorage.getItem('petrevealed') || '[]'); }
+  catch (_) { return []; }
+};
+const setRevealedList = (arr) => {
+  localStorage.setItem('petrevealed', JSON.stringify(arr));
+  // 同步給 Rust：系統匣那套原生選單也照同一份名單過濾
+  if (TAURI) TAURI.core.invoke('set_revealed', { list: arr }).catch(() => {});
+};
 // 舊版 petmulti 遷移：無 petcompanions 且 petmulti=='1' → 建一位隨機夥伴
 if (!IS_COMPANION
     && localStorage.getItem('petcompanions') === null
@@ -168,12 +295,17 @@ if (!IS_COMPANION
   stage.style.transform = 'scale(' + SCALE + ')';
   stage.style.transformOrigin = '0 0';
   document.getElementById('pet').style.height = CFG.height + 'px';
-  if (CFG.sleepImage) {
-    // 原睡圖為正方形，先以 150px 高顯示：比 198px 站姿矮且保有趴睡寬度；
-    // bottom:2px 對齊既有角色腳底（CSS y=254），日後素材比例變更只需調 CSS。
+  // 墓碑：每隻都可能被做掉，一律建好備用（死亡時才 display:block）
+  const tombimg = document.createElement('img');
+  tombimg.id = 'tomb';
+  tombimg.src = 'tomb.png';
+  tombimg.alt = '';
+  stage.insertBefore(tombimg, zzz);
+  if (CFG.sleep && CFG.sleep.length) {
+    // 睡圖是緊裁 PNG，只給高度、寬度靠 aspect 自動；bottom:2px 對齊地板（CSS y=254）。
+    // h 值 = 素材 PSD 高 × 0.3336（以熱狗狗狗錨定的全域倍率，見 角色製作工法.md §1.5）。
     const sleepimg = document.createElement('img');
     sleepimg.id = 'sleepimg';
-    sleepimg.src = CFG.sleepImage;
     sleepimg.alt = '';
     stage.insertBefore(sleepimg, zzz);
   }
@@ -212,13 +344,24 @@ const LINES_LOVE = ['最喜歡你了 ♥', '臉紅紅…', '心跳加速！'];
 // ---------- 心情 / 飽食度 ----------
 const stats = { mood: 70, fullness: 80 };
 let patrolOn = false;
+let murderOn = false;   // 墓碑事件總開關
+let killMode = false;   // 殺戮模式：相遇必定得手
 try {
   const s = JSON.parse(localStorage.getItem('petstats') || '{}');
   if (s.stats) Object.assign(stats, s.stats);
   patrolOn = !!s.patrol;
+  murderOn = !!s.murder;
+  killMode = !!s.killMode;
 } catch (_) {}
 function saveStats() {
-  localStorage.setItem('petstats', JSON.stringify({ stats, patrol: patrolOn }));
+  localStorage.setItem('petstats', JSON.stringify({ stats, patrol: patrolOn, murder: murderOn, killMode }));
+}
+// 位置判定在 Rust（只有後端看得到所有視窗座標），把它需要的狀態同步過去
+function syncPetInfo() {
+  if (TAURI) TAURI.core.invoke('set_pet_info', { character: CHAR, patrol: patrolOn }).catch(() => {});
+}
+function syncMurder() {
+  if (TAURI && !IS_COMPANION) TAURI.core.invoke('set_murder', { on: murderOn, killmode: killMode }).catch(() => {});
 }
 function addMood(n) { stats.mood = Math.max(0, Math.min(100, stats.mood + n)); saveStats(); }
 
@@ -238,10 +381,31 @@ let dropTimer = null;
 let walking = false;
 let grabbed = false;
 let parasiting = false;
+let dead = false;          // 被有刀的做掉了，正躺在墓碑底下
+let reviveTimer = null;
 let clickThrough = true;   // 目前是否穿透（Rust 端初始為穿透）
 
 function setState(cls, on) { stage.classList.toggle(cls, on); }
 function isSleeping() { return stage.classList.contains('sleep'); }
+
+// 每次入睡從 CFG.sleep 依 w 權重抽一張（未給 w 視為 1），套上該張的實機高度。
+// 沒有專屬睡圖的角色回 false → 走通用「旋轉 90° 躺平」路線。
+function pickSleepImage() {
+  const list = CFG.sleep;
+  if (!list || !list.length) return false;
+  const el = document.getElementById('sleepimg');
+  if (!el) return false;
+  const total = list.reduce((s, v) => s + (v.w || 1), 0);
+  let r = Math.random() * total;
+  let pick = list[list.length - 1];
+  for (const v of list) {
+    r -= v.w || 1;
+    if (r < 0) { pick = v; break; }
+  }
+  el.src = pick.img;
+  el.style.height = pick.h + 'px';
+  return true;
+}
 
 function wake() {
   lastActivity = Date.now();
@@ -374,6 +538,7 @@ stage.addEventListener('pointermove', (e) => {
 });
 
 stage.addEventListener('pointerup', () => {
+  if (dead) { pressPos = null; return; }   // 死了就別戳了，等它自己爬起來
   if (!grabbed && pressPos) {
     // 短按 = 摸摸打招呼（+心情）
     setState('hi', true);
@@ -398,6 +563,9 @@ document.addEventListener('contextmenu', (e) => {
     patrol: patrolOn,
     character: CHAR,
     companions: compList(),
+    revealed: revealedList(),
+    murder: murderOn,
+    killMode,
     scale: SCALE,
     x: e.clientX * dpr,
     y: e.clientY * dpr,
@@ -466,12 +634,64 @@ function feed(kind = 'hotdog') {
 async function togglePatrol() {
   patrolOn = !patrolOn;
   saveStats();
+  syncPetInfo();
   if (patrolOn) {
     try { await TAURI.core.invoke('snap_bottom'); } catch (_) {}
     say('出發巡邏！');
   } else {
     say('休息～');
   }
+}
+
+// ---------- 墓碑死亡 / 復活 ----------
+// 誰死由 Rust 的鄰近判定決定（只有後端看得到所有視窗座標），這裡只負責演出。
+// 楓之谷風：墓碑從天上砸下來，停 REVIVE_MS 後原地復活。
+const REVIVE_MS = 15_000;
+const LINES_DIE = ['嗚哇！', '啊……', '就這樣…嗎…'];
+const LINES_DIE_DUEL = ['棋差一著…', '我輸了…', '技不如人…'];
+const LINES_KILL = ['一刀。', '擋路了。', '下一位。', '……安息吧'];
+
+function die(duel) {
+  if (dead) return;
+  dead = true;
+  // 睡到一半被做掉：先把睡眠狀態收乾淨，不然睡圖會跟墓碑疊在一起
+  if (isSleeping()) {
+    setState('sleep', false);
+    setState('sleep-img', false);
+    if (TAURI) TAURI.core.invoke('set_sleeping', { on: false }).catch(() => {});
+  }
+  setState('work', false);
+  setState('hi', false);
+  setState('walk', false);
+  setState('dead', true);
+  const lines = duel ? LINES_DIE_DUEL : LINES_DIE;
+  say(lines[Math.floor(Math.random() * lines.length)], 2400);
+  addMood(-12);
+  clearTimeout(reviveTimer);
+  reviveTimer = setTimeout(revive, REVIVE_MS);
+}
+
+function revive() {
+  clearTimeout(reviveTimer);
+  if (!dead) return;
+  dead = false;
+  setState('dead', false);
+  lastActivity = Date.now();
+  if (TAURI) TAURI.core.invoke('revive').catch(() => {});
+  say('我回來了！', 1800);
+  setState('hi', true);
+  clearTimeout(hiTimer);
+  hiTimer = setTimeout(() => setState('hi', false), 950);
+}
+
+// 得手的一方：舉刀（沿用 hi 的舉手動作）＋撂話
+function onKill() {
+  if (dead || grabbed) return;
+  wake();
+  setState('hi', true);
+  clearTimeout(hiTimer);
+  hiTimer = setTimeout(() => setState('hi', false), 1300);
+  say(LINES_KILL[Math.floor(Math.random() * LINES_KILL.length)], 2400);
 }
 
 // 原生拖曳結束偵測：視窗停止移動 250ms 即視為放下
@@ -658,7 +878,7 @@ function setCompanionShare(n) {
 async function maybeWalk() {
   const idleFor = Date.now() - lastActivity;
   const eager = patrolOn;
-  const canWalk = !grabbed && !walking && !parasiting && !isSleeping()
+  const canWalk = !grabbed && !walking && !parasiting && !isSleeping() && !dead
     && (eager ? idleFor > 4_000 : idleFor > 15_000)
     && Math.random() < (eager ? 0.9 : 0.5);
   if (canWalk) {
@@ -779,10 +999,10 @@ requestAnimationFrame(animate);
 setInterval(() => {
   const now = Date.now();
   if (stage.classList.contains('work') && now > typingUntil && !claudeBusy()) setState('work', false);
-  if (!isSleeping() && now - lastActivity > SLEEP_AFTER_MS && !grabbed && !walking && !parasiting) {
+  if (!isSleeping() && now - lastActivity > SLEEP_AFTER_MS && !grabbed && !walking && !parasiting && !dead) {
     setFacing(false);   // 躺下動畫以面朝左為前提（翻轉時會變臉朝下）
     setState('sleep', true);
-    setState('sleep-img', !!CFG.sleepImage);
+    setState('sleep-img', pickSleepImage());
     setState('work', false);
     if (TAURI) TAURI.core.invoke('set_sleeping', { on: true }).catch(() => {});
   }
@@ -816,6 +1036,11 @@ async function main() {
   }
   fitWindow();
   watchDpr();
+  // 隱藏角色名單同步給後端（原生選單在 Rust 端建，讀不到 localStorage）
+  if (!IS_COMPANION) TAURI.core.invoke('set_revealed', { list: revealedList() }).catch(() => {});
+  // 墓碑系統：後端要知道我是誰、有沒有在巡邏，以及總開關狀態
+  syncPetInfo();
+  syncMurder();
   // dpr 在載入初期可能還是舊值（文字大小疊乘晚到），matchMedia 若在註冊前就變化會漏接
   // → 開機後補幾次冪等適配（實測：夥伴重建偶發卡在 240×1.5 裁切，即此競態）
   setTimeout(fitWindow, 600);
@@ -905,6 +1130,20 @@ async function main() {
     if (cmd === 'feed') feed();
     else if (cmd === 'feedlove') feed('love');
     else if (cmd === 'patrol') togglePatrol();
+    else if (cmd.startsWith('die:')) die(cmd.slice(4) === 'duel');
+    else if (cmd === 'kill') onKill();
+    else if (cmd === 'murder' && !IS_COMPANION) {
+      murderOn = !murderOn;
+      saveStats();
+      syncMurder();
+      say(murderOn ? '巡邏時要小心刀…' : '和平了。', 2000);
+    }
+    else if (cmd === 'killmode' && !IS_COMPANION) {
+      killMode = !killMode;
+      saveStats();
+      syncMurder();
+      say(killMode ? '殺戮模式開啟！' : '收刀。', 2000);
+    }
     else if (cmd.startsWith('chase:')) {
       // 被玩具吸引走過去（dx = 實體 px，交給 walk）
       if (grabbed || feeding) return;
@@ -1036,6 +1275,32 @@ async function main() {
         TAURI.core.invoke('set_companion', { on: true, character: c }).catch(() => {});
       }
       syncShare();
+    }
+    else if (cmd.startsWith('reveal:') && !IS_COMPANION) {
+      // 隱藏角色解鎖／收回。收回時若該角色正在當夥伴要一併請它回家；
+      // 正在當主角則不收（不然選單會出現「目前主角不在清單裡」的空窗）。
+      const id = cmd.slice(7);
+      if (!CHAR_CFG[id]) return;
+      const list = revealedList();
+      const idx = list.indexOf(id);
+      if (idx >= 0) {
+        if (id === CHAR) { say('我還在這裡耶…', 1800); return; }
+        list.splice(idx, 1);
+        setRevealedList(list);
+        const comps = compList();
+        const ci = comps.indexOf(id);
+        if (ci >= 0) {
+          comps.splice(ci, 1);
+          setCompList(comps);
+          if (helperChar === id) { helperTemp = false; helperChar = null; clearTimeout(helperGoneTimer); }
+          TAURI.core.invoke('set_companion', { on: false, character: id }).catch(() => {});
+          syncShare();
+        }
+      } else {
+        list.push(id);
+        setRevealedList(list);
+        say('解鎖隱藏角色！', 1800);
+      }
     }
     else if (cmd.startsWith('char:')) {
       const next = cmd.slice(5);

@@ -9,9 +9,13 @@
 html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
 button, summary { font: inherit; }
 
+/* 直式 flex：中段的分組區自己捲動，展開再多角色也不會被 overflow:hidden 切掉
+   （高度需與 main.rs 的 MENU_H 一致） */
 .menu-shell {
+  display: flex;
+  flex-direction: column;
   width: 300px;
-  height: 520px;
+  height: 600px;
   padding: 9px;
   overflow: hidden;
   border: 3px solid #5c3a21;
@@ -41,7 +45,7 @@ button:not(.icon-button):active, .choice:active { transform: translateY(1px); bo
 .wide-action { grid-column: 1 / -1; }
 .wide-action.is-on { background: #ffd24a; }
 
-.menu-groups { padding: 5px 0; }
+.menu-groups { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 5px 0; }
 details { border-bottom: 1px solid rgba(139, 90, 43, .45); }
 summary { display: flex; align-items: center; justify-content: space-between; min-height: 29px; padding: 0 5px; cursor: pointer; font-weight: 700; list-style: none; }
 summary::-webkit-details-marker { display: none; }

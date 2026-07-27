@@ -156,7 +156,7 @@ fn is_sleeping(label: &str) -> bool {
 const WIN_W: f64 = 240.0;
 const WIN_H: f64 = 256.0;
 const MENU_W: f64 = 300.0;
-const MENU_H: f64 = 520.0;
+const MENU_H: f64 = 600.0;
 // 玩具視窗邏輯尺寸（CSS px），需與 toy.html 的 #stage 一致
 const TOY_W: f64 = 150.0;
 const TOY_H: f64 = 120.0;
@@ -182,16 +182,32 @@ const SCALES: &[(&str, f64)] = &[
     ("特大", 1.3),
 ];
 
-// 角色資料表（id, 顯示名）。加新角色只動這一行；選單「角色：」單選區與
-// 「夥伴：」多選區都從這張表迴圈產生。
-const CHARS: &[(&str, &str)] = &[
-    ("dog", "熱狗狗狗"),
-    ("fox", "女僕狐狐"),
-    ("jiaobu", "膠布"),
-    ("yueyue", "玥玥"),
-    ("zhenzhen", "珍珍"),
-    ("zhenmu", "珍母"),
+// 角色資料表（id, 顯示名, 是否為隱藏角色）。加新角色只動這一行；選單「角色：」單選區、
+// 「夥伴：」多選區與「隱藏角色：」區都從這張表迴圈產生。需與 menu.js 的 CHARACTERS 一致。
+// hidden=true 的角色平常不列進角色/夥伴清單，要先在「隱藏角色：」區打勾解鎖。
+const CHARS: &[(&str, &str, bool)] = &[
+    ("dog", "熱狗狗狗", false),
+    ("fox", "女僕狐狐", false),
+    ("jiaobu2", "膠布", false),
+    ("jiaobu", "膠布（原版）", true),
+    ("yueyue2", "玥玥", false),
+    ("yueyue", "玥玥（原版）", true),
+    ("zhenzhen2", "珍珍", false),
+    ("zhenzhen", "珍珍（原版）", true),
+    ("zhenmu", "珍母", false),
+    ("caihua", "采華", false),
+    ("lk", "ㄌㄎ", false),
+    ("yang", "羊咩", false),
 ];
+
+// 已解鎖的隱藏角色 id。真值存在前端 localStorage（petrevealed），這裡是給 Rust 端
+// 原生選單過濾用的鏡像，由主視窗載入時與每次變更時 set_revealed 同步過來。
+static REVEALED: LazyLock<Mutex<Vec<String>>> = LazyLock::new(|| Mutex::new(Vec::new()));
+
+// 這個角色現在該不該出現在角色/夥伴清單裡（非隱藏、已解鎖、或正在當主角）
+fn char_visible(id: &str, hidden: bool, character: &str) -> bool {
+    !hidden || id == character || REVEALED.lock().unwrap().iter().any(|r| r == id)
+}
 
 // 所有寵物視窗（主視窗 + 任意多個以 "pet_" 開頭的夥伴視窗）
 fn pet_windows(app: &AppHandle) -> Vec<WebviewWindow> {
@@ -418,7 +434,11 @@ fn relay(app: AppHandle, payload: String) {
 // ============================================================
 
 // 玩具資料表（id, 顯示名）。加新玩具只動這一行；選單「玩具：」區從這迴圈產生。
-const TOYS: &[(&str, &str)] = &[("dino", "小恐龍")];
+const TOYS: &[(&str, &str)] = &[
+    ("dino", "小恐龍"),
+    ("ballyellow", "黃色球"),
+    ("beachball", "皮球"),
+];
 
 // 物理常數（基準值以 CSS px 計，乘 dpr(scale) 得實體 px）。數值抓「可愛的感覺」：
 // 彈跳不狂、滾動 ~2 秒內停（離線模擬：初速 800,-700 → 落地 0.63s、靜止 1.83s、2 次彈跳）。
@@ -591,7 +611,7 @@ fn spawn_sleep_kick_evaluator(app: AppHandle) {
                     .collect()
             };
             for sleeper in sleepers {
-                if is_busy(&sleeper) || !is_sleeping(&sleeper) {
+                if is_busy(&sleeper) || !is_sleeping(&sleeper) || is_dead(&sleeper) {
                     continue;
                 }
                 if KICK_COOLDOWN
@@ -618,6 +638,7 @@ fn spawn_sleep_kick_evaluator(app: AppHandle) {
                     if klabel == sleeper
                         || is_sleeping(&klabel)
                         || is_busy(&klabel)
+                        || is_dead(&klabel)
                         || work_area_of(&kw) != sleeper_wa
                     {
                         continue;
@@ -664,6 +685,202 @@ fn set_sleeping(window: WebviewWindow, on: bool) {
         .lock()
         .unwrap()
         .insert(window.label().to_string(), on);
+}
+
+// ============================================================
+// 墓碑死亡系統
+// 有刀的角色在巡邏時經過別人，低機率把對方變成墓碑（楓之谷式：墓碑從天上砸下來）。
+// 兩隻都有刀＝對撞擲骰，誰運氣差誰死。殺戮模式把機率拉到 100%。
+// 位置判定放在 Rust：只有這裡看得到所有寵物視窗的座標（前端各自沙箱）。
+// ============================================================
+
+// 拿刀的角色（拆件時有「持刀手臂」的那幾隻）
+const KNIFE_CHARS: &[&str] = &["fox", "jiaobu"];
+const MURDER_TICK_SECS: u64 = 3;
+const MURDER_RANGE: f64 = 130.0; // CSS px（再乘視窗 scale）＝「擦身而過」的距離
+const MURDER_CHANCE: f64 = 0.06; // 每次相遇的擊殺機率；殺戮模式為 1.0
+const MURDER_PAIR_COOLDOWN_SECS: u64 = 45; // 同一對的相遇冷卻，避免並肩走時連環判定
+const DEAD_MAX_SECS: u64 = 60; // 保險絲：前端沒回報復活就自動解除死亡狀態
+
+// label -> (角色 id, 是否巡邏中)。前端載入與每次切巡邏時用 set_pet_info 同步。
+static PET_INFO: LazyLock<Mutex<HashMap<String, (String, bool)>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+static DEAD_STATE: LazyLock<Mutex<HashMap<String, Instant>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+// key = 兩個 label 排序後接起來，值＝上次相遇時間
+static MURDER_COOLDOWN: LazyLock<Mutex<HashMap<String, Instant>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+static MURDER_ON: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+static KILL_MODE: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+fn has_knife(character: &str) -> bool {
+    KNIFE_CHARS.contains(&character)
+}
+
+fn is_dead(label: &str) -> bool {
+    DEAD_STATE.lock().unwrap().contains_key(label)
+}
+
+// 指令：前端同步自己的角色 id 與巡邏狀態（Rust 讀不到 localStorage）
+#[tauri::command]
+fn set_pet_info(window: WebviewWindow, character: String, patrol: bool) {
+    PET_INFO
+        .lock()
+        .unwrap()
+        .insert(window.label().to_string(), (character, patrol));
+}
+
+// 指令：墓碑事件總開關與殺戮模式（真值存在前端 localStorage，這裡是鏡像）
+#[tauri::command]
+fn set_murder(on: bool, killmode: bool) {
+    MURDER_ON.store(on, Ordering::Relaxed);
+    KILL_MODE.store(killmode, Ordering::Relaxed);
+}
+
+// 指令：復活（前端墓碑演完自己回報）
+#[tauri::command]
+fn revive(window: WebviewWindow) {
+    DEAD_STATE.lock().unwrap().remove(window.label());
+}
+
+struct PetSnap {
+    label: String,
+    character: String,
+    patrol: bool,
+    cx: f64,
+    wa: Rect,
+    scale: f64,
+}
+
+fn spawn_murder_evaluator(app: AppHandle) {
+    std::thread::spawn(move || {
+        let mut rng = Rng::new();
+        loop {
+            std::thread::sleep(Duration::from_secs(MURDER_TICK_SECS));
+            // 視窗關掉就清掉殘留狀態；死太久（前端沒回報復活）自動解除，避免卡死
+            {
+                let alive = |label: &String| app.get_webview_window(label).is_some();
+                PET_INFO.lock().unwrap().retain(|l, _| alive(l));
+                DEAD_STATE
+                    .lock()
+                    .unwrap()
+                    .retain(|l, at| alive(l) && at.elapsed() < Duration::from_secs(DEAD_MAX_SECS));
+                MURDER_COOLDOWN
+                    .lock()
+                    .unwrap()
+                    .retain(|_, at| at.elapsed() < Duration::from_secs(MURDER_PAIR_COOLDOWN_SECS));
+            }
+            if !MURDER_ON.load(Ordering::Relaxed) {
+                continue;
+            }
+            run_murder_pass(&app, &mut rng, false);
+        }
+    });
+}
+
+// 掃一輪所有寵物視窗配對，該死的就讓它死。回傳這一輪殺掉幾個。
+// force=true（`/pet/murder` 測試鉤子）：略過巡邏條件、機率與相遇冷卻，只保留距離判定。
+fn run_murder_pass(app: &AppHandle, rng: &mut Rng, force: bool) -> usize {
+    let kill_mode = KILL_MODE.load(Ordering::Relaxed);
+    let mut pets: Vec<PetSnap> = Vec::new();
+    for w in pet_windows(app) {
+        let label = w.label().to_string();
+        if is_dead(&label) || is_busy(&label) {
+            continue;
+        }
+        let Some((character, patrol)) = PET_INFO.lock().unwrap().get(&label).cloned() else {
+            continue;
+        };
+        let (Ok(pos), Ok(size)) = (w.outer_position(), w.outer_size()) else {
+            continue;
+        };
+        pets.push(PetSnap {
+            label,
+            character,
+            patrol,
+            cx: pos.x as f64 + size.width as f64 / 2.0,
+            wa: work_area_of(&w),
+            scale: window_scale(&w),
+        });
+    }
+
+    let mut killed = 0usize;
+    let mut dead_now: Vec<String> = Vec::new();
+    for i in 0..pets.len() {
+        for j in (i + 1)..pets.len() {
+            let (a, b) = (&pets[i], &pets[j]);
+            if a.wa != b.wa {
+                continue; // 不同螢幕不算相遇
+            }
+            // 同一輪內已經倒下的不再參與（三隻擠在一起時不會連環暴斃）
+            if dead_now.contains(&a.label) || dead_now.contains(&b.label) {
+                continue;
+            }
+            // 動手的一方必須「有刀且正在巡邏」
+            let a_can = has_knife(&a.character) && (a.patrol || force);
+            let b_can = has_knife(&b.character) && (b.patrol || force);
+            if !a_can && !b_can {
+                continue;
+            }
+            let gap = (a.cx - b.cx).abs();
+            let reach = MURDER_RANGE * a.scale.max(b.scale);
+            if force {
+                dlog(&format!(
+                    "murder probe: {} ({}) vs {} ({}) gap={gap:.0} reach={reach:.0}",
+                    a.label, a.character, b.label, b.character
+                ));
+            }
+            if gap >= reach {
+                continue;
+            }
+            // 這一對算「相遇過了」：不管有沒有得手都進冷卻，免得並肩散步時連環擲骰
+            let key = if a.label < b.label {
+                format!("{}|{}", a.label, b.label)
+            } else {
+                format!("{}|{}", b.label, a.label)
+            };
+            if !force {
+                let mut cd = MURDER_COOLDOWN.lock().unwrap();
+                if cd
+                    .get(&key)
+                    .map(|at| at.elapsed() < Duration::from_secs(MURDER_PAIR_COOLDOWN_SECS))
+                    .unwrap_or(false)
+                {
+                    continue;
+                }
+                cd.insert(key, Instant::now());
+            }
+            if !force && !kill_mode && rng.range(0.0, 1.0) >= MURDER_CHANCE {
+                continue;
+            }
+            // 兩邊都有刀＝對撞，擲骰決定誰運氣差；否則有刀的殺沒刀的
+            let a_armed = has_knife(&a.character);
+            let b_armed = has_knife(&b.character);
+            let a_dies = if a_armed && b_armed {
+                rng.range(0.0, 1.0) < 0.5
+            } else {
+                b_armed
+            };
+            let (victim, killer) = if a_dies { (a, b) } else { (b, a) };
+            DEAD_STATE
+                .lock()
+                .unwrap()
+                .insert(victim.label.clone(), Instant::now());
+            dead_now.push(victim.label.clone());
+            killed += 1;
+            let duel = a_armed && b_armed;
+            let _ = app.emit(
+                "pet-cmd",
+                format!("{}:die:{}", victim.label, if duel { "duel" } else { "solo" }),
+            );
+            let _ = app.emit("pet-cmd", format!("{}:kill", killer.label));
+            dlog(&format!(
+                "murder: {} killed {} (duel={duel}, kill_mode={kill_mode}, force={force})",
+                killer.label, victim.label
+            ));
+        }
+    }
+    killed
 }
 
 // 完成寄生後讓珍母從宿主身旁小跳開，並通知仍在場的雙方結束演出。
@@ -1241,6 +1458,12 @@ fn get_autostart() -> bool {
     is_autostart()
 }
 
+// 指令：主視窗同步「已解鎖的隱藏角色」名單（真值在前端 localStorage）
+#[tauri::command]
+fn set_revealed(list: Vec<String>) {
+    *REVEALED.lock().unwrap() = list;
+}
+
 #[tauri::command]
 fn close_menu_window(app: AppHandle) {
     if let Some(menu) = app.get_webview_window("petmenu") {
@@ -1280,7 +1503,10 @@ fn show_menu_window(
     patrol: bool,
     character: String,
     companions: Vec<String>,
+    revealed: Vec<String>,
     toys: Vec<String>,
+    murder: bool,
+    kill_mode: bool,
     scale: f64,
     x: f64,
     y: f64,
@@ -1288,12 +1514,16 @@ fn show_menu_window(
     if window.label() != "main" {
         return;
     }
+    *REVEALED.lock().unwrap() = revealed.clone();
     let state = serde_json::json!({
         "mood": mood.clamp(0, 100),
         "fullness": fullness.clamp(0, 100),
         "patrol": patrol,
+        "murder": murder,
+        "killMode": kill_mode,
         "character": character,
         "companions": companions,
+        "revealed": revealed,
         "toys": toys,
         "scale": scale,
         "autostart": is_autostart(),
@@ -1358,14 +1588,23 @@ fn menu_action(app: AppHandle, id: String) {
     };
 
     if let Some(character) = id.strip_prefix("char:") {
-        if CHARS.iter().any(|(known, _)| known == &character) {
+        if CHARS.iter().any(|(known, _, _)| known == &character) {
             emit_main(format!("main:char:{character}"));
         }
         return;
     }
     if let Some(character) = id.strip_prefix("comp:") {
-        if CHARS.iter().any(|(known, _)| known == &character) {
+        if CHARS.iter().any(|(known, _, _)| known == &character) {
             emit_main(format!("main:comp:{character}"));
+        }
+        return;
+    }
+    if let Some(character) = id.strip_prefix("reveal:") {
+        if CHARS
+            .iter()
+            .any(|(known, _, hidden)| known == &character && *hidden)
+        {
+            emit_main(format!("main:reveal:{character}"));
         }
         return;
     }
@@ -1390,6 +1629,8 @@ fn menu_action(app: AppHandle, id: String) {
     match id.as_str() {
         "feed" => emit_main("main:feed".into()),
         "feedlove" => emit_main("main:feedlove".into()),
+        "murder" => emit_main("main:murder".into()),
+        "killmode" => emit_main("main:killmode".into()),
         "patrol" => {
             for pet in pet_windows(&app) {
                 let label = pet.label().to_string();
@@ -1485,12 +1726,29 @@ fn show_menu(
         let patrol_item = CheckMenuItemBuilder::with_id("p_patrol", "巡邏模式")
             .checked(patrol)
             .build(app);
+        // 墓碑事件／殺戮模式：狀態讀 Rust 端鏡像，不必再擴充 show_menu 參數
+        let mut murder_items = Vec::new();
+        if let Ok(it) = CheckMenuItemBuilder::with_id("p_murder", "墓碑事件（有刀的會殺人）")
+            .checked(MURDER_ON.load(Ordering::Relaxed))
+            .build(app)
+        {
+            murder_items.push(it);
+        }
+        if let Ok(it) = CheckMenuItemBuilder::with_id("p_killmode", "殺戮模式（必定得手）")
+            .checked(KILL_MODE.load(Ordering::Relaxed))
+            .build(app)
+        {
+            murder_items.push(it);
+        }
         // 「角色：」單選區——目前主視窗角色（從 CHARS 迴圈產生）
         let char_hdr = MenuItemBuilder::with_id("p_charhdr", "角色（主視窗）")
             .enabled(false)
             .build(app);
         let mut char_items = Vec::new();
-        for (id, name) in CHARS {
+        for (id, name, hidden) in CHARS {
+            if !char_visible(id, *hidden, &character) {
+                continue;
+            }
             if let Ok(it) =
                 CheckMenuItemBuilder::with_id(format!("p_char_{id}"), format!("角色：{name}"))
                     .checked(&character == id)
@@ -1504,7 +1762,10 @@ fn show_menu(
             .enabled(false)
             .build(app);
         let mut comp_items = Vec::new();
-        for (id, name) in CHARS {
+        for (id, name, hidden) in CHARS {
+            if !char_visible(id, *hidden, &character) {
+                continue;
+            }
             let checked = companions.iter().any(|c| c == id);
             if let Ok(it) = CheckMenuItemBuilder::with_id(format!("p_comp_{id}"), *name)
                 .checked(checked)
@@ -1541,6 +1802,23 @@ fn show_menu(
                 scale_items.push(it);
             }
         }
+        // 「隱藏角色：」區——打勾才讓該角色回到上面的「角色：」「夥伴：」清單
+        let reveal_hdr = MenuItemBuilder::with_id("p_revealhdr", "隱藏角色：")
+            .enabled(false)
+            .build(app);
+        let mut reveal_items = Vec::new();
+        for (id, name, hidden) in CHARS {
+            if !*hidden {
+                continue;
+            }
+            let checked = REVEALED.lock().unwrap().iter().any(|r| r == id);
+            if let Ok(it) = CheckMenuItemBuilder::with_id(format!("p_reveal_{id}"), *name)
+                .checked(checked)
+                .build(app)
+            {
+                reveal_items.push(it);
+            }
+        }
         let hide = MenuItemBuilder::with_id("p_hide", "躲起來（系統匣可叫回）").build(app);
         let home = MenuItemBuilder::with_id("p_home", "回到主螢幕右下角").build(app);
         let auto = CheckMenuItemBuilder::with_id("p_autostart", "開機自動啟動")
@@ -1557,6 +1835,7 @@ fn show_menu(
             Ok(comp_hdr),
             Ok(toy_hdr),
             Ok(scale_hdr),
+            Ok(reveal_hdr),
             Ok(hide),
             Ok(home),
             Ok(auto),
@@ -1571,6 +1850,7 @@ fn show_menu(
             comp_hdr,
             toy_hdr,
             scale_hdr,
+            reveal_hdr,
             hide,
             home,
             auto,
@@ -1579,9 +1859,11 @@ fn show_menu(
             let mut mb = MenuBuilder::new(app)
                 .items(&[&s1, &s2])
                 .separator()
-                .items(&[&feed, &feedlove, &patrol_item])
-                .separator()
-                .item(&char_hdr);
+                .items(&[&feed, &feedlove, &patrol_item]);
+            for it in &murder_items {
+                mb = mb.item(it as &dyn IsMenuItem<_>);
+            }
+            mb = mb.separator().item(&char_hdr);
             for it in &char_items {
                 mb = mb.item(it as &dyn IsMenuItem<_>);
             }
@@ -1596,6 +1878,12 @@ fn show_menu(
             mb = mb.separator().item(&scale_hdr);
             for it in &scale_items {
                 mb = mb.item(it as &dyn IsMenuItem<_>);
+            }
+            if !reveal_items.is_empty() {
+                mb = mb.separator().item(&reveal_hdr);
+                for it in &reveal_items {
+                    mb = mb.item(it as &dyn IsMenuItem<_>);
+                }
             }
             mb = mb.separator().items(&[&hide, &home, &auto, &quit]);
             if let Ok(menu) = mb.build() {
@@ -1655,6 +1943,7 @@ fn spawn_cursor_thread(win: WebviewWindow) {
 // Claude Code 連動：本機 HTTP 監聽（hooks 用 curl 敲）
 // GET /claude/start | /claude/stop | /claude/error | /claude/wait → 轉發給前端
 // GET /pet/parasite → 對目前的珍母觸發寄生（本機測試用）
+// GET /pet/murder   → 強制跑一輪墓碑判定（本機測試用，略過巡邏/機率/冷卻）
 // ------------------------------------------------------------
 fn spawn_claude_listener(app: AppHandle) {
     std::thread::spawn(move || {
@@ -1702,6 +1991,40 @@ fn spawn_claude_listener(app: AppHandle) {
                 if let Some(zhenmu) = zhenmu {
                     let _ = try_parasite(app.clone(), zhenmu);
                 }
+            }
+            // 換主角測試鉤子：GET /pet/char/<id>（等同選單點「角色：」，主視窗會 reload）
+            if let Some(i) = req.find("/pet/char/") {
+                let tail = &req[i + 10..];
+                let id: String = tail
+                    .chars()
+                    .take_while(|c| c.is_ascii_alphanumeric() || *c == '_')
+                    .collect();
+                if CHARS.iter().any(|(known, _, _)| known == &id.as_str()) {
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit_to("main", "pet-cmd", format!("main:char:{id}"));
+                        dlog(&format!("http char switch -> {id}"));
+                    }
+                }
+            }
+            // 召喚/收回指定夥伴測試鉤子：GET /pet/comp/<id>（等同選單「夥伴：」勾選）
+            if let Some(i) = req.find("/pet/comp/") {
+                let tail = &req[i + 10..];
+                let id: String = tail
+                    .chars()
+                    .take_while(|c| c.is_ascii_alphanumeric() || *c == '_')
+                    .collect();
+                if CHARS.iter().any(|(known, _, _)| known == &id.as_str()) {
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit_to("main", "pet-cmd", format!("main:comp:{id}"));
+                    }
+                }
+            }
+            // 墓碑事件測試鉤子：略過巡邏條件、機率與相遇冷卻，直接掃一輪配對
+            // （只保留距離判定，所以要先讓兩隻站在一起）
+            if req.contains("/pet/murder") {
+                let mut rng = Rng::new();
+                let n = run_murder_pass(&app, &mut rng, true);
+                dlog(&format!("http murder test: killed {n}"));
             }
             // 前端 JS 的日誌通道（除錯用）
             if let Some(i) = req.find("/pet/log/") {
@@ -1764,6 +2087,10 @@ fn main() {
             close_menu_window,
             get_menu_state,
             get_autostart,
+            set_revealed,
+            set_pet_info,
+            set_murder,
+            revive,
             menu_action,
             snap_bottom,
             fit_window,
@@ -1806,6 +2133,7 @@ fn main() {
             let win = app.get_webview_window("main").expect("main window");
             setup_pet_window(&win);
             spawn_sleep_kick_evaluator(app.handle().clone());
+            spawn_murder_evaluator(app.handle().clone());
             spawn_typing_thread(app.handle().clone());
             spawn_claude_listener(app.handle().clone());
 
@@ -1865,6 +2193,13 @@ fn main() {
                 if let Some(ch) = id.strip_prefix("p_char_") {
                     if let Some(w) = app.get_webview_window("main") {
                         let _ = w.emit_to("main", "pet-cmd", format!("main:char:{ch}"));
+                    }
+                    return;
+                }
+                // 隱藏角色多選：p_reveal_<id> → 交主視窗 JS 解鎖/收回
+                if let Some(ch) = id.strip_prefix("p_reveal_") {
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit_to("main", "pet-cmd", format!("main:reveal:{ch}"));
                     }
                     return;
                 }
@@ -1949,6 +2284,16 @@ fn main() {
                     "p_feedlove" => {
                         if let Some(w) = app.get_webview_window("main") {
                             let _ = w.emit_to("main", "pet-cmd", "main:feedlove");
+                        }
+                    }
+                    "p_murder" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.emit_to("main", "pet-cmd", "main:murder");
+                        }
+                    }
+                    "p_killmode" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.emit_to("main", "pet-cmd", "main:killmode");
                         }
                     }
                     "p_patrol" => {

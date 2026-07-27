@@ -1,10 +1,15 @@
 const TAURI = window.__TAURI__;
 
+// [id, 顯示名, 是否為隱藏角色]。隱藏角色平常不出現在「主角」「夥伴」清單，
+// 要先在最下方「隱藏角色」區打勾解鎖，才回到自己原本的位置。需與 main.rs 的 CHARS 一致。
 const CHARACTERS = [
-  ['dog', '熱狗狗狗'], ['fox', '女僕狐狐'], ['jiaobu', '膠布'],
-  ['yueyue', '玥玥'], ['zhenzhen', '珍珍'], ['zhenmu', '珍母'],
+  ['dog', '熱狗狗狗'], ['fox', '女僕狐狐'],
+  ['jiaobu2', '膠布'], ['jiaobu', '膠布（原版）', true],
+  ['yueyue2', '玥玥'], ['yueyue', '玥玥（原版）', true],
+  ['zhenzhen2', '珍珍'], ['zhenzhen', '珍珍（原版）', true],
+  ['zhenmu', '珍母'], ['caihua', '采華'], ['lk', 'ㄌㄎ'], ['yang', '羊咩'],
 ];
-const TOYS = [['dino', '小恐龍']];
+const TOYS = [['dino', '小恐龍'], ['ballyellow', '黃色球'], ['beachball', '皮球']];
 const SCALES = [[0.7, '迷你'], [0.85, '小'], [1, '標準'], [1.15, '大'], [1.3, '特大']];
 let state = {};
 
@@ -43,10 +48,24 @@ function render(next) {
   $('scale-summary').textContent = selectedScale;
   $('patrol').classList.toggle('is-on', Boolean(state.patrol));
   $('patrol').setAttribute('aria-pressed', String(Boolean(state.patrol)));
+  // 墓碑事件／殺戮模式：殺戮模式只有在墓碑事件開著時才有意義
+  for (const [key, prop] of [['murder', 'murder'], ['killmode', 'killMode']]) {
+    const on = Boolean(state[prop]);
+    $(key).classList.toggle('is-on', on);
+    $(key).setAttribute('aria-pressed', String(on));
+  }
+  $('killmode').disabled = !state.murder;
   $('autostart').classList.toggle('is-on', Boolean(state.autostart));
   $('autostart').textContent = `${state.autostart ? '✓ ' : ''}開機自動啟動`;
-  renderChoices('character-options', CHARACTERS, state.character, 'char');
-  renderChoices('companion-options', CHARACTERS, state.companions || [], 'comp', 'check');
+  // 隱藏角色：未解鎖就不列進主角/夥伴清單，但「目前主角」永遠留著，
+  // 否則使用者取消勾選後主角會從清單消失變成空窗
+  const revealed = new Set(state.revealed || []);
+  const hiddenChars = CHARACTERS.filter(([, , hidden]) => hidden);
+  const shownChars = CHARACTERS.filter(([id, , hidden]) => !hidden || revealed.has(id) || id === state.character);
+  $('hidden-summary').textContent = revealed.size ? `已解鎖 ${revealed.size}/${hiddenChars.length}` : '未解鎖';
+  renderChoices('character-options', shownChars, state.character, 'char');
+  renderChoices('companion-options', shownChars, state.companions || [], 'comp', 'check');
+  renderChoices('hidden-options', hiddenChars, [...revealed], 'reveal', 'check');
   renderChoices('toy-options', TOYS, state.toys || [], 'toy', 'check');
   renderChoices('scale-options', SCALES.map(([value, label]) => [String(value), label]), String(state.scale), 'scale');
 }
@@ -59,14 +78,24 @@ async function action(id) {
   if (!id) return;
   if (id === 'patrol') {
     state.patrol = !state.patrol;
+  } else if (id === 'murder') {
+    state.murder = !state.murder;
+  } else if (id === 'killmode') {
+    state.killMode = !state.killMode;
   } else if (id === 'autostart') {
     state.autostart = !state.autostart;
-  } else if (id.startsWith('comp:') || id.startsWith('toy:')) {
-    const key = id.startsWith('comp:') ? 'companions' : 'toys';
+  } else if (id.startsWith('comp:') || id.startsWith('toy:') || id.startsWith('reveal:')) {
+    const key = id.startsWith('comp:') ? 'companions' : id.startsWith('toy:') ? 'toys' : 'revealed';
     const value = id.slice(id.indexOf(':') + 1);
     const selected = new Set(state[key] || []);
-    if (selected.has(value)) selected.delete(value);
-    else selected.add(value);
+    if (selected.has(value)) {
+      // 取消解鎖：正在當主角的不准收（後端也會擋，這裡先讓 UI 不要閃一下）
+      if (key === 'revealed' && value === state.character) return;
+      selected.delete(value);
+      if (key === 'revealed') state.companions = (state.companions || []).filter((c) => c !== value);
+    } else {
+      selected.add(value);
+    }
     state[key] = [...selected];
   } else if (id.startsWith('char:')) {
     // 選單常駐不關閉，單選狀態要立即反映（主視窗那邊會 reload 換角）
