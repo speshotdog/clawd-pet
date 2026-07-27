@@ -16,24 +16,22 @@
       cursor: grab;
     }
     #stage.grabbed { cursor: grabbing; }
-    /* 落地陰影（滾動/飛行時輕微變化，靜止時穩定） */
+    /* 落地陰影（滾動/飛行時輕微變化，靜止時穩定）；寬度由 toy.js 依玩具尺寸寫入 */
     #toyshadow {
       position: absolute;
       bottom: 3px;
       left: 50%;
-      width: 100px;
       height: 12px;
       transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.18);
       border-radius: 50%;
       pointer-events: none;
     }
-    /* 恐龍：寬 120 CSS px、底錨貼視窗底（留 2px） */
+    /* 玩具本體：src 與 width 由 toy.js 依 ?toy= 決定，底錨貼視窗底（留 2px） */
     #toy {
       position: absolute;
       bottom: 2px;
       left: 50%;
-      width: 120px;
       height: auto;
       transform: translateX(-50%);
       transform-origin: 50% 90%;   /* 翻滾/擠壓的樞紐靠近底部（像玩偶翻倒） */
@@ -45,7 +43,7 @@
 <body>
   <div id="stage">
     <div id="toyshadow"></div>
-    <img id="toy" src="toy-dino.png" alt="dino" draggable="false" />
+    <img id="toy" alt="" draggable="false" />
   </div>
   <script src="toy.js"></script>
 </body>

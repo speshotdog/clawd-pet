@@ -35,7 +35,9 @@ button, summary { font: inherit; }
 
 .menu-heading, .status-row, .quick-actions, .bottom-actions { flex: none; }
 
-.menu-heading { display: flex; align-items: center; min-height: 49px; padding: 0 4px 7px; border-bottom: 2px solid #c98c4c; }
+/* 標題列＝拖曳把手（見 menu.js 的 startDragging） */
+.menu-heading { display: flex; align-items: center; min-height: 49px; padding: 0 4px 7px; border-bottom: 2px solid #c98c4c; cursor: move; }
+.menu-heading .icon-button { cursor: pointer; }
 .heading-sprout { display: grid; place-items: center; width: 35px; height: 35px; margin-right: 7px; border: 2px solid #5c3a21; border-radius: 50%; background: #ffd24a; box-shadow: inset 0 0 0 2px #f6e3b4; color: #6c4526; font-size: 19px; }
 .menu-heading strong { display: block; font-family: Georgia, "Microsoft JhengHei", serif; font-size: 18px; letter-spacing: .08em; }
 .menu-heading small, summary small { color: #89603a; font-size: 11px; }

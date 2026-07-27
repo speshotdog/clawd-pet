@@ -289,6 +289,241 @@
     </svg>
   </template>
 
+  <!-- ================= 角色：采華（綠龍） =================
+       這隻起，素材改用「畫師已分層的 PSD」（熱狗訂單.psd）直出，不再走暴力切割：
+       body 是完整一片、腳與尾巴是畫師另外畫的獨立部件疊上去。因此
+         · 不需要 clipPath 圓角（沒有平切直邊，部件本身就有自己的圓輪廓）
+         · 不需要存根／藏縫／補毛色／磨描邊斷頭（body 底下沒有挖除區）
+         · 眼睛從「線稿層」挖掉即可，露出的是完整的「填色層」，零殘留
+       驗證：疊回 vs 原圖最大單通道差 1（AA 捨入）；±13° 旋轉時身體剪影內破洞 0 px。
+       z 序照 PSD 原序：legL 在 body 後、legR 與 tail 在 body 前。 -->
+  <template id="char-caihua">
+    <svg id="pet" viewBox="0 0 559 466" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="200" cy="456" rx="165" ry="12" />
+      <g id="root">
+        <g id="body">
+          <g id="legL"><image href="caihua-legL.png" x="0" y="0" width="559" height="466" /></g>
+          <image href="caihua-body.png" x="0" y="0" width="559" height="466" />
+          <g id="legR"><image href="caihua-legR.png" x="0" y="0" width="559" height="466" /></g>
+          <g id="tail"><image href="caihua-tail.png" x="0" y="0" width="559" height="466" /></g>
+          <!-- 無手部件 → pawR 留空（rig 需要此元素存在） -->
+          <g id="pawR"></g>
+          <!-- 眼睛在雙角下方那兩顆（用戶指正：吻部尖端那顆圓點是鼻孔，不是眼睛）
+               ⚠ 這隻的眼睛在原畫是「吊在眉毛下面連成一體」的，所以擠壓軸要放在
+               眼睛的**頂端**（transform-origin 50% 0%）而不是中心——以中心壓扁會讓
+               眼睛往內縮、頂端脫離眉毛，看起來就像眉毛被切了一刀。
+               以頂端為軸＝眼皮從眉毛往下闔，頂端永遠黏著眉毛。 -->
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye" style="transform-origin: 50% 0%"><image href="caihua-eye0.png" x="172" y="143" width="25" height="37" /></g>
+              <g class="eye" style="transform-origin: 50% 0%"><image href="caihua-eye1.png" x="217" y="144" width="26" height="39" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="caihua-eye0.png" x="172" y="143" width="25" height="37"
+                     transform="translate(184.5 143) scale(1 0.45) translate(-184.5 -143)" />
+              <image href="caihua-eye1.png" x="217" y="144" width="26" height="39"
+                     transform="translate(230 144) scale(1 0.45) translate(-230 -144)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="caihua-eye0.png" x="172" y="143" width="25" height="37"
+                     transform="translate(184.5 143) scale(1 0.12) translate(-184.5 -143)" />
+              <image href="caihua-eye1.png" x="217" y="144" width="26" height="39"
+                     transform="translate(230 144) scale(1 0.12) translate(-230 -144)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
+  <!-- ================= 角色：月月 2.0（灰狼） ================= -->
+  <template id="char-yueyue2">
+    <svg id="pet" viewBox="0 0 584 525" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="246" cy="517" rx="183" ry="14" />
+      <g id="root">
+        <g id="body">
+          <g id="tail"><image href="yueyue2-tail.png" x="0" y="0" width="584" height="525" /></g>
+          <g id="legL"><image href="yueyue2-legL.png" x="0" y="0" width="584" height="525" /></g>
+          <image href="yueyue2-body.png" x="0" y="0" width="584" height="525" />
+          <g id="legR"><image href="yueyue2-legR.png" x="0" y="0" width="584" height="525" /></g>
+          <g id="pawR"></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="yueyue2-eye0.png" x="195" y="163" width="25" height="42" /></g>
+              <g class="eye"><image href="yueyue2-eye1.png" x="250" y="166" width="24" height="42" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="yueyue2-eye0.png" x="195" y="163" width="25" height="42"
+                     transform="translate(0 -3) translate(207.5 184) scale(1 0.45) translate(-207.5 -184)" />
+              <image href="yueyue2-eye1.png" x="250" y="166" width="24" height="42"
+                     transform="translate(0 -3) translate(262 187) scale(1 0.45) translate(-262 -187)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="yueyue2-eye0.png" x="195" y="163" width="25" height="42"
+                     transform="translate(207.5 184) scale(1 0.12) translate(-207.5 -184)" />
+              <image href="yueyue2-eye1.png" x="250" y="166" width="24" height="42"
+                     transform="translate(262 187) scale(1 0.12) translate(-262 -187)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
+  <!-- ================= 角色：珍珍 2.0（白綿羊）
+       四隻腿分成上下兩對畫在兩層，整層當一件轉會把樞紐落在其中一隻腿上、另一隻被甩飛
+       → 只讓下面那對各自轉，上面那對併回 body 當靜態（兩對垂直不重疊，改 z 序不影響畫面） -->
+  <template id="char-zhenzhen2">
+    <svg id="pet" viewBox="0 0 587 570" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="252" cy="562" rx="158" ry="15" />
+      <g id="root">
+        <g id="body">
+          <image href="zhenzhen2-body.png" x="0" y="0" width="587" height="570" />
+          <g id="legL"><image href="zhenzhen2-legL.png" x="0" y="0" width="587" height="570" /></g>
+          <g id="legR"><image href="zhenzhen2-legR.png" x="0" y="0" width="587" height="570" /></g>
+          <g id="pawR"></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="zhenzhen2-eye0.png" x="130" y="232" width="33" height="51" /></g>
+              <g class="eye"><image href="zhenzhen2-eye1.png" x="195" y="233" width="30" height="49" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="zhenzhen2-eye0.png" x="130" y="232" width="33" height="51"
+                     transform="translate(0 -4) translate(146.5 257.5) scale(1 0.45) translate(-146.5 -257.5)" />
+              <image href="zhenzhen2-eye1.png" x="195" y="233" width="30" height="49"
+                     transform="translate(0 -3) translate(210 257.5) scale(1 0.45) translate(-210 -257.5)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="zhenzhen2-eye0.png" x="130" y="232" width="33" height="51"
+                     transform="translate(146.5 257.5) scale(1 0.12) translate(-146.5 -257.5)" />
+              <image href="zhenzhen2-eye1.png" x="195" y="233" width="30" height="49"
+                     transform="translate(210 257.5) scale(1 0.12) translate(-210 -257.5)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
+  <!-- ================= 角色：膠布 2.0（鹿角小獸）
+       2.0 重新設計後沒有刀了；可動件是兩隻手臂（腿長在 body 裡）：
+       左臂＝legL（走路擺動）、右臂＝pawR（舉手提醒），legR 留空。
+       body 的填色層與線稿層之間夾著左臂 → body 拆成兩張靜態圖把 legL 夾在中間。 -->
+  <template id="char-jiaobu2">
+    <svg id="pet" viewBox="0 0 466 551" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="238" cy="543" rx="185" ry="14" />
+      <g id="root">
+        <g id="body">
+          <image href="jiaobu2-body.png" x="0" y="0" width="466" height="551" />
+          <g id="legL"><image href="jiaobu2-legL.png" x="0" y="0" width="466" height="551" /></g>
+          <image href="jiaobu2-body2.png" x="0" y="0" width="466" height="551" />
+          <g id="tail"><image href="jiaobu2-tail.png" x="0" y="0" width="466" height="551" /></g>
+          <g id="pawR"><image href="jiaobu2-pawR.png" x="0" y="0" width="466" height="551" /></g>
+          <g id="legR"></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="jiaobu2-eye0.png" x="136" y="214" width="29" height="51" /></g>
+              <g class="eye"><image href="jiaobu2-eye1.png" x="220" y="218" width="30" height="51" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="jiaobu2-eye0.png" x="136" y="214" width="29" height="51"
+                     transform="translate(0 -4) translate(150.5 239.5) scale(1 0.45) translate(-150.5 -239.5)" />
+              <image href="jiaobu2-eye1.png" x="220" y="218" width="30" height="51"
+                     transform="translate(0 -4) translate(235 243.5) scale(1 0.45) translate(-235 -243.5)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="jiaobu2-eye0.png" x="136" y="214" width="29" height="51"
+                     transform="translate(150.5 239.5) scale(1 0.12) translate(-150.5 -239.5)" />
+              <image href="jiaobu2-eye1.png" x="220" y="218" width="30" height="51"
+                     transform="translate(235 243.5) scale(1 0.12) translate(-235 -243.5)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
+  <!-- ================= 角色：ㄌㄎ（紫鳥）
+       全隊唯一「線稿與填色合併在同一層」的角色 → 挖眼會留洞，用洞周圍的非深色中位色補平
+       （疊回最大差 4/255，肉眼不可見，body-only 目檢無殘留環）。雙腳畫在同一層，
+       用連通元件切成左右各自轉。 -->
+  <template id="char-lk">
+    <svg id="pet" viewBox="0 0 586 587" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="210" cy="579" rx="162" ry="15" />
+      <g id="root">
+        <g id="body">
+          <image href="lk-body.png" x="0" y="0" width="586" height="587" />
+          <g id="legL"><image href="lk-legL.png" x="0" y="0" width="586" height="587" /></g>
+          <g id="legR"><image href="lk-legR.png" x="0" y="0" width="586" height="587" /></g>
+          <g id="pawR"></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="lk-eye0.png" x="240" y="169" width="31" height="52" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="lk-eye0.png" x="240" y="169" width="31" height="52"
+                     transform="translate(0 -4) translate(255.5 195) scale(1 0.45) translate(-255.5 -195)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="lk-eye0.png" x="240" y="169" width="31" height="52"
+                     transform="translate(255.5 195) scale(1 0.12) translate(-255.5 -195)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
+  <!-- ================= 角色：羊咩（粉羊）
+       雙腳畫在同一層 → 連通元件切左右；身上那隻小手另成一層，當 pawR。
+       ⚠ 這隻的腳畫在身體**後面**，畫師在身體上開了兩個孔讓腳透出來。腳一擺動就
+       離開那個孔、露出桌面背景 → 需要 yang-bodyback.png：補色畫在**所有部件的最後面**，
+       0° 被腳蓋住看不見，腳擺開才露出身體色。 -->
+  <template id="char-yang">
+    <svg id="pet" viewBox="0 0 525 485" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="258" cy="477" rx="141" ry="13" />
+      <g id="root">
+        <g id="body">
+          <image href="yang-bodyback.png" x="0" y="0" width="525" height="485" />
+          <g id="legL"><image href="yang-legL.png" x="0" y="0" width="525" height="485" /></g>
+          <g id="legR"><image href="yang-legR.png" x="0" y="0" width="525" height="485" /></g>
+          <image href="yang-body.png" x="0" y="0" width="525" height="485" />
+          <g id="pawR"><image href="yang-pawR.png" x="0" y="0" width="525" height="485" /></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="yang-eye0.png" x="157" y="164" width="28" height="38" /></g>
+              <g class="eye"><image href="yang-eye1.png" x="218" y="168" width="27" height="43" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="yang-eye0.png" x="157" y="164" width="28" height="38"
+                     transform="translate(0 -3) translate(171 183) scale(1 0.45) translate(-171 -183)" />
+              <image href="yang-eye1.png" x="218" y="168" width="27" height="43"
+                     transform="translate(0 -3) translate(231.5 189.5) scale(1 0.45) translate(-231.5 -189.5)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="yang-eye0.png" x="157" y="164" width="28" height="38"
+                     transform="translate(171 183) scale(1 0.12) translate(-171 -183)" />
+              <image href="yang-eye1.png" x="218" y="168" width="27" height="43"
+                     transform="translate(231.5 189.5) scale(1 0.12) translate(-231.5 -189.5)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+
   <script src="pure.js"></script>
   <script src="pet.js"></script>
 </body>

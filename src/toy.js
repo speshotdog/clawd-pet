@@ -1,4 +1,4 @@
-// Clawd — 玩具（小恐龍）前端
+// Clawd — 玩具前端（小恐龍／黃色球／皮球，由 ?toy= 決定）
 // 物理全在 Rust 執行緒跑，這裡只：回報 dpr、點擊穿透、拖曳、依 toy-state 演動畫。
 
 const TAURI = window.__TAURI__;
@@ -6,6 +6,19 @@ const stage = document.getElementById('stage');
 const toy = document.getElementById('toy');
 const shadow = document.getElementById('toyshadow');
 const TOY_ID = new URLSearchParams(location.search).get('toy') || 'dino';
+
+// 玩具素材表：w/h 是實機 CSS 尺寸。球類的尺寸 = PSD px × 0.3336（與寵物同一把尺，
+// 以熱狗狗狗的描邊粗細錨定），所以球擺在角色旁邊大小才對得起來。
+// round=true 的用圓形命中判定（方形 bbox 對圓球太貪心，會擋到旁邊的點擊）。
+const TOY_ART = {
+  dino:       { img: 'toy-dino.png',       w: 120,   h: 71 },
+  ballyellow: { img: 'toy-ballyellow.png', w: 109.4, h: 89.7, round: true },
+  beachball:  { img: 'toy-beachball.png',  w: 94.7,  h: 94.7, round: true },
+};
+const ART = TOY_ART[TOY_ID] || TOY_ART.dino;
+toy.src = ART.img;
+toy.style.width = ART.w + 'px';
+shadow.style.width = Math.round(ART.w * 0.83) + 'px';   // 恐龍原本寫死 100 = 120 × 0.83
 
 // ---------- 視窗適配：回報真實 devicePixelRatio（fit_window 依 label 撐成 150x120） ----------
 function fitWindow() {
@@ -16,12 +29,22 @@ function watchDpr() {
     .addEventListener('change', () => { fitWindow(); watchDpr(); }, { once: true });
 }
 
-// ---------- 點擊穿透：游標壓在恐龍 bbox 上才攔截（不用逐像素） ----------
-// 恐龍寬 120 置中於 150 視窗（x:15~135），高約 71、底留 2px（y:47~118）
+// ---------- 點擊穿透：游標壓在玩具上才攔截（不用逐像素） ----------
+// 玩具置中於 150x120 視窗、底留 2px，命中框由 ART 尺寸推出（外擴 1px 容差）
 let clickThrough = true;
-const BBOX = { x0: 14, y0: 46, x1: 136, y1: 119 };
+const BBOX = {
+  x0: (150 - ART.w) / 2 - 1,
+  y0: 118 - ART.h - 1,
+  x1: (150 + ART.w) / 2 + 1,
+  y1: 119,
+};
 function hitTest(cx, cy) {
-  return cx >= BBOX.x0 && cx <= BBOX.x1 && cy >= BBOX.y0 && cy <= BBOX.y1;
+  if (cx < BBOX.x0 || cx > BBOX.x1 || cy < BBOX.y0 || cy > BBOX.y1) return false;
+  if (!ART.round) return true;
+  // 圓球：以外接橢圓判定，落在四角的點擊照樣穿透
+  const nx = (cx - 75) / (ART.w / 2);
+  const ny = (cy - (118 - ART.h / 2)) / (ART.h / 2);
+  return nx * nx + ny * ny <= 1;
 }
 
 // ---------- 拖曳（比照 pet.js 的看門狗模式） ----------

@@ -27,19 +27,51 @@ html, body {
 }
 #pet.flip { transform: translateX(-50%) scaleX(-1); }
 
-/* 有專屬睡圖的角色仍保留 .sleep（Zzz 與狀態邏輯共用），但不套用通用躺平變形。 */
+/* 有專屬睡圖的角色仍保留 .sleep（Zzz 與狀態邏輯共用），但不套用通用躺平變形。
+   height 由 pet.js 依 CHAR_CFG.sleep[].h 逐張寫入（素材是緊裁 PNG，寬度靠 aspect）。 */
 #sleepimg {
   position: absolute;
   bottom: 2px;
   left: 50%;
   display: none;
-  height: 150px;
   width: auto;
   transform: translateX(-50%);
   pointer-events: none;
 }
 #stage.sleep-img #pet { display: none; }
 #stage.sleep-img #sleepimg { display: block; }
+
+/* ---------- 死亡：墓碑從天上砸下來（楓之谷風） ----------
+   高度 115.1px = 素材 PSD 345px × 0.3336（與睡圖同一把尺）。
+   transform-origin 放底部中心，落地的擠壓才是「砸在地上」而不是原地縮小。 */
+#tomb {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  display: none;
+  height: 115.1px;
+  width: auto;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+#stage.dead #pet,
+#stage.dead #sleepimg,
+#stage.dead #zzz { display: none; }
+#stage.dead #tomb {
+  display: block;
+  animation: tombdrop 0.75s cubic-bezier(0.5, 0, 0.75, 1);
+}
+
+/* 砸下 → 壓扁 → 小彈一下 → 定住。落下段拉長、觸地後才回正比例 */
+@keyframes tombdrop {
+  0%   { transform: translateX(-50%) translateY(-320px) scale(0.88, 1.16); }
+  52%  { transform: translateX(-50%) translateY(0)      scale(0.88, 1.16); }
+  64%  { transform: translateX(-50%) translateY(0)      scale(1.18, 0.80); }
+  78%  { transform: translateX(-50%) translateY(-13px)  scale(0.96, 1.06); }
+  90%  { transform: translateX(-50%) translateY(0)      scale(1.05, 0.95); }
+  100% { transform: translateX(-50%) translateY(0)      scale(1, 1); }
+}
 
 /* ---------- 配色（狗狗穿熱狗裝：粗描邊貼紙風，填色寫在 SVG 裡） ---------- */
 #shadow { fill: rgba(0, 0, 0, 0.18); }
