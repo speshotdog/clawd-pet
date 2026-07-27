@@ -1118,7 +1118,8 @@ async function main() {
       say(killMode ? '殺戮模式開啟！' : '收刀。', 2000);
     }
     else if (cmd === 'control' && !IS_COMPANION) {
-      controlOn = !controlOn;
+      // payload.on 有給就直接指定，沒給就切換（選單走切換）
+      controlOn = typeof payload.on === 'boolean' ? payload.on : !controlOn;
       saveStats();
       syncControl();
       if (!controlOn) { setState('walk', false); ctrlDir = 0; }

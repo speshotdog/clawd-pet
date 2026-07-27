@@ -161,8 +161,10 @@ const WIN_H: f64 = 256.0;
 const MENU_W: f64 = 300.0;
 // 主視窗選單：手風琴一次只展開一組，最高的一組（角色清單）剛好塞得下。
 // 超出時 .menu-groups 會出現捲軸，所以估不準也只是多一條捲軸，不會裁掉按鈕。
-// v0.5 快速鍵多了墓碑事件／殺戮模式／操作模式三顆，角色也從六隻變九隻 → 548 → 620。
-const MENU_H: f64 = 620.0;
+// v0.5 快速鍵多了三顆（墓碑／殺戮／操作）、角色從六隻變九隻，548 會把設定區壓到
+// 只剩 ~130px，展開任一組就爆掉。加到 680。
+// ⚠ 實體高度是 MENU_H × dpr，小螢幕/高 dpr 可能塞不下 → show_menu_window 會夾回工作區。
+const MENU_H: f64 = 680.0;
 // 夥伴選單只有「狀態＋餵食＋收回夥伴」，用同樣的高度會留一大片空面板
 const MENU_H_COMPANION: f64 = 200.0;
 // 選單視窗現在有兩種高度，resize_physical / fit_window 都得看同一份
@@ -789,7 +791,11 @@ fn spawn_control_thread(app: AppHandle) {
             std::thread::sleep(Duration::from_millis(CTRL_TICK_MS));
             if !CONTROL_MODE.load(Ordering::Relaxed) {
                 if last_dir != 0 {
-                    let _ = app.emit("pet-cmd", "main:ctrl:0".to_string());
+                    let _ = app.emit_to(
+                        "main",
+                        "pet-cmd",
+                        serde_json::json!({ "cmd": "ctrl", "dir": 0 }),
+                    );
                     last_dir = 0;
                 }
                 continue;
@@ -834,7 +840,11 @@ fn spawn_control_thread(app: AppHandle) {
                 continue;
             }
             if dir != last_dir {
-                let _ = app.emit("pet-cmd", format!("main:ctrl:{dir}"));
+                let _ = app.emit_to(
+                    "main",
+                    "pet-cmd",
+                    serde_json::json!({ "cmd": "ctrl", "dir": dir }),
+                );
                 last_dir = dir;
             }
             if dir != 0 {
@@ -976,11 +986,16 @@ fn run_murder_pass(app: &AppHandle, rng: &mut Rng, force: bool) -> usize {
             dead_now.push(victim.label.clone());
             killed += 1;
             let duel = a_armed && b_armed;
-            let _ = app.emit(
+            let _ = app.emit_to(
+                victim.label.as_str(),
                 "pet-cmd",
-                format!("{}:die:{}", victim.label, if duel { "duel" } else { "solo" }),
+                serde_json::json!({ "cmd": "die", "duel": duel }),
             );
-            let _ = app.emit("pet-cmd", format!("{}:kill", killer.label));
+            let _ = app.emit_to(
+                killer.label.as_str(),
+                "pet-cmd",
+                serde_json::json!({ "cmd": "kill" }),
+            );
             dlog(&format!(
                 "murder: {} killed {} (duel={duel}, kill_mode={kill_mode}, force={force})",
                 killer.label, victim.label
@@ -1638,7 +1653,14 @@ fn show_menu_window(
 ) {
     let label = window.label().to_string();
     let companion = label != "main";
-    let menu_h = if companion { MENU_H_COMPANION } else { MENU_H };
+    // ⚠ MENU_H 是 CSS px，實體高度是它 × dpr。使用者的 dpr 是 1.875（150% 顯示 ×
+    // 125% 文字），620 CSS 就是 1162 實體 px——比工作區還高，選單會被擠爆／頂部被切掉。
+    // 所以一律夾回「工作區高度換算成 CSS px」再留 16px 餘裕；塞不下的部分交給
+    // .menu-groups 的捲軸（手風琴一次只開一組，實務上很少真的需要捲）。
+    let dpr = (window_scale(&window) / scale.max(0.1)).clamp(0.5, 4.0);
+    let wa = work_area_of(&window);
+    let max_css_h = ((wa.bottom - wa.top) as f64 / dpr - 16.0).max(240.0);
+    let menu_h = if companion { MENU_H_COMPANION } else { MENU_H }.min(max_css_h);
     *MENU_HEIGHT.lock().unwrap() = menu_h;
     let state = serde_json::json!({
         "source": label,
@@ -2002,10 +2024,17 @@ fn route_control(app: &AppHandle, path: &str, query: &str, token: &str) -> (&'st
             dlog(&format!("http murder test: killed {n}"));
             ("200 OK", "ok")
         }
-        // 切換操作模式（測試用）
+        // 操作模式：/pet/control?t=<token> 切換，加 &on=1 / &on=0 直接指定。
+        // 純 toggle 很容易搞不清楚現在是開還是關（狀態存在 localStorage 會跨重啟），
+        // 所以留一個可指定的入口。
         "/pet/control" => {
             if let Some(w) = app.get_webview_window("main") {
-                let _ = w.emit_to("main", "pet-cmd", serde_json::json!({ "cmd": "control" }));
+                let payload = match query_param(query, "on") {
+                    Some("1") | Some("true") => serde_json::json!({ "cmd": "control", "on": true }),
+                    Some("0") | Some("false") => serde_json::json!({ "cmd": "control", "on": false }),
+                    _ => serde_json::json!({ "cmd": "control" }),
+                };
+                let _ = w.emit_to("main", "pet-cmd", payload);
             }
             ("200 OK", "ok")
         }

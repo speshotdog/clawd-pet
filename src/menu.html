@@ -24,8 +24,10 @@
       <button data-action="feedlove"><span>♥</span> 餵愛心</button>
       <button id="patrol" class="wide-action main-only" data-action="patrol"><span>⌁</span> 巡邏模式</button>
       <button class="wide-action companion-only" data-action="recall" hidden><span>↩</span> 收回夥伴</button>
-      <button id="murder" class="wide-action main-only" data-action="murder"><span>🪦</span> 墓碑事件</button>
-      <button id="killmode" class="wide-action main-only" data-action="killmode"><span>🔪</span> 殺戮模式</button>
+      <!-- 墓碑／殺戮併成一列：這區每多一整列就從底下的設定區吃掉 ~35px，
+           六顆全開一整列會把設定區壓到只剩 130px，展開任一組就爆掉。 -->
+      <button id="murder" class="main-only" data-action="murder"><span>🪦</span> 墓碑事件</button>
+      <button id="killmode" class="main-only" data-action="killmode"><span>🔪</span> 殺戮模式</button>
       <button id="control" class="wide-action main-only" data-action="control"><span>🎮</span> 操作模式（←→ 移動．空白跳）</button>
     </section>
 
