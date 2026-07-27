@@ -1,4 +1,4 @@
-# 熱狗小夥伴 HotDog Pet 🐑
+# 恐龍羊小夥伴 HotDog Pet 🐑
 
 <p align="center"><img src="docs/hero-zhenzhen.png" width="220" alt="珍珍" /></p>
 
