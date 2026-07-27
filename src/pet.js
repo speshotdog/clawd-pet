@@ -295,7 +295,7 @@ try {
   if (s.stats) Object.assign(stats, s.stats);
   patrolOn = !!s.patrol;
   murderOn = !!s.murder;
-  killMode = !!s.killMode;
+  killMode = !!s.killMode && murderOn;   // 舊存檔可能留下「總開關關著卻有殺戮模式」
   controlOn = !!s.control;
 } catch (_) {}
 function saveStats() {
@@ -1110,11 +1110,14 @@ async function main() {
     else if (cmd === 'kill') onKill();
     else if (cmd === 'murder' && !IS_COMPANION) {
       murderOn = !murderOn;
+      // 總開關關掉時順手收掉殺戮模式，不然會留下「開著卻被鎖住」的殘留狀態
+      if (!murderOn) killMode = false;
       saveStats();
       syncMurder();
       say(murderOn ? '巡邏時要小心刀…' : '和平了。', 2000);
     }
     else if (cmd === 'killmode' && !IS_COMPANION) {
+      if (!murderOn) return;   // 總開關沒開就沒有殺戮模式（選單那邊也是 disabled）
       killMode = !killMode;
       saveStats();
       syncMurder();

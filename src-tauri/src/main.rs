@@ -1784,7 +1784,19 @@ fn show_menu_window(
 // 顯示的還是十分鐘前的心情與飽食度。來源視窗每次寫入 stats 都會呼叫這裡，
 // 選單沒開或不是自己開的就直接返回，成本近乎零。
 #[tauri::command]
-fn sync_menu_state(window: WebviewWindow, mood: i32, fullness: i32, patrol: bool) {
+// ⚠ 這裡漏一個欄位，那個開關就會「點了自己彈回去」：本函式把整份 MENU_STATE
+// 推回選單，沒更新到的欄位就是用舊值蓋掉前端剛做的樂觀更新。而 saveStats()
+// 每次改動都會呼叫這裡，所以症狀是「完全點不動」而不是「偶爾跳掉」。
+// 新增開關時：pet.js 的 saveStats 要傳、這裡要收、MENU_STATE 要寫。
+fn sync_menu_state(
+    window: WebviewWindow,
+    mood: i32,
+    fullness: i32,
+    patrol: bool,
+    murder: bool,
+    kill_mode: bool,
+    control: bool,
+) {
     let app = window.app_handle();
     let Some(menu) = app.get_webview_window("petmenu") else {
         return;
@@ -1800,6 +1812,9 @@ fn sync_menu_state(window: WebviewWindow, mood: i32, fullness: i32, patrol: bool
         s["mood"] = mood.clamp(0, 100).into();
         s["fullness"] = fullness.clamp(0, 100).into();
         s["patrol"] = patrol.into();
+        s["murder"] = murder.into();
+        s["killMode"] = kill_mode.into();
+        s["control"] = control.into();
         s.clone()
     };
     let _ = app.emit_to("petmenu", "menu-state", state);

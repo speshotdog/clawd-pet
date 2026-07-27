@@ -127,6 +127,7 @@ async function action(id) {
     state.patrol = !state.patrol;
   } else if (id === 'murder') {
     state.murder = !state.murder;
+    if (!state.murder) state.killMode = false;   // 跟 pet.js 的連動保持一致
   } else if (id === 'killmode') {
     state.killMode = !state.killMode;
   } else if (id === 'control') {
