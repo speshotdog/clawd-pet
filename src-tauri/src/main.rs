@@ -162,9 +162,9 @@ const MENU_W: f64 = 300.0;
 // 主視窗選單：手風琴一次只展開一組，最高的一組（角色清單）剛好塞得下。
 // 超出時 .menu-groups 會出現捲軸，所以估不準也只是多一條捲軸，不會裁掉按鈕。
 // v0.5 快速鍵多了三顆（墓碑／殺戮／操作）、角色從六隻變九隻，548 會把設定區壓到
-// 只剩 ~130px，展開任一組就爆掉。加到 680。
+// 只剩 ~130px，展開任一組就爆掉。加到 680；抽卡入口再多一列 → 715。
 // ⚠ 實體高度是 MENU_H × dpr，小螢幕/高 dpr 可能塞不下 → show_menu_window 會夾回工作區。
-const MENU_H: f64 = 680.0;
+const MENU_H: f64 = 715.0;
 // 夥伴選單只有「狀態＋餵食＋收回夥伴」，用同樣的高度會留一大片空面板
 const MENU_H_COMPANION: f64 = 200.0;
 // 選單視窗現在有兩種高度，resize_physical / fit_window 都得看同一份
@@ -172,11 +172,19 @@ static MENU_HEIGHT: Mutex<f64> = Mutex::new(MENU_H);
 // 玩具視窗邏輯尺寸（CSS px），需與 toy.html 的 #stage 一致
 const TOY_W: f64 = 150.0;
 const TOY_H: f64 = 120.0;
+// 抽卡視窗邏輯尺寸（CSS px），需與 gacha.css 的 .table 一致。
+// 高 dpr 小螢幕塞不下時 show_gacha_window 會等比縮到工作區內（前端用 CSS zoom 跟著縮）。
+const GACHA_W: f64 = 960.0;
+const GACHA_H: f64 = 640.0;
+static GACHA_ZOOM: Mutex<f64> = Mutex::new(1.0);
 
 // 依 label 查邏輯尺寸：寵物視窗（main / pet_*）= 240x256，玩具（toy_*）= 150x120
 fn logical_size(label: &str) -> (f64, f64) {
     if label == "petmenu" {
         (MENU_W, *MENU_HEIGHT.lock().unwrap())
+    } else if label == "gacha" {
+        let z = *GACHA_ZOOM.lock().unwrap();
+        (GACHA_W * z, GACHA_H * z)
     } else if label.starts_with("toy_") {
         (TOY_W, TOY_H)
     } else {
@@ -1664,6 +1672,84 @@ fn close_menu_window(app: AppHandle) {
     }
 }
 
+
+// ------------------------------------------------------------
+// 抽卡視窗（label = gacha）：獨立的大視窗，和選單一樣隱藏而不銷毀
+// ------------------------------------------------------------
+#[tauri::command]
+fn close_gacha_window(app: AppHandle) {
+    if let Some(w) = app.get_webview_window("gacha") {
+        let _ = w.hide();
+    }
+}
+
+#[tauri::command]
+fn get_gacha_zoom() -> f64 {
+    *GACHA_ZOOM.lock().unwrap()
+}
+
+fn show_gacha_window(app: AppHandle) {
+    // dpr 從選單視窗反推（選單一定存在，因為抽卡是從選單按出來的）；沒有就退回 Win32 DPI
+    let anchor = app
+        .get_webview_window("petmenu")
+        .or_else(|| app.get_webview_window("main"));
+    let dpr = anchor
+        .as_ref()
+        .and_then(|w| w.outer_size().ok().map(|s| s.width as f64 / MENU_W))
+        .filter(|d| (0.5..=4.0).contains(d))
+        .unwrap_or_else(|| {
+            anchor
+                .as_ref()
+                .and_then(|w| w.hwnd().ok())
+                .map(|h| unsafe { GetDpiForWindow(h.0 as isize) } as f64 / 96.0)
+                .unwrap_or(1.0)
+        });
+    let wa = anchor.as_ref().map(work_area_of).unwrap_or(Rect { left: 0, top: 0, right: 1920, bottom: 1040 });
+    // 工作區塞不下 960x640×dpr 時等比縮小，前端用 zoom 跟著縮，佈局不變
+    let avail_w = (wa.right - wa.left) as f64 / dpr - 24.0;
+    let avail_h = (wa.bottom - wa.top) as f64 / dpr - 24.0;
+    let zoom = (avail_w / GACHA_W).min(avail_h / GACHA_H).min(1.0).max(0.4);
+    *GACHA_ZOOM.lock().unwrap() = zoom;
+    let w_px = (GACHA_W * zoom * dpr).round() as i32;
+    let h_px = (GACHA_H * zoom * dpr).round() as i32;
+    let pos = PhysicalPosition::new(
+        wa.left + ((wa.right - wa.left) - w_px) / 2,
+        wa.top + ((wa.bottom - wa.top) - h_px) / 2,
+    );
+    // 同 show_menu_window：build() 必須在非主執行緒，否則等 WebView2 初始化會自我死鎖
+    std::thread::spawn(move || {
+        let win = if let Some(existing) = app.get_webview_window("gacha") {
+            existing
+        } else {
+            match WebviewWindowBuilder::new(&app, "gacha", WebviewUrl::App("gacha.html".into()))
+                .title("ClawdPet Gacha")
+                .inner_size(GACHA_W * zoom, GACHA_H * zoom)
+                .transparent(true)
+                .decorations(false)
+                .always_on_top(true)
+                .skip_taskbar(true)
+                .resizable(false)
+                .maximizable(false)
+                .minimizable(false)
+                .shadow(false)
+                .visible(false)
+                .build()
+            {
+                Ok(created) => created,
+                Err(err) => {
+                    dlog(&format!("gacha create FAILED: {err:?}"));
+                    return;
+                }
+            }
+        };
+        resize_physical(&win, dpr);
+        let _ = win.set_position(pos);
+        let _ = app.emit_to("gacha", "gacha-zoom", zoom);
+        let _ = win.show();
+        let _ = win.set_focus();
+    });
+}
+
 // 選單尺寸必須用「算出來的實體尺寸」而不是 menu.outer_size()：
 // 第一次開啟時 fit_window 還沒跑，outer_size 是缺了文字大小疊乘的偏小值，
 // 用它 clamp 會讓選單底部多出一截沉進工作列。
@@ -1923,6 +2009,7 @@ fn menu_action(app: AppHandle, id: String) {
             }
         }
         "autostart" => set_autostart(!is_autostart()),
+        "gacha" => show_gacha_window(app.clone()),
         "quit" => quit_app(&app),
         _ => {}
     }
@@ -2068,6 +2155,11 @@ fn route_control(app: &AppHandle, path: &str, query: &str, token: &str) -> (&'st
             }
             ("200 OK", "ok")
         }
+        // 打開抽卡視窗（測試用）：/pet/gacha?t=<token>
+        "/pet/gacha" => {
+            show_gacha_window(app.clone());
+            ("200 OK", "ok")
+        }
         // 換主角（測試用）：/pet/char?id=caihua&t=<token>
         "/pet/char" => match query_param(query, "id") {
             Some(id) if CHARS.iter().any(|(k, _, _)| *k == id) => {
@@ -2206,6 +2298,8 @@ fn main() {
             show_menu_window,
             sync_menu_state,
             close_menu_window,
+            close_gacha_window,
+            get_gacha_zoom,
             get_menu_state,
             get_autostart,
             set_pet_info,

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClawdPet Gacha</title>
+  <link rel="stylesheet" href="gacha.css" />
+</head>
+<body>
+  <!-- 整張桌子是 960x640 的固定畫布；螢幕塞不下時後端算出 zoom，這裡用 transform 等比縮
+       （見 gacha.js 的 applyZoom，指標座標要除回去） -->
+  <div id="zoomer">
+  <div id="table" class="table state-idle">
+    <div class="felt"></div>
+    <div class="vignette"></div>
+
+    <!-- 頂列：拖曳把手 + 塵 + 圖鑑 + 關閉 -->
+    <header id="topbar" class="topbar">
+      <div class="brand"><span class="brand-mark">🎴</span><b>夥伴卡包</b><small id="pack-count">已開 0 包</small></div>
+      <div class="topbar-right">
+        <div class="dust" id="dust" title="重複的卡會化成塵">
+          <span class="dust-icon"></span><b id="dust-value">0</b><i>塵</i>
+        </div>
+        <button id="album-btn" class="pill" type="button">圖鑑 <b id="album-progress">0/17</b></button>
+        <button id="close" class="icon-button" type="button" aria-label="關閉">×</button>
+      </div>
+    </header>
+
+    <!-- 中央落點（拖卡包時亮起） -->
+    <div id="dropzone" class="dropzone"><span></span></div>
+
+    <!-- 左下卡包托盤：無限包，一次只放一包在上面 -->
+    <div id="tray" class="tray">
+      <div class="tray-shadow"></div>
+      <div class="tray-stack"><i></i><i></i><i></i></div>
+      <small class="tray-label">卡包 <b>∞</b></small>
+    </div>
+
+    <!-- 卡包本體（絕對定位，位置由 JS 寫 transform） -->
+    <div id="pack" class="pack">
+      <div class="pack-tilt">
+        <div class="pack-strip"></div>
+        <div class="pack-body"></div>
+        <div class="pack-shine"></div>
+        <div class="pack-glow"></div>
+      </div>
+    </div>
+
+    <!-- 傳說專用：全畫面壓暗 + 橘光射線的容器（canvas 畫射線，這層負責壓暗） -->
+    <div id="dim" class="dim"></div>
+    <!-- 撕包爆光 -->
+    <div id="flash" class="flash"></div>
+
+    <!-- 卡底下的特效層（傳說射線要從卡背後射出來，不能蓋住卡） -->
+    <canvas id="fx-under" class="fx fx-under" width="960" height="640"></canvas>
+
+    <!-- 五張卡 -->
+    <div id="cards" class="cards"></div>
+
+    <!-- 特效層：粒子 / 射線 / 塵 -->
+    <canvas id="fx" class="fx" width="960" height="640"></canvas>
+
+    <!-- 提示字 -->
+    <div id="hint" class="hint"></div>
+
+    <!-- 全翻完：收下 -->
+    <button id="collect" class="collect" type="button"><span>收下</span></button>
+
+    <!-- 圖鑑面板 -->
+    <section id="album" class="album" hidden>
+      <header class="album-head">
+        <b>圖鑑</b><small id="album-sub"></small>
+        <button id="album-reset" class="pill ghost" type="button" title="清空圖鑑與塵（測試用）">重置</button>
+        <button id="album-close" class="icon-button" type="button" aria-label="關閉圖鑑">×</button>
+      </header>
+      <div id="album-body" class="album-body"></div>
+    </section>
+
+    <!-- 素材載入失敗時的訊息（正常看不到） -->
+    <div id="fatal" class="fatal" hidden></div>
+  </div>
+  </div>
+
+  <script src="gacha-audio.js"></script>
+  <script src="gacha-fx.js"></script>
+  <script src="gacha.js"></script>
+</body>
+</html>

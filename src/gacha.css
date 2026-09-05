@@ -1,0 +1,447 @@
+/* ClawdPet 抽卡桌 ─ 960x640 固定畫布
+   材質語彙延續 menu.css 的「木框＋黃銅」，但桌面本身換成深夜藍毛氈：
+   卡包／卡背都是墨藍配金，放在木色選單那種淺底上會糊掉。 */
+:root {
+  --cream: #f6e3b4;
+  --brass: #d9b25a;
+  --brass-dark: #8a6a2a;
+  --wood: #5c3a21;
+  --ink: #0b1220;
+  --c-common: #9d9d9d;
+  --c-rare: #0070dd;
+  --c-epic: #a335ee;
+  --c-legendary: #ff8000;
+  font-family: "Microsoft JhengHei", "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: var(--cream);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; user-select: none; -webkit-user-select: none; }
+button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+img, svg { -webkit-user-drag: none; }
+
+#zoomer { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+
+/* ---------- 桌子 ---------- */
+.table {
+  position: relative;
+  width: 960px;
+  height: 640px;
+  overflow: hidden;
+  border: 10px solid var(--wood);
+  border-radius: 22px;
+  background: #0f1a30;
+  box-shadow:
+    inset 0 0 0 2px #8b5a2b,
+    inset 0 0 0 4px #2a170c,
+    0 14px 30px rgba(0, 0, 0, .55);
+}
+.table.shake { animation: shake .55s cubic-bezier(.36,.07,.19,.97) both; }
+.table.shake-soft { animation: shake-soft .3s ease-out both; }
+@keyframes shake {
+  10%, 90% { transform: translate(-1px, 1px); }
+  20%, 80% { transform: translate(3px, -2px); }
+  30%, 50%, 70% { transform: translate(-6px, 3px) rotate(-.3deg); }
+  40%, 60% { transform: translate(6px, -3px) rotate(.3deg); }
+}
+@keyframes shake-soft {
+  25% { transform: translate(2px, -1px); }
+  50% { transform: translate(-2px, 1px); }
+  75% { transform: translate(1px, 0); }
+}
+
+.felt {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 46%, rgba(70, 110, 170, .35), transparent 70%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,.05) 0 2px, transparent 2px 6px),
+    linear-gradient(180deg, #1b2d4d, #0d1730 70%, #080f20);
+}
+.vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 80% 75% at 50% 50%, transparent 55%, rgba(0,0,0,.55));
+}
+
+/* ---------- 頂列 ---------- */
+.topbar {
+  position: absolute; left: 0; right: 0; top: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px; padding: 0 16px 0 18px;
+  cursor: move;
+  background: linear-gradient(180deg, rgba(0,0,0,.35), transparent);
+}
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand-mark { font-size: 20px; align-self: center; filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); }
+.brand b { font-family: Georgia, "Microsoft JhengHei", serif; font-size: 19px; letter-spacing: .12em; color: var(--brass); text-shadow: 0 1px 0 #2a170c, 0 0 12px rgba(217,178,90,.25); }
+.brand small { color: rgba(246,227,180,.55); font-size: 11px; letter-spacing: .05em; }
+.topbar-right { display: flex; align-items: center; gap: 10px; cursor: default; }
+
+.dust { display: flex; align-items: center; gap: 6px; padding: 4px 12px 4px 8px; border: 1px solid rgba(217,178,90,.35); border-radius: 999px; background: rgba(0,0,0,.35); }
+.dust b { font-variant-numeric: tabular-nums; font-size: 15px; color: #ffe7a6; min-width: 2ch; text-align: right; }
+.dust i { font-style: normal; font-size: 11px; color: rgba(246,227,180,.6); }
+.dust.bump, .pill.bump { animation: bump .45s cubic-bezier(.2,1.4,.4,1); }
+@keyframes bump { 30% { transform: scale(1.18); } }
+.dust-icon { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff6c8, #d9b25a 55%, #7a5a1e); box-shadow: 0 0 8px rgba(255,220,120,.6); }
+
+.pill {
+  padding: 5px 14px; border: 1px solid rgba(217,178,90,.5); border-radius: 999px;
+  background: linear-gradient(180deg, rgba(217,178,90,.18), rgba(217,178,90,.06));
+  cursor: pointer; letter-spacing: .06em; transition: background .15s, transform .12s;
+}
+.pill b { color: #ffe7a6; margin-left: 2px; font-variant-numeric: tabular-nums; }
+.pill:hover { background: linear-gradient(180deg, rgba(217,178,90,.32), rgba(217,178,90,.12)); transform: translateY(-1px); }
+.pill:active { transform: translateY(1px); }
+.pill.ghost { border-color: rgba(246,227,180,.25); color: rgba(246,227,180,.7); font-size: 12px; padding: 3px 10px; }
+.pill.ghost.confirming { border-color: #e06a55; color: #ffb3a3; }
+.icon-button {
+  width: 30px; height: 30px; border: 1px solid rgba(217,178,90,.45); border-radius: 50%;
+  background: rgba(0,0,0,.35); color: var(--brass); font-size: 20px; line-height: 1; cursor: pointer;
+  display: grid; place-items: center; transition: background .15s, transform .12s;
+}
+.icon-button:hover { background: rgba(217,178,90,.25); transform: rotate(90deg); }
+
+/* ---------- 中央落點 ---------- */
+.dropzone {
+  position: absolute; left: 50%; top: 50%; width: 220px; height: 300px; margin: -150px 0 0 -110px;
+  border: 2px dashed rgba(217,178,90,.0); border-radius: 18px;
+  display: grid; place-items: center;
+  opacity: 0; transition: opacity .3s, border-color .3s, box-shadow .3s;
+  pointer-events: none;
+}
+.dropzone span { width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle, rgba(217,178,90,.55), transparent 70%); transition: transform .3s; }
+.table.dragging .dropzone { opacity: 1; border-color: rgba(217,178,90,.45); }
+.table.dragging .dropzone.hot { border-color: rgba(255,231,166,.9); box-shadow: 0 0 40px rgba(217,178,90,.35), inset 0 0 40px rgba(217,178,90,.18); }
+.table.dragging .dropzone.hot span { transform: scale(2.2); }
+
+/* ---------- 托盤 ---------- */
+.tray { position: absolute; left: 75px; bottom: 44px; width: 150px; height: 60px; }
+.tray-shadow { position: absolute; left: 10px; right: 10px; bottom: 0; height: 26px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.6), transparent 70%); }
+.tray-stack { position: absolute; left: 20px; bottom: 6px; width: 110px; height: 40px; }
+.tray-stack i { position: absolute; left: 0; right: 0; height: 12px; border-radius: 4px; background: #4f8a8b; border: 2px solid #1a1a1a; box-shadow: 0 2px 3px rgba(0,0,0,.5); }
+.tray-stack i:nth-child(1) { bottom: 0; }
+.tray-stack i:nth-child(2) { bottom: 9px; left: 4px; right: -3px; transform: rotate(-1.5deg); }
+.tray-stack i:nth-child(3) { bottom: 18px; left: -2px; right: 5px; transform: rotate(1.2deg); }
+.tray-label { position: absolute; left: 100%; bottom: 8px; margin-left: 8px; white-space: nowrap; font-size: 11px; letter-spacing: .1em; color: rgba(246,227,180,.5); }
+.tray-label b { color: var(--brass); font-size: 13px; }
+
+/* ---------- 卡包 ---------- */
+.pack {
+  position: absolute; left: 0; top: 0; width: 150px; height: 214px; margin: -107px 0 0 -75px;   /* gacha-pack.png 538×768 */
+  z-index: 20; cursor: grab; will-change: transform;
+  transition: transform .55s cubic-bezier(.2, .9, .3, 1.1);
+}
+.pack.grabbed { cursor: grabbing; transition: none; }
+.pack.snap { transition: transform .38s cubic-bezier(.2, 1.3, .4, 1); }
+.pack.gone { pointer-events: none; }
+.pack-tilt { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .25s ease-out; }
+.pack.grabbed .pack-tilt { transition: transform .08s linear; }
+.pack-body {
+  position: absolute; inset: 0;
+  background: url("gacha-pack.png") center / contain no-repeat;
+  filter: drop-shadow(0 12px 10px rgba(0,0,0,.55));
+  transition: filter .3s;
+}
+.pack-shine {
+  position: absolute; inset: 6% 8%; border-radius: 6px; pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.22) 45%, rgba(255,255,255,.05) 52%, transparent 60%);
+  background-size: 300% 100%; background-position: 120% 0;
+  mix-blend-mode: screen; opacity: .9;
+}
+.pack-glow { position: absolute; inset: -20px; border-radius: 40px; pointer-events: none; opacity: 0; background: radial-gradient(ellipse, rgba(255,228,150,.45), transparent 65%); transition: opacity .4s; }
+/* 就位後：呼吸＋光帶掃過，告訴你「可以撕了」 */
+.table.state-ready .pack { cursor: pointer; }
+.table.state-ready .pack-body { animation: breathe 2.6s ease-in-out infinite; }
+.table.state-ready .pack-shine { animation: sheen 2.6s ease-in-out infinite; }
+.table.state-ready .pack-glow { opacity: .6; animation: glowpulse 2.6s ease-in-out infinite; }
+@keyframes breathe { 50% { transform: translateY(-5px) scale(1.025); } }
+@keyframes sheen { 0%, 35% { background-position: 120% 0; } 65%, 100% { background-position: -80% 0; } }
+@keyframes glowpulse { 50% { opacity: .95; } }
+/* 撕包：撕條飛走、包身抖、然後炸成光 */
+.pack-strip {
+  position: absolute; left: 0; right: 0; top: 0; height: 15%; border-radius: 4px 4px 2px 2px;
+  background: url("gacha-pack.png") center top / 100% auto no-repeat;
+  opacity: 0; pointer-events: none;
+}
+.pack.tearing .pack-tilt { animation: tear-shake .42s linear both; }
+.pack.tearing .pack-strip { opacity: 1; animation: strip-fly .55s cubic-bezier(.2,.6,.4,1) .3s both; }
+.pack.burst .pack-body { animation: pack-burst .5s cubic-bezier(.3,0,.7,.2) both; }
+.pack.burst .pack-shine, .pack.burst .pack-strip { opacity: 0; }
+.pack.burst .pack-glow { opacity: 1; animation: none; transform: scale(2.2); transition: transform .45s ease-out, opacity .4s .2s; }
+@keyframes tear-shake {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(-3deg) translateX(-3px); }
+  30% { transform: rotate(3.5deg) translateX(3px); }
+  45% { transform: rotate(-4deg) translateX(-4px); }
+  60% { transform: rotate(4deg) translateX(4px); }
+  75% { transform: rotate(-2deg); }
+  90% { transform: rotate(1.5deg); }
+}
+@keyframes strip-fly {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  100% { transform: translate(90px, -160px) rotate(35deg); opacity: 0; }
+}
+@keyframes pack-burst {
+  0% { transform: scale(1); filter: brightness(1) drop-shadow(0 12px 10px rgba(0,0,0,.55)); }
+  55% { transform: scale(1.08, .96); filter: brightness(1.9) drop-shadow(0 0 24px rgba(255,228,150,.9)); }
+  100% { transform: scale(.55, 1.3); filter: brightness(4) drop-shadow(0 0 40px rgba(255,228,150,1)); opacity: 0; }
+}
+
+/* 撕包白閃：從中心炸開的暖白，快進慢出 */
+.flash { position: absolute; inset: 0; z-index: 40; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 50%, #fff8e0, rgba(255,240,200,.85) 30%, rgba(255,200,120,.2) 70%, transparent); }
+.flash.on { animation: flash .7s cubic-bezier(.1,.8,.2,1) both; }
+@keyframes flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+
+/* 傳說壓暗：不是純黑，是把桌子往橘褐色沉下去，射線才有東西可以照 */
+.dim { position: absolute; inset: 0; z-index: 8; pointer-events: none; opacity: 0; background: radial-gradient(ellipse 60% 55% at 50% 50%, rgba(60,25,0,.35), rgba(5,3,0,.82)); transition: opacity .6s ease; }
+.dim.on { opacity: 1; }
+
+/* ---------- 卡 ---------- */
+.cards { position: absolute; inset: 0; z-index: 10; perspective: 1400px; pointer-events: none; }
+.card {
+  position: absolute; left: 0; top: 0; width: 150px; height: 210px; margin: -105px 0 0 -75px;
+  pointer-events: auto; cursor: pointer; will-change: transform;
+  transition: transform .62s cubic-bezier(.22, .9, .32, 1.12), opacity .3s, filter .5s;
+  transform: translate(480px, 330px) scale(.2);
+  opacity: 0;
+  --rc: var(--c-common); --rc-a: rgba(157,157,157,.55); --rc-b: rgba(157,157,157,.25);
+}
+.card.r-rare { --rc: var(--c-rare); --rc-a: rgba(0,112,221,.7); --rc-b: rgba(0,112,221,.3); }
+.card.r-epic { --rc: var(--c-epic); --rc-a: rgba(163,53,238,.72); --rc-b: rgba(163,53,238,.32); }
+.card.r-legendary { --rc: var(--c-legendary); --rc-a: rgba(255,128,0,.85); --rc-b: rgba(255,128,0,.4); }
+.card.dealt { opacity: 1; }
+.card.flipped { cursor: default; }
+.card.flying { transition: transform .5s cubic-bezier(.5, 0, .9, .4), opacity .25s .3s; opacity: 0; }
+.card.dusting { pointer-events: none; }
+.card.dusting .card-lift { animation: crumble .7s cubic-bezier(.4,0,.8,.4) both; }
+@keyframes crumble {
+  0% { filter: brightness(1); }
+  35% { transform: translateY(-6px) scale(1.03); filter: brightness(1.6) saturate(.6); }
+  100% { transform: translateY(24px) scale(.6); opacity: 0; filter: brightness(2.5) saturate(0) blur(3px); }
+}
+
+.card-lift { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .28s cubic-bezier(.2,.9,.3,1.2); }
+.card:not(.flipped):not(.charging):hover .card-lift { transform: translateY(-16px) scale(1.06); }
+.card.charging .card-lift { animation: tremble .09s linear infinite; transform: translateY(-8px) scale(1.05); }
+.card.charging.hard .card-lift { animation-duration: .055s; }
+@keyframes tremble {
+  0% { transform: translate(-1.5px, -8px) scale(1.05) rotate(-.6deg); }
+  25% { transform: translate(1.5px, -9px) scale(1.05) rotate(.5deg); }
+  50% { transform: translate(-1px, -7px) scale(1.05) rotate(.4deg); }
+  75% { transform: translate(1.2px, -8.5px) scale(1.05) rotate(-.5deg); }
+  100% { transform: translate(-1.5px, -8px) scale(1.05) rotate(-.6deg); }
+}
+
+/* 傳說蓄力中：其他卡全部沉下去，視線只剩那一張 */
+.table.state-charging .card:not(.charging) { filter: brightness(.3); }
+
+/* 稀有度先透光：卡還沒翻，光從卡背四邊滲出來 */
+.card-glow {
+  position: absolute; inset: 6px; border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 34px 10px var(--rc-a), 0 0 90px 30px var(--rc-b);
+  opacity: 0; transition: opacity .35s ease;
+}
+.card:not(.flipped):hover .card-glow, .card.charging .card-glow { opacity: 1; }
+.card.r-legendary:not(.flipped):hover .card-glow, .card.charging .card-glow { animation: glow-throb 1.1s ease-in-out infinite; }
+.card.charging.hard .card-glow { animation-duration: .35s; box-shadow: 0 0 50px 18px var(--rc-a), 0 0 140px 60px var(--rc-b); }
+@keyframes glow-throb { 50% { opacity: .55; } }
+/* 翻開後留一圈安靜的底光，不再閃 */
+.card.flipped .card-glow { opacity: .55; box-shadow: 0 0 22px 4px var(--rc-b); }
+.card.flipped.r-common .card-glow { opacity: 0; }
+
+.card-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .58s cubic-bezier(.35, .1, .25, 1); }
+.card.flipped .card-inner { transform: rotateY(180deg); }
+.card-back, .card-face { position: absolute; inset: 0; border-radius: 12px; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
+
+.card-back {
+  background: #101a33 url("gacha-cardback.jpg") center / cover no-repeat;
+  box-shadow: 0 10px 18px rgba(0,0,0,.55), inset 0 0 0 1px rgba(217,178,90,.35);
+}
+/* 卡背內緣的透光帶：hover 時從邊往內滲 */
+.back-leak { position: absolute; inset: 0; border-radius: 12px; opacity: 0; transition: opacity .35s;
+  box-shadow: inset 0 0 26px 4px var(--rc-a), inset 0 0 0 2px var(--rc); }
+.card:not(.flipped):hover .back-leak, .card.charging .back-leak { opacity: 1; }
+
+.card-face {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #1b2440, #0d1426);
+  box-shadow: 0 10px 18px rgba(0,0,0,.55);
+  padding: 5px;
+}
+.face-frame {
+  position: absolute; inset: 0; border-radius: 12px; pointer-events: none;
+  border: 4px solid var(--rc);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.5), inset 0 0 0 3px rgba(255,255,255,.12);
+}
+.r-legendary .face-frame { border-image: linear-gradient(160deg, #ffd27a, #ff8000 45%, #c25200 60%, #ffd27a) 1; border-radius: 0; }
+.r-epic .face-frame { border-image: linear-gradient(160deg, #e2b6ff, #a335ee 45%, #6b1fa8 60%, #e2b6ff) 1; border-radius: 0; }
+.face-art {
+  position: absolute; left: 10px; right: 10px; top: 10px; height: 148px; border-radius: 8px 8px 0 0;
+  display: flex; align-items: flex-end; justify-content: center; overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 95%, var(--rc-b), transparent 70%),
+    radial-gradient(ellipse 100% 80% at 50% 0%, rgba(255,255,255,.08), transparent 60%),
+    linear-gradient(180deg, #223052, #141c33);
+}
+.face-art > svg, .face-art > img { display: block; height: auto; }
+.face-art .emoji { font-size: 78px; line-height: 1; padding-bottom: 20px; filter: drop-shadow(0 4px 4px rgba(0,0,0,.5)); }
+.face-art .floor { position: absolute; left: 12%; right: 12%; bottom: 8px; height: 14px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.45), transparent 70%); }
+.face-plate {
+  position: absolute; left: 10px; right: 10px; bottom: 10px; height: 38px; border-radius: 0 0 8px 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
+  border-top: 1px solid var(--rc);
+}
+.face-name { font-size: 14px; letter-spacing: .08em; color: #fff3d0; text-shadow: 0 1px 0 #000; white-space: nowrap; }
+.face-rarity { font-size: 10px; letter-spacing: .3em; color: var(--rc); text-shadow: 0 0 6px var(--rc-b); }
+.face-gem {
+  position: absolute; left: 50%; top: 150px; width: 16px; height: 16px; margin-left: -8px;
+  transform: rotate(45deg); border: 2px solid #fff3d0; border-radius: 3px;
+  background: radial-gradient(circle at 35% 35%, #fff, var(--rc) 55%);
+  box-shadow: 0 0 10px var(--rc-a);
+}
+.face-tag {
+  position: absolute; top: 14px; right: 14px; padding: 2px 7px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: .12em; transform: rotate(6deg) scale(0);
+  transition: transform .35s cubic-bezier(.2,1.6,.4,1) .25s;
+}
+.card.flipped .face-tag { transform: rotate(6deg) scale(1); }
+.face-tag.new { background: #ffd24a; color: #4a2f1a; box-shadow: 0 2px 0 #a66a37; }
+.face-tag.dup { background: rgba(0,0,0,.6); color: #cfd6e6; border: 1px solid rgba(255,255,255,.3); }
+/* ---------- 動態卡面（.live，由 gacha.js 的 live 控制器掛上） ----------
+   card-lift 的傾斜由 JS 每幀寫 inline；這裡管鍍膜、反光、餘燼與立繪回彈 */
+.card.live .card-lift { transition: none; }
+.card.live .card-glow { opacity: .9; }
+.face-art > svg, .face-art > img, .face-art > .emoji { transition: transform .45s cubic-bezier(.2,.9,.3,1.1); }
+.card.live .face-art > svg, .card.live .face-art > img, .card.live .face-art > .emoji { transition: none; }
+/* 鍍膜：一道跟著滑鼠走的斜向亮帶；史詩／傳說再疊彩虹／金箔（color-dodge 只在亮處發作） */
+.card { --mx: 50%; --my: 50%; --tilt: 0; }
+.face-holo {
+  position: absolute; inset: 0; border-radius: 12px; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.28), rgba(255,255,255,.06) 28%, transparent 55%);
+  mix-blend-mode: screen;
+  transition: opacity .35s;
+}
+.card.live .face-holo { opacity: calc(.45 + var(--tilt) * .55); }
+.r-rare .face-holo {
+  background:
+    linear-gradient(115deg, transparent calc(var(--mx) - 22%), rgba(160,210,255,.32) var(--mx), transparent calc(var(--mx) + 22%)),
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.22), transparent 50%);
+}
+.r-epic .face-holo {
+  background:
+    linear-gradient(115deg, transparent calc(var(--mx) - 30%), rgba(255,120,220,.35) calc(var(--mx) - 10%), rgba(120,220,255,.35) var(--mx), rgba(255,240,120,.3) calc(var(--mx) + 10%), transparent calc(var(--mx) + 30%)),
+    repeating-linear-gradient(115deg, rgba(255,255,255,.07) 0 2px, transparent 2px 7px),
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.25), transparent 50%);
+  mix-blend-mode: color-dodge;
+}
+.r-legendary .face-holo {
+  background:
+    linear-gradient(115deg, transparent calc(var(--mx) - 28%), rgba(255,200,90,.45) calc(var(--mx) - 8%), rgba(255,255,220,.55) var(--mx), rgba(255,140,40,.4) calc(var(--mx) + 8%), transparent calc(var(--mx) + 28%)),
+    repeating-linear-gradient(-30deg, rgba(255,220,140,.08) 0 3px, transparent 3px 9px),
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,240,200,.3), transparent 50%);
+  mix-blend-mode: color-dodge;
+}
+/* 跟著滑鼠跑的反光點，讓「這是一片有厚度的東西」 */
+.face-glare {
+  position: absolute; inset: 0; border-radius: 12px; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.35), transparent 22%);
+  transition: opacity .3s;
+}
+.card.live .face-glare { opacity: 1; }
+/* 餘燼：畫框底部慢慢飄上來的小光點，史詩紫、傳說橘 */
+.face-embers { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .5s; }
+.card.live .face-embers { opacity: 1; }
+.face-embers i {
+  position: absolute; bottom: 8px; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--rc); box-shadow: 0 0 6px var(--rc), 0 0 12px var(--rc-b);
+  animation: ember 3.2s linear infinite paused; opacity: 0;
+}
+.card.live .face-embers i { animation-play-state: running; }
+.face-embers i:nth-child(1) { left: 12%; animation-delay: 0s; }
+.face-embers i:nth-child(2) { left: 24%; animation-delay: -.7s; width: 3px; height: 3px; }
+.face-embers i:nth-child(3) { left: 36%; animation-delay: -1.4s; }
+.face-embers i:nth-child(4) { left: 48%; animation-delay: -2.1s; width: 2px; height: 2px; }
+.face-embers i:nth-child(5) { left: 58%; animation-delay: -.3s; }
+.face-embers i:nth-child(6) { left: 68%; animation-delay: -1.9s; width: 3px; height: 3px; }
+.face-embers i:nth-child(7) { left: 78%; animation-delay: -1.1s; }
+.face-embers i:nth-child(8) { left: 88%; animation-delay: -2.6s; width: 2px; height: 2px; }
+.face-embers i:nth-child(9) { left: 30%; animation-delay: -2.9s; }
+@keyframes ember {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(6px, -120px); opacity: 0; }
+}
+
+/* 翻開瞬間掃一道光，只掃一次 */
+.face-sheen { position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.35) 48%, transparent 58%);
+  background-size: 300% 100%; background-position: 130% 0; }
+.card.flipped .face-sheen { animation: face-sheen .9s ease-out .32s both; }
+@keyframes face-sheen { 0% { opacity: 1; background-position: 130% 0; } 100% { opacity: 0; background-position: -80% 0; } }
+/* 揭曉的一下：卡面本身也要「彈」——不是只有周圍在炸 */
+.card.reveal-pop .card-lift { animation: reveal-pop .5s cubic-bezier(.2,1.2,.3,1) both; }
+@keyframes reveal-pop { 0% { transform: scale(1); } 35% { transform: translateY(-14px) scale(1.14); } 100% { transform: translateY(-6px) scale(1.05); } }
+.card.flipped .card-lift { transform: translateY(-6px) scale(1.05); }
+
+/* ---------- 特效層 ---------- */
+.fx { position: absolute; inset: 0; z-index: 15; pointer-events: none; }
+.fx-under { z-index: 9; }
+
+/* ---------- 提示 ---------- */
+.hint {
+  position: absolute; left: 0; right: 0; bottom: 30px; z-index: 12; text-align: center;
+  font-size: 13px; letter-spacing: .25em; color: rgba(246,227,180,.62);
+  opacity: 0; transition: opacity .4s; pointer-events: none;
+}
+.hint.on { opacity: 1; }
+
+/* ---------- 收下 ---------- */
+.collect {
+  position: absolute; left: 50%; bottom: 46px; z-index: 35; width: 180px; height: 52px; margin-left: -90px;
+  border: 2px solid #ffe7a6; border-radius: 999px; cursor: pointer;
+  background: linear-gradient(180deg, #f5cf6c, #c98c2c 60%, #a66a1e);
+  color: #3a2410; font-size: 18px; font-weight: 700; letter-spacing: .35em; text-indent: .35em;
+  box-shadow: 0 4px 0 #6d4512, 0 10px 24px rgba(0,0,0,.5), 0 0 30px rgba(255,210,100,.35);
+  transform: translateY(90px) scale(.9); opacity: 0;
+  transition: transform .5s cubic-bezier(.2,1.3,.4,1), opacity .3s, box-shadow .2s;
+}
+.collect.on { transform: translateY(0) scale(1); opacity: 1; }
+.collect:hover { box-shadow: 0 4px 0 #6d4512, 0 12px 28px rgba(0,0,0,.5), 0 0 44px rgba(255,210,100,.6); }
+.collect:active { transform: translateY(3px); box-shadow: 0 1px 0 #6d4512, 0 6px 14px rgba(0,0,0,.5); }
+
+/* ---------- 圖鑑 ---------- */
+.album {
+  position: absolute; inset: 0; z-index: 60; display: flex; flex-direction: column;
+  background: rgba(6, 10, 22, .9); backdrop-filter: blur(6px);
+  animation: album-in .25s ease-out;
+}
+@keyframes album-in { from { opacity: 0; transform: translateY(12px); } }
+.album-head { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px 0 24px; border-bottom: 1px solid rgba(217,178,90,.3); }
+.album-head b { font-family: Georgia, "Microsoft JhengHei", serif; font-size: 19px; letter-spacing: .2em; color: var(--brass); }
+.album-head small { flex: 1; color: rgba(246,227,180,.55); font-size: 12px; }
+.album-body { flex: 1; overflow-y: auto; padding: 14px 24px 24px; }
+.album-body::-webkit-scrollbar { width: 8px; }
+.album-body::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(217,178,90,.4); }
+.album-section { margin-bottom: 14px; }
+.album-section h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; font-size: 13px; letter-spacing: .3em; color: var(--sc); }
+.album-section h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--sc), transparent); opacity: .5; }
+.album-section h3 small { letter-spacing: 0; color: rgba(246,227,180,.5); }
+.album-grid { display: flex; flex-wrap: wrap; gap: 10px; perspective: 900px; }
+.mini { position: relative; width: 96px; height: 134px; }
+.mini .card { position: absolute; left: 0; top: 0; margin: 0; transform: scale(.64); transform-origin: 0 0; opacity: 1; transition: none; cursor: default; pointer-events: none; }
+.mini:not(.locked) .card { pointer-events: auto; }
+.mini .card.live { z-index: 2; }
+.mini .card .card-inner { transform: rotateY(180deg); transition: none; }
+.mini .card .card-glow { display: none; }
+.mini .card .face-sheen, .mini .card .face-tag { display: none; }
+.mini .count { position: absolute; right: -4px; bottom: -4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #ffd24a; color: #4a2f1a; font-size: 12px; font-weight: 700; display: grid; place-items: center; box-shadow: 0 2px 0 #a66a37; }
+.mini.locked .card { filter: grayscale(1) brightness(.35); }
+.mini.locked::after { content: "?"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 34px; font-family: Georgia, serif; color: rgba(246,227,180,.45); }
+.mini.just { animation: mini-just 1.2s ease-out; }
+@keyframes mini-just { 0% { box-shadow: 0 0 0 0 rgba(255,210,74,.9); } 100% { box-shadow: 0 0 0 14px rgba(255,210,74,0); } }
+
+.fatal { position: absolute; inset: 0; z-index: 99; display: grid; place-items: center; background: rgba(0,0,0,.8); color: #ffb3a3; text-align: center; padding: 40px; white-space: pre-wrap; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01s !important; transition-duration: .01s !important; } }

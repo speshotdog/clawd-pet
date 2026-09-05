@@ -55,6 +55,9 @@ button:not(.icon-button), .choice { min-height: 29px; border: 2px solid #8b5a2b;
 button:not(.icon-button):hover, .choice:hover { background: #ffd24a; transform: translateY(-1px); box-shadow: 0 3px 0 #855128; }
 button:not(.icon-button):active, .choice:active { transform: translateY(1px); box-shadow: none; }
 .wide-action { grid-column: 1 / -1; }
+/* 抽卡入口：底色換成卡包的墨藍＋金邊，跟其他木質按鈕區隔開，一眼看得出是「去別的地方」 */
+.gacha-action { background: linear-gradient(180deg, #2a3f6b, #1b2a4a); border-color: #c9a24f; color: #ffe7a6; box-shadow: 0 2px 0 #7a5a1e; letter-spacing: .08em; font-weight: 700; }
+.gacha-action:hover { background: linear-gradient(180deg, #34508a, #22355e); box-shadow: 0 3px 0 #7a5a1e; }
 /* 模式開關（巡邏／墓碑／殺戮／操作）：狀態用 ○ / ● 表示，與下方選項清單同一套語言。
    ⚠ 高亮不能只掛在 .wide-action 上——墓碑與殺戮是半寬的，之前就是因此點了完全沒反應。 */
 .toggle-action::before { content: "○"; margin-right: 4px; color: #8b5a2b; font-weight: 700; }
