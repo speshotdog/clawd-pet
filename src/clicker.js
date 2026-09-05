@@ -1,7 +1,7 @@
 window.Clicker = (() => {
   const $ = (id) => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
   const TAURI = window.__TAURI__;
-  const format = (n) => n >= 1e9 ? n.toExponential(2) : n.toLocaleString('zh-TW', { maximumFractionDigits: 1 });
+  const format = (n) => n >= 1e8 ? `${(n / 1e8).toFixed(1)}億` : n >= 10000 ? `${(n / 10000).toFixed(2)}萬` : n.toLocaleString('zh-TW', { maximumFractionDigits: 1 });
   const store = window.ClickerSave.create({ getItem: (k) => localStorage.getItem(k), setItem: (k, v) => localStorage.setItem(k, v) }, { pool: Pool });
   let stage, gacha, ready = false, tickTimer = 0, saveTimer = 0, numberTimer = 0, noticeTimer = 0;
   let audio = null, lastNumbers = -Infinity, inputTimes = [], slotsKey = '', suspended = false;
@@ -45,6 +45,45 @@ window.Clicker = (() => {
     const result = E.settle(store.state, Date.now()); store.stage(result.state);
     stage?.render(result.state, { completed: result.completed });
   }
+  let coinShown = null, coinTarget = null, coinRaf = 0, coinStarted = 0;
+  function pulse(el, frames, duration) {
+    el.getAnimations().forEach(a => a.cancel());
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) el.animate(frames, { duration, easing:'ease-out' });
+  }
+  function balance(target) {
+    const el = $('coins');
+    el.title = target.toLocaleString('zh-TW', { maximumFractionDigits: 6 });
+    if (coinTarget === target && (coinRaf || coinShown === target)) return;
+    if (coinTarget !== null && target !== coinTarget) {
+      pulse(el, target > coinTarget ? [{transform:'scale(1)'},{transform:'scale(1.12)',offset:.4},{transform:'scale(1)'}] : [{color:'#C9686B'},{color:'#30251F'}], target > coinTarget ? 140 : 200);
+      if (target > coinTarget) pulse(document.querySelector('.wallet img'), [{transform:'rotate(-8deg)'},{transform:'rotate(0)'}],140);
+    }
+    coinTarget = target;
+    if (coinShown === null || matchMedia('(prefers-reduced-motion: reduce)').matches) { coinShown = target; el.textContent = format(Math.floor(target)); return; }
+    if (coinRaf) return;
+    coinStarted = performance.now();
+    function frame(now) {
+      coinShown += (coinTarget - coinShown) * .25;
+      if (Math.abs(coinTarget - coinShown) < .1 || now - coinStarted >= 280) coinShown = coinTarget;
+      el.textContent = format(Math.floor(coinShown));
+      coinRaf = coinShown === coinTarget ? 0 : requestAnimationFrame(frame);
+    }
+    coinRaf = requestAnimationFrame(frame);
+  }
+  function rate(el, text, exact) {
+    if (el.title === exact && el.dataset.value === text) return;
+    el.title = exact;
+    const old = el.dataset.value;
+    el.dataset.value = text; el.replaceChildren();
+    const next = document.createElement('span'); next.textContent = text; el.append(next);
+    if (old) {
+      const prev = document.createElement('span'); prev.className = 'rate-old'; prev.textContent = old; el.append(prev);
+      pulse(next,[{transform:'translateY(6px)',opacity:0},{transform:'translateY(0)',opacity:1}],180);
+      pulse(prev,[{opacity:1},{opacity:0}],180);
+      prev.getAnimations()[0]?.finished.then(()=>prev.remove()).catch(()=>prev.remove());
+      if (!prev.getAnimations().length) prev.remove();
+    }
+  }
   function numbers(force = false) {
     if (!store.state || document.hidden) return;
     const time = performance.now(), delay = 100 - (time - lastNumbers);
@@ -54,17 +93,17 @@ window.Clicker = (() => {
     }
     lastNumbers = time;
     const s = store.state, { D, P } = E.rates(s);
-    $('coins').textContent = format(Math.floor(s.coins)); $('click-rate').textContent = `每次 ${format(D)}`; $('passive-rate').textContent = `每秒 ${format(P)}`;
+    balance(s.coins); rate($('click-rate'), `每次 ${format(D)}`, String(D)); rate($('passive-rate'), `每秒 ${format(P)}`, String(P));
     $('tutorial-progress').textContent = `${Math.min(50, s.manualClicks)} / 50`;
     $('tutorial').hidden = s.claimedMilestones.includes('tutorial50');
     for (const type of ['click', 'training']) {
       const field = type === 'click' ? 'clickLevel' : 'trainingLevel', cost = (type === 'click' ? E.clickCost : E.trainingCost)(s[field]);
       const next = { ...s, [field]: s[field] + 1 }, after = E.rates(next);
       $(`${type}-level`).textContent = `Lv.${s[field]}`;
-      $(`${type}-next`).textContent = type === 'click' ? `每次 ${format(D)} → ${format(after.D)}` : `每秒 ${format(P)} → ${format(after.P)}`;
+      rate($(`${type}-next`), type === 'click' ? `每次 ${format(D)} → ${format(after.D)}` : `每秒 ${format(P)} → ${format(after.P)}`, type === 'click' ? `${D} → ${after.D}` : `${P} → ${after.P}`);
       const missing = Math.max(0, Math.ceil(cost - s.coins));
-      const buy = $(`${type}-one`); buy.textContent = `1 級 · ${format(cost)}`;
-      if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)}`; buy.append(note); }
+      const buy = $(`${type}-one`); buy.textContent = '升級！'; $(`${type}-price`).textContent = format(cost); $(`${type}-ticket`).title = String(cost);
+      buy.title = missing ? `還差 ${format(missing)}` : '升一級';
       $(`${type}-one`).disabled = $(`${type}-max`).disabled = store.blocked || cost > s.coins || !Number.isFinite(cost);
     }
     $('completed').textContent = `已拆 ${s.package.index - 1} 包`;
@@ -101,12 +140,12 @@ window.Clicker = (() => {
       el.querySelector('small').textContent = i >= E.slotCount(s) ? `累計 ${format(B.slotThresholds[i])} 幣` : effect ? `${effect.kind === 'click' ? `剩 ${effect.remaining} 次 · ` : `+${format(effect.value)}/秒 · `}${Math.max(0, Math.ceil((effect.expiresAt - t) / 1000))} 秒` : !def ? '裝備後 30 秒可發動' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
     });
   }
-  function changed() { numbers(); renderSlots(); stage?.render(store.state); }
+  function changed() { numbers(true); renderSlots(); stage?.render(store.state); }
   function action(fn) {
     if (store.blocked || !ready || document.hidden) return;
     try { fn(); } catch (err) { notice(err.message); slotsKey = ''; renderSlots(); }
   }
-  function tap() {
+  function tap(point) {
     action(() => {
       if (gacha.active || !$('roster').hidden || !$('receipt').hidden || !$('stats').hidden) return;
       const time = performance.now(); inputTimes = inputTimes.filter((t) => time - t < 1000); if (inputTimes.length >= 8) return;
@@ -114,9 +153,9 @@ window.Clicker = (() => {
       const result = E.click(store.state, Date.now());
       if (result.tutorial) { if (!commit(result.state)) return; }
       else { store.stage(result.state); $('save-status').textContent = '等待自動儲存'; }
-      stage.click(result.amount, result.multiplier >= 10, store.state, result.completed);
+      stage.click(result.amount, result.multiplier >= 10, store.state, result.completed, point);
       if (result.tutorial) { stage.setPartners(store.state); stage.join(store.state, [{id:'yueyue2'}]); renderSlots(); notice('教學獎勵：玥玥入隊！每秒 +4 幣，可發動尾巴節拍。'); }
-      numbers();
+      numbers(true);
     });
   }
   function upgrade(type, max) {
@@ -124,8 +163,7 @@ window.Clicker = (() => {
       const result = E.upgrade(store.state, type, max, Date.now());
       if (!commit(result.state)) return;
       sound('upgrade'); changed();
-      const el = $(`${type}-next`); el.getAnimations().forEach((a) => a.cancel());
-      el.animate(matchMedia('(prefers-reduced-motion: reduce)').matches ? [{ opacity: .5 }, { opacity: 1 }] : [{ transform: 'translateY(-6px)' }, { transform: 'translateY(0)' }], { duration: 180 });
+      pulse($(`${type}-ticket`), [{transform:'scale(1)'},{transform:'scale(.96)',offset:.5},{transform:'scale(1)'}],140);
     });
   }
   function activate(slot) {
@@ -173,6 +211,7 @@ window.Clicker = (() => {
   }
   function stopTimers() {
     clearInterval(tickTimer); clearInterval(saveTimer); clearTimeout(numberTimer); clearTimeout(noticeTimer);
+    cancelAnimationFrame(coinRaf); coinRaf = 0;
     tickTimer = saveTimer = numberTimer = noticeTimer = 0; stage?.stop();
     document.getAnimations().forEach((a) => a.cancel()); $('notice').hidden = true;
   }
@@ -253,7 +292,13 @@ window.Clicker = (() => {
     ready = true; gacha.setReady(); stage.setPartners(store.state);
     offline(); stage.render(store.state, { instant: true }); changed(); status();
     if (store.state.pending) gacha.restore(); startTimers();
-    $('tap').onclick = tap;
+    let pointer = null;
+    $('tap').onpointerup = e => {
+      const box = $('game').getBoundingClientRect();
+      pointer = { x:(e.clientX-box.left)/(box.width/960), y:(e.clientY-box.top)/(box.height/640) };
+    };
+    $('tap').onpointercancel = () => { pointer = null; };
+    $('tap').onclick = e => { const point = e.detail ? pointer : undefined; pointer = null; tap(point); };
     $('tap').onkeydown = (e) => { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); if (!e.repeat) tap(); } };
     $('tap').onkeyup = (e) => { if (e.code === 'Space' || e.code === 'Enter') e.preventDefault(); };
     for (const type of ['click', 'training']) { $(`${type}-one`).onclick = () => upgrade(type, false); $(`${type}-max`).onclick = () => upgrade(type, true); }

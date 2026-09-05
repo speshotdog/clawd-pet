@@ -6,12 +6,13 @@ window.ClickerGacha = (() => {
     const layer = $('recruit-layer');
     function priceButton(el, count, s, supported) {
       const cost = E.drawCost(s.paidDraws, count), missing = Math.max(0, Math.ceil(cost - s.coins));
-      el.textContent = `${count === 1 ? '單抽' : '五連'} · ${format(cost)}`;
+      el.textContent = el.id === 'draw-one' ? '招募！' : `${count === 1 ? '單抽' : '五連'} · ${format(cost)}`; el.title = String(cost);
       if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)}`; el.append(note); }
       el.disabled = !ready || store.blocked || !!s.pending || !supported || missing > 0 || busy;
     }
     function render() {
       const s = store.state; if (!s) return;
+      $('draw-price').textContent = format(E.drawCost(s.paidDraws, 1)); $('draw-ticket').title = String(E.drawCost(s.paidDraws, 1));
       const supported = window.GachaModes[s.settings.mode].counts.includes(1);
       const note = supported ? '' : '此演出只支援五連；單抽請選流星或拆包桌面。';
       for (const id of ['draw-one', 'recruit-one']) priceButton($(id), 1, s, supported);
@@ -81,6 +82,8 @@ window.ClickerGacha = (() => {
         const next = E.purchaseDraw(s, count, Date.now(), window.GachaPool);
         // 唯一寫入包含扣款、抽數、保底及 pending。成功以前沒有演出。
         if (!commit(next)) return;
+        const ticket = $('draw-ticket'); ticket.getAnimations().forEach(a=>a.cancel());
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ticket.animate([{transform:'scale(1)'},{transform:'scale(.96)',offset:.5},{transform:'scale(1)'}],{duration:140});
         open(); $('recruit-entry').hidden = true; $('collect').hidden = true; $('skip').hidden = false;
         $('recruit-hint').textContent = ''; const run = makeRuntime(store.state.pending.draw);
         if (s.settings.mode === 'hearthstone') {

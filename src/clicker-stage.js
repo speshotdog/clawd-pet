@@ -8,7 +8,7 @@ window.ClickerStage = (() => {
     let pressAt = -Infinity, pressAmount = 0, combo = 0, previousClick = -Infinity;
     let parasite = null, lastPackage = 1, bagBusy = false, latestState = null, bagState = 0;
     let fx = null, page = 0, teamState = null, teamKey = '', clickChain = 0, fxClickAt = -Infinity, joining = false;
-    let floatingTimes = [], floating = [], merged = 0, soundTimes = [];
+    let soundTimes = [];
     const timers = new Set(), animations = new Set();
 
     const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); return id; };
@@ -55,29 +55,23 @@ window.ClickerStage = (() => {
     }
     function stop() {
       fx?.stop(); fx = null; joining = false; $('join-flight').replaceChildren();
+      cancelAnimationFrame(meterRaf); meterRaf = 0; meterFull = false;
       running = false; cancelAnimationFrame(raf); raf = 0;
       clearTimeout(blinkTimer); clearTimeout(openTimer); eyes(false);
       timers.forEach(clearTimeout); timers.clear(); animations.forEach((a) => a.cancel()); animations.clear();
-      $('floaters').replaceChildren(); floating = []; floatingTimes = []; merged = 0;
+      $('floaters').replaceChildren();
       hero.style.transform = ''; limb(hero, 'legL', 0, cfg); limb(hero, 'legR', 0, cfg);
       bagBusy = false; if (latestState) showBag(stateOf(latestState)); pressAt = -Infinity; combo = 0; clickChain = 0; fxClickAt = -Infinity;
     }
-    function float(amount, now, heavy) {
-      merged += amount; floatingTimes = floatingTimes.filter((t) => now - t < 1000);
-      if (now - (floatingTimes.at(-1) ?? -Infinity) < 120 || floatingTimes.length >= 8 || floating.length >= 12) {
-        const last = floating[floating.length - 1];
-        if (last) { last.amount += merged; last.el.querySelector('b').textContent = `+${format(last.amount)}`; if (heavy) last.el.style.fontSize = '26px'; merged = 0; }
-        return;
-      }
+    function float(amount, heavy, point) {
       const el = document.createElement('span'); el.className = 'floater';
       el.innerHTML = '<img src="clicker-coin.png" alt="" /><b></b>';
-      const item = { el, amount: merged }; merged = 0;
-      el.querySelector('b').textContent = `+${format(item.amount)}`;
-      el.style.left = '424px'; el.style.top = '222px'; if (heavy) el.style.fontSize = '26px';
-      $('floaters').append(el); floating.push(item); floatingTimes.push(now);
-      motion(el, [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-24px)', opacity: 1, offset: 2 / 3 }, { transform: 'translateY(-36px)', opacity: 0 }], 480, () => { el.remove(); floating = floating.filter((v) => v !== item); });
+      el.querySelector('b').textContent = `+${format(amount)}`;
+      el.style.left = `${point.x + Math.random() * 20 - 10}px`; el.style.top = `${point.y - 12}px`; el.style.fontSize = heavy ? '26px' : clickChain >= 3 ? '22px' : '20px'; if (clickChain >= 3) el.style.color = '#E9B94E';
+      $('floaters').append(el);
+      motion(el, [{ transform: `translateY(0) scale(.6) rotate(${heavy ? -6 : 0}deg)`, opacity: 1 }, { transform:'translateY(-3px) scale(1) rotate(0)', opacity:1, offset:.125 }, { transform: 'translateY(-24px)', opacity: 1, offset: 2 / 3 }, { transform: 'translateY(-36px)', opacity: 0 }], 480, () => { el.remove(); });
     }
-    function click(amount, heavy = false, s, completed = 0) {
+    function click(amount, heavy = false, s, completed = 0, point = IMPACT) {
       if (!running) return;
       const now = performance.now(); combo = now - previousClick <= 400 ? combo + 1 : 1; previousClick = now;
       pressAt = now; pressAmount = combo >= 3 ? .10 : .08;
@@ -86,9 +80,9 @@ window.ClickerStage = (() => {
       clickChain = now - fxClickAt <= 180 ? clickChain + 1 : 1; fxClickAt = now;
       const crossed = s.package.index > lastPackage || stateOf(s) !== bagState;
       render(s, { completed, manual: true, heavy });
-      burst(heavy ? 18 : clickChain >= 3 ? 12 : 8, heavy, !heavy && clickChain >= 3);
+      burst(heavy ? 18 : clickChain >= 3 ? 12 : 8, heavy, !heavy && clickChain >= 3, point);
       if (heavy) bounce(true); else if (!crossed && !bagBusy) bounce(false);
-      float(amount, now, heavy);
+      float(amount, heavy, point);
     }
     function setPartners(s) {
       teamState = s;
@@ -133,8 +127,8 @@ window.ClickerStage = (() => {
       motion($('bag-image'), heavy ? [{transform:'scale(1)'},{transform:'scale(1.10)',offset:.35},{transform:'scale(.97)',offset:.7},{transform:'scale(1)'}] : [{transform:'scale(1)'},{transform:'scale(1.045)',offset:.5},{transform:'scale(1)'}], heavy ? 180 : 140);
     }
     // 撕口錨點（全畫面座標）。碎紙要看得見：夠大、噴得高、有翻面暗色，落回時已在桌墊上
-    const IMPACT = { x: 424, y: 240 };
-    function burst(count, heavy = false, chain = false) {
+    const IMPACT = { x: 485, y: 240 };
+    function burst(count, heavy = false, chain = false, point = IMPACT) {
       if (!fx) return;
       const rand = (a,b) => a + Math.random() * (b-a), sparks = count === 4 ? 0 : 2;
       const k = chain ? 1.15 : 1;
@@ -145,21 +139,43 @@ window.ClickerStage = (() => {
         const color2 = pink ? '#C9686B' : '#D8C4A0';
         const w = heavy ? rand(14, 22) : rand(10, 16), h = w * rand(.55, .8);
         fx.spawn(spark
-          ? { sprite: 14, x: IMPACT.x + rand(-10, 10), y: IMPACT.y + rand(-4, 4), vx: rand(-50, 50), vy: rand(-120, -50), g: 80,
+          ? { sprite: 14, x: point.x + rand(-10, 10), y: point.y + rand(-4, 4), vx: rand(-50, 50), vy: rand(-120, -50), g: 80,
               r: heavy ? rand(9, 13) : rand(6, 9), life: rand(.28, .4), rot: rand(0, Math.PI * 2), vr: rand(-1, 1), drag: .985, shrink: true, color, blend: 'lighter' }
-          : { shape: 'shard', x: IMPACT.x + rand(-10, 10), y: IMPACT.y + rand(-4, 4),
+          : { shape: 'shard', x: point.x + rand(-10, 10), y: point.y + rand(-4, 4),
               vx: rand(heavy ? -170 : -120, heavy ? 170 : 120) * k, vy: rand(heavy ? -330 : -260, heavy ? -170 : -130) * k, g: heavy ? 520 : 460,
               life: heavy ? rand(.7, 1) : rand(.55, .8), w, h, rot: rand(0, Math.PI * 2), vr: rand(heavy ? -9 : -6, heavy ? 9 : 6),
               drag: .99, color, color2, fadeK: 4 });
       }
-      if (heavy) fx.spawn({ sprite: 5, x: IMPACT.x, y: IMPACT.y, r: 40, life: .14, vx: 0, vy: 0, g: 0, rot: -.35, color: '#E9B94E', blend: 'lighter' });
+      if (chain) fx.spawn({ sprite:14, x:point.x, y:point.y, r:6, vy:-90, life:.3, color:'#E9B94E', blend:'lighter' });
+      if (heavy) fx.spawn({ sprite:3, x:point.x, y:point.y, r:36, life:.25, color:'#E9B94E', blend:'lighter', update(p) { p.r = 36 + 54 * (1 - p.life / p.max); } });
+      if (heavy) fx.spawn({ sprite: 5, x: point.x, y: point.y, r: 40, life: .14, vx: 0, vy: 0, g: 0, rot: -.35, color: '#E9B94E', blend: 'lighter' });
+    }
+    let meterRaf = 0, meterTarget = 0, meterFull = false, meterStarted = 0;
+    function meter(target, crossed, instant) {
+      if (!instant && !crossed && target === meterTarget && (meterRaf || $('package-progress').value === target)) return;
+      meterTarget = target;
+      if (instant || reduced.matches) { cancelAnimationFrame(meterRaf); meterRaf = 0; meterFull = false; $('package-progress').value = target; return; }
+      if (crossed) meterFull = true;
+      if (meterRaf) return;
+      meterStarted = performance.now();
+      function frame(now) {
+        const el = $('package-progress'), goal = meterFull ? 1 : meterTarget;
+        el.value += (goal - el.value) * .25;
+        if (Math.abs(goal - el.value) < .002 || now - meterStarted >= 180) {
+          el.value = goal;
+          if (meterFull) { meterFull = false; meterStarted = now; meterRaf = requestAnimationFrame(() => { el.value = 0; meterRaf = requestAnimationFrame(frame); }); return; }
+          meterRaf = 0; return;
+        }
+        meterRaf = requestAnimationFrame(frame);
+      }
+      meterRaf = requestAnimationFrame(frame);
     }
     function render(s, { instant = false, completed = 0, manual = false, heavy = false } = {}) {
       latestState = s; setPartners(s);
       if (!running && !instant) { lastPackage = s.package.index; return; }
       const need = E.requirement(s.package.index), next = stateOf(s), crossed = next !== bagState;
       $('package-label').textContent = `${format(s.package.index)} 包`;
-      $('package-progress').value = s.package.progress / need; $('package-number').textContent = `${format(s.package.progress)} / ${format(need)}`;
+      meter(s.package.progress / need, s.package.index > lastPackage, instant); $('package-number').textContent = `${format(s.package.progress)} / ${format(need)}`;
       if (s.package.index > lastPackage && !instant) {
         $('package-result').textContent = `完成 ${completed || s.package.index - lastPackage} 包`;
         if (!bagBusy) {
