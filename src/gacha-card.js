@@ -232,7 +232,7 @@ window.addEventListener('blur', liveEnd);
 document.addEventListener('visibilitychange', () => { if (document.hidden) liveEnd(); });
 
 
-return { create: buildCard, art: { create: buildArt }, ready: assetsReady, liveEnd };
+return { create: buildCard, art: { create: buildArt, cfg: (id) => CHAR_CFG[id] }, ready: assetsReady, liveEnd };
 }
 return { create };
 })();

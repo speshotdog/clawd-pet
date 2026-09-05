@@ -173,6 +173,7 @@ function packHome(popIn = false) {
 
 let drag = null;   // { ox, oy, lastX, lastY, lastT, vx, vy, moved }
 pack.addEventListener('pointerdown', (e) => {
+  if (modeName === 'rip') return;
   if (e.button !== 0) return;
   Audio.ensure();
   if (state !== 'idle' && state !== 'ready') return;
@@ -183,6 +184,7 @@ pack.addEventListener('pointerdown', (e) => {
   pack.setPointerCapture(e.pointerId);
 });
 pack.addEventListener('pointermove', (e) => {
+  if (modeName === 'rip') return;
   const p = pt(e);
   if (!drag) {
     // 就位後：卡包朝滑鼠方向微傾，像真的擺在你面前
@@ -252,6 +254,7 @@ const modeSelect = $('mode-select'), launchBtn = $('launch'), skipBtn = $('skip'
 const allBtn = $('reveal-all'), autoSelect = $('reveal-policy'), modeRoot = $('mode-root');
 let modeName = window.GachaModes[localStorage.getItem('gacha_mode')] ? localStorage.getItem('gacha_mode') : 'hearthstone';
 let runtime = null, modeInstance = null, currentDraw = null, assetsLoaded = false;
+let entryDispose = null;
 const revealedKeys = new Set();
 const cardAdapter = window.GachaCard.create({ rarity: RARITY, byId,
   canHover: () => state === 'fanned', fatal: $('fatal') });
@@ -259,13 +262,20 @@ const buildCard = cardAdapter.create, liveEnd = cardAdapter.liveEnd;
 const assetsReady = cardAdapter.ready;
 modeSelect.value = modeName;
 function renderEntry() {
+  entryDispose?.(); entryDispose = null;
   const hearthstone = modeName === 'hearthstone';
-  pack.hidden = !hearthstone;
+  const rip = modeName === 'rip';
+  pack.hidden = !hearthstone && !rip;
   $('tray').hidden = !hearthstone; dropzone.hidden = !hearthstone;
-  launchBtn.hidden = hearthstone; launchBtn.disabled = !assetsLoaded;
-  autoSelect.hidden = hearthstone;
+  launchBtn.hidden = hearthstone || rip; launchBtn.disabled = !assetsLoaded;
+  launchBtn.textContent = { wish: '投遞一包 · 五張', summon: '蓋下腳印 · 召喚', stage: '拉開布幕 · 登場' }[modeName] || '';
+  autoSelect.hidden = hearthstone || rip; autoSelect.disabled = false;   // 收下後總覽把它鎖住，回到入口要解開
   pack.style.pointerEvents = assetsLoaded ? '' : 'none';
-  hint(assetsLoaded ? (hearthstone ? '拖到桌子中央' : '投遞一包，看看流星帶來誰') : '素材載入中');
+  if (rip) {
+    placePack(470, 310);
+    if (assetsLoaded && !SAVE.pending) entryDispose = window.GachaModes.rip.mountEntry(pack, { audio: Audio.createScope(), start: startDraw });
+  }
+  hint(assetsLoaded ? ({ hearthstone: '拖到桌子中央', wish: '投遞一包，看看流星帶來誰', summon: '蓋下腳印，呼喚五位夥伴', stage: '拉開布幕，看看誰會走上舞台', rip: '沿封口從左拖到右，放手撕開' }[modeName]) : '素材載入中');
 }
 function summary() {
   setState('fanned'); collectBtn.classList.add('on');
@@ -310,6 +320,7 @@ async function startDraw() {
   try { draw = rollPack(); }
   catch (err) { setState(modeName === 'hearthstone' ? 'ready' : 'idle'); hint(`抽取未存入：${err.message}`); return; }
   const run = makeRuntime(draw);
+  entryDispose?.(); entryDispose = null;
   if (modeName === 'hearthstone') {
     const visualPack = pack.cloneNode(true); visualPack.removeAttribute('id');
     visualPack.classList.remove('snap'); visualPack.querySelector('.pack-tilt').style.transform = '';
@@ -325,12 +336,13 @@ async function startDraw() {
 function tear() { if (state === 'ready') startDraw(); }
 launchBtn.addEventListener('click', startDraw);
 skipBtn.addEventListener('click', skipPresentation);
-allBtn.addEventListener('click', () => { if (modeName === 'wish') autoSelect.value = 'auto'; runtime?.all(); });
+allBtn.addEventListener('click', () => { if (modeName !== 'hearthstone') autoSelect.value = 'auto'; runtime?.all(); });
 autoSelect.addEventListener('change', () => { if (autoSelect.value === 'auto' && state === 'fanned') runtime?.all(); });
 modeSelect.addEventListener('change', async () => {
   if (state !== 'idle' && state !== 'ready') { modeSelect.value = modeName; return; }
   liveEnd(); runtime?.stop(); modeInstance?.dispose();
-  const next = modeSelect.value, outgoing = modeName === 'hearthstone' ? pack : launchBtn;
+  entryDispose?.(); entryDispose = null;
+  const next = modeSelect.value, outgoing = modeName === 'hearthstone' || modeName === 'rip' ? pack : launchBtn;
   // 尚未抽取的入口可直接換掉，180ms 內只做淡出入，拖包座標不另算。
   setState('presenting');
   const fadeOut = outgoing.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, fill: 'forwards' });
@@ -338,7 +350,7 @@ modeSelect.addEventListener('change', async () => {
   modeName = next;
   try { localStorage.setItem('gacha_mode', modeName); } catch {}
   packHome(false); renderEntry(); fadeOut.cancel();
-  const incoming = modeName === 'hearthstone' ? pack : launchBtn;
+  const incoming = modeName === 'hearthstone' || modeName === 'rip' ? pack : launchBtn;
   const fadeIn = incoming.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 90 });
   await fadeIn.finished; fadeIn.cancel(); setState('idle');
 });
@@ -508,4 +520,4 @@ async function main() {
 }
 main().catch((err) => { $('fatal').hidden = false; $('fatal').textContent = `抽卡初始化失敗：${err.message}`; });
 document.addEventListener('visibilitychange', () => { if (document.hidden) skipPresentation(); });
-window.addEventListener('pagehide', () => { liveEnd(); runtime?.stop(); modeInstance?.dispose(); });
+window.addEventListener('pagehide', () => { liveEnd(); entryDispose?.(); runtime?.stop(); modeInstance?.dispose(); });
