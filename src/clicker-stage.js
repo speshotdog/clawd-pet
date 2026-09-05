@@ -5,7 +5,7 @@ window.ClickerStage = (() => {
     const hero = card.art.create(window.GachaPool.byId.zhenmu), cfg = card.art.cfg('zhenmu');
     $('hero').append(hero);
     let frozen = false, heldAmount = 0;
-    let running = false, raf = 0, lastFrame = 0, blinkTimer = 0, openTimer = 0;
+    let running = false, raf = 0, lastFrame = 0, lastSceneFrame = 0, blinkTimer = 0, openTimer = 0;
     let pressAt = -Infinity, pressAmount = 0, combo = 0, previousClick = -Infinity;
     let parasite = null, lastPackage = 1, bagBusy = false, latestState = null, bagState = 0;
     let fx = null, page = 0, teamState = null, teamKey = '', clickChain = 0, fxClickAt = -Infinity, joining = false;
@@ -41,6 +41,7 @@ window.ClickerStage = (() => {
       const budget = 33;
       if (frozen || now - lastFrame < budget) return;
       lastFrame = now - (now - lastFrame) % budget;
+      window.ClickerScene.update(Math.min(.1, (now - lastSceneFrame) / 1000)); lastSceneFrame = now;
       const duration = combo >= 3 ? 150 : 220, elapsed = now - pressAt;
       const squeeze = elapsed < 55 ? elapsed / 55 : Math.max(0, 1 - (elapsed - 55) / duration);
       const breath = reduced.matches ? 0 : Math.sin(now / 3400 * Math.PI * 2) * .015;
@@ -62,10 +63,11 @@ window.ClickerStage = (() => {
           else { part.vx *= part.drag; part.vy = part.vy * part.drag + part.g * dt; part.x += part.vx * dt; part.y += part.vy * dt; part.rot += part.vr * dt; }
         } });
       };
-      running = true; lastFrame = performance.now(); raf = requestAnimationFrame(animate); scheduleBlink();
+      window.ClickerScene.attach(fx);
+      running = true; lastSceneFrame = lastFrame = performance.now(); raf = requestAnimationFrame(animate); scheduleBlink();
     }
     function stop() {
-      frozen = false; heldAmount = 0; $('game').classList.remove('stage-frozen'); fx?.stop(); fx = null; joining = false; $('join-flight').replaceChildren();
+      frozen = false; heldAmount = 0; $('game').classList.remove('stage-frozen'); window.ClickerScene.detach(); fx?.stop(); fx = null; joining = false; $('join-flight').replaceChildren();
       cancelAnimationFrame(meterRaf); meterRaf = 0; meterFull = false; $('package-progress').classList.remove('meter-full'); $('effect-label').hidden = true;
       running = false; cancelAnimationFrame(raf); raf = 0;
       clearTimeout(blinkTimer); clearTimeout(openTimer); eyes(false);
@@ -136,8 +138,8 @@ window.ClickerStage = (() => {
         else motion(label,[{opacity:1},{opacity:0}],120,()=>{ if (!parasite) label.hidden = true; });
       }
     }
-    const stateOf = s => { const r = Math.max(0, 1 - s.package.progress / E.requirement(s.package.index)); return r > .75 ? 0 : r > .5 ? 1 : r > .25 ? 2 : 3; };
-    function showBag(state) { bagState = state; $('bag-image').src = `clicker-bag-${state}.png`; $('bag-image').alt = `零食包：${['完整','輕損','中損','重損','撕開'][state]}`; }
+    const stateOf = s => { const r = Math.max(0, 1 - s.package.progress / E.requirement(s.package.index, s.settings.scene)); return r > .75 ? 0 : r > .5 ? 1 : r > .25 ? 2 : 3; };
+    function showBag(state) { $('bag').dataset.skin = window.ClickerScene.current.bagSkin; bagState = state; $('bag-image').src = `clicker-bag-${state}.png`; $('bag-image').alt = `零食包：${['完整','輕損','中損','重損','撕開'][state]}`; }
     function bounce(heavy) {
       motion($('bag-image'), heavy ? [{transform:'scale(1)'},{transform:'scale(1.10)',offset:.35},{transform:'scale(.97)',offset:.7},{transform:'scale(1)'}] : [{transform:'scale(1)'},{transform:'scale(1.045)',offset:.5},{transform:'scale(1)'}], heavy ? 180 : 140);
     }
@@ -189,7 +191,7 @@ window.ClickerStage = (() => {
     function render(s, { instant = false, completed = 0, manual = false, heavy = false } = {}) {
       latestState = s; if (frozen) return; setPartners(s);
       if (!running && !instant) { lastPackage = s.package.index; return; }
-      const need = E.requirement(s.package.index), next = stateOf(s), crossed = next !== bagState;
+      const need = E.requirement(s.package.index, s.settings.scene), next = stateOf(s), crossed = next !== bagState;
       $('package-label').textContent = `${format(s.package.index)} 包`;
       meter(s.package.progress / need, s.package.index > lastPackage, instant); $('package-number').textContent = `${format(s.package.progress)} / ${format(need)}`;
       if (s.package.index > lastPackage && !instant) {
@@ -212,6 +214,7 @@ window.ClickerStage = (() => {
       motion(el,[{transform:'scale(.2)',opacity:1},{transform:'scale(.5)',opacity:1,offset:.6},{transform:'scale(.6)',opacity:0}],150,()=>el.remove());
     }
     function freeze(on) {
+      lastSceneFrame = performance.now();
       frozen = on; $('game').classList.toggle('stage-frozen', on);
       animations.forEach(a => on ? a.pause() : a.play());
       if (!on) {

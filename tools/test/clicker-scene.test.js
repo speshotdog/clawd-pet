@@ -1,0 +1,33 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { scenes, resolve } = require('../../src/clicker-scene.js');
+const E = require('../../src/clicker-economy.js');
+const Save = require('../../src/clicker-save.js');
+
+test('場景倍率貫穿需求、多包結算與存檔驗證，未解鎖不掛載', () => {
+  scenes.test = { ...scenes.backyard, requirementMul:2, unlockPackages:3 };
+  try {
+    assert.equal(resolve('test',2),scenes.backyard);
+    assert.equal(resolve('test',3),scenes.test);
+    assert.equal(E.requirement(3,'test'),E.requirement(3)*2);
+    const s = Save.fresh(0); s.package.index = 3; s.settings.scene = 'test';
+    const power = E.packageSum(3,4,'test') + 10;
+    const result = E.advancePackage(s.package,power,'test');
+    assert.equal(result.package.index,7);
+    assert.ok(Math.abs(result.package.progress-10)<1e-8);
+    s.package.progress = E.requirement(3)*1.5;
+    assert.equal(Save.validate(s),s);
+    s.package.index=2; s.package.progress=0;
+    assert.throws(()=>Save.validate(s));
+  } finally { delete scenes.test; }
+});
+
+test('舊存檔補場景／音樂預設，錯誤設定保留原文並阻擋', () => {
+  const s = Save.fresh(0); delete s.settings.music; delete s.settings.scene;
+  assert.deepEqual(Save.validate(s).settings,{muted:false,mode:'wish',music:true,scene:'backyard'});
+  s.settings.scene='missing'; const raw=JSON.stringify(s);
+  const store=Save.create({getItem:()=>raw});
+  assert.equal(store.blocked,true); assert.equal(store.raw,raw);
+  s.settings.scene='backyard'; s.settings.music='yes';
+  assert.throws(()=>Save.validate(s));
+});

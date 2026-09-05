@@ -9,7 +9,7 @@
       collection: {}, paidDraws: 0, pity: { sinceLegendary: 0 }, pending: null,
       package: { index: 1, progress: 0 }, claimedMilestones: [],
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
-      settings: { muted: false, mode: 'wish' } };
+      settings: { muted: false, mode: 'wish', scene: 'backyard', music: true } };
   }
   const object = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
   const number = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
@@ -24,8 +24,8 @@
     check(object(s.collection), 'collection');
     for (const [id, count] of Object.entries(s.collection)) check(known(id) && integer(count) && count > 0, '角色張數');
     check(object(s.pity) && integer(s.pity.sinceLegendary) && s.pity.sinceLegendary < 40 && s.pity.sinceLegendary <= s.paidDraws, '保底');
-    check(object(s.package) && integer(s.package.index) && s.package.index >= 1 && number(s.package.progress) && s.package.progress < E.requirement(s.package.index), '拆包進度');
-    check(Number.isFinite(E.requirement(s.package.index)) && Object.values(E.rates(s)).every(number), '數值溢出');
+    check(object(s.package) && integer(s.package.index) && s.package.index >= 1 && number(s.package.progress) && s.package.progress < E.requirement(s.package.index, s.settings?.scene), '拆包進度');
+    check(Number.isFinite(E.requirement(s.package.index, s.settings?.scene)) && Object.values(E.rates(s)).every(number), '數值溢出');
     check(Array.isArray(s.claimedMilestones) && s.claimedMilestones.every((v) => v === 'tutorial50') && new Set(s.claimedMilestones).size === s.claimedMilestones.length, '獎勵紀錄');
     check(s.manualClicks < 50 ? !s.claimedMilestones.includes('tutorial50') : s.claimedMilestones.includes('tutorial50') && s.collection.yueyue2 > 0, '教學獎勵');
     check(Array.isArray(s.skillSlots) && s.skillSlots.length === 3 && s.skillSlots.every((id, i) => id === null || (known(id) && s.collection[id] > 0 && i < E.slotCount(s))), '技能槽');
@@ -43,6 +43,9 @@
       else check(known(e.target) && e.target !== e.source && s.collection[e.target] > 0 && number(e.value), '寄生快照');
     }
     check(object(s.settings) && typeof s.settings.muted === 'boolean' && B.modes.includes(s.settings.mode), '設定');
+    s.settings.scene ??= 'backyard'; s.settings.music ??= true;
+    const scenes = node ? require('./clicker-scene.js').scenes : root.ClickerScenes;
+    check(typeof s.settings.music === 'boolean' && Object.hasOwn(scenes, s.settings.scene) && s.package.index >= scenes[s.settings.scene].unlockPackages, '場景與音樂');
     if (s.pending !== null) {
       const draw = s.pending?.draw;
       check(object(draw) && typeof draw.id === 'string' && draw.id.length > 0 && integer(draw.visualSeed) && draw.visualSeed <= 0xffffffff, 'pending 身分');

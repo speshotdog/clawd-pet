@@ -27,6 +27,7 @@ window.Clicker = (() => {
     audio.tone(from, { slide: to, slideT: duration, a: .002, d: duration - .004, r: .002, gain });
   }
   function muteAudio() {
+    window.ClickerMusic?.sync(store.state);
     for (const scope of audioScopes) if (scope.dry) scope.dry.gain.value = store.state.settings.muted ? 0 : 1;
     const ac = window.GachaAudio.ensure(); if (!ac) return;
     if (store.state.settings.muted || document.hidden) ac.suspend().catch(() => {});
@@ -91,6 +92,7 @@ window.Clicker = (() => {
     }
   }
   function numbers(force = false) {
+    window.ClickerMusic?.sync(store.state);
     if (!store.state || document.hidden) return;
     const time = performance.now(), delay = 100 - (time - lastNumbers);
     if (!force && delay > 0) {
@@ -121,6 +123,8 @@ window.Clicker = (() => {
     const nextSlot = B.slotThresholds[E.slotCount(s)];
     $('next-goal').textContent = s.manualClicks < 50 ? '下一目標：50 點迎接玥玥' : nextSlot ? `累計 ${format(nextSlot)} 幣開下一技能槽` : '三個技能槽全部開放';
     $('mute').textContent = s.settings.muted ? '音效關' : '音效開'; $('mute').setAttribute('aria-pressed', String(s.settings.muted));
+    $('music').setAttribute('aria-pressed', String(s.settings.music !== false));
+    $('music').textContent = s.settings.music === false ? '♪ BGM 關' : '♪ BGM';
     gacha?.render();
   }
   function renderSlots() {
@@ -187,6 +191,7 @@ window.Clicker = (() => {
       if (gacha.active || cutin.active) return;
       const result = E.activate(store.state, slot, Date.now());
       if (!commit(result.state)) return;
+      window.ClickerMusic?.sync(store.state);
       cutin.play(result.effect); changed();
     });
   }
@@ -233,6 +238,7 @@ window.Clicker = (() => {
   }
   function suspend() {
     if (suspended) return; suspended = true;
+    window.ClickerMusic?.suspend();
     if (store.state && !store.blocked) { settle(); commit(); }
     stopTimers(); gacha?.suspend(); audio?.stop(0); audio = null;
     const ac = window.GachaAudio.ensure(); ac?.suspend().catch(() => {});
@@ -259,7 +265,7 @@ window.Clicker = (() => {
     if (document.hidden || !suspended) return;
     suspended = false;
     if (!ready) return;
-    offline(); gacha.restore(); stage.render(store.state, { instant: true }); changed(); startTimers(); muteAudio();
+    offline(); window.ClickerMusic?.resume(store.state); gacha.restore(); stage.render(store.state, { instant: true }); changed(); startTimers(); muteAudio();
   }
   function applyZoom(z) { $('zoomer').style.transform = `scale(${Number.isFinite(z) && z > 0 ? z : 1})`; }
   function fitWindow() { TAURI?.core.invoke('fit_window', { dpr: window.devicePixelRatio || 1 }).catch(() => {}); }
@@ -301,6 +307,7 @@ window.Clicker = (() => {
     await card.ready;
     await document.fonts.ready;
     await window.ClickerCutin.ready;
+    window.ClickerScene.mount(store.state.settings.scene, store.state.package.index);
     stage = window.ClickerStage.create({ card, sound, format, showRoster, notice });
     cutin = window.ClickerCutin.create({card, stage, sound, done:changed});
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
@@ -327,6 +334,10 @@ window.Clicker = (() => {
       const s = E.settle(store.state, Date.now()).state; s.settings.muted = !s.settings.muted;
       if (commit(s)) { muteAudio(); changed(); }
     });
+    $('music').onclick = () => action(() => {
+      const s = E.clone(store.state); s.settings.music = s.settings.music === false;
+      if (commit(s)) changed();
+    });
     $('retry-save').onclick = () => { if (commit()) { settle(); changed(); } };
     $('roster-open').onclick = () => showRoster();
     for (const id of ['roster', 'stats', 'receipt']) $(`${id}-close`).onclick = () => { $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
@@ -337,6 +348,7 @@ window.Clicker = (() => {
       $('stats').hidden = false; $('game-content').inert = true; $('stats-close').focus();
     };
   }
+  window.addEventListener('clicker-music-ready', () => { if (suspended) window.ClickerMusic.suspend(); else window.ClickerMusic.sync(store.state); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) suspend(); else resume(); });
   window.addEventListener('focus', resume);
   window.addEventListener('pagehide', suspend);

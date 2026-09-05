@@ -1,0 +1,121 @@
+(function (root) {
+  const sprites = (kind, n) => Array.from({ length: n }, (_, i) => `clicker-scene1-${kind}-${i}.png`);
+  const scenes = {
+    backyard: {
+      name: '後院草地', unlockPackages: 0, requirementMul: 1, bagSkin: 0,
+      palette: { mat: '#8FA56E', sky: '#CFE7F5' },
+      music: { theme: 'picnic', seed: 'zhenmu-backyard-1', gen: { density: 45, rhythm: 40, speed: 35, drama: 30, mood: 70, hook: 60, smooth: 65 } },
+      layers: [
+        { id: 'sky', src: 'clicker-scene1-sky.png', y: 0, h: 360, parallax: 0 },
+        { id: 'clouds', sprites: sprites('cloud', 3), slots: [[30,32],[260,58],[470,20]], h: 52, drift: [6,9,13], parallax: .2 },
+        { id: 'far', src: 'clicker-scene1-far.png', y: 130, h: 150, parallax: .35 },
+        { id: 'tree', src: 'clicker-scene1-tree-trunk.png', x: 20, y: 60, h: 240, w: 120, parallax: .5,
+          canopy: sprites('canopy', 3), canopySlots: [[8,42],[62,20],[115,55]], canopyH: 100, sway: { amp: 1.6, stiff: .6 } },
+        { id: 'mid', src: 'clicker-scene1-mid.png', y: 200, h: 110, parallax: .55 },
+        { id: 'ground', src: 'clicker-scene1-ground.png', y: 220, h: 140, parallax: .8 },
+        { id: 'flowers', sprites: sprites('flower', 5), slots: [[70,300],[150,296],[470,304],[560,298]], h: 64, sway: { amp: 5, stiff: .9 }, parallax: .9 },
+        { id: 'grass', sprites: sprites('grass', 5), slots: [[30,316],[110,322],[230,318],[420,320],[520,316],[590,322]], h: 56, sway: { amp: 7, stiff: 1.1 }, parallax: 1 },
+        { id: 'props', sprites: ['clicker-scene1-prop-0.png','clicker-scene1-prop-2.png'], slots: [[548,214],[24,190]], h: 60, parallax: .7 },
+      ],
+      particles: { sprites: sprites('particle', 2), everyMs: [1500,3200], max: 6, size: [10,16], life: [5,9] },
+    },
+  };
+  const resolve = (id, index = Infinity) => Object.hasOwn(scenes, id) && index >= scenes[id].unlockPackages ? scenes[id] : scenes.backyard;
+  root.ClickerScenes = scenes;
+  if (typeof module !== 'undefined' && module.exports) { module.exports = { scenes, resolve }; return; }
+  const rand = (a,b) => a + Math.random() * (b-a);
+  const baseWind = t => .6 * Math.sin(t * .7) + .4 * Math.sin(t * 1.9 + 1.3);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let host, scene, layers = [], movers = [], clouds = [], particles = [], textures = [], fxLayer;
+  let time = 0, nextParticle = 0, gust = null, nextGust = 0;
+  let target = {x:.5,y:.5}, pointer = {...target}, pendingPointer = null;
+  function wind(t) {
+    const u = gust ? (t - gust.start) / gust.duration : -1;
+    return baseWind(t) + (u >= 0 && u <= 1 ? gust.peak * Math.sin(Math.PI * u) ** 2 : 0);
+  }
+  function move(e) {
+    pendingPointer = {x:e.clientX,y:e.clientY};
+  }
+  function center() { pendingPointer = null; target = {x:.5,y:.5}; }
+  function unmount() {
+    if (fxLayer) fxLayer.dead = true; fxLayer = null;
+    host?.remove(); host = null; layers = []; movers = []; clouds = []; particles = [];
+    document.getElementById('game').removeEventListener('pointermove', move);
+    document.getElementById('game').removeEventListener('pointerleave', center);
+  }
+  function mount(id, index) {
+    unmount(); scene = resolve(id, index); time = 0; gust = null; nextGust = rand(6,14); nextParticle = rand(...scene.particles.everyMs)/1000; center(); pointer = {...target};
+    host = document.createElement('div'); host.id = 'clicker-scene'; host.setAttribute('aria-hidden','true');
+    host.style.background = scene.palette.sky;
+    document.querySelector('.desk-mat').after(host);
+    document.getElementById('stage').style.setProperty('--scene-mat',scene.palette.mat);
+    function picture(parent, src, x, y, h, w, sway, leaf = false, anchor = false) {
+      const el = document.createElement('img'); el.src = src; el.alt = ''; el.draggable = false;
+      el.style.cssText = `left:${x}px;top:${y}px;height:${h}px;${w ? `width:${w}px;` : ''}${anchor ? 'translate:-50% -100%;' : ''}`;
+      el.onerror = () => { el.style.visibility = 'hidden'; };
+      parent.append(el);
+      if (sway) movers.push({el,x,sway,leaf});
+      return el;
+    }
+    scene.layers.forEach((def,i) => {
+      const el = document.createElement('div'); el.className = 'scene-layer'; el.dataset.layer = def.id; el.style.zIndex = i; host.append(el); layers.push({el,def});
+      if (def.src) picture(el,def.src,def.x ?? -12,def.y,def.h,def.w ?? 632);
+      def.slots?.forEach(([x,y],j) => {
+        const img = picture(el,def.sprites[j % def.sprites.length],x,y,def.h,null,def.sway,!!def.sway,!def.drift);
+        if (def.drift) clouds.push({el:img,x,speed:def.drift[j]});
+      });
+      def.canopy?.forEach((src,j) => picture(el,src,...def.canopySlots[j],def.canopyH,null,def.sway,true));
+    });
+    textures = scene.particles.sprites.map(src => { const img = new Image(); img.src = src; return img; });
+    document.getElementById('game').addEventListener('pointermove',move,{passive:true});
+    document.getElementById('game').addEventListener('pointerleave',center);
+    update(0);
+    return scene;
+  }
+  function attach(scope) {
+    if (fxLayer) fxLayer.dead = true;
+    fxLayer = scope.layer({ dead:false, update() {}, draw(ctx) {
+      if (!host) return;
+      const stage = document.getElementById('stage');
+      ctx.save(); ctx.translate(stage.offsetLeft,stage.offsetTop);
+      ctx.beginPath(); ctx.rect(24,24,560,312); ctx.clip();
+      for (const p of particles) {
+        if (!p.img.complete || !p.img.naturalWidth) continue;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.min(1,p.life);
+        ctx.drawImage(p.img,-p.size/2,-p.size/2,p.size,p.size); ctx.restore();
+      }
+      ctx.restore();
+    } });
+  }
+  function detach() { if (fxLayer) fxLayer.dead = true; fxLayer = null; }
+  function update(dt) {
+    if (!host) return;
+    time += dt;
+    if (pendingPointer) {
+      const box = document.getElementById('game').getBoundingClientRect();
+      target = {x:Math.max(0,Math.min(1,(pendingPointer.x-box.left)/box.width)),y:Math.max(0,Math.min(1,(pendingPointer.y-box.top)/box.height))};
+      pendingPointer = null;
+    }
+    if (time >= nextGust) { gust = {start:time,duration:rand(1.2,2),peak:rand(1,1.6)*(Math.sign(baseWind(time)) || 1)}; nextGust = time + rand(6,14); }
+    pointer.x += (target.x-pointer.x)*.12; pointer.y += (target.y-pointer.y)*.12;
+    for (const {el,def} of layers) el.style.transform = `translate(${reduced.matches ? 0 : (pointer.x-.5)*12*def.parallax}px, ${reduced.matches ? 0 : (pointer.y-.5)*6*def.parallax}px)`;
+    for (const {el,x,sway,leaf} of movers) {
+      // Negative phase delays the right edge by 150ms; every sprite samples the same gust.
+      const w = reduced.matches ? 0 : wind(time-x/608*.15);
+      el.style.transform = `rotate(${w*sway.amp/sway.stiff}deg) scaleX(${1+(leaf ? .02*w : 0)})`;
+    }
+    for (const c of clouds) c.el.style.transform = `translateX(${((c.x+time*c.speed+120)%848)-120-c.x}px)`;
+    const cfg = scene.particles, max = reduced.matches ? 2 : cfg.max;
+    particles = particles.filter(p => p.life > 0).slice(0,max);
+    if (time >= nextParticle) {
+      if (particles.length < max) {
+        const top = Math.random() < .7;
+        particles.push({x:top ? rand(40,570) : 615,y:top ? -10 : rand(30,240),rot:rand(0,Math.PI*2),vr:rand(-1.2,1.2),life:rand(...cfg.life),size:rand(...cfg.size),phase:rand(0,6),img:textures[Math.floor(Math.random()*textures.length)]});
+      }
+      nextParticle = time+rand(...cfg.everyMs)/1000;
+    }
+    for (const p of particles) { p.life-=dt; p.x+=(-18+wind(time)*22)*dt; p.y+=(8+6*Math.sin(time+p.phase))*dt; p.rot+=p.vr*dt; }
+  }
+  root.ClickerScene = { mount, unmount, resolve, update, attach, detach, wind,
+    get current() { return scene; }, get time() { return time; }, get particleCount() { return particles.length; }, get gust() { return gust; } };
+})(globalThis);

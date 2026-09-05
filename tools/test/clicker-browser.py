@@ -15,13 +15,134 @@ SRC = ROOT / 'src'
 OUT = ROOT / 'tools/test/clicker-artifacts'
 
 
+def round5(context):
+    page = context.new_page()
+    errors = []
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.goto('http://clicker.test/clicker.html')
+    page.wait_for_function('window.ClickerMusic && window.Clicker?.state && !document.getElementById("tap").disabled')
+    page.evaluate('''() => {
+      const s=ClickerSave.fresh(Date.now());
+      s.collection={yueyue2:1,jiaobu:1,zhenmu:1}; s.manualClicks=50;
+      s.claimedMilestones=['tutorial50']; s.lifetimeCoins=100000; s.skillSlots=['yueyue2','jiaobu','zhenmu'];
+      sessionStorage.setItem('test-seed',JSON.stringify(s));
+    }''')
+    page.reload()
+    page.wait_for_function('window.ClickerMusic && !document.getElementById("tap").disabled')
+    page.wait_for_function("[...document.querySelectorAll('#clicker-scene img')].every(i=>i.complete && i.naturalWidth)")
+    page.wait_for_timeout(650)
+    page.screenshot(path=str(OUT / 'round5-static.png'))
+    assert page.locator('.scene-layer').count() == 9
+    assert page.evaluate('''() => {
+      const z=s=>+getComputedStyle(document.querySelector(s)).zIndex;
+      return z('#clicker-scene')<z('#hero-position') && z('.package-meter')>z('#clicker-scene') &&
+        [...document.querySelectorAll('.scene-layer')].every((e,i)=>+e.style.zIndex===i) &&
+        +getComputedStyle(document.querySelector('.desk-mat'),'::after').zIndex>z('#clicker-scene');
+    }''')
+    # Exercise actual sprite transforms, including the shared wind's spatial delay.
+    assert page.evaluate('''() => {
+      ClickerScene.mount('backyard',Clicker.state.package.index);
+      const rows=[];
+      for(let t=0;t<3;t++) {
+        ClickerScene.update(t ? 1 : 0);
+        rows.push([...document.querySelectorAll('[data-layer="grass"] img')].map(e=>parseFloat(e.style.transform.slice(7))));
+      }
+      return rows.every(r=>r.every(v=>v>0)) && rows[0][0]!==rows[1][0] && rows[1][0]!==rows[2][0];
+    }''')
+    # Remount intentionally detaches its old scope; lifecycle resumes through real visibility.
+    page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:true});document.dispatchEvent(new Event("visibilitychange"));')
+    page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:false});document.dispatchEvent(new Event("visibilitychange"));')
+    page.mouse.move(930,600)
+    page.wait_for_timeout(1600)
+    assert page.evaluate('''() => {
+      const layers=[...document.querySelectorAll('.scene-layer')];
+      const grass=new DOMMatrix(getComputedStyle(layers[7]).transform);
+      return grass.m41>5 && grass.m42>2.5 && layers.every((el,i)=>{
+        const m=new DOMMatrix(getComputedStyle(el).transform), p=ClickerScenes.backyard.layers[i].parallax;
+        return Math.abs(m.m41-grass.m41*p)<.01 && Math.abs(m.m42-grass.m42*p)<.01;
+      });
+    }''')
+    assert page.evaluate('''() => {
+      const el=document.querySelector('[data-layer="clouds"] img'), before=parseFloat(el.style.transform.slice(11));
+      ClickerScene.update(848/6);
+      return Math.abs(parseFloat(el.style.transform.slice(11))-before)<.001;
+    }''')
+    page.evaluate('''() => {
+      for(let i=0;i<450;i++) {ClickerScene.update(.033);if(ClickerScene.gust && ClickerScene.time-ClickerScene.gust.start<.04)break;}
+      ClickerScene.update(ClickerScene.gust.duration/2);
+    }''')
+    page.screenshot(path=str(OUT / 'round5-gust.png'))
+    peak = page.evaluate('''() => {
+      let max=0;
+      for(let i=0;i<1800;i++){ClickerScene.update(.033);max=Math.max(max,ClickerScene.particleCount);}
+      return max;
+    }''')
+    assert 0 < peak <= 6
+    page.wait_for_timeout(80)
+    page.screenshot(path=str(OUT / 'round5-particles.png'))
+    page.mouse.click(300,50)
+    page.wait_for_function('ClickerMusic.ctx?.state === "running" && ClickerMusic.scene.transport.playing')
+    metadata = page.evaluate('''() => ({scene:{bpm:ClickerMusic.scene.song.bpm,transpose:ClickerMusic.scene.song.transpose,seed:ClickerMusic.scene.song.seed},skill:{bpm:ClickerMusic.skill.song.bpm,transpose:ClickerMusic.skill.song.transpose,seed:ClickerMusic.skill.song.seed}})''')
+    assert metadata['scene']['transpose'] == metadata['skill']['transpose']
+    (OUT / 'round5-music.json').write_text(json.dumps(metadata,indent=2),encoding='utf8')
+    page.locator('.skill-use').nth(0).click()
+    page.wait_for_function('ClickerMusic.skill.target === .7 && ClickerMusic.skill.transport.playing')
+    frozen = page.evaluate('ClickerScene.time')
+    page.wait_for_timeout(650)
+    assert page.evaluate('ClickerScene.time') == frozen
+    assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value')-.7)<.01
+    page.screenshot(path=str(OUT / 'round5-cutin-frozen.png'))
+    page.wait_for_timeout(800)
+    # Another skill keeps the transport running rather than starting at step zero.
+    step = page.evaluate('ClickerMusic.skill.transport.lastStep')
+    page.locator('.skill-use').nth(1).click()
+    page.wait_for_timeout(100)
+    assert page.evaluate('ClickerMusic.skill.transport.lastStep') >= step
+    page.wait_for_timeout(1400)
+    # Consuming the one-charge skill must not end the other skill's variation.
+    page.locator('#tap').click()
+    assert page.evaluate('ClickerMusic.skill.target') == .7
+    for _ in range(9):
+        page.wait_for_timeout(150)
+        page.locator('#tap').click()
+    page.wait_for_timeout(820)
+    assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value'))<.01
+    assert not page.evaluate('ClickerMusic.skill.transport.playing')
+    # Passive effects end by their real expiresAt, including the exact 800ms fade.
+    page.locator('.skill-use').nth(2).click()
+    page.wait_for_function('ClickerMusic.skill.target === .7')
+    remaining = page.evaluate('Math.max(...Clicker.state.effects.map(e=>e.expiresAt))-Date.now()')
+    page.wait_for_timeout(remaining+820)
+    assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value'))<.01
+    assert not page.evaluate('ClickerMusic.skill.transport.playing')
+    page.locator('#music').click()
+    page.wait_for_timeout(850)
+    assert page.evaluate('ClickerMusic.ctx.state') == 'suspended'
+    assert page.evaluate('JSON.parse(localStorage.clicker_save).settings.music') is False
+    page.locator('#music').click()
+    page.wait_for_function('ClickerMusic.ctx.state === "running"')
+    page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:true});document.dispatchEvent(new Event("visibilitychange"));')
+    page.wait_for_timeout(200)
+    assert page.evaluate('ClickerMusic.ctx.state') == 'suspended'
+    assert not page.evaluate('ClickerMusic.scene.transport.playing || ClickerMusic.skill.transport.playing')
+    page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:false});document.dispatchEvent(new Event("visibilitychange"));')
+    page.wait_for_function('ClickerMusic.scene.transport.playing')
+    page.emulate_media(reduced_motion='reduce')
+    page.wait_for_timeout(80)
+    assert page.evaluate('ClickerScene.particleCount') <= 2
+    assert page.evaluate('''[...document.querySelectorAll('[data-layer="grass"] img')].every(e=>e.style.transform==='rotate(0deg) scaleX(1)')''')
+    assert not errors, errors
+    page.close()
+    print('PASS: Round 5 layers, wind, parallax, cloud loop, particles, frozen scene, ChipForge crossfades, toggles, hide/resume, reduced motion')
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     os.chdir(OUT)  # Chromium audio may emit debug.log; keep all generated files here.
     errors = []
     original_css = subprocess.check_output(['git', 'show', 'HEAD:src/gacha-card.css'], cwd=ROOT) + subprocess.check_output(['git', 'show', 'HEAD:src/gacha.css'], cwd=ROOT)
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, args=['--log-file='+str(OUT / 'chromium.log')])
+        browser = p.chromium.launch(headless=True, args=['--autoplay-policy=no-user-gesture-required', '--log-file='+str(OUT / 'chromium.log')])
         context = browser.new_context(viewport={'width': 960, 'height': 640}, device_scale_factor=1.25)
         context.add_init_script('''const animate = Element.prototype.animate; Element.prototype.animate = function(...args) {const a=animate.apply(this,args);a.testBorn=performance.now();return a;};''')
         context.add_init_script('''const seed = sessionStorage.getItem('test-seed'); if(seed) {localStorage.setItem('clicker_save',seed);sessionStorage.removeItem('test-seed');}''')
@@ -59,16 +180,22 @@ def main():
                 request.fulfill(status=404, body='not found')
 
         context.route('**/*', route)
+        round5(context)
+        if '--round5' in __import__('sys').argv:
+            browser.close()
+            return
         page = context.new_page()
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.goto('http://clicker.test/clicker.html')
+        page.evaluate("sessionStorage.setItem('test-seed',JSON.stringify(ClickerSave.fresh(Date.now())))")
+        page.reload()
         page.wait_for_function('window.Clicker && !document.getElementById("tap").disabled')
         page.locator('#receipt-close').click() if page.locator('#receipt').is_visible() else None
         assert page.evaluate('Clicker.state.coins') == 0
         assert page.locator('#hero > svg').count() == 1
         assert page.locator('#tap').bounding_box()['width'] == 240
         assert page.locator('#hero > svg').bounding_box()['height'] > 185
-        assert page.evaluate('testSchedules.raf.size') == 1
+        assert page.evaluate('testSchedules.raf.size') == 2
         page.wait_for_timeout(550)
         page.screenshot(path=str(OUT / 'opening.png'))
         # 真實輸入節流：同一秒 12 次只能記 8 次。

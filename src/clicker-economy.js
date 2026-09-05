@@ -1,5 +1,6 @@
 (function (root) {
   const B = typeof module !== 'undefined' && module.exports ? require('./clicker-balance.js') : root.ClickerBalance;
+  const Scenes = typeof module !== 'undefined' && module.exports ? require('./clicker-scene.js').resolve : root.ClickerScene.resolve;
   const clone = (s) => JSON.parse(JSON.stringify(s));
   const clickCost = (l) => Math.ceil(10 * 1.30 ** l);
   const trainingCost = (t) => Math.ceil(1000 * 1.60 ** t);
@@ -17,23 +18,23 @@
     if (stars(owned + 1) > stars(owned)) return { text: `${stars(owned)}★ → ${stars(owned + 1)}★`, cls: 'star-up' };
     return { text: `升星進度 ${owned + 1}/${B.stars[stars(owned)]}`, cls: 'dup' };
   }
-  const requirement = (k) => 100 * 1.12 ** (k - 1);
+  const requirement = (k, sceneId = 'backyard') => 100 * 1.12 ** (k - 1) * Scenes(sceneId).requirementMul;
   // expm1 保留小區間精度；二分搜尋只依包數的對數次數運算。
-  const packageSum = (index, count) => count === 0 ? 0 : requirement(index) * Math.expm1(count * Math.log(1.12)) / .12;
-  function advancePackage(pack, power) {
+  const packageSum = (index, count, sceneId) => count === 0 ? 0 : requirement(index, sceneId) * Math.expm1(count * Math.log(1.12)) / .12;
+  function advancePackage(pack, power, sceneId) {
     const total = pack.progress + power;
     let low = 0, high = 1;
-    const fits = (n) => packageSum(pack.index, n) <= total;
+    const fits = (n) => packageSum(pack.index, n, sceneId) <= total;
     while (fits(high)) high *= 2;
     while (low + 1 < high) { const mid = Math.floor((low + high) / 2); if (fits(mid)) low = mid; else high = mid; }
-    let progress = Math.max(0, total - packageSum(pack.index, low));
+    let progress = Math.max(0, total - packageSum(pack.index, low, sceneId));
     // 累積等比浮點誤差不留下一包幾乎 100% 的幽靈進度。
-    if (requirement(pack.index + low) - progress <= requirement(pack.index + low) * 1e-12) { low++; progress = 0; }
+    if (requirement(pack.index + low, sceneId) - progress <= requirement(pack.index + low, sceneId) * 1e-12) { low++; progress = 0; }
     return { package: { index: pack.index + low, progress }, completed: low };
   }
   function grant(s, amount) {
     s.coins += amount; s.lifetimeCoins += amount;
-    const result = advancePackage(s.package, amount); s.package = result.package;
+    const result = advancePackage(s.package, amount, s.settings.scene); s.package = result.package;
     return result.completed;
   }
   function settle(state, now) {

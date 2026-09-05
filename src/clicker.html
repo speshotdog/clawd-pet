@@ -14,7 +14,7 @@
       <h1>珍母點點</h1>
       <div class="wallet"><img src="clicker-coin.png" alt="錢幣" /><b id="coins">0</b></div>
       <div class="rates"><span id="click-rate">每次 1.0</span><span id="passive-rate">每秒 0.0</span></div>
-      <button id="mute" aria-pressed="false">音效開</button><button id="close" aria-label="關閉視窗">×</button>
+      <button id="mute" aria-pressed="false">音效開</button><button id="music" aria-pressed="true" title="背景音樂">♪ BGM</button><button id="close" aria-label="關閉視窗">×</button>
     </header>
     <section id="stage" aria-label="拆包舞台">
       <p id="tutorial">教學獎勵 · 點擊 50 次，玥玥直接入隊 <b id="tutorial-progress">0 / 50</b></p>
@@ -38,7 +38,7 @@
       <div id="buddies"></div>
     </section>
     <canvas id="click-fx" width="960" height="640" aria-hidden="true"></canvas><div id="floaters" aria-hidden="true"></div><div id="join-flight" aria-hidden="true"></div>
-    <footer><span id="completed">已拆 0 包</span><span id="next-goal">下一目標：50 點迎接玥玥</span><button id="stats-open"><img class="badge" src="clicker-ui-badge-star.png" alt="" />統計</button><button id="roster-open"><img class="badge" src="clicker-ui-badge-paw.png" alt="" />名冊 <b id="owned-count">0 / 12</b></button><span class="save-plate"><img class="badge" src="clicker-ui-badge-heart.png" alt="" /><span id="save-status" role="status">尚未儲存</span></span><button id="retry-save" hidden>重試儲存</button></footer>
+    <footer><span id="completed">已拆 0 包</span><span id="next-goal">下一目標：50 點迎接玥玥</span><button id="stats-open"><img class="badge" src="clicker-ui-badge-star.png" alt="" />統計</button><button id="scene-open" disabled title="更多場景後續開放">場景</button><button id="roster-open"><img class="badge" src="clicker-ui-badge-paw.png" alt="" />名冊 <b id="owned-count">0 / 12</b></button><span class="save-plate"><img class="badge" src="clicker-ui-badge-heart.png" alt="" /><span id="save-status" role="status">尚未儲存</span></span><button id="retry-save" hidden>重試儲存</button></footer>
   </div>
   <div id="cutin" aria-hidden="true"></div>
   <section id="recruit-layer" class="table skin-af" role="dialog" aria-modal="true" aria-label="招募夥伴" hidden>
@@ -57,6 +57,7 @@
 <script src="character-config.js"></script><script src="gacha-pool.js"></script>
 <script src="gacha-audio.js"></script><script src="gacha-fx.js"></script><script src="gacha-card.js"></script><script src="gacha-mode-runtime.js"></script>
 <script src="gacha-mode-hearthstone.js"></script><script src="gacha-mode-wish.js"></script><script src="gacha-mode-summon.js"></script><script src="gacha-mode-stage.js"></script><script src="gacha-mode-rip.js"></script>
+<script src="clicker-scene.js"></script><script type="module" src="clicker-music.js"></script>
 <script src="clicker-balance.js"></script><script src="clicker-economy.js"></script><script src="clicker-save.js"></script><script src="clicker-stage.js"></script><script src="clicker-gacha.js"></script><script src="clicker-cutin.js"></script><script src="clicker.js"></script>
 </body>
 </html>

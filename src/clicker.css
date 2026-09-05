@@ -342,3 +342,16 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #cutin-name { top:105px; }
 #cutin-panel.from-right #cutin-name { top:77px; }
 #cutin-subtitle { background:#FFF6E6ed; padding:3px 6px; }
+
+/* Round 5: inset sticker diorama; the original mat edge stays above the scene. */
+#clicker-scene { position:absolute; inset:0; z-index:1; clip-path:inset(24px round 5px); pointer-events:none; background:var(--scene-mat); }
+.scene-layer { position:absolute; inset:0; pointer-events:none; }
+.scene-layer img { position:absolute; max-width:none; transform-origin:50% 100%; }
+.desk-mat::after { content:''; position:absolute; inset:0; z-index:12; border-image:url('clicker-ui-mat.png') 88 / 24px stretch; }
+#hero-position { z-index:2; }
+.contact { z-index:2; }
+.hero-contact { background:#36583880; }
+.bag-contact { background:#4d493d60; }
+.stage-flag { z-index:2; }
+#game #music { height:24px; padding:2px 8px 5px; font-size:12px; min-width:60px; }
+#tutorial, .package-meter { z-index:13; }
