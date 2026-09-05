@@ -29,7 +29,7 @@ window.Clicker = (() => {
   }
   function notice(text) {
     $('notice').textContent = text; $('notice').hidden = false; clearTimeout(noticeTimer);
-    if (!document.hidden) noticeTimer = setTimeout(() => { $('notice').hidden = true; noticeTimer = 0; }, 4000);
+    if (!document.hidden) noticeTimer = setTimeout(() => { $('notice').hidden = true; noticeTimer = 0; }, 1400);
   }
   function status() {
     $('save-status').textContent = store.blocked ? '尚未儲存' : '已儲存';
@@ -63,7 +63,8 @@ window.Clicker = (() => {
       $(`${type}-level`).textContent = `Lv.${s[field]}`;
       $(`${type}-next`).textContent = type === 'click' ? `每次 ${format(D)} → ${format(after.D)}` : `每秒 ${format(P)} → ${format(after.P)}`;
       const missing = Math.max(0, Math.ceil(cost - s.coins));
-      $(`${type}-one`).textContent = `1 級 · ${format(cost)}${missing ? `\n還差 ${format(missing)}` : ''}`;
+      const buy = $(`${type}-one`); buy.textContent = `1 級 · ${format(cost)}`;
+      if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)}`; buy.append(note); }
       $(`${type}-one`).disabled = $(`${type}-max`).disabled = store.blocked || cost > s.coins || !Number.isFinite(cost);
     }
     $('completed').textContent = `已拆 ${s.package.index - 1} 包`;
@@ -80,15 +81,12 @@ window.Clicker = (() => {
       slotsKey = key; $('slots').replaceChildren();
       for (let i = 0; i < 3; i++) {
         const el = document.createElement('article'); el.className = 'skill-slot';
-        const select = document.createElement('select'); select.setAttribute('aria-label', `第 ${i + 1} 技能槽角色`);
-        const empty = new Option(i < E.slotCount(s) ? '選擇夥伴' : `累計 ${format(B.slotThresholds[i])} 幣解鎖`, ''); select.add(empty);
-        for (const id of Object.keys(s.collection)) select.add(new Option(Pool.byId[id].name, id));
-        select.value = s.skillSlots[i] || ''; select.disabled = i >= E.slotCount(s);
-        select.onchange = () => action(() => {
-          const next = E.equip(store.state, i, select.value || null, Date.now());
-          if (commit(next)) { stage.setPartners(store.state); changed(); } else select.value = store.state.skillSlots[i] || '';
-        });
-        const button = document.createElement('button'); button.onclick = () => activate(i);
+        const select = document.createElement('button'); select.className = 'slot-pick'; select.setAttribute('aria-label', `第 ${i + 1} 技能槽角色`);
+        const id = s.skillSlots[i];
+        if (id) select.append(card.art.create(Pool.byId[id]));
+        const name = document.createElement('span'); name.textContent = id ? Pool.byId[id].name : i < E.slotCount(s) ? '選擇夥伴' : '尚未解鎖'; select.append(name); select.title = name.textContent;
+        select.onclick = () => showRoster(id, i);
+        const button = document.createElement('button'); button.className = 'skill-use'; button.onclick = () => activate(i);
         const detail = document.createElement('small'); el.append(select, button, detail); $('slots').append(el);
       }
     }
@@ -96,11 +94,11 @@ window.Clicker = (() => {
       const id = s.skillSlots[i], def = B.characters[id], t = Math.max(Date.now(), s.settledAt);
       const remaining = Math.max(0, Math.ceil((Math.max(s.cooldownUntil[id] || 0, s.slotReadyAt[i]) - t) / 1000));
       const effect = s.effects.find((e) => e.source === id);
-      const button = el.querySelector('button'), select = el.querySelector('select');
+      const button = el.querySelector('.skill-use'), select = el.querySelector('.slot-pick');
       button.textContent = def ? def.skill : '等待夥伴';
       button.disabled = store.blocked || !!gacha?.active || !def?.kind || remaining > 0 || (id === 'zhenmu' && Object.keys(s.collection).length < 2);
-      select.disabled = store.blocked || !!gacha?.active || i >= E.slotCount(s);
-      el.querySelector('small').textContent = effect ? `${effect.kind === 'click' ? `剩 ${effect.remaining} 次 · ` : ''}${Math.max(0, Math.ceil((effect.expiresAt - t) / 1000))} 秒` : !def ? '裝備後 30 秒可發動' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
+      select.disabled = store.blocked || !!gacha?.active;
+      el.querySelector('small').textContent = i >= E.slotCount(s) ? `累計 ${format(B.slotThresholds[i])} 幣` : effect ? `${effect.kind === 'click' ? `剩 ${effect.remaining} 次 · ` : `+${format(effect.value)}/秒 · `}${Math.max(0, Math.ceil((effect.expiresAt - t) / 1000))} 秒` : !def ? '裝備後 30 秒可發動' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
     });
   }
   function changed() { numbers(); renderSlots(); stage?.render(store.state); }
@@ -116,8 +114,8 @@ window.Clicker = (() => {
       const result = E.click(store.state, Date.now());
       if (result.tutorial) { if (!commit(result.state)) return; }
       else { store.stage(result.state); $('save-status').textContent = '等待自動儲存'; }
-      stage.click(result.amount, result.multiplier >= 10); stage.render(store.state, { completed: result.completed });
-      if (result.tutorial) { stage.setPartners(store.state); stage.join(store.state, ['yueyue2']); renderSlots(); notice('教學獎勵：玥玥入隊！每秒 +4 幣，可發動尾巴節拍。'); }
+      stage.click(result.amount, result.multiplier >= 10, store.state, result.completed);
+      if (result.tutorial) { stage.setPartners(store.state); stage.join(store.state, [{id:'yueyue2'}]); renderSlots(); notice('教學獎勵：玥玥入隊！每秒 +4 幣，可發動尾巴節拍。'); }
       numbers();
     });
   }
@@ -138,7 +136,7 @@ window.Clicker = (() => {
       sound('skill'); stage.render(store.state); stage.skill(result.effect); changed();
     });
   }
-  function showRoster() {
+  function showRoster(selected = null, targetSlot = null) {
     if (!ready) return;
     const s = store.state; $('roster-grid').replaceChildren();
     for (const id of Object.keys(B.characters)) {
@@ -150,7 +148,20 @@ window.Clicker = (() => {
       const passive = document.createElement('small'); passive.textContent = count ? `${count} 張 · 每秒 ${format(E.individual(s, id))}` : '尚未招募';
       const skill = document.createElement('small'); skill.textContent = `${B.characters[id].skill}${B.characters[id].kind ? '' : ' · 後續開放'}`;
       const mastery = document.createElement('small'); mastery.textContent = count > 16 ? `熟練 +${count - 16}%` : count ? `下次升星 ${count}/${B.stars[E.stars(count)] || 16}` : '';
-      el.append(name, stars, passive, skill, mastery); $('roster-grid').append(el);
+      const rarity = document.createElement('small'); rarity.textContent = {common:'普通',rare:'稀有',epic:'史詩',legendary:'傳說'}[Pool.byId[id].rarity];
+      el.append(name, rarity, stars, passive, skill, mastery); el.dataset.id = id;
+      el.tabIndex = 0; el.setAttribute('role','button'); el.onclick = () => showRoster(id, targetSlot);
+      el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showRoster(id,targetSlot); } };
+      el.classList.toggle('selected', selected === id); $('roster-grid').append(el);
+    }
+    const detail = $('roster-detail'); detail.replaceChildren();
+    const title = document.createElement('b'); title.textContent = selected ? `${Pool.byId[selected].name}・更換後等待 30 秒` : '選擇夥伴，再裝備至技能槽'; detail.append(title);
+    for (let i = 0; i < 3; i++) {
+      const button = document.createElement('button'), occupied = selected ? s.skillSlots.indexOf(selected) : -1;
+      button.textContent = i >= E.slotCount(s) ? `槽${i+1}：累計 ${format(B.slotThresholds[i])} 幣` : occupied >= 0 ? `已在槽 ${occupied+1}` : `裝備至槽 ${i+1}`;
+      button.disabled = !s.collection[selected] || i >= E.slotCount(s) || occupied >= 0 || store.blocked;
+      button.classList.toggle('target-slot', targetSlot === i);
+      button.onclick = () => action(()=>{ if (commit(E.equip(store.state,i,selected,Date.now()))) { changed(); showRoster(selected,i); } }); detail.append(button);
     }
     $('roster').hidden = false; $('game-content').inert = true; $('roster-close').focus();
   }
@@ -231,11 +242,11 @@ window.Clicker = (() => {
       return;
     }
     await card.ready;
-    stage = window.ClickerStage.create({ card, sound, format });
+    stage = window.ClickerStage.create({ card, sound, format, showRoster, notice });
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
       pauseStage() { stage.stop(); renderSlots(); },
       resumeStage() { if (!document.hidden && !suspended) { stage.start(); stage.render(store.state, { instant: true }); } renderSlots(); },
-      joined(ids) { stage.join(store.state, ids); $('star-summary').textContent = ids.length ? `新增 ${ids.length} 位夥伴` : '重複夥伴已累積升星進度'; },
+      joined(entries) { stage.join(store.state, entries); },
     });
     ready = true; gacha.setReady(); stage.setPartners(store.state);
     offline(); stage.render(store.state, { instant: true }); changed(); status();
@@ -249,7 +260,7 @@ window.Clicker = (() => {
       if (commit(s)) { muteAudio(); changed(); }
     });
     $('retry-save').onclick = () => { if (commit()) { settle(); changed(); } };
-    $('roster-open').onclick = showRoster;
+    $('roster-open').onclick = () => showRoster();
     for (const id of ['roster', 'stats', 'receipt']) $(`${id}-close`).onclick = () => { $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('stats-open').onclick = () => {
       const s = store.state;

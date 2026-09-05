@@ -2,6 +2,7 @@
 執行：python tools/test/clicker-browser.py（需已安裝 Python Playwright 與 Chromium）。
 """
 import json
+from datetime import datetime, timezone
 import mimetypes
 import subprocess
 from pathlib import Path
@@ -16,10 +17,10 @@ OUT = ROOT / 'tools/test/.clicker-artifacts'
 def main():
     OUT.mkdir(exist_ok=True)
     errors = []
-    original_css = subprocess.check_output(['git', 'show', 'HEAD:src/gacha.css'], cwd=ROOT)
+    original_css = subprocess.check_output(['git', 'show', 'HEAD:src/gacha-card.css'], cwd=ROOT) + subprocess.check_output(['git', 'show', 'HEAD:src/gacha.css'], cwd=ROOT)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        context = browser.new_context(viewport={'width': 960, 'height': 640})
+        context = browser.new_context(viewport={'width': 960, 'height': 640}, device_scale_factor=1.25)
         context.add_init_script('''const seed = sessionStorage.getItem('test-seed'); if(seed) {localStorage.setItem('clicker_save',seed);sessionStorage.removeItem('test-seed');}''')
         context.add_init_script('''(() => {
           window.testSchedules={raf:new Set(),timeout:new Set(),interval:new Set()};
@@ -32,6 +33,16 @@ def main():
           window.setInterval=(fn,ms,...args)=>{const id=interval(fn,ms,...args);testSchedules.interval.add(id);return id};
           window.clearInterval=id=>{testSchedules.interval.delete(id);clearI(id)};
         })();''')
+
+        context.add_init_script("""(() => {
+          let fx; window.fxEvents=[]; window.fxBindings=[];
+          Object.defineProperty(window,'GachaFx',{get:()=>fx,set:value=>{
+            fx=value; const init=fx.init, create=fx.createScope;
+            fx.init=(canvas,...args)=>{fxBindings.push(canvas.id);init(canvas,...args)};
+            fx.createScope=(...args)=>{const scope=create(...args), spawn=scope.spawn;
+              scope.spawn=p=>{fxEvents.push({...p,canvas:fxBindings.at(-1)});spawn.call(scope,p)};return scope;};
+          }});
+        })();""")
 
         def route(request):
             name = unquote(urlparse(request.request.url).path).lstrip('/')
@@ -64,10 +75,11 @@ def main():
             page.evaluate('for(let i=0;i<8;i++) document.getElementById("tap").click()')
         page.wait_for_timeout(1010)
         page.evaluate('document.getElementById("tap").click(); document.getElementById("tap").click()')
+        page.wait_for_timeout(70); page.screenshot(path=str(OUT / 'join-tutorial.png'))
         assert page.evaluate('Clicker.state.collection.yueyue2') == 1
         assert page.evaluate('Clicker.state.paidDraws') == 0
-        assert page.locator('#slots button').first.is_enabled()
-        page.locator('#slots button').first.click()
+        assert page.locator('#slots .skill-use').first.is_enabled()
+        page.locator('#slots .skill-use').first.click()
         assert page.evaluate('Clicker.state.effects[0].remaining') == 10
         assert page.evaluate('Object.keys(localStorage)') == ['clicker_save']
         page.screenshot(path=str(OUT / 'tutorial.png'))
@@ -79,11 +91,11 @@ def main():
           s.skillSlots=['yueyue2','jiaobu','zhenmu']; sessionStorage.setItem('test-seed',JSON.stringify(s));
         }''')
         page.reload(); page.wait_for_function('window.Clicker && !document.getElementById("tap").disabled')
-        page.locator('#slots button').nth(2).click()
+        page.locator('#slots .skill-use').nth(2).click()
         assert page.evaluate('Clicker.state.effects[0].target') == 'zhenzhen'
         page.wait_for_timeout(350)
-        assert page.locator('#parasite-host svg').count() == 1
-        assert page.locator('.partner:not([hidden])').count() <= 2
+        assert page.locator('#parasite-label svg').count() == 1
+        assert page.locator('#stage .partner, #parasite-host').count() == 0
         page.screenshot(path=str(OUT / 'parasite.png'))
         page.locator('#roster-open').click(); assert page.locator('.roster-character').count() == 12
         page.screenshot(path=str(OUT / 'roster.png')); page.locator('#roster-close').click()
@@ -107,6 +119,9 @@ def main():
                 page.screenshot(path=str(OUT / 'pending.png'))
             before = page.evaluate('Object.values(Clicker.state.collection).reduce((a,b)=>a+b,0)')
             page.evaluate('document.getElementById("collect").click();document.getElementById("collect").click()')
+            if name == 'wish':
+                page.wait_for_timeout(100); page.screenshot(path=str(OUT / 'join-duplicate.png'))
+                assert page.locator('#join-flight svg').count() > 0
             assert page.evaluate('Clicker.state.pending') is None
             assert page.evaluate('Object.values(Clicker.state.collection).reduce((a,b)=>a+b,0)') == before + 5
 
@@ -139,6 +154,86 @@ def main():
         page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:false}); document.dispatchEvent(new Event("visibilitychange"));')
         assert page.locator('#collect').is_visible()
         page.locator('#collect').click()
+
+        # Round 2 scenes use the actual save/load and input paths; no server or app debug API.
+        scenes = context.new_page(); scenes.on('pageerror', lambda error: errors.append(str(error)))
+        scenes.goto('http://clicker.test/clicker.html')
+        scenes.wait_for_function('window.Clicker && !document.getElementById("tap").disabled')
+
+        def seed(count=6, progress=0, heavy=False, cooldown=False):
+            nonlocal scenes
+            fixture = scenes.evaluate("""({count,progress,heavy,cooldown}) => {
+              let s=ClickerSave.fresh(Date.now()); s.settings.muted=true;
+              s.coins=s.lifetimeCoins=1000000; s.manualClicks=50; s.claimedMilestones=['tutorial50'];
+              const ids=count>=7 ? ['yueyue2','jiaobu','zhenmu',...Object.keys(ClickerBalance.characters).filter(id=>!['yueyue2','jiaobu','zhenmu'].includes(id))] : Object.keys(ClickerBalance.characters); s.collection=Object.fromEntries(ids.slice(0,count).map(id=>[id,1]));
+              s.package.progress=progress;
+              if(count>=7) s.skillSlots=['yueyue2','jiaobu','zhenmu'];
+              if(cooldown) s.slotReadyAt=[s.settledAt+30000,s.settledAt+30000,s.settledAt+30000];
+              if(heavy) s=ClickerEconomy.activate(s,1,Date.now()).state;
+              ClickerSave.validate(s,GachaPool);
+              return s;
+            }""", dict(count=count,progress=progress,heavy=heavy,cooldown=cooldown))
+            scenes.close(); scenes = context.new_page()
+            scenes.on('pageerror', lambda error: errors.append(str(error)))
+            scenes.add_init_script('''const fixture=''' + json.dumps(fixture) + ''';
+              // A short settlement high-water mark keeps fixture progress stable while assets load.
+              const delta=Date.now()+10000-fixture.settledAt; fixture.savedAt+=delta; fixture.settledAt+=delta;
+              fixture.slotReadyAt=fixture.slotReadyAt.map(t=>t?t+delta:0);
+              for(const id in fixture.cooldownUntil) fixture.cooldownUntil[id]+=delta;
+              fixture.effects.forEach(e=>{e.startedAt+=delta;e.expiresAt+=delta;});
+              localStorage.setItem('clicker_save',JSON.stringify(fixture));''')
+            scenes.clock.install()
+            scenes.goto('http://clicker.test/clicker.html')
+            scenes.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
+            scenes.wait_for_function('GachaFx.sheetReady()')
+            scenes.clock.pause_at(datetime.fromtimestamp((scenes.evaluate('Date.now()') + 2000) / 1000, timezone.utc))
+
+
+        def shot(name):
+            if name.startswith('click-'):
+                assert scenes.evaluate('''() => {
+                  const data=document.getElementById('click-fx').getContext('2d').getImageData(0,0,960,640).data;
+                  return data.some((v,i)=>i%4===3 && v>0);
+                }'''), 'Particle canvas is empty: '+name
+            scenes.screenshot(path=str(OUT / (name+'.png')))
+
+        for count in [1,6,7]:
+            seed(count); assert scenes.locator('.buddy').count()==min(count,6), (count, scenes.locator('.buddy').count(), scenes.evaluate('Clicker.state'), scenes.locator('#fatal').text_content())
+            assert scenes.locator('#stage svg').count()==1
+            shot('buddies-'+str(count))
+            if count==7:
+                scenes.locator('#buddy-next').click(); assert scenes.locator('.buddy').count()==1
+                shot('buddies-7-page2')
+        seed(7,cooldown=True); shot('skills-cooldown')
+        seed(7); scenes.locator('#slots .skill-use').nth(2).click(); scenes.clock.run_for(170)
+        assert scenes.locator('#parasite-label svg').count()==1; shot('parasite-active')
+        for state,progress in enumerate([0,30,55,80]):
+            seed(1,progress); assert scenes.locator('#bag-image').get_attribute('src')==f'clicker-bag-{state}.png', (state, scenes.locator('#bag-image').get_attribute('src'), scenes.evaluate('({state:Clicker.state,now:Date.now(),time:performance.now()})'))
+            shot('bag-'+str(state))
+        seed(1,99); scenes.evaluate('document.getElementById("tap").click()'); scenes.clock.run_for(60)
+        assert scenes.locator('#bag-image').get_attribute('src')=='clicker-bag-4.png', scenes.evaluate('({state:Clicker.state,now:Date.now(),events:fxEvents})'); shot('bag-4')
+        scenes.clock.run_for(400)
+        assert scenes.locator('#bag-image').get_attribute('src')=='clicker-bag-0.png'
+        seed(1); scenes.evaluate('fxEvents.length=0;document.getElementById("tap").click()'); scenes.clock.run_for(60)
+        particles=scenes.evaluate('fxEvents'); assert len(particles)==8
+        assert sum(p.get('shape')=='shard' for p in particles)==6
+        assert all(p['canvas']=='click-fx' for p in particles); scenes.clock.run_for(60); shot('click-normal')
+        scenes.clock.run_for(5); scenes.evaluate('document.getElementById("tap").click()')
+        scenes.clock.run_for(125); scenes.evaluate('fxEvents.length=0;document.getElementById("tap").click()'); scenes.clock.run_for(60)
+        assert scenes.evaluate('fxEvents.length')==12; shot('click-chain')
+        seed(7,heavy=True); scenes.evaluate('fxEvents.length=0;document.getElementById("tap").click()'); scenes.clock.run_for(60)
+        assert scenes.evaluate('fxEvents.length')==19, scenes.evaluate('({events:fxEvents,state:Clicker.state,now:Date.now()})')
+        assert scenes.evaluate('fxEvents.filter(p=>p.sprite===5).length')==1; scenes.clock.run_for(30); shot('click-heavy')
+        # Multi-package completion and subsequent inputs retain the newest progress.
+        scenes.clock.run_for(1100)
+        scenes.evaluate('Clicker.state.clickLevel=100; fxEvents.length=0; document.getElementById("tap").click()')
+        scenes.clock.run_for(60); shot('multi-package')
+        scenes.clock.run_for(125); scenes.evaluate('document.getElementById("tap").click()'); scenes.clock.run_for(500)
+        expected=scenes.evaluate('Math.min(3,Math.floor(Clicker.state.package.progress/ClickerEconomy.requirement(Clicker.state.package.index)*4))')
+        assert scenes.locator('#bag-image').get_attribute('src')==f'clicker-bag-{expected}.png'
+        assert page.evaluate('fxBindings.filter(id=>id==="fx").length') >= 5
+        assert page.evaluate('fxBindings.at(-1)') == 'click-fx'
+        scenes.close()
 
         # 相同 DOM 對照切分前後 CSS 的所有 computed style（含偽元素、減少動態）。
         demo = context.new_page(); demo.on('pageerror', lambda error: errors.append(str(error)))
@@ -175,7 +270,7 @@ def main():
             demo.evaluate('document.getElementById("original-css").remove();document.querySelectorAll("link[rel=stylesheet]").forEach(el=>el.disabled=false)')
         assert not errors, errors
         browser.close()
-    print('PASS: 真實點擊節流、教學、技能、12 角色、五模式、pending 恢復/雙擊、儲存失敗、隱藏恢復、卡面 CSS computed-style 等價。')
+    print('PASS: 真實點擊節流、教學、技能、12 角色、五模式、pending 恢復/雙擊、儲存失敗、隱藏恢復、卡面 CSS computed-style 等價；第二輪夥伴分頁、五狀態、寄生、8/12/18+1 粒子與多包最新進度。')
 
 
 if __name__ == '__main__':

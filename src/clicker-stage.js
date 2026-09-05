@@ -1,15 +1,16 @@
 window.ClickerStage = (() => {
-  function create({ card, sound, format }) {
+  function create({ card, sound, format, showRoster, notice }) {
     const $ = (id) => document.getElementById(id), E = window.ClickerEconomy;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const hero = card.art.create(window.GachaPool.byId.zhenmu), cfg = card.art.cfg('zhenmu');
     $('hero').append(hero);
     let running = false, raf = 0, lastFrame = 0, blinkTimer = 0, openTimer = 0;
     let pressAt = -Infinity, pressAmount = 0, combo = 0, previousClick = -Infinity;
-    let gesture = null, displayedSlots = '', parasite = null, lastPackage = 1, bagBusy = false;
+    let parasite = null, lastPackage = 1, bagBusy = false, latestState = null, bagState = 0;
+    let fx = null, page = 0, teamState = null, teamKey = '', clickChain = 0, fxClickAt = -Infinity, joining = false;
     let floatingTimes = [], floating = [], merged = 0, soundTimes = [];
     const timers = new Set(), animations = new Set();
-    const partners = new Map();
+
     const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); return id; };
     function motion(el, frames, ms, done) {
       const a = el.animate(reduced.matches ? [{ opacity: .55 }, { opacity: 1 }] : frames, { duration: reduced.matches ? 100 : ms, easing: 'ease-out' });
@@ -45,132 +46,156 @@ window.ClickerStage = (() => {
       hero.style.transform = `scale(${1 + breath + pressAmount * k}, ${1 + breath - (pressAmount + .02) * k})`;
       limb(hero, 'legL', 10 * (cfg.limbScale || 1) * k, cfg);
       limb(hero, 'legR', -10 * (cfg.limbScale || 1) * k, cfg);
-      if (gesture) {
-        const t = Math.min(1, (now - gesture.start) / 400), wave = reduced.matches ? 0 : Math.sin(t * Math.PI);
-        limb(gesture.svg, gesture.key, gesture.degrees * wave, gesture.cfg);
-        if (t === 1) gesture = null;
-      }
+
     }
     function start() {
       if (running || document.hidden) return;
+      window.GachaFx.init($('click-fx')); fx = window.GachaFx.createScope();
       running = true; lastFrame = performance.now(); raf = requestAnimationFrame(animate); scheduleBlink();
     }
     function stop() {
+      fx?.stop(); fx = null; joining = false; $('join-flight').replaceChildren();
       running = false; cancelAnimationFrame(raf); raf = 0;
       clearTimeout(blinkTimer); clearTimeout(openTimer); eyes(false);
       timers.forEach(clearTimeout); timers.clear(); animations.forEach((a) => a.cancel()); animations.clear();
       $('floaters').replaceChildren(); floating = []; floatingTimes = []; merged = 0;
-      if (gesture) limb(gesture.svg, gesture.key, 0, gesture.cfg); gesture = null;
       hero.style.transform = ''; limb(hero, 'legL', 0, cfg); limb(hero, 'legR', 0, cfg);
-      $('bag-image').src = 'clicker-bag.png'; bagBusy = false; pressAt = -Infinity; combo = 0;
+      bagBusy = false; if (latestState) showBag(stateOf(latestState)); pressAt = -Infinity; combo = 0; clickChain = 0; fxClickAt = -Infinity;
     }
-    function float(amount, now) {
+    function float(amount, now, heavy) {
       merged += amount; floatingTimes = floatingTimes.filter((t) => now - t < 1000);
-      if (floatingTimes.length >= 8 || floating.length >= 12) {
+      if (now - (floatingTimes.at(-1) ?? -Infinity) < 120 || floatingTimes.length >= 8 || floating.length >= 12) {
         const last = floating[floating.length - 1];
-        if (last) { last.amount += merged; last.el.querySelector('b').textContent = `+${format(last.amount)}`; merged = 0; }
+        if (last) { last.amount += merged; last.el.querySelector('b').textContent = `+${format(last.amount)}`; if (heavy) last.el.style.fontSize = '26px'; merged = 0; }
         return;
       }
       const el = document.createElement('span'); el.className = 'floater';
       el.innerHTML = '<img src="clicker-coin.png" alt="" /><b></b>';
       const item = { el, amount: merged }; merged = 0;
       el.querySelector('b').textContent = `+${format(item.amount)}`;
-      el.style.left = `${248 + (floatingTimes.length % 3 - 1) * 24}px`; el.style.top = '105px';
+      el.style.left = '424px'; el.style.top = '222px'; if (heavy) el.style.fontSize = '26px';
       $('floaters').append(el); floating.push(item); floatingTimes.push(now);
-      motion(el, [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-54px)', opacity: 0 }], 900, () => { el.remove(); floating = floating.filter((v) => v !== item); });
+      motion(el, [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-24px)', opacity: 1, offset: 2 / 3 }, { transform: 'translateY(-36px)', opacity: 0 }], 480, () => { el.remove(); floating = floating.filter((v) => v !== item); });
     }
-    function click(amount, heavy = false) {
+    function click(amount, heavy = false, s, completed = 0) {
       if (!running) return;
       const now = performance.now(); combo = now - previousClick <= 400 ? combo + 1 : 1; previousClick = now;
       pressAt = now; pressAmount = combo >= 3 ? .10 : .08;
       soundTimes = soundTimes.filter((t) => now - t < 1000);
       if (soundTimes.length < 6) { sound(heavy ? 'skill' : 'click'); soundTimes.push(now); }
-      float(amount, now);
+      clickChain = now - fxClickAt <= 180 ? clickChain + 1 : 1; fxClickAt = now;
+      const crossed = s.package.index > lastPackage || stateOf(s) !== bagState;
+      render(s, { completed, manual: true, heavy });
+      burst(heavy ? 18 : clickChain >= 3 ? 12 : 8, heavy, !heavy && clickChain >= 3);
+      if (heavy) bounce(true); else if (!crossed && !bagBusy) bounce(false);
+      float(amount, now, heavy);
     }
-    function partner(id, position) {
-      const el = document.createElement('div'); el.className = 'partner'; el.dataset.id = id;
-      el.style.left = `${[25, 462, 105][position]}px`;
-      el.style.setProperty('--partner-color', `var(--c-${window.GachaPool.byId[id].rarity})`);
-      const svg = card.art.create(window.GachaPool.byId[id]); el.append(svg);
-      const label = document.createElement('small'); label.textContent = window.GachaPool.byId[id].name; el.append(label);
-      $('partners').append(el); partners.set(id, { el, svg }); return el;
+    function setPartners(s) {
+      teamState = s;
+      const ids = Object.keys(window.ClickerBalance.characters).filter(id => s.collection[id]);
+      page = Math.min(page, Math.max(0, Math.ceil(ids.length / 6) - 1));
+      const key = JSON.stringify([s.collection, s.skillSlots, s.effects.find(e => e.source === 'zhenmu')?.target, page]);
+      if (key === teamKey) return; teamKey = key;
+      $('buddies').replaceChildren();
+      $('buddy-page').textContent = `${page + 1}/${Math.max(1, Math.ceil(ids.length / 6))}`;
+      $('buddy-prev').disabled = joining || page === 0; $('buddy-next').disabled = joining || (page + 1) * 6 >= ids.length;
+      if (!ids.length) $('buddies').textContent = '點擊 50 次，迎接第一位夥伴';
+      ids.slice(page * 6, page * 6 + 6).forEach(id => {
+        const entry = window.GachaPool.byId[id], el = document.createElement('button');
+        el.className = 'buddy'; el.dataset.id = id; el.style.setProperty('--rarity', {common:'#A9A297',rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[entry.rarity]);
+        const portrait = document.createElement('span'); portrait.className = 'buddy-portrait'; portrait.append(card.art.create(entry));
+        const name = document.createElement('b'); name.textContent = entry.name;
+        const stars = document.createElement('span'); stars.textContent = `★${E.stars(s.collection[id])}`;
+        el.append(portrait, name, stars);
+        const slot = s.skillSlots.indexOf(id); if (slot >= 0) { const stamp = document.createElement('small'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${slot + 1}`; el.append(stamp); }
+        if (s.effects.some(e => e.source === 'zhenmu' && e.target === id)) { const tag = document.createElement('small'); tag.className = 'parasite-stamp'; tag.textContent = '寄生'; el.append(tag); }
+        el.onclick = () => showRoster(id); $('buddies').append(el);
+      });
     }
-    function setPartners(s, featured) {
-      let ids = s.skillSlots.filter((id) => id && id !== 'zhenmu');
-      // 入隊展示替換一格，不追加第四位；下次槽位變更再恢復對應。
-      if (featured && featured !== 'zhenmu' && !ids.includes(featured)) ids = [featured, ...ids].slice(0, 3);
-      const key = ids.join(',');
-      if (key === displayedSlots) return;
-      displayedSlots = key; partners.clear(); $('partners').replaceChildren();
-      ids.forEach((id, i) => partner(id, i));
-    }
+    $('buddy-prev').onclick = () => { page--; setPartners(teamState); };
+    $('buddy-next').onclick = () => { page++; setPartners(teamState); };
     function updateParasite(s, instant) {
-      const effect = s.effects.find((e) => e.source === 'zhenmu');
+      const effect = s.effects.find(e => e.source === 'zhenmu');
       if (effect?.target === parasite?.target && !instant) return;
-      const previous = parasite; parasite = effect || null;
+      parasite = effect || null; const label = $('parasite-label');
       if (effect) {
-        let source = partners.get(effect.target);
-        // 未展示的宿主替換夥伴席，中央宿主仍計入最多三位夥伴。
-        if (!source) {
-          if (partners.size >= 3) { const [id, p] = [...partners][partners.size - 1]; p.el.remove(); partners.delete(id); }
-          partner(effect.target, Math.min(partners.size, 2)); source = partners.get(effect.target);
-        }
-        const r = source.el.getBoundingClientRect(), center = $('hero-position').getBoundingClientRect(), zoom = center.width / 240;
-        source.el.hidden = true;
-        const host = card.art.create(window.GachaPool.byId[effect.target]), hostCfg = card.art.cfg(effect.target);
-        host.style.height = `${hostCfg.height}px`; $('parasite-host').replaceChildren(host);
-        // 同一個 240×256 座標：圓頂落在宿主頭臉，而不是站上頭頂。
-        // PARASITE-V2：同底、同座標，不用臉中心另算偏移。宿主和珍母一起放大到主角尺寸。
-        host.style.height = `${hostCfg.height * 190 / cfg.height}px`;
-        $('hero').style.transform = '';
-        if (!instant && running) {
-          motion($('parasite-host'), [{ transform: `translate(${(r.left - center.left) / zoom}px, 0)` }, { transform: 'translate(0, 0)' }], 300);
-          motion($('hero'), [{ transform: 'translate(0, -35px)' }, { transform: 'translate(0, 0)' }], 300);
-        }
-      } else if (previous) {
-        const finish = () => { $('parasite-host').replaceChildren(); for (const p of partners.values()) p.el.hidden = false; };
-        $('hero').style.transform = '';
-        if (!instant && running) motion($('hero'), [{ transform: 'translate(0, 0)' }, { transform: 'translate(-28px, -35px)', offset: .5 }, { transform: 'translate(0, 0)' }], 300, finish);
-        else finish();
+        label.replaceChildren(card.art.create(window.GachaPool.byId[effect.target]));
+        label.append(document.createTextNode(`寄生・${window.GachaPool.byId[effect.target].name}`)); label.hidden = false;
+        if (!instant) motion(label, [{transform:'scale(.85)',opacity:0},{transform:'scale(1)',opacity:1}],160);
+      } else if (!label.hidden) {
+        if (instant) label.hidden = true;
+        else motion(label,[{opacity:1},{opacity:0}],120,()=>{ if (!parasite) label.hidden = true; });
       }
     }
-    function render(s, { instant = false, completed = 0 } = {}) {
+    const stateOf = s => { const r = Math.max(0, 1 - s.package.progress / E.requirement(s.package.index)); return r > .75 ? 0 : r > .5 ? 1 : r > .25 ? 2 : 3; };
+    function showBag(state) { bagState = state; $('bag-image').src = `clicker-bag-${state}.png`; $('bag-image').alt = `零食包：${['完整','輕損','中損','重損','撕開'][state]}`; }
+    function bounce(heavy) {
+      motion($('bag-image'), heavy ? [{transform:'scale(1)'},{transform:'scale(1.10)',offset:.35},{transform:'scale(.97)',offset:.7},{transform:'scale(1)'}] : [{transform:'scale(1)'},{transform:'scale(1.045)',offset:.5},{transform:'scale(1)'}], heavy ? 180 : 140);
+    }
+    // 撕口錨點（全畫面座標）。碎紙要看得見：夠大、噴得高、有翻面暗色，落回時已在桌墊上
+    const IMPACT = { x: 424, y: 240 };
+    function burst(count, heavy = false, chain = false) {
+      if (!fx) return;
+      const rand = (a,b) => a + Math.random() * (b-a), sparks = count === 4 ? 0 : 2;
+      const k = chain ? 1.15 : 1;
+      for (let i = 0; i < count; i++) {
+        const spark = i >= count - sparks;
+        const pink = i % 6 < 4;
+        const color = spark ? '#E9B94E' : pink ? '#EF8E8E' : '#FFF3DC';
+        const color2 = pink ? '#C9686B' : '#D8C4A0';
+        const w = heavy ? rand(14, 22) : rand(10, 16), h = w * rand(.55, .8);
+        fx.spawn(spark
+          ? { sprite: 14, x: IMPACT.x + rand(-10, 10), y: IMPACT.y + rand(-4, 4), vx: rand(-50, 50), vy: rand(-120, -50), g: 80,
+              r: heavy ? rand(9, 13) : rand(6, 9), life: rand(.28, .4), rot: rand(0, Math.PI * 2), vr: rand(-1, 1), drag: .985, shrink: true, color, blend: 'lighter' }
+          : { shape: 'shard', x: IMPACT.x + rand(-10, 10), y: IMPACT.y + rand(-4, 4),
+              vx: rand(heavy ? -170 : -120, heavy ? 170 : 120) * k, vy: rand(heavy ? -330 : -260, heavy ? -170 : -130) * k, g: heavy ? 520 : 460,
+              life: heavy ? rand(.7, 1) : rand(.55, .8), w, h, rot: rand(0, Math.PI * 2), vr: rand(heavy ? -9 : -6, heavy ? 9 : 6),
+              drag: .99, color, color2, fadeK: 4 });
+      }
+      if (heavy) fx.spawn({ sprite: 5, x: IMPACT.x, y: IMPACT.y, r: 40, life: .14, vx: 0, vy: 0, g: 0, rot: -.35, color: '#E9B94E', blend: 'lighter' });
+    }
+    function render(s, { instant = false, completed = 0, manual = false, heavy = false } = {}) {
+      latestState = s; setPartners(s);
       if (!running && !instant) { lastPackage = s.package.index; return; }
-      const need = E.requirement(s.package.index), fraction = s.package.progress / need;
-      $('package-label').textContent = `第 ${s.package.index} 包`;
-      $('package-progress').value = fraction; $('package-number').textContent = `${format(s.package.progress)} / ${format(need)}`;
+      const need = E.requirement(s.package.index), next = stateOf(s), crossed = next !== bagState;
+      $('package-label').textContent = `${format(s.package.index)} 包`;
+      $('package-progress').value = s.package.progress / need; $('package-number').textContent = `${format(s.package.progress)} / ${format(need)}`;
       if (s.package.index > lastPackage && !instant) {
         $('package-result').textContent = `完成 ${completed || s.package.index - lastPackage} 包`;
         if (!bagBusy) {
-          bagBusy = true; $('bag-image').src = 'clicker-bag-open.png'; $('tears').hidden = true;
-          later(() => motion($('bag'), [{ opacity: 1 }, { opacity: 0 }], 180, () => {
-            $('bag-image').src = 'clicker-bag.png'; $('tears').hidden = false;
-            motion($('bag'), [{ transform: 'translateY(25px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], 220);
-            bagBusy = false;
-          }), 300);
+          bagBusy = true; showBag(4);
+          later(() => motion($('bag'), [{opacity:1},{opacity:0}],100,()=>{
+            showBag(stateOf(latestState));
+            motion($('bag'),[{transform:'translateY(10px)',opacity:0},{transform:'translateY(0)',opacity:1}],140,()=>{bagBusy=false; showBag(stateOf(latestState));});
+          }),180);
         }
-      }
-      lastPackage = s.package.index;
-      if (!bagBusy) $('tears').hidden = false;
-      [...$('tears').children].forEach((el, i) => { el.hidden = fraction < (i + 1) * .25; });
-      updateParasite(s, instant);
-      $('effect-label').textContent = s.effects.map((e) => e.kind === 'click' ? `×${e.multiplier} · ${e.remaining} 次` : `複製 ${window.GachaPool.byId[e.target].name} +${format(e.value)}/秒`).join('　');
+        if (!manual) burst(4);
+      } else if (!bagBusy) { showBag(next); if (crossed && !instant) { if (!heavy) bounce(false); if (!manual) burst(4); } }
+      lastPackage = s.package.index; updateParasite(s, instant);
     }
     function skill(effect) {
-      if (!running || effect.source === 'zhenmu') return;
-      if (gesture) limb(gesture.svg, gesture.key, 0, gesture.cfg);
-      const p = partners.get(effect.source); if (!p) return;
-      const conf = card.art.cfg(effect.source), key = effect.source === 'yueyue2' ? 'tail' : 'pawR';
-      const degrees = key === 'tail' ? 5 * (conf.tailScale || 1) : (conf.up || 1) * 20 * (conf.limbScale || 1) * (conf.pawScale || 1);
-      gesture = { svg: p.svg, cfg: conf, key, degrees, start: performance.now() };
+      const el = document.querySelector(`.buddy[data-id="${effect.source}"]`);
+      if (el && running) motion(el,[{transform:'scale(1)'},{transform:'scale(1.08)',offset:.5},{transform:'scale(1)'}],140);
     }
-    function join(s, ids) {
-      if (!ids.length) return;
-      const rank = window.GachaPool.RARITY_ORDER;
-      const id = [...ids].sort((a, b) => rank.indexOf(window.GachaPool.byId[a].rarity) - rank.indexOf(window.GachaPool.byId[b].rarity))[0];
-      setPartners(s, id); render(s, { instant: true });
-      const el = partners.get(id)?.el;
-      if (el && running) motion(el, [{ transform: 'translateX(-55px)', opacity: 0 }, { transform: 'translateX(0)', opacity: 1 }], 320);
+    function join(s, entries) {
+      if (!entries.length || !running) return;
+      const ids = Object.keys(window.ClickerBalance.characters).filter(id => s.collection[id]);
+      const unique = [...new Map(entries.map(e => [e.id,e])).values()], groups = new Map();
+      unique.forEach(e => { const p = Math.floor(ids.indexOf(e.id)/6); if (!groups.has(p)) groups.set(p,[]); groups.get(p).push(e); });
+      joining = true;
+      const batches = [...groups];
+      function group(index) {
+        if (index >= batches.length) { joining = false; teamKey = ''; setPartners(s); return; }
+        const [p, items] = batches[index]; page = p; teamKey = ''; setPartners(s);
+        items.forEach((e,i) => later(()=>{
+          const target = document.querySelector(`.buddy[data-id="${e.id}"] .buddy-portrait`), box = $('game').getBoundingClientRect(), rect = target.getBoundingClientRect(), zoom = box.width/960;
+          const from = e.origin || {x:320,y:98}, to = {x:(rect.left+rect.width/2-box.left)/zoom,y:(rect.top+rect.height/2-box.top)/zoom};
+          const el = document.createElement('div'); el.className = 'joining-portrait'; el.append(card.art.create(window.GachaPool.byId[e.id])); $('join-flight').append(el);
+          motion(el,[{transform:`translate(${from.x-32}px,${from.y-32}px) scale(1)`},{transform:`translate(${(from.x+to.x)/2-32}px,${(from.y+to.y)/2-68}px) scale(.8)`,offset:.5},{transform:`translate(${to.x-32}px,${to.y-32}px) scale(.625)`}],380,()=>{el.remove(); motion(target,[{transform:'scale(1)'},{transform:'scale(1.08)',offset:.5},{transform:'scale(1)'}],140); notice(`${window.GachaPool.byId[e.id].name} 已入隊・★${E.stars(s.collection[e.id])}`);});
+        },i*70));
+        later(()=>group(index+1),items.length*70+520);
+      }
+      group(0);
     }
     return { start, stop, click, render, skill, join, setPartners };
   }

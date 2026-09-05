@@ -11,7 +11,7 @@ button:focus-visible, select:focus-visible { outline: 3px solid #0070dd; outline
 img, svg { -webkit-user-drag: none; pointer-events: none; }
 h1, h2, p { margin: 0; } h2 { font-size: 17px; } small { font-size: 11px; } b, progress { font-variant-numeric: tabular-nums; }
 #zoomer { position: absolute; transform-origin: 0 0; }
-#game { position: relative; width: 960px; height: 640px; overflow: hidden; background: #efdab8 url('clicker-desk.png') center / cover; border-radius: 16px; }
+#game { position: relative; width: 960px; height: 640px; overflow: hidden; background: #E9D6B4 url('clicker-ui-kraft.png') repeat; border-radius: 16px; }
 .topbar { position: absolute; left: 16px; top: 12px; width: 928px; height: 48px; display: flex; align-items: center; gap: 16px; cursor: move; padding: 0 8px; }
 h1 { font-size: 23px; letter-spacing: .08em; display: flex; align-items: baseline; gap: 12px; } h1 small { letter-spacing: .06em; font-weight: normal; }
 .wallet { margin-left: auto; display: flex; align-items: center; gap: 7px; min-width: 130px; } .wallet img { height: 32px; width: auto; } .wallet b { font-size: 25px; letter-spacing: -.03em; }
@@ -19,22 +19,16 @@ h1 { font-size: 23px; letter-spacing: .08em; display: flex; align-items: baselin
 #stage { position: absolute; left: 16px; top: 72px; width: 608px; height: 360px; border: 2px solid #aa8560; border-radius: 18px; background: #fff4df70; overflow: hidden; }
 #tutorial { position: absolute; top: 14px; left: 18px; right: 18px; font-size: 12px; text-align: center; } #tutorial b { margin-left: 10px; }
 #hero-position { position: absolute; left: 184px; top: 3px; width: 240px; height: 256px; pointer-events: none; }
-#hero, #parasite-host { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; }
+#hero { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; }
 #hero { z-index: 2; transform-origin: 50% 90%; }
 #hero > svg { height: 190px !important; width: auto; margin: 0 !important; filter: none !important; transform-origin: 50% 85%; }
-#parasite-host > svg { width: auto; margin: 0 !important; filter: none !important; }
 #tap { position: absolute; left: 184px; top: 20px; width: 240px; height: 240px; z-index: 5; background: transparent; border: 0; box-shadow: none; border-radius: 30%; touch-action: manipulation; }
 #tap:hover:enabled { background: transparent; } #tap:active:enabled { transform: none; }
-.partner { position: absolute; bottom: 99px; width: 120px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; pointer-events: none; }
-.partner svg { height: 115px !important; width: auto; margin: 0 !important; filter: none !important; }
-.partner small { padding: 2px 7px; margin-top: 5px; background: #fff6df; border-bottom: 3px solid var(--partner-color); border-radius: 6px; font-size: 11px; }
 #bag { position: absolute; left: 340px; top: 174px; z-index: 4; pointer-events: none; }
 #bag-image { display: block; height: 150px; width: auto; }
-#tears { position: absolute; inset: 0; } #tears img { position: absolute; height: 18px; width: auto; max-width: 100%; left: 6%; top: 28%; transform: rotate(-7deg); } #tears img:nth-child(2) { top: 49%; left: 0; transform: rotate(6deg); } #tears img:nth-child(3) { top: 68%; left: 9%; transform: rotate(-3deg); }
 .package-meter { position: absolute; bottom: 27px; left: 20px; right: 20px; display: flex; align-items: center; gap: 10px; font-size: 11px; }
 progress { height: 10px; flex: 1; accent-color: #aa6c42; } #package-number { min-width: 94px; text-align: right; }
 #package-result { position: absolute; bottom: 5px; left: 20px; font-size: 11px; }
-#effect-label { position: absolute; top: 49px; left: 140px; right: 140px; text-align: center; font-size: 12px; font-weight: bold; pointer-events: none; }
 #floaters { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
 .floater { position: absolute; display: flex; align-items: center; gap: 3px; color: #5e3720; font-size: 22px; font-weight: bold; text-shadow: 0 2px #fff7e9; } .floater img { height: 23px; width: auto; }
 #shop { position: absolute; left: 640px; top: 72px; width: 304px; height: 360px; display: flex; flex-direction: column; gap: 10px; }
@@ -79,3 +73,101 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
   50% { transform: translate(-2px, 1px); }
   75% { transform: translate(1px, 0); }
 }
+/* Paper textures supply all nine slices, including the center. */
+#game { --ink:#30251F; --text-secondary:#735E4E; --paper:#FFF6E6; --paper-edge:#B69B78; --pink:#EF8E8E; --gold:#E9B94E; color:var(--ink); font-variant-numeric:tabular-nums; }
+#game-content button, #roster button { border:3px solid var(--ink); border-radius:9px; box-shadow:0 4px 0 var(--ink); background:var(--paper); transition:background 80ms,transform 80ms; }
+#game-content button:hover:enabled, #roster button:hover:enabled { background:#F8DFAD; }
+#game-content button:active:enabled, #roster button:active:enabled { transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+#game button:disabled { opacity:1; color:#8B7D6C; background:#DED4C3; cursor:default; }
+#game-content h1 { font-size:24px; line-height:30px; letter-spacing:0; gap:8px; }
+#game-content h1 small { font-size:11px; }
+.wallet, .upgrade, .recruit, #team { border:0; border-image:url('clicker-ui-paper.png') 80 fill / 18px round; background:transparent; border-radius:0; }
+.wallet { padding:4px 16px; min-width:160px; height:48px; }
+.wallet b { font-size:32px; line-height:36px; font-weight:800; }
+.rates { font-size:13px; line-height:18px; }
+#stage { border:0; background:transparent; border-radius:0; overflow:visible; }
+.desk-mat { position:absolute; inset:0; border-image:url('clicker-ui-mat.png') 96 fill / 48px round; pointer-events:none; }
+.stage-flag { position:absolute; left:24px; top:48px; width:64px; height:80px; object-fit:contain; }
+.tape { position:absolute; width:64px; height:24px; object-fit:contain; pointer-events:none; z-index:3; }
+.stage-tape { right:18px; top:-4px; transform:rotate(5deg); }
+.team-tape { left:200px; top:-9px; transform:rotate(-4deg); }
+#tutorial { left:20px; top:12px; width:568px; height:28px; font-size:13px; line-height:28px; background:var(--paper); border-radius:5px; }
+.contact { position:absolute; background:#9AA887; border-radius:50%; pointer-events:none; }
+.hero-contact { left:258px; top:248px; width:92px; height:12px; }
+.bag-contact { left:347px; top:290px; width:82px; height:10px; }
+#game-content #tap { background:transparent; border:0; box-shadow:none; }
+#game-content #tap:active { transform:none; }
+#bag { left:311px; top:130px; width:154px; height:176px; }
+#bag-image { width:154px; height:176px; transform-origin:50% 93.75%; }
+#parasite-label { position:absolute; left:198px; top:205px; width:116px; height:32px; z-index:6; display:flex; align-items:center; gap:3px; background:var(--paper); border:2px solid var(--ink); border-radius:5px; font-size:11px; pointer-events:none; }
+#parasite-label svg { width:24px!important; height:24px!important; margin:0!important; filter:none!important; }
+.package-meter { left:244px; top:328px; bottom:auto; right:auto; width:340px; height:24px; gap:8px; padding:2px 6px; border:2px solid var(--ink); background:var(--paper); clip-path:polygon(0 0,100% 0,99% 50%,100% 100%,0 100%,1% 50%); }
+#package-label { width:48px; flex:none; white-space:nowrap; overflow:hidden; }
+#package-number { width:128px; min-width:0; white-space:nowrap; }
+#package-progress { appearance:none; height:8px; width:124px; flex:none; border:1px solid #735E4E; background:transparent; }
+#package-progress::-webkit-progress-bar { background:repeating-linear-gradient(90deg,transparent 0 11px,#735E4E 11px 12px); }
+#package-progress::-webkit-progress-value { background:repeating-linear-gradient(90deg,var(--pink) 0 11px,#735E4E 11px 12px); }
+#package-result { left:110px; bottom:10px; }
+#click-fx { position:absolute; inset:0; z-index:6; pointer-events:none; }
+#floaters { z-index:7; }
+.floater { font-size:20px; color:var(--ink); text-shadow:none; }
+.floater img { height:18px; }
+.upgrade { padding:6px 16px; grid-template-columns:40px 1fr; grid-template-rows:42px 40px; }
+.upgrade > img { width:40px; height:40px; object-fit:contain; }
+#shop h2, .buddy-header h2, .skills-heading { font-size:18px; line-height:24px; border-image:url('clicker-ui-label.png') 70 fill / 9px stretch; padding:1px 8px; white-space:nowrap; }
+#shop .upgrade:nth-child(2) h2, .skills-heading { border-image-source:url('clicker-ui-label-green.png'); }
+#shop .recruit h2 { border-image-source:url('clicker-ui-label-purple.png'); }
+.upgrade p { font-size:13px; line-height:18px; margin:0; }
+.purchase { margin-top:4px; }
+.purchase button { font-size:15px; line-height:16px; height:36px; padding:0 4px; }
+.purchase button small { display:block; font-size:11px; line-height:12px; }
+#game-content .purchase button:first-child { background:#9BAF6B; }
+#game-content .purchase button:disabled { background:#DED4C3; }
+.upgrade .purchase button:first-child { flex:0 0 176px; }
+.recruit { padding:6px 16px; grid-template-rows:42px 40px auto auto auto; }
+.recruit small { font-size:11px; }
+#single-note { font-size:11px; }
+#game-content .text-button { border:0; box-shadow:none; background:transparent; }
+#team { display:block; }
+.buddy-header { position:absolute; left:12px; top:6px; width:520px; height:24px; display:flex; align-items:center; gap:4px; }
+.buddy-header h2 { width:112px; flex:none; }
+.buddy-header nav { margin-left:auto; display:flex; align-items:center; gap:5px; white-space:nowrap; }
+#game-content .buddy-header button { font-size:11px; padding:0 4px; height:22px; border-width:2px; box-shadow:0 2px 0 var(--ink); }
+#buddy-page { font-size:11px; }
+#buddies { position:absolute; left:12px; top:32px; width:520px; height:88px; display:flex; gap:8px; align-items:center; font-size:13px; }
+#game-content .buddy { position:relative; flex:0 0 80px; height:88px; padding:0; border:0; border-radius:0; border-bottom:4px solid var(--rarity); background:transparent; box-shadow:none; display:flex; flex-direction:column; align-items:center; font-size:12px; line-height:16px; }
+#game-content .buddy:hover { background:#E9D6B4; }
+.buddy-portrait { display:flex; align-items:center; justify-content:center; width:50px; height:50px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
+.buddy-portrait svg { width:40px!important; height:40px!important; margin:0!important; filter:none!important; }
+.slot-stamp, .parasite-stamp { position:absolute; right:0; top:0; height:16px; width:28px; font-size:11px; line-height:14px; border:1px solid var(--ink); border-radius:3px; background:var(--paper); }
+.parasite-stamp { top:30px; background:#EF8E8E; }
+#team::after { content:''; position:absolute; left:548px; top:16px; height:100px; border-left:2px solid var(--paper-edge); }
+.skills-heading { position:absolute; left:564px; top:6px; width:100px; }
+#slots { position:absolute; left:564px; top:32px; display:flex; gap:8px; }
+.skill-slot { width:112px; height:88px; flex:none; border:0; background:transparent; padding:0 8px; gap:4px; }
+#game-content .slot-pick { display:flex; align-items:center; justify-content:center; gap:4px; width:96px; height:24px; padding:0; font-size:12px; border:0; box-shadow:none; background:transparent; }
+.slot-pick svg { width:24px!important; height:24px!important; margin:0!important; filter:none!important; }
+#game-content .skill-use { width:96px; height:28px; padding:0; font-size:13px; line-height:20px; background:#9BAF6B; }
+.skill-slot small { font-size:12px; line-height:16px; white-space:nowrap; }
+#notice { position:absolute; left:116px; top:1px; right:auto; max-width:240px; padding:2px 6px; font-size:11px; background:var(--paper); color:var(--ink); border-radius:3px; overflow:hidden; white-space:nowrap; z-index:8; }
+#join-flight { position:absolute; inset:0; z-index:45; pointer-events:none; }
+.joining-portrait { position:absolute; width:64px; height:64px; }
+.joining-portrait svg { width:64px!important; height:64px!important; margin:0!important; filter:none!important; }
+#roster { top:65px; bottom:30px; }
+#roster-grid { gap:8px; }
+.roster-character { cursor:pointer; }
+.roster-character svg { height:60px!important; }
+.roster-character.selected { outline:3px solid var(--ink); background:#F0D7AE; }
+#roster-detail { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:12px; }
+#roster-detail b { flex:1; }
+#roster-detail button { font-size:12px; }
+#roster-detail .target-slot { outline:2px solid #9BAF6B; outline-offset:3px; }
+
+.slot-pick span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#parasite-label { white-space:nowrap; overflow:hidden; }
+#parasite-label svg { flex:none; }
+#recruit-entry button small { display:block; }
+
+#tutorial { z-index:3; }
+
+#game-content h1 { border-image:url('clicker-ui-label.png') 70 fill / 10px stretch; padding:4px 10px; }

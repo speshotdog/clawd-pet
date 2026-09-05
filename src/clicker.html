@@ -18,12 +18,11 @@
     </header>
     <section id="stage" aria-label="拆包舞台">
       <p id="tutorial">教學獎勵 · 點擊 50 次，玥玥直接入隊 <b id="tutorial-progress">0 / 50</b></p>
-      <div id="partners"></div>
-      <div id="hero-position"><div id="parasite-host"></div><div id="hero"></div></div>
+      <div class="desk-mat"></div><img class="stage-flag" src="clicker-ui-flag.png" alt="" /><img class="tape stage-tape" src="clicker-ui-tape-1.png" alt="" /><i class="contact hero-contact"></i><i class="contact bag-contact"></i>
+      <div id="hero-position"><div id="hero"></div></div>
       <button id="tap" aria-label="點珍母拆零食包（空白鍵也可以）"></button>
-      <!-- 素材可後補；保持檔名即可，不以 CSS 幾何包裝代替。 -->
-      <div id="bag"><img id="bag-image" src="clicker-bag.png" alt="熱狗零食包" /><div id="tears"><img src="clicker-tear.png" alt="" hidden /><img src="clicker-tear.png" alt="" hidden /><img src="clicker-tear.png" alt="" hidden /></div></div>
-      <div id="floaters" aria-hidden="true"></div><span id="effect-label"></span>
+      <div id="bag"><img id="bag-image" src="clicker-bag-0.png" alt="零食包：完整" /></div>
+      <div id="parasite-label" hidden></div>
       <div class="package-meter"><span id="package-label">第 1 包</span><progress id="package-progress" max="1" value="0"></progress><span id="package-number">0 / 100</span></div>
       <p id="package-result" role="status"></p>
     </section>
@@ -32,7 +31,12 @@
       <article class="upgrade"><img src="clicker-icon-train.png" alt="" /><div><h2>全隊訓練 <small id="training-level">Lv.0</small></h2><p id="training-next"></p></div><div class="purchase"><button id="training-one"></button><button id="training-max">最多</button></div></article>
       <article class="recruit"><img src="gacha-pack.png" alt="夥伴卡包" /><div><h2>招募夥伴</h2><small>所有夥伴都會幫忙拆包</small></div><div class="purchase"><button id="draw-one"></button><button id="draw-five"></button></div><small id="single-note"></small><p id="pity"></p><button id="recruit-open" class="text-button">選擇演出方式</button></article>
     </aside>
-    <section id="team" aria-label="角色與技能"><div id="slots"></div><div class="team-summary"><button id="roster-open">夥伴名冊 <b id="owned-count">0 / 12</b></button><small id="star-summary">重複夥伴會自動升星</small><small>全部夥伴持續提供收益</small></div></section>
+    <section id="team" aria-label="角色與技能">
+      <img class="tape team-tape" src="clicker-ui-tape-2.png" alt="" />
+      <header class="buddy-header"><h2>我的夥伴</h2><span id="notice" role="status" hidden></span><nav><button id="buddy-prev" aria-label="上一頁">‹</button><span id="buddy-page"></span><button id="buddy-next" aria-label="下一頁">›</button><button id="roster-open">名冊 <b id="owned-count">0 / 12</b></button></nav></header>
+      <div id="buddies"></div><h2 class="skills-heading">技能</h2><div id="slots"></div>
+    </section>
+    <canvas id="click-fx" width="960" height="640" aria-hidden="true"></canvas><div id="floaters" aria-hidden="true"></div><div id="join-flight" aria-hidden="true"></div>
     <footer><span id="completed">已拆 0 包</span><span id="next-goal">下一目標：50 點迎接玥玥</span><button id="stats-open" class="text-button">統計</button><span id="save-status" role="status">尚未儲存</span><button id="retry-save" hidden>重試儲存</button></footer>
   </div>
   <section id="recruit-layer" class="table skin-af" role="dialog" aria-modal="true" aria-label="招募夥伴" hidden>
@@ -42,10 +46,9 @@
     <canvas id="fx-under" class="fx fx-under" width="960" height="640"></canvas><div id="cards" class="cards"></div><canvas id="fx" class="fx" width="960" height="640"></canvas><div id="mode-root" class="mode-root"></div>
     <div class="reveal-controls"><button id="reveal-all" hidden>全部翻開</button><button id="skip" hidden>略過演出</button><button id="collect" hidden>收下夥伴</button></div><p id="recruit-hint" role="status"></p>
   </section>
-  <section id="roster" class="panel" role="dialog" aria-modal="true" aria-label="夥伴名冊" hidden><header><h2>夥伴名冊</h2><span>所有已擁有夥伴皆提供被動收益</span><button id="roster-close">返回</button></header><div id="roster-grid"></div></section>
+  <section id="roster" class="panel" role="dialog" aria-modal="true" aria-label="夥伴名冊" hidden><header><h2>夥伴名冊</h2><span>所有已擁有夥伴皆提供被動收益</span><button id="roster-close">返回</button></header><div id="roster-grid"></div><div id="roster-detail"></div></section>
   <section id="stats" class="small-panel" role="dialog" aria-modal="true" aria-label="統計" hidden><h2>這一桌的紀錄</h2><div id="stats-body"></div><button id="stats-close">繼續開工</button></section>
   <section id="receipt" class="small-panel" role="dialog" aria-modal="true" aria-label="離線收據" hidden><small>夥伴幫你收好了</small><h2>回來啦。</h2><p id="receipt-text"></p><button id="receipt-close">繼續開工</button></section>
-  <div id="notice" role="status" hidden></div>
   <section id="save-error" class="small-panel" hidden><h2>存檔無法讀取</h2><p id="save-error-text"></p><button id="export-raw">匯出原始資料</button><textarea id="raw-save" aria-label="原始存檔" readonly hidden></textarea><button id="error-close">關閉視窗</button></section>
   <div id="fatal" role="alert" hidden></div>
 </main></div>

@@ -1,12 +1,13 @@
 window.ClickerGacha = (() => {
   function create({ store, card, commit, changed, pauseStage, resumeStage, joined, notice, format }) {
     const $ = (id) => document.getElementById(id), E = window.ClickerEconomy;
-    let runtime = null, mode = null, state = 'idle', ready = false, initialized = false;
+    let runtime = null, mode = null, state = 'idle', ready = false;
     let currentId = null, summaryReady = false, busy = false, previousFocus = null;
     const layer = $('recruit-layer');
     function priceButton(el, count, s, supported) {
       const cost = E.drawCost(s.paidDraws, count), missing = Math.max(0, Math.ceil(cost - s.coins));
-      el.textContent = `${count === 1 ? '單抽' : '五連'} · ${format(cost)}${missing ? `\n還差 ${format(missing)}` : ''}`;
+      el.textContent = `${count === 1 ? '單抽' : '五連'} · ${format(cost)}`;
+      if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)}`; el.append(note); }
       el.disabled = !ready || store.blocked || !!s.pending || !supported || missing > 0 || busy;
     }
     function render() {
@@ -25,7 +26,7 @@ window.ClickerGacha = (() => {
     function open() {
       if (!store.state || !ready) return;
       previousFocus = document.activeElement; layer.hidden = false; $('game-content').inert = true;
-      pauseStage(); $('mode-select').focus(); render();
+      pauseStage(); window.GachaFx.init($('fx'), $('fx-under')); $('mode-select').focus(); render();
     }
     function cleanup() {
       mode?.dispose(); mode = null; runtime?.stop(); runtime = null;
@@ -46,7 +47,7 @@ window.ClickerGacha = (() => {
     function makeRuntime(draw) {
       cleanup(); currentId = draw.id; summaryReady = false;
       const name = store.state.settings.mode;
-      if (!initialized) { window.GachaFx.init($('fx'), $('fx-under')); initialized = true; }
+      window.GachaFx.init($('fx'), $('fx-under'));
       $('mode-root').className = `mode-root mode-${name}`;
       runtime = window.GachaModeRuntime.create({
         root: $('mode-root'), size: { width: 960, height: 640 }, center: { x: 480, y: 320 },
@@ -94,9 +95,14 @@ window.ClickerGacha = (() => {
       if (!summaryReady || busy || store.blocked) return;
       busy = true;
       try {
+        const box = $('game').getBoundingClientRect(), zoom = box.width / 960, cards = [...$('cards').children];
+        const entries = store.state.pending.draw.entries.map((item,i) => {
+          const r = cards[i]?.getBoundingClientRect();
+          return {id:item.entry.id, origin:r ? {x:(r.left+r.width/2-box.left)/zoom,y:(r.top+r.height/2-box.top)/zoom} : {x:480,y:320}};
+        });
         const result = E.collect(store.state, currentId, Date.now());
         if (!result.accepted || !commit(result.state)) return;
-        summaryReady = false; currentId = null; close(); changed(); joined(result.newIds);
+        summaryReady = false; currentId = null; close(); changed(); joined(entries);
       } catch (err) { notice(err.message); }
       finally { busy = false; render(); }
     }
