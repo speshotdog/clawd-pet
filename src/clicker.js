@@ -200,7 +200,8 @@ window.Clicker = (() => {
     }
   }
   function resume() {
-    if (document.hidden) return;
+    // 冪等：Tauri 的 hide()/show() 不一定觸發 visibilitychange，所以 resume 可能從多個來源進來
+    if (document.hidden || !suspended) return;
     suspended = false;
     if (!ready) return;
     offline(); gacha.restore(); stage.render(store.state, { instant: true }); changed(); startTimers(); muteAudio();
@@ -234,7 +235,8 @@ window.Clicker = (() => {
     };
     if (TAURI) {
       applyZoom(await TAURI.core.invoke('get_clicker_zoom').catch(() => 1)); fitWindow();
-      await TAURI.window.getCurrentWindow().listen('clicker-zoom', ({ payload }) => { applyZoom(payload); fitWindow(); });
+      // Rust 每次 show_clicker_window 都會發 clicker-zoom：拿它當「視窗已重新顯示」的訊號補跑 resume
+      await TAURI.window.getCurrentWindow().listen('clicker-zoom', ({ payload }) => { applyZoom(payload); fitWindow(); resume(); });
     }
     if (!store.state) {
       $('game-content').inert = true; $('save-error').hidden = false; $('save-error-text').textContent = store.error.message;
@@ -269,6 +271,7 @@ window.Clicker = (() => {
     };
   }
   document.addEventListener('visibilitychange', () => { if (document.hidden) suspend(); else resume(); });
+  window.addEventListener('focus', resume);
   window.addEventListener('pagehide', suspend);
   window.addEventListener('resize', fitWindow);
   window.addEventListener('keydown', (e) => {
