@@ -289,7 +289,13 @@ function makeRuntime(draw) {
     onReveal(key) { revealedKeys.add(key); },
     interactive() { allBtn.hidden = false; hint('逐張翻開，或全部翻開'); },
     summary, error(err) { console.error(err); skipPresentation(); },
-    shake() { table.classList.remove('shake'); void table.offsetWidth; table.classList.add('shake'); table.addEventListener('animationend', () => table.classList.remove('shake'), { once: true }); },
+    shake(soft = false) {
+      const cls = soft ? 'shake-soft' : 'shake';
+      table.classList.remove('shake', 'shake-soft'); void table.offsetWidth;
+      table.classList.add(cls); table.addEventListener('animationend', () => table.classList.remove(cls), { once: true });
+    },
+    flash() { const f = $('flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); },
+    charging(on) { table.classList.toggle('charging-mode', on); },
   }, draw);
   return runtime;
 }

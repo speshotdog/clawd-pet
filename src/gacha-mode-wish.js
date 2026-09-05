@@ -1,135 +1,178 @@
+// 流星投遞：借原神祈願的語彙——夜空、一顆越飛越亮的流星、尾光的顏色先告訴你這批有多好、
+// 落地白閃、卡片從光裡升起。整段只有一個主體（流星），其他東西都在等它。
+// 節拍：入夜 300 → 起飛 → 飛行 900（45% 處變色＝預告）→ 傳說懸停 380 → 撞擊 → 五張從坑裡升起 → 揭曉
 window.GachaModes = window.GachaModes || {};
 window.GachaModes.wish = {
   label: '流星投遞', counts: [1, 5, 10],
   create(ctx) {
+    const RC = { common: '#9d9d9d', rare: '#0070dd', epic: '#a335ee', legendary: '#ff8000' };
+    const RGB = { common: [200, 200, 200], rare: [90, 170, 255], epic: [200, 120, 255], legendary: [255, 170, 60] };
     const style = document.createElement('style');
     style.textContent = `
-      .mode-wish .wish-night { position:absolute; inset:65px 25px 90px; border-radius:50%; background:radial-gradient(ellipse,#101e3bc9,transparent 72%); }
-      .mode-wish .wish-envelope { position:absolute; width:72px; height:72px; margin:-36px; overflow:visible; }
-      .mode-wish .wish-stack { position:absolute; width:54px; height:76px; margin:-38px -27px; border:3px solid #161b28; border-radius:7px; background:#244b63; box-shadow:4px 3px 0 #d4b27a,8px 6px 0 #162637; }
-      .mode-wish .wish-preview { position:absolute; left:360px; top:100px; width:220px; text-align:center; color:var(--wish-color,#eee); font-size:13px; letter-spacing:.12em; }
+      .mode-wish .wish-night { position:absolute; inset:0; opacity:0; transition:opacity .3s;
+        background: radial-gradient(ellipse 70% 60% at 50% 45%, rgba(4,8,20,.25), rgba(2,4,12,.86)); }
+      .mode-wish .wish-night.on { opacity:1; }
+      .mode-wish .wish-night i { position:absolute; width:2px; height:2px; border-radius:50%; background:#fff; opacity:.55; }
+      .mode-wish .wish-crater { position:absolute; width:520px; height:320px; margin:-160px -260px; border-radius:50%; opacity:0;
+        background: radial-gradient(ellipse, var(--wc,#fff) 0%, transparent 60%); filter: blur(6px); }
+      .mode-wish .wish-preview { position:absolute; left:0; right:0; top:84px; text-align:center; letter-spacing:.3em; font-size:13px;
+        color:var(--wc,#fff); text-shadow:0 0 12px var(--wc,#fff); opacity:0; transition:opacity .35s; }
+      .mode-wish .wish-preview.on { opacity:1; }
+      .mode-wish .wish-preview b { display:block; margin-top:4px; font-size:22px; letter-spacing:.4em; text-indent:.4em; }
     `;
-    ctx.root.append(style);
     const night = document.createElement('div'); night.className = 'wish-night';
-    const envelope = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    envelope.setAttribute('viewBox', '0 0 72 72'); envelope.classList.add('wish-envelope');
-    envelope.innerHTML = '<path d="M36 3 69 36 36 69 3 36Z" fill="#f4dfb4" stroke="#161b28" stroke-width="3"/><path d="m4 35 32 9 32-9M36 44v24" fill="none" stroke="#8e7156" stroke-width="3"/><path d="m28 29 8-6 8 6-8 8Z" fill="#579fa9" stroke="#161b28" stroke-width="2"/>';
-    const preview = document.createElement('div'); preview.className = 'wish-preview';
-    ctx.root.append(night, envelope, preview);
-    const cleanup = () => ctx.root.replaceChildren();
-    let disposed = false;
-    const dispose = () => { if (!disposed) { disposed = true; ctx.cancel(); cleanup(); } };
-    function pose(x, y, scale) {
-      envelope.style.left = `${x}px`; envelope.style.top = `${y}px`;
-      envelope.style.transform = `scale(${scale})`;
+    // 幾顆固定的星，不閃——閃的東西只有流星
+    for (let i = 0; i < 26; i++) {
+      const s = document.createElement('i');
+      s.style.left = `${(ctx.rng() * 100).toFixed(1)}%`; s.style.top = `${(ctx.rng() * 70).toFixed(1)}%`;
+      s.style.opacity = (0.25 + ctx.rng() * 0.5).toFixed(2);
+      if (ctx.rng() < .3) { s.style.width = s.style.height = '3px'; }
+      night.appendChild(s);
     }
+    const crater = document.createElement('div'); crater.className = 'wish-crater';
+    const preview = document.createElement('div'); preview.className = 'wish-preview';
+    ctx.root.append(style, night, crater, preview);
+    let disposed = false;
+    const cleanup = () => ctx.root.replaceChildren();
+    const dispose = () => { if (disposed) return; disposed = true; ctx.cancel(); cleanup(); };
+
     return {
       async open(draw) {
         const order = ['common', 'rare', 'epic', 'legendary'];
-        const rank = Math.max(...draw.entries.map((item) => order.indexOf(item.entry.rarity)));
-        const rarity = order[rank], color = ['#9d9d9d', '#0070dd', '#a335ee', '#ff8000'][rank];
-        const { x, y } = ctx.center;
-        pose(x, y, 1);
-        ctx.audio.tone(440, { type: 'triangle', slide: 660, a: .003, d: .09, r: .03, gain: .10 });
-        const compression = await ctx.animate(envelope, ctx.motion.reduced ? [{ opacity: .7 }, { opacity: 1 }] :
-          [{ transform: 'scale(1)' }, { transform: 'scale(.92)' }], { duration: 120 });
-        compression.cancel();
-        const flightAudio = ctx.audio.createScope();
-        flightAudio.noiseHit({ type: 'bandpass', f0: 700, f1: 2800, q: .7, a: .10, d: .48, r: .12, gain: .10 });
-        const launch = await ctx.animate(envelope, ctx.motion.reduced ? [{ opacity: .65 }, { opacity: 1 }] : [
-          { left: `${x}px`, top: `${y}px`, transform: 'scale(.92)' },
-          { left: '800px', top: '130px', transform: 'scale(.45)' },
-        ], { duration: ctx.motion.reduced ? 150 : 360, easing: 'ease-in' });
-        if (ctx.motion.reduced) await ctx.wait(210);
-        launch.cancel();
-        if (ctx.motion.reduced) pose(x, y, 1);
-        else pose(800, 130, .45);
-        // 三條固定方向曲線只偏移控制點；結果與揭曉順序不受演出亂數影響。
-        const path = [[690, 20, 430, 90], [710, 35, 470, 65], [670, 45, 420, 110]][Math.floor(ctx.rng() * 3)];
+        const rank = Math.max(...draw.entries.map((it) => order.indexOf(it.entry.rarity)));
+        const top = order[rank], color = RC[top], rgb = RGB[top];
+        const { x: cx, y: cy } = ctx.center;
+        crater.style.left = `${cx}px`; crater.style.top = `${cy}px`;
+        ctx.root.style.setProperty('--wc', color);
+
+        // ---- 入夜：桌子沉下去，星星浮出來
+        night.classList.add('on');
+        ctx.audio.noiseHit({ type: 'lowpass', f0: 600, f1: 200, a: .1, d: .3, r: .2, gain: .08 });
+        await ctx.wait(320);
+        if (ctx.motion.reduced) {
+          await ctx.wait(200); ctx.flash();
+          await ctx.cards.deal(draw.entries, { stagger: 60, duration: 150 });
+          night.classList.remove('on'); await ctx.interact(); return;
+        }
+
+        // ---- 飛行路徑：右上角進場，弧線落到中央（三條預設弧只偏控制點）
+        const start = { x: 940, y: -30 };
+        const ctrlSet = [[760, 40], [700, 90], [800, 120]][Math.floor(ctx.rng() * 3)];
         const jitter = ctx.rng() * 24 - 12;
+        const ctrl = { x: ctrlSet[0] + jitter, y: ctrlSet[1] + jitter };
         const point = (t) => ({
-          x: (1-t)**3*800 + 3*(1-t)**2*t*(path[0]+jitter) + 3*(1-t)*t*t*path[2] + t**3*x,
-          y: (1-t)**3*130 + 3*(1-t)**2*t*path[1] + 3*(1-t)*t*t*(path[3]+jitter) + t**3*(y-72),
+          x: (1 - t) ** 2 * start.x + 2 * (1 - t) * t * ctrl.x + t * t * cx,
+          y: (1 - t) ** 2 * start.y + 2 * (1 - t) * t * ctrl.y + t * t * cy,
         });
-        let age = 0, ended = false;
-        if (!ctx.motion.reduced) ctx.fx.layer({ dead: false,
+        const FLIGHT = .9, HOVER_AT = .88;
+        const legendary = top === 'legendary';
+        let age = 0, prog = 0, hovering = false, hoverT = 0, ended = false;
+        const trail = [];   // 最近的取樣點，畫成漸細的光帶
+        // 起飛：風聲從遠處拉近，稀有度提示音在 45% 處進來
+        const wind = ctx.audio.createScope();
+        wind.noiseHit({ type: 'bandpass', f0: 300, f1: 3600, q: .8, a: .5, d: .45, r: .25, gain: .22 });
+        wind.tone(180, { type: 'sine', slide: 720, slideT: .95, a: .4, d: .5, r: .2, gain: .06 });
+        const meteor = ctx.fx.layer({
+          dead: false,
           update(dt) {
             age += dt;
-            const p = point(Math.min(1, age / .56)); pose(p.x, p.y, .45);
-            this.dead = ended;
+            if (hovering) { hoverT += dt; return; }
+            prog = Math.min(1, prog + dt / FLIGHT * (0.55 + prog * 0.9));   // 加速：後半越來越快
+            const p = point(prog);
+            trail.push({ x: p.x, y: p.y, t: age });
+            while (trail.length > 42) trail.shift();
+            // 火星從頭部往後掉
+            for (let i = 0; i < 2; i++) ctx.fx.spawn({ x: p.x + (ctx.rng() - .5) * 10, y: p.y + (ctx.rng() - .5) * 10,
+              vx: (ctx.rng() - .5) * 60 + (trail.length > 2 ? (trail[trail.length - 3].x - p.x) * 3 : 0),
+              vy: (ctx.rng() - .5) * 60 + 40, g: 160, r: 1 + ctx.rng() * 1.8, life: .35 + ctx.rng() * .4,
+              color: prog < .45 ? '#ffffff' : color, glow: 8, shrink: true });
+            if (ended) this.dead = true;
           },
           draw(c) {
-            const t = Math.min(1, age / .56), p = point(t);
-            c.save(); c.lineCap = 'round'; c.globalCompositeOperation = 'lighter';
-            const blend = Math.max(0, Math.min(1, (age - .24) / .16));
-            const rgb = [[157,157,157],[0,112,221],[163,53,238],[255,128,0]][rank];
-            c.strokeStyle = `rgb(${rgb.map((v) => Math.round(255 + (v-255)*blend)).join(',')})`;
-            c.shadowColor = c.strokeStyle; c.shadowBlur = 14;
-            c.lineWidth = [3,5,5,8][rank];
-            function tail(delay, offset) {
-              c.beginPath();
-              for (let i = 0; i <= 12; i++) {
-                const q = point(Math.max(0, t - delay - (12-i)*.014));
-                c.lineTo(q.x, q.y + offset);
-              }
-              c.stroke();
+            if (!trail.length) return;
+            const head = trail[trail.length - 1];
+            // 顏色：前 45% 白，45–70% 漸變成本批最高稀有度色
+            const k = Math.max(0, Math.min(1, (prog - .45) / .25));
+            const col = [0, 1, 2].map((i) => Math.round(255 + (rgb[i] - 255) * k));
+            const cs = `rgb(${col.join(',')})`;
+            c.save(); c.globalCompositeOperation = 'lighter'; c.lineCap = 'round'; c.lineJoin = 'round';
+            // 光帶：多段線，越靠頭越粗越亮
+            const w0 = legendary ? 16 : top === 'epic' ? 13 : top === 'rare' ? 11 : 9;
+            for (let i = 1; i < trail.length; i++) {
+              const f = i / trail.length;
+              c.strokeStyle = `rgba(${col.join(',')},${(f * f * .85).toFixed(3)})`;
+              c.lineWidth = w0 * f;
+              c.beginPath(); c.moveTo(trail[i - 1].x, trail[i - 1].y); c.lineTo(trail[i].x, trail[i].y); c.stroke();
             }
-            tail(0, 0);
-            if (rank === 2) tail(.04/.56, 6);
-            if (rank === 3 && age >= .56) {
-              c.beginPath(); c.moveTo(p.x,p.y); c.lineTo(p.x+24,p.y-46);
-              c.moveTo(p.x,p.y); c.lineTo(p.x-14,p.y-48); c.stroke();
-            }
-            // 流星頭：一顆亮核，稀有度越高越大
-            const head = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, [10,14,16,22][rank]);
-            head.addColorStop(0, 'rgba(255,255,255,.95)'); head.addColorStop(.35, c.strokeStyle); head.addColorStop(1, 'rgba(0,0,0,0)');
-            c.fillStyle = head; c.beginPath(); c.arc(p.x, p.y, [10,14,16,22][rank], 0, Math.PI * 2); c.fill();
-            if (rank > 0) {
-              c.fillStyle = '#fff'; c.beginPath();
-              c.moveTo(p.x,p.y-5); c.lineTo(p.x+5,p.y); c.lineTo(p.x,p.y+5); c.lineTo(p.x-5,p.y); c.fill();
+            // 外暈
+            c.shadowColor = cs; c.shadowBlur = 24; c.strokeStyle = `rgba(${col.join(',')},.35)`; c.lineWidth = w0 * 1.8;
+            c.beginPath();
+            for (let i = Math.max(0, trail.length - 14); i < trail.length; i++) c.lineTo(trail[i].x, trail[i].y);
+            c.stroke();
+            c.shadowBlur = 0;
+            // 頭：亮核 + 稀有度色暈，傳說懸停時脈動變大
+            const pulse = hovering ? 1 + Math.sin(hoverT * 18) * .12 + hoverT * .6 : 1;
+            const R = (legendary ? 30 : 22) * pulse;
+            const g = c.createRadialGradient(head.x, head.y, 0, head.x, head.y, R);
+            g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.3, `rgba(${col.join(',')},.9)`); g.addColorStop(1, `rgba(${col.join(',')},0)`);
+            c.fillStyle = g; c.beginPath(); c.arc(head.x, head.y, R, 0, Math.PI * 2); c.fill();
+            if (legendary && k > .9) {
+              // 金色光環：只有傳說有第二層
+              c.strokeStyle = `rgba(255,215,120,${(.5 + Math.sin(age * 12) * .2).toFixed(2)})`; c.lineWidth = 2;
+              c.beginPath(); c.arc(head.x, head.y, R * 1.4 + Math.sin(age * 9) * 3, 0, Math.PI * 2); c.stroke();
             }
             c.restore();
           },
         });
-        // 12 粒尾屑有固定短壽命，不隨每幀重生。
-        if (!ctx.motion.reduced) for (let i = 0; i < 12; i++) {
-          const p = point(i / 18);
-          ctx.fx.spawn({ x:p.x, y:p.y, vx:10, vy:12, r:1.3, life:.56, color:'#ddd', shrink:true });
+        // 預告：45% 處顏色轉變的同時，天空跟著染色、提示音進來
+        await ctx.wait(FLIGHT * 1000 * .42);
+        if (top !== 'common') {
+          wind.tone({ rare: 880, epic: 1174, legendary: 1568 }[top], { type: 'sine', a: .03, d: .5, r: .3, gain: .09, to: wind.verb });
+          wind.tone({ rare: 1320, epic: 1761, legendary: 2352 }[top], { type: 'sine', t: wind.now() + .06, a: .03, d: .5, r: .3, gain: .05, to: wind.verb });
         }
-        await ctx.wait(240);
-        ctx.root.style.setProperty('--wish-color', color);
-        preview.textContent = `${['• 普通','◇ 精良','◇◇ 史詩','♛ 傳說'][rank]} · 本次最高`;
-        if (rank) flightAudio.tone([0,880,1174,1568][rank], {
-          a:.015, d:.18, r:.10, gain:.05, to:flightAudio.verb,
-        });
-        if (rank === 2) flightAudio.tone(1761, { a:.015, d:.18, r:.10, gain:.025, to:flightAudio.verb });
-        if (rank === 3) flightAudio.tone(62, { a:.02, d:.12, r:.04, gain:.07 });
-        await ctx.wait(290);
-        flightAudio.stop(30);
-        await ctx.wait(30);
-        // 傳說固定留白 120ms；提示迴響在 1040ms 前由獨立短出口收乾。
-        if (rank !== 3 && !ctx.motion.reduced) {
-          ended = true;
-          ctx.animate(envelope, [{ top:`${y-72}px` }, { top:`${y-24}px` }], { duration:120 }).catch(() => {});
+        night.style.background = `radial-gradient(ellipse 70% 60% at 50% 45%, rgba(${rgb.join(',')},.10), rgba(2,4,12,.86))`;
+        preview.innerHTML = `本次最高<b>${{ common: '普通', rare: '精良', epic: '史詩', legendary: '傳說' }[top]}</b>`;
+        preview.classList.add('on');
+        // 等流星飛到懸停點
+        while (prog < HOVER_AT) await ctx.wait(16);
+        if (legendary) {
+          // 「來了」：流星停在半空，光在漲、低頻在漲，故意讓你等一下
+          hovering = true;
+          const charge = ctx.audio.createScope();
+          charge.tone(48, { type: 'sine', slide: 70, slideT: .38, a: .3, d: .06, r: .04, gain: .5 });
+          charge.tone(1760, { type: 'sine', slide: 3520, slideT: .38, a: .3, d: .06, r: .04, gain: .05, to: charge.verb });
+          charge.tone(80, { type: 'sine', a: .004, d: .12, gain: .35, slide: 45, slideT: .1 });
+          await ctx.wait(380);
+          charge.stop(30);
+          hovering = false;
         }
-        await ctx.wait(120);
+        while (prog < 1) await ctx.wait(16);
         ended = true;
-        ctx.audio.tone(rank === 3 ? 75 : 120, { slide:rank === 3 ? 45 : 75,
-          a:rank === 3 ? .004 : .003, d:rank === 3 ? .24 : .15, r:rank === 3 ? .07 : .04, gain:rank === 3 ? .22 : .16 });
-        const stack = document.createElement('div'); stack.className = 'wish-stack';
-        stack.style.left = `${x}px`; stack.style.top = `${y}px`; ctx.root.append(stack);
-        ctx.animate(stack, [{ opacity:0 }, { opacity:1 }], { duration:150, delay:90 }).catch(() => {});
-        const landing = await ctx.animate(envelope, ctx.motion.reduced ? [{ opacity:0 }, { opacity:1 }] : [
-          { left:`${x}px`, top:`${y-(rank === 3 ? 72 : 24)}px`, transform:'scale(.45)' },
-          { left:`${x}px`, top:`${y}px`, transform:'scale(1)', opacity:0 },
-        ], { duration:ctx.motion.reduced ? 150 : 240, easing:'ease-in' });
-        if (ctx.motion.reduced) await ctx.wait(90);
-        landing.cancel(); envelope.remove(); stack.remove();
-        await ctx.cards.deal(draw.entries, { stagger:draw.entries.length === 10 ? 40 : 60, duration:400, quiet:true });
-        cleanup();
+        wind.stop(60);
+
+        // ---- 撞擊：白閃、衝擊波、整桌震、坑口餘光
+        ctx.flash();
+        ctx.shake();
+        ctx.audio.burst();
+        if (legendary) ctx.audio.tone(55, { type: 'sine', a: .005, d: 1.0, gain: .5, slide: 38, slideT: .9 });
+        ctx.fx.layer(ctx.fx.ring(cx, cy, color, .6, 420, 12));
+        ctx.fx.layer(ctx.fx.ring(cx, cy, '#ffffff', .4, 240, 6));
+        for (let i = 0; i < 70; i++) {
+          const a = ctx.rng() * Math.PI * 2, sp = 120 + ctx.rng() * 520;
+          ctx.fx.spawn({ x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, g: 480, drag: .975,
+            r: 1.2 + ctx.rng() * 2.2, life: .5 + ctx.rng() * .8, color: ctx.rng() < .5 ? '#ffffff' : color, glow: 6, shrink: true, shape: 'streak' });
+        }
+        ctx.animate(crater, [{ opacity: 0 }, { opacity: .55, offset: .08 }, { opacity: .18, offset: .5 }, { opacity: 0 }], { duration: 2200 }).catch(() => {});
+        await ctx.wait(260);
+
+        // ---- 卡片從光裡升起：每張 110ms，慢一點、重一點（不是甩出去，是浮上來）
+        await ctx.cards.deal(draw.entries, { stagger: draw.entries.length === 10 ? 60 : 110, duration: 560, from: { x: cx, y: cy + 40, scale: .3 } });
+        preview.classList.remove('on');
+        await ctx.wait(200);
+        night.classList.remove('on');
         await ctx.interact();
       },
-      skip:dispose, dispose,
+      skip: dispose, dispose,
     };
   },
 };

@@ -284,7 +284,7 @@ window.GachaAudio = (() => {
       tone: (...args) => run(tone, args), noiseHit: (...args) => run(noiseHit, args),
       bell: (...args) => run(bell, args),
     });
-    for (const name of ['flip', 'reveal', 'deal', 'hover', 'collect', 'dust', 'tick', 'ui']) {
+    for (const name of ['flip', 'reveal', 'deal', 'hover', 'collect', 'dust', 'tick', 'ui', 'tear', 'burst', 'charge', 'lock', 'drop']) {
       scope[name] = (...args) => run(api[name], args);
     }
     return scope;

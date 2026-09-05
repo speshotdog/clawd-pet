@@ -276,6 +276,8 @@ window.GachaFx = (() => {
         if (stopped) return;
         layers.push(l); ownedLayers.add(l); kick(); return l;
       },
+      ring,
+      packBurst(x, y) { if (!stopped) packBurst(x, y); },
       reveal(x, y, rarity) {
         const count = { common: 0, rare: 8, epic: 12, legendary: 20 }[rarity];
         const life = { common: 0, rare: .24, epic: .42, legendary: .6 }[rarity];

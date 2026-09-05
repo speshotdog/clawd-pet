@@ -234,7 +234,7 @@ img, svg { -webkit-user-drag: none; }
 }
 
 /* 傳說蓄力中：其他卡全部沉下去，視線只剩那一張 */
-.table.state-charging .card:not(.charging) { filter: brightness(.3); }
+.table.charging-mode .card:not(.charging) { filter: brightness(.3); }
 
 /* 稀有度先透光：卡還沒翻，光從卡背四邊滲出來 */
 .card-glow {
@@ -536,9 +536,6 @@ img, svg { -webkit-user-drag: none; }
 .skin-af .mini.locked::after { display: none; }
 
 /* ready 是等待狀態：光帶只掃兩次就停，光暈靜態 */
-.skin-af.table.state-ready .pack-body { animation: none; }
-.skin-af.table.state-ready .pack-shine { animation: sheen 2.6s ease-in-out 2; }
-.skin-af.table.state-ready .pack-glow { animation: none; opacity: .7; }
 @media (prefers-reduced-motion: reduce) { .skin-af .face-embers { display: none; } }
 
 /* 模式入口與共用揭曉：舞台震動不碰頂列，等待期間沒有循環動畫。 */
@@ -547,7 +544,15 @@ img, svg { -webkit-user-drag: none; }
 .mode-label select, .mode-controls select { color:#f7e5be; background:#252b39; border:1px solid #806a4d; border-radius:5px; padding:3px 6px; }
 .mode-root { position:absolute; inset:0; z-index:9; pointer-events:none; }
 .mode-controls { position:absolute; bottom:30px; right:26px; z-index:25; display:flex; gap:8px; }
-.mode-launch { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:12; padding:18px 28px; }
+/* 投遞按鈕：不用 transform 置中——.pill:hover 的 translateY 會蓋掉置中 transform，按鈕就「逃跑」 */
+.mode-launch {
+  position:absolute; left:calc(50% - 100px); top:calc(50% - 34px); width:200px; height:60px; z-index:12;
+  border:2px solid #ffe7a6; border-radius:999px; font-size:17px; font-weight:700; letter-spacing:.2em; text-indent:.2em; color:#3a2410;
+  background:linear-gradient(180deg, #f5cf6c, #c98c2c 60%, #a66a1e);
+  box-shadow:0 4px 0 #6d4512, 0 10px 24px rgba(0,0,0,.5), 0 0 30px rgba(255,210,100,.3);
+}
+.mode-launch:hover { background:linear-gradient(180deg, #f5cf6c, #c98c2c 60%, #a66a1e); transform:translateY(-2px); box-shadow:0 6px 0 #6d4512, 0 14px 28px rgba(0,0,0,.5), 0 0 44px rgba(255,210,100,.55); }
+.mode-launch:active { transform:translateY(3px); box-shadow:0 1px 0 #6d4512, 0 6px 14px rgba(0,0,0,.5); }
 .table [hidden] { display:none !important; }
 .table.state-revealing .card:not(.charging):not(.flipped) { pointer-events:none; }
 .table.state-revealing .card { cursor:default; }
