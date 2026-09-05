@@ -52,7 +52,7 @@ window.ClickerStage = (() => {
 
     }
     function start() {
-      if (running || document.hidden) return;
+      if (running) return;   // 可見性由 clicker.js 判斷（WebView2 的 document.hidden 不可靠）
       window.GachaFx.init($('click-fx')); fx = window.GachaFx.createScope();
       const spawn = fx.spawn;
       fx.spawn = p => {

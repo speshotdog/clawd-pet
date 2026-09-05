@@ -2249,6 +2249,11 @@ fn route_control(app: &AppHandle, path: &str, query: &str, token: &str) -> (&'st
             show_clicker_window(app.clone());
             ("200 OK", "ok")
         }
+        // 隱藏珍母點點視窗（測試用，模擬使用者按 ×）：/pet/clicker_close?t=<token>
+        "/pet/clicker_close" => {
+            close_clicker_window(app.clone());
+            ("200 OK", "ok")
+        }
         // 換主角（測試用）：/pet/char?id=caihua&t=<token>
         "/pet/char" => match query_param(query, "id") {
             Some(id) if CHARS.iter().any(|(k, _, _)| *k == id) => {

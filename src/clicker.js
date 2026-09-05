@@ -1,4 +1,9 @@
 window.Clicker = (() => {
+  // WebView2 在 Tauri hide()/show() 後 document.hidden 不一定跟著變，所有可見性判斷改看這個旗標：
+  // visibilitychange 兩向、Rust 的 clicker-zoom（每次顯示都會發）、focus 都會更新它。
+  let visible = !document.hidden;
+  const hiddenNow = () => !visible;
+  const jlog = (m) => { try { window.__TAURI__?.core.invoke('js_log', { msg: `clicker ${m}` }).catch(() => {}); } catch (_) {} };
   const $ = (id) => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
   const TAURI = window.__TAURI__;
   const format = (n) => n >= 1e8 ? `${(n / 1e8).toFixed(1)}億` : n >= 10000 ? `${(n / 10000).toFixed(2)}萬` : n.toLocaleString('zh-TW', { maximumFractionDigits: 1 });
@@ -16,7 +21,7 @@ window.Clicker = (() => {
   };
   const sounds = { click: [160, 95, .055, .05], upgrade: [520, 780, .12, .09], skill: [110, 70, .14, .12] };
   function sound(name) {
-    if (document.hidden || store.state.settings.muted) return;
+    if (hiddenNow() || store.state.settings.muted) return;
     window.GachaAudio.ensure(); audio ||= window.GachaAudio.createScope();
     if (name === 'cutin-impact') {
       audio.noiseHit({a:.002,d:.056,r:.002,f0:3000,f1:600,gain:.08});
@@ -30,18 +35,18 @@ window.Clicker = (() => {
     window.ClickerMusic?.sync(store.state);
     for (const scope of audioScopes) if (scope.dry) scope.dry.gain.value = store.state.settings.muted ? 0 : 1;
     const ac = window.GachaAudio.ensure(); if (!ac) return;
-    if (store.state.settings.muted || document.hidden) ac.suspend().catch(() => {});
+    if (store.state.settings.muted || hiddenNow()) ac.suspend().catch(() => {});
     else ac.resume().catch(() => {});
   }
   function notice(text) {
     $('notice').textContent = text; $('notice').hidden = false; clearTimeout(noticeTimer);
-    if (!document.hidden) noticeTimer = setTimeout(() => { $('notice').hidden = true; noticeTimer = 0; }, 1400);
+    if (!hiddenNow()) noticeTimer = setTimeout(() => { $('notice').hidden = true; noticeTimer = 0; }, 1400);
   }
   function status() {
     $('save-status').textContent = store.blocked ? '尚未儲存' : '已儲存';
     $('retry-save').hidden = !store.blocked || !store.state;
     $('tap').disabled = !ready || store.blocked;
-    if (store.blocked && store.state && !document.hidden) notice(`尚未儲存：${store.error?.message || '寫入失敗'}。消費已鎖住。`);
+    if (store.blocked && store.state && !hiddenNow()) notice(`尚未儲存：${store.error?.message || '寫入失敗'}。消費已鎖住。`);
   }
   function commit(next = store.state) {
     const ok = store.commit(next); status(); if (!ok) { gacha?.render(); renderSlots(); } return ok;
@@ -93,7 +98,7 @@ window.Clicker = (() => {
   }
   function numbers(force = false) {
     window.ClickerMusic?.sync(store.state);
-    if (!store.state || document.hidden) return;
+    if (!store.state || hiddenNow()) return;
     const time = performance.now(), delay = 100 - (time - lastNumbers);
     if (!force && delay > 0) {
       if (!numberTimer) numberTimer = setTimeout(() => { numberTimer = 0; numbers(); }, delay);
@@ -162,7 +167,7 @@ window.Clicker = (() => {
   }
   function changed() { numbers(true); renderSlots(); stage?.render(store.state); }
   function action(fn) {
-    if (store.blocked || !ready || document.hidden) return;
+    if (store.blocked || !ready || hiddenNow()) { if (hiddenNow()) jlog(`action blocked: visible=${visible} document.hidden=${document.hidden} suspended=${suspended}`); return; }
     try { fn(); } catch (err) { notice(err.message); slotsKey = ''; renderSlots(); }
   }
   function tap(point) {
@@ -225,7 +230,7 @@ window.Clicker = (() => {
     $('roster').hidden = false; $('game-content').inert = true; $('roster-close').focus();
   }
   function startTimers() {
-    if (document.hidden || suspended || tickTimer || !ready) return;
+    if (hiddenNow() || suspended || tickTimer || !ready) return;
     tickTimer = setInterval(() => { settle(); changed(); }, 1000);
     saveTimer = setInterval(() => { if (!store.blocked) commit(); }, 5000);
     if (!gacha.active) stage.start();
@@ -237,7 +242,7 @@ window.Clicker = (() => {
     document.getAnimations().forEach((a) => a.cancel()); $('notice').hidden = true;
   }
   function suspend() {
-    if (suspended) return; suspended = true;
+    if (suspended) return; suspended = true; jlog(`suspend (document.hidden=${document.hidden})`);
     window.ClickerMusic?.suspend();
     if (store.state && !store.blocked) { settle(); commit(); }
     stopTimers(); gacha?.suspend(); audio?.stop(0); audio = null;
@@ -254,7 +259,7 @@ window.Clicker = (() => {
     }
   }
   async function closeWindow() {
-    suspend();
+    visible = false; suspend();
     if (TAURI) {
       try { await TAURI.core.invoke('close_clicker_window'); }
       catch (err) { notice(`關閉失敗：${err.message}`); resume(); }
@@ -262,7 +267,8 @@ window.Clicker = (() => {
   }
   function resume() {
     // 冪等：Tauri 的 hide()/show() 不一定觸發 visibilitychange，所以 resume 可能從多個來源進來
-    if (document.hidden || !suspended) return;
+    jlog(`resume request: visible=${visible} suspended=${suspended} document.hidden=${document.hidden} ready=${ready}`);
+    if (!visible || !suspended) return;
     suspended = false;
     if (!ready) return;
     offline(); window.ClickerMusic?.resume(store.state); gacha.restore(); stage.render(store.state, { instant: true }); changed(); startTimers(); muteAudio();
@@ -297,7 +303,7 @@ window.Clicker = (() => {
     if (TAURI) {
       applyZoom(await TAURI.core.invoke('get_clicker_zoom').catch(() => 1)); fitWindow();
       // Rust 每次 show_clicker_window 都會發 clicker-zoom：拿它當「視窗已重新顯示」的訊號補跑 resume
-      await TAURI.window.getCurrentWindow().listen('clicker-zoom', ({ payload }) => { applyZoom(payload); fitWindow(); resume(); });
+      await TAURI.window.getCurrentWindow().listen('clicker-zoom', ({ payload }) => { jlog(`clicker-zoom ${payload}`); applyZoom(payload); fitWindow(); visible = true; resume(); });
     }
     if (!store.state) {
       $('game-content').inert = true; $('save-error').hidden = false; $('save-error-text').textContent = store.error.message;
@@ -312,7 +318,7 @@ window.Clicker = (() => {
     cutin = window.ClickerCutin.create({card, stage, sound, done:changed});
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
       pauseStage() { cutin.stop(); stage.stop(); renderSlots(); },
-      resumeStage() { if (!document.hidden && !suspended) { stage.start(); stage.render(store.state, { instant: true }); } renderSlots(); },
+      resumeStage() { if (!hiddenNow() && !suspended) { stage.start(); stage.render(store.state, { instant: true }); } renderSlots(); },
       joined(entries) { stage.join(store.state, entries); },
     });
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
@@ -349,8 +355,8 @@ window.Clicker = (() => {
     };
   }
   window.addEventListener('clicker-music-ready', () => { if (suspended) window.ClickerMusic.suspend(); else window.ClickerMusic.sync(store.state); });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) suspend(); else resume(); });
-  window.addEventListener('focus', resume);
+  document.addEventListener('visibilitychange', () => { jlog(`visibilitychange hidden=${document.hidden}`); visible = !document.hidden; if (!visible) suspend(); else resume(); });
+  window.addEventListener('focus', () => { visible = true; resume(); });
   window.addEventListener('pagehide', suspend);
   window.addEventListener('resize', fitWindow);
   window.addEventListener('keydown', (e) => {

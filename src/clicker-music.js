@@ -73,7 +73,7 @@ function safely(promise) { promise?.catch(err => { console.warn('Clicker BGM:',e
 window.ClickerMusic = {
   sync(next) { safely(sync(next)); },
   suspend() { hidden = true; ++revision; clearTimers(); safely(pause()); },
-  resume(next) { hidden = document.hidden; safely(sync(next)); },
+  resume(next) { hidden = false; safely(sync(next)); },
   get ctx() { return ctx; }, get scene() { return sceneTrack; }, get skill() { return skillTrack; },
 };
 document.addEventListener('pointerdown', () => {
