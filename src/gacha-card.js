@@ -1,23 +1,22 @@
 // 卡面與有限 hover 共用；宿主只提供卡池與互動狀態。
 window.GachaCard = (() => {
-function create({ rarity: RARITY, byId, canHover, fatal }) {
-// 角色 rig 資料（高度／四肢樞紐／擺幅倍率）直接從 pet.js 的 CHAR_CFG 讀，不另抄一份
-let CHAR_CFG = {};
+const defaultTag = (entry, dup) => (dup ? { text: '重複', cls: 'dup' } : { text: 'NEW', cls: 'new' });
+// tagFor(entry, dup) → { text, cls } | null：卡面右上角的標籤由宿主決定（演示區寫「重複 +塵」，遊戲寫「2★ → 3★」）
+function create({ rarity: RARITY, byId, canHover, fatal, tagFor = defaultTag }) {
+// 角色 rig 資料（高度／四肢樞紐／擺幅倍率）讀共用的 character-config.js，不另抄一份
+const CHAR_CFG = window.CharacterConfig || {};
 const ART_SCALE = 128 / 198;   // 最高的角色（198）在 148px 高的畫框裡佔 128px
 
 // ---------- 素材：角色從 index.html 的 <template> 拼回去 ----------
 let templates = null;
-const assetsReady = Promise.all([fetch('index.html').then((r) => r.text()), fetch('pet.js').then((r) => r.text())])
-  .then(async ([html, js]) => {
+const assetsReady = fetch('index.html').then((r) => r.text())
+  .then(async (html) => {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     templates = {};
     doc.querySelectorAll('template[id^="char-"]').forEach((t) => {
       templates[t.id.slice(5)] = t.content.querySelector('svg');
     });
     if (!Object.keys(templates).length) throw new Error('no templates');
-    // pet.js 是 classic script，CHAR_CFG 是頂層 const 物件字面量：切出來當運算式求值
-    const m = js.match(/const CHAR_CFG = (\{[\s\S]*?\n\});/);
-    if (m) CHAR_CFG = new Function('return ' + m[1])();
     // 抽取前先解碼，讓網路或首次圖片解碼不佔演出的節拍。
     const sources = new Set(['gacha-pack.png', 'gacha-cardback.jpg']);
     Object.values(byId).forEach((entry) => { if (entry.src) sources.add(entry.src); });
@@ -66,7 +65,8 @@ function buildArt(entry) {
   return span;
 }
 
-function buildCard(entry, { dup = false, tag = true } = {}) {
+function buildCard(entry, { dup = false, tag = true, owned = 0 } = {}) {
+  const label = tag ? tagFor(entry, dup, owned) : null;
   const card = document.createElement('div');
   card.className = `card r-${entry.rarity}`;
   card.dataset.entry = entry.id;
@@ -79,7 +79,7 @@ function buildCard(entry, { dup = false, tag = true } = {}) {
         <div class="face-gem"></div>
         <div class="face-plate"><b class="face-name"></b><span class="face-rarity"></span></div>
         <div class="face-frame"></div>
-        ${tag ? `<div class="face-tag ${dup ? 'dup' : 'new'}">${dup ? `重複 +${RARITY[entry.rarity].dust} 塵` : 'NEW'}</div>` : ''}
+        ${label ? `<div class="face-tag ${label.cls || ''}"></div>` : ''}
         <div class="face-sheen"></div>
       </div>
     </div></div>`;
@@ -94,6 +94,7 @@ function buildCard(entry, { dup = false, tag = true } = {}) {
     embers.innerHTML = '<i></i>'.repeat(9);
     art.appendChild(embers);
   }
+  if (label) card.querySelector('.face-tag').textContent = label.text;
   card.querySelector('.face-name').textContent = entry.name;
   card.querySelector('.face-rarity').textContent = RARITY[entry.rarity].label;
   return card;

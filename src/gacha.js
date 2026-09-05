@@ -12,34 +12,13 @@ const cardsEl = $('cards'), hintEl = $('hint'), collectBtn = $('collect'), dimEl
 const dropzone = $('dropzone'), dustEl = $('dust'), dustValue = $('dust-value'), albumBtn = $('album-btn');
 const albumEl = $('album'), albumBody = $('album-body'), albumProgress = $('album-progress');
 
-// ---------- 卡池（id / 顯示名照 menu.js 的 CHARACTERS 與 TOYS） ----------
-const RARITY = {
-  common:    { label: '普通', dust: 5,   weight: 60 },
-  rare:      { label: '精良', dust: 20,  weight: 27 },
-  epic:      { label: '史詩', dust: 100, weight: 10 },
-  legendary: { label: '傳說', dust: 400, weight: 3 },
-};
-const RARITY_ORDER = ['legendary', 'epic', 'rare', 'common'];
-const POOL = [
-  { id: 'zhenmu',     name: '珍母',        rarity: 'legendary', kind: 'char' },
-  { id: 'jiaobu',     name: '膠布（原版）', rarity: 'legendary', kind: 'char' },
-  { id: 'yueyue',     name: '玥玥（原版）', rarity: 'legendary', kind: 'char' },
-  { id: 'zhenzhen',   name: '珍珍（原版）', rarity: 'legendary', kind: 'char' },
-  { id: 'dog',        name: '熱狗狗狗',    rarity: 'epic', kind: 'char' },
-  { id: 'fox',        name: '女僕狐狐',    rarity: 'epic', kind: 'char' },
-  { id: 'jiaobu2',    name: '膠布',        rarity: 'epic', kind: 'char' },
-  { id: 'zhenzhen2',  name: '珍珍',        rarity: 'epic', kind: 'char' },
-  { id: 'yueyue2',    name: '玥玥',        rarity: 'rare', kind: 'char' },
-  { id: 'caihua',     name: '采華',        rarity: 'rare', kind: 'char' },
-  { id: 'lk',         name: 'ㄌㄎ',        rarity: 'rare', kind: 'char' },
-  { id: 'yang',       name: '羊咩',        rarity: 'rare', kind: 'char' },
-  { id: 'dino',       name: '小恐龍',      rarity: 'common', kind: 'toy', src: 'toy-dino.png', w: 120 },
-  { id: 'ballyellow', name: '黃色球',      rarity: 'common', kind: 'toy', src: 'toy-ballyellow.png', w: 109.4 },
-  { id: 'beachball',  name: '皮球',        rarity: 'common', kind: 'toy', src: 'toy-beachball.png', w: 94.7 },
-  { id: 'hotdog',     name: '熱狗',        rarity: 'common', kind: 'emoji', glyph: '🌭' },
-  { id: 'heart',      name: '愛心',        rarity: 'common', kind: 'emoji', glyph: '♥', color: '#e8473a' },
-];
-const byId = Object.fromEntries(POOL.map((e) => [e.id, e]));
+// ---------- 卡池：目錄與抽樣在共用的 gacha-pool.js；這裡只補演示區自己的「塵」 ----------
+const Pool = window.GachaPool;
+const DUST = { common: 5, rare: 20, epic: 100, legendary: 400 };
+const RARITY = Object.fromEntries(Object.entries(Pool.RARITY).map(([k, r]) => [k, { ...r, dust: DUST[k] }]));
+const RARITY_ORDER = Pool.RARITY_ORDER;
+const POOL = Pool.CATALOG;
+const byId = Pool.byId;
 // ---------- 存檔 ----------
 const SAVE_KEY = 'gacha_save';
 function loadSave() {
@@ -65,47 +44,9 @@ function save(next) {
   localStorage.setItem(SAVE_KEY, JSON.stringify(next));
   SAVE = next;
 }
-const PITY_PACKS = 10;   // 連續 10 包沒傳說，第 10 包必出
-
-// ---------- 抽卡邏輯 ----------
-function rollRarity(minRarity = null) {
-  let pool = Object.entries(RARITY);
-  if (minRarity) {
-    const min = RARITY_ORDER.indexOf(minRarity);
-    pool = pool.filter(([k]) => RARITY_ORDER.indexOf(k) <= min);
-  }
-  const total = pool.reduce((s, [, r]) => s + r.weight, 0);
-  let x = Math.random() * total;
-  for (const [k, r] of pool) { x -= r.weight; if (x < 0) return k; }
-  return pool[pool.length - 1][0];
-}
-function pick(rarity) {
-  const list = POOL.filter((e) => e.rarity === rarity);
-  return list[Math.floor(Math.random() * list.length)];
-}
+// ---------- 抽卡邏輯：演示政策（17 張全池、每包保底精良、10 包必出傳說）。抽取當下就落盤 ----------
 function rollPack() {
-  const rarities = Array.from({ length: 5 }, () => rollRarity());
-  const rank = (r) => RARITY_ORDER.indexOf(r);
-  // 保底一：每包至少一張精良以上
-  if (!rarities.some((r) => rank(r) <= rank('rare'))) {
-    rarities[Math.floor(Math.random() * 5)] = rollRarity('rare');
-  }
-  // 保底二：連續 PITY_PACKS 包沒傳說就塞一張
-  const pity = SAVE.pity + 1;
-  if (!rarities.includes('legendary') && pity >= PITY_PACKS) {
-    rarities[Math.floor(Math.random() * 5)] = 'legendary';
-  }
-  const nextPity = rarities.includes('legendary') ? 0 : pity;
-  const id = crypto.randomUUID();
-  // 同一包裡重複兩張同卡時，第二張算重複
-  const seen = new Set(Object.keys(SAVE.collection).filter((k) => SAVE.collection[k] > 0));
-  const entries = rarities.map((r, i) => {
-    const entry = pick(r);
-    const dup = seen.has(entry.id);
-    seen.add(entry.id);
-    return Object.freeze({ key: `${id}:${i}`, entry: Object.freeze({ ...entry }), dup });
-  });
-  const draw = Object.freeze({ id, entries: Object.freeze(entries), visualSeed: crypto.getRandomValues(new Uint32Array(1))[0] });
+  const { draw, nextPity } = Pool.rollPack({ count: 5, policy: Pool.DEMO_POLICY, pity: SAVE.pity, collection: SAVE.collection });
   save({ ...SAVE, packs: SAVE.packs + 1, pity: nextPity, pending: draw });
   return draw;
 }
@@ -257,6 +198,7 @@ let runtime = null, modeInstance = null, currentDraw = null, assetsLoaded = fals
 let entryDispose = null;
 const revealedKeys = new Set();
 const cardAdapter = window.GachaCard.create({ rarity: RARITY, byId,
+  tagFor: (entry, dup) => dup ? { text: `重複 +${RARITY[entry.rarity].dust} 塵`, cls: 'dup' } : { text: 'NEW', cls: 'new' },
   canHover: () => state === 'fanned', fatal: $('fatal') });
 const buildCard = cardAdapter.create, liveEnd = cardAdapter.liveEnd;
 const assetsReady = cardAdapter.ready;

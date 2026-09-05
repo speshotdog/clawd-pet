@@ -39,7 +39,7 @@ window.GachaModeRuntime = (() => {
     }
     function createCard(item) {
       if (cards.has(item.key)) return cards.get(item.key);
-      const el = host.card.create(item.entry, { dup: item.dup });
+      const el = host.card.create(item.entry, { dup: item.dup, owned: item.owned });
       const card = { ...item, el, ...host.layout(draw.entries.indexOf(item), draw.entries.length), flipped: false };
       el.dataset.key = item.key;
       host.cardsEl.append(el); cards.set(item.key, card);

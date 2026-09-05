@@ -177,6 +177,10 @@ const TOY_H: f64 = 120.0;
 const GACHA_W: f64 = 960.0;
 const GACHA_H: f64 = 640.0;
 static GACHA_ZOOM: Mutex<f64> = Mutex::new(1.0);
+// 珍母點點（點餅乾遊戲）視窗：同 960x640 邏輯尺寸、獨立縮放值
+const CLICKER_W: f64 = 960.0;
+const CLICKER_H: f64 = 640.0;
+static CLICKER_ZOOM: Mutex<f64> = Mutex::new(1.0);
 
 // 依 label 查邏輯尺寸：寵物視窗（main / pet_*）= 240x256，玩具（toy_*）= 150x120
 fn logical_size(label: &str) -> (f64, f64) {
@@ -185,6 +189,9 @@ fn logical_size(label: &str) -> (f64, f64) {
     } else if label == "gacha" {
         let z = *GACHA_ZOOM.lock().unwrap();
         (GACHA_W * z, GACHA_H * z)
+    } else if label == "clicker" {
+        let z = *CLICKER_ZOOM.lock().unwrap();
+        (CLICKER_W * z, CLICKER_H * z)
     } else if label.starts_with("toy_") {
         (TOY_W, TOY_H)
     } else {
@@ -1750,6 +1757,82 @@ fn show_gacha_window(app: AppHandle) {
     });
 }
 
+// ------------------------------------------------------------
+// 珍母點點視窗（label = clicker）：完整遊戲用途的視窗。同 label 已存在就顯示並聚焦。
+// 與抽卡視窗不同：不置頂、可最小化、顯示工作列圖示。不納入桌寵游標／寄生／移動迴圈。
+// ------------------------------------------------------------
+#[tauri::command]
+fn close_clicker_window(app: AppHandle) {
+    if let Some(w) = app.get_webview_window("clicker") {
+        let _ = w.hide();
+    }
+}
+
+#[tauri::command]
+fn get_clicker_zoom() -> f64 {
+    *CLICKER_ZOOM.lock().unwrap()
+}
+
+fn show_clicker_window(app: AppHandle) {
+    let anchor = app
+        .get_webview_window("petmenu")
+        .or_else(|| app.get_webview_window("main"));
+    let dpr = anchor
+        .as_ref()
+        .and_then(|w| w.outer_size().ok().map(|s| s.width as f64 / MENU_W))
+        .filter(|d| (0.5..=4.0).contains(d))
+        .unwrap_or_else(|| {
+            anchor
+                .as_ref()
+                .and_then(|w| w.hwnd().ok())
+                .map(|h| unsafe { GetDpiForWindow(h.0 as isize) } as f64 / 96.0)
+                .unwrap_or(1.0)
+        });
+    let wa = anchor.as_ref().map(work_area_of).unwrap_or(Rect { left: 0, top: 0, right: 1920, bottom: 1040 });
+    let avail_w = (wa.right - wa.left) as f64 / dpr - 24.0;
+    let avail_h = (wa.bottom - wa.top) as f64 / dpr - 24.0;
+    let zoom = (avail_w / CLICKER_W).min(avail_h / CLICKER_H).min(1.0).max(0.4);
+    *CLICKER_ZOOM.lock().unwrap() = zoom;
+    let w_px = (CLICKER_W * zoom * dpr).round() as i32;
+    let h_px = (CLICKER_H * zoom * dpr).round() as i32;
+    let pos = PhysicalPosition::new(
+        wa.left + ((wa.right - wa.left) - w_px) / 2,
+        wa.top + ((wa.bottom - wa.top) - h_px) / 2,
+    );
+    std::thread::spawn(move || {
+        let win = if let Some(existing) = app.get_webview_window("clicker") {
+            existing
+        } else {
+            match WebviewWindowBuilder::new(&app, "clicker", WebviewUrl::App("clicker.html".into()))
+                .title("ClawdPet Clicker")
+                .inner_size(CLICKER_W * zoom, CLICKER_H * zoom)
+                .transparent(true)
+                .decorations(false)
+                .always_on_top(false)
+                .skip_taskbar(false)
+                .resizable(false)
+                .maximizable(false)
+                .minimizable(true)
+                .shadow(false)
+                .visible(false)
+                .build()
+            {
+                Ok(created) => created,
+                Err(err) => {
+                    dlog(&format!("clicker create FAILED: {err:?}"));
+                    return;
+                }
+            }
+        };
+        resize_physical(&win, dpr);
+        let _ = win.set_position(pos);
+        let _ = app.emit_to("clicker", "clicker-zoom", zoom);
+        let _ = win.unminimize();
+        let _ = win.show();
+        let _ = win.set_focus();
+    });
+}
+
 // 選單尺寸必須用「算出來的實體尺寸」而不是 menu.outer_size()：
 // 第一次開啟時 fit_window 還沒跑，outer_size 是缺了文字大小疊乘的偏小值，
 // 用它 clamp 會讓選單底部多出一截沉進工作列。
@@ -2010,6 +2093,7 @@ fn menu_action(app: AppHandle, id: String) {
         }
         "autostart" => set_autostart(!is_autostart()),
         "gacha" => show_gacha_window(app.clone()),
+        "clicker" => show_clicker_window(app.clone()),
         "quit" => quit_app(&app),
         _ => {}
     }
@@ -2160,6 +2244,11 @@ fn route_control(app: &AppHandle, path: &str, query: &str, token: &str) -> (&'st
             show_gacha_window(app.clone());
             ("200 OK", "ok")
         }
+        // 打開珍母點點視窗（測試用）：/pet/clicker?t=<token>
+        "/pet/clicker" => {
+            show_clicker_window(app.clone());
+            ("200 OK", "ok")
+        }
         // 換主角（測試用）：/pet/char?id=caihua&t=<token>
         "/pet/char" => match query_param(query, "id") {
             Some(id) if CHARS.iter().any(|(k, _, _)| *k == id) => {
@@ -2300,6 +2389,8 @@ fn main() {
             close_menu_window,
             close_gacha_window,
             get_gacha_zoom,
+            close_clicker_window,
+            get_clicker_zoom,
             get_menu_state,
             get_autostart,
             set_pet_info,
