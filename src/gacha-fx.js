@@ -162,20 +162,19 @@ window.GachaFx = (() => {
       }
       kick(); return;
     }
-    // 傳說：兩道衝擊波、火星噴泉、緩緩上飄的餘燼、大顆星芒
-    layers.push(ring(x, y, '#ffd27a', 0.7, 520, 14));
-    layers.push(ring(x, y, c, 0.9, 700, 8));
-    for (let i = 0; i < 90; i++) {
-      const a = rand(0, TAU), sp = rand(150, 700);
-      spawn({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 100, g: 500, drag: 0.972, r: rand(1.5, 3.5), life: rand(0.7, 1.5), color: Math.random() < 0.5 ? '#ffd27a' : c, glow: 8, shrink: true, shape: 'streak' });
-    }
+    // 傳說：一圈貼卡的衝擊波、外緣火星、少量餘燼與星芒——中央留給立繪，不用大環蓋全桌
+    layers.push(ring(x, y, '#ffd27a', 0.55, 220, 8));
     for (let i = 0; i < 40; i++) {
+      const a = rand(0, TAU), sp = rand(150, 600);
+      spawn({ x: x + Math.cos(a) * 70, y: y + Math.sin(a) * 100, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 100, g: 500, drag: 0.972, r: rand(1.5, 3.5), life: rand(0.7, 1.5), color: Math.random() < 0.5 ? '#ffd27a' : c, glow: 8, shrink: true, shape: 'streak' });
+    }
+    for (let i = 0; i < 20; i++) {
       spawn({ x: x + rand(-90, 90), y: y + rand(-40, 110), vx: rand(-15, 15), vy: rand(-70, -25), g: -25, r: rand(1.5, 3), life: rand(1.6, 3), color: Math.random() < 0.7 ? '#ff9a3c' : '#ffe7a6', glow: 10, shrink: true, fadeK: 1.2,
         update(p, dt) { p.vx += Math.sin(p.life * 7 + p.x) * 30 * dt; p.x += p.vx * dt; p.y += p.vy * dt; } });
     }
-    for (let i = 0; i < 18; i++) {
-      const a = rand(0, TAU), sp = rand(40, 200);
-      spawn({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, g: 80, drag: 0.97, r: rand(4, 9), life: rand(1, 1.8), color: '#fff3d0', glow: 16, shape: 'star', rot: rand(0, TAU), vr: rand(-2, 2), shrink: true });
+    for (let i = 0; i < 8; i++) {
+      const a = rand(0, TAU), sp = rand(120, 220);
+      spawn({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, g: 80, drag: 0.97, r: rand(4, 8), life: rand(1, 1.8), color: '#fff3d0', glow: 16, shape: 'star', rot: rand(0, TAU), vr: rand(-2, 2), shrink: true });
     }
     kick();
   }

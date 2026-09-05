@@ -445,3 +445,98 @@ img, svg { -webkit-user-drag: none; }
 .fatal { position: absolute; inset: 0; z-index: 99; display: grid; place-items: center; background: rgba(0,0,0,.8); color: #ffb3a3; text-align: center; padding: 40px; white-space: pre-wrap; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01s !important; transition-duration: .01s !important; } }
+
+/* ================= 定案卡面：A 的實體感 + F 的局部透光（規格：docs/gacha/DESIGN-astra-round1.md §一） =================
+   厚框、暗玻璃畫窗、獨立玻璃名牌；鍍膜與反光只蓋畫窗，不洗名字與框線。
+   稀有度差異不只換色：普通霧面安靜、史詩四角扣、傳說頂部三齒扣＋卡背也有靜態橘漏光。 */
+.skin-af .card { --rim: 3px; --rim-hi: #b8babd; --ink-rarity: #b8babd; --wash: rgba(157,157,157,.06); --gem: 10px; --foil: .08; --glare: .05; }
+.skin-af .card.r-rare { --rim-hi: #78baff; --ink-rarity: #78baff; --wash: rgba(0,112,221,.14); --gem: 12px; --foil: .15; --glare: .09; }
+.skin-af .card.r-epic { --rim: 4px; --rim-hi: #d5a2ff; --ink-rarity: #d5a2ff; --wash: rgba(163,53,238,.17); --gem: 14px; --foil: .20; --glare: .12; }
+.skin-af .card.r-legendary { --rim: 4px; --rim-hi: #ffd28a; --ink-rarity: #ffc477; --wash: rgba(255,128,0,.20); --gem: 16px; --foil: .26; --glare: .15; }
+
+.skin-af .card-face { padding: 0; border-radius: 12px; background: linear-gradient(160deg, #202b43, #0d1423 65%); box-shadow: 0 8px 14px rgba(0,0,0,.46); }
+.skin-af .face-frame {
+  inset: 0; z-index: 5; border: 1px solid #101217; border-image: none; border-radius: 12px;
+  box-shadow: inset 0 0 0 var(--rim) var(--rc), inset 0 0 0 calc(var(--rim) + 1px) rgba(255,255,255,.14), inset 0 0 0 calc(var(--rim) + 3px) #101827;
+}
+.skin-af .face-art {
+  left: 10px; right: 10px; top: 10px; height: 148px; border: 0; border-radius: 7px; isolation: isolate;
+  background: radial-gradient(ellipse 85% 48% at 50% 100%, var(--wash), transparent 80%), linear-gradient(160deg, #29364f, #141d30 75%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), inset 0 2px 0 rgba(255,255,255,.04);
+}
+.skin-af .face-art > svg, .skin-af .face-art > img, .skin-af .face-art > .emoji { position: relative; z-index: 1; }
+.skin-af .face-art .floor { height: 10px; bottom: 8px; background: radial-gradient(ellipse, rgba(0,0,0,.36), transparent 72%); }
+.skin-af .face-plate {
+  left: 10px; right: 10px; bottom: 10px; height: 34px; padding: 2px 3px; gap: 0;
+  border: 1px solid rgba(255,255,255,.10); border-top-color: var(--rc); border-radius: 6px;
+  background: linear-gradient(180deg, #151c2b, #090e18); box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.skin-af .face-name { max-width: 100%; font-size: 13px; line-height: 17px; letter-spacing: .04em; color: #fff1d2; text-shadow: 0 1px 0 #000; white-space: nowrap; }
+.skin-af .face-rarity { font-size: 10px; line-height: 12px; letter-spacing: .22em; color: var(--ink-rarity); text-shadow: none; }
+.skin-af .face-gem {
+  z-index: 6; top: calc(158px - var(--gem) / 2); left: 50%; width: var(--gem); height: var(--gem); margin-left: calc(var(--gem) / -2);
+  border: 1px solid var(--rim-hi); border-radius: 2px; background: linear-gradient(135deg, var(--rim-hi), var(--rc) 45%, #202333); box-shadow: 0 0 0 2px #101827;
+}
+.skin-af .r-common .face-gem { background: #9d9d9d; border-color: #b8babd; }
+/* 史詩／傳說：四個內角扣 */
+.skin-af .r-epic .face-frame::after, .skin-af .r-legendary .face-frame::after {
+  content: ""; position: absolute; inset: 5px; border-radius: 7px; background-repeat: no-repeat;
+  background:
+    linear-gradient(var(--rim-hi), var(--rim-hi)) left top / 13px 2px no-repeat,
+    linear-gradient(var(--rim-hi), var(--rim-hi)) right top / 13px 2px no-repeat,
+    linear-gradient(var(--rim-hi), var(--rim-hi)) left bottom / 13px 2px no-repeat,
+    linear-gradient(var(--rim-hi), var(--rim-hi)) right bottom / 13px 2px no-repeat;
+}
+/* 傳說：頂部三齒扣（卡面與卡背都有——不用翻就知道它貴） */
+.skin-af .r-legendary .face-frame::before, .skin-af .r-legendary .card-back::after {
+  content: ""; position: absolute; z-index: 2; left: calc(50% - 12px); top: 3px; width: 24px; height: 8px; background: #ffd28a;
+  clip-path: polygon(0 100%, 0 30%, 25% 58%, 50% 0, 75% 58%, 100% 30%, 100% 100%);
+}
+.skin-af .r-legendary .face-plate { box-shadow: 0 0 0 1px #5b3216, inset 0 0 0 1px rgba(255,196,119,.10); }
+.skin-af .face-tag { top: 15px; right: 15px; z-index: 7; font-size: 9px; line-height: 14px; padding: 1px 5px; letter-spacing: .04em; }
+
+/* 卡背：靜態預告，不閃 */
+.skin-af .card-glow { animation: none !important; box-shadow: 0 0 18px 2px var(--rc-b); }
+.skin-af .back-leak { box-shadow: inset 0 0 12px 1px var(--rc-b), inset 0 0 0 2px var(--rc); }
+.skin-af .r-common .card-glow, .skin-af .r-common.live .card-glow { opacity: 0; }
+.skin-af .r-common .back-leak { box-shadow: inset 0 0 0 1px #9d9d9d; }
+.skin-af .r-legendary:not(.flipped) .back-leak { opacity: .55; }
+.skin-af .r-legendary:not(.flipped):hover .back-leak, .skin-af .card.charging .back-leak { opacity: 1; }
+.skin-af .card.flipped .card-glow { opacity: .25; }
+.skin-af .card.live .card-glow { opacity: .35; }
+
+/* 鍍膜／反光住在畫窗裡 */
+.skin-af .face-holo, .skin-af .face-glare { inset: 0; z-index: 2; border-radius: 7px; mix-blend-mode: screen; pointer-events: none; opacity: 0; transition: opacity .25s; }
+.skin-af .face-holo { background: linear-gradient(115deg, transparent calc(var(--mx) - 18%), var(--rim-hi) var(--mx), transparent calc(var(--mx) + 18%)); }
+.skin-af .face-glare { background: radial-gradient(circle at var(--mx) var(--my), #fff5df, transparent 24%); }
+.skin-af .card.live .face-holo { opacity: calc(var(--foil) * (.4 + var(--tilt) * .6)); }
+.skin-af .card.live .face-glare { opacity: var(--glare); }
+
+/* 餘燼：入場只飄一次（史詩 2 顆、傳說 4 顆） */
+.skin-af .face-embers { opacity: 1; transition: none; }
+.skin-af .face-embers i { animation: none; opacity: 0; box-shadow: 0 0 4px var(--rc); }
+.skin-af .card.live-enter .face-embers i { animation: af-ember 900ms ease-out 1 both; }
+.skin-af .face-embers i:nth-child(n + 5) { display: none; }
+.skin-af .r-epic .face-embers i:nth-child(n + 3) { display: none; }
+.skin-af .r-legendary .face-embers i:nth-child(4) { background: #fff3d0; box-shadow: 0 0 4px #fff3d0; }
+@keyframes af-ember { 0% { transform: translateY(0); opacity: 0; } 18% { opacity: .55; } 100% { transform: translateY(-38px); opacity: 0; } }
+.skin-af .card.flipped .face-sheen { animation: none; }
+.skin-af .card.reveal-pop .face-sheen { animation: face-sheen 550ms ease-out 1 both; }
+
+/* 圖鑑：保留結構，拿掉細碎特效；未擁有只把立繪變黑影，框色保留讓分類看得出來 */
+.skin-af .mini { height: 135px; }
+.skin-af .mini .face-name { font-size: 15px; letter-spacing: 0; }
+.skin-af .mini .face-rarity { display: none; }
+.skin-af .mini .face-holo, .skin-af .mini .face-glare, .skin-af .mini .face-embers, .skin-af .mini .face-frame::after { display: none; }
+.skin-af .mini.locked .card { filter: none; }
+.skin-af .mini.locked .face-art > svg, .skin-af .mini.locked .face-art > img, .skin-af .mini.locked .face-art > .emoji { filter: brightness(0) !important; opacity: .72; }
+.skin-af .mini.locked .face-art { background: #1b2538; }
+.skin-af .mini.locked .face-name { visibility: hidden; }
+.skin-af .mini.locked .face-plate::after { content: "未擁有"; position: absolute; color: #aeb7c8; font-size: 15px; }
+.skin-af .mini.locked::after { display: none; }
+
+/* ready 是等待狀態：光帶只掃兩次就停，光暈靜態 */
+.skin-af.table.state-ready .pack-body { animation: none; }
+.skin-af.table.state-ready .pack-shine { animation: sheen 2.6s ease-in-out 2; }
+.skin-af.table.state-ready .pack-glow { animation: none; opacity: .7; }
+@media (prefers-reduced-motion: reduce) { .skin-af .face-embers { display: none; } }

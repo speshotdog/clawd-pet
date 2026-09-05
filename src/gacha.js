@@ -166,6 +166,8 @@ function buildCard(entry, { dup = false, tag = true } = {}) {
     </div></div>`;
   const art = card.querySelector('.face-art');
   art.appendChild(buildArt(entry));
+  // 鍍膜與反光只蓋畫窗（放在立繪之後、餘燼之前）
+  art.insertAdjacentHTML('beforeend', '<div class="face-holo"></div><div class="face-glare"></div>');
   if (entry.rarity === 'legendary' || entry.rarity === 'epic') {
     // 活起來時畫框裡飄的餘燼／星屑（CSS 動畫，只在 .live 時顯示）
     const embers = document.createElement('div');
@@ -441,97 +443,115 @@ function afterFlip() {
   }, 450);
 }
 
-// ---------- 動態卡面：翻開的卡指上去就活起來 ----------
-// 卡跟著滑鼠 3D 傾斜、卡面鍍膜順著角度走光、立繪視差＋本尊 rig 的閒置動作
-// （呼吸、踏腳、尾巴、眨眼——樞紐和擺幅倍率都是 pet.js 那一套）。離開就慢慢躺回去。
-const TILT = { common: 7, rare: 10, epic: 12, legendary: 14 };
-const live = { el: null, entry: null, raf: 0, t0: 0, rx: 0, ry: 0, tx: 0, ty: 0, rig: null, blinkAt: 0, blinking: false };
+// ---------- 動態卡面：翻開的卡指上去，像拿起來看一眼 ----------
+// 卡跟著滑鼠傾斜（幅度依稀有度）、畫窗內鍍膜與反光順著角度走、立繪小幅視差；
+// 入場時角色做「一次」回應（呼吸＋眨眼＋一組肢體），之後靜止。
+// rAF 只在傾斜還沒收斂或入場動作未結束時跑；游標停住就停，符合本專案「閒置不跑動畫」的規矩。
+const LIVE_CFG = {
+  common:    { tilt: 4, lift: 8,  scale: 1.035, parallax: 1 },
+  rare:      { tilt: 5, lift: 8,  scale: 1.04,  parallax: 1.5 },
+  epic:      { tilt: 6, lift: 9,  scale: 1.045, parallax: 2 },
+  legendary: { tilt: 7, lift: 10, scale: 1.05,  parallax: 2.5 },
+};
+const LIVE_MINI = { tilt: 3, lift: 2, scale: 1.025, parallax: 0 };
+const ENTER_MS = 800;          // 入場動作長度
+const ENTER_COOLDOWN = 1500;   // 同一張卡再入場的冷卻
+const live = { el: null, entry: null, cfg: null, raf: 0, t0: 0, rx: 0, ry: 0, tx: 0, ty: 0, nx: 0, ny: 0, rig: null, lastEnter: new WeakMap() };
 
 function liveStart(el, entry) {
   if (live.el === el) return;
   liveEnd();
-  live.el = el; live.entry = entry; live.t0 = performance.now();
+  const mini = !!el.closest('.mini');
+  live.el = el; live.entry = entry; live.cfg = mini ? LIVE_MINI : LIVE_CFG[entry.rarity];
+  live.t0 = performance.now();
   live.rx = live.ry = live.tx = live.ty = 0;
-  live.blinkAt = live.t0 + 900 + Math.random() * 1800;
   const svg = el.querySelector('.face-art > svg');
   const cfg = entry.kind === 'char' ? CHAR_CFG[entry.id] : null;
   live.rig = svg && cfg ? {
     svg, cfg,
-    legL: svg.querySelector('#legL'), legR: svg.querySelector('#legR'), pawR: svg.querySelector('#pawR'),
-    tail: svg.querySelector('#tail'),
+    tail: svg.querySelector('#tail'), pawR: svg.querySelector('#pawR'),
     open: svg.querySelector('#eyes-open'), closed: svg.querySelector('#eyes-closed'),
   } : { svg: null, media: el.querySelector('.face-art > img, .face-art > .emoji') };
+  // 入場動作：冷卻內或圖鑑縮圖不做
+  const last = live.lastEnter.get(el) || 0;
+  live.enter = !mini && live.t0 - last > ENTER_COOLDOWN;
+  if (live.enter) { live.lastEnter.set(el, live.t0); el.classList.add('live-enter'); }
   el.classList.add('live');
+  liveWake();
+}
+function liveWake() {
+  if (!live.el || live.raf) return;
   live.raf = requestAnimationFrame(liveFrame);
 }
 function liveMove(e) {
   if (!live.el) return;
   const r = live.el.getBoundingClientRect();
-  const nx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
-  const ny = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
-  const k = TILT[live.entry.rarity] || 8;
-  live.ty = nx * k;
-  live.tx = -ny * k;
-  live.el.style.setProperty('--mx', `${((nx + 1) / 2 * 100).toFixed(1)}%`);
-  live.el.style.setProperty('--my', `${((ny + 1) / 2 * 100).toFixed(1)}%`);
+  live.nx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+  live.ny = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
+  live.ty = live.nx * live.cfg.tilt;
+  live.tx = -live.ny * live.cfg.tilt;
+  live.el.style.setProperty('--mx', `${((live.nx + 1) / 2 * 100).toFixed(1)}%`);
+  live.el.style.setProperty('--my', `${((live.ny + 1) / 2 * 100).toFixed(1)}%`);
+  liveWake();
 }
 function setLimb(el, deg, pivot) {
   if (!el || !pivot) return;
   el.setAttribute('transform', `rotate(${deg.toFixed(1)} ${pivot[0]} ${pivot[1]})`);
 }
 function liveFrame(now) {
+  live.raf = 0;
   if (!live.el) return;
-  const t = (now - live.t0) / 1000;
-  live.rx += (live.tx - live.rx) * 0.14;
-  live.ry += (live.ty - live.ry) * 0.14;
+  const c = live.cfg;
+  live.rx += (live.tx - live.rx) * 0.16;
+  live.ry += (live.ty - live.ry) * 0.16;
   live.el.querySelector('.card-lift').style.transform =
-    `translateY(-10px) scale(1.09) rotateX(${live.rx.toFixed(2)}deg) rotateY(${live.ry.toFixed(2)}deg)`;
-  // 鍍膜亮度：卡越斜、光越亮（正面看是霧的）
-  live.el.style.setProperty('--tilt', Math.min(1, Math.hypot(live.rx, live.ry) / 12).toFixed(3));
-  // 立繪視差：往傾斜的反方向偏，像浮在畫框前面；再疊一層呼吸
-  const breath = Math.sin(t * 2 * Math.PI / 2.4);
-  const px = -live.ry * 0.55, py = live.rx * 0.45 + breath * 2;
+    `translateY(${-c.lift}px) scale(${c.scale}) rotateX(${live.rx.toFixed(2)}deg) rotateY(${live.ry.toFixed(2)}deg)`;
+  live.el.style.setProperty('--tilt', Math.min(1, Math.hypot(live.rx, live.ry) / c.tilt).toFixed(3));
+  // 入場動作進度（0..1），結束後為 1 且不再變
+  const t = Math.min(1, (now - live.t0) / ENTER_MS);
+  const entering = live.enter && t < 1;
+  // 立繪：視差用 nx/ny 直接乘幅度；入場時疊一次呼吸
+  const breath = entering ? Math.sin(t * Math.PI) : 0;
+  const px = -live.nx * c.parallax, py = live.ny * c.parallax * 0.8 + breath * 2;
   const rig = live.rig;
   if (rig.svg) {
     rig.svg.style.transform = `translate(${px.toFixed(1)}px, ${py.toFixed(1)}px) scale(${(1 + breath * 0.008).toFixed(3)}, ${(1 - breath * 0.012).toFixed(3)})`;
-    const cfg = rig.cfg, ls = cfg.limbScale || 1;
-    // 閒置踏腳：慢慢左右換重心；手臂偶爾晃；尾巴慢搖
-    const s = Math.sin(t * 2 * Math.PI / 1.6);
-    setLimb(rig.legL, 5 * s * ls, cfg.legL);
-    setLimb(rig.legR, -5 * s * ls, cfg.legR);
-    setLimb(rig.pawR, (cfg.up || 1) * 4 * Math.sin(t * 2 * Math.PI / 1.1 + 0.8) * ls * (cfg.pawScale || 1), cfg.pawR);
-    if (rig.tail && cfg.tail) setLimb(rig.tail, 3 * Math.sin(t * 2 * Math.PI / 1.3) * (cfg.tailScale || 1), cfg.tail);
-    // 眨眼：隨機間隔，閉 110ms
-    if (rig.open && rig.closed) {
-      if (!live.blinking && now >= live.blinkAt) {
-        live.blinking = true; rig.open.style.display = 'none'; rig.closed.style.display = '';
-        live.blinkAt = now + 110;
-      } else if (live.blinking && now >= live.blinkAt) {
-        live.blinking = false; rig.open.style.display = ''; rig.closed.style.display = 'none';
-        live.blinkAt = now + 1600 + Math.random() * 2600;
+    if (live.enter) {
+      const cfg = rig.cfg, ls = cfg.limbScale || 1;
+      const swing = Math.sin(t * Math.PI * 2) * (t < 1 ? 1 : 0);
+      // 肢體只選一組：有尾巴搖尾巴，沒有才動右手
+      if (rig.tail && cfg.tail) setLimb(rig.tail, 2 * swing * (cfg.tailScale || 1), cfg.tail);
+      else setLimb(rig.pawR, (cfg.up || 1) * 3 * swing * ls * (cfg.pawScale || 1), cfg.pawR);
+      // 眨眼：第 280ms 閉、390ms 張
+      if (rig.open && rig.closed) {
+        const ms = t * ENTER_MS, shut = ms >= 280 && ms < 390;
+        rig.open.style.display = shut ? 'none' : '';
+        rig.closed.style.display = shut ? '' : 'none';
       }
     }
   } else if (rig.media) {
-    // 玩具／emoji：輕輕彈跳＋左右晃
-    const b = Math.abs(Math.sin(t * 2 * Math.PI / 1.1));
-    rig.media.style.transform = `translate(${px.toFixed(1)}px, ${(py - b * 6).toFixed(1)}px) rotate(${(Math.sin(t * 2 * Math.PI / 2.2) * 4).toFixed(1)}deg) scale(${(1 + b * 0.03).toFixed(3)}, ${(1 - b * 0.03).toFixed(3)})`;
+    // 玩具／emoji：入場時壓一下再回正（160ms 壓、200ms 回）
+    const ms = t * ENTER_MS;
+    const k = live.enter ? (ms < 160 ? ms / 160 : ms < 360 ? 1 - (ms - 160) / 200 : 0) : 0;
+    rig.media.style.transform = `translate(${px.toFixed(1)}px, ${py.toFixed(1)}px) scale(${(1 + k * 0.02).toFixed(3)}, ${(1 - k * 0.02).toFixed(3)})`;
   }
-  live.raf = requestAnimationFrame(liveFrame);
+  const settled = Math.abs(live.tx - live.rx) < 0.05 && Math.abs(live.ty - live.ry) < 0.05;
+  if (!settled || entering) live.raf = requestAnimationFrame(liveFrame);
 }
 function liveEnd() {
   if (!live.el) return;
-  cancelAnimationFrame(live.raf);
+  cancelAnimationFrame(live.raf); live.raf = 0;
   const el = live.el, rig = live.rig;
-  el.classList.remove('live');
+  el.classList.remove('live', 'live-enter');
   el.querySelector('.card-lift').style.transform = '';
   el.style.removeProperty('--tilt');
   if (rig.svg) {
     rig.svg.style.transform = '';
-    [rig.legL, rig.legR, rig.pawR, rig.tail].forEach((g) => g?.removeAttribute('transform'));
+    [rig.pawR, rig.tail].forEach((g) => g?.removeAttribute('transform'));
     if (rig.open) rig.open.style.display = '';
     if (rig.closed) rig.closed.style.display = 'none';
   } else if (rig.media) rig.media.style.transform = '';
-  live.el = null; live.rig = null; live.blinking = false;
+  live.el = null; live.rig = null;
 }
 // 桌上翻開的卡與圖鑑裡已擁有的卡都會活
 function liveTarget(e) {
@@ -551,6 +571,8 @@ document.addEventListener('pointermove', (e) => { if (live.el) liveMove(e); });
 document.addEventListener('pointerout', (e) => {
   if (live.el && !live.el.contains(e.relatedTarget)) liveEnd();
 });
+window.addEventListener('blur', liveEnd);
+document.addEventListener('visibilitychange', () => { if (document.hidden) liveEnd(); });
 
 // ---------- 收下 ----------
 collectBtn.addEventListener('click', async () => {
