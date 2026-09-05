@@ -126,8 +126,11 @@ window.ClickerStage = (() => {
       parasite = effect || null; const label = $('parasite-label');
       if (effect) {
         label.replaceChildren(card.art.create(window.GachaPool.byId[effect.target]));
-        label.append(document.createTextNode(`寄生・${window.GachaPool.byId[effect.target].name}`)); label.hidden = false;
-        if (!instant) motion(label, [{transform:'scale(.85)',opacity:0},{transform:'scale(1)',opacity:1}],160);
+        const text = document.createElement('span'); text.textContent = `寄生・${window.GachaPool.byId[effect.target].name}`; label.append(text);
+        label.hidden = false; label.title = text.textContent;
+        // 全名只亮 2.4 秒，之後縮成宿主小頭像掛在珍母身側，不讓字卡整段 20 秒佈在舞台上
+        label.classList.toggle('compact', !!instant);
+        if (!instant) { motion(label, [{transform:'scale(.85)',opacity:0},{transform:'scale(1)',opacity:1}],160); later(() => { if (parasite?.target === effect.target) label.classList.add('compact'); }, 2400); }
       } else if (!label.hidden) {
         if (instant) label.hidden = true;
         else motion(label,[{opacity:1},{opacity:0}],120,()=>{ if (!parasite) label.hidden = true; });
