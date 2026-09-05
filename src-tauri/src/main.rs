@@ -2372,6 +2372,94 @@ fn spawn_typing_thread(app: AppHandle) {
     });
 }
 
+// ------------------------------------------------------------
+// Windows 音量混音器的名稱／圖示：WebView2 的聲音由 msedgewebview2.exe 子程序發出，
+// 混音器預設顯示「Microsoft Edge WebView2」。這裡定期掃描本程序底下所有 WebView2
+// 子孫程序擁有的音訊 session，改成 ClawdPet 的名稱與 exe 圖示。
+// session 要等第一次出聲才會建立，所以用低頻迴圈掃，不是只做一次。
+// ------------------------------------------------------------
+fn webview_descendant_pids() -> Vec<u32> {
+    use windows::Win32::System::Diagnostics::ToolHelp::{
+        CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W, TH32CS_SNAPPROCESS,
+    };
+    let me = std::process::id();
+    let mut procs: Vec<(u32, u32, String)> = Vec::new();
+    unsafe {
+        let Ok(snap) = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) else { return Vec::new() };
+        let mut entry = PROCESSENTRY32W { dwSize: std::mem::size_of::<PROCESSENTRY32W>() as u32, ..Default::default() };
+        if Process32FirstW(snap, &mut entry).is_ok() {
+            loop {
+                let len = entry.szExeFile.iter().position(|&c| c == 0).unwrap_or(entry.szExeFile.len());
+                let name = String::from_utf16_lossy(&entry.szExeFile[..len]).to_lowercase();
+                procs.push((entry.th32ProcessID, entry.th32ParentProcessID, name));
+                if Process32NextW(snap, &mut entry).is_err() { break; }
+            }
+        }
+        let _ = windows::Win32::Foundation::CloseHandle(snap);
+    }
+    // 從本程序往下走：所有子孫中名字是 msedgewebview2.exe 的
+    let mut frontier = vec![me];
+    let mut seen = std::collections::HashSet::new();
+    let mut out = Vec::new();
+    while let Some(pid) = frontier.pop() {
+        for (cpid, ppid, name) in &procs {
+            if *ppid == pid && seen.insert(*cpid) {
+                frontier.push(*cpid);
+                if name == "msedgewebview2.exe" { out.push(*cpid); }
+            }
+        }
+    }
+    out
+}
+
+fn brand_audio_sessions(pids: &[u32], name: &[u16], icon: &[u16]) -> Result<usize, String> {
+    use windows::core::{Interface, PCWSTR};
+    use windows::Win32::Media::Audio::{
+        eConsole, eRender, IAudioSessionControl2, IAudioSessionManager2, IMMDeviceEnumerator, MMDeviceEnumerator,
+    };
+    use windows::Win32::System::Com::{CoCreateInstance, CLSCTX_ALL};
+    let mut done = 0;
+    unsafe {
+        let enumerator: IMMDeviceEnumerator =
+            CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL).map_err(|e| e.to_string())?;
+        let device = enumerator.GetDefaultAudioEndpoint(eRender, eConsole).map_err(|e| e.to_string())?;
+        let manager: IAudioSessionManager2 = device.Activate(CLSCTX_ALL, None).map_err(|e| e.to_string())?;
+        let sessions = manager.GetSessionEnumerator().map_err(|e| e.to_string())?;
+        let count = sessions.GetCount().map_err(|e| e.to_string())?;
+        for i in 0..count {
+            let Ok(control) = sessions.GetSession(i) else { continue };
+            let Ok(control2) = control.cast::<IAudioSessionControl2>() else { continue };
+            let Ok(pid) = control2.GetProcessId() else { continue };
+            if !pids.contains(&pid) { continue; }
+            let _ = control.SetDisplayName(PCWSTR(name.as_ptr()), std::ptr::null());
+            let _ = control.SetIconPath(PCWSTR(icon.as_ptr()), std::ptr::null());
+            done += 1;
+        }
+    }
+    Ok(done)
+}
+
+fn spawn_audio_branding() {
+    std::thread::spawn(|| {
+        use windows::Win32::System::Com::{CoInitializeEx, COINIT_MULTITHREADED};
+        unsafe { let _ = CoInitializeEx(None, COINIT_MULTITHREADED); }
+        let name: Vec<u16> = "ClawdPet 熱狗小夥伴".encode_utf16().chain(std::iter::once(0)).collect();
+        let exe = std::env::current_exe().map(|p| p.display().to_string()).unwrap_or_default();
+        let icon: Vec<u16> = format!("{exe},0").encode_utf16().chain(std::iter::once(0)).collect();
+        let mut logged = false;
+        loop {
+            std::thread::sleep(Duration::from_secs(6));
+            let pids = webview_descendant_pids();
+            if pids.is_empty() { continue; }
+            match brand_audio_sessions(&pids, &name, &icon) {
+                Ok(n) if n > 0 && !logged => { dlog(&format!("audio sessions branded: {n}")); logged = true; }
+                Err(e) if !logged => { dlog(&format!("audio branding failed: {e}")); logged = true; }
+                _ => {}
+            }
+        }
+    });
+}
+
 fn main() {
     // WebView2 瘦身：砍掉用不到的 Chromium 附屬功能與多餘程序。
     // CalculateNativeWinOcclusion 必須關：全螢幕遊戲會讓 Chromium 判定視窗被遮擋
@@ -2452,6 +2540,7 @@ fn main() {
             spawn_control_thread(app.handle().clone());
             spawn_typing_thread(app.handle().clone());
             spawn_claude_listener(app.handle().clone());
+            spawn_audio_branding();
 
             // 系統匣：顯示/隱藏、開機自啟、離開
             let toggle = MenuItemBuilder::with_id("toggle", "顯示 / 隱藏").build(app)?;
