@@ -393,3 +393,10 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #tap, #tap:focus, #tap:focus-visible, .skill-use:focus, .skill-use:focus-visible { outline:none !important; box-shadow:none; }
 #tap { -webkit-tap-highlight-color: transparent; }
 .roster-character .skill-desc { font-size:11px; line-height:14px; color:#735E4E; white-space:normal; padding:0 6px; }
+/* 名冊：標題與「裝備至槽」列固定，格子區可捲動；卡片加了技能說明後不再把裝備列擠出面板 */
+#roster { display:flex; flex-direction:column; }
+#roster header { flex:none; }
+#roster-grid { flex:1 1 auto; min-height:0; overflow-y:auto; align-content:start; padding-right:4px; }
+#roster-detail { flex:none; }
+.roster-character svg { height:64px !important; margin-bottom:3px !important; }
+.roster-character .skill-desc { font-size:10px; line-height:12px; }
