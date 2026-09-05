@@ -260,7 +260,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #pity { font-size:14px; }
 #single-note { font-size:14px; }
 #shop #recruit-open { font-size:14px; padding:1px 10px 3px; height:23px; }
-#game::before { content:''; position:absolute; inset:0; background:url('clicker-fx-paper-grain.png') repeat; background-size:256px; opacity:.5; pointer-events:none; z-index:99; }
+/* 紙纖維只鋪在牛皮紙底與面板上：放在舞台之下，不再蓋到珍母讓她看起來髒 */
+#game::before { content:''; position:absolute; inset:0; background:url('clicker-fx-paper-grain.png') repeat; background-size:256px; opacity:.5; pointer-events:none; z-index:0; }
 .buddy-header { width:900px; }
 #buddies { width:900px; gap:10px; }
 #team::after { display:none; }
@@ -384,3 +385,11 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #audio-panel input { grid-column:2; appearance:none; width:100%; height:12px; margin:0; background:url('clicker-ui-tape-0.png') center/100% 100%; cursor:pointer; }
 #audio-panel input::-webkit-slider-thumb { appearance:none; width:40px; height:40px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
 #audio-panel input::-moz-range-thumb { border:0; width:40px; height:40px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
+
+/* 舞台內只有點擊熱區與技能鍵吃指標；其他一切（教學便條、量尺、標籤、光、場景）都穿透，杜絕透明層擋住連點 */
+#stage > :not(#tap):not(#slots) { pointer-events:none; }
+#slots > :not(.skill-slot) { pointer-events:none; }
+/* 滑鼠點擊不顯示焦點框（藍色框線）；鍵盤操作仍保留其他按鈕的 focus-visible */
+#tap, #tap:focus, #tap:focus-visible, .skill-use:focus, .skill-use:focus-visible { outline:none !important; box-shadow:none; }
+#tap { -webkit-tap-highlight-color: transparent; }
+.roster-character .skill-desc { font-size:11px; line-height:14px; color:#735E4E; white-space:normal; padding:0 6px; }

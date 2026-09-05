@@ -164,7 +164,9 @@ window.Clicker = (() => {
       if (available && !wasReady) pulse(button,[{transform:'scale(1)'},{transform:'scale(1.12)',offset:.5},{transform:'scale(1)'}],240);
       const detail = i >= E.slotCount(s) ? `累積 ${format(B.slotThresholds[i])} 幣解鎖` : effect ? `${effect.kind === 'click' ? `餘 ${effect.remaining} 次` : `+${format(effect.value)}/秒`}・${Math.max(0,Math.ceil((effect.expiresAt-t)/1000))} 秒` : !def ? '點我選一位夥伴' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
       el.querySelector('small').textContent = effect?.kind === 'click' ? `餘 ${effect.remaining} 次` : remaining ? `${remaining}s` : '';
-      button.title = `${def ? def.skill + '・' : ''}${detail}`; button.setAttribute('aria-label',`槽 ${i+1}・${button.title}`);
+      const tip = def ? `${def.skill}\n${def.desc}${def.kind ? '' : '\n（後續開放）'}` : (i >= E.slotCount(s) ? detail : '點我選一位夥伴');
+      if (button.title !== tip) button.title = tip;   // title 不隨冷卻秒數改寫，hover 提示才不會每秒閃
+      button.setAttribute('aria-label',`槽 ${i+1}・${def ? def.skill + '・' : ''}${detail}`);
 
     });
   }
@@ -213,10 +215,11 @@ window.Clicker = (() => {
       const stars = document.createElement('div'); stars.className = 'stars'; stars.setAttribute('aria-label', `${E.stars(count)} 星`);
       stars.innerHTML = '<img src="clicker-star.png" alt="" />'.repeat(E.stars(count));
       const passive = document.createElement('small'); passive.textContent = count ? `${count} 張 · 每秒 ${format(E.individual(s, id))}` : '尚未招募';
-      const skill = document.createElement('small'); skill.textContent = `${B.characters[id].skill}${B.characters[id].kind ? '' : ' · 後續開放'}`;
+      const skill = document.createElement('small'); skill.textContent = `${B.characters[id].skill}${B.characters[id].kind ? '' : ' · 後續開放'}`; skill.title = B.characters[id].desc;
+      const desc = document.createElement('small'); desc.className = 'skill-desc'; desc.textContent = B.characters[id].desc;
       const mastery = document.createElement('small'); mastery.textContent = count > 16 ? `熟練 +${count - 16}%` : count ? `下次升星 ${count}/${B.stars[E.stars(count)] || 16}` : '';
       const rarity = document.createElement('small'); rarity.textContent = {common:'普通',rare:'精良',epic:'史詩',legendary:'傳說'}[Pool.byId[id].rarity];
-      el.append(name, rarity, stars, passive, skill, mastery); el.dataset.id = id;
+      el.append(name, rarity, stars, passive, skill, desc, mastery); el.dataset.id = id;
       el.tabIndex = 0; el.setAttribute('role','button'); el.onclick = () => showRoster(id, targetSlot);
       el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showRoster(id,targetSlot); } };
       el.classList.toggle('selected', selected === id); $('roster-grid').append(el);
