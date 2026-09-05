@@ -231,10 +231,10 @@ def main():
               window.heldExpected=0;
             }""",slot)
             previous=0
-            for elapsed, phase in [(120,'focus'),(400,'panel'),(700,'name'),(950,'exit')]:
+            for elapsed, phase in [(100,'hit-stop'),(300,'panel'),(500,'name'),(800,'hold'),(1150,'exit')]:
                 advance(elapsed-previous); previous=elapsed
                 assert scenes.locator('#cutin').get_attribute('data-phase') == phase
-                if elapsed == 120:
+                if elapsed == 100:
                     scenes.evaluate("document.getElementById('recruit-open').click();window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));")
                     assert scenes.locator('#recruit-layer').is_hidden()
                     assert scenes.locator('#game.stage-frozen').count() == 1
@@ -246,9 +246,9 @@ def main():
                 assert scenes.evaluate('fxEvents.length') == 0
                 scenes.evaluate("document.querySelectorAll('#cutin *').forEach(el=>el.getAnimations().forEach(a=>{a.currentTime=performance.now()-a.testBorn;a.pause();}))")
                 shot(f'round4-cutin-{character}-{elapsed}')
-            assert scenes.evaluate('Clicker.state.manualClicks-beforeCutinClicks') == 4
+            assert scenes.evaluate('Clicker.state.manualClicks-beforeCutinClicks') == 5
             assert scenes.evaluate('Clicker.state.coins>beforeCutinCoins')
-            advance(101)
+            advance(251)
             assert scenes.locator('#cutin > *').count() == 0
             assert scenes.locator('#game.stage-frozen').count() == 0
             assert scenes.locator('.floater').count() == 1
@@ -260,7 +260,7 @@ def main():
         scenes.evaluate("document.querySelector('.skill-use').click()")
         advance(700); shot('round4-cutin-reduced')
         assert scenes.locator('#cutin-speedlines').count() == 0
-        advance(351); assert scenes.locator('#cutin > *').count() == 0
+        advance(701); assert scenes.locator('#cutin > *').count() == 0
         seed(10)
         scenes.evaluate("document.getElementById('tap').click()")
         advance(60)
@@ -272,7 +272,7 @@ def main():
         advance(380)
         scenes.evaluate("document.querySelectorAll('#cutin *').forEach(el=>el.getAnimations().forEach(a=>{a.currentTime=performance.now()-a.testBorn;a.pause();}))")
         shot('round4-cutin-stamp-780')
-        advance(271)
+        advance(621)
         assert scenes.locator('#cutin > *').count() == 0
         # Hiding halfway must cancel the cut-in along with all stage schedules.
         seed(10); scenes.evaluate("document.querySelector('.skill-use').click()")

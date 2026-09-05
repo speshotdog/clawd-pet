@@ -303,6 +303,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #cutin-bar-top { top:72px; border-bottom:2px solid #FFF6E6; }
 #cutin-bar-bottom { top:376px; border-top:2px solid #FFF6E6; }
 #cutin-trail { left:0; top:136px; width:780px; height:300px; background:white; }
+#cutin-exit-trail { left:180px; top:136px; width:780px; height:300px; background:white; }
+#cutin-flash { position:absolute; inset:0; background:#FFF6E6; opacity:0; mix-blend-mode:screen; }
 #cutin-panel { position:absolute; left:76px; top:146px; width:520px; height:300px; background:var(--skill); border:4px solid #30251F; transform:skewX(-6deg); box-shadow:8px 9px 0 #160c0870; }
 #cutin-panel.from-right { left:112px; }
 #cutin-stripes { position:absolute; inset:0; background:var(--stripe) url('clicker-fx-stripe-tile.png') repeat; background-size:120px; mix-blend-mode:multiply; opacity:.18; }
