@@ -1,0 +1,81 @@
+:root { font: 14px/1.4 "Microsoft JhengHei", "Segoe UI", sans-serif; color: #54382b; --cream: #fff2d5; --brass: #d9b25a; --wood: #54382b; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; user-select: none; background: transparent; }
+[hidden] { display: none !important; }
+button, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 2px solid #694936; border-radius: 9px; background: #fff6e5; padding: 6px 10px; box-shadow: 0 2px 0 #694936; }
+button:hover:enabled { background: #ffe6ad; }
+button:active:enabled { transform: translateY(2px); box-shadow: none; }
+button:disabled { cursor: default; opacity: .52; box-shadow: none; }
+button:focus-visible, select:focus-visible { outline: 3px solid #0070dd; outline-offset: 3px; }
+img, svg { -webkit-user-drag: none; pointer-events: none; }
+h1, h2, p { margin: 0; } h2 { font-size: 17px; } small { font-size: 11px; } b, progress { font-variant-numeric: tabular-nums; }
+#zoomer { position: absolute; transform-origin: 0 0; }
+#game { position: relative; width: 960px; height: 640px; overflow: hidden; background: #efdab8 url('clicker-desk.png') center / cover; border-radius: 16px; }
+.topbar { position: absolute; left: 16px; top: 12px; width: 928px; height: 48px; display: flex; align-items: center; gap: 16px; cursor: move; padding: 0 8px; }
+h1 { font-size: 23px; letter-spacing: .08em; display: flex; align-items: baseline; gap: 12px; } h1 small { letter-spacing: .06em; font-weight: normal; }
+.wallet { margin-left: auto; display: flex; align-items: center; gap: 7px; min-width: 130px; } .wallet img { height: 32px; width: auto; } .wallet b { font-size: 25px; letter-spacing: -.03em; }
+.rates { display: flex; flex-direction: column; min-width: 100px; font-size: 12px; font-variant-numeric: tabular-nums; }
+#stage { position: absolute; left: 16px; top: 72px; width: 608px; height: 360px; border: 2px solid #aa8560; border-radius: 18px; background: #fff4df70; overflow: hidden; }
+#tutorial { position: absolute; top: 14px; left: 18px; right: 18px; font-size: 12px; text-align: center; } #tutorial b { margin-left: 10px; }
+#hero-position { position: absolute; left: 184px; top: 3px; width: 240px; height: 256px; pointer-events: none; }
+#hero, #parasite-host { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; }
+#hero { z-index: 2; transform-origin: 50% 90%; }
+#hero > svg { height: 190px !important; width: auto; margin: 0 !important; filter: none !important; transform-origin: 50% 85%; }
+#parasite-host > svg { width: auto; margin: 0 !important; filter: none !important; }
+#tap { position: absolute; left: 184px; top: 20px; width: 240px; height: 240px; z-index: 5; background: transparent; border: 0; box-shadow: none; border-radius: 30%; touch-action: manipulation; }
+#tap:hover:enabled { background: transparent; } #tap:active:enabled { transform: none; }
+.partner { position: absolute; bottom: 99px; width: 120px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; pointer-events: none; }
+.partner svg { height: 115px !important; width: auto; margin: 0 !important; filter: none !important; }
+.partner small { padding: 2px 7px; margin-top: 5px; background: #fff6df; border-bottom: 3px solid var(--partner-color); border-radius: 6px; font-size: 11px; }
+#bag { position: absolute; left: 340px; top: 174px; z-index: 4; pointer-events: none; }
+#bag-image { display: block; height: 150px; width: auto; }
+#tears { position: absolute; inset: 0; } #tears img { position: absolute; height: 18px; width: auto; max-width: 100%; left: 6%; top: 28%; transform: rotate(-7deg); } #tears img:nth-child(2) { top: 49%; left: 0; transform: rotate(6deg); } #tears img:nth-child(3) { top: 68%; left: 9%; transform: rotate(-3deg); }
+.package-meter { position: absolute; bottom: 27px; left: 20px; right: 20px; display: flex; align-items: center; gap: 10px; font-size: 11px; }
+progress { height: 10px; flex: 1; accent-color: #aa6c42; } #package-number { min-width: 94px; text-align: right; }
+#package-result { position: absolute; bottom: 5px; left: 20px; font-size: 11px; }
+#effect-label { position: absolute; top: 49px; left: 140px; right: 140px; text-align: center; font-size: 12px; font-weight: bold; pointer-events: none; }
+#floaters { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+.floater { position: absolute; display: flex; align-items: center; gap: 3px; color: #5e3720; font-size: 22px; font-weight: bold; text-shadow: 0 2px #fff7e9; } .floater img { height: 23px; width: auto; }
+#shop { position: absolute; left: 640px; top: 72px; width: 304px; height: 360px; display: flex; flex-direction: column; gap: 10px; }
+.upgrade, .recruit { border: 2px solid #96714f; border-radius: 12px; background: #fff7e5cf; padding: 9px 12px; display: grid; grid-template-columns: 42px 1fr; column-gap: 10px; }
+.upgrade { height: 98px; flex: none; padding: 8px 12px; grid-template-rows: 36px 41px; }
+.upgrade > img { height: 36px; width: auto; max-width: 45px; align-self: center; } .upgrade h2 small { font-size: 11px; font-weight: normal; } .upgrade p { font-size: 12px; margin-top: 2px; }
+.purchase { grid-column: 1 / -1; display: flex; gap: 8px; margin-top: 5px; } .purchase button { flex: 1; font-size: 11px; line-height: 13px; padding: 2px 6px; white-space: pre-line; }
+.recruit { height: 144px; flex: none; align-content: start; padding: 6px 12px; grid-template-rows: 36px 40px auto auto auto; } .recruit > img { height: 36px; width: auto; justify-self: center; } .recruit p, .recruit > small, .recruit > button { grid-column: 1 / -1; text-align: center; } #pity { font-size: 11px; margin-top: 3px; } #single-note { color: #86533e; font-size: 9px; } #single-note:empty { display: none; }
+.text-button { background: transparent; border: 0; box-shadow: none; text-decoration: underline; text-underline-offset: 3px; font-size: 11px; padding: 2px 4px; }
+#team { position: absolute; left: 16px; top: 448px; width: 928px; height: 132px; display: flex; gap: 12px; }
+#slots { display: flex; gap: 10px; flex: 1; } .skill-slot { flex: 1; min-width: 0; border: 2px solid #96714f; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; background: #fff7e5c9; }
+.skill-slot select { width: 100%; background: #fff7e5; border: 0; border-bottom: 1px solid #bba184; font-size: 12px; padding: 2px; } .skill-slot button { font-size: 12px; padding: 5px 1px; } .skill-slot small { text-align: center; font-size: 10px; }
+.team-summary { width: 216px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 9px; }
+footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px; display: flex; align-items: center; gap: 20px; padding: 0 8px; font-size: 11px; } #save-status { margin-left: auto; } #retry-save { padding: 2px 6px; font-size: 11px; }
+#recruit-layer { position: absolute; inset: 0; z-index: 40; background: #172239; color: #fff0cc; overflow: hidden; }
+#recruit-layer button { background: #f6dfac; color: #503724; } #recruit-topbar { position: absolute; left: 20px; right: 20px; top: 15px; z-index: 40; display: flex; align-items: center; gap: 16px; } #recruit-topbar b { margin-right: auto; } #mode-select { background: #27334b; border: 1px solid #bc9d64; border-radius: 6px; padding: 5px; color: #ffe6b6; }
+#recruit-entry { position: absolute; inset: 95px 100px 80px; text-align: center; z-index: 20; } #recruit-entry > img { height: 210px; width: auto; transform: rotate(-5deg); margin: 15px; } #recruit-entry h2 { font-size: 22px; } #recruit-entry p { margin: 15px 0; } #recruit-entry button { margin: 0 8px; min-width: 150px; white-space: pre-line; }
+.dim { position: absolute; inset: 0; z-index: 8; pointer-events: none; opacity: 0; background: #160c08c9; transition: opacity 120ms; } .dim.on { opacity: 1; }
+.flash { position: absolute; inset: 0; z-index: 24; pointer-events: none; background: #fff5d7; opacity: 0; } .flash.on { animation: clicker-flash 450ms ease-out; } @keyframes clicker-flash { from { opacity: .8; } to { opacity: 0; } }
+.fx { position: absolute; inset: 0; z-index: 15; pointer-events: none; } .fx-under { z-index: 9; } .mode-root { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+.reveal-controls { position: absolute; bottom: 48px; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; z-index: 35; } #collect { font-size: 19px; padding: 10px 40px; } #recruit-hint { position: absolute; bottom: 18px; left: 30px; right: 30px; text-align: center; z-index: 35; font-size: 12px; }
+.pack { position: absolute; left: 480px; top: 320px; margin: -107px 0 0 -75px; width: 150px; height: 214px; background: url('gacha-pack.png') center / contain no-repeat; } .pack.tearing { animation: clicker-pack-tear 430ms ease-out both; } .pack.burst { opacity: 0; } @keyframes clicker-pack-tear { 30% { transform: rotate(-5deg); } 70% { transform: rotate(5deg); } }
+.panel, .small-panel { position: absolute; z-index: 60; border: 3px solid #694936; border-radius: 16px; background: #fff1d5; box-shadow: 0 12px 0 #54382b28; padding: 20px; }
+.panel { inset: 75px 20px 42px; } .panel header { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; } .panel header span { font-size: 12px; flex: 1; } #roster-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.roster-character { min-width: 0; text-align: center; border: 1px solid #be9b76; border-radius: 9px; padding: 7px 3px; } .roster-character svg { display: block; margin: 0 auto 5px !important; height: 80px !important; width: auto; filter: none !important; } .roster-character.locked svg { opacity: .25; filter: grayscale(1) !important; } .roster-character b, .roster-character small { display: block; } .roster-character .stars { height: 16px; display: flex; justify-content: center; align-items: center; margin: 3px 0; } .stars img { height: 14px; width: auto; } .roster-character small { font-size: 10px; }
+.small-panel { left: 220px; top: 180px; width: 520px; padding: 28px; } .small-panel h2 { font-size: 25px; margin: 8px 0 16px; } .small-panel p { margin-bottom: 20px; } .small-panel button { margin-top: 14px; } #stats-body { line-height: 2; }
+#notice { position: absolute; z-index: 75; top: 66px; left: 180px; right: 180px; padding: 10px 18px; background: #54382b; color: #fff3d7; border-radius: 9px; text-align: center; pointer-events: none; }
+#raw-save { width: 100%; height: 140px; user-select: text; margin-top: 15px; } #save-error { z-index: 90; top: 100px; } #fatal { position: absolute; z-index: 85; inset: 70px 40px auto; padding: 20px; color: #7c281f; background: #fff3df; border: 2px solid #7c281f; white-space: pre-wrap; }
+@media (prefers-reduced-motion: reduce) { #game *, #game *::before, #game *::after { animation-duration: .01s !important; transition-duration: .01s !important; } }
+
+/* 傳說揭曉整桌震：與演示區 gacha.css 相同的 keyframes */
+.table.shake { animation: clicker-shake .5s cubic-bezier(.36,.07,.19,.97) both; }
+.table.shake-soft { animation: clicker-shake-soft .3s ease-out both; }
+@keyframes clicker-shake {
+  10%, 90% { transform: translate(-3px, 2px); }
+  20%, 80% { transform: translate(3px, -2px); }
+  30%, 50%, 70% { transform: translate(-6px, 3px) rotate(-.3deg); }
+  40%, 60% { transform: translate(6px, -3px) rotate(.3deg); }
+}
+@keyframes clicker-shake-soft {
+  25% { transform: translate(2px, -1px); }
+  50% { transform: translate(-2px, 1px); }
+  75% { transform: translate(1px, 0); }
+}

@@ -3,3 +3,4 @@ src-tauri/target/
 src-tauri/gen/
 dist/
 __pycache__/
+tools/test/.clicker-artifacts/
