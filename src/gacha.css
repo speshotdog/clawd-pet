@@ -487,8 +487,8 @@ img, svg { -webkit-user-drag: none; }
     linear-gradient(var(--rim-hi), var(--rim-hi)) left bottom / 13px 2px no-repeat,
     linear-gradient(var(--rim-hi), var(--rim-hi)) right bottom / 13px 2px no-repeat;
 }
-/* 傳說：頂部三齒扣（卡面與卡背都有——不用翻就知道它貴） */
-.skin-af .r-legendary .face-frame::before, .skin-af .r-legendary .card-back::after {
+/* 傳說：頂部三齒扣（只在卡面；卡背要保持驚喜，指上去才透光） */
+.skin-af .r-legendary .face-frame::before {
   content: ""; position: absolute; z-index: 2; left: calc(50% - 12px); top: 3px; width: 24px; height: 8px; background: #ffd28a;
   clip-path: polygon(0 100%, 0 30%, 25% 58%, 50% 0, 75% 58%, 100% 30%, 100% 100%);
 }
@@ -560,7 +560,7 @@ img, svg { -webkit-user-drag: none; }
 
 /* ================= 卡背透光（hover 預告）：像把卡舉到燈前面，光是從卡「裡面」透出來的 =================
    四層：整片卡背由中心透出稀有度色（back-leak）→ 外圈光暈跟著呼吸（card-glow）→ 入場一道同色掃光（back-sweep）
-   → 史詩以上有光點從卡裡往上飄（back-motes）。普通只有一圈灰邊與抬起，安靜。傳說沒 hover 也先透一點。 */
+   → 史詩以上有光點從卡裡往上飄（back-motes）。普通只有一圈灰邊與抬起，安靜。沒 hover 什麼都不透——驚喜要留到你靠近。 */
 .skin-af .back-leak {
   opacity: 0; transition: opacity .32s ease;
   box-shadow: inset 0 0 0 2px var(--rc), inset 0 0 22px 6px var(--rc-a);
@@ -574,7 +574,6 @@ img, svg { -webkit-user-drag: none; }
 .skin-af .r-legendary .back-leak { --leak: 1; }
 .skin-af .card:not(.flipped):hover .back-leak, .skin-af .card.charging .back-leak { opacity: var(--leak, 1); }
 .skin-af .r-common .back-leak { background: none; box-shadow: inset 0 0 0 1px #b8babd; mix-blend-mode: normal; --leak: .6; }
-.skin-af .r-legendary:not(.flipped) .back-leak { opacity: .4; }
 /* 徽章亮起來：中央那圈奶油底跟著透出稀有度色，像燈就在卡後面 */
 .skin-af .back-leak::before {
   content: ""; position: absolute; left: 50%; top: 50%; width: 92px; height: 92px; margin: -46px 0 0 -46px; border-radius: 50%;
@@ -588,7 +587,6 @@ img, svg { -webkit-user-drag: none; }
 .skin-af .card:not(.flipped):hover .card-glow, .skin-af .card.charging .card-glow { opacity: 1; animation: af-breathe 1.6s ease-in-out infinite; }
 .skin-af .r-rare .card-glow { box-shadow: 0 0 22px 6px var(--rc-a), 0 0 56px 18px var(--rc-b); }
 .skin-af .r-legendary .card-glow { box-shadow: 0 0 34px 12px var(--rc-a), 0 0 96px 34px var(--rc-b); }
-.skin-af .r-legendary:not(.flipped) .card-glow { opacity: .35; }
 .skin-af .card.charging.hard .card-glow { animation-duration: .35s; box-shadow: 0 0 50px 18px var(--rc-a), 0 0 140px 60px var(--rc-b); }
 .skin-af .r-common .card-glow, .skin-af .r-common.live .card-glow, .skin-af .r-common:not(.flipped):hover .card-glow { opacity: 0; animation: none; }
 @keyframes af-breathe { 50% { opacity: .6; } }
