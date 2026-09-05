@@ -73,7 +73,7 @@ function buildCard(entry, { dup = false, tag = true } = {}) {
   card.innerHTML = `
     <div class="card-glow"></div>
     <div class="card-lift"><div class="card-inner">
-      <div class="card-back"><div class="back-leak"></div></div>
+      <div class="card-back"><div class="back-leak"></div><div class="back-sweep"></div>${entry.rarity === 'common' ? '' : '<div class="back-motes"><i></i><i></i><i></i><i></i><i></i></div>'}</div>
       <div class="card-face">
         <div class="face-art"><div class="floor"></div></div>
         <div class="face-gem"></div>
