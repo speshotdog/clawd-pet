@@ -53,6 +53,27 @@ window.GachaFx = (() => {
     else { running = false; ctx.clearRect(0, 0, W, H); if (under !== ctx) under.clearRect(0, 0, W, H); }
   }
 
+  // ---------- 貼圖粒子：gacha-vfx.png 是 4×4 的白色光效表，依稀有度上色後用加色混合畫 ----------
+  // 索引：0 光球 1 四芒 2 五星 3 圓環 / 4 煙 5 光痕 6 餘燼 7 六芒 / 8 彩帶 9 方紙 10 心 11 肉球 / 12 點群 13 弦月 14 小閃 15 光柱
+  const SHEET = new Image(); let sheetReady = false;
+  SHEET.onload = () => { sheetReady = true; }; SHEET.src = 'gacha-vfx.png';
+  const tintCache = new Map();
+  function tinted(idx, color) {
+    const key = idx + '|' + color;
+    let c = tintCache.get(key);
+    if (c) return c;
+    const cell = SHEET.width / 4;
+    c = document.createElement('canvas'); c.width = c.height = cell;
+    const g = c.getContext('2d');
+    g.drawImage(SHEET, (idx % 4) * cell, Math.floor(idx / 4) * cell, cell, cell, 0, 0, cell, cell);
+    g.globalCompositeOperation = 'source-in'; g.fillStyle = color; g.fillRect(0, 0, cell, cell);
+    // 白色高光疊回去一點，讓上色後中心仍是亮的
+    g.globalCompositeOperation = 'source-atop'; g.globalAlpha = .55;
+    g.drawImage(SHEET, (idx % 4) * cell, Math.floor(idx / 4) * cell, cell, cell, 0, 0, cell, cell);
+    tintCache.set(key, c);
+    return c;
+  }
+
   function drawPart(p) {
     const k = p.life / p.max;
     ctx.save();
@@ -61,7 +82,11 @@ window.GachaFx = (() => {
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rot);
     ctx.fillStyle = p.color;
-    if (p.shape === 'shard') {
+    if (p.sprite != null && sheetReady) {
+      // 貼圖粒子：r 是半寬；grow 讓它由小放大，shrink 讓它縮小消失
+      const s = p.r * 2 * (p.shrink ? (0.3 + 0.7 * k) : 1) * (p.grow ? (1.3 - 0.3 * k) : 1);
+      ctx.drawImage(tinted(p.sprite, p.color), -s / 2, -s / 2, s, s);
+    } else if (p.shape === 'shard') {
       // 鋁箔碎片：長方形，正反面用亮暗兩色模擬翻面
       const face = Math.cos(p.rot * 2) > 0 ? p.color : p.color2;
       ctx.fillStyle = face;
@@ -315,5 +340,11 @@ window.GachaFx = (() => {
       },
     };
   }
-  return { init, packBurst, reveal, rays, dustStream, puff, createScope };
+  // 給 layer.draw 用：在任意位置畫一張上色貼圖（用於光柱、大光暈這類非粒子的東西）
+  function blit(c, idx, color, x, y, w, h, alpha = 1, rot = 0) {
+    if (!sheetReady) return;
+    c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = alpha; c.translate(x, y); c.rotate(rot);
+    c.drawImage(tinted(idx, color), -w / 2, -h / 2, w, h); c.restore();
+  }
+  return { init, packBurst, reveal, rays, dustStream, puff, createScope, blit, sheetReady: () => sheetReady };
 })();

@@ -129,6 +129,15 @@ window.GachaModes.rip = {
           ctx.animate(bottom, [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(100px)' }], { duration: ctx.motion.reduced ? 150 : 420 }),
         ]);
         lid.remove(); bottom.remove(); ctx.audio.burst();
+        // 撕開的瞬間：封口噴出鋁箔亮片＋一團煙，桌子輕震（貼圖粒子）
+        if (!ctx.motion.reduced) {
+          ctx.shake(true);
+          const tx = ctx.center.x, ty = ctx.center.y - 92;
+          for (let i = 0; i < 6; i++) ctx.fx.spawn({ sprite: 4, x: tx + (ctx.rng() - .5) * 90, y: ty, vx: (ctx.rng() - .5) * 60, vy: -40 - ctx.rng() * 40, g: -15, r: 18 + ctx.rng() * 14, life: .7, color: '#e9e2d0', grow: true, fadeK: 1, blend: 'source-over' });
+          for (let i = 0; i < 34; i++) { const a = -Math.PI / 2 + (ctx.rng() - .5) * 2.2, sp = 160 + ctx.rng() * 360;
+            ctx.fx.spawn({ sprite: i % 4 === 0 ? 8 : i % 4 === 1 ? 9 : 14, x: tx + (ctx.rng() - .5) * 80, y: ty, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 520, drag: .985, r: 6 + ctx.rng() * 9, life: .9 + ctx.rng() * .7,
+              color: ['#4f8a8b', '#f3e6c4', '#ffd27a', '#9fe3e0'][i % 4], rot: ctx.rng() * 6, vr: (ctx.rng() - .5) * 10, blend: i % 4 === 3 ? 'lighter' : 'source-over', fadeK: 1.3 }); }
+        }
         draw.entries.forEach((item) => {
           const c = ctx.cards.create(item); ownedCards.push(c);
           const fan = { x: c.x, y: c.y, rot: c.rot };
@@ -146,6 +155,7 @@ window.GachaModes.rip = {
           const start = c.el.style.transform;
           let moving;
           await ctx.cards.reveal(c.key, { deferSummary: true, onFlip() {
+            if (!ctx.motion.reduced && !last) for (let k = 0; k < 6; k++) ctx.fx.spawn({ sprite: 5, x: ctx.center.x + 40 + k * 26, y: ctx.center.y + (ctx.rng() - .5) * 120, vx: 240, vy: 0, g: 0, drag: .9, r: 22 + ctx.rng() * 10, life: .35, color: '#fff3d0', shrink: true });
             c.x = last ? ctx.center.x : ctx.center.x + 210; c.y = ctx.center.y; c.scale = last ? 1.12 : 1;
             const target = `translate(${c.x}px,${c.y}px) scale(${c.scale})`;
             moving = ctx.animate(c.el, [{ transform: start }, { transform: target }], { duration: ctx.motion.reduced ? 150 : 580, easing: 'cubic-bezier(.35,.1,.25,1)' })
