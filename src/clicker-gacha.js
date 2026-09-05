@@ -6,7 +6,8 @@ window.ClickerGacha = (() => {
     const layer = $('recruit-layer');
     function priceButton(el, count, s, supported) {
       const cost = E.drawCost(s.paidDraws, count), missing = Math.max(0, Math.ceil(cost - s.coins));
-      el.textContent = el.id === 'draw-one' ? '招募！' : `${count === 1 ? '單抽' : '五連'} · ${format(cost)}`; el.title = String(cost);
+      el.textContent = el.id === 'draw-one' ? '招募！' : el.id === 'draw-five' ? '五連' : `${count === 1 ? '單抽' : '五連'} · ${format(cost)}`; el.title = String(cost);
+        if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price'; price.textContent = format(cost); el.append(price); }
       if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)}`; el.append(note); }
       el.disabled = !ready || store.blocked || !!s.pending || !supported || missing > 0 || busy;
     }

@@ -3,7 +3,7 @@ window.Clicker = (() => {
   const TAURI = window.__TAURI__;
   const format = (n) => n >= 1e8 ? `${(n / 1e8).toFixed(1)}億` : n >= 10000 ? `${(n / 10000).toFixed(2)}萬` : n.toLocaleString('zh-TW', { maximumFractionDigits: 1 });
   const store = window.ClickerSave.create({ getItem: (k) => localStorage.getItem(k), setItem: (k, v) => localStorage.setItem(k, v) }, { pool: Pool });
-  let stage, gacha, ready = false, tickTimer = 0, saveTimer = 0, numberTimer = 0, noticeTimer = 0;
+  let stage, gacha, cutin, ready = false, tickTimer = 0, saveTimer = 0, numberTimer = 0, noticeTimer = 0;
   let audio = null, lastNumbers = -Infinity, inputTimes = [], slotsKey = '', suspended = false;
   const audioScopes = new Set(), createScope = window.GachaAudio.createScope;
   // 每個 scope 的出口統一跟隨遊戲靜音；不改共用音效積木、不建立第二個 context。
@@ -18,6 +18,11 @@ window.Clicker = (() => {
   function sound(name) {
     if (document.hidden || store.state.settings.muted) return;
     window.GachaAudio.ensure(); audio ||= window.GachaAudio.createScope();
+    if (name === 'cutin-impact') {
+      audio.noiseHit({a:.002,d:.056,r:.002,f0:3000,f1:600,gain:.08});
+      audio.noiseHit({a:.002,d:.026,r:.002,f0:1800,gain:.15}); return;
+    }
+    if (name === 'cutin-stamp') { audio.tone(180,{a:.002,d:.056,r:.002,gain:.1}); return; }
     const [from, to, duration, gain] = sounds[name];
     audio.tone(from, { slide: to, slideT: duration, a: .002, d: duration - .004, r: .002, gain });
   }
@@ -56,7 +61,8 @@ window.Clicker = (() => {
     if (coinTarget === target && (coinRaf || coinShown === target)) return;
     if (coinTarget !== null && target !== coinTarget) {
       pulse(el, target > coinTarget ? [{transform:'scale(1)'},{transform:'scale(1.12)',offset:.4},{transform:'scale(1)'}] : [{color:'#C9686B'},{color:'#30251F'}], target > coinTarget ? 140 : 200);
-      if (target > coinTarget) pulse(document.querySelector('.wallet img'), [{transform:'rotate(-8deg)'},{transform:'rotate(0)'}],140);
+      if (target > coinTarget && target - coinTarget >= Math.max(1, E.rates(store.state).P * 10)) pulse(document.querySelector('.wallet'), [{transform:'scale(1)'},{transform:'scale(1.04)',offset:.4},{transform:'scale(1)'}],180);
+      if (target > coinTarget) pulse(document.querySelector('.wallet img'), [{transform:'rotate(-10deg)'},{transform:'rotate(0)'}],140);
     }
     coinTarget = target;
     if (coinShown === null || matchMedia('(prefers-reduced-motion: reduce)').matches) { coinShown = target; el.textContent = format(Math.floor(target)); return; }
@@ -95,7 +101,11 @@ window.Clicker = (() => {
     const s = store.state, { D, P } = E.rates(s);
     balance(s.coins); rate($('click-rate'), `每次 ${format(D)}`, String(D)); rate($('passive-rate'), `每秒 ${format(P)}`, String(P));
     $('tutorial-progress').textContent = `${Math.min(50, s.manualClicks)} / 50`;
-    $('tutorial').hidden = s.claimedMilestones.includes('tutorial50');
+    if (s.claimedMilestones.includes('tutorial50') && !$('tutorial').hidden && !$('tutorial').classList.contains('leaving')) {
+      const el = $('tutorial'); el.classList.add('leaving');
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) el.hidden = true;
+      else el.animate([{transform:'rotate(0)',opacity:1},{transform:'translateY(-60px) rotate(-8deg)',opacity:0}],{duration:240,easing:'ease-in'}).finished.then(()=>{el.hidden=true;}).catch(()=>{el.hidden=true;});
+    }
     for (const type of ['click', 'training']) {
       const field = type === 'click' ? 'clickLevel' : 'trainingLevel', cost = (type === 'click' ? E.clickCost : E.trainingCost)(s[field]);
       const next = { ...s, [field]: s[field] + 1 }, after = E.rates(next);
@@ -120,24 +130,30 @@ window.Clicker = (() => {
       slotsKey = key; $('slots').replaceChildren();
       for (let i = 0; i < 3; i++) {
         const el = document.createElement('article'); el.className = 'skill-slot';
-        const select = document.createElement('button'); select.className = 'slot-pick'; select.setAttribute('aria-label', `第 ${i + 1} 技能槽角色`);
         const id = s.skillSlots[i];
-        if (id) select.append(card.art.create(Pool.byId[id]));
-        const name = document.createElement('span'); name.textContent = id ? Pool.byId[id].name : i < E.slotCount(s) ? '選擇夥伴' : '尚未解鎖'; select.append(name); select.title = name.textContent;
-        select.onclick = () => showRoster(id, i);
-        const button = document.createElement('button'); button.className = 'skill-use'; button.onclick = () => activate(i);
-        const detail = document.createElement('small'); el.append(select, button, detail); $('slots').append(el);
+        const button = document.createElement('button'); button.className = 'skill-use';
+        if (id) button.append(card.art.create(Pool.byId[id]));
+        else button.textContent = '＋';
+        button.onclick = () => id ? activate(i) : showRoster(null,i);
+        const name = document.createElement('span'); name.className = 'skill-name'; name.textContent = id ? Pool.byId[id].name.replace('（原版）','') : i < E.slotCount(s) ? '選夥伴' : '未解鎖';
+        const detail = document.createElement('small'); el.append(button, name, detail); $('slots').append(el);
       }
     }
     [...$('slots').children].forEach((el, i) => {
       const id = s.skillSlots[i], def = B.characters[id], t = Math.max(Date.now(), s.settledAt);
       const remaining = Math.max(0, Math.ceil((Math.max(s.cooldownUntil[id] || 0, s.slotReadyAt[i]) - t) / 1000));
       const effect = s.effects.find((e) => e.source === id);
-      const button = el.querySelector('.skill-use'), select = el.querySelector('.slot-pick');
-      button.textContent = def ? def.skill : '等待夥伴';
-      button.disabled = store.blocked || !!gacha?.active || !def?.kind || remaining > 0 || (id === 'zhenmu' && Object.keys(s.collection).length < 2);
-      select.disabled = store.blocked || !!gacha?.active;
-      el.querySelector('small').textContent = i >= E.slotCount(s) ? `累計 ${format(B.slotThresholds[i])} 幣` : effect ? `${effect.kind === 'click' ? `剩 ${effect.remaining} 次 · ` : `+${format(effect.value)}/秒 · `}${Math.max(0, Math.ceil((effect.expiresAt - t) / 1000))} 秒` : !def ? '裝備後 30 秒可發動' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
+      const button = el.querySelector('.skill-use');
+      const wasReady = el.dataset.ready === 'true';
+      button.disabled = store.blocked || !!gacha?.active || !!cutin?.active || i >= E.slotCount(s) || (!!id && (!def?.kind || remaining > 0 || (id === 'zhenmu' && Object.keys(s.collection).length < 2)));
+      const available = !!def?.kind && !button.disabled;
+      el.dataset.ready = String(available); el.dataset.state = !id ? 'empty' : remaining ? 'cooldown' : available ? 'ready' : 'unavailable';
+      el.style.setProperty('--cooldown', `${Math.min(1,remaining / (s.slotReadyAt[i] > (s.cooldownUntil[id] || 0) ? 30 : def?.cd || 30)) * 360}deg`);
+      if (available && !wasReady) pulse(button,[{transform:'scale(1)'},{transform:'scale(1.12)',offset:.5},{transform:'scale(1)'}],240);
+      const detail = i >= E.slotCount(s) ? `累積 ${format(B.slotThresholds[i])} 幣解鎖` : effect ? `${effect.kind === 'click' ? `餘 ${effect.remaining} 次` : `+${format(effect.value)}/秒`}・${Math.max(0,Math.ceil((effect.expiresAt-t)/1000))} 秒` : !def ? '點我選一位夥伴' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
+      el.querySelector('small').textContent = effect?.kind === 'click' ? `餘 ${effect.remaining} 次` : remaining ? `${remaining}s` : '';
+      button.title = `${def ? def.skill + '・' : ''}${detail}`; button.setAttribute('aria-label',`槽 ${i+1}・${button.title}`);
+
     });
   }
   function changed() { numbers(true); renderSlots(); stage?.render(store.state); }
@@ -168,14 +184,14 @@ window.Clicker = (() => {
   }
   function activate(slot) {
     action(() => {
-      if (gacha.active) return;
+      if (gacha.active || cutin.active) return;
       const result = E.activate(store.state, slot, Date.now());
       if (!commit(result.state)) return;
-      sound('skill'); stage.render(store.state); stage.skill(result.effect); changed();
+      cutin.play(result.effect); changed();
     });
   }
   function showRoster(selected = null, targetSlot = null) {
-    if (!ready) return;
+    if (!ready || cutin?.active) return;
     const s = store.state; $('roster-grid').replaceChildren();
     for (const id of Object.keys(B.characters)) {
       const count = s.collection[id] || 0, el = document.createElement('article'); el.className = `roster-character${count ? '' : ' locked'}`;
@@ -186,7 +202,7 @@ window.Clicker = (() => {
       const passive = document.createElement('small'); passive.textContent = count ? `${count} 張 · 每秒 ${format(E.individual(s, id))}` : '尚未招募';
       const skill = document.createElement('small'); skill.textContent = `${B.characters[id].skill}${B.characters[id].kind ? '' : ' · 後續開放'}`;
       const mastery = document.createElement('small'); mastery.textContent = count > 16 ? `熟練 +${count - 16}%` : count ? `下次升星 ${count}/${B.stars[E.stars(count)] || 16}` : '';
-      const rarity = document.createElement('small'); rarity.textContent = {common:'普通',rare:'稀有',epic:'史詩',legendary:'傳說'}[Pool.byId[id].rarity];
+      const rarity = document.createElement('small'); rarity.textContent = {common:'普通',rare:'精良',epic:'史詩',legendary:'傳說'}[Pool.byId[id].rarity];
       el.append(name, rarity, stars, passive, skill, mastery); el.dataset.id = id;
       el.tabIndex = 0; el.setAttribute('role','button'); el.onclick = () => showRoster(id, targetSlot);
       el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showRoster(id,targetSlot); } };
@@ -212,7 +228,7 @@ window.Clicker = (() => {
   function stopTimers() {
     clearInterval(tickTimer); clearInterval(saveTimer); clearTimeout(numberTimer); clearTimeout(noticeTimer);
     cancelAnimationFrame(coinRaf); coinRaf = 0;
-    tickTimer = saveTimer = numberTimer = noticeTimer = 0; stage?.stop();
+    tickTimer = saveTimer = numberTimer = noticeTimer = 0; cutin?.stop(); stage?.stop();
     document.getAnimations().forEach((a) => a.cancel()); $('notice').hidden = true;
   }
   function suspend() {
@@ -283,12 +299,17 @@ window.Clicker = (() => {
       return;
     }
     await card.ready;
+    await document.fonts.ready;
+    await window.ClickerCutin.ready;
     stage = window.ClickerStage.create({ card, sound, format, showRoster, notice });
+    cutin = window.ClickerCutin.create({card, stage, sound, done:changed});
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
-      pauseStage() { stage.stop(); renderSlots(); },
+      pauseStage() { cutin.stop(); stage.stop(); renderSlots(); },
       resumeStage() { if (!document.hidden && !suspended) { stage.start(); stage.render(store.state, { instant: true }); } renderSlots(); },
       joined(entries) { stage.join(store.state, entries); },
     });
+    document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     ready = true; gacha.setReady(); stage.setPartners(store.state);
     offline(); stage.render(store.state, { instant: true }); changed(); status();
     if (store.state.pending) gacha.restore(); startTimers();
@@ -310,6 +331,7 @@ window.Clicker = (() => {
     $('roster-open').onclick = () => showRoster();
     for (const id of ['roster', 'stats', 'receipt']) $(`${id}-close`).onclick = () => { $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('stats-open').onclick = () => {
+      if (cutin.active) return;
       const s = store.state;
       $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${s.package.index - 1} 包｜夥伴 ${Object.keys(s.collection).length} / 12｜付費抽數 ${s.paidDraws}`;
       $('stats').hidden = false; $('game-content').inert = true; $('stats-close').focus();
@@ -321,6 +343,7 @@ window.Clicker = (() => {
   window.addEventListener('resize', fitWindow);
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (cutin?.active) { e.preventDefault(); return; }
       if (!$('roster').hidden) $('roster-close').click(); else if (!$('stats').hidden) $('stats-close').click();
       else if (!$('receipt').hidden) $('receipt-close').click(); else if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();
     }
@@ -333,6 +356,7 @@ window.Clicker = (() => {
       else if (!e.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) { e.preventDefault(); first?.focus(); }
     }
   });
+  document.addEventListener('click', e => { if (cutin?.active && e.target.closest('#draw-one,#draw-five,#recruit-open')) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
   main().catch((err) => { $('fatal').hidden = false; $('fatal').textContent = `珍母點點初始化失敗：${err.message}`; });
   return { get state() { return store.state; } };
 })();

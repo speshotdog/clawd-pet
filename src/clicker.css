@@ -1,4 +1,5 @@
-:root { font: 14px/1.4 "Microsoft JhengHei", "Segoe UI", sans-serif; color: #54382b; --cream: #fff2d5; --brass: #d9b25a; --wood: #54382b; }
+@font-face { font-family:'Huninn'; src:url('fonts/jf-openhuninn-2.1.ttf') format('truetype'); font-display:block; }
+:root { font: 14px/1.4 'Huninn', 'Microsoft JhengHei', sans-serif; color: #54382b; --cream: #fff2d5; --brass: #d9b25a; --wood: #54382b; }
 * { box-sizing: border-box; }
 html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; user-select: none; background: transparent; }
 [hidden] { display: none !important; }
@@ -81,12 +82,12 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #game button:disabled { opacity:1; color:#8B7D6C; background:#DED4C3; cursor:default; }
 #game-content h1 { font-size:24px; line-height:30px; letter-spacing:0; gap:8px; }
 #game-content h1 small { font-size:11px; }
-.wallet, .upgrade, .recruit, #team { border:0; border-image:url('clicker-ui-paper.png') 80 fill / 18px round; background:transparent; border-radius:0; }
+.wallet, .upgrade, .recruit, #team { border:0; border-image:url('clicker-ui-paper.png') 88 fill / 18px round; background:transparent; border-radius:0; }
 .wallet { padding:4px 16px; min-width:160px; height:48px; }
 .wallet b { font-size:32px; line-height:36px; font-weight:800; }
 .rates { font-size:13px; line-height:18px; }
 #stage { border:0; background:transparent; border-radius:0; overflow:visible; }
-.desk-mat { position:absolute; inset:0; border-image:url('clicker-ui-mat.png') 96 fill / 48px round; pointer-events:none; }
+.desk-mat { position:absolute; inset:0; border-image:url('clicker-ui-mat.png') 88 fill / 24px stretch; pointer-events:none; }
 .stage-flag { position:absolute; left:24px; top:48px; width:64px; height:80px; object-fit:contain; }
 .tape { position:absolute; width:64px; height:24px; object-fit:contain; pointer-events:none; z-index:3; }
 .stage-tape { right:18px; top:-4px; transform:rotate(5deg); }
@@ -172,8 +173,8 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 
 #game-content h1 { border-image:url('clicker-ui-label.png') 70 fill / 10px stretch; padding:4px 10px; }
 /* Round 3: artwork includes the ink edge and hard shadow. */
-#game::after { content:''; position:absolute; inset:0; border-image:url('clicker-ui-frame.png') 100 / 15px stretch; pointer-events:none; z-index:100; }
-#game button, #game select, #game .save-plate { --button-art:url('clicker-ui-btn-cream.png'); border:0; border-radius:0; border-image:var(--button-art) 100 120 100 120 fill / 12px 14px stretch; background:transparent; box-shadow:none; color:#30251F; text-decoration:none; font-weight:800; }
+#game::after { content:''; position:absolute; inset:0; border-image:url('clicker-ui-frame.png') 96 / 16px stretch; pointer-events:none; z-index:100; }
+#game button, #game select, #game .save-plate { --button-art:url('clicker-ui-btn-cream.png'); border:0; border-radius:0; border-image:var(--button-art) 52 96 64 96 fill / 8px 12px stretch; background:transparent; box-shadow:none; color:#30251F; text-decoration:none; font-weight:800; }
 #game button:hover:enabled { background:transparent; filter:brightness(1.035); }
 #game button:active:enabled { transform:translateY(3px); clip-path:inset(0 0 3px); box-shadow:none; }
 #game button:disabled { border-image-source:url('clicker-ui-btn-disabled.png'); background:transparent; color:#30251F; }
@@ -185,9 +186,9 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-art:url('clicker-ui-btn-purple.png'); }
 #game #reveal-all { --button-art:url('clicker-ui-btn-pink.png'); }
 #game h1, #game h2, #game b, #game .rates { font-weight:800; }
-#game-content h1 { width:250px; height:52px; display:flex; justify-content:center; align-items:center; border-image:url('clicker-ui-title-tape.png') 100 fill / 15px stretch; padding:6px 18px; }
+#game-content h1 { width:250px; height:52px; display:flex; justify-content:center; align-items:center; border-image:url('clicker-ui-title-tape.png') 100 160 fill / 15px stretch; padding:6px 18px; }
 .topbar { top:14px; height:50px; gap:12px; }
-.wallet { position:absolute; left:356px; width:220px; height:52px; justify-content:center; padding:6px 24px; border-image:url('clicker-ui-coinplate.png') 100 fill / 16px stretch; }
+.wallet { position:absolute; left:356px; width:220px; height:52px; justify-content:center; padding:6px 24px; border-image:url('clicker-ui-coinplate.png') 70 120 78 90 fill / 12px 20px 13px 15px stretch; }
 .wallet img { width:32px; height:32px; object-fit:contain; }
 .wallet b { display:inline-block; }
 .rates { margin-left:auto; margin-right:12px; }
@@ -210,7 +211,7 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 .purchase { border-top:2px dashed #735E4E; padding-top:5px; gap:5px; align-items:center; margin-top:2px; }
 #shop .purchase button { flex:1; height:32px; font-size:15px; line-height:16px; padding:3px 7px 6px; white-space:nowrap; }
 #shop #click-max, #shop #training-max { flex:0 0 43px; font-size:11px; padding:3px 4px 6px; }
-.price-ticket { display:flex; align-items:center; justify-content:center; gap:3px; height:31px; min-width:92px; padding:3px 9px; border-image:url('clicker-ui-ticket.png') 70 fill / 9px stretch; font-size:16px; }
+.price-ticket { display:flex; align-items:center; justify-content:center; gap:3px; height:31px; min-width:92px; padding:3px 9px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 7px 10px stretch; font-size:16px; }
 .price-ticket img { width:22px; height:22px; object-fit:contain; }
 #shop #draw-five { font-size:11px; }
 #shop .purchase small { display:none; }
@@ -224,8 +225,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .save-plate { margin-left:auto; min-width:144px; }
 #save-status { margin:0; }
 #next-goal { max-width:200px; }
-#recruit-topbar { top:14px; gap:12px; height:54px; padding:5px 12px; border-image:url('clicker-ui-paper.png') 80 fill / 14px stretch; color:#30251F; }
-#recruit-topbar > b { border-image:url('clicker-ui-title-tape.png') 100 fill / 12px stretch; padding:8px 30px; font-size:20px; }
+#recruit-topbar { top:14px; gap:12px; height:54px; padding:5px 12px; border-image:url('clicker-ui-paper.png') 88 fill / 14px stretch; color:#30251F; }
+#recruit-topbar > b { border-image:url('clicker-ui-title-tape.png') 100 160 fill / 12px stretch; padding:8px 30px; font-size:20px; }
 #recruit-topbar button, #mode-select { height:34px; padding:4px 12px 7px; }
 #mode-select { color:#30251F; }
 #recruit-entry h2, #recruit-entry p, #recruit-hint { color:#30251F; background:#FFF6E6; width:fit-content; margin:12px auto; padding:3px 12px; }
@@ -234,3 +235,105 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .rates > span > span, .upgrade p > span { display:inline-block; }
 .rate-old { position:absolute; left:0; top:0; pointer-events:none; }
 #game small, #single-note { color:#30251F; }
+
+/* Round 4: rounded handwriting, one full-width partner shelf, Super Art. */
+#game, #game button, #game select, #game textarea, #game .card { font-family:'Huninn','Microsoft JhengHei',sans-serif; font-weight:400; }
+#game h1, #game h2, #game b, #game .rates { font-weight:400; }
+#game h1, #game h2, #game .wallet b, #game button { -webkit-text-stroke:.6px currentColor; }
+#game small, #game p, #game .rates, #game .floater b { -webkit-text-stroke:0; }
+#game-content h1 { font-size:26px; }
+.wallet b { font-size:34px; }
+.rates, .upgrade p, .recruit small, #tutorial { font-size:14px; }
+#game button { transition:transform 120ms cubic-bezier(.2,1.4,.4,1),filter 120ms; }
+#game button:hover:enabled { transform:translateY(-1px); filter:brightness(1.06); }
+#game button:active:enabled { transform:translateY(3px); clip-path:inset(0 0 3px); }
+#game button:disabled img, #game button:disabled svg { filter:grayscale(1)!important; }
+#game #tap:hover { transform:none; filter:none; }
+#shop .purchase button { font-size:16px; padding-left:4px; padding-right:4px; }
+#shop #draw-five { font-size:16px; }
+#shop #click-max, #shop #training-max { font-size:14px; flex-basis:40px; }
+.price-ticket { min-width:80px; font-size:16px; padding:3px 7px; }
+.price-ticket img { width:18px; height:18px; }
+#pity { font-size:14px; }
+#single-note { font-size:14px; }
+#shop #recruit-open { font-size:14px; padding:1px 10px 3px; height:23px; }
+#game::before { content:''; position:absolute; inset:0; background:url('clicker-fx-paper-grain.png') repeat; background-size:256px; opacity:.5; pointer-events:none; z-index:99; }
+.buddy-header { width:900px; }
+#buddies { width:900px; gap:10px; }
+#team::after { display:none; }
+#notice { left:170px; max-width:480px; }
+#slots { left:28px; top:auto; bottom:20px; gap:8px; z-index:9; }
+.skill-slot { position:relative; width:64px; height:64px; padding:0; }
+#game .skill-use { position:relative; display:flex; align-items:center; justify-content:center; width:64px; height:64px; padding:0; border-image:none; border-radius:50%; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; font-size:30px; }
+#game .skill-use svg { width:40px!important; height:40px!important; margin:0!important; filter:none; }
+.skill-slot[data-state="empty"] .skill-use, .skill-slot[data-state="unavailable"] .skill-use { filter:grayscale(1); }
+.skill-slot[data-state="cooldown"] .skill-use::after { content:''; position:absolute; inset:7px; border-radius:50%; background:conic-gradient(from 0deg, #30251fa6 0deg var(--cooldown),transparent var(--cooldown) 360deg); pointer-events:none; }
+.skill-name, .skill-slot small { position:absolute; right:-5px; top:-8px; background:#FFF6E6; border:1px solid #735E4E; border-radius:3px; padding:1px 3px; font-size:11px; line-height:14px; pointer-events:none; transform:rotate(4deg); }
+.skill-slot small { top:auto; bottom:-5px; right:1px; transform:rotate(-4deg); }
+.skill-slot small:empty { display:none; }
+#tutorial { top:-3px; left:90px; width:420px; height:32px; line-height:32px; border-radius:0; background:#FFF6E6e8; transform:rotate(-1deg); box-shadow:0 2px 2px #30251f22; }
+#tutorial::before, #tutorial::after { content:''; position:absolute; width:45px; height:24px; background:url('clicker-ui-tape-0.png') center/contain no-repeat; top:-5px; left:-18px; transform:rotate(-18deg); }
+#tutorial::after { left:auto; right:-18px; transform:rotate(22deg); }
+#package-result { left:388px; top:134px; bottom:auto; width:150px; text-align:center; opacity:0; border-image:url('clicker-ui-ticket.png') 50 70 fill / 7px 10px; padding:4px 10px; color:#30251F; z-index:5; }
+#package-progress::-webkit-progress-value { transition:background-color 200ms; }
+#package-progress.meter-full::-webkit-progress-value { background:#E9B94E; }
+.small-impact { position:absolute; width:130px; height:130px; pointer-events:none; }
+#effect-label { position:absolute; left:138px; top:48px; padding:4px 12px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 8px 12px; z-index:10; pointer-events:none; }
+.panel, .small-panel { border:0; border-radius:0; border-image:url('clicker-ui-paper.png') 88 fill / 22px stretch; background:transparent; box-shadow:none; }
+.panel:not([hidden]), .small-panel:not([hidden]) { animation:paper-panel-in 140ms ease-out; }
+.panel h2, .small-panel h2 { border-image:url('clicker-ui-title-tape.png') 100 160 fill / 12px 20px; padding:8px 22px; width:fit-content; font-size:26px; }
+#game .panel button, #game .small-panel button { font-size:16px; --button-art:url('clicker-ui-btn-cream.png'); padding:6px 14px 9px; }
+.roster-character small { font-size:12px; }
+.panel header span { font-size:14px; }
+#roster-detail { font-size:14px; }
+@keyframes paper-panel-in { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+#cutin { position:absolute; inset:0; z-index:30; pointer-events:none; overflow:hidden; --skill:#E9B94E; }
+#cutin-dim { position:absolute; inset:0; background:#160c08d1; }
+#cutin:not([data-phase="hit-stop"]) #cutin-dim { mask-image:radial-gradient(circle 130px at var(--focus-x) 248px,transparent 70%,#000 100%); }
+#cutin-halftone { position:absolute; inset:0; background:url('clicker-fx-halftone-tile.png') repeat; background-size:180px; opacity:.12; }
+#cutin-focus { position:absolute; width:260px; height:260px; left:calc(var(--focus-x) - 130px); top:118px; border-radius:50%; background:radial-gradient(circle,transparent 60%,#FFF6E610); }
+.cutin-mask { position:absolute; background:var(--skill); mask-size:100% 100%; mask-repeat:no-repeat; }
+/* 速度線以焦點為中心、鋪到 1600×1067，焦點偏左時右側也不會露出硬邊 */
+#cutin-speedlines { left:calc(var(--focus-x) - 800px); top:calc(248px - 533px); width:1600px; height:1067px; }
+#cutin-ring { left:calc(var(--focus-x) - 160px); top:88px; width:320px; height:320px; background:#FFF6E6; }
+.cutin-letterbox { position:absolute; left:16px; width:608px; height:56px; background:#30251F; }
+#cutin-bar-top { top:72px; border-bottom:2px solid #FFF6E6; }
+#cutin-bar-bottom { top:376px; border-top:2px solid #FFF6E6; }
+#cutin-trail { left:0; top:136px; width:780px; height:300px; background:white; }
+#cutin-panel { position:absolute; left:76px; top:146px; width:520px; height:300px; background:var(--skill); border:4px solid #30251F; transform:skewX(-6deg); box-shadow:8px 9px 0 #160c0870; }
+#cutin-panel.from-right { left:112px; }
+#cutin-stripes { position:absolute; inset:0; background:var(--stripe) url('clicker-fx-stripe-tile.png') repeat; background-size:120px; mix-blend-mode:multiply; opacity:.18; }
+#cutin-ink { left:-65px; top:-28px; width:350px; height:320px; background:color-mix(in srgb,var(--skill),white 55%); }
+#cutin-actor { position:absolute; left:-55px; top:-48px; width:280px; height:340px; display:flex; justify-content:center; align-items:flex-end; }
+#cutin-actor svg { height:340px!important; width:auto!important; max-width:none; margin:0!important; filter:none!important; transform:skewX(6deg); }
+#cutin-banner { left:170px; top:58px; width:365px; height:150px; background:#FFF6E6; transform-origin:left center; }
+#cutin-name { position:absolute; left:193px; top:77px; width:310px; font-size:48px; line-height:1.04; letter-spacing:.06em; color:#30251F; -webkit-text-stroke:.6px currentColor; transform-origin:center; }
+#cutin-subtitle { position:absolute; left:196px; top:213px; width:298px; font-size:18px; line-height:1.3; color:#30251F; }
+#cutin-stamp { position:absolute; right:-16px; bottom:-12px; width:90px; height:90px; background:url('clicker-fx-stamp.png') center/contain no-repeat; display:flex; justify-content:center; align-items:center; color:#B63329; font-size:26px; }
+#cutin-impact { position:absolute; left:28px; top:85px; width:180px; height:180px; }
+@media (prefers-reduced-motion:reduce) {
+  #game button { transition:none; }
+  #game button:hover:enabled, #game button:active:enabled { transform:none; }
+  .panel:not([hidden]), .small-panel:not([hidden]) { animation:none; }
+  #cutin-panel { transform:none; }
+  #cutin-actor svg { transform:none; }
+}
+
+.wallet { left:340px; width:260px; padding:6px 20px; }
+.wallet b { white-space:nowrap; }
+#game button.skill-use:disabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; border-image:none; }
+#cutin-actor { left:-20px; }
+#cutin-actor svg { max-width:340px; }
+
+.skill-name { white-space:nowrap; }
+
+#cutin-name { white-space:pre-line; }
+
+#shop #draw-five { display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:12px; font-size:13px; padding:2px 6px 5px; }
+.draw-five-price { font-size:11px; line-height:11px; -webkit-text-stroke:0; }
+
+.stage-frozen #join-flight { z-index:7; }
+
+#cutin-name { top:105px; }
+#cutin-panel.from-right #cutin-name { top:77px; }
+#cutin-subtitle { background:#FFF6E6ed; padding:3px 6px; }

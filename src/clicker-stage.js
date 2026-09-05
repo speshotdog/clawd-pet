@@ -4,6 +4,7 @@ window.ClickerStage = (() => {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const hero = card.art.create(window.GachaPool.byId.zhenmu), cfg = card.art.cfg('zhenmu');
     $('hero').append(hero);
+    let frozen = false, heldAmount = 0;
     let running = false, raf = 0, lastFrame = 0, blinkTimer = 0, openTimer = 0;
     let pressAt = -Infinity, pressAmount = 0, combo = 0, previousClick = -Infinity;
     let parasite = null, lastPackage = 1, bagBusy = false, latestState = null, bagState = 0;
@@ -11,7 +12,7 @@ window.ClickerStage = (() => {
     let soundTimes = [];
     const timers = new Set(), animations = new Set();
 
-    const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); return id; };
+    const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); if (frozen) later(fn, 32); else fn(); }, ms); timers.add(id); return id; };
     function motion(el, frames, ms, done) {
       const a = el.animate(reduced.matches ? [{ opacity: .55 }, { opacity: 1 }] : frames, { duration: reduced.matches ? 100 : ms, easing: 'ease-out' });
       animations.add(a);
@@ -30,14 +31,15 @@ window.ClickerStage = (() => {
     function scheduleBlink() {
       blinkTimer = setTimeout(() => {
         if (!running) return;
-        eyes(true); openTimer = setTimeout(() => { eyes(false); if (running) scheduleBlink(); }, 130);
+        if (frozen) { scheduleBlink(); return; }
+        eyes(true); openTimer = setTimeout(() => { if (!frozen) eyes(false); if (running) scheduleBlink(); }, 130);
       }, 2500 + Math.random() * 3500);
     }
     function animate(now) {
       if (!running) return;
       raf = requestAnimationFrame(animate);
       const budget = 33;
-      if (now - lastFrame < budget) return;
+      if (frozen || now - lastFrame < budget) return;
       lastFrame = now - (now - lastFrame) % budget;
       const duration = combo >= 3 ? 150 : 220, elapsed = now - pressAt;
       const squeeze = elapsed < 55 ? elapsed / 55 : Math.max(0, 1 - (elapsed - 55) / duration);
@@ -51,11 +53,20 @@ window.ClickerStage = (() => {
     function start() {
       if (running || document.hidden) return;
       window.GachaFx.init($('click-fx')); fx = window.GachaFx.createScope();
+      const spawn = fx.spawn;
+      fx.spawn = p => {
+        const update = p.update;
+        spawn.call(fx, { ...p, update(part, dt) {
+          if (frozen) { part.life += dt; return; }
+          if (update) update(part, dt);
+          else { part.vx *= part.drag; part.vy = part.vy * part.drag + part.g * dt; part.x += part.vx * dt; part.y += part.vy * dt; part.rot += part.vr * dt; }
+        } });
+      };
       running = true; lastFrame = performance.now(); raf = requestAnimationFrame(animate); scheduleBlink();
     }
     function stop() {
-      fx?.stop(); fx = null; joining = false; $('join-flight').replaceChildren();
-      cancelAnimationFrame(meterRaf); meterRaf = 0; meterFull = false;
+      frozen = false; heldAmount = 0; $('game').classList.remove('stage-frozen'); fx?.stop(); fx = null; joining = false; $('join-flight').replaceChildren();
+      cancelAnimationFrame(meterRaf); meterRaf = 0; meterFull = false; $('package-progress').classList.remove('meter-full'); $('effect-label').hidden = true;
       running = false; cancelAnimationFrame(raf); raf = 0;
       clearTimeout(blinkTimer); clearTimeout(openTimer); eyes(false);
       timers.forEach(clearTimeout); timers.clear(); animations.forEach((a) => a.cancel()); animations.clear();
@@ -72,6 +83,7 @@ window.ClickerStage = (() => {
       motion(el, [{ transform: `translateY(0) scale(.6) rotate(${heavy ? -6 : 0}deg)`, opacity: 1 }, { transform:'translateY(-3px) scale(1) rotate(0)', opacity:1, offset:.125 }, { transform: 'translateY(-24px)', opacity: 1, offset: 2 / 3 }, { transform: 'translateY(-36px)', opacity: 0 }], 480, () => { el.remove(); });
     }
     function click(amount, heavy = false, s, completed = 0, point = IMPACT) {
+      if (frozen) { heldAmount += amount; latestState = s; return; }
       if (!running) return;
       const now = performance.now(); combo = now - previousClick <= 400 ? combo + 1 : 1; previousClick = now;
       pressAt = now; pressAmount = combo >= 3 ? .10 : .08;
@@ -85,18 +97,18 @@ window.ClickerStage = (() => {
       float(amount, heavy, point);
     }
     function setPartners(s) {
-      teamState = s;
+      teamState = s; if (frozen) return;
       const ids = Object.keys(window.ClickerBalance.characters).filter(id => s.collection[id]);
-      page = Math.min(page, Math.max(0, Math.ceil(ids.length / 6) - 1));
+      page = Math.min(page, Math.max(0, Math.ceil(ids.length / 10) - 1));
       const key = JSON.stringify([s.collection, s.skillSlots, s.effects.find(e => e.source === 'zhenmu')?.target, page]);
       if (key === teamKey) return; teamKey = key;
       $('buddies').replaceChildren();
-      $('buddy-page').textContent = `${page + 1}/${Math.max(1, Math.ceil(ids.length / 6))}`;
-      $('buddy-prev').disabled = joining || page === 0; $('buddy-next').disabled = joining || (page + 1) * 6 >= ids.length;
-      if (!ids.length) $('buddies').textContent = '點擊 50 次，迎接第一位夥伴';
-      ids.slice(page * 6, page * 6 + 6).forEach(id => {
+      $('buddy-page').textContent = `${page + 1}/${Math.max(1, Math.ceil(ids.length / 10))}`;
+      $('buddy-prev').disabled = joining || page === 0; $('buddy-next').disabled = joining || (page + 1) * 10 >= ids.length;
+      if (!ids.length) $('buddies').textContent = '還沒有夥伴。點 50 次，玥玥會來幫忙。';
+      ids.slice(page * 10, page * 10 + 10).forEach(id => {
         const entry = window.GachaPool.byId[id], el = document.createElement('button');
-        el.className = 'buddy'; el.dataset.id = id; el.style.setProperty('--rarity', {common:'#A9A297',rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[entry.rarity]);
+        el.title = `${entry.name}・查看名冊與裝備技能`; el.className = 'buddy'; el.dataset.id = id; el.style.setProperty('--rarity', {common:'#A9A297',rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[entry.rarity]);
         const portrait = document.createElement('span'); portrait.className = 'buddy-portrait'; portrait.append(card.art.create(entry));
         const name = document.createElement('b'); name.textContent = entry.name;
         const stars = document.createElement('span'); stars.textContent = `★${E.stars(s.collection[id])}`;
@@ -130,7 +142,7 @@ window.ClickerStage = (() => {
     const IMPACT = { x: 485, y: 240 };
     function burst(count, heavy = false, chain = false, point = IMPACT) {
       if (!fx) return;
-      const rand = (a,b) => a + Math.random() * (b-a), sparks = count === 4 ? 0 : 2;
+      const rand = (a,b) => a + Math.random() * (b-a), sparks = count <= 6 ? 0 : 2;
       const k = chain ? 1.15 : 1;
       for (let i = 0; i < count; i++) {
         const spark = i >= count - sparks;
@@ -159,11 +171,12 @@ window.ClickerStage = (() => {
       if (meterRaf) return;
       meterStarted = performance.now();
       function frame(now) {
+        if (frozen) { meterRaf = requestAnimationFrame(frame); return; }
         const el = $('package-progress'), goal = meterFull ? 1 : meterTarget;
         el.value += (goal - el.value) * .25;
         if (Math.abs(goal - el.value) < .002 || now - meterStarted >= 180) {
           el.value = goal;
-          if (meterFull) { meterFull = false; meterStarted = now; meterRaf = requestAnimationFrame(() => { el.value = 0; meterRaf = requestAnimationFrame(frame); }); return; }
+          if (meterFull) { meterFull = false; meterStarted = now; el.classList.add('meter-full'); meterRaf = 0; later(() => { el.classList.remove('meter-full'); el.value = 0; meterStarted = performance.now(); meterRaf = requestAnimationFrame(frame); }, 200); return; }
           meterRaf = 0; return;
         }
         meterRaf = requestAnimationFrame(frame);
@@ -171,7 +184,7 @@ window.ClickerStage = (() => {
       meterRaf = requestAnimationFrame(frame);
     }
     function render(s, { instant = false, completed = 0, manual = false, heavy = false } = {}) {
-      latestState = s; setPartners(s);
+      latestState = s; if (frozen) return; setPartners(s);
       if (!running && !instant) { lastPackage = s.package.index; return; }
       const need = E.requirement(s.package.index), next = stateOf(s), crossed = next !== bagState;
       $('package-label').textContent = `${format(s.package.index)} 包`;
@@ -179,7 +192,8 @@ window.ClickerStage = (() => {
       if (s.package.index > lastPackage && !instant) {
         $('package-result').textContent = `完成 ${completed || s.package.index - lastPackage} 包`;
         if (!bagBusy) {
-          bagBusy = true; showBag(4);
+          bagBusy = true; showBag(4); burst(6); impact();
+          motion($('package-result'), [{opacity:0,transform:'translateY(8px) scale(.7)'},{opacity:1,transform:'translateY(-12px) scale(1)',offset:.35},{opacity:0,transform:'translateY(-28px) scale(1)'}],700);
           later(() => motion($('bag'), [{opacity:1},{opacity:0}],100,()=>{
             showBag(stateOf(latestState));
             motion($('bag'),[{transform:'translateY(10px)',opacity:0},{transform:'translateY(0)',opacity:1}],140,()=>{bagBusy=false; showBag(stateOf(latestState));});
@@ -189,15 +203,39 @@ window.ClickerStage = (() => {
       } else if (!bagBusy) { showBag(next); if (crossed && !instant) { if (!heavy) bounce(false); if (!manual) burst(4); } }
       lastPackage = s.package.index; updateParasite(s, instant);
     }
+    function impact(point = IMPACT) {
+      if (reduced.matches) return;
+      const el = document.createElement('img'); el.src = 'clicker-fx-impact-burst.png'; el.className = 'small-impact'; el.style.left = `${point.x - 65}px`; el.style.top = `${point.y - 65}px`; $('floaters').append(el);
+      motion(el,[{transform:'scale(.2)',opacity:1},{transform:'scale(.5)',opacity:1,offset:.6},{transform:'scale(.6)',opacity:0}],150,()=>el.remove());
+    }
+    function freeze(on) {
+      frozen = on; $('game').classList.toggle('stage-frozen', on);
+      animations.forEach(a => on ? a.pause() : a.play());
+      if (!on) {
+        eyes(false);
+        pressAt = -Infinity;
+        if (latestState) render(latestState);
+        if (heldAmount) float(heldAmount, true, IMPACT);
+        heldAmount = 0;
+      }
+    }
     function skill(effect) {
+      const label = $('effect-label'); label.hidden = false;
+      label.textContent = window.ClickerBalance.characters[effect.source].skill;
+      motion(label,[{transform:'translateY(8px) scale(.8)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],180);
+      later(()=>{ label.hidden = true; },1800);
+      if (effect.source === 'zhenmu') {
+        motion($('parasite-label'),[{transform:'translateY(-40px) scale(1.3)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],300,()=>impact({x:250,y:285}));
+      }
       const el = document.querySelector(`.buddy[data-id="${effect.source}"]`);
       if (el && running) motion(el,[{transform:'scale(1)'},{transform:'scale(1.08)',offset:.5},{transform:'scale(1)'}],140);
     }
     function join(s, entries) {
+      if (frozen) { later(()=>join(latestState, entries),32); return; }
       if (!entries.length || !running) return;
       const ids = Object.keys(window.ClickerBalance.characters).filter(id => s.collection[id]);
       const unique = [...new Map(entries.map(e => [e.id,e])).values()], groups = new Map();
-      unique.forEach(e => { const p = Math.floor(ids.indexOf(e.id)/6); if (!groups.has(p)) groups.set(p,[]); groups.get(p).push(e); });
+      unique.forEach(e => { const p = Math.floor(ids.indexOf(e.id)/10); if (!groups.has(p)) groups.set(p,[]); groups.get(p).push(e); });
       joining = true;
       const batches = [...groups];
       function group(index) {
@@ -213,7 +251,7 @@ window.ClickerStage = (() => {
       }
       group(0);
     }
-    return { start, stop, click, render, skill, join, setPartners };
+    return { start, stop, click, render, skill, join, setPartners, freeze, get frozen() { return frozen; } };
   }
   return { create };
 })();
