@@ -18,6 +18,7 @@
     <header id="topbar" class="topbar">
       <div class="brand"><span class="brand-mark">🎴</span><b>夥伴卡包</b><small id="pack-count">已開 0 包</small></div>
       <div class="topbar-right">
+        <label class="mode-label">模式 <select id="mode-select" aria-label="抽卡模式"><option value="hearthstone">拆包桌面</option><option value="wish">流星投遞</option></select></label>
         <div class="dust" id="dust" title="重複的卡會化成塵">
           <span class="dust-icon"></span><b id="dust-value">0</b><i>塵</i>
         </div>
@@ -60,6 +61,13 @@
     <!-- 特效層：粒子 / 射線 / 塵 -->
     <canvas id="fx" class="fx" width="960" height="640"></canvas>
 
+    <div id="mode-root" class="mode-root"></div>
+    <button id="launch" class="pill mode-launch" type="button" hidden>投遞一包 · 五張</button>
+    <div class="mode-controls">
+      <select id="reveal-policy" aria-label="揭曉方式" hidden><option value="auto">自動</option><option value="manual">逐張</option></select>
+      <button id="reveal-all" class="pill" type="button" hidden>全部翻開</button>
+      <button id="skip" class="pill" type="button" hidden>略過演出</button>
+    </div>
     <!-- 提示字 -->
     <div id="hint" class="hint"></div>
 
@@ -83,6 +91,10 @@
 
   <script src="gacha-audio.js"></script>
   <script src="gacha-fx.js"></script>
+  <script src="gacha-card.js"></script>
+  <script src="gacha-mode-runtime.js"></script>
+  <script src="gacha-mode-hearthstone.js"></script>
+  <script src="gacha-mode-wish.js"></script>
   <script src="gacha.js"></script>
 </body>
 </html>

@@ -181,7 +181,8 @@ window.GachaFx = (() => {
 
   // ---------- 傳說射線：從卡後方放射、緩慢旋轉的橘光，fadeIn → 停留 → fadeOut ----------
   // 回傳的物件有 stop()，讓流程在揭曉後把它慢慢收掉
-  function rays(x, y, { color = '#ff8000', n = 14, len = 900, fadeIn = 0.5, hold = Infinity } = {}) {
+  function rays(x, y, { color = '#ff8000', n = 14, len = 900, fadeIn = 0.5, hold = 0.6 } = {}) {
+    hold = Number.isFinite(hold) ? Math.min(hold, 4) : 0.6;
     let t = 0, rot = rand(0, TAU), alpha = 0, stopping = false, fadeOut = 0;
     const layer = {
       dead: false,
@@ -262,5 +263,55 @@ window.GachaFx = (() => {
     kick();
   }
 
-  return { init, packBurst, reveal, rays, dustStream, puff };
+  // scope 只移除自己建立的物件，收集動畫不會被上一場的取消波及。
+  function createScope({ rng = Math.random } = {}) {
+    const ownedParts = new Set(), ownedLayers = new Set();
+    let stopped = false;
+    return {
+      spawn(p) {
+        if (stopped) return;
+        spawn(p); ownedParts.add(parts[parts.length - 1]); kick();
+      },
+      layer(l) {
+        if (stopped) return;
+        layers.push(l); ownedLayers.add(l); kick(); return l;
+      },
+      reveal(x, y, rarity) {
+        const count = { common: 0, rare: 8, epic: 12, legendary: 20 }[rarity];
+        const life = { common: 0, rare: .24, epic: .42, legendary: .6 }[rarity];
+        for (let i = 0; i < count; i++) {
+          const a = i / count * TAU + (rng() - .5) * .2;
+          this.spawn({ x: x + Math.cos(a) * 78, y: y + Math.sin(a) * 108,
+            vx: Math.cos(a) * 60, vy: Math.sin(a) * 60, r: 1.5, life,
+            color: RC[rarity], shape: rarity === 'epic' ? 'star' : 'streak', shrink: true });
+        }
+        if (rarity === 'legendary') {
+          let age = 0;
+          this.layer({ dead: false, under: true,
+            update(dt) { age += dt; this.dead = age >= .6; },
+            draw(c) {
+              c.save(); c.translate(x, y); c.strokeStyle = '#ffba63';
+              c.globalAlpha = Math.sin(Math.PI * age / .6) * .5; c.lineWidth = 7;
+              for (let i = 0; i < 6; i++) {
+                const a = i * TAU / 6;
+                c.beginPath(); c.moveTo(Math.cos(a) * 80, Math.sin(a) * 110);
+                c.lineTo(Math.cos(a) * 185, Math.sin(a) * 190); c.stroke();
+              }
+              c.restore();
+            },
+          });
+        }
+      },
+      stop() {
+        if (stopped) return;
+        stopped = true;
+        for (let i = parts.length - 1; i >= 0; i--) if (ownedParts.has(parts[i])) parts.splice(i, 1);
+        for (let i = layers.length - 1; i >= 0; i--) if (ownedLayers.has(layers[i])) layers.splice(i, 1);
+        ownedParts.clear(); ownedLayers.clear();
+        // 下一幀自然停止；先清畫布，避免背景分頁的 rAF 延後留下殘影。
+        ctx?.clearRect(0, 0, W, H); under?.clearRect(0, 0, W, H);
+      },
+    };
+  }
+  return { init, packBurst, reveal, rays, dustStream, puff, createScope };
 })();

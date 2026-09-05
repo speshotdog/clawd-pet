@@ -2,6 +2,7 @@
 // 設計原則：每個音都是「一個動作的回饋」，短、乾、有重量；只有傳說允許拖長尾巴。
 // AudioContext 要在使用者手勢後才能建，所以 ensure() 由第一次 pointerdown 呼叫。
 window.GachaAudio = (() => {
+  let activeScope = null;
   let ctx = null;
   let master = null;
   let verb = null;      // 簡易迴響（feedback delay），只給揭曉音用
@@ -40,7 +41,9 @@ window.GachaAudio = (() => {
     g.exponentialRampToValueAtTime(0.0001, t + a + d + r);
   }
   function tone(freq, { type = 'sine', t = now(), a = 0.005, d = 0.2, r = 0.05, s = 0, gain = 0.3, detune = 0, to = master, slide = null, slideT = 0 } = {}) {
+    to = activeScope ? activeScope.route(to) : to;
     const o = ctx.createOscillator();
+    activeScope?.track(o);
     o.type = type; o.frequency.setValueAtTime(freq, t); o.detune.value = detune;
     if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + (slideT || d));
     const g = ctx.createGain();
@@ -61,7 +64,9 @@ window.GachaAudio = (() => {
     return src;
   }
   function noiseHit({ t = now(), a = 0.002, d = 0.12, r = 0.05, gain = 0.4, type = 'bandpass', f0 = 1500, f1 = null, q = 0.8, to = master } = {}) {
+    to = activeScope ? activeScope.route(to) : to;
     const src = noise();
+    activeScope?.track(src);
     const flt = ctx.createBiquadFilter();
     flt.type = type; flt.Q.value = q; flt.frequency.setValueAtTime(f0, t);
     if (f1) flt.frequency.exponentialRampToValueAtTime(f1, t + a + d);
@@ -69,6 +74,7 @@ window.GachaAudio = (() => {
     env(g, t, a, d, gain, 0, r);
     src.connect(flt).connect(g).connect(to);
     src.start(t); src.stop(t + a + d + r + 0.05);
+    return src;
   }
   // 鐘：一個基頻 + 非諧泛音（真實鐘的泛音比不是整數倍），各自不同衰減
   function bell(freq, t, { gain = 0.5, decay = 2.6, to = master } = {}) {
@@ -230,6 +236,59 @@ window.GachaAudio = (() => {
   };
   // 一般按鈕
   api.ui = () => { if (!ensure()) return; tone(660, { type: 'triangle', t: now(), a: 0.002, d: 0.06, gain: 0.1 }); };
+
+  // 每次演出有自己的乾聲與迴響出口，取消時連尾音一起收乾。
+  api.createScope = () => {
+    const sources = new Set(), children = new Set(), nodes = [];
+    let stopped = false;
+    const ac = ensure();
+    const output = ac?.createGain(), wet = ac?.createGain();
+    if (ac) {
+      output.connect(master); wet.gain.value = .35;
+      nodes.push(output, wet);
+      for (const seconds of [.173, .251]) {
+        const delay = ac.createDelay(1), gain = ac.createGain();
+        delay.delayTime.value = seconds; gain.gain.value = .4;
+        wet.connect(delay).connect(gain).connect(output);
+        nodes.push(delay, gain);
+      }
+    }
+    const scope = {
+      createScope() {
+        const child = api.createScope(); children.add(child);
+        if (stopped) child.stop();
+        return child;
+      },
+      dry: output, verb: wet, now: () => ac?.currentTime || 0,
+      route: (to) => to === verb || to === wet ? wet : output,
+      track(src) { sources.add(src); src.addEventListener('ended', () => sources.delete(src), { once: true }); },
+      stop(ms = 30) {
+        if (stopped) return;
+        stopped = true;
+        children.forEach((child) => child.stop(ms)); children.clear();
+        if (!ac) return;
+        const t = ac.currentTime, end = t + ms / 1000;
+        output.gain.cancelScheduledValues(t);
+        output.gain.setValueAtTime(output.gain.value, t);
+        output.gain.linearRampToValueAtTime(0, end);
+        sources.forEach((src) => { try { src.stop(end); } catch {} });
+        setTimeout(() => { nodes.forEach((n) => n.disconnect()); sources.clear(); }, ms + 10);
+      },
+    };
+    const run = (fn, args) => {
+      if (stopped || !ac) return;
+      const previous = activeScope; activeScope = scope;
+      try { return fn(...args); } finally { activeScope = previous; }
+    };
+    Object.assign(scope, {
+      tone: (...args) => run(tone, args), noiseHit: (...args) => run(noiseHit, args),
+      bell: (...args) => run(bell, args),
+    });
+    for (const name of ['flip', 'reveal', 'deal', 'hover', 'collect', 'dust', 'tick', 'ui']) {
+      scope[name] = (...args) => run(api[name], args);
+    }
+    return scope;
+  };
 
   return api;
 })();

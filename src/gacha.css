@@ -540,3 +540,21 @@ img, svg { -webkit-user-drag: none; }
 .skin-af.table.state-ready .pack-shine { animation: sheen 2.6s ease-in-out 2; }
 .skin-af.table.state-ready .pack-glow { animation: none; opacity: .7; }
 @media (prefers-reduced-motion: reduce) { .skin-af .face-embers { display: none; } }
+
+/* 模式入口與共用揭曉：舞台震動不碰頂列，等待期間沒有循環動畫。 */
+.mode-label { display:flex; align-items:center; gap:6px; font-size:12px; color:#dfcba7; }
+.mode-label select { width:132px; height:30px; }
+.mode-label select, .mode-controls select { color:#f7e5be; background:#252b39; border:1px solid #806a4d; border-radius:5px; padding:3px 6px; }
+.mode-root { position:absolute; inset:0; z-index:9; pointer-events:none; }
+.mode-controls { position:absolute; bottom:30px; right:26px; z-index:25; display:flex; gap:8px; }
+.mode-launch { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:12; padding:18px 28px; }
+.table [hidden] { display:none !important; }
+.table.state-revealing .card:not(.charging):not(.flipped) { pointer-events:none; }
+.table.state-revealing .card { cursor:default; }
+.table.state-presenting .card, .table.state-dealing .card { pointer-events:none; }
+.dim { transition:opacity 120ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .skin-af .card-lift, .skin-af .card:not(.flipped):not(.charging):hover .card-lift,
+  .skin-af .card.charging .card-lift { transform:none; animation:none; }
+  .skin-af .card.reveal-pop .face-sheen { animation:none; }
+}
