@@ -14,12 +14,17 @@
       <h1>珍母點點</h1>
       <div class="wallet"><img src="clicker-coin.png" alt="錢幣" /><b id="coins">0</b></div>
       <div class="rates"><span id="click-rate">每次 1.0</span><span id="passive-rate">每秒 0.0</span></div>
-      <button id="mute" aria-pressed="false">音效開</button><button id="music" aria-pressed="true" title="背景音樂">♪ BGM</button><button id="close" aria-label="關閉視窗">×</button>
+      <div class="audio-controls"><button id="audio-toggle" aria-label="音量設定" aria-expanded="false" aria-controls="audio-panel">♪</button>
+        <div id="audio-panel" role="group" aria-label="音量設定" hidden>
+          <div class="audio-row"><button id="music" type="button" aria-label="音樂靜音" aria-pressed="false">♪</button><span>音樂</span><input id="music-volume" aria-label="音樂音量" type="range" min="0" max="1" step=".01" value=".6"></div>
+          <div class="audio-row"><button id="mute" type="button" aria-label="音效靜音" aria-pressed="false">♫</button><span>音效</span><input id="sfx-volume" aria-label="音效音量" type="range" min="0" max="1" step=".01" value=".8"></div>
+        </div>
+      </div><button id="close" aria-label="關閉視窗">×</button>
     </header>
     <section id="stage" aria-label="拆包舞台">
       <p id="tutorial">教學獎勵 · 點擊 50 次，玥玥直接入隊 <b id="tutorial-progress">0 / 50</b></p>
       <div class="desk-mat"></div><img class="stage-flag" src="clicker-ui-flag.png" alt="" /><img class="tape stage-tape" src="clicker-ui-tape-1.png" alt="" /><i class="contact hero-contact"></i><i class="contact bag-contact"></i>
-      <div id="hero-position"><div id="hero"></div></div>
+      <div id="hero-light" aria-hidden="true"></div><div id="hero-position"><div id="hero"></div></div>
       <button id="tap" aria-label="點珍母拆零食包（空白鍵也可以）"></button>
       <div id="bag"><img id="bag-image" src="clicker-bag-0.png" alt="零食包：完整" /></div>
       <div id="parasite-label" hidden></div>

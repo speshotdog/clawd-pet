@@ -86,11 +86,11 @@ def round5(context):
     assert metadata['scene']['transpose'] == metadata['skill']['transpose']
     (OUT / 'round5-music.json').write_text(json.dumps(metadata,indent=2),encoding='utf8')
     page.locator('.skill-use').nth(0).click()
-    page.wait_for_function('ClickerMusic.skill.target === .7 && ClickerMusic.skill.transport.playing')
+    page.wait_for_function('ClickerMusic.skill.target === .32 && ClickerMusic.skill.transport.playing')
     frozen = page.evaluate('ClickerScene.time')
-    page.wait_for_timeout(650)
+    page.wait_for_timeout(1000)
     assert page.evaluate('ClickerScene.time') == frozen
-    assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value')-.7)<.01
+    assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value')-.32)<.01
     page.screenshot(path=str(OUT / 'round5-cutin-frozen.png'))
     page.wait_for_timeout(800)
     # Another skill keeps the transport running rather than starting at step zero.
@@ -101,29 +101,33 @@ def round5(context):
     page.wait_for_timeout(1400)
     # Consuming the one-charge skill must not end the other skill's variation.
     page.locator('#tap').click()
-    assert page.evaluate('ClickerMusic.skill.target') == .7
+    assert page.evaluate('ClickerMusic.skill.target') == .32
     for _ in range(9):
         page.wait_for_timeout(150)
         page.locator('#tap').click()
-    page.wait_for_timeout(820)
+    page.wait_for_timeout(1720)
     assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value'))<.01
     assert not page.evaluate('ClickerMusic.skill.transport.playing')
-    # Passive effects end by their real expiresAt, including the exact 800ms fade.
+    # Passive effects end by their real expiresAt, including the 1400ms exit and delayed 1700ms scene return.
     page.locator('.skill-use').nth(2).click()
-    page.wait_for_function('ClickerMusic.skill.target === .7')
+    page.wait_for_function('ClickerMusic.skill.target === .32')
     remaining = page.evaluate('Math.max(...Clicker.state.effects.map(e=>e.expiresAt))-Date.now()')
-    page.wait_for_timeout(remaining+820)
+    page.wait_for_timeout(remaining+1720)
     assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value'))<.01
     assert not page.evaluate('ClickerMusic.skill.transport.playing')
+    page.locator('#audio-toggle').click()
     page.locator('#music').click()
+    page.keyboard.press('Escape')
     page.wait_for_timeout(850)
-    assert page.evaluate('ClickerMusic.ctx.state') == 'suspended'
+    assert page.evaluate('ClickerMusic.ctx.state') == 'suspended', page.evaluate('({settings:Clicker.state.settings,gain:ClickerMusic.scene.gain.gain.value,skill:ClickerMusic.skill.gain.gain.value})')
     assert page.evaluate('JSON.parse(localStorage.clicker_save).settings.music') is False
+    page.locator('#audio-toggle').click()
     page.locator('#music').click()
+    page.keyboard.press('Escape')
     page.wait_for_function('ClickerMusic.ctx.state === "running"')
     page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:true});document.dispatchEvent(new Event("visibilitychange"));')
-    page.wait_for_timeout(200)
-    assert page.evaluate('ClickerMusic.ctx.state') == 'suspended'
+    page.wait_for_timeout(350)
+    assert page.evaluate('ClickerMusic.ctx.state') == 'suspended', page.evaluate('({settings:Clicker.state.settings,gain:ClickerMusic.scene.gain.gain.value,skill:ClickerMusic.skill.gain.gain.value})')
     assert not page.evaluate('ClickerMusic.scene.transport.playing || ClickerMusic.skill.transport.playing')
     page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:false});document.dispatchEvent(new Event("visibilitychange"));')
     page.wait_for_function('ClickerMusic.scene.transport.playing')
@@ -134,6 +138,100 @@ def round5(context):
     assert not errors, errors
     page.close()
     print('PASS: Round 5 layers, wind, parallax, cloud loop, particles, frozen scene, ChipForge crossfades, toggles, hide/resume, reduced motion')
+
+
+def round6(context):
+    page = context.new_page()
+    errors = []
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.goto('http://clicker.test/clicker.html')
+    page.wait_for_function('window.ClickerMusic && window.Clicker && !document.getElementById("tap").disabled')
+    page.evaluate('''() => {
+      const s=ClickerSave.fresh(Date.now()); s.package={index:78,progress:479000};
+      s.collection={yueyue2:1,jiaobu:1,zhenmu:1}; s.manualClicks=50; s.claimedMilestones=['tutorial50'];
+      s.lifetimeCoins=100000; s.skillSlots=['yueyue2','jiaobu','zhenmu'];
+      sessionStorage.setItem('test-seed',JSON.stringify(s));
+    }''')
+    page.reload()
+    page.wait_for_function('window.ClickerMusic && !document.getElementById("tap").disabled')
+    page.wait_for_timeout(800)
+    assert page.locator('#tap').evaluate('(e)=>getComputedStyle(e).left') == '184px'
+    assert page.locator('.package-meter').evaluate('(e)=>[e.offsetLeft,e.offsetTop,e.offsetWidth,e.offsetHeight]') == [24,308,560,40]
+    assert page.evaluate("document.querySelectorAll('[data-layer=grass] img').length===4 && document.querySelectorAll('[data-layer=flowers] img').length===3")
+    assert page.evaluate("""() => {
+      const boxes=[...document.querySelectorAll('[data-layer=tree] img')].map(e=>e.getBoundingClientRect());
+      const overlap=(a,b)=>Math.min(a.right,b.right)>Math.max(a.left,b.left) && Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top);
+      return boxes.slice(1).every(b=>overlap(boxes[0],b)) && overlap(boxes[1],boxes[2]) && overlap(boxes[2],boxes[3]);
+    }""")
+    page.screenshot(path=str(OUT / 'round6-scene.png'))
+    page.locator('.package-meter').screenshot(path=str(OUT / 'round6-meter.png'))
+    page.locator('#audio-toggle').click()
+    assert page.locator('#audio-panel').is_visible()
+    page.wait_for_timeout(1250)
+    assert abs(page.evaluate('ClickerMusic.scene.gain.gain.value*ClickerMusic.volume.gain.value')-.144)<.002
+    before = page.evaluate('localStorage.clicker_save')
+    page.locator('#music-volume').evaluate("e=>{e.value=.4;e.dispatchEvent(new Event('input',{bubbles:true}));}")
+    assert page.evaluate('localStorage.clicker_save') == before
+    page.wait_for_timeout(220)
+    assert abs(page.evaluate('ClickerMusic.volume.gain.value')-.4)<.01
+    page.wait_for_timeout(5100)  # Autosave must not commit an in-progress slider preview.
+    assert page.evaluate('JSON.parse(localStorage.clicker_save).settings.musicVolume') == .6
+    assert page.evaluate('Clicker.state.settings.musicVolume') == .4
+    page.locator('#music-volume').dispatch_event('change')
+    assert page.evaluate('JSON.parse(localStorage.clicker_save).settings.musicVolume') == .4
+    page.locator('#sfx-volume').evaluate("e=>{e.value=.3;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}")
+    assert page.evaluate('JSON.parse(localStorage.clicker_save).settings.sfxVolume') == .3
+    assert abs(page.evaluate('GachaAudio.createScope().dry.gain.value')-.3)<.001
+    page.screenshot(path=str(OUT / 'round6-volume.png'))
+    page.keyboard.press('Escape')
+    assert page.locator('#audio-panel').is_hidden()
+    page.locator('#audio-toggle').click()
+    page.mouse.click(300,50)
+    assert page.locator('#audio-panel').is_hidden()
+    page.locator('#tap').click()
+    page.wait_for_timeout(80)
+    assert page.locator('.floater').last.evaluate('(e)=>getComputedStyle(e).fontSize') == '26px'
+    assert page.locator('.floater b').last.evaluate('(e)=>getComputedStyle(e).webkitTextStrokeWidth') == '1.2px'
+    page.screenshot(path=str(OUT / 'round6-floater.png'))
+    # Sample actual AudioParams in the audio clock; no fake timers or gain mocks.
+    samples = page.evaluate("""async () => {
+      window.beginTestSkill = () => {
+        const s=Clicker.state, now=Date.now(); s.settledAt=now; s.collection.yueyue2=1;
+        s.cooldownUntil.yueyue2=now+60000;
+        s.effects=[{source:'yueyue2',kind:'click',multiplier:2,remaining:10,startedAt:now,expiresAt:now+15000}];
+        ClickerMusic.sync(s);
+      };
+      beginTestSkill();
+      const rows=[], start=performance.now();
+      for (const ms of [0,300,700,1000]) {
+        await new Promise(r=>setTimeout(r,Math.max(0,ms-(performance.now()-start))));
+        rows.push([ClickerMusic.scene.gain.gain.value*ClickerMusic.volume.gain.value,ClickerMusic.skill.gain.gain.value*ClickerMusic.volume.gain.value]);
+      }
+      return rows;
+    }""")
+    assert all(samples[i][0]>=samples[i+1][0]-.002 and samples[i][1]<=samples[i+1][1]+.002 for i in range(3)), samples
+    assert all(abs(samples[i][j]-samples[i+1][j])<.25 for i in range(3) for j in range(2)), samples
+    assert abs(samples[-1][1]-.128)<.002, samples
+    page.evaluate("Clicker.state.effects=[]; ClickerMusic.sync(Clicker.state)")
+    page.wait_for_timeout(500)
+    page.evaluate("beginTestSkill()")
+    page.wait_for_timeout(430)
+    assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value')-.32)<.002
+    page.evaluate("Clicker.state.effects=[]; ClickerMusic.sync(Clicker.state)")
+    page.wait_for_timeout(1700)
+    assert abs(page.evaluate('ClickerMusic.scene.gain.gain.value')-.24)<.002
+    assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value'))<.002
+    page.locator('#audio-toggle').click()
+    page.locator('#music').click()
+    page.wait_for_timeout(150)
+    assert page.evaluate('ClickerMusic.ctx.state') == 'running'
+    page.wait_for_timeout(200)
+    assert page.evaluate('ClickerMusic.ctx.state') == 'suspended', page.evaluate('({settings:Clicker.state.settings,gain:ClickerMusic.scene.gain.gain.value,skill:ClickerMusic.skill.gain.gain.value})')
+    page.keyboard.press('Escape')
+    (OUT / 'round6-gains.json').write_text(json.dumps(samples,indent=2),encoding='utf8')
+    assert not errors, errors
+    page.close()
+    print('PASS: Round 6 volume preview/save/popup, real AudioParam samples, fade reversal, center, floaters, ruler, tree overlap')
 
 
 def main():
@@ -180,8 +278,9 @@ def main():
                 request.fulfill(status=404, body='not found')
 
         context.route('**/*', route)
+        round6(context)
         round5(context)
-        if '--round5' in __import__('sys').argv:
+        if '--round6' in __import__('sys').argv or '--round5' in __import__('sys').argv:
             browser.close()
             return
         page = context.new_page()
@@ -280,7 +379,7 @@ def main():
         page.locator('#recruit-open').click(); page.locator('#mode-select').select_option('wish'); page.locator('#recruit-five').click()
         page.wait_for_timeout(900)
         page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:true}); document.dispatchEvent(new Event("visibilitychange"));')
-        page.wait_for_timeout(100)
+        page.wait_for_timeout(500)
         assert page.evaluate('[testSchedules.raf.size,testSchedules.timeout.size,testSchedules.interval.size]') == [0, 0, 0]
         page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:false}); document.dispatchEvent(new Event("visibilitychange"));')
         assert page.locator('#collect').is_visible()

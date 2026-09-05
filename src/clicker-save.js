@@ -9,7 +9,7 @@
       collection: {}, paidDraws: 0, pity: { sinceLegendary: 0 }, pending: null,
       package: { index: 1, progress: 0 }, claimedMilestones: [],
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
-      settings: { muted: false, mode: 'wish', scene: 'backyard', music: true } };
+      settings: { muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8 } };
   }
   const object = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
   const number = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
@@ -44,6 +44,8 @@
     }
     check(object(s.settings) && typeof s.settings.muted === 'boolean' && B.modes.includes(s.settings.mode), '設定');
     s.settings.scene ??= 'backyard'; s.settings.music ??= true;
+    s.settings.musicVolume ??= .6; s.settings.sfxVolume ??= .8;
+    check(['musicVolume','sfxVolume'].every(k => number(s.settings[k]) && s.settings[k] <= 1), '音量');
     const scenes = node ? require('./clicker-scene.js').scenes : root.ClickerScenes;
     check(typeof s.settings.music === 'boolean' && Object.hasOwn(scenes, s.settings.scene) && s.package.index >= scenes[s.settings.scene].unlockPackages, '場景與音樂');
     if (s.pending !== null) {

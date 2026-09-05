@@ -13,8 +13,8 @@ window.ClickerStage = (() => {
     const timers = new Set(), animations = new Set();
 
     const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); if (frozen) later(fn, 32); else fn(); }, ms); timers.add(id); return id; };
-    function motion(el, frames, ms, done) {
-      const a = el.animate(reduced.matches ? [{ opacity: .55 }, { opacity: 1 }] : frames, { duration: reduced.matches ? 100 : ms, easing: 'ease-out' });
+    function motion(el, frames, ms, done, easing = 'ease-out') {
+      const a = el.animate(reduced.matches ? [{ opacity: .55 }, { opacity: 1 }] : frames, { duration: reduced.matches ? 100 : ms, easing });
       animations.add(a);
       a.finished.then(() => { animations.delete(a); a.cancel(); done?.(); }).catch(() => {});
       return a;
@@ -80,9 +80,10 @@ window.ClickerStage = (() => {
       const el = document.createElement('span'); el.className = 'floater';
       el.innerHTML = '<img src="clicker-coin.png" alt="" /><b></b>';
       el.querySelector('b').textContent = `+${format(amount)}`;
-      el.style.left = `${point.x + Math.random() * 20 - 10}px`; el.style.top = `${point.y - 12}px`; el.style.fontSize = heavy ? '26px' : clickChain >= 3 ? '22px' : '20px'; if (clickChain >= 3) el.style.color = '#E9B94E';
+      el.style.left = `${point.x + Math.random() * 20 - 10}px`; el.style.top = `${point.y - 12}px`; el.style.fontSize = heavy ? '34px' : clickChain >= 3 ? '28px' : '26px'; el.style.color = heavy ? '#EF8E8E' : clickChain >= 3 ? '#E9B94E' : '#FFF6E6';
+      if ($('floaters').querySelectorAll('.floater').length >= 12) $('floaters').querySelector('.floater').remove();
       $('floaters').append(el);
-      motion(el, [{ transform: `translateY(0) scale(.6) rotate(${heavy ? -6 : 0}deg)`, opacity: 1 }, { transform:'translateY(-3px) scale(1) rotate(0)', opacity:1, offset:.125 }, { transform: 'translateY(-24px)', opacity: 1, offset: 2 / 3 }, { transform: 'translateY(-36px)', opacity: 0 }], 480, () => { el.remove(); });
+      motion(el, [{ transform: `translateY(0) scale(.6) rotate(${heavy ? -6 : 0}deg)`, opacity: 1 }, { transform:'translateY(-2px) scale(1.15) rotate(0)', opacity:1, offset:30/720 }, { transform:'translateY(-4px) scale(1)', opacity:1, offset:60/720 }, { transform: 'translateY(-40px)', opacity: 1, offset:520/720 }, { transform: 'translateY(-56px)', opacity: 0 }], 720, () => { el.remove(); }, 'linear');
     }
     function click(amount, heavy = false, s, completed = 0, point = IMPACT) {
       if (frozen) { heldAmount += amount; latestState = s; return; }
@@ -167,20 +168,23 @@ window.ClickerStage = (() => {
       if (heavy) fx.spawn({ sprite:3, x:point.x, y:point.y, r:36, life:.25, color:'#E9B94E', blend:'lighter', update(p) { p.r = 36 + 54 * (1 - p.life / p.max); } });
       if (heavy) fx.spawn({ sprite: 5, x: point.x, y: point.y, r: 40, life: .14, vx: 0, vy: 0, g: 0, rot: -.35, color: '#E9B94E', blend: 'lighter' });
     }
+    let meterShown = 0, meterNeed = 100, meterAmount = 0;
     let meterRaf = 0, meterTarget = 0, meterFull = false, meterStarted = 0;
     function meter(target, crossed, instant) {
       if (!instant && !crossed && target === meterTarget && (meterRaf || $('package-progress').value === target)) return;
       meterTarget = target;
-      if (instant || reduced.matches) { cancelAnimationFrame(meterRaf); meterRaf = 0; meterFull = false; $('package-progress').value = target; return; }
+      if (instant || reduced.matches) { cancelAnimationFrame(meterRaf); meterRaf = 0; meterFull = false; $('package-progress').value = target; meterShown = meterAmount; $('package-number').textContent = `${format(meterShown)} / ${format(meterNeed)}`; return; }
       if (crossed) meterFull = true;
       if (meterRaf) return;
       meterStarted = performance.now();
       function frame(now) {
         if (frozen) { meterRaf = requestAnimationFrame(frame); return; }
+        meterShown += (meterAmount-meterShown)*.25;
+        $('package-number').textContent = `${format(meterShown)} / ${format(meterNeed)}`;
         const el = $('package-progress'), goal = meterFull ? 1 : meterTarget;
         el.value += (goal - el.value) * .25;
         if (Math.abs(goal - el.value) < .002 || now - meterStarted >= 180) {
-          el.value = goal;
+          el.value = goal; meterShown = meterAmount; $('package-number').textContent = `${format(meterShown)} / ${format(meterNeed)}`;
           if (meterFull) { meterFull = false; meterStarted = now; el.classList.add('meter-full'); meterRaf = 0; later(() => { el.classList.remove('meter-full'); el.value = 0; meterStarted = performance.now(); meterRaf = requestAnimationFrame(frame); }, 200); return; }
           meterRaf = 0; return;
         }
@@ -193,7 +197,8 @@ window.ClickerStage = (() => {
       if (!running && !instant) { lastPackage = s.package.index; return; }
       const need = E.requirement(s.package.index, s.settings.scene), next = stateOf(s), crossed = next !== bagState;
       $('package-label').textContent = `${format(s.package.index)} 包`;
-      meter(s.package.progress / need, s.package.index > lastPackage, instant); $('package-number').textContent = `${format(s.package.progress)} / ${format(need)}`;
+      meterAmount = s.package.progress; meterNeed = need;
+      meter(s.package.progress / need, s.package.index > lastPackage, instant);
       if (s.package.index > lastPackage && !instant) {
         $('package-result').textContent = `完成 ${completed || s.package.index - lastPackage} 包`;
         if (!bagBusy) {

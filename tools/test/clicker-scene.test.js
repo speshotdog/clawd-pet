@@ -24,10 +24,20 @@ test('場景倍率貫穿需求、多包結算與存檔驗證，未解鎖不掛�
 
 test('舊存檔補場景／音樂預設，錯誤設定保留原文並阻擋', () => {
   const s = Save.fresh(0); delete s.settings.music; delete s.settings.scene;
-  assert.deepEqual(Save.validate(s).settings,{muted:false,mode:'wish',music:true,scene:'backyard'});
+  assert.deepEqual(Save.validate(s).settings,{muted:false,mode:'wish',music:true,scene:'backyard',musicVolume:.6,sfxVolume:.8});
   s.settings.scene='missing'; const raw=JSON.stringify(s);
   const store=Save.create({getItem:()=>raw});
   assert.equal(store.blocked,true); assert.equal(store.raw,raw);
   s.settings.scene='backyard'; s.settings.music='yes';
   assert.throws(()=>Save.validate(s));
+});
+
+test('volume defaults migrate and invalid volume settings are rejected', () => {
+  const s=Save.fresh(0); delete s.settings.musicVolume; delete s.settings.sfxVolume;
+  assert.equal(Save.validate(s).settings.musicVolume,.6);
+  assert.equal(s.settings.sfxVolume,.8);
+  for (const value of [-1,1.01,NaN,'0.5']) {
+    const bad=Save.fresh(0); bad.settings.musicVolume=value;
+    assert.throws(()=>Save.validate(bad));
+  }
 });

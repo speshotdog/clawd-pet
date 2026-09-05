@@ -355,3 +355,32 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .stage-flag { z-index:2; }
 #game #music { height:24px; padding:2px 8px 5px; font-size:12px; min-width:60px; }
 #tutorial, .package-meter { z-index:13; }
+
+/* Round 6: quieter watercolor scenery and legible paper controls. */
+#clicker-scene { filter:saturate(.78) contrast(.92) brightness(1.04); }
+[data-layer="far"] { opacity:.85; }
+[data-layer="grass"], [data-layer="flowers"] { filter:saturate(.85); }
+#hero-position, #tap { left:184px; }
+.hero-contact { left:258px; }
+#parasite-label { left:198px; }
+#hero-light { position:absolute; left:154px; top:39px; width:300px; height:220px; z-index:2; pointer-events:none; background:radial-gradient(ellipse, #FFF6E6cc 0%, #FFF6E600 70%); }
+#hero > svg { filter:drop-shadow(2px 0 0 #FFF6E6) drop-shadow(-2px 0 0 #FFF6E6) drop-shadow(0 2px 0 #FFF6E6) drop-shadow(0 -2px 0 #FFF6E6)!important; }
+.floater { font-size:26px; color:#FFF6E6; text-shadow:0 2px 0 #30251F; }
+#game .floater b { -webkit-text-stroke:1.2px #30251F; paint-order:stroke fill; }
+.floater img { width:22px; height:22px; }
+.package-meter { left:24px; top:308px; width:560px; height:40px; padding:6px 12px; display:grid; grid-template-columns:72px minmax(0,1fr) 150px; gap:10px; border:0; border-image:url('clicker-ui-ticket.png') 50 70 fill / 7px 12px stretch; background:transparent; clip-path:none; }
+#package-label { grid-column:1; grid-row:1; width:72px; font-size:18px; }
+#package-progress { grid-column:2; grid-row:1; width:100%; height:14px; border-radius:7px; overflow:hidden; }
+#package-number { grid-column:3; grid-row:1; width:150px; font-size:16px; line-height:22px; text-align:right; }
+#package-progress::-webkit-progress-value { background:linear-gradient(90deg,#EF8E8E,#E9B94E); }
+#slots { bottom:72px; }
+.topbar { z-index:30; }
+.audio-controls { position:relative; }
+#game #audio-toggle { width:38px; height:38px; font-size:22px; }
+#audio-panel { position:absolute; right:0; top:44px; width:160px; height:110px; padding:7px 10px; border-image:url('clicker-ui-paper.png') 88 fill / 12px stretch; cursor:default; }
+#audio-panel .audio-row { display:grid; grid-template-columns:26px 1fr; grid-template-rows:20px 26px; column-gap:4px; align-items:center; font-size:14px; }
+#game #audio-panel button { grid-row:1 / 3; min-width:0; width:26px; height:26px; padding:0; font-size:14px; }
+#audio-panel button[aria-pressed="true"] { opacity:.5; text-decoration:line-through; }
+#audio-panel input { grid-column:2; appearance:none; width:100%; height:12px; margin:0; background:url('clicker-ui-tape-0.png') center/100% 100%; cursor:pointer; }
+#audio-panel input::-webkit-slider-thumb { appearance:none; width:40px; height:40px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
+#audio-panel input::-moz-range-thumb { border:0; width:40px; height:40px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }

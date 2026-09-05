@@ -41,7 +41,7 @@ window.ClickerCutin = (() => {
       const mother = effect.source === 'zhenmu', direction = mother ? 1 : -1;
       root.style.setProperty('--skill', {rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[entry.rarity] || '#94BED0');
       root.style.setProperty('--stripe', entry.rarity === 'legendary' ? '#B8862A' : entry.rarity === 'epic' ? '#80679E' : '#5E93AA');
-      root.style.setProperty('--focus-x', mother ? '256px' : '320px'); root.dataset.phase = 'hit-stop';
+      root.style.setProperty('--focus-x', mother ? '320px' : '320px'); root.dataset.phase = 'hit-stop';
       finish = () => stage.skill(effect);
       const dim = node('cutin-dim'); motion(dim,[{opacity:0},{opacity:1}],T.hit,0,'cubic-bezier(0,0,.2,1)');
       const flash = node('cutin-flash'); if (!reduced.matches) motion(flash,[{opacity:0},{opacity:.75,offset:.4},{opacity:0}],T.flash,0,'linear');

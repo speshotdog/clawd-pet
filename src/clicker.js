@@ -10,11 +10,12 @@ window.Clicker = (() => {
   const store = window.ClickerSave.create({ getItem: (k) => localStorage.getItem(k), setItem: (k, v) => localStorage.setItem(k, v) }, { pool: Pool });
   let stage, gacha, cutin, ready = false, tickTimer = 0, saveTimer = 0, numberTimer = 0, noticeTimer = 0;
   let audio = null, lastNumbers = -Infinity, inputTimes = [], slotsKey = '', suspended = false;
+  const volumeDrafts = new Map();
   const audioScopes = new Set(), createScope = window.GachaAudio.createScope;
   // 每個 scope 的出口統一跟隨遊戲靜音；不改共用音效積木、不建立第二個 context。
   window.GachaAudio.createScope = () => {
     const scope = createScope(); audioScopes.add(scope);
-    if (scope.dry) scope.dry.gain.value = store.state?.settings.muted ? 0 : 1;
+    if (scope.dry) scope.dry.gain.value = store.state?.settings.muted ? 0 : store.state.settings.sfxVolume;
     const stop = scope.stop;
     scope.stop = (ms) => { audioScopes.delete(scope); stop(ms); };
     return scope;
@@ -33,7 +34,7 @@ window.Clicker = (() => {
   }
   function muteAudio() {
     window.ClickerMusic?.sync(store.state);
-    for (const scope of audioScopes) if (scope.dry) scope.dry.gain.value = store.state.settings.muted ? 0 : 1;
+    for (const scope of audioScopes) if (scope.dry) scope.dry.gain.value = store.state.settings.muted ? 0 : store.state.settings.sfxVolume;
     const ac = window.GachaAudio.ensure(); if (!ac) return;
     if (store.state.settings.muted || hiddenNow()) ac.suspend().catch(() => {});
     else ac.resume().catch(() => {});
@@ -49,7 +50,9 @@ window.Clicker = (() => {
     if (store.blocked && store.state && !hiddenNow()) notice(`尚未儲存：${store.error?.message || '寫入失敗'}。消費已鎖住。`);
   }
   function commit(next = store.state) {
-    const ok = store.commit(next); status(); if (!ok) { gacha?.render(); renderSlots(); } return ok;
+    const saved = volumeDrafts.size ? E.clone(next) : next;
+    for (const [key,value] of volumeDrafts) saved.settings[key] = value;
+    const ok = store.commit(saved); if (ok && volumeDrafts.size) store.stage(next); status(); if (!ok) { gacha?.render(); renderSlots(); } return ok;
   }
   function settle() {
     if (store.blocked || !store.state) return;
@@ -127,9 +130,9 @@ window.Clicker = (() => {
     $('owned-count').textContent = `${Object.keys(s.collection).length} / 12`;
     const nextSlot = B.slotThresholds[E.slotCount(s)];
     $('next-goal').textContent = s.manualClicks < 50 ? '下一目標：50 點迎接玥玥' : nextSlot ? `累計 ${format(nextSlot)} 幣開下一技能槽` : '三個技能槽全部開放';
-    $('mute').textContent = s.settings.muted ? '音效關' : '音效開'; $('mute').setAttribute('aria-pressed', String(s.settings.muted));
-    $('music').setAttribute('aria-pressed', String(s.settings.music !== false));
-    $('music').textContent = s.settings.music === false ? '♪ BGM 關' : '♪ BGM';
+    $('mute').setAttribute('aria-pressed', String(s.settings.muted));
+    $('music').setAttribute('aria-pressed', String(!s.settings.music));
+    for (const kind of ['music','sfx']) if (document.activeElement !== $(`${kind}-volume`)) $(`${kind}-volume`).value = s.settings[`${kind}Volume`];
     gacha?.render();
   }
   function renderSlots() {
@@ -298,7 +301,7 @@ window.Clicker = (() => {
   async function main() {
     for (const id of ['close', 'error-close', 'recruit-window-close']) $(id).onclick = closeWindow;
     for (const id of ['topbar', 'recruit-topbar']) $(id).onpointerdown = (e) => {
-      if (e.button === 0 && !e.target.closest('button,select,label')) TAURI?.window.getCurrentWindow().startDragging().catch(() => {});
+      if (e.button === 0 && !e.target.closest('button,select,label,input')) TAURI?.window.getCurrentWindow().startDragging().catch(() => {});
     };
     if (TAURI) {
       applyZoom(await TAURI.core.invoke('get_clicker_zoom').catch(() => 1)); fitWindow();
@@ -341,9 +344,22 @@ window.Clicker = (() => {
       if (commit(s)) { muteAudio(); changed(); }
     });
     $('music').onclick = () => action(() => {
-      const s = E.clone(store.state); s.settings.music = s.settings.music === false;
+      const s = E.clone(store.state); s.settings.music = !s.settings.music;
       if (commit(s)) changed();
     });
+    const closeAudio = () => { $('audio-panel').hidden = true; $('audio-toggle').setAttribute('aria-expanded','false'); };
+    $('audio-toggle').onclick = () => { const open = $('audio-panel').hidden; $('audio-panel').hidden = !open; $('audio-toggle').setAttribute('aria-expanded',String(open)); };
+    document.addEventListener('pointerdown', e => { if (!e.target.closest('.audio-controls')) closeAudio(); });
+    for (const kind of ['music','sfx']) {
+      const input = $(`${kind}-volume`);
+      input.oninput = () => action(() => {
+        const key = `${kind}Volume`;
+        if (!volumeDrafts.has(key)) volumeDrafts.set(key,store.state.settings[key]);
+        const s = E.clone(store.state); s.settings[key] = Number(input.value);
+        store.stage(s); muteAudio();
+      });
+      input.onchange = () => action(() => { volumeDrafts.delete(`${kind}Volume`); commit(); });
+    }
     $('retry-save').onclick = () => { if (commit()) { settle(); changed(); } };
     $('roster-open').onclick = () => showRoster();
     for (const id of ['roster', 'stats', 'receipt']) $(`${id}-close`).onclick = () => { $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
@@ -361,6 +377,7 @@ window.Clicker = (() => {
   window.addEventListener('resize', fitWindow);
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (!$('audio-panel').hidden) { $('audio-panel').hidden=true; $('audio-toggle').setAttribute('aria-expanded','false'); $('audio-toggle').focus(); e.preventDefault(); return; }
       if (cutin?.active) { e.preventDefault(); return; }
       if (!$('roster').hidden) $('roster-close').click(); else if (!$('stats').hidden) $('stats-close').click();
       else if (!$('receipt').hidden) $('receipt-close').click(); else if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();

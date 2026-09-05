@@ -7,15 +7,15 @@
       music: { theme: 'picnic', seed: 'zhenmu-backyard-1', gen: { density: 45, rhythm: 40, speed: 35, drama: 30, mood: 70, hook: 60, smooth: 65 } },
       layers: [
         { id: 'sky', src: 'clicker-scene1-sky.png', y: 0, h: 360, parallax: 0 },
-        { id: 'clouds', sprites: sprites('cloud', 3), slots: [[30,32],[260,58],[470,20]], h: 52, drift: [6,9,13], parallax: .2 },
+        { id: 'clouds', sprites: sprites('cloud', 2), slots: [[30,0],[470,4]], h: 52, drift: [6,9], parallax: .2 },
         { id: 'far', src: 'clicker-scene1-far.png', y: 130, h: 150, parallax: .35 },
         { id: 'tree', src: 'clicker-scene1-tree-trunk.png', x: 20, y: 60, h: 240, w: 120, parallax: .5,
-          canopy: sprites('canopy', 3), canopySlots: [[8,42],[62,20],[115,55]], canopyH: 100, sway: { amp: 1.6, stiff: .6 } },
+          canopy: sprites('canopy', 3), canopySlots: [[-25,49,96,118],[15,79,120,130],[67,22,88,118]], sway: { amp: 1.6, stiff: .6 } },
         { id: 'mid', src: 'clicker-scene1-mid.png', y: 200, h: 110, parallax: .55 },
         { id: 'ground', src: 'clicker-scene1-ground.png', y: 220, h: 140, parallax: .8 },
-        { id: 'flowers', sprites: sprites('flower', 5), slots: [[70,300],[150,296],[470,304],[560,298]], h: 64, sway: { amp: 5, stiff: .9 }, parallax: .9 },
-        { id: 'grass', sprites: sprites('grass', 5), slots: [[30,316],[110,322],[230,318],[420,320],[520,316],[590,322]], h: 56, sway: { amp: 7, stiff: 1.1 }, parallax: 1 },
-        { id: 'props', sprites: ['clicker-scene1-prop-0.png','clicker-scene1-prop-2.png'], slots: [[548,214],[24,190]], h: 60, parallax: .7 },
+        { id: 'flowers', sprites: sprites('flower', 5), slots: [[70,300],[470,304],[560,298]], h: 64, sway: { amp: 5, stiff: .9 }, parallax: .9 },
+        { id: 'grass', sprites: sprites('grass', 5), slots: [[45,316],[140,322],[475,316],[560,322]], h: 56, sway: { amp: 7, stiff: 1.1 }, parallax: 1 },
+        { id: 'props', sprites: ['clicker-scene1-prop-0.png'], slots: [[548,214]], h: 60, parallax: .7 },
       ],
       particles: { sprites: sprites('particle', 2), everyMs: [1500,3200], max: 6, size: [10,16], life: [5,9] },
     },
@@ -64,7 +64,13 @@
         const img = picture(el,def.sprites[j % def.sprites.length],x,y,def.h,null,def.sway,!!def.sway,!def.drift);
         if (def.drift) clouds.push({el:img,x,speed:def.drift[j]});
       });
-      def.canopy?.forEach((src,j) => picture(el,src,...def.canopySlots[j],def.canopyH,null,def.sway,true));
+      // Trunk 360?443: branch tips (42,87)/(318,30), fork (180,165).
+      // At (20,60), 120?240: tips (34,107)/(126,76), fork (80,149).
+      def.canopy?.forEach((src,j) => {
+        const leaf = picture(el,src,...def.canopySlots[j],def.sway,true);
+        leaf.style.zIndex = [1,3,2][j];
+        leaf.style.transformOrigin = `50% ${50 + 10/def.canopySlots[j][2]*100}%`;
+      });
     });
     textures = scene.particles.sprites.map(src => { const img = new Image(); img.src = src; return img; });
     document.getElementById('game').addEventListener('pointermove',move,{passive:true});
