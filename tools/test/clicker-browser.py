@@ -234,6 +234,113 @@ def round6(context):
     print('PASS: Round 6 volume preview/save/popup, real AudioParam samples, fade reversal, center, floaters, ruler, tree overlap')
 
 
+def round7(browser):
+    context = browser.new_context(viewport={'width': 1100, 'height': 760})
+    context.add_init_script('''const animate=Element.prototype.animate;
+      Element.prototype.animate=function(...args){const a=animate.apply(this,args);a.testBorn=performance.now();return a;};''')
+    context.add_init_script('''let fx; window.fxEvents=[];
+      Object.defineProperty(window,'GachaFx',{get:()=>fx,set:value=>{
+        fx=value;const create=fx.createScope;
+        fx.createScope=(...args)=>{const scope=create(...args),spawn=scope.spawn;
+          scope.spawn=p=>{fxEvents.push(p);spawn.call(scope,p)};return scope;};
+      }});''')
+    errors, missing = [], []
+    web = ROOT / 'dist-web'
+    def route(request):
+        path = (web / unquote(urlparse(request.request.url).path).lstrip('/')).resolve()
+        if path.is_relative_to(web) and path.is_file():
+            request.fulfill(body=path.read_bytes(), content_type=mimetypes.guess_type(path)[0] or 'application/octet-stream')
+        else:
+            missing.append(str(path)); request.fulfill(status=404, body='missing')
+    context.route('**/*', route)
+    page = context.new_page()
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.goto('http://clicker-web.test/index.html')
+    page.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
+    page.clock.install()
+    page.clock.pause_at(datetime.now(timezone.utc))
+    assert page.evaluate('!window.__TAURI__ && document.getElementById("close").hidden')
+    assert page.evaluate('getComputedStyle(document.body).backgroundColor') == 'rgb(201, 164, 111)'
+    page.set_viewport_size({'width': 720, 'height': 800})
+    page.clock.run_for(20)
+    assert page.locator('#game').bounding_box() == {'x': 0, 'y': 160, 'width': 720, 'height': 480}
+    page.set_viewport_size({'width': 1100, 'height': 760})
+    page.clock.run_for(20)
+    page.screenshot(path=str(OUT / 'round7-web-start.png'))
+    for _ in range(50):
+        page.locator('#tap').dispatch_event('click')
+        page.clock.run_for(130)
+    assert page.evaluate('Clicker.state.manualClicks') == 50
+    page.locator('.skill-use').first.dispatch_event('click')
+    page.clock.run_for(400)
+    page.screenshot(path=str(OUT / 'round7-web-skill.png'))
+    page.clock.run_for(1500)
+    page.clock.fast_forward(30000)
+    page.locator('#draw-one').dispatch_event('click')
+    page.clock.run_for(100)
+    page.locator('#skip').dispatch_event('click')
+    page.clock.run_for(2000)
+    page.wait_for_function('!document.getElementById("collect").hidden')
+    page.screenshot(path=str(OUT / 'round7-web-recruit.png'))
+    page.locator('#collect').dispatch_event('click')
+    page.clock.run_for(1000)
+    before = page.evaluate('({collection:Clicker.state.collection, draws:Clicker.state.paidDraws})')
+    page.reload()
+    page.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
+    assert page.evaluate('({collection:Clicker.state.collection, draws:Clicker.state.paidDraws})') == before
+    page.screenshot(path=str(OUT / 'round7-web-reload.png'))
+    ids = page.evaluate('Object.keys(ClickerBalance.characters)')
+    for ident in ids:
+        page.evaluate('''id => {
+          const s=ClickerSave.fresh(Date.now());
+          s.collection=Object.fromEntries(Object.keys(ClickerBalance.characters).map(id=>[id,1]));
+          s.lifetimeCoins=100000; s.manualClicks=50; s.claimedMilestones=['tutorial50']; s.skillSlots=[id,null,null];
+          localStorage.setItem('clicker_save',JSON.stringify(s));
+        }''', ident)
+        # Suspend before seeding to prevent beforeunload overwriting the fixture.
+        fixture = page.evaluate('localStorage.getItem("clicker_save")')
+        page.evaluate('window.dispatchEvent(new Event("beforeunload"))')
+        page.evaluate('s=>localStorage.setItem("clicker_save",s)', fixture)
+        page.reload()
+        page.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
+        old = page.evaluate('Clicker.state.coins')
+        page.locator('.skill-use').first.dispatch_event('click')
+        if ident in ['caihua', 'fox']:
+            assert page.evaluate('Clicker.state.coins') - old == (80 if ident == 'caihua' else 1875)
+            page.locator('.skill-use').first.dispatch_event('click')
+            assert page.evaluate('Clicker.state.coins') - old == (80 if ident == 'caihua' else 1875)
+        page.clock.run_for(400)
+        page.evaluate('document.getAnimations().forEach(a=>{a.pause();a.currentTime=performance.now()-a.testBorn;})')
+        assert page.locator('#cutin-actor svg').count() == 1
+        assert '冷卻' not in page.locator('#cutin-subtitle').inner_text()
+        page.screenshot(path=str(OUT / f'round7-web-cutin-{ident}-400.png'))
+        page.evaluate('document.getAnimations().forEach(a=>a.play())')
+        page.clock.run_for(300)
+        page.evaluate('document.getAnimations().forEach(a=>{a.pause();a.currentTime=performance.now()-a.testBorn;})')
+        page.screenshot(path=str(OUT / f'round7-web-cutin-{ident}-700.png'))
+        page.evaluate('document.getAnimations().forEach(a=>a.play())')
+        page.clock.run_for(600)
+        page.evaluate('fxEvents.length=0')
+        page.clock.run_for(200)
+        if ident in ['caihua', 'fox']:
+            assert page.evaluate('fxEvents.filter(p=>p.shape==="shard").length') == 12
+            assert page.evaluate('fxEvents.every(p=>p.shape==="shard")')
+            assert page.locator('.floater').count() == 1
+        if ident == 'yueyue':
+            page.clock.fast_forward(12000)
+            assert page.evaluate('Clicker.state.effects.length') == 0
+    assert page.evaluate('''() => {
+      const E=ClickerEconomy; let s=ClickerSave.fresh(1000000);
+      s.collection={lk:1,yang:1}; s.lifetimeCoins=100000; s.skillSlots=['lk','yang',null];
+      s=E.activate(s,0,s.settledAt).state; s=E.activate(s,1,s.settledAt).state;
+      const r=E.settle(s,1040000); return r.earned===660 && E.settle(r.state,1040000).earned===0;
+    }''')
+    assert not errors, errors
+    assert not missing, missing
+    context.close()
+    print('PASS round7: 12 cutins, burst, timed clicks, offline stacking, static web recruit/save/reload; no missing assets')
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     os.chdir(OUT)  # Chromium audio may emit debug.log; keep all generated files here.
@@ -241,6 +348,12 @@ def main():
     original_css = subprocess.check_output(['git', 'show', 'HEAD:src/gacha-card.css'], cwd=ROOT) + subprocess.check_output(['git', 'show', 'HEAD:src/gacha.css'], cwd=ROOT)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=['--autoplay-policy=no-user-gesture-required', '--log-file='+str(OUT / 'chromium.log')])
+        if '--round7' in __import__('sys').argv:
+            round7(browser)
+            browser.close()
+            return
+        if not any(arg in __import__('sys').argv for arg in ['--round5', '--round6']):
+            round7(browser)
         context = browser.new_context(viewport={'width': 960, 'height': 640}, device_scale_factor=1.25)
         context.add_init_script('''const animate = Element.prototype.animate; Element.prototype.animate = function(...args) {const a=animate.apply(this,args);a.testBorn=performance.now();return a;};''')
         context.add_init_script('''const seed = sessionStorage.getItem('test-seed'); if(seed) {localStorage.setItem('clicker_save',seed);sessionStorage.removeItem('test-seed');}''')

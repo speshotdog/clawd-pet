@@ -40,6 +40,9 @@
       check(def.kind && e.kind === def.kind && number(e.startedAt) && number(e.expiresAt) && e.expiresAt - e.startedAt === def.duration * 1000 && e.startedAt <= s.settledAt, '效果期限');
       check(s.cooldownUntil[e.source] === e.startedAt + def.cd * 1000, '效果冷卻');
       if (e.kind === 'click') check(e.multiplier === def.multiplier && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '次數效果');
+      else if (e.kind === 'clickTime') check(e.multiplier === def.multiplier, '時間倍率');
+      else if (e.kind === 'clickAdd') check(number(e.value) && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '點擊加法');
+      else if (['self', 'team'].includes(e.kind)) check(number(e.value), '產能快照');
       else check(known(e.target) && e.target !== e.source && s.collection[e.target] > 0 && number(e.value), '寄生快照');
     }
     check(object(s.settings) && typeof s.settings.muted === 'boolean' && B.modes.includes(s.settings.mode), '設定');

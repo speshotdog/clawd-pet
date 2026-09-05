@@ -162,8 +162,8 @@ window.Clicker = (() => {
       el.dataset.ready = String(available); el.dataset.state = !id ? 'empty' : remaining ? 'cooldown' : available ? 'ready' : 'unavailable';
       el.style.setProperty('--cooldown', `${Math.min(1,remaining / (s.slotReadyAt[i] > (s.cooldownUntil[id] || 0) ? 30 : def?.cd || 30)) * 360}deg`);
       if (available && !wasReady) pulse(button,[{transform:'scale(1)'},{transform:'scale(1.12)',offset:.5},{transform:'scale(1)'}],240);
-      const detail = i >= E.slotCount(s) ? `累積 ${format(B.slotThresholds[i])} 幣解鎖` : effect ? `${effect.kind === 'click' ? `餘 ${effect.remaining} 次` : `+${format(effect.value)}/秒`}・${Math.max(0,Math.ceil((effect.expiresAt-t)/1000))} 秒` : !def ? '點我選一位夥伴' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
-      el.querySelector('small').textContent = effect?.kind === 'click' ? `餘 ${effect.remaining} 次` : remaining ? `${remaining}s` : '';
+      const detail = i >= E.slotCount(s) ? `累積 ${format(B.slotThresholds[i])} 幣解鎖` : effect ? `${effect.remaining !== undefined ? `餘 ${effect.remaining} 次` : effect.kind === 'clickTime' ? `點擊 ×${effect.multiplier}` : `+${format(effect.value)}/秒`}・${Math.max(0,Math.ceil((effect.expiresAt-t)/1000))} 秒` : !def ? '點我選一位夥伴' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
+      el.querySelector('small').textContent = effect?.remaining !== undefined ? `餘 ${effect.remaining} 次` : remaining ? `${remaining}s` : '';
       const tip = def ? `${def.skill}\n${def.desc}${def.kind ? '' : '\n（後續開放）'}` : (i >= E.slotCount(s) ? detail : '點我選一位夥伴');
       if (button.title !== tip) button.title = tip;   // title 不隨冷卻秒數改寫，hover 提示才不會每秒閃
       button.setAttribute('aria-label',`槽 ${i+1}・${def ? def.skill + '・' : ''}${detail}`);
@@ -280,7 +280,12 @@ window.Clicker = (() => {
     offline(); window.ClickerMusic?.resume(store.state); gacha.restore(); stage.render(store.state, { instant: true }); changed(); startTimers(); muteAudio();
   }
   function applyZoom(z) { $('zoomer').style.transform = `scale(${Number.isFinite(z) && z > 0 ? z : 1})`; }
-  function fitWindow() { TAURI?.core.invoke('fit_window', { dpr: window.devicePixelRatio || 1 }).catch(() => {}); }
+  function fitWindow() {
+    if (TAURI) { TAURI.core.invoke('fit_window', { dpr: window.devicePixelRatio || 1 }).catch(() => {}); return; }
+    const z = Math.min(innerWidth / 960, innerHeight / 640); applyZoom(z);
+    $('zoomer').style.left = `${(innerWidth - 960 * z) / 2}px`;
+    $('zoomer').style.top = `${(innerHeight - 640 * z) / 2}px`;
+  }
   const card = window.GachaCard.create({ rarity: Pool.RARITY, byId: Pool.byId, canHover: () => gacha?.canHover() || false, fatal: $('fatal'), tagFor: E.tagFor });
   // 保留供共用 rig 查找的結構 id；所有 url(#id) 素材引用則在每個 SVG 實例內唯一。
   let artSerial = 0;
@@ -303,13 +308,19 @@ window.Clicker = (() => {
   card.create = (...args) => { const el = createCard(...args); el.querySelectorAll('svg').forEach(isolateArt); return el; };
   async function main() {
     for (const id of ['close', 'error-close', 'recruit-window-close']) $(id).onclick = closeWindow;
-    for (const id of ['topbar', 'recruit-topbar']) $(id).onpointerdown = (e) => {
+    if (TAURI) for (const id of ['topbar', 'recruit-topbar']) $(id).onpointerdown = (e) => {
       if (e.button === 0 && !e.target.closest('button,select,label,input')) TAURI?.window.getCurrentWindow().startDragging().catch(() => {});
     };
     if (TAURI) {
       applyZoom(await TAURI.core.invoke('get_clicker_zoom').catch(() => 1)); fitWindow();
       // Rust 每次 show_clicker_window 都會發 clicker-zoom：拿它當「視窗已重新顯示」的訊號補跑 resume
       await TAURI.window.getCurrentWindow().listen('clicker-zoom', ({ payload }) => { jlog(`clicker-zoom ${payload}`); applyZoom(payload); fitWindow(); visible = true; resume(); });
+    }
+    if (!TAURI) {
+      document.body.style.background = '#C9A46F';
+      for (const id of ['close', 'error-close', 'recruit-window-close']) $(id).hidden = true;
+      for (const id of ['topbar', 'recruit-topbar']) $(id).style.cursor = 'default';
+      fitWindow();
     }
     if (!store.state) {
       $('game-content').inert = true; $('save-error').hidden = false; $('save-error-text').textContent = store.error.message;
@@ -377,6 +388,7 @@ window.Clicker = (() => {
   document.addEventListener('visibilitychange', () => { jlog(`visibilitychange hidden=${document.hidden}`); visible = !document.hidden; if (!visible) suspend(); else resume(); });
   window.addEventListener('focus', () => { visible = true; resume(); });
   window.addEventListener('pagehide', suspend);
+  if (!TAURI) window.addEventListener('beforeunload', suspend);
   window.addEventListener('resize', fitWindow);
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {

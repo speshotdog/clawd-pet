@@ -10,6 +10,30 @@ window.ClickerCutin = (() => {
     exitSmear:1040, exit:1080, slideOut:210, exitFlash:1120, barsOut:160,
     unfreeze:1250, punch:150, dimOut:1220, fadeOut:180, end:1400, shake:60 });
   const EASE = { in:'cubic-bezier(.05,.7,.1,1)', settle:'cubic-bezier(.17,.89,.32,1.28)', out:'cubic-bezier(.3,0,.8,.15)', emph:'cubic-bezier(.2,0,0,1)', punch:'cubic-bezier(.34,1.4,.64,1)' };
+  const CUTIN = {};
+  const rigs = {
+    yueyue2: (p, limb, body, c) => limb('tail', 22 * Math.sin(p * Math.PI * 4)),
+    caihua: (p, limb) => limb('tail', p < .75 ? -28 + 56 * p / .75 : 28 * (1 - p) / .25),
+    lk: (p, limb, body) => { limb('legL', 10 * Math.sin(p * Math.PI * 2)); limb('legR', -10 * Math.sin(p * Math.PI * 2)); body(`scaleY(${1 - .04 * Math.sin(p * Math.PI)})`); },
+    yang: (p, limb, body, c) => limb('pawR', (c.up ?? -1) * 18 * Math.sin(p * Math.PI)),
+    dog: (p, limb, body, c) => { limb('pawR', (c.up ?? -1) * 20 * Math.sin(p * Math.PI)); body(`translateX(${6 * Math.sin(p * Math.PI)}px)`); },
+    fox: (p, limb) => { limb('pawR', -18 * Math.sin(p * Math.PI)); limb('tail', 6 * Math.sin(p * Math.PI * 2)); },
+    jiaobu2: (p, limb) => limb('pawR', 26 * (p < .2 ? p / .2 : (1 - p) / .8)),
+    zhenzhen2: (p, limb, body) => body(`scale(${1 + .06 * Math.sin(p * Math.PI)},${1 - .1 * Math.sin(p * Math.PI)})`),
+    zhenmu: (p, limb) => { limb('legL', -13 * Math.sin(p * Math.PI)); limb('legR', 13 * Math.sin(p * Math.PI)); },
+    jiaobu: (p, limb) => limb('pawR', 24 * Math.sin(p * Math.PI)),
+    yueyue: (p, limb, body, c) => { limb('pawR', (c.up ?? 1) * 20 * Math.sin(p * Math.PI)); limb('tail', 5 * Math.sin(p * Math.PI * 2)); },
+    zhenzhen: (p, limb, body) => body(`scale(${1 + .08 * Math.sin(p * Math.PI)},${1 - .08 * Math.sin(p * Math.PI)})`),
+  };
+  const stamps = { caihua:'拆！', fox:'收！', yang:'+20%', zhenzhen:'+50%', dog:'聞！', zhenmu:'發動' };
+  for (const [id, def] of Object.entries(window.ClickerBalance.characters)) {
+    const rarity = window.GachaPool.byId[id].rarity;
+    CUTIN[id] = { side:id === 'zhenmu' ? 'right' : 'left',
+      color:{rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[rarity],
+      stripe:{rare:'#5E93AA',epic:'#80679E',legendary:'#B8862A'}[rarity], rig:rigs[id],
+      name:def.skill.length >= 6 ? def.skill.slice(0, Math.floor(def.skill.length / 2)) + '\n' + def.skill.slice(Math.floor(def.skill.length / 2)) : def.skill,
+      sub:() => def.desc.split('・冷卻')[0], stamp:effect => stamps[id] || `×${effect.multiplier || def.multiplier}` };
+  }
   const ready = Promise.all(['speedlines','speedlines-h','stripe-tile','brush-banner','impact-burst','halftone-tile','ink-splash','ring','stamp','paper-grain'].map(name => new Promise(resolve => {
     const img = new Image(); img.onload = () => img.decode().catch(()=>{}).then(resolve); img.onerror = resolve; img.src = `clicker-fx-${name}.png`;
   })));
@@ -37,10 +61,10 @@ window.ClickerCutin = (() => {
     function play(effect) {
       if (active) return;
       active = true; stage.freeze(true); sound('skill');
-      const entry = window.GachaPool.byId[effect.source], def = window.ClickerBalance.characters[effect.source];
-      const mother = effect.source === 'zhenmu', direction = mother ? 1 : -1;
-      root.style.setProperty('--skill', {rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[entry.rarity] || '#94BED0');
-      root.style.setProperty('--stripe', entry.rarity === 'legendary' ? '#B8862A' : entry.rarity === 'epic' ? '#80679E' : '#5E93AA');
+      const entry = window.GachaPool.byId[effect.source];
+      const spec = CUTIN[effect.source], mother = spec.side === 'right', direction = mother ? 1 : -1;
+      root.style.setProperty('--skill', spec.color);
+      root.style.setProperty('--stripe', spec.stripe);
       root.style.setProperty('--focus-x', mother ? '320px' : '320px'); root.dataset.phase = 'hit-stop';
       finish = () => stage.skill(effect);
       const dim = node('cutin-dim'); motion(dim,[{opacity:0},{opacity:1}],T.hit,0,'cubic-bezier(0,0,.2,1)');
@@ -62,9 +86,9 @@ window.ClickerCutin = (() => {
       const ink = masked('cutin-ink','ink-splash',panel);
       const actor = node('cutin-actor',panel), svg = card.art.create(entry); actor.append(svg);
       const banner = masked('cutin-banner','brush-banner',panel);
-      const name = node('cutin-name',panel); name.textContent = mother ? '這個頭\n我收下了' : def.skill;
-      const subtitle = node('cutin-subtitle',panel); subtitle.textContent = `${entry.name}・${effect.kind === 'click' ? `接下來 ${effect.remaining} 次點擊 ×${effect.multiplier}` : '借一個頭，幫你加速拆包'}`;
-      const stamp = node('cutin-stamp',panel); stamp.textContent = effect.kind === 'click' ? `×${effect.multiplier}` : '發動';
+      const name = node('cutin-name',panel); name.textContent = spec.name;
+      const subtitle = node('cutin-subtitle',panel); subtitle.textContent = spec.sub(effect);
+      const stamp = node('cutin-stamp',panel); stamp.textContent = spec.stamp(effect);
       if (reduced.matches) {
         motion(panel,[{opacity:0},{opacity:1}],T.arrive,T.panel);
         ink.hidden = banner.hidden = stamp.hidden = true;
@@ -79,12 +103,10 @@ window.ClickerCutin = (() => {
         motion(impact,[{opacity:0,transform:'scale(.4)'},{opacity:1,transform:'scale(1.15)',offset:T.impact/(T.impact+T.impactOut)},{opacity:0,transform:'scale(1.15)'}],T.impact+T.impactOut,T.panel+T.arrive);
         later(()=>{
           const cfg = card.art.cfg(entry.id), start = performance.now();
-          function setLimb(key, angle) { const el = svg.querySelector(`#${key}`), pivot = cfg[key]; if (el && pivot) el.setAttribute('transform',`rotate(${angle} ${pivot[0]} ${pivot[1]})`); }
+          function setLimb(key, angle) { const el = svg.querySelector(`#${key}`), pivot = cfg[key]; if (el && pivot) el.setAttribute('transform',`rotate(${angle * (key === 'tail' ? cfg.tailScale ?? cfg.limbScale ?? 1 : key === 'pawR' ? cfg.pawScale ?? cfg.limbScale ?? 1 : cfg.limbScale ?? 1)} ${pivot[0]} ${pivot[1]})`); }
           function rig(now) {
-            const elapsed = Math.min(T.rig,now-start), swing = Math.sin(elapsed/T.rig*Math.PI);
-            if (mother) { setLimb('legL',-13*(cfg.limbScale||1)*swing); setLimb('legR',13*(cfg.limbScale||1)*swing); }
-            else if (entry.id === 'jiaobu') setLimb('pawR',24*(cfg.pawScale||1)*swing);
-            else setLimb('tail',22*(cfg.tailScale||1)*swing);
+            const elapsed = Math.min(T.rig,now-start);
+            spec.rig(elapsed / T.rig, setLimb, transform => { svg.style.transformOrigin = '50% 100%'; svg.style.transform = `skewX(6deg) ${transform}`; }, cfg);
             const shut = elapsed >= T.blink && elapsed < T.blink+T.blinkHold;
             const open = svg.querySelector('#eyes-open'), closed = svg.querySelector('#eyes-closed');
             if (open) open.style.display = shut ? 'none' : ''; if (closed) closed.style.display = shut ? '' : 'none';
@@ -129,5 +151,5 @@ window.ClickerCutin = (() => {
     }
     return { play, stop, get active() { return active; } };
   }
-  return { create, T, ready };
+  return { create, T, ready, CUTIN };
 })();

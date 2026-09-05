@@ -41,21 +41,21 @@
     const s = clone(state), elapsed = Math.max(0, now - s.settledAt), duration = Math.min(elapsed, B.offlineMs);
     const start = s.settledAt, end = start + duration;
     let earned = rates(s).P * duration / 1000;
-    for (const effect of s.effects) if (effect.kind === 'passive') {
+    for (const effect of s.effects) if (['passive', 'self', 'team'].includes(effect.kind)) {
       earned += effect.value * Math.max(0, Math.min(end, effect.expiresAt) - Math.max(start, effect.startedAt)) / 1000;
     }
     const completed = grant(s, earned);
     s.settledAt = Math.max(s.settledAt, now);
-    s.effects = s.effects.filter((e) => e.expiresAt > s.settledAt && (e.kind !== 'click' || e.remaining > 0));
+    s.effects = s.effects.filter((e) => e.expiresAt > s.settledAt && (e.remaining === undefined || e.remaining > 0));
     return { state: s, earned, completed, elapsed, duration };
   }
   function click(state, now) {
     const result = settle(state, now), s = result.state;
-    const multiplier = Math.max(1, ...s.effects.filter((e) => e.kind === 'click').map((e) => e.multiplier));
-    const amount = rates(s).D * multiplier;
+    const multiplier = Math.max(1, ...s.effects.filter((e) => ['click', 'clickTime'].includes(e.kind)).map((e) => e.multiplier));
+    const amount = rates(s).D * multiplier + s.effects.filter(e => e.kind === 'clickAdd').reduce((sum, e) => sum + e.value, 0);
     result.completed += grant(s, amount); s.manualClicks++;
-    for (const effect of s.effects) if (effect.kind === 'click') effect.remaining--;
-    s.effects = s.effects.filter((e) => e.kind !== 'click' || e.remaining > 0);
+    for (const effect of s.effects) if (effect.remaining !== undefined) effect.remaining--;
+    s.effects = s.effects.filter((e) => e.remaining === undefined || e.remaining > 0);
     const tutorial = s.manualClicks >= 50 && !s.claimedMilestones.includes('tutorial50');
     if (tutorial) {
       s.collection.yueyue2 = (s.collection.yueyue2 || 0) + 1;
@@ -89,15 +89,21 @@
     const s = settle(state, now).state, id = s.skillSlots[slot], def = B.characters[id], t = s.settledAt;
     if (s.pending || slot >= slotCount(s) || !s.collection[id] || !def?.kind) throw new Error('技能尚未開放');
     if ((s.cooldownUntil[id] || 0) > t || s.slotReadyAt[slot] > t) throw new Error('技能冷卻中');
-    const effect = { source: id, kind: def.kind, startedAt: t, expiresAt: t + def.duration * 1000 };
+    const effect = { source: id, kind: def.kind, startedAt: t, expiresAt: t + (def.duration || 0) * 1000 };
     if (def.kind === 'click') Object.assign(effect, { multiplier: def.multiplier, remaining: def.charges });
+    else if (def.kind === 'clickTime') effect.multiplier = def.multiplier;
+    else if (def.kind === 'self') effect.value = individual(s, id) * (def.multiplier - 1);
+    else if (def.kind === 'team') effect.value = rates(s).P * def.ratio;
+    else if (def.kind === 'clickAdd') Object.assign(effect, { value: rates(s).P * def.ratio, remaining: def.charges });
+    else if (def.kind === 'burst') effect.value = def.factor * (def.basis === 'individual' ? individual(s, id) : rates(s).P);
     else {
       const targets = Object.keys(s.collection).filter((key) => key !== id && s.collection[key] > 0).sort((a, b) => individual(s, b) - individual(s, a));
       if (!targets.length) throw new Error('需要另一位夥伴');
       effect.target = targets[0]; effect.value = individual(s, effect.target);
     }
-    s.effects.push(effect); s.cooldownUntil[id] = t + def.cd * 1000;
-    return { state: s, effect };
+    const completed = def.kind === 'burst' ? grant(s, effect.value) : 0;
+    if (def.kind !== 'burst') s.effects.push(effect); s.cooldownUntil[id] = t + def.cd * 1000;
+    return { state: s, effect, completed };
   }
   function purchaseDraw(state, count, now, pool, options = {}) {
     const s = settle(state, now).state;

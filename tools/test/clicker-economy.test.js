@@ -9,6 +9,57 @@ const fresh = () => S.fresh(1000000);
 const money = (coins = 1e6) => ({ ...fresh(), coins, lifetimeCoins: coins });
 const opts = { id: 'draw-1', visualSeed: 12, rng: () => .9 };
 
+for (const id of ['caihua', 'fox', 'lk', 'zhenzhen2', 'yang', 'zhenzhen', 'dog', 'jiaobu2', 'yueyue']) {
+  test(`round7 ${id}: snapshot, expiry, cooldown and save roundtrip`, () => {
+    const s = money(); s.collection = Object.fromEntries(Object.keys(B.characters).map(id => [id, 4]));
+    s.trainingLevel = 2; s.skillSlots[0] = id;
+    const t = s.settledAt, def = B.characters[id], { P, D } = E.rates(s), pi = E.individual(s, id);
+    const r = E.activate(s, 0, t), a = r.state;
+    assert.throws(() => E.activate(a, 0, t), /冷卻/);
+    S.validate(JSON.parse(JSON.stringify(a)), Pool);
+    if (def.kind === 'burst') {
+      const expected = id === 'caihua' ? 20 * pi : 15 * P;
+      close(a.coins - s.coins, expected); close(a.lifetimeCoins - s.lifetimeCoins, expected);
+      assert.deepEqual(a.package, E.advancePackage(s.package, expected).package);
+      assert.equal(a.manualClicks, s.manualClicks); assert.equal(a.effects.length, 0);
+    } else if (['self', 'team'].includes(def.kind)) {
+      const extra = def.kind === 'self' ? pi * (def.multiplier - 1) : P * def.ratio;
+      close(r.effect.value, extra);
+      a.trainingLevel++; // the existing effect keeps the original snapshot
+      const first = E.settle(a, t + 7000), end = t + 40000;
+      const last = E.settle(first.state, end), all = E.settle(a, end);
+      close(all.earned, E.rates(a).P * 40 + extra * def.duration);
+      close(first.earned + last.earned, all.earned);
+      assert.equal(E.settle(all.state, end).earned, 0); assert.equal(all.state.effects.length, 0);
+    } else {
+      close(E.click(a, t).amount, def.kind === 'clickAdd' ? D + .5 * P : D * def.multiplier);
+      close(E.click(a, t + def.duration * 1000).amount, D);
+      let used = a;
+      for (let i = 0; i < (def.charges || 50); i++) used = E.click(used, t).state;
+      assert.equal(used.effects.length, def.kind === 'clickTime' ? 1 : 0);
+    }
+  });
+}
+
+test('round7 click multiplier max then fixed add; all charge effects consume together', () => {
+  let s = money(); s.collection = { dog: 1, jiaobu2: 1, yueyue: 1 };
+  s.skillSlots = ['dog', 'jiaobu2', 'yueyue'];
+  for (let i = 0; i < 3; i++) s = E.activate(s, i, s.settledAt).state;
+  const r = E.click(s, s.settledAt);
+  close(r.amount, E.rates(s).D * 4 + E.rates(s).P * .5);
+  assert.deepEqual(r.state.effects.map(e => e.remaining), [19, 4, undefined]);
+});
+
+test('round7 self + team + parasite integrate only remaining offline intervals', () => {
+  let s = money(); s.collection = { lk: 1, yang: 1, zhenmu: 1 };
+  s.skillSlots = ['lk', 'yang', 'zhenmu']; const t = s.settledAt;
+  for (let i = 0; i < 3; i++) s = E.activate(s, i, t).state;
+  s = E.settle(s, t + 10000).state;
+  const r = E.settle(s, t + 40000);
+  close(r.earned, 26 * 30 + 10 * 10 + 5.2 * 20 + 5 * 10);
+  assert.equal(E.settle(r.state, t + 40000).earned, 0);
+});
+
 test('手勁費用 L=0/5/10/20/30 及訓練費用依公式逐級向上取整', () => {
   assert.deepEqual([0, 5, 10, 20, 30].map(E.clickCost), [10, 38, 138, 1901, 26200]);
   assert.deepEqual([0, 1, 2, 5, 10].map(E.trainingCost), [1000, 1600, 2561, 10486, 109952]);

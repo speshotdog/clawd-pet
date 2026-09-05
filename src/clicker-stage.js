@@ -146,9 +146,9 @@ window.ClickerStage = (() => {
     }
     // 撕口錨點（全畫面座標）。碎紙要看得見：夠大、噴得高、有翻面暗色，落回時已在桌墊上
     const IMPACT = { x: 485, y: 240 };
-    function burst(count, heavy = false, chain = false, point = IMPACT) {
+    function burst(count, heavy = false, chain = false, point = IMPACT, paperOnly = false) {
       if (!fx) return;
-      const rand = (a,b) => a + Math.random() * (b-a), sparks = count <= 6 ? 0 : 2;
+      const rand = (a,b) => a + Math.random() * (b-a), sparks = paperOnly || count <= 6 ? 0 : 2;
       const k = chain ? 1.15 : 1;
       for (let i = 0; i < count; i++) {
         const spark = i >= count - sparks;
@@ -231,6 +231,7 @@ window.ClickerStage = (() => {
       }
     }
     function skill(effect) {
+      if (effect.kind === 'burst') { float(effect.value, true, IMPACT); impact(); burst(12, false, false, IMPACT, true); }
       const label = $('effect-label'); label.hidden = false;
       label.textContent = window.ClickerBalance.characters[effect.source].skill;
       motion(label,[{transform:'translateY(8px) scale(.8)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],180);
