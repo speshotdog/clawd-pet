@@ -532,6 +532,168 @@ def round9(browser):
     context.close();print('PASS round9 browser')
 
 
+def round11(browser):
+    """第十一輪：三連包掃三下、輸送帶剩 5 秒抖動與漏包、禮包升起／落地／拆完／過期、三場景靜態圖與票券選單。"""
+    import time
+    context = browser.new_context(viewport={'width': 960, 'height': 640})
+    context.add_init_script('''let fx; window.r11fx=[];
+      Object.defineProperty(window,'GachaFx',{get:()=>fx,set:value=>{
+        fx=value;const create=fx.createScope;
+        fx.createScope=(...args)=>{const scope=create(...args),spawn=scope.spawn;
+          scope.spawn=p=>{r11fx.push({...p});spawn.call(scope,p)};return scope;};
+      }});
+      const animate=Element.prototype.animate;
+      Element.prototype.animate=function(...args){const a=animate.apply(this,args);a.testBorn=performance.now();return a;};''')
+    missing, errors = set(), []
+    def route(request):
+        name = unquote(urlparse(request.request.url).path).lstrip('/')
+        path = (SRC / name).resolve()
+        if path.is_relative_to(SRC) and path.is_file():
+            request.fulfill(body=path.read_bytes(), content_type=mimetypes.guess_type(path)[0] or 'application/octet-stream')
+        else:
+            missing.add(name); request.fulfill(status=404, body='missing')
+    context.route('**/*', route)
+    page = context.new_page()
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.clock.install()
+    page.goto('http://clicker.test/clicker.html')
+    page.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
+    page.clock.pause_at(datetime.fromtimestamp((page.evaluate('Date.now()') + 1000) / 1000, timezone.utc))
+    def advance(ms):
+        for _ in range(ms // 20):
+            page.clock.run_for(20)
+            page.evaluate('for(const a of document.getAnimations()) if(a.testBorn!==undefined && a.playState!=="paused") a.currentTime=performance.now()-a.testBorn')
+        if ms % 20:
+            page.clock.run_for(ms % 20)
+    def shot(name):
+        page.screenshot(path=str(OUT / f'round11-{name}.png'))
+    def images_ready():
+        for _ in range(100):
+            if page.evaluate("[...document.querySelectorAll('#clicker-scene img,#triple img,#bag img,#belt img,#gift-bag,#gift-boss')].every(i=>i.complete)"):
+                return
+            time.sleep(.05); page.clock.run_for(20)
+        raise AssertionError('scene images did not load')
+    def go(scene):
+        # 真實路徑：場景票券選單 → switchScene → mount
+        # 沒有夥伴（被動 0／秒）：三連包「只推指向的子包」與禮包「不進拆包進度」才能用等號斷言
+        page.evaluate('''() => {const s=Clicker.state;s.bossWins=['backyard','kitchen','market','factory'];}''')
+        page.locator('#scene-open').dispatch_event('click'); advance(100)
+        page.locator(f'.scene-ticket[data-scene="{scene}"]').dispatch_event('click'); advance(500)
+        assert page.evaluate('Clicker.state.settings.scene') == scene and page.evaluate('ClickerScene.current') == page.evaluate(f'ClickerScenes.{scene}')
+        images_ready(); advance(700)
+    advance(1100)
+    # 票券選單：六張票，未解鎖文字用該場景王的名字
+    page.evaluate("Clicker.state.bossWins=['backyard','kitchen']")
+    page.locator('#scene-open').dispatch_event('click'); advance(200); shot('tickets')
+    assert page.locator('.scene-ticket').count() == 6
+    assert '大三連包' in page.locator('.scene-ticket[data-scene="factory"]').inner_text() and '大輸送箱' in page.locator('.scene-ticket[data-scene="nightmarket"]').inner_text()
+    assert not page.locator('.scene-ticket[data-scene="market"]').is_disabled() and page.locator('.scene-ticket[data-scene="factory"]').is_disabled()
+    page.locator('#scenes-close').dispatch_event('click'); advance(100)
+
+    # ── 便利商店三連包 ──
+    go('market'); shot('market')
+    assert page.evaluate('document.getElementById("stage").dataset.enemy') == 'triple'
+    assert page.locator('#triple').is_visible() and page.locator('#bag').is_hidden() and page.locator('.sub-hot:not([hidden])').count() == 3 and page.locator('#belt').is_hidden()
+    assert page.evaluate("[...document.querySelectorAll('.sub-hot')].every(e=>getComputedStyle(e).pointerEvents==='auto') && getComputedStyle(document.getElementById('triple')).pointerEvents==='none'")
+    layers = page.evaluate("[...document.querySelectorAll('.scene-layer')].map(e=>e.dataset.layer)")
+    assert layers == ['sky', 'far', 'mid', 'ground', 'props', 'tags'], layers
+    assert page.evaluate("(()=>{const r=document.querySelector('[data-layer=far] img').getBoundingClientRect();return Math.round(r.width)===260 && Math.round(r.height)===150;})()")
+    assert page.evaluate("document.querySelectorAll('[data-layer=tags] img').length===2 && document.querySelector('[data-layer=tags] img').style.transformOrigin==='50% 0px'")
+    # 真實座標點擊：落在第一包（舞台 x 380 → 畫面 396）而不是珍母熱區
+    page.mouse.click(396, 318); advance(60)
+    assert page.evaluate('Clicker.state.sweep.last') == 0 and page.evaluate('(s=>s[0].progress>s[1].progress && Math.abs(s[1].progress-s[2].progress)<1e-6)(Clicker.state.package.sub)'), '點擊只推第一包，被動平均分給其餘'
+    page.mouse.click(458, 318); advance(60)
+    page.evaluate('r11fx.length=0')
+    page.mouse.click(520, 318); advance(40)
+    assert page.evaluate('Clicker.state.sweep.count') == 3 and page.evaluate('Clicker.state.sweep.last') == 2
+    assert page.locator('.floater .sweep-stamp').count() == 1 and page.locator('.floater .sweep-stamp').last.inner_text() == '掃！'
+    assert page.evaluate("r11fx.every(p=>Math.abs(p.x-520)<=12)"), '第三包的粒子要噴在第三包上'
+    shot('market-sweep')
+    # 點珍母：平均分配、掃過去重算
+    page.locator('#tap').dispatch_event('click'); advance(60)
+    assert page.evaluate('Clicker.state.sweep.count') == 0 and page.evaluate('Clicker.state.package.sub.every(x=>x.progress>0)')
+    # 單包拆完先爆開留在原地，三個都完成整組滑出
+    page.evaluate('''() => {const s=Clicker.state,need=ClickerEconomy.subNeed(s.package.index,'market');s.package.sub=[{progress:need-1},{progress:0},{progress:0}];s.package.progress=need-1;}''')
+    page.locator('.sub-hot[data-sub="0"]').dispatch_event('click'); advance(60)
+    assert page.locator('.sub-pack[data-sub="0"]').get_attribute('src') == 'clicker-pack3-4.png' and page.locator('.sub-pack[data-sub="1"]').get_attribute('src') == 'clicker-pack3-0.png'
+    assert page.evaluate('Clicker.state.package.index') == 1
+    shot('market-sub-torn')
+    page.evaluate('''() => {const s=Clicker.state,need=ClickerEconomy.subNeed(s.package.index,'market');s.package.sub=[{progress:need},{progress:need-1},{progress:need-1}];s.package.progress=3*need-2;}''')
+    page.locator('.sub-hot[data-sub="1"]').dispatch_event('click'); advance(30)
+    assert page.evaluate('Clicker.state.package.index') == 2
+    shot('market-group-complete'); advance(400)
+    assert page.evaluate("[...document.querySelectorAll('.sub-pack')].every(e=>e.getAttribute('src')==='clicker-pack3-0.png')")
+    # 市場王：換成大三連包的圖
+    page.evaluate('''() => {const s=Clicker.state;s.package=ClickerEconomy.newPackage('market',601);s.bossWins=['backyard','kitchen'];s.bossCooldownUntil=0;}''')
+    advance(1100); assert page.locator('#boss-challenge').is_visible() and '大三連包' in page.locator('#boss-challenge').inner_text()
+    page.locator('#boss-challenge').dispatch_event('click'); advance(700); shot('market-boss')
+    assert page.evaluate('!!Clicker.state.boss') and page.locator('#boss-image').get_attribute('src') == 'clicker-boss3-pack.png'
+    assert page.locator('.sub-hot:not([hidden])').count() == 0
+    page.evaluate('Clicker.state.boss.dealt=0'); page.clock.fast_forward(31000); advance(1400); assert page.evaluate('!Clicker.state.boss')
+
+    # ── 零食工廠輸送帶 ──
+    go('factory'); shot('factory')
+    assert page.evaluate('document.getElementById("stage").dataset.enemy') == 'timer' and page.locator('#belt').is_visible() and page.locator('#bag').is_visible()
+    assert page.evaluate("[...document.querySelectorAll('.scene-layer')].map(e=>e.dataset.layer)") == ['sky', 'far', 'gears', 'smoke', 'mid', 'ground', 'props']
+    assert page.evaluate('Clicker.state.package.deadline > Date.now()')
+    before = page.evaluate("document.getElementById('belt-track').style.backgroundPositionX")
+    advance(500)
+    assert page.evaluate("document.getElementById('belt-track').style.backgroundPositionX") != before, '帶面要捲動'
+    assert page.evaluate("(()=>{const a=document.querySelector('[data-layer=gears] img').style.transform;return /rotate\\(-?\\d/.test(a);})()")
+    page.evaluate('Clicker.state.package.deadline=Date.now()+4800'); advance(400)
+    assert page.locator('#bag.shiver').count() == 1 and page.locator('#belt-lamp.warn').count() == 1 and page.locator('#belt-timer').inner_text() == '5s'
+    shot('factory-shiver')
+    page.evaluate('r11fx.length=0'); coins = page.evaluate('Clicker.state.coins'); index = page.evaluate('Clicker.state.package.index')
+    advance(4600)
+    assert page.evaluate('Clicker.state.missed') == 1 and page.evaluate('Clicker.state.package.index') == index and page.evaluate('Clicker.state.package.progress') < 1e-6 * 20
+    assert page.evaluate('Clicker.state.coins') >= coins
+    assert page.locator('.floater.miss').count() == 1 and page.locator('.floater.miss').inner_text() == '漏了！'
+    shot('factory-miss')
+    advance(700); shot('factory-next-enter'); advance(600)
+    assert page.locator('#bag.shiver').count() == 0 and page.evaluate('Clicker.state.package.deadline - Date.now() > 14000')
+    page.locator('#stats-open').dispatch_event('click'); assert '漏掉 1 包' in page.locator('#stats-body').inner_text(); page.locator('#stats-close').dispatch_event('click')
+
+    # ── 夜市限時大禮包 ──
+    go('nightmarket'); shot('nightmarket')
+    assert page.evaluate('document.getElementById("stage").dataset.enemy') == 'gift' and page.evaluate('Clicker.state.nextGiftAt > Date.now()')
+    assert page.evaluate("[...document.querySelectorAll('.scene-layer')].map(e=>e.dataset.layer)") == ['sky', 'far', 'moths', 'mid', 'ground', 'props', 'lanterns']
+    # 排程到期後由 1Hz 的結算撿起；等它生出禮包再量演出時間軸（升起 300ms → 拋物線 500ms → 落地）
+    page.evaluate('Clicker.state.nextGiftAt=Date.now()-1')
+    for _ in range(60):
+        advance(20)
+        if page.evaluate('!!Clicker.state.gift'): break
+    assert page.evaluate('!!Clicker.state.gift') and page.evaluate('Clicker.state.gift.need===4*ClickerEconomy.requirement(Clicker.state.package.index,"nightmarket")')
+    advance(160); shot('gift-rise')
+    assert page.locator('#gift-clip').is_visible() and page.locator('#gift-hot').is_hidden()
+    advance(400); shot('gift-throw')
+    advance(300)
+    assert page.locator('#gift-hot').is_visible() and page.locator('#gift-timer').is_visible(), '落地後才開熱區與倒數'
+    shot('gift-land')
+    page.evaluate('r11fx.length=0'); progress = page.evaluate('Clicker.state.package.progress')
+    page.mouse.click(96, 249); advance(60)
+    assert page.evaluate('Clicker.state.gift.dealt>0') and page.evaluate('Clicker.state.package.progress') == progress, '打禮包不進拆包進度'
+    assert page.evaluate("r11fx.every(p=>Math.abs(p.x-96)<=12)")
+    shot('gift-hit')
+    page.evaluate('Clicker.state.gift.dealt=Clicker.state.gift.need-1; r11fx.length=0'); coins = page.evaluate('Clicker.state.coins')
+    page.locator('#gift-hot').dispatch_event('click'); advance(120); shot('gift-win')
+    assert page.evaluate('Clicker.state.gift===null && Clicker.state.giftResult.won')
+    assert page.evaluate('Clicker.state.coins') - coins > page.evaluate('Clicker.state.giftResult.bonus') - 1e-6
+    assert page.evaluate('r11fx.filter(p=>p.sprite===8).length') >= 30, '彩帶 30 片'
+    assert page.evaluate('JSON.parse(localStorage.clicker_save).giftResult.won'), '禮包結果要即時存檔'
+    advance(600); assert page.locator('#gift-clip').is_hidden() and page.locator('#gift-hot').is_hidden()
+    page.evaluate('Clicker.state.nextGiftAt=Date.now()-1'); advance(1000); advance(900)
+    assert page.locator('#gift-hot').is_visible()
+    page.evaluate('Clicker.state.gift.endsAt=Date.now()+300'); coins = page.evaluate('Clicker.state.coins')
+    advance(1200)
+    assert page.evaluate('Clicker.state.gift===null && !Clicker.state.giftResult.won') and page.evaluate('Clicker.state.coins') >= coins
+    advance(120); shot('gift-expire'); advance(400)
+    assert page.locator('#gift-bag').is_hidden() and page.locator('#gift-hot').is_hidden()
+    (OUT / 'round11-results.json').write_text(json.dumps({'missingAssets': sorted(missing), 'errors': errors}, ensure_ascii=False, indent=2), encoding='utf8')
+    assert not errors, errors
+    context.close()
+    print('PASS round11: tickets, market triple sweep/pop/group/boss, factory belt shiver/miss/enter/stats, nightmarket gift rise/throw/land/hit/win/expire; missing assets recorded')
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     os.chdir(OUT)  # Chromium audio may emit debug.log; keep all generated files here.
@@ -539,6 +701,10 @@ def main():
     original_css = subprocess.check_output(['git', 'show', 'HEAD:src/gacha-card.css'], cwd=ROOT) + subprocess.check_output(['git', 'show', 'HEAD:src/gacha.css'], cwd=ROOT)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=['--autoplay-policy=no-user-gesture-required', '--log-file='+str(OUT / 'chromium.log')])
+        if '--round11' in __import__('sys').argv:
+            round11(browser)
+            browser.close()
+            return
         if '--round9' in __import__('sys').argv:
             round9(browser)
             browser.close()

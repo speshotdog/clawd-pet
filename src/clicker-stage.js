@@ -1,5 +1,5 @@
 window.ClickerStage = (() => {
-  function create({ card, sound, format, showRoster, notice }) {
+  function create({ card, sound, format, showRoster, notice, tick }) {
     const $ = (id) => document.getElementById(id), E = window.ClickerEconomy;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const hero = card.art.create(window.GachaPool.byId.zhenmu), cfg = card.art.cfg('zhenmu');
@@ -11,6 +11,14 @@ window.ClickerStage = (() => {
     let fx = null, page = 0, teamState = null, teamKey = '', clickChain = 0, fxClickAt = -Infinity, joining = false;
     let soundTimes = [];
     let bossKey=null, resultKey=null, bossBusy=false, bossEntering=false, heartbeat=-1, shellTarget=null, struckRing=null;
+    // 第十一輪：三連包子包狀態、輸送帶、夜市禮包的演出狀態
+    let subStates=[0,0,0], tripleBusy=false, lastMissed=null, beltTime=0, beltWarned=false, beltTicked=null;
+    let giftKey=null, giftResultKey=null, giftLanded=false;
+    // 舞台原點在全畫面 (16,72)：三個子包各 100×120 並排在舞台 x 330／392／454（中心 380／442／504），禮包落在舞台 (80,177)（技能槽上方）
+    const SUB_CENTER = i => ({ x: 396 + 62*i, y: 318 });
+    const GIFT_POINT = { x: 96, y: 249 };
+    const enemyOf = s => E.tripleFor(s.settings.scene) ? 'triple' : E.timerFor(s.settings.scene) ? 'timer' : E.giftFor(s.settings.scene) ? 'gift' : '';
+    const packEl = s => E.tripleFor((s || latestState).settings.scene) ? $('triple') : $('bag');
     const timers = new Set(), animations = new Set();
 
     const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); if (frozen) later(fn, 32); else fn(); }, ms); timers.add(id); return id; };
@@ -42,8 +50,9 @@ window.ClickerStage = (() => {
       const budget = 33;
       if (frozen || now - lastFrame < budget) return;
       lastFrame = now - (now - lastFrame) % budget;
-      window.ClickerScene.update(Math.min(.1, (now - lastSceneFrame) / 1000)); lastSceneFrame = now;
-      bossClock();
+      const dt = Math.min(.1, (now - lastSceneFrame) / 1000);
+      window.ClickerScene.update(dt); lastSceneFrame = now;
+      bossClock(); beltClock(dt); giftClock();
       const duration = combo >= 3 ? 150 : 220, elapsed = now - pressAt;
       const squeeze = elapsed < 55 ? elapsed / 55 : Math.max(0, 1 - (elapsed - 55) / duration);
       const breath = reduced.matches ? 0 : Math.sin(now / 3400 * Math.PI * 2) * .015;
@@ -80,19 +89,27 @@ window.ClickerStage = (() => {
       bossKey=null; bossBusy=false; bossEntering=false; resultKey=latestState?.bossResult ? JSON.stringify(latestState.bossResult) : null;
       for (const id of ['boss-view','boss-timer','boss-flash','boss-banner']) $(id).hidden=true;
       $('bag').style.visibility=''; $('bag').style.transform=''; $('stage').classList.remove('boss-shake');
+      $('triple').style.visibility=''; $('triple').style.transform=''; tripleBusy=false; lastMissed=null; beltWarned=false; beltTicked=null;
+      $('bag').classList.remove('shiver'); $('belt-lamp').classList.remove('warn'); $('belt-timer').classList.remove('warn');
+      giftKey=null; giftLanded=false; giftResultKey=latestState?.giftResult ? String(latestState.giftResult.at) : null;
+      for (const id of ['gift-clip','gift-bag','gift-timer','gift-hot']) $(id).hidden=true;
+      $('gift-bag').style.transform=''; $('gift-boss').style.transform='';
       $('shell-rings').classList.remove('blocked'); $('boss-shells').classList.remove('blocked');
       document.querySelectorAll('.shell-hit-overlay').forEach(el=>el.remove()); struckRing=null;
     }
-    function float(amount, heavy, point) {
+    function float(amount, heavy, point, { sweep = false, text = null } = {}) {
       const el = document.createElement('span'); el.className = 'floater';
       el.innerHTML = '<img src="clicker-coin.png" alt="" /><b></b>';
       el.querySelector('b').textContent = `+${format(amount)}`;
-      el.style.left = `${point.x + Math.random() * 20 - 10}px`; el.style.top = `${point.y - 12}px`; el.style.fontSize = heavy ? '34px' : clickChain >= 3 ? '28px' : '26px'; el.style.color = heavy ? '#EF8E8E' : clickChain >= 3 ? '#E9B94E' : '#FFF6E6';
+      // 掃過去的浮字加「掃！」小章；漏包的浮字是灰字、沒有錢幣
+      if (sweep) { const stamp = document.createElement('i'); stamp.className = 'sweep-stamp'; stamp.textContent = '掃！'; el.append(stamp); }
+      if (text) { el.classList.add('miss'); el.querySelector('img').remove(); el.querySelector('b').textContent = text; }
+      el.style.left = `${point.x + Math.random() * 20 - 10}px`; el.style.top = `${point.y - 12}px`; el.style.fontSize = heavy ? '34px' : clickChain >= 3 ? '28px' : '26px'; el.style.color = text ? '#9A9A9A' : heavy ? '#EF8E8E' : clickChain >= 3 ? '#E9B94E' : '#FFF6E6';
       if ($('floaters').querySelectorAll('.floater').length >= 12) $('floaters').querySelector('.floater').remove();
       $('floaters').append(el);
       motion(el, [{ transform: `translateY(0) scale(.6) rotate(${heavy ? -6 : 0}deg)`, opacity: 1 }, { transform:'translateY(-2px) scale(1.15) rotate(0)', opacity:1, offset:30/720 }, { transform:'translateY(-4px) scale(1)', opacity:1, offset:60/720 }, { transform: 'translateY(-40px)', opacity: 1, offset:520/720 }, { transform: 'translateY(-56px)', opacity: 0 }], 720, () => { el.remove(); }, 'linear');
     }
-    function click(amount, heavy = false, s, completed = 0, point = IMPACT) {
+    function click(amount, heavy = false, s, completed = 0, point = IMPACT, result = {}) {
       if (frozen) { heldAmount += amount; latestState = s; return; }
       if (!running) return;
       const now = performance.now(); combo = now - previousClick <= 400 ? combo + 1 : 1; previousClick = now;
@@ -100,12 +117,22 @@ window.ClickerStage = (() => {
       soundTimes = soundTimes.filter((t) => now - t < 1000);
       if (soundTimes.length < 6) { sound(heavy ? 'skill' : 'click'); soundTimes.push(now); }
       clickChain = now - fxClickAt <= 180 ? clickChain + 1 : 1; fxClickAt = now;
-      const crossed = s.package.index > lastPackage || stateOf(s) !== bagState;
+      const triple = E.tripleFor(s.settings.scene), sub = Number.isInteger(result.target) ? result.target : null;
+      if (point === IMPACT && triple && sub !== null) point = SUB_CENTER(sub);
+      if (result.giftHit) point = point === IMPACT ? GIFT_POINT : point;
+      const crossed = s.package.index > lastPackage || (triple ? false : stateOf(s) !== bagState);
       struckRing=shellTarget?{el:shellTarget.cloneNode(true),parent:shellTarget.parentElement.parentElement}:null;
+      const before = triple ? [...subStates] : null;
       render(s, { completed, manual: true, heavy });
       burst(heavy ? 18 : clickChain >= 3 ? 12 : 8, heavy, !heavy && clickChain >= 3, point);
-      if (heavy) bounce(true); else if (!crossed && !bagBusy) bounce(false);
-      float(amount, heavy, point);
+      if (result.giftHit) motion($('gift-bag'), [{transform:'scale(1)'},{transform:'scale(1.06)',offset:.5},{transform:'scale(1)'}], 140);
+      else if (triple) { if (!tripleBusy && s.package.index === lastPackage) for (const i of (sub === null ? [0,1,2] : [sub])) if (before[i] === subStates[i] && subStates[i] !== 4) subBounce(i, heavy); }
+      else if (heavy) bounce(true); else if (!crossed && !bagBusy) bounce(false);
+      float(amount, heavy, point, { sweep: !!result.sweep });
+    }
+    function subBounce(i, heavy) {
+      const el = document.querySelector(`.sub-pack[data-sub="${i}"]`);
+      motion(el, heavy ? [{transform:'scale(1)'},{transform:'scale(1.10)',offset:.35},{transform:'scale(.97)',offset:.7},{transform:'scale(1)'}] : [{transform:'scale(1)'},{transform:'scale(1.045)',offset:.5},{transform:'scale(1)'}], heavy ? 180 : 140);
     }
     function setPartners(s) {
       teamState = s; if (frozen) return;
@@ -201,7 +228,8 @@ window.ClickerStage = (() => {
     let meterShown = 0, meterNeed = 100, meterAmount = 0;
     let meterRaf = 0, meterTarget = 0, meterFull = false, meterStarted = 0;
     function meter(target, crossed, instant) {
-      if (!instant && !crossed && target === meterTarget && (meterRaf || $('package-progress').value === target)) return;
+      // 進度沒變也要把需求寫上去（換場景或王包後包數不同，need 會變）
+      if (!instant && !crossed && target === meterTarget && (meterRaf || $('package-progress').value === target)) { if (!meterRaf) $('package-number').textContent = `${format(meterShown)} / ${format(meterNeed)}`; return; }
       meterTarget = target;
       if (instant || reduced.matches) { cancelAnimationFrame(meterRaf); meterRaf = 0; meterFull = false; $('package-progress').value = target; meterShown = meterAmount; $('package-number').textContent = `${format(meterShown)} / ${format(meterNeed)}`; return; }
       if (crossed) meterFull = true;
@@ -222,34 +250,157 @@ window.ClickerStage = (() => {
       }
       meterRaf = requestAnimationFrame(frame);
     }
+    // 依場景敵人切換舞台上的包裝元件：三連包用 #triple（三個子包熱區），輸送帶顯示帶面與警示燈，夜市開放禮包熱區
+    function layout(s) {
+      const kind = enemyOf(s), boss = !!s.boss || bossBusy;
+      $('stage').dataset.enemy = kind;
+      $('bag').hidden = kind === 'triple'; $('triple').hidden = kind !== 'triple';
+      $('belt').hidden = kind !== 'timer' || boss;
+      document.querySelectorAll('.sub-hot').forEach(el => { el.hidden = kind !== 'triple' || boss; });
+      if (kind !== 'gift') { for (const id of ['gift-clip','gift-bag','gift-timer','gift-hot']) $(id).hidden = true; giftKey = null; giftLanded = false; }
+      if (kind !== 'timer') { $('bag').classList.remove('shiver'); lastMissed = null; }
+    }
     function render(s, { instant = false, completed = 0, manual = false, heavy = false } = {}) {
       latestState = s; if (frozen) return; setPartners(s);
-      renderBoss(s,instant); rings(s);
+      renderBoss(s,instant); rings(s); layout(s);
       document.querySelector('.package-meter').hidden=!!s.boss || bossBusy;
+      renderGift(s, instant);
       if (s.boss || bossBusy) { updateParasite(s,instant); return; }
       if (!running && !instant) { lastPackage = s.package.index; return; }
-      const need = E.requirement(s.package.index, s.settings.scene), next = stateOf(s), crossed = next !== bagState;
+      const need = E.requirement(s.package.index, s.settings.scene);
       $('package-label').textContent = `${format(s.package.index)} 包`;
       meterAmount = s.package.progress; meterNeed = need;
       meter(s.package.progress / need, s.package.index > lastPackage, instant);
+      if (E.tripleFor(s.settings.scene)) { renderTriple(s, { instant, completed, manual, heavy }); lastPackage = s.package.index; updateParasite(s, instant); return; }
+      const timer = E.timerFor(s.settings.scene), next = stateOf(s), crossed = next !== bagState;
+      if (timer) { if (lastMissed === null || instant) lastMissed = s.missed; else if (s.missed > lastMissed) { lastMissed = s.missed; missPackage(); } }
       if (s.package.index > lastPackage && !instant) {
         $('package-result').textContent = `完成 ${completed || s.package.index - lastPackage} 包`;
         if (!bagBusy) {
-          bagBusy = true; showBag(4); burst(6); impact();
+          bagBusy = true; showBag(4); burst(6); impact(); $('bag').classList.remove('shiver');
           motion($('package-result'), [{opacity:0,transform:'translateY(8px) scale(.7)'},{opacity:1,transform:'translateY(-12px) scale(1)',offset:.35},{opacity:0,transform:'translateY(-28px) scale(1)'}],700);
           later(() => motion($('bag'), [{opacity:1},{opacity:0}],100,()=>{
-            showBag(stateOf(latestState));
-            motion($('bag'),[{transform:'translateY(10px)',opacity:0},{transform:'translateY(0)',opacity:1}],140,()=>{bagBusy=false; showBag(stateOf(latestState));});
+            showBag(stateOf(latestState)); beltEnter();
           }),180);
         }
         if (!manual) burst(4);
       } else if (!bagBusy) { showBag(next); if (crossed && !instant) { if (!heavy) bounce(false); if (!manual) burst(4); } }
       lastPackage = s.package.index; updateParasite(s, instant);
     }
-    function impact(point = IMPACT) {
+    // 輸送帶：新包從右滑入 600ms（translateX 240→0）；一般場景維持原本的向上淡入
+    function beltEnter() {
+      const timer = E.timerFor(latestState.settings.scene);
+      const frames = timer ? [{transform:'translateX(240px)',opacity:1},{transform:'translateX(0)',opacity:1}] : [{transform:'translateY(10px)',opacity:0},{transform:'translateY(0)',opacity:1}];
+      motion($('bag'), frames, timer ? 600 : 140, ()=>{bagBusy=false; showBag(stateOf(latestState));});
+    }
+    // 漏掉：包裝從左滑出 400ms＋「漏了！」灰浮字＋低音；下一包立刻從右滑入
+    function missPackage() {
+      if (bagBusy) { later(missPackage, 60); return; }
+      bagBusy = true; sound('miss'); $('bag').classList.remove('shiver');
+      float(0, false, { x: 485, y: 250 }, { text: '漏了！' });
+      motion($('bag'), [{transform:'translateX(0)',opacity:1},{transform:'translateX(-260px)',opacity:0}], 400, () => { showBag(stateOf(latestState)); beltEnter(); }, 'ease-in');
+    }
+    function beltClock(dt) {
+      const s = latestState, timer = s ? E.timerFor(s.settings.scene) : 0;
+      if (!timer || $('belt').hidden) return;
+      beltTime += dt; $('belt-track').style.backgroundPositionX = `${-((beltTime * 40) % 233).toFixed(1)}px`;
+      const deadline = s.package.deadline; if (deadline == null || s.boss) return;
+      const left = Math.max(0, (deadline - Math.max(Date.now(), s.settledAt)) / 1000), warn = left <= 5;
+      $('belt-timer').textContent = `${Math.ceil(left)}s`; $('belt-timer').classList.toggle('warn', warn);
+      $('belt-lamp').classList.toggle('warn', warn); $('bag').classList.toggle('shiver', warn && !bagBusy && left > 0);
+      if (warn && !beltWarned) { beltWarned = true; sound('boss-heart'); } if (!warn) beltWarned = false;
+      // 到期那刻主動請宿主結算一次，漏包演出不用等 1Hz 的下一拍
+      if (left === 0 && beltTicked !== deadline) { beltTicked = deadline; tick?.(); }
+    }
+    // 三連包：子包各自五狀態；拆完的先爆開（單包演出的 60%）並留在原地變撕開狀態，三個都完成才整組滑出換新組
+    const subStateOf = (progress, need) => progress >= need - need*1e-9 ? 4 : (r => r > .75 ? 0 : r > .5 ? 1 : r > .25 ? 2 : 3)(Math.max(0, 1 - progress/need));
+    function showSub(i, state) {
+      const img = document.querySelector(`.sub-pack[data-sub="${i}"]`), src = `clicker-pack3-${state}.png`;
+      if (img.getAttribute('src') !== src) { img.style.visibility = ''; img.src = src; }
+      img.alt = `${['第一','第二','第三'][i]}包：${['完整','輕損','中損','重損','撕開'][state]}`;
+      subStates[i] = state;
+    }
+    function popSub(i) {
+      showSub(i, 4); const point = SUB_CENTER(i);
+      burst(4, false, false, point); impact(point, .6);
+      motion(document.querySelector(`.sub-pack[data-sub="${i}"]`), [{transform:'scale(1)'},{transform:'scale(1.12)',offset:.4},{transform:'scale(1)'}], 160);
+    }
+    function renderTriple(s, { instant, completed, manual, heavy }) {
+      const need = E.subNeed(s.package.index, s.settings.scene), states = s.package.sub.map(x => subStateOf(x.progress, need));
+      if (instant) { states.forEach((st, i) => showSub(i, st)); return; }
+      if (s.package.index > lastPackage) {
+        $('package-result').textContent = `完成 ${completed || s.package.index - lastPackage} 包`;
+        if (!tripleBusy) {
+          tripleBusy = true;
+          for (let i = 0; i < 3; i++) if (subStates[i] !== 4) popSub(i);
+          motion($('package-result'), [{opacity:0,transform:'translateY(8px) scale(.7)'},{opacity:1,transform:'translateY(-12px) scale(1)',offset:.35},{opacity:0,transform:'translateY(-28px) scale(1)'}],700);
+          later(() => motion($('triple'), [{transform:'translateX(0)',opacity:1},{transform:'translateX(-140px)',opacity:0}], 160, () => {
+            const fresh = latestState.package.sub.map(x => subStateOf(x.progress, E.subNeed(latestState.package.index, latestState.settings.scene)));
+            fresh.forEach((st, i) => showSub(i, st));
+            motion($('triple'), [{transform:'translateY(12px)',opacity:0},{transform:'translateY(0)',opacity:1}], 140, () => { tripleBusy = false; renderTriple(latestState, { instant:true }); });
+          }, 'ease-in'), 200);
+        }
+        if (!manual) burst(4);
+        return;
+      }
+      if (tripleBusy) return;
+      states.forEach((st, i) => {
+        if (st === subStates[i]) return;
+        if (st === 4) popSub(i);
+        else { showSub(i, st); if (!heavy) subBounce(i, false); if (!manual) burst(3, false, false, SUB_CENTER(i)); }
+      });
+    }
+    // 夜市限時大禮包：老闆從攤位後升起 300ms → 拋物線 500ms 丟到桌左 → 落地 scale(1.1,.9) 90ms＋4px 震＋upgrade 音
+    function renderGift(s, instant) {
+      const cfg = E.giftFor(s.settings.scene); if (!cfg) return;
+      const key = s.gift ? String(s.gift.endsAt) : null, rk = s.giftResult ? String(s.giftResult.at) : null;
+      if (key && key !== giftKey) {
+        giftKey = key; giftLanded = false; giftResultKey = rk;
+        $('gift-clip').hidden = false; $('gift-bag').hidden = true; $('gift-timer').hidden = true; $('gift-hot').hidden = true;
+        if (instant || !running) { $('gift-boss').style.transform = ''; giftLand(true); return; }
+        motion($('gift-boss'), [{transform:'translateY(80px)'},{transform:'translateY(0)'}], 300, () => {
+          if (giftKey !== key) return;
+          $('gift-bag').hidden = false;
+          // 從老闆手上（約 518,70）拋到桌左（80,177）：線性內插加上 300·u(1−u) 的拋物線抬升，頂點約在 y 50
+          const arc = [0, .2, .4, .6, .8, 1].map(u => ({ transform:`translate(${(438*(1-u)).toFixed(1)}px,${(-107*(1-u) - 300*u*(1-u)).toFixed(1)}px) scale(${(.55 + .45*u).toFixed(2)})`, offset:u }));
+          motion($('gift-bag'), arc, 500, () => { if (giftKey === key) giftLand(false); }, 'linear');
+        });
+        return;
+      }
+      if (!s.gift && giftKey && rk !== giftResultKey && !instant) {
+        giftKey = null; giftResultKey = rk; giftLanded = false;
+        $('gift-hot').hidden = true; $('gift-timer').hidden = true;
+        const r = s.giftResult;
+        if (r.won) {
+          sound('gift-win'); shake(4, 120); float(r.bonus, true, GIFT_POINT); impact(GIFT_POINT);
+          for (let i = 0; i < 30; i++) fx?.spawn({ sprite:8, x:GIFT_POINT.x + (Math.random()-.5)*40, y:GIFT_POINT.y - 20, vx:(Math.random()-.5)*360, vy:-160 - Math.random()*300, g:420, r:8 + Math.random()*6, life:.9 + Math.random()*.6, rot:Math.random()*6, vr:(Math.random()-.5)*12, drag:.985, color:RIBBON[i % RIBBON.length], blend:'source-over', fadeK:3 });
+          motion($('gift-bag'), [{transform:'scale(1)',opacity:1},{transform:'scale(1.25)',opacity:0}], 200, () => { $('gift-bag').hidden = true; });
+          motion($('gift-boss'), [{transform:'translateY(0)'},{transform:'translateY(-10px)',offset:.3},{transform:'translateY(0)',offset:.6},{transform:'translateY(80px)'}], 500, () => { $('gift-clip').hidden = true; });
+          notice(`限時大禮包拆完！×${cfg.mul}，+${format(r.bonus)}`);
+        } else {
+          motion($('gift-bag'), [{transform:'scale(1)',opacity:1},{transform:'scale(0)',opacity:0}], 300, () => { $('gift-bag').hidden = true; }, 'ease-in');
+          motion($('gift-boss'), [{transform:'translateY(0)'},{transform:'translateY(80px)'}], 300, () => { $('gift-clip').hidden = true; }, 'ease-in');
+        }
+      } else if (instant || !s.gift) { giftResultKey = rk; if (!s.gift) { giftKey = null; for (const id of ['gift-clip','gift-bag','gift-timer','gift-hot']) $(id).hidden = true; } }
+    }
+    function giftLand(instant) {
+      giftLanded = true; $('gift-bag').hidden = false; $('gift-bag').style.transform = '';
+      $('gift-timer').hidden = false; $('gift-hot').hidden = false; giftClock();
+      if (instant) return;
+      motion($('gift-bag'), [{transform:'scale(1.1,.9)'},{transform:'scale(1)'}], 90);
+      shake(4, 100); sound('upgrade'); burst(6, false, false, { x: GIFT_POINT.x, y: GIFT_POINT.y + 55 }, true);
+    }
+    function giftClock() {
+      const s = latestState, cfg = s ? E.giftFor(s.settings.scene) : null;
+      if (!cfg || !s.gift || $('gift-timer').hidden) return;
+      const left = Math.max(0, (s.gift.endsAt - Math.max(Date.now(), s.settledAt)) / 1000);
+      $('gift-timer').firstElementChild.style.transform = `scaleX(${left / cfg.seconds})`;
+      $('gift-timer').classList.toggle('urgent', left <= 5); $('gift-timer').lastElementChild.textContent = `${Math.ceil(left)} 秒`;
+    }
+    function impact(point = IMPACT, k = 1) {
       if (reduced.matches) return;
       const el = document.createElement('img'); el.src = 'clicker-fx-impact-burst.png'; el.className = 'small-impact'; el.style.left = `${point.x - 65}px`; el.style.top = `${point.y - 65}px`; $('floaters').append(el);
-      motion(el,[{transform:'scale(.2)',opacity:1},{transform:'scale(.5)',opacity:1,offset:.6},{transform:'scale(.6)',opacity:0}],150,()=>el.remove());
+      motion(el,[{transform:`scale(${.2*k})`,opacity:1},{transform:`scale(${.5*k})`,opacity:1,offset:.6},{transform:`scale(${.6*k})`,opacity:0}],150,()=>el.remove());
     }
     function shake(px,ms) {
       $('stage').style.setProperty('--boss-shake',`${px}px`);
@@ -302,10 +453,14 @@ window.ClickerStage = (() => {
       const key=s.boss?`${s.boss.scene}:${s.boss.startedAt}`:null;
       if(key && key!==bossKey) {
         bossKey=key;bossBusy=true;bossEntering=true;heartbeat=-1;cracks(s.boss.crack);
+        // 王包本體依場景換圖與尺寸；三連包場景滑出的是整組子包
+        const cfg=window.ClickerScene.resolve(s.boss.scene).boss, pk=packEl(s);
+        $('boss-image').src=cfg.image || 'clicker-boss-can.png'; $('boss-image').alt=cfg.name || '大罐頭';
+        $('boss-view').style.setProperty('--boss-w',`${cfg.size?.[0] || 260}px`); $('boss-view').style.setProperty('--boss-h',`${cfg.size?.[1] || 300}px`); $('boss-view').style.setProperty('--boss-cx',`${cfg.center || 460}px`);
         $('boss-timer').hidden=false;$('boss-view').hidden=false;
-        $('boss-view').style.visibility='hidden';
-        motion($('bag'),[{transform:'translateX(0)'},{transform:'translateX(200px)'}],220,()=>{
-          $('bag').style.visibility='hidden';$('boss-view').style.visibility='';
+        $('boss-view').style.visibility='hidden'; layout(s);
+        motion(pk,[{transform:'translateX(0)'},{transform:'translateX(200px)'}],220,()=>{
+          pk.style.visibility='hidden';$('boss-view').style.visibility='';
           motion($('boss-view'),[{transform:'translateY(-360px)'},{transform:'translateY(0)'}],300,()=>{
             motion($('boss-view'),[{transform:'scale(1.06,.94)'},{transform:'scale(1)'}],90,()=>{bossBusy=false;bossEntering=false;render(latestState);});
             shake(6,80);burst(24,true);sound('boss-enter');
@@ -329,15 +484,15 @@ window.ClickerStage = (() => {
             motion(banner,[{transform:'scale(.8)'},{transform:'scale(1)'}],200);
             later(()=>motion(banner,[{transform:'translateX(0)',opacity:1},{transform:'translateX(-600px)',opacity:0}],220,()=>{
               banner.hidden=true;
-              window.ClickerScene.mount(latestState.settings.scene);$('bag').style.visibility='';bossBusy=false;lastPackage=latestState.package.index;render(latestState,{instant:true});
+              window.ClickerScene.mount(latestState.settings.scene);$('bag').style.visibility='';$('triple').style.visibility='';bossBusy=false;lastPackage=latestState.package.index;render(latestState,{instant:true});
             }),1800);
           },800);
         } else {
           cracks(r.crack);
           motion($('boss-view'),Array.from({length:7},(_,i)=>({transform:`rotate(${i===6?0:i%2?4:-4}deg)`})),480,()=>{
             motion($('boss-view'),[{transform:'translateY(0)',opacity:1},{transform:'translateY(-80px)',opacity:0}],400,()=>{
-              $('boss-view').hidden=true;$('bag').style.visibility='';
-              motion($('bag'),[{transform:'translateX(200px)'},{transform:'translateX(0)'}],220,()=>{bossBusy=false;render(latestState);});
+              const pk=packEl(latestState); $('boss-view').hidden=true;pk.style.visibility='';
+              motion(pk,[{transform:'translateX(200px)'},{transform:'translateX(0)'}],220,()=>{bossBusy=false;render(latestState);});
             });
           });
           notice(`差一點！裂痕 ${Math.round(r.crack*100)}%，30 秒後再來`);
@@ -395,7 +550,7 @@ window.ClickerStage = (() => {
       if (!fx) return; const rand = (a,b) => a + Math.random() * (b-a);
       for (let i = 0; i < 24; i++) fx.spawn({ sprite:14, x:rand(40,570), y:rand(30,120), vx:rand(-30,30), vy:rand(20,60), g:40, r:rand(5,9), life:rand(.9,1.4), color:'#E9B94E', blend:'lighter', shrink:true });
     }
-    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, preview, confetti, preview, confetti, shell, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
+    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, shell, get bossBusy() {return bossBusy;}, get frozen() { return frozen; }, get giftLanded() { return giftLanded; }, get tripleBusy() { return tripleBusy; } };
   }
   return { create };
 })();

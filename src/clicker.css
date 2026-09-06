@@ -538,3 +538,45 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .wardrobe-hint { font-size:11px; color:#735E4E; margin-top:6px; }
 .buddy-transcend { color:#3D7BE0; }
 #game .badge { width:24px; height:24px; }
+
+/* Round 11: 便利商店三連包、工廠輸送帶、夜市限時大禮包 */
+/* 舞台內只有珍母熱區、技能鍵與 #targets 裡的子包／禮包熱區吃指標；其他一律穿透 */
+#stage > :not(#tap):not(#slots):not(#targets) { pointer-events:none; }
+#targets { position:absolute; inset:0; z-index:6; pointer-events:none; }
+#targets > button { pointer-events:auto; position:absolute; }
+#game .sub-hot, #game #gift-hot, #game .sub-hot:hover:enabled, #game #gift-hot:hover:enabled, #game .sub-hot:active:enabled, #game #gift-hot:active:enabled { border:0; border-image:none; background:transparent; box-shadow:none; transform:none; clip-path:none; filter:none; outline:none; border-radius:0; }
+.sub-hot { top:186px; width:100px; height:120px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.sub-hot[data-sub="0"] { left:330px; } .sub-hot[data-sub="1"] { left:392px; } .sub-hot[data-sub="2"] { left:454px; }
+#gift-hot { left:28px; top:108px; width:104px; height:136px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+/* 三連包：三個 100×120 的小包並排在 x 330／392／454 */
+#triple { position:absolute; left:330px; top:186px; width:224px; height:120px; z-index:4; }
+.sub-pack { position:absolute; top:0; width:100px; height:120px; object-fit:contain; transform-origin:50% 100%; }
+.sub-pack[data-sub="0"] { left:0; } .sub-pack[data-sub="1"] { left:62px; } .sub-pack[data-sub="2"] { left:124px; }
+.sweep-stamp { display:inline-block; margin-left:4px; padding:0 5px; font-size:14px; line-height:18px; color:#B63329; background:#FFF6E6; border:2px solid #B63329; border-radius:4px; transform:rotate(-8deg); -webkit-text-stroke:0; }
+/* 輸送帶：帶面 40px/s 捲動（JS 推 background-position），警示燈剩 5 秒 2Hz 閃紅，包裝 ±2px 8Hz 抖 */
+#belt { position:absolute; left:322px; top:282px; width:266px; height:40px; z-index:3; }
+#belt-track { position:absolute; inset:0; background:url('clicker-belt-track.png') 0 0 / auto 40px repeat-x; border-radius:4px; }
+#belt-lamp { position:absolute; left:234px; top:-58px; height:60px; width:auto; transform-origin:50% 100%; }
+#belt-lamp.warn { animation:belt-lamp-blink 500ms steps(2,jump-none) infinite; }
+@keyframes belt-lamp-blink { from { filter:brightness(1); } to { filter:brightness(1.7) saturate(1.6) drop-shadow(0 0 8px #FF5A5A); } }
+#belt-timer { position:absolute; left:214px; top:-80px; width:80px; text-align:center; font-size:14px; line-height:18px; color:#30251F; background:#FFF6E6; border:2px solid #30251F; border-radius:4px; }
+#belt-timer.warn { color:#B63329; }
+#bag.shiver { animation:belt-shiver 125ms linear infinite; }
+@keyframes belt-shiver { 0%,100% { translate:0 0; } 25% { translate:2px 0; } 75% { translate:-2px 0; } }
+.floater.miss { color:#9A9A9A; }
+/* 夜市禮包：老闆從攤位後探出（clip 遮住下半身）、禮包丟到桌左（技能槽上方，不與熱區重疊）、膠帶倒數縮成 60% */
+#gift-clip { position:absolute; left:470px; top:40px; width:96px; height:150px; overflow:hidden; z-index:3; }
+#gift-boss { position:absolute; left:4px; top:0; height:150px; width:auto; }
+#gift-bag { position:absolute; left:36px; top:116px; width:88px; height:122px; object-fit:contain; z-index:4; transform-origin:50% 100%; }
+#gift-timer { position:absolute; left:16px; top:98px; width:128px; height:10px; z-index:5; background:#745E4A66; }
+#gift-timer i { display:block; width:100%; height:100%; transform-origin:left; background:url('clicker-ui-boss-tape.png') center/100% 100%; }
+#gift-timer.urgent i { filter:saturate(1.6) brightness(1.05); }
+#gift-timer b { position:absolute; left:0; right:0; top:-16px; text-align:center; font-size:12px; line-height:14px; }
+/* 王包本體依場景換圖與尺寸（--boss-w／--boss-h），底邊仍貼桌面、中心預設 x 460（寬王可用 --boss-cx 左移，不出舞台） */
+#boss-view { left:calc(var(--boss-cx,460px) - var(--boss-w,260px) / 2); top:calc(360px - var(--boss-h,300px)); width:var(--boss-w,260px); height:var(--boss-h,300px); }
+#boss-image { width:100%; height:100%; }
+#boss-health { width:calc(var(--boss-w,260px) + 40px); }
+#stage > #boss-challenge.long { font-size:13px; line-height:15px; white-space:normal; padding:2px 8px; }
+#stage[data-scene="nightmarket"] .desk-mat { filter:brightness(.72) saturate(.8); }
+#stage[data-scene="factory"] .desk-mat { filter:grayscale(.6); }
+@media (prefers-reduced-motion:reduce) { #belt-lamp.warn { animation:none; filter:brightness(1.5); } #bag.shiver { animation:none; } }

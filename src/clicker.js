@@ -21,7 +21,7 @@ window.Clicker = (() => {
     scope.stop = (ms) => { audioScopes.delete(scope); stop(ms); };
     return scope;
   };
-  const sounds = { click: [160, 95, .055, .05], upgrade: [520, 780, .12, .09], skill: [110, 70, .14, .12] };
+  const sounds = { click: [160, 95, .055, .05], upgrade: [520, 780, .12, .09], skill: [110, 70, .14, .12], miss: [300, 150, .12, .05] };
   // 更衣室的十種點擊音（tone／noiseHit 兩種積木，都與現行 click 同量級）
   const at = (ms) => window.GachaAudio.ensure().currentTime + ms / 1000;
   const CLICK_SOUNDS = {
@@ -52,6 +52,7 @@ window.Clicker = (() => {
     if (name === 'boss-enter') { audio.tone(70,{slide:40,slideT:.5,d:.5,gain:.5}); return; }
     if (name === 'boss-heart') { audio.tone(880,{d:.06,gain:.08}); return; }
     if (name === 'boss-win') { audio.reveal('legendary'); return; }
+    if (name === 'gift-win') { [659, 880, 1319].forEach((f, i) => audio.tone(f, { type: 'triangle', t: at(i * 60), a: .004, d: .22, r: .2, gain: .1 })); audio.noiseHit({ t: at(120), a: .01, d: .25, r: .2, f0: 3000, f1: 8000, q: .6, gain: .06 }); return; }
     const [from, to, duration, gain] = sounds[name];
     audio.tone(from, { slide: to, slideT: duration, a: .002, d: duration - .004, r: .002, gain });
   }
@@ -133,7 +134,8 @@ window.Clicker = (() => {
     }
     lastNumbers = time;
     const s = store.state, { D, P } = E.rates(s);
-    const challenge=$('boss-challenge'), show=E.canBoss(s,Date.now());
+    const challenge=$('boss-challenge'), show=E.canBoss(s,Date.now()), bossName=window.ClickerScene.resolve(s.settings.scene).boss?.name || '大罐頭';
+    if (challenge.dataset.boss!==bossName) { challenge.dataset.boss=bossName; challenge.textContent=`挑戰${bossName}！`; challenge.classList.toggle('long',bossName.length>4); }
     if (show && challenge.hidden) { pulse(challenge,[{transform:'rotate(-3deg) scale(0)'},{transform:'rotate(-3deg) scale(1.1)',offset:.7},{transform:'rotate(-3deg) scale(1)'}],260); sound('upgrade'); }
     challenge.hidden=!show; challenge.disabled=store.blocked || !!cutin?.active || !!gacha?.active || !!stage?.bossBusy;
     $('scene-open').disabled=!!s.boss || !!stage?.bossBusy; $('recruit-open').disabled=!!s.boss;
@@ -241,15 +243,16 @@ window.Clicker = (() => {
     if (store.blocked || !ready || hiddenNow()) { if (hiddenNow()) jlog(`action blocked: visible=${visible} document.hidden=${document.hidden} suspended=${suspended}`); return; }
     try { fn(); } catch (err) { notice(err.message); slotsKey = ''; renderSlots(); }
   }
-  function tap(point) {
+  // target：三連包子包 0..2 或 'gift'；點珍母、空白鍵沒有指向
+  function tap(point, target) {
     action(() => {
       if (gacha.active || !$('roster').hidden || !$('wardrobe').hidden || !$('receipt').hidden || !$('stats').hidden) return;
       const time = performance.now(); inputTimes = inputTimes.filter((t) => time - t < 1000); if (inputTimes.length >= 8) return;
       inputTimes.push(time);
-      const result = E.click(store.state, Date.now());
-      if (result.tutorial || (store.state.boss && !result.state.boss)) { if (!commit(result.state)) return; }
+      const result = E.click(store.state, Date.now(), target);
+      if (result.tutorial || (store.state.boss && !result.state.boss) || result.giftHit) { if (!commit(result.state)) return; }
       else { store.stage(result.state); $('save-status').textContent = '等待自動儲存'; }
-      stage.click(result.amount, result.multiplier >= 10, store.state, result.completed, point);
+      stage.click(result.amount, result.multiplier >= 10, store.state, result.completed, point, result);
       stage.shell(result);
       if (result.tutorial) { stage.setPartners(store.state); stage.join(store.state, [{id:'yueyue2'}]); renderSlots(); notice('教學獎勵：玥玥入隊！每秒 +4 幣，可發動尾巴節拍。'); }
       numbers(true);
@@ -407,7 +410,7 @@ window.Clicker = (() => {
     await document.fonts.ready;
     await window.ClickerCutin.ready;
     window.ClickerScene.mount(store.state.settings.scene, store.state.package.index);
-    stage = window.ClickerStage.create({ card, sound, format, showRoster, notice });
+    stage = window.ClickerStage.create({ card, sound, format, showRoster, notice, tick: () => { settle(); changed(); } });
     cutin = window.ClickerCutin.create({card, stage, sound, done:changed});
     album = window.ClickerAlbum.create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations });
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
@@ -429,6 +432,19 @@ window.Clicker = (() => {
     $('tap').onpointercancel = () => { pointer = null; };
     $('tap').onclick = e => { const point = e.detail ? pointer : undefined; pointer = null; tap(point); };
     $('tap').onkeydown = (e) => { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); if (!e.repeat) tap(); } };
+    // 三連包的三個子包熱區與禮包熱區：熱區互相重疊，落點以 point.x 最近的子包中心（380／442／504）為準
+    const hotspots = [...document.querySelectorAll('.sub-hot'), $('gift-hot')];
+    for (const hot of hotspots) {
+      let hit = null;
+      hot.onpointerup = e => { const box = $('game').getBoundingClientRect(); hit = { x:(e.clientX-box.left)/(box.width/960), y:(e.clientY-box.top)/(box.height/640) }; };
+      hot.onpointercancel = () => { hit = null; };
+      hot.onclick = e => {
+        const point = e.detail ? hit : undefined; hit = null;
+        if (hot.id === 'gift-hot') { tap(point, 'gift'); return; }
+        const sub = point ? [380, 442, 504].map((cx, i) => [Math.abs(point.x - 16 - cx), i]).sort((a, b) => a[0] - b[0])[0][1] : Number(hot.dataset.sub);
+        tap(point, sub);
+      };
+    }
     $('tap').onkeyup = (e) => { if (e.code === 'Space' || e.code === 'Enter') e.preventDefault(); };
     for (const type of ['click', 'training']) { $(`${type}-one`).onclick = () => upgrade(type, false); $(`${type}-max`).onclick = () => upgrade(type, true); }
     $('mute').onclick = $('recruit-mute').onclick = () => action(() => {
@@ -465,7 +481,7 @@ window.Clicker = (() => {
         const img=document.createElement('img'); img.src=`clicker-scene${i+1}-thumb.png`; img.alt=''; img.onerror=()=>{img.hidden=true;}; thumb.append(img);
         const text=document.createElement('span'), name=document.createElement('b'), status=document.createElement('small'); name.textContent=scene.name;
         const available=E.unlocked(store.state,id), current=store.state.settings.scene===id;
-        status.textContent=current?'目前':available?'已解鎖':`${window.ClickerScenes[scene.unlock.boss].name}拆滿 ${scene.unlock.packages} 包並打贏大罐頭${scene.available===false?'（後續開放）':''}`;
+        status.textContent=current?'目前':available?'已解鎖':`${window.ClickerScenes[scene.unlock.boss].name}拆滿 ${scene.unlock.packages} 包並打贏${window.ClickerScenes[scene.unlock.boss].boss?.name || '大罐頭'}${scene.available===false?'（後續開放）':''}`;
         text.append(name,status); ticket.append(thumb,text); ticket.disabled=!available || current;
         ticket.onclick=()=>action(()=>{if(commit(E.switchScene(store.state,id,Date.now()))) {window.ClickerScene.mount(id); $('scenes-close').click(); changed();}});
         $('scene-tickets').append(ticket);
@@ -478,7 +494,7 @@ window.Clicker = (() => {
     $('stats-open').onclick = () => {
       if (cutin.active) return;
       const s = store.state;
-      $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${s.package.index - 1} 包｜夥伴 ${Object.keys(s.collection).length} / 12｜付費抽數 ${s.paidDraws}`;
+      $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${s.package.index - 1} 包｜漏掉 ${s.missed || 0} 包｜夥伴 ${Object.keys(s.collection).length} / 12｜付費抽數 ${s.paidDraws}`;
       $('stats').hidden = false; $('game-content').inert = true; $('stats-close').focus();
     };
   }
