@@ -10,9 +10,9 @@ const H = (id, k = 1) => E.requirement(k, id);
 test('scene configs: three enemies driven by parameters, home pairs, boss mul 1.35 with images', () => {
   assert.equal(scenes.market.enemy.triple, true); assert.equal(scenes.factory.enemy.timer, 20);
   assert.deepEqual(scenes.nightmarket.enemy.gift, { everyMs: [45000, 90000], seconds: 15, mul: 10 });
-  assert.deepEqual([scenes.market, scenes.factory, scenes.nightmarket].map(s => [s.requirementMul, s.rewardMul, s.unlock.packages, s.unlock.boss]), [[8, 8, 200, 'kitchen'], [20, 20, 600, 'market'], [50, 50, 1500, 'factory']]);
+  assert.deepEqual([scenes.market, scenes.factory, scenes.nightmarket].map(s => [s.requirementMul, s.rewardMul, s.unlock.packages, s.unlock.boss]), [[8, 8, 60, 'kitchen'], [20, 20, 70, 'market'], [50, 50, 80, 'factory']]);
   for (const id of ['market', 'factory', 'nightmarket']) { assert.equal(scenes[id].boss.mul, 1.35); assert.ok(scenes[id].boss.image && scenes[id].boss.name); assert.notEqual(scenes[id].available, false); }
-  assert.equal(scenes.rainynight.available, false);
+  assert.notEqual(scenes.fridge.available, false);   // 第十二輪起冰箱已可用
   assert.ok(E.tripleFor('market') && !E.tripleFor('kitchen') && E.timerFor('factory') === 20 && !E.timerFor('market') && E.giftFor('nightmarket') && !E.giftFor('factory'));
 });
 

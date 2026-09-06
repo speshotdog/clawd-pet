@@ -2,6 +2,7 @@
   const node = typeof module !== 'undefined' && module.exports;
   const B = node ? require('./clicker-balance.js') : root.ClickerBalance;
   const E = node ? require('./clicker-economy.js') : root.ClickerEconomy;
+  const X = node ? require('./clicker-extras.js') : root.ClickerExtras;   // 第十二輪：每日一包／徽章／匯出匯入
   const KEY = 'clicker_save';
   function fresh(now) {
     return { version: 2, balanceVersion: 1, revision: 0, savedAt: now, settledAt: now,
@@ -9,7 +10,7 @@
       collection: {}, dust: {}, universalDust: 0, promotions: {}, transcend: {}, overflow: {}, awakened: {}, owned: {wardrobe:['sounds:soft','fx:shard']}, paidDraws: 0, pity: { sinceLegendary: 0 }, pending: null,
       package: E.newPackage('backyard'), claimedMilestones: [],
       boss: null, bossWins: [], bossCracks: {}, bossCooldownUntil: 0, bossResult: null, scenePackages: {}, freeDraws: 0, usedFreeDraws: 0,
-      chain: {count:1,expiresAt:0},
+      chain: {count:1,expiresAt:0}, daily: null, badges: [], pick100: null,
       marks: 0, marksClaimed: 0, prestiges: 0, markShop: {}, autoClick: 0, autoRemainder: 0, autoClicks: 0, partnerLevels: {}, deco: [], peakRate: 0, prestigeHintDate: null,
       missed: 0, sweep: {last:null,count:0,at:0}, gift: null, nextGiftAt: 0, giftResult: null,
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
@@ -27,6 +28,17 @@
       s.settings={...s.settings,clickSound:'soft',clickFx:'shard'}; s.version=2;
     }
     check(object(s) && s.version === 2 && s.balanceVersion === 1, '版本（本版不降級或重置）');
+    // 第十二輪：第六場景 id rainynight → fridge
+    const rename = id => id === 'rainynight' ? 'fridge' : id;
+    if (object(s.settings)) s.settings.scene = rename(s.settings.scene);
+    for (const key of ['scenePackages','bossCracks']) if (object(s[key]) && Object.hasOwn(s[key],'rainynight')) { s[key].fridge = s[key].rainynight; delete s[key].rainynight; }
+    if (Array.isArray(s.bossWins)) s.bossWins = s.bossWins.map(rename);
+    if (object(s.bossResult)) { s.bossResult.scene = rename(s.bossResult.scene); s.bossResult.next = rename(s.bossResult.next); }
+    if (object(s.boss)) s.boss.scene = rename(s.boss.scene);
+    s.daily ??= null; s.badges ??= []; s.pick100 ??= null;
+    if (s.daily !== null) { const d = s.daily; check(object(d) && /^\d{4}-\d{2}-\d{2}$/.test(d.date) && typeof d.done === 'boolean' && number(d.need) && d.need > 0 && number(d.dealt) && d.dealt <= d.need && (d.done || d.dealt < d.need) && integer(d.streak), '每日一包'); }
+    check(Array.isArray(s.badges) && new Set(s.badges).size === s.badges.length && s.badges.every(id => X.BADGES.some(b => b.id === id)), '徽章');
+    check(s.pick100 === null || (known(s.pick100) && s.badges.includes('pack100')), '百包選角');
     if (s.chain === undefined) s.chain = {count:1,expiresAt:0};
     check(object(s.chain) && integer(s.chain.count) && s.chain.count >= 1 && s.chain.count <= 3 && number(s.chain.expiresAt), '連鎖');
     s.boss ??= null; s.bossWins ??= []; s.bossCracks ??= {}; s.bossCooldownUntil ??= 0;

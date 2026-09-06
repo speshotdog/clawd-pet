@@ -243,6 +243,16 @@
     if (!s.nextGiftAt) s.nextGiftAt = now + rand(cfg.everyMs, options.rng);
     else if (now >= s.nextGiftAt) spawnGift(s, now);
   }
+  // 第十二輪 regen（冰箱）：每秒 progress -= need × regen，不低於 0。可見時直接吃進度；離線時回傳要從被動裡先扣掉的量
+  // （P < need×regen 時離線進度停在原地、幣照給）。王包照吃，但不低於裂痕起點。
+  function regen(s, duration, offline) {
+    const rate = Scenes(s.settings?.scene).enemy?.regen;
+    if (!rate || !duration) return 0;
+    if (s.boss) { s.boss.dealt = Math.max(s.boss.crack * s.boss.need, s.boss.dealt - s.boss.need * rate * duration / 1000); return 0; }
+    const amount = requirement(s.package.index, s.settings.scene) * rate * duration / 1000;
+    if (offline) return amount;
+    s.package.progress = Math.max(0, s.package.progress - amount); return 0;
+  }
   function settle(state, now, options = {}) {
     const s = clone(state), elapsed = Math.max(0, now - s.settledAt), duration = Math.min(elapsed, s.markShop?.offline12 ? 12 * 3600000 : B.offlineMs);
     if (options.offline && s.boss) finishBoss(s,false,s.settledAt);
@@ -274,7 +284,8 @@
       earned += effect.value * Math.max(0, Math.min(end, effect.expiresAt) - Math.max(start, effect.startedAt)) / 1000;
     }
     s.settledAt = Math.max(s.settledAt, now);
-    const completed = grant(s, earned, options.offline ? 'offline' : 'passive', { coinsOnly:!!options.coinsOnly });
+    const kept = Math.min(earned, regen(s, duration, options.offline)); s.coins += kept; s.lifetimeCoins += kept;
+    const completed = grant(s, earned - kept, options.offline ? 'offline' : 'passive', { coinsOnly:!!options.coinsOnly });
     if (s.boss && now >= s.boss.endsAt) finishBoss(s,false,now);
     s.settledAt = Math.max(s.settledAt, now);
     stampDeadline(s, now);
@@ -298,7 +309,9 @@
       if (sweep) amount *= 1 + SWEEP_BONUS;
     }
     let giftHit = false;
-    if (target === 'gift' && s.gift && !s.boss) {
+    // sink：第十二輪的今日限定包等「額外目標」拿走拆包力（幣照給、一般包不動）
+    if (options.sink) { s.coins += amount; s.lifetimeCoins += amount; options.sink(s, amount); }
+    else if (target === 'gift' && s.gift && !s.boss) {
       giftHit = true; s.coins += amount; s.lifetimeCoins += amount; s.gift.dealt += amount;
       if (s.gift.dealt >= s.gift.need) endGift(s, now, true);
     } else result.completed += grant(s, amount, 'click', result, target);

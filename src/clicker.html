@@ -70,7 +70,21 @@
   <section id="wardrobe" class="panel wardrobe" role="dialog" aria-modal="true" aria-label="更衣室" hidden><header><h2>更衣室</h2><span id="wardrobe-price"></span><button id="wardrobe-close">返回</button></header><div id="wardrobe-body"><div class="wardrobe-col"><h4>點擊音效</h4><div id="wardrobe-sounds"></div></div><div class="wardrobe-col"><h4>點擊特效</h4><div id="wardrobe-fx"></div></div><div class="wardrobe-col"><h4>桌面裝飾</h4><small id="wardrobe-decor-price"></small><div id="wardrobe-decor"></div></div></div><p class="wardrobe-hint">點一下試用；已擁有的再點就穿上，未擁有的按兩次購買。買過的永久保留。</p></section>
   <section id="scenes" class="small-panel" role="dialog" aria-modal="true" aria-label="場景票券" hidden><h2>下一站，在哪拆？</h2><div id="scene-tickets"></div><button id="scenes-close">回到桌邊</button></section>
   <section id="prestige" class="panel prestige" role="dialog" aria-modal="true" aria-label="換桌布" hidden><header><h2>換一張新桌布</h2><span id="prestige-summary"></span><button id="prestige-close">返回</button></header><div id="prestige-body"></div></section>
-  <section id="stats" class="small-panel" role="dialog" aria-modal="true" aria-label="統計" hidden><h2>這一桌的紀錄</h2><div id="stats-body"></div><button id="stats-close">繼續開工</button></section>
+  <section id="stats" class="panel badge-wall" role="dialog" aria-modal="true" aria-label="里程碑徽章牆" hidden>
+    <header><h2><img class="badge" src="clicker-ui-badge-star.png" alt="" />里程碑徽章牆 <b id="badge-count">0 / 17</b></h2><span id="stats-body"></span><button id="stats-close">繼續開工</button></header>
+    <div id="badge-grid"></div>
+    <div id="stats-tools"><button id="pick100-open" hidden>第 100 包・12 選 1</button><button id="badge-share">分享卡</button><button id="io-export">匯出存檔</button><button id="io-import">匯入存檔</button></div>
+    <div id="save-io" hidden><textarea id="io-text" aria-label="存檔字串" spellcheck="false"></textarea><div class="io-row"><button id="io-copy">複製</button><button id="import-check">檢查</button><button id="import-confirm" hidden>確定覆蓋</button><span id="io-status" role="status"></span></div></div>
+  </section>
+  <section id="share" class="panel share-panel" role="dialog" aria-modal="true" aria-label="分享卡" hidden>
+    <header><h2>分享卡</h2><span id="share-status"></span><button id="share-close">返回</button></header>
+    <canvas id="share-canvas" width="960" height="540" aria-label="分享卡預覽"></canvas>
+    <div class="io-row"><button id="share-download">下載 PNG</button><button id="share-copy">複製到剪貼簿</button></div>
+  </section>
+  <section id="pick100" class="panel pick-panel" role="dialog" aria-modal="true" aria-label="第 100 包 12 選 1" hidden>
+    <header><h2>第 100 包・12 選 1</h2><span>選一位夥伴，送該角色粉塵 1 顆（等於一張卡）。只能選一次。</span><button id="pick100-close">稍後再選</button></header>
+    <div id="pick100-grid"></div>
+  </section>
   <section id="receipt" class="small-panel" role="dialog" aria-modal="true" aria-label="離線收據" hidden><small>夥伴幫你收好了</small><h2>回來啦。</h2><p id="receipt-text"></p><button id="receipt-close">繼續開工</button></section>
   <section id="save-error" class="small-panel" hidden><h2>存檔無法讀取</h2><p id="save-error-text"></p><button id="export-raw">匯出原始資料</button><textarea id="raw-save" aria-label="原始存檔" readonly hidden></textarea><button id="error-close">關閉視窗</button></section>
   <div id="fatal" role="alert" hidden></div>
@@ -79,6 +93,6 @@
 <script src="gacha-audio.js"></script><script src="gacha-fx.js"></script><script src="gacha-card.js"></script><script src="gacha-mode-runtime.js"></script>
 <script src="gacha-mode-hearthstone.js"></script><script src="gacha-mode-wish.js"></script><script src="gacha-mode-summon.js"></script><script src="gacha-mode-stage.js"></script><script src="gacha-mode-rip.js"></script>
 <script src="clicker-scene.js"></script><script type="module" src="clicker-music.js"></script>
-<script src="clicker-balance.js"></script><script src="clicker-economy.js"></script><script src="clicker-save.js"></script><script src="clicker-stage.js"></script><script src="clicker-gacha.js"></script><script src="clicker-album.js"></script><script src="clicker-prestige.js"></script><script src="clicker-prestige-ui.js"></script><script src="clicker-cutin.js"></script><script src="clicker.js"></script>
+<script src="clicker-balance.js"></script><script src="clicker-economy.js"></script><script src="clicker-extras.js"></script><script src="clicker-save.js"></script><script src="clicker-stage.js"></script><script src="clicker-gacha.js"></script><script src="clicker-album.js"></script><script src="clicker-prestige.js"></script><script src="clicker-prestige-ui.js"></script><script src="clicker-cutin.js"></script><script src="clicker.js"></script>
 </body>
 </html>

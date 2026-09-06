@@ -46,7 +46,7 @@
   const boss = (name, image, size, center) => ({ ...scenes.backyard.boss, name, mul: 1.35, image, size, ...(center ? { center } : {}), reward: { freeDraws: 5 } });
   scenes.market = {
     name: '便利商店貨架', unlockPackages: 0, requirementMul: 8, rewardMul: 8, bagSkin: 0,
-    unlock: { packages: 200, boss: 'kitchen' }, enemy: { shell: null, timer: null, regen: null, triple: true }, affinity: ['dog', 'jiaobu2'],
+    unlock: { packages: 60, boss: 'kitchen' }, enemy: { shell: null, timer: null, regen: null, triple: true }, affinity: ['dog', 'jiaobu2'],
     boss: boss('大三連包', 'clicker-boss3-pack.png', [320, 150], 440),   // 寬王：中心左移到 440，右緣 600 不出舞台
     palette: { mat: '#C9D3DA', sky: '#EEF3F6' },
     music: { theme: 'market', seed: 'zhenmu-market-1', gen: { density: 55, rhythm: 60, speed: 55, drama: 30, mood: 75, hook: 65, smooth: 50 } },
@@ -62,7 +62,7 @@
   };
   scenes.factory = {
     name: '零食工廠', unlockPackages: 0, requirementMul: 20, rewardMul: 20, bagSkin: 0,
-    unlock: { packages: 600, boss: 'market' }, enemy: { shell: null, timer: 20, regen: null }, affinity: ['lk', 'jiaobu'],
+    unlock: { packages: 70, boss: 'market' }, enemy: { shell: null, timer: 20, regen: null }, affinity: ['lk', 'jiaobu'],
     boss: boss('大輸送箱', 'clicker-boss4-crate.png', [260, 285]),
     palette: { mat: '#9DA3A8', sky: '#DCE1E4' },
     music: { theme: 'factory', seed: 'zhenmu-factory-1', gen: { density: 65, rhythm: 75, speed: 65, drama: 45, mood: 50, hook: 60, smooth: 35 } },
@@ -79,7 +79,7 @@
   };
   scenes.nightmarket = {
     name: '夜市攤', unlockPackages: 0, requirementMul: 50, rewardMul: 50, bagSkin: 0,
-    unlock: { packages: 1500, boss: 'factory' }, enemy: { shell: null, timer: null, regen: null, gift: { everyMs: [45000, 90000], seconds: 15, mul: 10 } }, affinity: ['yang', 'yueyue'],
+    unlock: { packages: 80, boss: 'factory' }, enemy: { shell: null, timer: null, regen: null, gift: { everyMs: [45000, 90000], seconds: 15, mul: 10 } }, affinity: ['yang', 'yueyue'],
     boss: boss('老闆的巨無霸禮包', 'clicker-boss5-bag.png', [220, 312]),
     palette: { mat: '#4B3B52', sky: '#2B2440' },
     music: { theme: 'nightmarket', seed: 'zhenmu-nightmarket-1', gen: { density: 60, rhythm: 65, speed: 60, drama: 55, mood: 70, hook: 80, smooth: 45 } },
@@ -94,12 +94,31 @@
     ],
     particles: { sprites: sceneSprites(5, 'particle', 4).slice(1), everyMs: [1500, 3200], max: 6, size: [10, 16], life: [5, 9], rise: true },
   };
-  scenes.rainynight = { name: '神秘倉庫', unlockPackages: 0, requirementMul: 220, rewardMul: 220, unlock: { packages: 4000, boss: 'nightmarket' }, available: false,
-    enemy: { shell: null, timer: null, regen: .01 }, boss: { ...scenes.backyard.boss, mul: 1.35 }, bagSkin: 0, affinity: [], palette: { mat: '#aaa', sky: '#ddd' } };
   // 印記商店的新桌布「屋頂星空」：純外觀（層次先借後院，CSS 上夜色；素材另補），需求倍率同後院
   scenes.rooftop = { ...scenes.backyard, name: '屋頂星空', unlock: null, requiresMark: 'rooftop', affinity: [], bagSkin: 0,
     palette: { mat: '#3B3F5C', sky: '#1E2440' }, music: { theme: 'rainynight', seed: 'zhenmu-rooftop-1', gen: { density: 35, rhythm: 30, speed: 30, drama: 40, mood: 55, hook: 60, smooth: 80 } },
     particles: { sprites: ['clicker-fx-spark.png', 'clicker-scene1-particle-1.png'], everyMs: [900, 2200], max: 8, size: [8, 14], life: [5, 9] } };
+  // 第十二輪：深夜冰箱（舊 id rainynight，存檔遷移在 clicker-save.js）。regen：需求每秒回升 1%，靠 burst 打穿。
+  // 素材尚未產出：先重用廚房各層加 tint 藍色調；冷凍包用罐頭 + 霜層（bagPrefix 換成 'clicker-frozen-' 即可切到新素材）。
+  scenes.fridge = {
+    name: '深夜冰箱', unlockPackages: 0, requirementMul: 120, rewardMul: 120, bagSkin: 1, bagPrefix: 'clicker-can-',
+    unlock: { packages: 90, boss: 'nightmarket' }, enemy: { shell: null, timer: null, regen: .01 }, affinity: ['zhenmu','zhenzhen'],
+    boss: { ...scenes.backyard.boss, name: '大冰磚', mul: 1.35, reward: { freeDraws: 5 } },
+    palette: { mat: '#AEC6D6', sky: '#DCE9F2' },
+    tint: { color: '#7FB5E6', opacity: .34, blend: 'multiply' },
+    frost: { layer: 'clicker-frozen-frost.png', ice: 'clicker-frozen-ice.png', shards: { sprite: 9, count: 16, color: '#DFF3FF' } },
+    music: { theme: 'rainynight', seed: 'zhenmu-fridge-1', gen: { density: 35, rhythm: 30, speed: 30, drama: 40, mood: 45, hook: 55, smooth: 80 } },
+    layers: [
+      { id:'sky', src:'clicker-scene2-sky.png', y:0, h:360, parallax:0 },
+      { id:'far', src:'clicker-scene2-far.png', x:330, y:44, h:130, w:243, parallax:.35 },
+      { id:'mid', src:'clicker-scene2-mid.png', x:40, y:196, h:96, w:294, parallax:.55 },
+      { id:'ground', src:'clicker-scene2-ground.png', y:220, h:140, parallax:.8 },
+      { id:'props', sprites:[0,1,2].map(i=>`clicker-scene2-prop-${i}.png`), slots:[[62,274],[330,298],[556,272]], h:64, parallax:.7 },
+      { id:'mist', sprites:[0,1].map(i=>`clicker-scene2-steam-${i}.png`), slots:[[90,150],[470,176]], h:70, drift:[8,11], rise:true, parallax:.2 },
+      { id:'frost-edge', sprites:['clicker-fx-snow.png','clicker-fx-snow.png'], slots:[[40,40],[540,36]], h:40, drift:[3,4], parallax:.15 },
+    ],
+    particles: { sprites:['clicker-fx-snow.png','clicker-fx-spark.png'], everyMs:[900,2000], max:8, size:[8,14], life:[5,9] },
+  };
   const resolve = (id, index = Infinity) => Object.hasOwn(scenes, id) && index >= scenes[id].unlockPackages ? scenes[id] : scenes.backyard;
   root.ClickerScenes = scenes;
   if (typeof module !== 'undefined' && module.exports) { module.exports = { scenes, resolve }; return; }
@@ -160,6 +179,8 @@
         leaf.style.transformOrigin = `50% ${50 + 10/def.canopySlots[j][2]*100}%`;
       });
     });
+    if (scene.tint) { const tint = document.createElement('div'); tint.className = 'scene-tint'; tint.style.cssText = `background:${scene.tint.color};opacity:${scene.tint.opacity};mix-blend-mode:${scene.tint.blend || 'normal'}`; host.append(tint); }
+    root.ClickerExtras?.decorate?.(host, scene);   // 第十二輪：里程碑玩具進 props 槽
     textures = scene.particles.sprites.map(src => { const img = new Image(); img.src = src; return img; });
     document.getElementById('game').addEventListener('pointermove',move,{passive:true});
     document.getElementById('game').addEventListener('pointerleave',center);

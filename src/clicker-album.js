@@ -6,7 +6,7 @@ window.ClickerAlbum = (() => {
     const IDS = Object.keys(B.characters), PER_PAGE = 4, PAGES = Math.ceil(IDS.length / PER_PAGE);
     const RAR = { rare: '精良', epic: '史詩', legendary: '傳說' }, ORIGIN = ['精良', '史詩', '傳說'];
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-    let spread = 0, targetSlot = null, detailId = null, blinkTimer = 0, flipping = false, pendingBuy = null;
+    let spread = 0, targetSlot = null, detailId = null, blinkTimer = 0, flipping = false, pendingBuy = null, refreshKey = '';
     const timers = new Set();
     const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); };
 
@@ -71,7 +71,7 @@ window.ClickerAlbum = (() => {
     function open(selected = null, slot = null) {
       targetSlot = slot; $('recommendations')?.remove();
       $('roster').hidden = false; $('game-content').inert = true;
-      renderBook(true);
+      renderBook(true); refreshKey = '';
       if (selected) openDetail(selected); else { closeDetail(true); $('roster-close').focus(); }
     }
     function close() {
@@ -258,7 +258,14 @@ window.ClickerAlbum = (() => {
     }
     return { open, close, openDetail, openWardrobe, closeWardrobe, renderBook, escape, starRow,
       get isOpen() { return !$('roster').hidden; }, get detailId() { return detailId; },
-      refresh() { if (!$('roster').hidden) { renderBook(); if (detailId) openDetail(detailId); } if (!$('wardrobe').hidden) renderWardrobe(); } };
+      // 每秒結算都會呼叫；只有卡冊真正關心的欄位變了才重建，否則每秒重建卡片會閃爍
+      refresh() {
+        const s = store.state; if (!s) return;
+        const key = JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, Math.floor(s.coins / 1000)]);
+        if (key === refreshKey) return; refreshKey = key;
+        if (!$('roster').hidden) { renderBook(); if (detailId) openDetail(detailId); }
+        if (!$('wardrobe').hidden) renderWardrobe();
+      } };
   }
   return { create };
 })();
