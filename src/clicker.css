@@ -400,3 +400,22 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #roster-detail { flex:none; }
 .roster-character svg { height:64px !important; margin-bottom:3px !important; }
 .roster-character .skill-desc { font-size:10px; line-height:12px; }
+
+/* 9-slice 縫線修正：整個遊戲用 transform: scale 放大到非整數倍時，邊片與中間片之間會露出一條底色（大視窗的網頁版最明顯）。
+   把每張貼圖的中心色填成 background、只填 padding box，縫線就會是同色；padding box 在描邊之內，不會露到圓角外面。 */
+#game button, #game select, #game .save-plate { --button-fill:#FBEECF; background:var(--button-fill); background-clip:padding-box; }
+#game button:hover:enabled { background:var(--button-fill); background-clip:padding-box; }
+#game button:disabled { --button-fill:#D7CBB9; background:var(--button-fill); background-clip:padding-box; }
+#game .skill-use, #game #click-one, #game #training-one { --button-fill:#8B9B5A; }
+#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-fill:#B089C6; }
+#game #reveal-all { --button-fill:#FB7A6E; }
+#game #tap, #game .buddy, #game .slot-pick, #game-content .text-button, #game #audio-panel button[aria-pressed] { background:transparent; }
+#game .skill-use, #game button.skill-use:disabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
+.price-ticket, #package-result, #effect-label, .package-meter { background:#FAEBC9; background-clip:padding-box; }
+.wallet, .upgrade, .recruit, #team, .panel, .small-panel, #recruit-topbar, #audio-panel { background:#FDECCB; background-clip:padding-box; }
+.wallet { background:#FAE5C1; background-clip:padding-box; }
+#shop h2, .buddy-header h2, .skills-heading, #game-content h1 { background:#F47D79; background-clip:padding-box; }
+#shop .upgrade:nth-child(2) h2, .skills-heading { background:#98A25A; background-clip:padding-box; }
+#shop .upgrade:nth-child(2) h2 { background:#F47D79; }
+#shop .recruit h2 { background:#B78DC5; background-clip:padding-box; }
+#game-content h1, .panel h2, .small-panel h2, #recruit-topbar > b { background:#F1887A; background-clip:padding-box; }
