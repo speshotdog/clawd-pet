@@ -36,7 +36,7 @@ test('round12 regen 王包：大冰磚照吃，但不低於裂痕起點', () => 
 });
 test('round12 每日一包：日期變了才換包、沒拆不累積、連續天數只在昨天拆完時延續', () => {
   const s = S.fresh(NOON), a = X.dailyRoll(s);
-  assert.equal(a.daily.date, X.localDate(NOON)); assert.equal(a.daily.done, false); near(a.daily.need, 3 * E.requirement(1)); assert.equal(a.daily.streak, 0);
+  assert.equal(a.daily.date, X.localDate(NOON)); assert.equal(a.daily.done, false); near(a.daily.need, Math.max(100, 25 * E.rates(a).D)); assert.equal(a.daily.streak, 0);
   assert.equal(X.dailyRoll(a), a);
   const same = E.clone(a); same.settledAt = NOON + 3600000; assert.equal(X.dailyRoll(same), same);
   a.daily.done = true; a.daily.streak = 3; a.settledAt = NOON + DAY;
@@ -46,7 +46,7 @@ test('round12 每日一包：日期變了才換包、沒拆不累積、連續天
   S.validate(c, Pool);
 });
 test('round12 每日一包：點擊只進限定包、幣照給、一般包不動；拆完送免費單抽 +1 與萬用粉塵 +1', () => {
-  let s = X.dailyRoll(S.fresh(NOON)); s.clickLevel = 30;
+  let s = S.fresh(NOON); s.clickLevel = 30; s = X.dailyRoll(s);   // 需求以當下 25 次點擊估，所以先設手勁再生包
   const before = E.clone(s.package), r = X.dailyClick(s, NOON);
   assert.equal(r.done, false); near(r.state.daily.dealt, r.amount); near(r.state.coins, r.amount); assert.deepEqual(r.state.package, before); assert.equal(r.state.manualClicks, 1);
   s = r.state; s.daily.dealt = s.daily.need - 1;

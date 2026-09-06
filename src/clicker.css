@@ -387,7 +387,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #audio-panel input::-moz-range-thumb { border:0; width:40px; height:40px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
 
 /* 舞台內只有點擊熱區與技能鍵吃指標；其他一切（教學便條、量尺、標籤、光、場景）都穿透，杜絕透明層擋住連點 */
-#stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag) { pointer-events:none; }   /* :not(#id) 特異度 (3,0,0)，可點的元素都要列在這裡 */
+#stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag):not(#boss-view) { pointer-events:none; }   /* :not(#id) 特異度 (3,0,0)，可點的元素都要列在這裡 */
 #slots > :not(.skill-slot) { pointer-events:none; }
 /* 滑鼠點擊不顯示焦點框（藍色框線）；鍵盤操作仍保留其他按鈕的 focus-visible */
 #tap, #tap:focus, #tap:focus-visible, .skill-use:focus, .skill-use:focus-visible { outline:none !important; box-shadow:none; }
@@ -405,11 +405,10 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
    把每張貼圖的中心色填成 background、只填 padding box，縫線就會是同色；padding box 在描邊之內，不會露到圓角外面。 */
 /* 縫線填色只給透明邊 ≤1% 的貼圖（紫、粉）；奶油／綠／停用貼圖的透明邊有 7–18%，填色會露到框外 */
 #game button, #game select, #game .save-plate { --button-fill:transparent; background:transparent; }
-#game button:hover:enabled { background:var(--button-fill); background-clip:padding-box; }
+#game button:hover:enabled { background:transparent; }
 #game button:disabled { --button-fill:transparent; background:transparent; }
-#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-fill:#B089C6; background:var(--button-fill); background-clip:padding-box; }
-#game #reveal-all { --button-fill:#FB7A6E; background:var(--button-fill); background-clip:padding-box; }
-#game #draw-one:disabled, #game #draw-five:disabled, #game #recruit-one:disabled, #game #recruit-five:disabled, #game #collect:disabled { background:transparent; }
+/* 紫／粉貼圖的圓角與硬陰影同樣會讓填色露出來（2560 實測），按鈕一律不填色；縫線只剩紙色細線，比出框好 */
+#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect, #game #reveal-all { background:transparent; }
 #game #tap, #game .buddy, #game .slot-pick, #game-content .text-button, #game #audio-panel button[aria-pressed] { background:transparent; }
 #game .skill-use, #game button.skill-use:disabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
 /* 票券貼圖透明邊 2–9%，不填色 */
@@ -515,7 +514,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .detail-info b { color:#B63329; }
 .detail-buttons, .detail-grow { display:flex; gap:6px; flex-wrap:wrap; }
 #game .detail-buttons button, #game .detail-grow button, #game .detail-back { font-size:13px; padding:3px 10px 6px; }
-#game .grow-btn.promote { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); background:var(--button-fill); background-clip:padding-box; }
+#game .grow-btn.promote { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); }
 #game .grow-btn.transcend { --button-art:url('clicker-ui-btn-cream.png'); color:#2A4A8A; }
 #game .detail-back { align-self:flex-end; }
 .detail-flash { position:absolute; inset:0; background:#FFF6E6; pointer-events:none; z-index:9; }
@@ -550,7 +549,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .prestige-cols { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 10px; }
 .prestige-cols ul { margin:4px 0 0; padding-left:18px; }
 .prestige-actions { display:flex; gap:8px; margin-top:auto; }
-#game #prestige-go { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); background:var(--button-fill); background-clip:padding-box; font-size:16px; padding:6px 18px 9px; }
+#game #prestige-go { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); font-size:16px; padding:6px 18px 9px; }
 .mark-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 #game .mark-ticket { display:grid; grid-template-columns:34px 1fr auto; gap:8px; align-items:center; text-align:left; padding:6px 12px 8px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 8px 12px stretch; background:#FAEBC9; background-clip:padding-box; }
 .mark-ticket img { width:32px; height:32px; object-fit:contain; }
@@ -577,7 +576,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #stage[data-scene="rooftop"] #hero-light { opacity:.7; }
 /* Round 11: 便利商店三連包、工廠輸送帶、夜市限時大禮包 */
 /* 舞台內只有珍母熱區、技能鍵與 #targets 裡的子包／禮包熱區吃指標；其他一律穿透 */
-#stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag) { pointer-events:none; }
+#stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag):not(#boss-view) { pointer-events:none; }
 #targets { position:absolute; inset:0; z-index:6; pointer-events:none; }
 #targets > button { pointer-events:auto; position:absolute; }
 #game .sub-hot, #game #gift-hot, #game .sub-hot:hover:enabled, #game #gift-hot:hover:enabled, #game .sub-hot:active:enabled, #game #gift-hot:active:enabled { border:0; border-image:none; background:transparent; box-shadow:none; transform:none; clip-path:none; filter:none; outline:none; border-radius:0; }
@@ -678,9 +677,14 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #dust-shop h3 { font-size:22px; } #dust-shop > p { font-size:13px; }
 .dust-row { grid-template-columns:34px 68px 1fr auto auto; gap:6px; font-size:14px; min-height:44px; }
 .dust-row small { font-size:13px; }
-#game .dust-row button { font-size:13px; padding:3px 10px 5px; --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); background:var(--button-fill); background-clip:padding-box; color:#30251F; }
+#game .dust-row button { font-size:13px; padding:3px 10px 5px; --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); color:#30251F; }
 #game .dust-row button:disabled { --button-art:url('clicker-ui-btn-disabled.png'); background:transparent; }
 #game .album-slot:hover:enabled, #game .album-slot:active:enabled { background:transparent; filter:none; transform:none; }
 #album-detail, #dust-shop { z-index:20; }
 #stage > #boss-challenge { background-size:100% 100%; }
 #stage > #boss-challenge { padding:4px 6px 6px 32px; text-align:left; font-size:14px; line-height:16px; }
+
+/* 王包本體也是熱區（點珍母或點罐頭都算打王）；紫／粉按鈕的填色用圓角裁掉，才不會在圓角外露出來 */
+#stage > #boss-view { pointer-events:auto; cursor:pointer; }
+#boss-view > * { pointer-events:none; }
+#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect, #game #reveal-all, #game .grow-btn.promote, #game #prestige-go, #game .dust-row button { border-radius:16px / 11px; }

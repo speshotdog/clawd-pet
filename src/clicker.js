@@ -453,6 +453,10 @@ window.Clicker = (() => {
     $('tap').onclick = e => { const point = e.detail ? pointer : undefined; pointer = null; tap(point); };
     $('tap').onkeydown = (e) => { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); if (!e.repeat) tap(); } };
     // 三連包的三個子包熱區與禮包熱區：熱區互相重疊，落點以 point.x 最近的子包中心（380／442／504）為準
+    // 王包本體：點罐頭等於點珍母（傷害全進王）
+    { let hit = null; const bv = $('boss-view');
+      bv.onpointerup = e => { const box = $('game').getBoundingClientRect(); hit = { x:(e.clientX-box.left)/(box.width/960), y:(e.clientY-box.top)/(box.height/640) }; };
+      bv.onclick = e => { const point = e.detail ? hit : undefined; hit = null; if (store.state?.boss) tap(point); }; }
     const hotspots = [...document.querySelectorAll('.sub-hot'), $('gift-hot')];
     for (const hot of hotspots) {
       let hit = null;

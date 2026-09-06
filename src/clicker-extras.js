@@ -18,7 +18,8 @@
   const pad = n => String(n).padStart(2, '0');
   const localDate = ms => { const d = new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
   const totalPackages = s => (s.package.index - 1) + Object.entries(s.scenePackages || {}).filter(([id]) => id !== s.settings.scene).reduce((sum, [, p]) => sum + (p.index - 1), 0);
-  const dailyNeed = s => 3 * E.requirement(s.package.index, s.settings.scene);
+    // 今日限定包只吃點擊：需求用「當下 25 次點擊」估（原本 3×H(k) 在第 60 包是 24 萬，點五千下才拆得完）
+  const dailyNeed = s => Math.max(100, 25 * E.rates(s).D);
   // ---------- 每日一包 ----------
   // 以 settledAt 的本地日期判斷；日期變了就換一包（沒拆不累積）。連續天數：昨天有拆才延續，否則歸零。
   function dailyRoll(state) {
