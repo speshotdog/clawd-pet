@@ -436,7 +436,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #bag[data-skin="1"] #bag-image { width:132px; height:212px; transform-origin:50% 95.7%; }
 #bag[data-skin="1"] #shell-rings img, #bag[data-skin="1"] .shell-hit-overlay { top:0; height:100%; object-fit:contain; }
 .blocked img { animation:shell-breathe 1.2s ease-in-out infinite; }
-@keyframes shell-breathe { 0%,100% {filter:brightness(1) drop-shadow(0 0 0 #FFF6E6);} 50% {filter:brightness(1.5) drop-shadow(0 0 7px #FFF6E6);} }
+@keyframes shell-breathe { 0%,100% {filter:brightness(1) drop-shadow(0 0 0 #FFF6E6);} 50% {filter:brightness(1.22) drop-shadow(0 0 6px #FFF6E6);} }   /* 1.5 會把金屬環亮成白紙帶，像破圖 */
+#shell-hint { position:absolute; left:-6px; top:16px; translate:-100% 0; white-space:nowrap; padding:2px 8px; font-size:12px; color:#54382B; background:var(--paper,#FDF3DF); border:2px solid var(--ink,#54382B); border-radius:5px; rotate:-3deg; box-shadow:2px 2px 0 #54382B40; }
 #stage.boss-shake { animation:clicker-shake var(--boss-shake-time) linear; }
 .affinity-flag { position:absolute; left:0; top:0; padding:2px 5px; font-size:10px; background:#E9B94E url('clicker-ui-flag.png') center/100% 100%; }
 #scenes { left:150px; top:100px; width:660px; }

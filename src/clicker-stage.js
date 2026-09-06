@@ -412,14 +412,22 @@ window.ClickerStage = (() => {
       const p=s.boss || s.package, el=$(s.boss?'boss-shells':'shell-rings');
       $('shell-rings').hidden=!!s.boss;
       const count=p.shells?.length || 0;
-      if (el.children.length!==count) {
-        el.replaceChildren();
+      const key=`${count}:${(p.shells||[]).join(',')}:${s.boss?'boss':'bag'}`;
+      if (el.dataset.key!==key) {
+        el.dataset.key=key; el.replaceChildren();
         for(let i=0;i<count;i++) {const img=document.createElement('img');img.src='clicker-can-shell.png';img.alt='硬殼';
-          // 一般包（罐頭）：環圖與罐頭同畫布，整張疊上去、三環各差 20% 高度；王包：沿用容器 24% 分段
-          if (s.boss) img.style.top=`${25+i*22}%`; else img.style.transform=`translateY(${Math.round((.5-p.shells[i])*80)}%)`;   // .75→−20%、.5→0、.25→+20%：破掉的環不會讓剩下的往上擠
+          if (s.boss) {
+            // 王包：環圖畫布（319×512）與大罐頭（531×600）不同，不能整張疊。環的高度固定為王高的一半（環帶約 34px），
+            // 中心對齊大罐頭圖上自己的兩道金屬帶（31.7%／67.5%）與底緣（90%），依 shell 值 .75／.5／.25 由上到下
+            const cfg=window.ClickerScene.resolve(s.boss.scene).boss, h=cfg.size?.[1] || 300, f={.75:.317,.5:.675,.25:.9}[p.shells[i]] ?? (.317+i*.29);
+            img.style.cssText=`left:0;width:100%;height:${h*.5}px;top:${(f-.2675)*h}px;object-fit:fill`;
+          } else img.style.transform=`translateY(${Math.round((.5-p.shells[i])*80)}%)`;   // 一般罐頭：同畫布整張疊，.75→−20%、.5→0、.25→+20%
           img.onerror=()=>{img.style.visibility='hidden';};el.append(img);}
       }
       el.classList.toggle('blocked',p.blocked>0); el.dataset.hp=p.shellHp ?? 3;
+      // 被硬殼擋住時給一句說明：玩家看到「罐頭自己破掉噴錢」其實是被擋住的被動收益在敲開時一次釋放
+      let hint=$('shell-hint'); if (!hint) { hint=document.createElement('b'); hint.id='shell-hint'; hint.textContent='硬殼！點 3 下敲開'; $('bag').append(hint); }
+      hint.hidden=!(p.blocked>0 && !s.boss);
       shellTarget=el.firstElementChild;
     }
     function shell(result) {
