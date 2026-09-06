@@ -40,22 +40,73 @@
     ],
     particles: { sprites:[0,1].map(i=>`clicker-scene2-particle-${i}.png`), everyMs:[1500,3200], max:6, size:[10,16], life:[5,9], rise:true },
   };
+  // 第十一輪：三個場景的敵人只靠 enemy 參數（triple／timer／gift）做差異，經濟層不認場景名。
+  // far／mid 素材都是有邊界的物件（貨架、機台、攤位），照廚房用 x,y,h,w 固定尺寸擺放；sky 與 ground 才拉滿 632。
+  const sceneSprites = (n, kind, count) => Array.from({ length: count }, (_, i) => `clicker-scene${n}-${kind}-${i}.png`);
+  const boss = (name, image, size, center) => ({ ...scenes.backyard.boss, name, mul: 1.35, image, size, ...(center ? { center } : {}), reward: { freeDraws: 5 } });
+  scenes.market = {
+    name: '便利商店貨架', unlockPackages: 0, requirementMul: 8, rewardMul: 8, bagSkin: 0,
+    unlock: { packages: 200, boss: 'kitchen' }, enemy: { shell: null, timer: null, regen: null, triple: true }, affinity: ['dog', 'jiaobu2'],
+    boss: boss('大三連包', 'clicker-boss3-pack.png', [320, 150], 440),   // 寬王：中心左移到 440，右緣 600 不出舞台
+    palette: { mat: '#C9D3DA', sky: '#EEF3F6' },
+    music: { theme: 'market', seed: 'zhenmu-market-1', gen: { density: 55, rhythm: 60, speed: 55, drama: 30, mood: 75, hook: 65, smooth: 50 } },
+    layers: [
+      { id: 'sky', src: 'clicker-scene3-sky.png', y: 0, h: 360, parallax: 0 },
+      { id: 'far', src: 'clicker-scene3-far.png', x: 40, y: 44, h: 150, w: 260, parallax: .35 },
+      { id: 'mid', src: 'clicker-scene3-mid.png', x: 330, y: 120, h: 104, w: 244, parallax: .55 },
+      { id: 'ground', src: 'clicker-scene3-ground.png', y: 220, h: 140, parallax: .8 },
+      { id: 'props', sprites: sceneSprites(3, 'prop', 3), slots: [[72, 318], [560, 300], [470, 322]], h: 64, parallax: .7 },
+      { id: 'tags', sprites: sceneSprites(3, 'tag', 2), slots: [[120, 110], [512, 104]], h: 64, sway: { amp: 6, stiff: .9 }, hanging: true, parallax: .45 },
+    ],
+    particles: { sprites: sceneSprites(3, 'particle', 4), everyMs: [1500, 3200], max: 6, size: [10, 16], life: [5, 9] },
+  };
+  scenes.factory = {
+    name: '零食工廠', unlockPackages: 0, requirementMul: 20, rewardMul: 20, bagSkin: 0,
+    unlock: { packages: 600, boss: 'market' }, enemy: { shell: null, timer: 20, regen: null }, affinity: ['lk', 'jiaobu'],
+    boss: boss('大輸送箱', 'clicker-boss4-crate.png', [260, 285]),
+    palette: { mat: '#9DA3A8', sky: '#DCE1E4' },
+    music: { theme: 'factory', seed: 'zhenmu-factory-1', gen: { density: 65, rhythm: 75, speed: 65, drama: 45, mood: 50, hook: 60, smooth: 35 } },
+    layers: [
+      { id: 'sky', src: 'clicker-scene4-sky.png', y: 0, h: 360, parallax: 0 },
+      { id: 'far', src: 'clicker-scene4-far.png', x: 30, y: 84, h: 120, w: 386, parallax: .35 },
+      { id: 'gears', sprites: ['clicker-scene4-mover-0.png'], slots: [[470, 70], [536, 118]], h: 56, spin: [24, -18], parallax: .3 },
+      { id: 'smoke', sprites: ['clicker-scene4-mover-1.png'], slots: [[96, 150], [300, 170]], h: 64, drift: [12, 15], rise: true, parallax: .25 },
+      { id: 'mid', src: 'clicker-scene4-mid.png', x: 340, y: 176, h: 96, w: 226, parallax: .55 },
+      { id: 'ground', src: 'clicker-scene4-ground.png', y: 210, h: 150, parallax: .8 },
+      { id: 'props', sprites: sceneSprites(4, 'prop', 3), slots: [[70, 316], [150, 300], [566, 300]], h: 64, parallax: .7 },
+    ],
+    particles: { sprites: sceneSprites(4, 'particle', 4), everyMs: [1500, 3200], max: 6, size: [10, 16], life: [5, 9], rise: true },
+  };
+  scenes.nightmarket = {
+    name: '夜市攤', unlockPackages: 0, requirementMul: 50, rewardMul: 50, bagSkin: 0,
+    unlock: { packages: 1500, boss: 'factory' }, enemy: { shell: null, timer: null, regen: null, gift: { everyMs: [45000, 90000], seconds: 15, mul: 10 } }, affinity: ['yang', 'yueyue'],
+    boss: boss('老闆的巨無霸禮包', 'clicker-boss5-bag.png', [220, 312]),
+    palette: { mat: '#4B3B52', sky: '#2B2440' },
+    music: { theme: 'nightmarket', seed: 'zhenmu-nightmarket-1', gen: { density: 60, rhythm: 65, speed: 60, drama: 55, mood: 70, hook: 80, smooth: 45 } },
+    layers: [
+      { id: 'sky', src: 'clicker-scene5-sky.png', y: 0, h: 360, parallax: 0 },
+      { id: 'far', src: 'clicker-scene5-far.png', x: 60, y: 78, h: 130, w: 404, parallax: .35 },
+      { id: 'moths', sprites: ['clicker-scene5-particle-0.png'], slots: [[140, 70], [420, 52]], h: 22, drift: [14, 20], parallax: .3 },
+      { id: 'mid', src: 'clicker-scene5-mid.png', x: 330, y: 92, h: 128, w: 256, parallax: .55 },
+      { id: 'ground', src: 'clicker-scene5-ground.png', y: 220, h: 140, parallax: .8 },
+      { id: 'props', sprites: sceneSprites(5, 'prop', 3), slots: [[70, 318], [546, 322], [160, 302]], h: 64, parallax: .7 },
+      { id: 'lanterns', sprites: sceneSprites(5, 'lantern', 2), slots: [[92, 118], [548, 110]], h: 80, sway: { amp: 5, stiff: .9 }, hanging: true, parallax: .45 },
+    ],
+    particles: { sprites: sceneSprites(5, 'particle', 4).slice(1), everyMs: [1500, 3200], max: 6, size: [10, 16], life: [5, 9], rise: true },
+  };
+  scenes.rainynight = { name: '神秘倉庫', unlockPackages: 0, requirementMul: 220, rewardMul: 220, unlock: { packages: 4000, boss: 'nightmarket' }, available: false,
+    enemy: { shell: null, timer: null, regen: .01 }, boss: { ...scenes.backyard.boss, mul: 1.35 }, bagSkin: 0, affinity: [], palette: { mat: '#aaa', sky: '#ddd' } };
   // 印記商店的新桌布「屋頂星空」：純外觀（層次先借後院，CSS 上夜色；素材另補），需求倍率同後院
   scenes.rooftop = { ...scenes.backyard, name: '屋頂星空', unlock: null, requiresMark: 'rooftop', affinity: [], bagSkin: 0,
     palette: { mat: '#3B3F5C', sky: '#1E2440' }, music: { theme: 'rainynight', seed: 'zhenmu-rooftop-1', gen: { density: 35, rhythm: 30, speed: 30, drama: 40, mood: 55, hook: 60, smooth: 80 } },
     particles: { sprites: ['clicker-fx-spark.png', 'clicker-scene1-particle-1.png'], everyMs: [900, 2200], max: 8, size: [8, 14], life: [5, 9] } };
-  [['market','便利商店貨架',200,10,'kitchen'],['factory','包裝工廠',600,30,'market'],['nightmarket','夜市攤',1500,80,'factory'],['rainynight','神秘倉庫',4000,220,'nightmarket']].forEach(([id,name,packages,mul,boss]) => {
-    scenes[id] = { name, unlockPackages:0, requirementMul:mul, rewardMul:mul, unlock:{packages,boss}, available:false,
-      enemy:{shell:null,timer:id==='factory'?20:id==='nightmarket'?15:null,regen:id==='rainynight'?.01:null},
-      boss:{...scenes.backyard.boss,mul:1.35}, bagSkin:0, affinity:[], palette:{mat:'#aaa',sky:'#ddd'} };
-  });
   const resolve = (id, index = Infinity) => Object.hasOwn(scenes, id) && index >= scenes[id].unlockPackages ? scenes[id] : scenes.backyard;
   root.ClickerScenes = scenes;
   if (typeof module !== 'undefined' && module.exports) { module.exports = { scenes, resolve }; return; }
   const rand = (a,b) => a + Math.random() * (b-a);
   const baseWind = t => .6 * Math.sin(t * .7) + .4 * Math.sin(t * 1.9 + 1.3);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  let host, scene, layers = [], movers = [], clouds = [], particles = [], textures = [], fxLayer;
+  let host, scene, layers = [], movers = [], clouds = [], spinners = [], particles = [], textures = [], fxLayer;
   let time = 0, nextParticle = 0, gust = null, nextGust = 0;
   let target = {x:.5,y:.5}, pointer = {...target}, pendingPointer = null;
   function wind(t) {
@@ -68,7 +119,7 @@
   function center() { pendingPointer = null; target = {x:.5,y:.5}; }
   function unmount() {
     if (fxLayer) fxLayer.dead = true; fxLayer = null;
-    host?.remove(); host = null; layers = []; movers = []; clouds = []; particles = [];
+    host?.remove(); host = null; layers = []; movers = []; clouds = []; spinners = []; particles = [];
     document.getElementById('game').removeEventListener('pointermove', move);
     document.getElementById('game').removeEventListener('pointerleave', center);
   }
@@ -98,6 +149,8 @@
         const img = picture(el,def.sprites[j % def.sprites.length],x,y,def.h,null,def.sway,!!def.sway,!def.drift);
         if (def.hanging) img.style.transformOrigin='50% 0';
         if (def.drift) clouds.push({el:img,x,speed:def.drift[j],rise:def.rise});
+        // 工廠齒輪：繞自身中心等速旋轉（度／秒），與風無關
+        if (def.spin) { img.style.transformOrigin='50% 50%'; spinners.push({el:img,speed:def.spin[j]}); }
       });
       // Trunk 360?443: branch tips (42,87)/(318,30), fork (180,165).
       // At (20,60), 120?240: tips (34,107)/(126,76), fork (80,149).
@@ -148,6 +201,7 @@
       const w = reduced.matches ? 0 : wind(time-x/608*.15);
       el.style.transform = `rotate(${w*sway.amp/sway.stiff}deg) scaleX(${1+(leaf ? .02*w : 0)})`;
     }
+    for (const sp of spinners) sp.el.style.transform = `rotate(${reduced.matches ? 0 : (time*sp.speed)%360}deg)`;
     for (const c of clouds) { c.el.style.transform = c.rise ? `translateY(${-time*c.speed%220}px)` : `translateX(${((c.x+time*c.speed+120)%848)-120-c.x}px)`; if (c.rise) c.el.style.opacity = Math.sin((time*c.speed%220)/220*Math.PI); }
     const cfg = scene.particles, max = reduced.matches ? 2 : cfg.max;
     particles = particles.filter(p => p.life > 0).slice(0,max);

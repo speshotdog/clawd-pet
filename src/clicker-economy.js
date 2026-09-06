@@ -109,7 +109,37 @@
   // expm1 保留小區間精度；二分搜尋只依包數的對數次數運算。
   const packageSum = (index, count, sceneId) => count === 0 ? 0 : requirement(index, sceneId) * Math.expm1(count * Math.log(1.12)) / .12;
   const shellsFor = id => [...(Scenes(id).enemy?.shell || [])];
-  const newPackage = (id, index = 1) => ({ index, progress:0, shells:shellsFor(id), shellHp:3, blocked:0 });
+  // 第十一輪：三種敵人只看場景設定的 enemy 欄位（triple／timer／gift），不認場景名
+  const enemyOf = id => Scenes(id).enemy || {};
+  const tripleFor = id => !!enemyOf(id).triple;
+  const timerFor = id => enemyOf(id).timer || 0;
+  const giftFor = id => enemyOf(id).gift || null;
+  const SWEEP_WINDOW_MS = 1500, SWEEP_BONUS = .15;
+  const rand = (range, rng = Math.random) => range[0] + rng() * (range[1] - range[0]);
+  const emptySub = () => [{ progress:0 }, { progress:0 }, { progress:0 }];
+  function newPackage(id, index = 1) {
+    const p = { index, progress:0, shells:shellsFor(id), shellHp:3, blocked:0 };
+    if (tripleFor(id)) p.sub = emptySub();
+    if (timerFor(id)) p.deadline = null;   // 進場時由 stampDeadline 蓋上時限
+    return p;
+  }
+  // 三連包：三個子包各需 H/3；只有點擊有指向（target 0..2），被動與 burst 平均分給未拆完的子包；
+  // 指向的子包拆完後溢出再平均分給其餘；三個都拆完才算完成一包，溢出進下一組。
+  function advanceTriple(pack, power, sceneId, target) {
+    let p = { ...newPackage(sceneId, pack.index), ...pack, sub:(pack.sub || emptySub()).map(x => ({ progress:x.progress })) }, completed = 0;
+    for (;;) {
+      const need = requirement(p.index, sceneId) / 3, eps = need * 1e-12;
+      const open = [0,1,2].filter(i => p.sub[i].progress < need - eps);
+      if (!open.length) { completed++; p = newPackage(sceneId, p.index + 1); continue; }
+      if (power <= eps) break;
+      const pick = Number.isInteger(target) && open.includes(target) ? [target] : open, share = power / pick.length;
+      for (const i of pick) { const used = Math.min(need - p.sub[i].progress, share); p.sub[i].progress += used; power -= used; if (need - p.sub[i].progress <= eps) p.sub[i].progress = need; }
+      target = undefined;
+    }
+    p.progress = p.sub.reduce((a, x) => a + x.progress, 0);
+    return { package:p, completed, shellHit:false, shellBroken:false, released:0 };
+  }
+  const subNeed = (index, sceneId) => requirement(index, sceneId) / 3;
   function shellPower(pack, power, need, source) {
     const p = { ...pack, shells:[...(pack.shells || [])], blocked:pack.blocked || 0, shellHp:pack.shellHp ?? 3 };
     let shellHit = false, shellBroken = false, released = 0;
@@ -129,7 +159,8 @@
     }
     return { package:p, shellHit, shellBroken, released, remaining };
   }
-  function advancePackage(pack, power, sceneId, source = 'passive') {
+  function advancePackage(pack, power, sceneId, source = 'passive', target) {
+    if (tripleFor(sceneId)) return advanceTriple(pack, power, sceneId, target);
     if ((pack.shells || shellsFor(sceneId)).length || shellsFor(sceneId).length) {
       let p = {...newPackage(sceneId,pack.index),...pack}, completed=0, shellHit=false, shellBroken=false, released=0;
       do {
@@ -157,10 +188,12 @@
     let progress = Math.max(0, total - packageSum(pack.index, low, sceneId));
     // 累積等比浮點誤差不留下一包幾乎 100% 的幽靈進度。
     if (requirement(pack.index + low, sceneId) - progress <= requirement(pack.index + low, sceneId) * 1e-12) { low++; progress = 0; }
-    return { package: { ...newPackage(sceneId,pack.index+low), progress }, completed: low };
+    // 沒拆完的包保留輸送帶時限；拆完的新包由 stampDeadline 重新蓋章
+    return { package: { ...newPackage(sceneId,pack.index+low), progress, ...(low === 0 && pack.deadline !== undefined ? { deadline: pack.deadline } : {}) }, completed: low };
   }
-  function grant(s, amount, source = 'passive', event = {}) {
+  function grant(s, amount, source = 'passive', event = {}, target) {
     s.coins += amount; s.lifetimeCoins += amount;
+    if (event.coinsOnly) return 0;   // 離線超過輸送帶時限的部分只進錢包，不推進包裝
     if (s.boss) {
       const r=shellPower({...s.boss,progress:s.boss.dealt},amount,s.boss.need,source);
       let p=r.package;
@@ -174,9 +207,41 @@
       if (s.boss.dealt >= s.boss.need) finishBoss(s,true,s.settledAt);
       return 0;
     }
-    const result = advancePackage(s.package, amount, s.settings.scene, source); s.package = result.package;
+    const result = advancePackage(s.package, amount, s.settings.scene, source, target); s.package = result.package;
     Object.assign(event,{shellHit:result.shellHit,shellBroken:result.shellBroken,released:result.released});
+    stampDeadline(s, s.settledAt, result.completed > 0);
     return result.completed;
+  }
+  // 輸送帶：每包進場時 deadline = 進場時刻 + timer 秒；王包期間不計時，結束後重新給一段完整時限
+  function stampDeadline(s, at, fresh = false) {
+    const timer = timerFor(s.settings.scene);
+    if (!timer || s.boss) return;
+    if (fresh || s.package.deadline == null) s.package.deadline = at + timer * 1000;
+  }
+  function missPackage(s, at) {
+    const timer = timerFor(s.settings.scene);
+    s.missed = (s.missed || 0) + 1;
+    s.package = { ...newPackage(s.settings.scene, s.package.index), deadline: at + timer * 1000 };
+  }
+  // 夜市限時大禮包：需求 4×H(k)、限時 seconds 秒；只吃點擊，拆完一次性加 H_gift×(mul−1) 幣（不進拆包進度）
+  function spawnGift(s, now) {
+    const cfg = giftFor(s.settings.scene);
+    s.gift = { need: 4 * requirement(s.package.index, s.settings.scene), dealt: 0, endsAt: now + cfg.seconds * 1000 };
+  }
+  function endGift(s, at, won, rng) {
+    const cfg = giftFor(s.settings.scene), g = s.gift;
+    const bonus = won ? g.need * (cfg.mul - 1) : 0;
+    if (won) { s.coins += bonus; s.lifetimeCoins += bonus; }
+    s.gift = null; s.giftResult = { won, at, bonus, need: g.need };
+    s.nextGiftAt = at + rand(cfg.everyMs, rng);
+  }
+  function tickGift(s, now, options) {
+    const cfg = giftFor(s.settings.scene);
+    if (options.offline || !cfg) { if (s.gift) endGift(s, now, false, options.rng); if (cfg && s.nextGiftAt < now) s.nextGiftAt = now + rand(cfg.everyMs, options.rng); return; }
+    if (s.gift && now >= s.gift.endsAt) endGift(s, s.gift.endsAt, false, options.rng);
+    if (s.boss || s.gift) return;
+    if (!s.nextGiftAt) s.nextGiftAt = now + rand(cfg.everyMs, options.rng);
+    else if (now >= s.nextGiftAt) spawnGift(s, now);
   }
   function settle(state, now, options = {}) {
     const s = clone(state), elapsed = Math.max(0, now - s.settledAt), duration = Math.min(elapsed, s.markShop?.offline12 ? 12 * 3600000 : B.offlineMs);
@@ -186,23 +251,58 @@
       const first=settle(s,s.boss.endsAt), rest=settle(first.state,now,options);
       return {...rest,earned:first.earned+rest.earned,completed:first.completed+rest.completed,elapsed,duration};
     }
+    // 輸送帶到期：切在 deadline；線上算漏（進度歸零、不給幣、不扣東西，下一包立刻進場），
+    // 離線不算漏：包裝停在到期前的進度、剩下的時間只進錢包，回來後重新給一段完整時限。
+    const timer = timerFor(s.settings.scene);
+    if (timer && !s.boss && !options.coinsOnly && s.package.deadline != null && now > s.package.deadline) {
+      let cur = s, earned = 0, completed = 0;
+      while (!cur.boss && cur.package.deadline != null && now > cur.package.deadline) {
+        const first = settle(cur, cur.package.deadline, options); earned += first.earned; completed += first.completed; cur = first.state;
+        if (options.offline) {
+          const rest = settle(cur, now, { ...options, coinsOnly:true });
+          rest.state.package.deadline = now + timer * 1000;
+          return { ...rest, earned:earned + rest.earned, completed, elapsed, duration };
+        }
+        missPackage(cur, cur.package.deadline);
+      }
+      const rest = settle(cur, now, options);
+      return { ...rest, earned:earned + rest.earned, completed:completed + rest.completed, elapsed, duration };
+    }
     const start = s.settledAt, end = start + duration;
     let earned = rates(s).P * duration / 1000;
     for (const effect of s.effects) if (['passive', 'self', 'team'].includes(effect.kind)) {
       earned += effect.value * Math.max(0, Math.min(end, effect.expiresAt) - Math.max(start, effect.startedAt)) / 1000;
     }
     s.settledAt = Math.max(s.settledAt, now);
-    const completed = grant(s, earned, options.offline ? 'offline' : 'passive');
+    const completed = grant(s, earned, options.offline ? 'offline' : 'passive', { coinsOnly:!!options.coinsOnly });
     if (s.boss && now >= s.boss.endsAt) finishBoss(s,false,now);
     s.settledAt = Math.max(s.settledAt, now);
+    stampDeadline(s, now);
+    tickGift(s, now, options);
     s.effects = s.effects.filter((e) => e.expiresAt > s.settledAt && (e.remaining === undefined || e.remaining > 0));
     return { state: s, earned, completed, elapsed, duration };
   }
-  function click(state, now, options = {}) {
+  // target：三連包的子包 0..2、'gift' 打禮包；undefined = 點珍母（三連包平均分配、禮包不受影響）
+  function click(state, now, target, options = {}) {
     const result = settle(state, now), s = result.state;
     const multiplier = Math.max(1, ...s.effects.filter((e) => ['click', 'clickTime'].includes(e.kind)).map((e) => e.multiplier));
-    const amount = (rates(s).D + s.effects.filter(e => e.kind === 'clickAdd').reduce((sum, e) => sum + e.value, 0)) * multiplier;
-    result.completed += grant(s, amount, 'click', result); if (!options.auto) s.manualClicks++; else s.autoClicks = (s.autoClicks || 0) + 1;
+    let amount = (rates(s).D + s.effects.filter(e => e.kind === 'clickAdd').reduce((sum, e) => sum + e.value, 0)) * multiplier;
+    // 掃過去：連續點中不同子包，第三下起每下 +15% 拆包力；同一子包連點、點珍母或隔太久都重算
+    let sweep = false;
+    if (tripleFor(s.settings.scene) && !s.boss) {
+      const prev = s.sweep || { last:null, count:0, at:0 };
+      if (Number.isInteger(target)) {
+        const count = prev.last !== null && prev.last !== target && now - prev.at <= SWEEP_WINDOW_MS ? prev.count + 1 : 1;
+        s.sweep = { last:target, count, at:now }; sweep = count >= 3;
+      } else s.sweep = { last:null, count:0, at:now };
+      if (sweep) amount *= 1 + SWEEP_BONUS;
+    }
+    let giftHit = false;
+    if (target === 'gift' && s.gift && !s.boss) {
+      giftHit = true; s.coins += amount; s.lifetimeCoins += amount; s.gift.dealt += amount;
+      if (s.gift.dealt >= s.gift.need) endGift(s, now, true);
+    } else result.completed += grant(s, amount, 'click', result, target);
+    if (!options.auto) s.manualClicks++; else s.autoClicks = (s.autoClicks || 0) + 1;
     for (const effect of s.effects) if (effect.remaining !== undefined) effect.remaining--;
     s.effects = s.effects.filter((e) => e.remaining === undefined || e.remaining > 0);
     const tutorial = s.manualClicks >= 50 && !s.claimedMilestones.includes('tutorial50');
@@ -211,7 +311,7 @@
       s.claimedMilestones.push('tutorial50');
       if (!s.skillSlots[0]) s.skillSlots[0] = 'yueyue2';
     }
-    return { ...result, amount, multiplier, tutorial };
+    return { ...result, amount, multiplier, tutorial, sweep, giftHit, target };
   }
   function upgrade(state, type, max, now) {
     const s = settle(state, now).state, field = type === 'click' ? 'clickLevel' : 'trainingLevel';
@@ -294,13 +394,19 @@
     s.scenePackages ||= {}; s.scenePackages[s.settings.scene]=clone(s.package);
     const oldMul=Scenes(s.settings.scene).rewardMul || 1, newMul=Scenes(id).rewardMul || 1;
     s.effects.forEach(e=>{if (e.value !== undefined) e.value*=newMul/oldMul;});
+    if (s.gift) endGift(s, s.settledAt, false);
     s.settings.scene=id; s.package=clone(s.scenePackages[id] || newPackage(id));
+    if (giftFor(id)) s.nextGiftAt = s.settledAt + rand(giftFor(id).everyMs);
+    if (timerFor(id)) s.package.deadline = s.settledAt + timerFor(id) * 1000; else delete s.package.deadline;
+    if (tripleFor(id) && !s.package.sub) s.package.sub = emptySub();
+    s.sweep = { last:null, count:0, at:0 };
   }
   function startBoss(state,now) {
     const s=settle(state,now).state;
     if (!canBoss(s,now)) throw new Error('王包尚未就緒');
     const scene=s.settings.scene, cfg=Scenes(scene).boss, need=cfg.mul*requirement(s.package.index,scene), crack=s.bossCracks?.[scene] || 0;
     s.boss={scene,need,dealt:crack*need,startedAt:now,endsAt:now+cfg.seconds*1000,crack,shells:shellsFor(scene).filter(v=>1-v>crack),shellHp:3,blocked:0};
+    if (s.gift) endGift(s, now, false);
     s.bossResult=null; return s;
   }
   function finishBoss(s,won,now) {
@@ -313,11 +419,12 @@
       s.bossCooldownUntil=0;
       if (unlocked(s,s.bossResult.next)) changeScene(s,s.bossResult.next);
     } else s.bossCooldownUntil=now+cfg.cooldown*1000;
+    stampDeadline(s, now, true);
   }
   function abandonBoss(state,now) {
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
-  const api = { markMul, decoMul, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor,
+  const api = { tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, decoMul,
     newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

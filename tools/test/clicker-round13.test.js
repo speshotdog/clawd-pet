@@ -28,7 +28,7 @@ test('電動手指：5000×2.2^L、上限 6、每秒 .5L 次帶小數累積、�
   let s = seed({ coins: 1e9, lifetimeCoins: 1e9 });
   const r = P.buyAutoClick(s, 0, true); assert.equal(r.state.autoClick, 6); assert.equal(r.levels, 6); assert.throws(() => P.buyAutoClick(r.state, 0), /滿級/);
   const t = seed({ autoClick: 1 }); assert.equal(P.autoClicks(t, 1), 0); assert.equal(P.autoClicks(t, 1), 1); assert.ok(Math.abs(t.autoRemainder) < 1e-9);
-  const c = E.click(seed(), 0, { auto: true }); assert.equal(c.state.manualClicks, 0); assert.equal(c.state.autoClicks, 1);
+  const c = E.click(seed(), 0, undefined, { auto: true }); assert.equal(c.state.manualClicks, 0); assert.equal(c.state.autoClicks, 1);
 });
 test('夥伴訓練：50×1.22^L、每級 +5%、里程碑給技能副軸', () => {
   let s = own(seed({ coins: 1e12, lifetimeCoins: 1e12 }), 'yueyue2', 1);

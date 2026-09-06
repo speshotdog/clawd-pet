@@ -11,6 +11,7 @@
       boss: null, bossWins: [], bossCracks: {}, bossCooldownUntil: 0, bossResult: null, scenePackages: {}, freeDraws: 0, usedFreeDraws: 0,
       chain: {count:1,expiresAt:0},
       marks: 0, marksClaimed: 0, prestiges: 0, markShop: {}, autoClick: 0, autoRemainder: 0, autoClicks: 0, partnerLevels: {}, deco: [], peakRate: 0, prestigeHintDate: null,
+      missed: 0, sweep: {last:null,count:0,at:0}, gift: null, nextGiftAt: 0, giftResult: null,
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
       settings: { clickSound:'soft', clickFx:'shard', muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8 } };
   }
@@ -31,6 +32,13 @@
     s.boss ??= null; s.bossWins ??= []; s.bossCracks ??= {}; s.bossCooldownUntil ??= 0;
     s.freeDraws ??= 0; s.usedFreeDraws ??= 0; s.scenePackages ??= {}; s.bossResult ??= null;
     check(integer(s.freeDraws) && integer(s.usedFreeDraws) && number(s.bossCooldownUntil), '王包獎勵與冷卻');
+    // 第十一輪：輸送帶漏包數、三連包掃過去、夜市禮包（舊存檔缺欄位補預設）
+    s.missed ??= 0; s.sweep ??= {last:null,count:0,at:0}; s.gift ??= null; s.nextGiftAt ??= 0; s.giftResult ??= null;
+    check(integer(s.missed), '漏包數');
+    check(object(s.sweep) && (s.sweep.last === null || [0,1,2].includes(s.sweep.last)) && integer(s.sweep.count) && number(s.sweep.at) && (s.sweep.last !== null || s.sweep.count === 0), '掃過去');
+    check(number(s.nextGiftAt), '禮包排程');
+    if (s.gift !== null) { const g = s.gift; check(object(g) && number(g.need) && g.need > 0 && number(g.dealt) && g.dealt < g.need && number(g.endsAt), '禮包'); }
+    if (s.giftResult !== null) { const r = s.giftResult; check(object(r) && typeof r.won === 'boolean' && number(r.at) && number(r.bonus) && number(r.need) && (r.won || r.bonus === 0), '禮包結算'); }
     for (const key of ['coins', 'lifetimeCoins', 'savedAt', 'settledAt']) check(number(s[key]), key);
     for (const key of ['revision', 'manualClicks', 'clickLevel', 'trainingLevel', 'paidDraws']) check(integer(s[key]), key);
     check(s.lifetimeCoins >= s.coins, '累計收入');
@@ -97,13 +105,23 @@
     s.settings.musicVolume ??= .6; s.settings.sfxVolume ??= .8;
     check(['musicVolume','sfxVolume'].every(k => number(s.settings[k]) && s.settings[k] <= 1), '音量');
     const scenes = node ? require('./clicker-scene.js').scenes : root.ClickerScenes;
+    check(s.gift === null || !!scenes[s.settings.scene]?.enemy?.gift, '禮包場景');
     check(Array.isArray(s.bossWins) && new Set(s.bossWins).size===s.bossWins.length && s.bossWins.every(id=>Object.hasOwn(scenes,id) && !!scenes[id].boss), '王包勝利');
     check(object(s.bossCracks) && Object.entries(s.bossCracks).every(([id,v])=>Object.hasOwn(scenes,id) && number(v) && v<=scenes[id].boss.crackMax), '王包裂痕');
     if(s.bossResult!==null) {const r=s.bossResult;check(object(r) && Object.hasOwn(scenes,r.scene) && typeof r.won==='boolean' && number(r.at) && number(r.crack) && r.crack<=scenes[r.scene].boss.crackMax && r.next===E.nextScene(r.scene), '王包結算');}
     check(typeof s.settings.music === 'boolean' && E.unlocked(s,s.settings.scene) && s.package.index >= scenes[s.settings.scene].unlockPackages, '場景與音樂');
-    function pack(p,id,need=E.requirement(p?.index,id)) {
+    function pack(p,id,need=E.requirement(p?.index,id),boss=false) {
       check(object(p), '硬殼包');
       p.shells ??= [...(scenes[id].enemy?.shell || [])]; p.shellHp ??= 3; p.blocked ??= 0;
+      if (!boss) {
+        // 三連包：三個子包各不超過 H/3，總和就是 progress；輸送帶：deadline 為 null（尚未進場）或時間
+        if (E.tripleFor(id)) {
+          if (!p.sub) { let left = p.progress; p.sub = [0,1,2].map(() => { const v = Math.min(left, need/3); left -= v; return { progress:v }; }); }
+          check(Array.isArray(p.sub) && p.sub.length === 3 && p.sub.every(x => object(x) && number(x.progress) && x.progress <= need/3 + need*1e-9), '三連包');
+          check(Math.abs(p.sub.reduce((a,x) => a + x.progress, 0) - p.progress) <= need*1e-9, '三連包總和');
+        }
+        if (E.timerFor(id)) { p.deadline ??= null; check(p.deadline === null || number(p.deadline), '輸送帶時限'); }
+      }
       const allowed=scenes[id].enemy?.shell || [];
       check(Array.isArray(p.shells) && p.shells.every((v,i)=>allowed.includes(v) && (!i || p.shells[i-1]>v)) && integer(p.shellHp) && p.shellHp>=1 && p.shellHp<=3 && number(p.blocked), '硬殼');
       check(number(p.progress) && p.progress<need && (!p.shells.length || p.progress<=need*(1-p.shells[0])+need*1e-12), '硬殼進度');
@@ -116,7 +134,7 @@
     if (s.boss) {
       const b=s.boss, cfg=scenes[s.settings.scene].boss;
       check(object(b) && b.scene===s.settings.scene && !s.bossWins.includes(b.scene) && !s.pending && number(b.need) && b.need===cfg.mul*E.requirement(s.package.index,b.scene) && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===cfg.seconds*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
-      pack({...b,progress:b.dealt},b.scene,b.need);
+      pack({...b,progress:b.dealt},b.scene,b.need,true);
     }
     if (s.pending !== null) {
       const draw = s.pending?.draw;
