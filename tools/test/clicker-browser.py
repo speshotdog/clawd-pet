@@ -673,7 +673,8 @@ def round11(browser):
     assert page.locator('#gift-hot').is_visible() and page.locator('#gift-timer').is_visible(), '落地後才開熱區與倒數'
     shot('gift-land')
     page.evaluate('r11fx.length=0'); progress = page.evaluate('Clicker.state.package.progress')
-    page.mouse.click(96, 249); advance(60)
+    # 假時鐘下 page.mouse.click 偶爾送不到剛落地的熱區（事件一個都沒到），改用 locator.click（會等元素穩定）
+    page.locator('#gift-hot').click(position={'x': 52, 'y': 69}); advance(60)
     assert page.evaluate('Clicker.state.gift.dealt>0') and page.evaluate('Clicker.state.package.progress') == progress, '打禮包不進拆包進度'
     assert page.evaluate("r11fx.every(p=>Math.abs(p.x-96)<=12)")
     shot('gift-hit')
