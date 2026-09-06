@@ -265,7 +265,7 @@
     // ---------- 徽章牆（統計面板） ----------
     function openWall() {
       const s = store.state; if (!s) return;
-      $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${totalPackages(s)} 包｜夥伴 ${Object.keys(s.collection).length} / 12｜付費抽數 ${s.paidDraws}｜連續 ${s.daily?.streak || 0} 天`;
+      $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${totalPackages(s)} 包｜夥伴 ${Object.keys(s.collection).length} / 12｜付費抽數 ${s.paidDraws}｜漏掉 ${s.missed || 0} 包｜連續 ${s.daily?.streak || 0} 天`;
       const grid = $('badge-grid'); grid.replaceChildren();
       for (const b of BADGES) {
         const el = document.createElement('div'); el.className = 'badge-cell'; el.dataset.id = b.id; el.classList.toggle('earned', s.badges.includes(b.id));

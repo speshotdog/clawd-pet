@@ -261,7 +261,7 @@ window.ClickerAlbum = (() => {
       // 每秒結算都會呼叫；只有卡冊真正關心的欄位變了才重建，否則每秒重建卡片會閃爍
       refresh() {
         const s = store.state; if (!s) return;
-        const key = JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, Math.floor(s.coins / 1000)]);
+        const key = JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0)]);
         if (key === refreshKey) return; refreshKey = key;
         if (!$('roster').hidden) { renderBook(); if (detailId) openDetail(detailId); }
         if (!$('wardrobe').hidden) renderWardrobe();
