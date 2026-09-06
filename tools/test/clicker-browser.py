@@ -444,7 +444,7 @@ def round8(browser):
     page.locator('#scene-open').dispatch_event('click')
     advance(200)
     shot('round8-scenes.png')
-    assert page.locator('.scene-ticket').count() == 6
+    assert page.locator('.scene-ticket').count() == 7   # 六個場景 + 印記商店的屋頂星空
     page.locator('.scene-ticket[data-scene="backyard"]').dispatch_event('click')
     advance(500)
     assert page.evaluate('Clicker.state.settings.scene==="backyard" && ClickerScene.current===ClickerScenes.backyard')
