@@ -61,3 +61,9 @@ cd "D:/claude研究/clawd-pet" && git worktree remove --force "$T"; git worktree
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：卡冊閃爍已修（refresh 只在相關欄位變動時重建）、「顏色出框」在 2560／960 兩種寬度截圖看不到，若再出現請附截圖指出元件。
 - main 未 push；exe build 於 09-06 深夜進行（見筆記）。
+
+## 七、2026-09-06 深夜實測後的狀態與待修（給下一個 session）
+
+- main `131121e`（未 push）、gh-pages `bccf6fa`、exe 23:23 build 並已啟動。今晚實測修掉：舞台 `:not(#id)` 特異度害可點元素點不到、按鈕填色出框、卡冊每秒重建閃爍與 hover 白塊、技能發動鎖死（驗證漏訓練里程碑）、今日限定包需求／收據、粒子浮字在王之上、王包本體可點、12 選 1 改手動。
+- **待修：換到廚房後罐頭顯示錯誤**（使用者截圖）：切場景後 `#bag` 容器仍是袋子尺寸（154×176），罐頭圖 319×512 比例不同，硬殼環 `#shell-rings img { height:24% }` 依容器定位，結果環浮在空中／與罐頭錯位，有時罐頭本體沒畫出來只剩環。看 `clicker-stage.js` 的 `showBag()`／`rings()`／`layout()` 與 `#bag`、`#bag-image`、`#shell-rings` 的 CSS：罐頭要有自己的容器尺寸（例如 `bagSkin` 1 → 132×212），環的位置改依罐頭圖上實際的金屬環座標（`clicker-can-shell.png` 與 `clicker-can-0.png` 同畫布，直接疊同尺寸即可，不要用 24% 分三段）。切場景時要重設 `#bag-image` 的 src 與尺寸再顯示。用 Playwright 種 `settings.scene:'kitchen'` 與從後院 switchScene 兩條路各截一張比對。
+- 驗證習慣：Playwright 真 Chrome、viewport 2560×1215、真滑鼠點擊＋`elementFromPoint`；hover 前後截圖 diff。舊套件 `python tools/test/clicker-browser.py` 加 `--round8/9/11/12`。
