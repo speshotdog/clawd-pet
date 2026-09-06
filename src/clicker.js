@@ -52,6 +52,8 @@ window.Clicker = (() => {
     if (name === 'boss-enter') { audio.tone(70,{slide:40,slideT:.5,d:.5,gain:.5}); return; }
     if (name === 'boss-heart') { audio.tone(880,{d:.06,gain:.08}); return; }
     if (name === 'boss-win') { audio.reveal('legendary'); return; }
+    if (name === 'badge') { audio.tone(880, { d: .24, gain: .1 }); return; }   // 第十二輪：里程碑鈴
+    if (name === 'daily') { audio.reveal('epic'); return; }
     const [from, to, duration, gain] = sounds[name];
     audio.tone(from, { slide: to, slideT: duration, a: .002, d: duration - .004, r: .002, gain });
   }
@@ -236,7 +238,7 @@ window.Clicker = (() => {
 
     });
   }
-  function changed() { numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); }
+  function changed() { numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); extras?.tick(); }
   function action(fn) {
     if (store.blocked || !ready || hiddenNow()) { if (hiddenNow()) jlog(`action blocked: visible=${visible} document.hidden=${document.hidden} suspended=${suspended}`); return; }
     try { fn(); } catch (err) { notice(err.message); slotsKey = ''; renderSlots(); }
@@ -252,7 +254,7 @@ window.Clicker = (() => {
       stage.click(result.amount, result.multiplier >= 10, store.state, result.completed, point);
       stage.shell(result);
       if (result.tutorial) { stage.setPartners(store.state); stage.join(store.state, [{id:'yueyue2'}]); renderSlots(); notice('教學獎勵：玥玥入隊！每秒 +4 幣，可發動尾巴節拍。'); }
-      numbers(true);
+      numbers(true); extras?.afterClick();
     });
   }
   function upgrade(type, max) {
@@ -269,7 +271,7 @@ window.Clicker = (() => {
       const result = E.activate(store.state, slot, Date.now());
       if (!commit(result.state)) return;
       window.ClickerMusic?.sync(store.state);
-      cutin.play(result.effect); changed();
+      cutin.play(result.effect); changed(); extras?.afterBurst(result);
     });
   }
   // 第十輪起名冊改成卡冊（clicker-album.js）
@@ -361,7 +363,13 @@ window.Clicker = (() => {
     $('zoomer').style.left = `${(innerWidth - 960 * z) / 2}px`;
     $('zoomer').style.top = `${(innerHeight - 640 * z) / 2}px`;
   }
-  let album = null;
+  let album = null, extras = null;
+  // 第十二輪：匯入存檔後整個畫面照新狀態重來（場景、夥伴列、舞台、待收下的招募）
+  function reload() {
+    window.ClickerScene.mount(store.state.settings.scene, store.state.package.index);
+    stage.setPartners(store.state); stage.render(store.state, { instant: true }); slotsKey = ''; changed(); status();
+    if (store.state.pending) gacha.restore();
+  }
   const card = window.GachaCard.create({ rarity: Pool.RARITY, byId: Pool.byId, canHover: () => gacha?.canHover() || album?.isOpen || false, fatal: $('fatal'), tagFor: (entry, dup, owned) => E.tagFor(entry, dup, owned, store.state) });
   // 保留供共用 rig 查找的結構 id；所有 url(#id) 素材引用則在每個 SVG 實例內唯一。
   let artSerial = 0;
@@ -416,6 +424,7 @@ window.Clicker = (() => {
       resumeStage() { if (!hiddenNow() && !suspended) { stage.start(); stage.render(store.state, { instant: true }); } renderSlots(); },
       joined(entries) { stage.join(store.state, entries); },
     });
+    extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin });
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     ready = true; gacha.setReady(); stage.setPartners(store.state);
@@ -475,12 +484,7 @@ window.Clicker = (() => {
     $('scenes-close').onclick=()=>{$('scenes').hidden=true; $('game-content').inert=gacha.active; $('scene-open').focus();};
     for (const id of ['roster', 'stats', 'receipt', 'wardrobe']) $(`${id}-close`).onclick = () => { if (id === 'roster') album.close(); $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('wardrobe-open').onclick = () => { if (!cutin.active) album.openWardrobe(); };
-    $('stats-open').onclick = () => {
-      if (cutin.active) return;
-      const s = store.state;
-      $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${s.package.index - 1} 包｜夥伴 ${Object.keys(s.collection).length} / 12｜付費抽數 ${s.paidDraws}`;
-      $('stats').hidden = false; $('game-content').inert = true; $('stats-close').focus();
-    };
+    $('stats-open').onclick = () => { if (!cutin.active) extras.openWall(); };   // 第十二輪：統計面板改成徽章牆
   }
   window.addEventListener('clicker-music-ready', () => { if (suspended) window.ClickerMusic.suspend(); else window.ClickerMusic.sync(store.state); });
   document.addEventListener('visibilitychange', () => { jlog(`visibilitychange hidden=${document.hidden}`); visible = !document.hidden; if (!visible) suspend(); else resume(); });
@@ -493,11 +497,12 @@ window.Clicker = (() => {
       if (!$('audio-panel').hidden) { $('audio-panel').hidden=true; $('audio-toggle').setAttribute('aria-expanded','false'); $('audio-toggle').focus(); e.preventDefault(); return; }
       if (cutin?.active) { e.preventDefault(); return; }
       if (album?.escape()) { e.preventDefault(); return; }
+      if (extras?.escape()) { e.preventDefault(); return; }
       if (!$('scenes').hidden) $('scenes-close').click(); else if (!$('roster').hidden) $('roster-close').click(); else if (!$('stats').hidden) $('stats-close').click();
       else if (!$('receipt').hidden) $('receipt-close').click(); else if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();
     }
     if (e.key === 'Tab') {
-      const panel = ['save-error', 'receipt', 'wardrobe', 'roster', 'stats', 'scenes', 'recruit-layer'].map($).find((el) => !el.hidden);
+      const panel = ['save-error', 'receipt', 'wardrobe', 'roster', 'stats', 'scenes', 'share', 'pick100', 'recruit-layer'].map($).find((el) => !el.hidden);
       if (!panel) return;
       const focusable = [...panel.querySelectorAll('button,select,textarea')].filter((el) => !el.disabled && !el.hidden && el.getClientRects().length);
       const first = focusable[0], last = focusable.at(-1);
@@ -507,5 +512,5 @@ window.Clicker = (() => {
   });
   document.addEventListener('click', e => { if (cutin?.active && e.target.closest('#draw-one,#draw-five,#recruit-open')) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
   main().catch((err) => { $('fatal').hidden = false; $('fatal').textContent = `珍母點點初始化失敗：${err.message}`; });
-  return { get state() { return store.state; } };
+  return { get state() { return store.state; }, get extras() { return extras; } };
 })();

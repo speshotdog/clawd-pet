@@ -538,3 +538,55 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .wardrobe-hint { font-size:11px; color:#735E4E; margin-top:6px; }
 .buddy-transcend { color:#3D7BE0; }
 #game .badge { width:24px; height:24px; }
+
+/* Round 12: 深夜冰箱（藍色調＋霜層＋回升標）、今日限定包、里程碑徽章牆、分享卡、匯出匯入 */
+.scene-tint { position:absolute; inset:0; pointer-events:none; z-index:60; }
+#stage[data-scene="fridge"] #clicker-scene, #stage[data-scene="fridge"] .scene-outgoing { filter:hue-rotate(160deg) saturate(.55) brightness(1.06) contrast(.95); }
+#stage[data-scene="fridge"] .desk-mat { filter:saturate(.4) hue-rotate(170deg) brightness(1.05); }
+#stage[data-scene="fridge"] #hero-light { background:radial-gradient(ellipse, #DFF3FFb8 0%, #DFF3FF00 70%); }
+.scene-toy { z-index:2; filter:drop-shadow(0 2px 0 #30251F55); }
+#stage > #regen-tag { position:absolute; left:296px; top:330px; height:22px; display:flex; align-items:center; gap:2px; z-index:13; padding:0 6px 2px 3px; font-size:11px; line-height:14px; color:#2A4A66; background:#DFF3FF; border:2px solid #30251F; border-radius:4px; pointer-events:none; }
+#regen-tag img { width:16px; height:16px; object-fit:contain; }
+#frost { position:absolute; inset:0; z-index:2; pointer-events:none; opacity:var(--frost,0); -webkit-mask:var(--frost-mask) center/100% 100% no-repeat; mask:var(--frost-mask) center/100% 100% no-repeat;
+  background:linear-gradient(180deg,#FFFFFF 0%,#DFF3FFcc 35%,#FFFFFF88 60%,#F4FBFF 100%); }
+#frost::after { content:''; position:absolute; inset:0; background:url('clicker-fx-snow.png') 12% 18%/26px no-repeat, url('clicker-fx-snow.png') 70% 40%/20px no-repeat, url('clicker-fx-snow.png') 30% 70%/22px no-repeat, url('clicker-fx-snow.png') 78% 82%/18px no-repeat; opacity:.9; }
+#frost[data-level="1"]::after { opacity:.35; } #frost[data-level="2"]::after { opacity:.65; }
+#frost .frost-image { position:absolute; inset:0; width:100%; height:100%; object-fit:fill; }
+#stage > #daily-bag { pointer-events:auto; position:absolute; z-index:6; border:0; border-image:none; background:transparent; box-shadow:none; padding:0; transform-origin:50% 100%; }
+#game #daily-bag:hover:enabled { filter:brightness(1.06); transform:translateY(-2px); } #game #daily-bag:active:enabled { transform:translateY(1px) scale(.98); clip-path:none; }
+#daily-bag .daily-image { position:absolute; left:0; top:0; width:100%; height:100%; object-fit:contain; transform-origin:50% 100%; filter:drop-shadow(0 3px 0 #30251F44); }
+#daily-bag .daily-tape { position:absolute; left:8px; top:-6px; width:64px; height:22px; object-fit:contain; transform:rotate(-8deg); filter:hue-rotate(-20deg) saturate(1.6) brightness(1.15); }
+#daily-bag .daily-star { position:absolute; right:-10px; top:-12px; width:30px; height:30px; object-fit:contain; animation:daily-twinkle 1.6s ease-in-out infinite; }
+@keyframes daily-twinkle { 0%,100% { transform:scale(1) rotate(0); } 50% { transform:scale(1.25) rotate(18deg); } }
+#daily-bag .daily-label { position:absolute; left:50%; bottom:-4px; transform:translateX(-50%) rotate(-3deg); padding:0 5px; font-size:10px; line-height:14px; white-space:nowrap; background:#E9B94E; color:#30251F; border:1.5px solid #30251F; border-radius:3px; }
+#daily-bag .daily-meter { position:absolute; left:4px; right:4px; bottom:-14px; height:6px; background:#FFF6E6; border:1.5px solid #30251F; border-radius:3px; overflow:hidden; }
+#daily-bag .daily-meter b { display:block; height:100%; width:0; background:linear-gradient(90deg,#E9B94E,#EF8E8E); }
+#stage > #badge-pop { position:absolute; left:50%; top:38%; translate:-50% -50%; z-index:22; display:flex; flex-direction:column; align-items:center; gap:4px; pointer-events:none; }
+#badge-pop b { padding:2px 10px; font-size:16px; background:#FDECCB; border:2px solid #30251F; border-radius:5px; box-shadow:2px 3px 0 #30251F44; }
+.badge-icon { position:relative; display:inline-block; width:var(--size,64px); height:var(--size,64px); }
+.badge-icon .badge-art, .badge-icon .badge-base { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+.badge-icon .badge-star { position:absolute; right:-8%; top:-10%; width:42%; height:42%; object-fit:contain; }
+.badge-icon b { position:absolute; left:50%; top:52%; translate:-50% -50%; font-size:calc(var(--size,64px) * .26); line-height:1; color:#30251F; -webkit-text-stroke:0; padding:1px 4px; background:#FFF6E6e6; border-radius:4px; white-space:nowrap; }
+#team #share-offer { position:absolute; left:604px; top:0; height:24px; z-index:9; padding:1px 10px 3px; font-size:11px; --button-art:url('clicker-ui-btn-pink.png'); --button-fill:#FB7A6E; }
+.extra-floater { white-space:nowrap; }
+#stats.badge-wall header { margin-bottom:8px; } #stats.badge-wall header h2 { display:flex; align-items:center; gap:4px; } #stats.badge-wall header h2 b { font-size:14px; margin-left:4px; }
+#stats.badge-wall header span { font-size:11px; line-height:14px; }
+#badge-grid { display:grid; grid-template-columns:repeat(9,1fr); gap:6px 4px; padding:10px 6px; border-image:url('clicker-ui-paper.png') 88 fill / 14px stretch; background:#FDECCB; background-clip:padding-box; }
+.badge-cell { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:10px; line-height:12px; text-align:center; }
+.badge-cell:not(.earned) .badge-icon { filter:grayscale(1) brightness(.85); opacity:.42; }
+.badge-cell.earned .badge-icon { animation:badge-settle 220ms cubic-bezier(.2,1.4,.4,1) backwards; }
+@keyframes badge-settle { from { transform:scale(0) rotate(-12deg); } 70% { transform:scale(1.18) rotate(3deg); } to { transform:scale(1) rotate(0); } }
+#stats-tools { display:flex; gap:8px; margin-top:8px; } #game #stats-tools button { font-size:13px; padding:3px 12px 6px; }
+#save-io { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+#io-text { width:100%; height:64px; font-size:11px; font-family:monospace; user-select:text; resize:none; background:#FFF6E6; border:2px solid #735E4E; border-radius:6px; padding:4px 6px; word-break:break-all; }
+.io-row { display:flex; align-items:center; gap:8px; } .io-row span { flex:1; font-size:12px; line-height:15px; }
+#game .io-row button { font-size:12px; padding:2px 10px 5px; }
+#share.share-panel { display:flex; flex-direction:column; gap:10px; } #share.share-panel header { margin-bottom:0; }
+#share-canvas { width:100%; aspect-ratio:16/9; height:auto; border:3px solid #30251F; border-radius:6px; background:#E9D6B4; box-shadow:4px 5px 0 #30251F33; }
+#game #share .io-row { justify-content:center; } #game #share .io-row button { font-size:15px; padding:4px 18px 7px; }
+#pick100.pick-panel header span { font-size:12px; }
+#pick100-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+#game .pick-card { display:flex; flex-direction:column; align-items:center; gap:2px; height:150px; padding:6px 4px; font-size:13px; }
+.pick-card svg { height:88px !important; width:auto; margin:0 !important; filter:none !important; }
+.pick-card small { font-size:10px; color:#735E4E; }
+@media (prefers-reduced-motion:reduce) { #daily-bag .daily-star { animation:none; } .badge-cell.earned .badge-icon { animation:none; } }

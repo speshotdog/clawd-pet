@@ -149,7 +149,7 @@ window.ClickerStage = (() => {
       }
     }
     const stateOf = s => { const r = Math.max(0, 1 - s.package.progress / E.requirement(s.package.index, s.settings.scene)); return r > .75 ? 0 : r > .5 ? 1 : r > .25 ? 2 : 3; };
-    function showBag(state) { $('bag').dataset.skin = window.ClickerScene.current.bagSkin; bagState = state; const img=$('bag-image'); img.onerror=()=>{img.style.visibility='hidden';}; const src=`clicker-${window.ClickerScene.current.bagSkin===1?'can':'bag'}-${state}.png`; if(img.getAttribute('src')!==src) {img.style.visibility=''; img.src=src;} img.alt = `包裝：${['完整','輕損','中損','重損','撕開'][state]}`; }
+    function showBag(state) { $('bag').dataset.skin = window.ClickerScene.current.bagSkin; bagState = state; const img=$('bag-image'); img.onerror=()=>{img.style.visibility='hidden';}; const src=`${window.ClickerScene.current.bagPrefix || (window.ClickerScene.current.bagSkin===1?'clicker-can-':'clicker-bag-')}${state}.png`; if(img.getAttribute('src')!==src) {img.style.visibility=''; img.src=src;} img.alt = `包裝：${['完整','輕損','中損','重損','撕開'][state]}`; }
     function bounce(heavy) {
       motion($('bag-image'), heavy ? [{transform:'scale(1)'},{transform:'scale(1.10)',offset:.35},{transform:'scale(.97)',offset:.7},{transform:'scale(1)'}] : [{transform:'scale(1)'},{transform:'scale(1.045)',offset:.5},{transform:'scale(1)'}], heavy ? 180 : 140);
     }
@@ -395,7 +395,9 @@ window.ClickerStage = (() => {
       if (!fx) return; const rand = (a,b) => a + Math.random() * (b-a);
       for (let i = 0; i < 24; i++) fx.spawn({ sprite:14, x:rand(40,570), y:rand(30,120), vx:rand(-30,30), vy:rand(20,60), g:40, r:rand(5,9), life:rand(.9,1.4), color:'#E9B94E', blend:'lighter', shrink:true });
     }
-    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, preview, confetti, preview, confetti, shell, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
+    // 第十二輪 extras（每日一包、徽章、碎冰）借用舞台的粒子、浮字與震動
+    const spawn = p => fx?.spawn(p);
+    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, preview, confetti, preview, confetti, shell, spawn, float, shake, motion, get running() { return running; }, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
   }
   return { create };
 })();

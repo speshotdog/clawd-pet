@@ -40,11 +40,32 @@
     ],
     particles: { sprites:[0,1].map(i=>`clicker-scene2-particle-${i}.png`), everyMs:[1500,3200], max:6, size:[10,16], life:[5,9], rise:true },
   };
-  [['market','便利商店貨架',200,10,'kitchen'],['factory','包裝工廠',600,30,'market'],['nightmarket','夜市攤',1500,80,'factory'],['rainynight','神秘倉庫',4000,220,'nightmarket']].forEach(([id,name,packages,mul,boss]) => {
+  [['market','便利商店貨架',200,10,'kitchen'],['factory','包裝工廠',600,30,'market'],['nightmarket','夜市攤',1500,80,'factory']].forEach(([id,name,packages,mul,boss]) => {
     scenes[id] = { name, unlockPackages:0, requirementMul:mul, rewardMul:mul, unlock:{packages,boss}, available:false,
-      enemy:{shell:null,timer:id==='factory'?20:id==='nightmarket'?15:null,regen:id==='rainynight'?.01:null},
+      enemy:{shell:null,timer:id==='factory'?20:id==='nightmarket'?15:null,regen:null},
       boss:{...scenes.backyard.boss,mul:1.35}, bagSkin:0, affinity:[], palette:{mat:'#aaa',sky:'#ddd'} };
   });
+  // 第十二輪：深夜冰箱（舊 id rainynight，存檔遷移在 clicker-save.js）。regen：需求每秒回升 1%，靠 burst 打穿。
+  // 素材尚未產出：先重用廚房各層加 tint 藍色調；冷凍包用罐頭 + 霜層（bagPrefix 換成 'clicker-frozen-' 即可切到新素材）。
+  scenes.fridge = {
+    name: '深夜冰箱', unlockPackages: 0, requirementMul: 120, rewardMul: 120, bagSkin: 1, bagPrefix: 'clicker-can-',
+    unlock: { packages: 4000, boss: 'nightmarket' }, enemy: { shell: null, timer: null, regen: .01 }, affinity: ['zhenmu','zhenzhen'],
+    boss: { ...scenes.backyard.boss, name: '大冰磚', mul: 6, reward: { freeDraws: 5 } },
+    palette: { mat: '#AEC6D6', sky: '#DCE9F2' },
+    tint: { color: '#7FB5E6', opacity: .34, blend: 'multiply' },
+    frost: { layer: 'clicker-frozen-frost.png', ice: 'clicker-frozen-ice.png', shards: { sprite: 9, count: 16, color: '#DFF3FF' } },
+    music: { theme: 'rainynight', seed: 'zhenmu-fridge-1', gen: { density: 35, rhythm: 30, speed: 30, drama: 40, mood: 45, hook: 55, smooth: 80 } },
+    layers: [
+      { id:'sky', src:'clicker-scene2-sky.png', y:0, h:360, parallax:0 },
+      { id:'far', src:'clicker-scene2-far.png', x:330, y:44, h:130, w:243, parallax:.35 },
+      { id:'mid', src:'clicker-scene2-mid.png', x:40, y:196, h:96, w:294, parallax:.55 },
+      { id:'ground', src:'clicker-scene2-ground.png', y:220, h:140, parallax:.8 },
+      { id:'props', sprites:[0,1,2].map(i=>`clicker-scene2-prop-${i}.png`), slots:[[62,274],[330,298],[556,272]], h:64, parallax:.7 },
+      { id:'mist', sprites:[0,1].map(i=>`clicker-scene2-steam-${i}.png`), slots:[[90,150],[470,176]], h:70, drift:[8,11], rise:true, parallax:.2 },
+      { id:'frost-edge', sprites:['clicker-fx-snow.png','clicker-fx-snow.png'], slots:[[40,40],[540,36]], h:40, drift:[3,4], parallax:.15 },
+    ],
+    particles: { sprites:['clicker-fx-snow.png','clicker-fx-spark.png'], everyMs:[900,2000], max:8, size:[8,14], life:[5,9] },
+  };
   const resolve = (id, index = Infinity) => Object.hasOwn(scenes, id) && index >= scenes[id].unlockPackages ? scenes[id] : scenes.backyard;
   root.ClickerScenes = scenes;
   if (typeof module !== 'undefined' && module.exports) { module.exports = { scenes, resolve }; return; }
@@ -103,6 +124,8 @@
         leaf.style.transformOrigin = `50% ${50 + 10/def.canopySlots[j][2]*100}%`;
       });
     });
+    if (scene.tint) { const tint = document.createElement('div'); tint.className = 'scene-tint'; tint.style.cssText = `background:${scene.tint.color};opacity:${scene.tint.opacity};mix-blend-mode:${scene.tint.blend || 'normal'}`; host.append(tint); }
+    root.ClickerExtras?.decorate?.(host, scene);   // 第十二輪：里程碑玩具進 props 槽
     textures = scene.particles.sprites.map(src => { const img = new Image(); img.src = src; return img; });
     document.getElementById('game').addEventListener('pointermove',move,{passive:true});
     document.getElementById('game').addEventListener('pointerleave',center);
