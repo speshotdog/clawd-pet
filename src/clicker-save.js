@@ -94,13 +94,18 @@
       check(integer(e.chain) && e.chain>=1 && e.chain<=3, '效果快照');
       if (e.params) {
         check(object(e.params) && def.kind===base.kind, '效果快照');
-        const variants = [0,1,2,3,4,5].flatMap(trans=>[1,2,3,4,5].flatMap(star=>[false,true].flatMap(bond=>[false,true].map(home=>{
+        // 快照可能來自任一組：星級 × 超越 × 羈絆 × 當家 × 夥伴訓練里程碑（0/25/50/75/100，與 economy.skillAt 同一套加法）
+        const variants = [0,1,2,3,4,5].flatMap(trans=>[1,2,3,4,5].flatMap(star=>[false,true].flatMap(bond=>[false,true].flatMap(home=>[0,25,50,75,100].map(L=>{
           const p=B.skillAt(e.source,star,trans);
           if (bond && ['click','clickAdd'].includes(p.kind)) p.charges++;
           if (bond && p.kind==='self') p.duration*=1.25;
           if (home) p.cd*=.8;
+          if (L >= 25) { if (['click','clickAdd'].includes(p.kind) && p.charges) p.charges += 1; else if (p.duration) p.duration += 2; }
+          if (L >= 50 && p.duration) p.duration += 2;
+          if (L >= 75) p.cd *= .95;
+          if (L >= 100) { for (const k of ['ratio','factor','copy']) if (p[k]) p[k] *= 1.1; if (p.multiplier) p.multiplier = 1 + (p.multiplier - 1) * 1.1; }
           return p;
-        }))));
+        })))));
         check(variants.some(p=>['kind','multiplier','ratio','factor','copy','charges','duration','cd','basis'].every(k=>p[k]===def[k])), '技能快照參數');
       }
       const mult = def.multiplier === undefined ? undefined : 1+(def.multiplier-1)*[1,1.3,1.6][e.chain-1];

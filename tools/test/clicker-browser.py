@@ -305,10 +305,13 @@ def round7(browser):
         page.reload()
         page.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
         old = page.evaluate('Clicker.state.coins')
+        # burst 的實際值（含當家、連鎖）先用經濟層在「發動前」的狀態試算，發動後再比
+        expected = page.evaluate('(()=>{const E=ClickerEconomy; try { return E.activate(E.clone(Clicker.state),0,Date.now()).effect.value; } catch (e) { return null; } })()') if ident in ['caihua', 'fox'] else None
+        daily_before = page.evaluate('!!Clicker.state.daily?.done')
         page.locator('.skill-use').first.dispatch_event('click')
         if ident in ['caihua', 'fox']:
-            # 場景親和（後院當家：玥玥、采華）會改 pᵢ 與 P，期望值直接照經濟層算
-            expected = page.evaluate('20*ClickerEconomy.individual(Clicker.state,"caihua")' if ident == 'caihua' else '15*ClickerEconomy.rates(Clicker.state).P')
+            # burst 也會打今日限定包，剛好拆完會多一份等額金幣獎勵
+            if not daily_before and page.evaluate('!!Clicker.state.daily?.done'): expected += page.evaluate('Clicker.state.daily.bonus || 0')
             assert abs(page.evaluate('Clicker.state.coins') - old - expected) < 1e-6, (ident, page.evaluate('Clicker.state.coins') - old, expected)
             page.locator('.skill-use').first.dispatch_event('click')
             assert abs(page.evaluate('Clicker.state.coins') - old - expected) < 1e-6
@@ -768,10 +771,11 @@ def round12(browser):
     shot('daily')
     coins=page.evaluate('Clicker.state.coins');pkg=page.evaluate('Clicker.state.package.progress')
     page.evaluate('r12fx.length=0')
-    for _ in range(40):
+    for _ in range(120):   # 需求約 80 次點擊；點擊上限 8 次/秒，所以每下隔 130ms
         if page.evaluate('Clicker.state.daily.done'): break
-        page.locator('#daily-bag').dispatch_event('click');advance(40)
+        page.locator('#daily-bag').dispatch_event('click');advance(130)
     assert page.evaluate('Clicker.state.daily.done && Clicker.state.freeDraws===1 && Clicker.state.universalDust===1 && Clicker.state.daily.streak===1'), page.evaluate('Clicker.state.daily')
+    advance(900); assert page.locator('#daily-done').is_visible(); shot('daily-receipt'); page.locator('#daily-done-close').click(); advance(200)   # 拆完 700ms 後跳收據，關掉才能繼續
     assert page.evaluate('Clicker.state.coins')>coins   # 一般包只有被動在推（點擊全進限定包，node 測試驗）
     assert page.evaluate('r12fx.filter(p=>p.sprite===8).length')>=24
     advance(120);shot('daily-done')
