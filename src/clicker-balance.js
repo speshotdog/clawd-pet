@@ -57,7 +57,17 @@
       {id:'spark',name:'小閃電',file:'clicker-fx-spark.png',color:'#E9B94E',blend:'lighter'}, {id:'snow',name:'雪花',file:'clicker-fx-snow.png',color:'#FFFFFF'},
     ],
   };
-  const api = { wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const marks = [
+    { id:'slot4', name:'第四技能槽', cost:3, desc:'三槽變四槽，連鎖窗可接到第四個（×1.9）' },
+    { id:'offline12', name:'離線 12 小時', cost:2, desc:'離線結算上限 8 → 12 小時' },
+    { id:'chain2', name:'連鎖窗 +2 秒', cost:2, desc:'與玥玥羈絆相加' },
+    { id:'starter5', name:'開局送五連', cost:1, desc:'每次換桌布後送 5 次免費招募' },
+    { id:'crack75', name:'裂痕 75% 起跳', cost:2, desc:'王包失敗保留 75% 傷害' },
+    { id:'rooftop', name:'新桌布「屋頂星空」', cost:5, desc:'第七場景，純外觀與 BGM' },
+  ];
+  const autoClickMax = 6;
+  const decor = ['花盆','燈串','小鼓','風鈴','貓抓板','相框','香氛蠟燭','小旗串','多肉','留聲機'].map((name,i)=>({ id:`deco${i}`, name, file:`clicker-deco-${i}.png` }));
+  const api = { marks, autoClickMax, decor, wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;

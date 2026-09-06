@@ -538,3 +538,34 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .wardrobe-hint { font-size:11px; color:#735E4E; margin-top:6px; }
 .buddy-transcend { color:#3D7BE0; }
 #game .badge { width:24px; height:24px; }
+
+/* Round 13: 換桌布、印記商店、電動手指、夥伴訓練、桌面裝飾 */
+#prestige { display:flex; flex-direction:column; }
+#prestige header span { font-size:12px; }
+.prestige-tabs { display:flex; gap:6px; margin-bottom:10px; }
+#game .prestige-tabs button.active { --button-fill:#8B9B5A; --button-art:url('clicker-ui-btn-green.png'); }
+.prestige-note { font-size:13px; line-height:18px; }
+.prestige-note p { margin:0 0 8px; }
+.prestige-cols { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 10px; }
+.prestige-cols ul { margin:4px 0 0; padding-left:18px; }
+.prestige-actions { display:flex; gap:8px; margin-top:auto; }
+#game #prestige-go { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); font-size:16px; padding:6px 18px 9px; }
+.mark-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+#game .mark-ticket { display:grid; grid-template-columns:34px 1fr auto; gap:8px; align-items:center; text-align:left; padding:6px 12px 8px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 8px 12px stretch; background:#FAEBC9; background-clip:padding-box; }
+.mark-ticket img { width:32px; height:32px; object-fit:contain; }
+.mark-ticket small { display:block; font-size:10px; line-height:12px; color:#735E4E; -webkit-text-stroke:0; }
+.mark-ticket i { font-style:normal; color:#3D7BE0; }
+.mark-ticket.owned i { color:#8B9B5A; }
+.mark-stamp { position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); z-index:70; display:flex; flex-direction:column; align-items:center; gap:4px; pointer-events:none; }
+.mark-stamp img { width:140px; height:140px; }
+.mark-stamp b { font-size:28px; color:#3D7BE0; -webkit-text-stroke:1px #30251F; text-shadow:0 2px 0 #FFF6E6; }
+#game #prestige-hint { position:absolute; left:24px; top:40px; z-index:12; pointer-events:auto; font-size:12px; padding:4px 12px 6px; transform:rotate(-2deg); --button-fill:#FBEECF; }
+#auto-finger { position:absolute; right:-6px; top:60px; width:48px; height:48px; object-fit:contain; transform-origin:20% 90%; z-index:3; pointer-events:none; }
+#deco-layer { position:absolute; inset:0; z-index:2; pointer-events:none; }
+#deco-layer .deco { position:absolute; height:44px; width:auto; transform:translate(-50%,-100%); }
+#deco-layer .deco-fallback { font-size:11px; background:#FFF6E6; border:1px solid #30251F; border-radius:4px; padding:1px 4px; height:auto; }
+#game .grow-btn.train { --button-fill:#8B9B5A; --button-art:url('clicker-ui-btn-green.png'); }
+#wardrobe { width:352px; }
+#wardrobe-body { grid-template-columns:1fr 1fr 1fr; }
+#wardrobe-decor-price { font-size:10px; color:#735E4E; }
+#game #prestige-open { font-size:13px; }

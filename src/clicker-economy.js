@@ -61,7 +61,10 @@
     }
     return s;
   }
-  const individual = (s, id) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2][tier(s,id)]/[1,1.8,3.2][origin(id)]) * (1+[.06,.09,.14][origin(id)]*(s.transcend?.[id] || 0)) * 1.15 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1);
+  const individual = (s, id) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2][tier(s,id)]/[1,1.8,3.2][origin(id)]) * (1+[.06,.09,.14][origin(id)]*(s.transcend?.[id] || 0)) * 1.15 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * (1 + .05 * (s.partnerLevels?.[id] || 0));
+  // 第十三輪：印記永久倍率、桌面裝飾
+  const markMul = (s) => 1 + .05 * (s.marksClaimed || 0);
+  const decoMul = (s) => 1 + .01 * (s.deco?.length || 0);
   const affinity = (s,id) => (Scenes(s.settings?.scene).affinity || []).includes(id);
   const activeBonds = s => B.bonds.filter(b => b.pair.every(id => s.collection[id] > 0));
   function skillAt(s,id,star = stars(dust(s,id) || 1)) {
@@ -71,6 +74,12 @@
       if (b.effect.selfDurationMul && p.kind === 'self') p.duration *= b.effect.selfDurationMul;
     }
     if (affinity(s,id)) p.cd *= .8;
+    // 夥伴個別訓練里程碑：25 次數+1（非次數型改持續+2s）、50 持續+2s、75 CD −5%、100 效果 ×1.1
+    const L = s.partnerLevels?.[id] || 0;
+    if (L >= 25) { if (['click','clickAdd'].includes(p.kind) && p.charges) p.charges += 1; else if (p.duration) p.duration += 2; }
+    if (L >= 50 && p.duration) p.duration += 2;
+    if (L >= 75) p.cd *= .95;
+    if (L >= 100) { for (const k of ['ratio','factor','copy']) if (p[k]) p[k] *= 1.1; if (p.multiplier) p.multiplier = 1 + (p.multiplier - 1) * 1.1; }
     return p;
   }
   function recommend(state,index,now) {
@@ -86,8 +95,8 @@
   }
   function rates(s) {
     const P = Object.keys(B.characters).reduce((sum, id) => sum + individual(s, id), 0);
-    const mul = Scenes(s.settings?.scene).rewardMul || 1;
-    return { P: P * mul, D: (1.18 ** s.clickLevel + .05 * P) * mul };
+    const mul = (Scenes(s.settings?.scene).rewardMul || 1) * decoMul(s), M = markMul(s);
+    return { P: M * P * mul, D: (M * 1.18 ** s.clickLevel + .05 * M * P) * mul };
   }
   function tagFor(entry, dup, owned, state) {
     if (state?.transcend?.[entry.id]===5) return {text:`萬用 +${['¼','½','1'][origin(entry.id)]}`,cls:'mastery'};
@@ -170,7 +179,7 @@
     return result.completed;
   }
   function settle(state, now, options = {}) {
-    const s = clone(state), elapsed = Math.max(0, now - s.settledAt), duration = Math.min(elapsed, B.offlineMs);
+    const s = clone(state), elapsed = Math.max(0, now - s.settledAt), duration = Math.min(elapsed, s.markShop?.offline12 ? 12 * 3600000 : B.offlineMs);
     if (options.offline && s.boss) finishBoss(s,false,s.settledAt);
     // Split at the deadline, so no damage after the 30-second boundary can win.
     if (s.boss && now > s.boss.endsAt) {
@@ -189,11 +198,11 @@
     s.effects = s.effects.filter((e) => e.expiresAt > s.settledAt && (e.remaining === undefined || e.remaining > 0));
     return { state: s, earned, completed, elapsed, duration };
   }
-  function click(state, now) {
+  function click(state, now, options = {}) {
     const result = settle(state, now), s = result.state;
     const multiplier = Math.max(1, ...s.effects.filter((e) => ['click', 'clickTime'].includes(e.kind)).map((e) => e.multiplier));
     const amount = (rates(s).D + s.effects.filter(e => e.kind === 'clickAdd').reduce((sum, e) => sum + e.value, 0)) * multiplier;
-    result.completed += grant(s, amount, 'click', result); s.manualClicks++;
+    result.completed += grant(s, amount, 'click', result); if (!options.auto) s.manualClicks++; else s.autoClicks = (s.autoClicks || 0) + 1;
     for (const effect of s.effects) if (effect.remaining !== undefined) effect.remaining--;
     s.effects = s.effects.filter((e) => e.remaining === undefined || e.remaining > 0);
     const tutorial = s.manualClicks >= 50 && !s.claimedMilestones.includes('tutorial50');
@@ -215,7 +224,7 @@
     if (!levels) throw new Error('餘額不足');
     return { state: s, levels };
   }
-  const slotCount = (s) => B.slotThresholds.filter((v) => s.lifetimeCoins >= v).length;
+  const slotCount = (s) => B.slotThresholds.filter((v) => s.lifetimeCoins >= v).length + (s.markShop?.slot4 ? 1 : 0);
   function equip(state, slot, id, now) {
     const s = settle(state, now).state;
     if (!Number.isInteger(slot) || slot < 0 || slot >= slotCount(s) || (id !== null && !s.collection[id])) throw new Error('無法裝備');
@@ -308,7 +317,7 @@
   function abandonBoss(state,now) {
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
-  const api = { origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor,
+  const api = { markMul, decoMul, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor,
     newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

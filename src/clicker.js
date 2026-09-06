@@ -77,6 +77,16 @@ window.Clicker = (() => {
     for (const [key,value] of volumeDrafts) saved.settings[key] = value;
     const ok = store.commit(saved); if (ok && volumeDrafts.size) store.stage(next); status(); if (!ok) { gacha?.render(); renderSlots(); } return ok;
   }
+  // 電動手指：每秒依等級自動點（走同一條 click 路徑，吃倍率與次數型效果；不算手點）
+  function autoTick() {
+    if (store.blocked || !store.state || gacha?.active || cutin?.active || !$('roster').hidden) return;
+    const s = E.clone(store.state), n = window.ClickerPrestige.autoClicks(s, 1);
+    if (!n) { if (s.autoRemainder !== store.state.autoRemainder) store.stage(s); return; }
+    let state = s, amount = 0, completed = 0, multiplier = 1;
+    for (let i = 0; i < n; i++) { const r = E.click(state, Date.now(), { auto: true }); state = r.state; amount += r.amount; completed += r.completed; multiplier = Math.max(multiplier, r.multiplier); }
+    store.stage(state); stage.autoClick(amount, multiplier >= 10, state, completed, n);
+    window.ClickerPrestige.hint(state, E.rates(state).P, new Date().toDateString()) && prestigeUI?.hint();
+  }
   function settle() {
     if (store.blocked || !store.state) return;
     const before=store.state.boss, result = E.settle(store.state, Date.now());
@@ -206,7 +216,7 @@ window.Clicker = (() => {
     const s = store.state, key = JSON.stringify([s.settings.scene, s.collection, s.skillSlots, E.slotCount(s)]);
     if (slotsKey !== key) {
       slotsKey = key; $('slots').replaceChildren();
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < s.skillSlots.length; i++) {
         const el = document.createElement('article'); el.className = 'skill-slot';
         const id = s.skillSlots[i];
         const button = document.createElement('button'); button.className = 'skill-use';
@@ -243,7 +253,7 @@ window.Clicker = (() => {
   }
   function tap(point) {
     action(() => {
-      if (gacha.active || !$('roster').hidden || !$('wardrobe').hidden || !$('receipt').hidden || !$('stats').hidden) return;
+      if (gacha.active || !$('roster').hidden || !$('wardrobe').hidden || !$('prestige').hidden || !$('receipt').hidden || !$('stats').hidden) return;
       const time = performance.now(); inputTimes = inputTimes.filter((t) => time - t < 1000); if (inputTimes.length >= 8) return;
       inputTimes.push(time);
       const result = E.click(store.state, Date.now());
@@ -312,7 +322,7 @@ window.Clicker = (() => {
   }
   function startTimers() {
     if (hiddenNow() || suspended || tickTimer || !ready) return;
-    tickTimer = setInterval(() => { settle(); changed(); }, 1000);
+    tickTimer = setInterval(() => { settle(); autoTick(); changed(); }, 1000);
     saveTimer = setInterval(() => { if (!store.blocked) commit(); }, 5000);
     if (!gacha.active) stage.start();
   }
@@ -361,7 +371,7 @@ window.Clicker = (() => {
     $('zoomer').style.left = `${(innerWidth - 960 * z) / 2}px`;
     $('zoomer').style.top = `${(innerHeight - 640 * z) / 2}px`;
   }
-  let album = null;
+  let album = null, prestigeUI = null;
   const card = window.GachaCard.create({ rarity: Pool.RARITY, byId: Pool.byId, canHover: () => gacha?.canHover() || album?.isOpen || false, fatal: $('fatal'), tagFor: (entry, dup, owned) => E.tagFor(entry, dup, owned, store.state) });
   // 保留供共用 rig 查找的結構 id；所有 url(#id) 素材引用則在每個 SVG 實例內唯一。
   let artSerial = 0;
@@ -410,6 +420,7 @@ window.Clicker = (() => {
     stage = window.ClickerStage.create({ card, sound, format, showRoster, notice });
     cutin = window.ClickerCutin.create({card, stage, sound, done:changed});
     album = window.ClickerAlbum.create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations });
+    prestigeUI = window.ClickerPrestigeUI.create({ store, card, commit, changed, action, format, notice, sound, stage, album });
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
       canOpen: () => !stage.bossBusy,
       pauseStage() { cutin.stop(); stage.stop(); renderSlots(); },
@@ -473,7 +484,8 @@ window.Clicker = (() => {
       $('scenes').hidden=false; $('game-content').inert=true; $('scenes-close').focus();
     });
     $('scenes-close').onclick=()=>{$('scenes').hidden=true; $('game-content').inert=gacha.active; $('scene-open').focus();};
-    for (const id of ['roster', 'stats', 'receipt', 'wardrobe']) $(`${id}-close`).onclick = () => { if (id === 'roster') album.close(); $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
+    for (const id of ['roster', 'stats', 'receipt', 'wardrobe', 'prestige']) $(`${id}-close`).onclick = () => { if (id === 'roster') album.close(); $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
+    $('prestige-open').onclick = () => { if (!cutin.active) prestigeUI.open(); };
     $('wardrobe-open').onclick = () => { if (!cutin.active) album.openWardrobe(); };
     $('stats-open').onclick = () => {
       if (cutin.active) return;
@@ -493,11 +505,12 @@ window.Clicker = (() => {
       if (!$('audio-panel').hidden) { $('audio-panel').hidden=true; $('audio-toggle').setAttribute('aria-expanded','false'); $('audio-toggle').focus(); e.preventDefault(); return; }
       if (cutin?.active) { e.preventDefault(); return; }
       if (album?.escape()) { e.preventDefault(); return; }
+      if (!$('prestige').hidden) { $('prestige-close').click(); e.preventDefault(); return; }
       if (!$('scenes').hidden) $('scenes-close').click(); else if (!$('roster').hidden) $('roster-close').click(); else if (!$('stats').hidden) $('stats-close').click();
       else if (!$('receipt').hidden) $('receipt-close').click(); else if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();
     }
     if (e.key === 'Tab') {
-      const panel = ['save-error', 'receipt', 'wardrobe', 'roster', 'stats', 'scenes', 'recruit-layer'].map($).find((el) => !el.hidden);
+      const panel = ['save-error', 'receipt', 'prestige', 'wardrobe', 'roster', 'stats', 'scenes', 'recruit-layer'].map($).find((el) => !el.hidden);
       if (!panel) return;
       const focusable = [...panel.querySelectorAll('button,select,textarea')].filter((el) => !el.disabled && !el.hidden && el.getClientRects().length);
       const first = focusable[0], last = focusable.at(-1);

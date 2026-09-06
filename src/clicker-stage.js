@@ -223,7 +223,7 @@ window.ClickerStage = (() => {
       meterRaf = requestAnimationFrame(frame);
     }
     function render(s, { instant = false, completed = 0, manual = false, heavy = false } = {}) {
-      latestState = s; if (frozen) return; setPartners(s);
+      latestState = s; if (frozen) return; setPartners(s); renderDeco(s);
       renderBoss(s,instant); rings(s);
       document.querySelector('.package-meter').hidden=!!s.boss || bossBusy;
       if (s.boss || bossBusy) { updateParasite(s,instant); return; }
@@ -389,13 +389,30 @@ window.ClickerStage = (() => {
       }
       group(0);
     }
+    // 電動手指：小機械手指站在珍母右肩，每秒依等級戳幾下（120ms 戳、粒子是手點的一半、不播音）
+    let fingerEl = null;
+    function autoClick(amount, heavy, s, completed, n) {
+      if (frozen || !running) { latestState = s; return; }
+      if (!fingerEl) { fingerEl = document.createElement('img'); fingerEl.id = 'auto-finger'; fingerEl.src = 'clicker-icon-hand.png'; fingerEl.alt = ''; $('hero-position').append(fingerEl); }
+      render(s, { completed });
+      motion(fingerEl, [{ transform: 'rotate(0)' }, { transform: 'rotate(-14deg) translateY(6px)', offset: .4 }, { transform: 'rotate(0)' }], 120);
+      pressAt = performance.now(); pressAmount = .06;
+      burst(4, heavy, false, { x: IMPACT.x, y: IMPACT.y });
+      float(amount, heavy, { x: IMPACT.x - 40, y: IMPACT.y - 10 });
+    }
+    function renderDeco(s) {
+      let layer = $('deco-layer'); if (!layer) { layer = document.createElement('div'); layer.id = 'deco-layer'; $('hero-light').before(layer); }
+      const key = JSON.stringify([s.deco || [], s.settings.scene]); if (layer.dataset.key === key) return; layer.dataset.key = key; layer.replaceChildren();
+      const slots = window.ClickerScene.current?.decoSlots || [[60, 300], [150, 306], [560, 296], [100, 260], [520, 250], [30, 250], [580, 330], [200, 330], [470, 330], [320, 100]];
+      (s.deco || []).forEach((id, i) => { const item = window.ClickerBalance.decor.find(d => d.id === id); if (!item) return; const [x, y] = slots[i % slots.length]; const img = document.createElement('img'); img.src = item.file; img.alt = ''; img.className = 'deco'; img.style.left = `${x}px`; img.style.top = `${y}px`; img.onerror = () => { img.replaceWith(Object.assign(document.createElement('span'), { className: 'deco deco-fallback', textContent: item.name, style: `left:${x}px;top:${y}px` })); }; layer.append(img); });
+    }
     // 更衣室試用：在珍母旁噴一次該特效；覺醒：整個舞台撒金粒子
     function preview(fxId) { if (!running) return; burst(10, false, true, IMPACT, false, fxId); }
     function confetti() {
       if (!fx) return; const rand = (a,b) => a + Math.random() * (b-a);
       for (let i = 0; i < 24; i++) fx.spawn({ sprite:14, x:rand(40,570), y:rand(30,120), vx:rand(-30,30), vy:rand(20,60), g:40, r:rand(5,9), life:rand(.9,1.4), color:'#E9B94E', blend:'lighter', shrink:true });
     }
-    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, preview, confetti, preview, confetti, shell, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
+    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, autoClick, preview, confetti, preview, confetti, shell, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
   }
   return { create };
 })();

@@ -104,7 +104,7 @@ window.ClickerAlbum = (() => {
       for (const [k, v] of rows) { const r = document.createElement('p'); const b = document.createElement('b'); b.textContent = k; const span = document.createElement('span'); span.textContent = v; r.append(b, span); info.append(r); }
       right.append(info);
       const buttons = document.createElement('div'); buttons.className = 'detail-buttons';
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < s.skillSlots.length; i++) {
         const btn = document.createElement('button'), occupied = s.skillSlots.indexOf(id);
         btn.textContent = i >= E.slotCount(s) ? `槽${i + 1} 未開` : occupied === i ? `已在槽 ${i + 1}` : `裝備至槽 ${i + 1}`;
         btn.disabled = !owned || i >= E.slotCount(s) || occupied >= 0 || store.blocked;
@@ -126,6 +126,17 @@ window.ClickerAlbum = (() => {
       trans.disabled = !canTranscend || !five || E.availableDust(s, id) < E.transcendCost(s, id) || store.blocked;
       trans.onclick = () => action(() => { if (commit(E.transcend(store.state, id, Date.now()))) { changed(); celebrate(big, store.state.transcend[id] === 5 ? 'awaken' : 'transcend'); notice(`${Pool.byId[id].name} 超越 ${store.state.transcend[id]}！`); later(() => { openDetail(id); renderBook(); }, 900); } });
       grow.append(promote, trans);
+      // 夥伴個別訓練（第十三輪）：每級 +5%，25/50/75/100 給技能副軸
+      const P = window.ClickerPrestige, L = s.partnerLevels?.[id] || 0, ms = P.nextMilestone(L);
+      const train = document.createElement('button'); train.className = 'grow-btn train';
+      train.textContent = owned ? (L >= 100 ? '訓練 Lv.100（滿）' : `訓練 Lv.${L}（${format(P.trainCost(L))} 幣）`) : '訓練（招募後）';
+      train.title = ms ? `下一里程碑 ${ms}：${{25:'次數 +1／持續 +2 秒',50:'持續 +2 秒',75:'冷卻 −5%',100:'效果 ×1.1'}[ms]}` : '';
+      train.disabled = !owned || L >= 100 || s.coins < P.trainCost(L) || store.blocked;
+      train.onclick = () => action(() => { const r = P.train(store.state, id, Date.now()); if (commit(r.state)) { changed(); sound('upgrade'); if (!reduced.matches) big.animate([{ transform: 'scale(1.15)' }, { transform: 'scale(1.19)', offset: .5 }, { transform: 'scale(1.15)' }], { duration: 100 }); if ([25,50,75,100].includes(store.state.partnerLevels[id])) { celebrate(big, 'promote'); notice(`${Pool.byId[id].name} 訓練里程碑 ${store.state.partnerLevels[id]}！`); } openDetail(id); } });
+      const trainMax = document.createElement('button'); trainMax.className = 'grow-btn train'; trainMax.textContent = '最多'; trainMax.disabled = train.disabled;
+      trainMax.onclick = () => action(() => { const r = P.train(store.state, id, Date.now(), true); if (commit(r.state)) { changed(); sound('upgrade'); notice(`${Pool.byId[id].name} 訓練 +${r.levels} 級`); openDetail(id); } });
+      grow.append(train, trainMax);
+      if (owned) rows.push(['訓練', `Lv.${L}・被動 +${5 * L}%${ms ? `・下一里程碑 ${ms}` : ''}`]);
       right.append(buttons, grow);
       const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); right.append(back);
       root.append(left, right);
@@ -188,6 +199,7 @@ window.ClickerAlbum = (() => {
     function renderWardrobe() {
       const s = store.state, price = E.wardrobePrice(s);
       $('wardrobe-price').textContent = `每件 ${format(price)} 幣`;
+      renderDecor();
       for (const kind of ['sounds', 'fx']) {
         const col = $(`wardrobe-${kind}`); col.replaceChildren();
         const wearing = s.settings[kind === 'sounds' ? 'clickSound' : 'clickFx'];
@@ -210,6 +222,20 @@ window.ClickerAlbum = (() => {
           });
           col.append(btn);
         }
+      }
+    }
+    // 桌面裝飾（第十三輪）：買了放進場景，各 +1% 全隊
+    function renderDecor() {
+      const s = store.state, P = window.ClickerPrestige, col = $('wardrobe-decor'); if (!col) return; col.replaceChildren();
+      const price = P.decoPrice(s); $('wardrobe-decor-price').textContent = `每件 ${format(price)} 幣・各 +1% 全隊（擁有 ${s.deco.length}/10）`;
+      for (const item of B.decor) {
+        const owned = s.deco.includes(item.id), btn = document.createElement('button'); btn.className = 'wardrobe-item'; btn.dataset.key = `deco:${item.id}`; btn.classList.toggle('owned', owned); btn.classList.toggle('wearing', owned);
+        const icon = document.createElement('span'); icon.className = 'wardrobe-icon'; icon.textContent = '❀';
+        const name = document.createElement('b'); name.textContent = item.name;
+        const status = document.createElement('small'); status.textContent = owned ? '已放上桌' : pendingBuy === `deco:${item.id}` ? `確定 ${format(price)}？` : format(price);
+        btn.append(icon, name, status); btn.disabled = owned || store.blocked || s.coins < price;
+        btn.onclick = () => action(() => { const key = `deco:${item.id}`; if (pendingBuy !== key) { pendingBuy = key; renderWardrobe(); return; } pendingBuy = null; if (commit(P.buyDeco(store.state, item.id, Date.now()))) { sound('upgrade'); changed(); notice(`「${item.name}」放上桌了，全隊 +1%`); stage?.render?.(store.state); } renderWardrobe(); });
+        col.append(btn);
       }
     }
     function preview(kind, item) {
