@@ -67,7 +67,7 @@ test('手勁費用 L=0/5/10/20/30 及訓練費用依公式逐級向上取整', (
 
 test('1/2/4/8/16/20 張的星級倍率；逐張角標', () => {
   assert.deepEqual([1, 2, 4, 8, 16, 20].map(E.stars), [1, 2, 3, 4, 5, 5]);
-  [1, 1.25, 1.5, 1.75, 2, 2.04].forEach((v, i) => close(E.starMultiplier([1, 2, 4, 8, 16, 20][i]), v));
+  [1, 1.25, 1.5, 1.75, 2, 2].forEach((v, i) => close(E.starMultiplier([1, 2, 4, 8, 16, 20][i]), v));   // 第 17 張起改給粉塵，不再有熟練
   assert.equal(E.starMultiplier(0), 0);
   assert.equal(E.tagFor({}, false, 0).text, 'NEW');
   assert.equal(E.tagFor({}, true, 3).text, '2★ → 3★');
@@ -195,7 +195,7 @@ test('原子寫入與失敗防護：不變更記憶體、重啟 pending、同 id
 });
 
 test('壞 JSON、未來版本、未知 ID、異常數值或 pending 都保留原文，不偷偷重置', () => {
-  for (const alter of [() => '{invalid', (s) => { s.version = 2; }, (s) => { s.coins = -1; }, (s) => { s.collection.intruder = 1; }, (s) => { s.clickLevel = 1.5; }, (s) => { s.pending = {}; }, (s) => { s.effects = [{ source: 'dog', kind: 'passive' }]; }]) {
+  for (const alter of [() => '{invalid', (s) => { s.version = 3; }, (s) => { s.coins = -1; }, (s) => { s.collection.intruder = 1; }, (s) => { s.clickLevel = 1.5; }, (s) => { s.pending = {}; }, (s) => { s.effects = [{ source: 'dog', kind: 'passive' }]; }]) {
     const s = fresh(), modified = alter(s), raw = typeof modified === 'string' ? modified : JSON.stringify(s);
     const store = S.create({ getItem: () => raw, setItem() { assert.fail('不可清空壞檔'); } }, { pool: Pool });
     assert.equal(store.state, null); assert.equal(store.blocked, true); assert.equal(store.raw, raw); assert.ok(store.error);

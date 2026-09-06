@@ -82,7 +82,11 @@ window.GachaFx = (() => {
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rot);
     ctx.fillStyle = p.color;
-    if (p.sprite != null && sheetReady) {
+    if (p.img) {
+      // 自訂貼圖粒子（更衣室的櫻花／雪花等）：r 是半寬
+      const s = p.r * 2 * (p.shrink ? (0.3 + 0.7 * k) : 1);
+      if (p.img.complete && p.img.naturalWidth) ctx.drawImage(p.img, -s / 2, -s / 2, s, s);
+    } else if (p.sprite != null && sheetReady) {
       // 貼圖粒子：r 是半寬；grow 讓它由小放大，shrink 讓它縮小消失
       const s = p.r * 2 * (p.shrink ? (0.3 + 0.7 * k) : 1) * (p.grow ? (1.3 - 0.3 * k) : 1);
       ctx.drawImage(tinted(p.sprite, p.color), -s / 2, -s / 2, s, s);

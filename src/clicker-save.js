@@ -4,14 +4,14 @@
   const E = node ? require('./clicker-economy.js') : root.ClickerEconomy;
   const KEY = 'clicker_save';
   function fresh(now) {
-    return { version: 1, balanceVersion: 1, revision: 0, savedAt: now, settledAt: now,
+    return { version: 2, balanceVersion: 1, revision: 0, savedAt: now, settledAt: now,
       coins: 0, lifetimeCoins: 0, manualClicks: 0, clickLevel: 0, trainingLevel: 0,
-      collection: {}, paidDraws: 0, pity: { sinceLegendary: 0 }, pending: null,
+      collection: {}, dust: {}, universalDust: 0, promotions: {}, transcend: {}, overflow: {}, awakened: {}, owned: {wardrobe:['sounds:soft','fx:shard']}, paidDraws: 0, pity: { sinceLegendary: 0 }, pending: null,
       package: E.newPackage('backyard'), claimedMilestones: [],
       boss: null, bossWins: [], bossCracks: {}, bossCooldownUntil: 0, bossResult: null, scenePackages: {}, freeDraws: 0, usedFreeDraws: 0,
       chain: {count:1,expiresAt:0},
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
-      settings: { muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8 } };
+      settings: { clickSound:'soft', clickFx:'shard', muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8 } };
   }
   const object = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
   const number = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
@@ -19,7 +19,12 @@
   const known = (id) => Object.hasOwn(B.characters, id);
   function validate(s, pool) {
     const check = (ok, field) => { if (!ok) throw new Error(`存檔驗證失敗：${field}`); };
-    check(object(s) && s.version === 1 && s.balanceVersion === 1, '版本（本版不降級或重置）');
+    if (object(s) && s.version===1) {
+      s.dust={...s.collection}; s.universalDust=0; s.promotions={}; s.transcend={}; s.overflow={}; s.awakened={};
+      s.owned={wardrobe:['sounds:soft','fx:shard']};
+      s.settings={...s.settings,clickSound:'soft',clickFx:'shard'}; s.version=2;
+    }
+    check(object(s) && s.version === 2 && s.balanceVersion === 1, '版本（本版不降級或重置）');
     if (s.chain === undefined) s.chain = {count:1,expiresAt:0};
     check(object(s.chain) && integer(s.chain.count) && s.chain.count >= 1 && s.chain.count <= 3 && number(s.chain.expiresAt), '連鎖');
     s.boss ??= null; s.bossWins ??= []; s.bossCracks ??= {}; s.bossCooldownUntil ??= 0;
@@ -30,6 +35,19 @@
     check(s.lifetimeCoins >= s.coins, '累計收入');
     check(object(s.collection), 'collection');
     for (const [id, count] of Object.entries(s.collection)) check(known(id) && integer(count) && count > 0, '角色張數');
+    for (const key of ['dust','promotions','transcend','overflow','awakened']) check(object(s[key]),key);
+    check(integer(s.universalDust),'萬用粉塵');
+    for (const key of ['dust','promotions','transcend','overflow']) for (const [id,n] of Object.entries(s[key])) check(known(id) && integer(n),key);
+    for (const id of Object.keys(B.characters)) {
+      const p=s.promotions[id] || 0, t=s.transcend[id] || 0;
+      check(p<=2-E.origin(id) && t<=5 && (!t || E.tier(s,id)===2),'升階與超越');
+      check(!(p || t) || (s.dust[id]>=16+E.spentDust(s,id) && s.collection[id]>0),'粉塵帳');
+      check((s.overflow[id] || 0)<[4,2,1][E.origin(id)] && (!(s.overflow[id] || 0) || t===5),'溢出');
+      check((s.awakened[id] || false)===(t===5),'覺醒');
+    }
+    check(Object.entries(s.awakened).every(([id,v])=>known(id) && typeof v==='boolean'),'覺醒欄位');
+    check(object(s.owned) && Array.isArray(s.owned.wardrobe) && new Set(s.owned.wardrobe).size===s.owned.wardrobe.length && s.owned.wardrobe.every(key=>Object.entries(B.wardrobe).some(([kind,items])=>items.some(item=>key===`${kind}:${item.id}`))) && ['sounds:soft','fx:shard'].every(key=>s.owned.wardrobe.includes(key)),'更衣室');
+    check(s.owned.wardrobe.includes(`sounds:${s.settings?.clickSound}`) && s.owned.wardrobe.includes(`fx:${s.settings?.clickFx}`),'穿著');
     check(object(s.pity) && integer(s.pity.sinceLegendary) && s.pity.sinceLegendary < 40 && s.pity.sinceLegendary <= s.paidDraws+s.usedFreeDraws, '保底');
     check(object(s.package) && integer(s.package.index) && s.package.index >= 1 && number(s.package.progress) && s.package.progress < E.requirement(s.package.index, s.settings?.scene), '拆包進度');
     check(Number.isFinite(E.requirement(s.package.index, s.settings?.scene)) && Object.values(E.rates(s)).every(number), '數值溢出');
@@ -48,13 +66,13 @@
       check(integer(e.chain) && e.chain>=1 && e.chain<=3, '效果快照');
       if (e.params) {
         check(object(e.params) && def.kind===base.kind, '效果快照');
-        const variants = [1,2,3,4,5].flatMap(star=>[false,true].flatMap(bond=>[false,true].map(home=>{
-          const p=B.skillAt(e.source,star);
+        const variants = [0,1,2,3,4,5].flatMap(trans=>[1,2,3,4,5].flatMap(star=>[false,true].flatMap(bond=>[false,true].map(home=>{
+          const p=B.skillAt(e.source,star,trans);
           if (bond && ['click','clickAdd'].includes(p.kind)) p.charges++;
           if (bond && p.kind==='self') p.duration*=1.25;
           if (home) p.cd*=.8;
           return p;
-        })));
+        }))));
         check(variants.some(p=>['kind','multiplier','ratio','factor','copy','charges','duration','cd','basis'].every(k=>p[k]===def[k])), '技能快照參數');
       }
       const mult = def.multiplier === undefined ? undefined : 1+(def.multiplier-1)*[1,1.3,1.6][e.chain-1];

@@ -6,12 +6,66 @@
   const trainingCost = (t) => Math.ceil(1000 * 1.60 ** t);
   const drawCost = (n, count = 1) => Array.from({ length: count }, (_, i) => Math.ceil(150 * 1.30 ** Math.floor((n + i) / 5))).reduce((a, b) => a + b, 0);
   const stars = (n) => n < 1 ? 0 : B.stars.filter((threshold) => n >= threshold).length;
-  const starMultiplier = (n) => n < 1 ? 0 : 1 + .25 * (stars(n) - 1) + .01 * Math.max(0, n - 16);
-  const individual = (s, id) => B.characters[id].base * starMultiplier(s.collection[id] || 0) * 1.15 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1);
+  const starMultiplier = (n) => n < 1 ? 0 : 1 + .25 * (stars(n) - 1);
+  const origin = id => Object.keys(B.characters).indexOf(id) >> 2;
+  const tier = (s,id) => origin(id) + (s.promotions?.[id] || 0);
+  const dust = (s,id) => s.dust?.[id] ?? s.collection[id] ?? 0;
+  const transcendCosts = [[6,8,10,12,14],[6,7,8,9,10],[4,5,6,7,10]];
+  const promotionCost = (s,id) => tier(s,id) >= 2 ? 0 : origin(id) === 0 && s.promotions?.[id] === 1 ? 16 : 12;
+  const transcendCost = (s,id) => transcendCosts[origin(id)][s.transcend?.[id] || 0] || 0;
+  // Dust is cumulative. Paid progression records account for spending; the first 16 retain five stars.
+  const spentDust = (s,id) => ((s.promotions?.[id] || 0) ? 12 + (s.promotions[id] === 2 ? 16 : 0) : 0) + transcendCosts[origin(id)].slice(0,s.transcend?.[id] || 0).reduce((a,b)=>a+b,0);
+  const availableDust = (s,id) => Math.max(0,dust(s,id)-16-spentDust(s,id));
+  const rarity = (s,id) => ['rare','epic','legendary'][tier(s,id)];
+  function grow(state,id,now,trans) {
+    const s=settle(state,now).state;
+    if (!Object.hasOwn(B.characters,id) || s.pending || stars(dust(s,id))<5) throw new Error('要 5★ 才能升階或超越');
+    const cost=trans ? transcendCost(s,id) : promotionCost(s,id);
+    if (!cost || (trans && tier(s,id)!==2)) throw new Error('已是最高階，或還沒升到傳說階')
+    if (availableDust(s,id)<cost) throw new Error('粉塵不足');
+    const key=trans?'transcend':'promotions'; s[key] ||= {}; s[key][id]=(s[key][id] || 0)+1;
+    s.awakened ||= {}; if (s.transcend?.[id]===5) s.awakened[id]=true;
+    return s;
+  }
+  const promote = (s,id,now) => grow(s,id,now,false);
+  const transcend = (s,id,now) => grow(s,id,now,true);
+  function receive(s,id) {
+    s.dust ||= {}; s.overflow ||= {}; s.universalDust ||= 0;
+    const before=stars(dust(s,id)); s.dust[id]=dust(s,id);
+    s.collection[id]=(s.collection[id] || 0)+1;
+    if (s.transcend?.[id]===5) {
+      const rate=[4,2,1][origin(id)], count=(s.overflow[id] || 0)+1;
+      s.universalDust+=Math.floor(count/rate); s.overflow[id]=count%rate;
+    } else s.dust[id]++;
+    return {id,from:before,to:stars(s.dust[id])};
+  }
+  function exchange(state,id,amount,now=state.settledAt) {
+    const s=settle(state,now).state;
+    if (!Object.hasOwn(B.characters,id) || !Number.isSafeInteger(amount) || amount<1 || s.pending || s.transcend?.[id]===5) throw new Error('無法兌換');
+    // amount is the universal-dust budget; unconvertible remainder stays in the jar.
+    const rate=origin(id)+1, count=Math.floor(amount/rate);
+    if (!count || amount>s.universalDust) throw new Error('萬用粉塵不足');
+    s.universalDust-=count*rate; s.dust[id]=dust(s,id)+count;
+    return s;
+  }
+  const wardrobePrice = s => Math.max(5000,Math.round(rates(s).P*1200));
+  function wardrobe(state,kind,id,wear,now) {
+    const s=settle(state,now).state, key=`${kind}:${id}`;
+    if (!B.wardrobe[kind]?.some(item=>item.id===id) || s.pending) throw new Error('更衣室沒有這件');
+    const owned=s.owned.wardrobe.includes(key);
+    if (wear) { if (!owned) throw new Error('尚未擁有'); s.settings[kind==='sounds'?'clickSound':'clickFx']=id; }
+    else {
+      if (owned) throw new Error('已經擁有'); const price=wardrobePrice(s);
+      if (!Number.isFinite(price) || s.coins<price) throw new Error('餘額不足');
+      s.coins-=price; s.owned.wardrobe.push(key);
+    }
+    return s;
+  }
+  const individual = (s, id) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2][tier(s,id)]/[1,1.8,3.2][origin(id)]) * (1+[.06,.09,.14][origin(id)]*(s.transcend?.[id] || 0)) * 1.15 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1);
   const affinity = (s,id) => (Scenes(s.settings?.scene).affinity || []).includes(id);
   const activeBonds = s => B.bonds.filter(b => b.pair.every(id => s.collection[id] > 0));
-  function skillAt(s,id,star = stars(s.collection[id] || 1)) {
-    const p = B.skillAt(id,star);
+  function skillAt(s,id,star = stars(dust(s,id) || 1)) {
+    const p = B.skillAt(id,star,s.transcend?.[id] || 0);
     for (const b of activeBonds(s)) {
       if (b.effect.chargesPlus && ['click','clickAdd'].includes(p.kind)) p.charges += b.effect.chargesPlus;
       if (b.effect.selfDurationMul && p.kind === 'self') p.duration *= b.effect.selfDurationMul;
@@ -35,7 +89,8 @@
     const mul = Scenes(s.settings?.scene).rewardMul || 1;
     return { P: P * mul, D: (1.18 ** s.clickLevel + .05 * P) * mul };
   }
-  function tagFor(entry, dup, owned) {
+  function tagFor(entry, dup, owned, state) {
+    if (state?.transcend?.[entry.id]===5) return {text:`萬用 +${['¼','½','1'][origin(entry.id)]}`,cls:'mastery'};
     if (!owned) return { text: 'NEW', cls: 'new' };
     if (owned >= 16) return { text: `熟練 +${owned + 1 - 16}%`, cls: 'mastery' };
     if (stars(owned + 1) > stars(owned)) return { text: `${stars(owned)}★ → ${stars(owned + 1)}★`, cls: 'star-up' };
@@ -143,7 +198,7 @@
     s.effects = s.effects.filter((e) => e.remaining === undefined || e.remaining > 0);
     const tutorial = s.manualClicks >= 50 && !s.claimedMilestones.includes('tutorial50');
     if (tutorial) {
-      s.collection.yueyue2 = (s.collection.yueyue2 || 0) + 1;
+      receive(s,'yueyue2');
       s.claimedMilestones.push('tutorial50');
       if (!s.skillSlots[0]) s.skillSlots[0] = 'yueyue2';
     }
@@ -213,9 +268,9 @@
     if (!state.pending || state.pending.draw.id !== drawId) return { state, accepted: false };
     const s = settle(state, now).state, entries = s.pending.draw.entries;
     const newIds = [...new Set(entries.filter((e) => !s.collection[e.entry.id]).map((e) => e.entry.id))];
-    for (const item of entries) s.collection[item.entry.id] = (s.collection[item.entry.id] || 0) + 1;
+    const starUps=entries.map(item=>receive(s,item.entry.id)).filter(up=>up.to>up.from);
     s.pending = null;
-    return { state: s, accepted: true, newIds };
+    return { state: s, accepted: true, newIds, starUps };
   }
   const sceneMap = () => typeof module !== 'undefined' && module.exports ? require('./clicker-scene.js').scenes : root.ClickerScenes;
   const nextScene = id => Object.keys(sceneMap()).find(key=>sceneMap()[key].unlock?.boss===id);
@@ -245,7 +300,7 @@
     s.bossCracks ||= {}; s.bossCracks[b.scene]=crack; s.boss=null;
     s.bossResult={scene:b.scene,won,crack,at:now,next:nextScene(b.scene)};
     if (won) {
-      s.bossWins ||= []; if (!s.bossWins.includes(b.scene)) { s.bossWins.push(b.scene); s.freeDraws=(s.freeDraws || 0)+cfg.reward.freeDraws; }
+      s.bossWins ||= []; if (!s.bossWins.includes(b.scene)) { s.bossWins.push(b.scene); s.universalDust=(s.universalDust || 0)+3; s.freeDraws=(s.freeDraws || 0)+cfg.reward.freeDraws; }
       s.bossCooldownUntil=0;
       if (unlocked(s,s.bossResult.next)) changeScene(s,s.bossResult.next);
     } else s.bossCooldownUntil=now+cfg.cooldown*1000;
@@ -253,7 +308,7 @@
   function abandonBoss(state,now) {
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
-  const api = { affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor,
+  const api = { origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor,
     newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

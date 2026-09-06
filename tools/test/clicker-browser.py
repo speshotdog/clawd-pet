@@ -306,9 +306,11 @@ def round7(browser):
         old = page.evaluate('Clicker.state.coins')
         page.locator('.skill-use').first.dispatch_event('click')
         if ident in ['caihua', 'fox']:
-            assert page.evaluate('Clicker.state.coins') - old == (80 if ident == 'caihua' else 1875)
+            # 場景親和（後院當家：玥玥、采華）會改 pᵢ 與 P，期望值直接照經濟層算
+            expected = page.evaluate('20*ClickerEconomy.individual(Clicker.state,"caihua")' if ident == 'caihua' else '15*ClickerEconomy.rates(Clicker.state).P')
+            assert abs(page.evaluate('Clicker.state.coins') - old - expected) < 1e-6, (ident, page.evaluate('Clicker.state.coins') - old, expected)
             page.locator('.skill-use').first.dispatch_event('click')
-            assert page.evaluate('Clicker.state.coins') - old == (80 if ident == 'caihua' else 1875)
+            assert abs(page.evaluate('Clicker.state.coins') - old - expected) < 1e-6
         page.clock.run_for(400)
         page.evaluate('document.getAnimations().forEach(a=>{a.pause();a.currentTime=performance.now()-a.testBorn;})')
         assert page.locator('#cutin-actor svg').count() == 1
@@ -333,7 +335,7 @@ def round7(browser):
       const E=ClickerEconomy; let s=ClickerSave.fresh(1000000);
       s.collection={lk:1,yang:1}; s.lifetimeCoins=100000; s.skillSlots=['lk','yang',null];
       s=E.activate(s,0,s.settledAt).state; s=E.activate(s,1,s.settledAt).state;
-      const r=E.settle(s,1040000); return r.earned===660 && E.settle(r.state,1040000).earned===0;
+      const r=E.settle(s,1040000); return Math.abs(r.earned-678)<1e-6 && E.settle(r.state,1040000).earned===0;   // 400 被動 + ㄌㄎ 10×20s + 羊咩（連鎖 ×1.3）2.6×30s
     }''')
     assert not errors, errors
     assert not missing, missing
@@ -508,7 +510,9 @@ def round9(browser):
     assert page.locator('.skill-use .affinity-flag').count()==1
     assert page.locator('.buddy .affinity-flag').count()==2
     page.locator('#roster-open').click();shot('bonds')
-    assert page.locator('.bond-row').count()==6
+    page.locator('.album-slot[data-id="yueyue2"]').click();advance(300)
+    assert '羈絆' in page.locator('#album-detail').inner_text();shot('bonds-detail')
+    page.keyboard.press('Escape');advance(400)
     page.locator('#recommend-open').click();shot('recommendations')
     page.locator('.recommend-ticket').first.click()
     assert page.evaluate('Clicker.state.skillSlots')==['yueyue','dog','jiaobu']
@@ -635,7 +639,7 @@ def main():
         assert page.locator('#parasite-label svg').count() == 1
         assert page.locator('#stage .partner, #parasite-host').count() == 0
         page.screenshot(path=str(OUT / 'parasite.png'))
-        page.locator('#roster-open').click(); assert page.locator('.roster-character').count() == 12
+        page.locator('#roster-open').click(); assert page.locator('.album-slot').count() == 8   # 第十輪起是卡冊：一跨頁 8 張
         page.screenshot(path=str(OUT / 'roster.png')); page.locator('#roster-close').click()
 
         for name in ['wish', 'hearthstone', 'summon', 'stage', 'rip']:

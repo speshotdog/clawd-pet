@@ -22,9 +22,27 @@ window.Clicker = (() => {
     return scope;
   };
   const sounds = { click: [160, 95, .055, .05], upgrade: [520, 780, .12, .09], skill: [110, 70, .14, .12] };
-  function sound(name) {
+  // 更衣室的十種點擊音（tone／noiseHit 兩種積木，都與現行 click 同量級）
+  const at = (ms) => window.GachaAudio.ensure().currentTime + ms / 1000;
+  const CLICK_SOUNDS = {
+    soft: a => a.tone(160, { slide: 95, slideT: .055, a: .002, d: .051, r: .002, gain: .05 }),
+    bubble: a => { a.tone(520, { slide: 180, slideT: .07, a: .002, d: .07, r: .01, gain: .045 }); a.noiseHit({ a: .001, d: .012, r: .004, f0: 3200, q: 2, gain: .025 }); },
+    paper: a => { a.noiseHit({ a: .002, d: .045, r: .01, f0: 2600, f1: 900, q: 1.2, gain: .055 }); a.tone(140, { slide: 90, slideT: .03, a: .002, d: .03, r: .005, gain: .02 }); },
+    coin: a => { a.tone(1760, { type: 'triangle', a: .002, d: .09, r: .02, gain: .028 }); a.tone(2637, { t: at(10), a: .002, d: .07, r: .02, gain: .014 }); a.noiseHit({ a: .001, d: .01, r: .004, f0: 6000, q: 1, gain: .012 }); },
+    taiko: a => { a.tone(200, { slide: 95, slideT: .09, a: .002, d: .1, r: .02, gain: .06 }); a.noiseHit({ a: .002, d: .04, r: .01, type: 'lowpass', f0: 700, q: .5, gain: .035 }); },
+    sticker: a => { a.noiseHit({ a: .001, d: .02, r: .005, f0: 4200, q: .9, gain: .05 }); a.tone(320, { t: at(4), slide: 190, slideT: .035, a: .002, d: .035, r: .005, gain: .04 }); },
+    squish: a => { a.tone(330, { type: 'triangle', slide: 150, slideT: .09, a: .003, d: .09, r: .01, gain: .045 }); a.tone(660, { t: at(20), slide: 250, slideT: .06, a: .002, d: .06, r: .01, gain: .012 }); },
+    bubblewrap: a => { a.noiseHit({ a: .001, d: .014, r: .004, type: 'highpass', f0: 2600, q: .7, gain: .045 }); a.tone(900, { slide: 380, slideT: .03, a: .001, d: .03, r: .005, gain: .045 }); },
+    woodblock: a => { a.tone(880, { slide: 620, slideT: .04, a: .002, d: .06, r: .01, gain: .04 }); a.tone(1760, { a: .001, d: .02, r: .005, gain: .015 }); a.noiseHit({ a: .001, d: .015, r: .004, f0: 1800, q: 2, gain: .03 }); },
+    jelly: a => { a.tone(240, { slide: 120, slideT: .12, a: .003, d: .12, r: .02, gain: .05 }); a.tone(480, { type: 'triangle', t: at(30), slide: 200, slideT: .08, a: .002, d: .08, r: .01, gain: .015 }); },
+  };
+  function sound(name, variant = null) {
     if (hiddenNow() || store.state.settings.muted) return;
     window.GachaAudio.ensure(); audio ||= window.GachaAudio.createScope();
+    if (name === 'click') { (CLICK_SOUNDS[variant || store.state.settings.clickSound] || CLICK_SOUNDS.soft)(audio); return; }
+    if (name === 'page') { audio.noiseHit({ a: .004, d: .08, r: .02, f0: 2200, f1: 900, q: .8, gain: .12 }); return; }
+    if (name === 'promote') { audio.tone(659, { type: 'triangle', a: .004, d: .25, r: .2, gain: .12 }); audio.tone(988, { type: 'triangle', t: at(90), a: .004, d: .4, r: .3, gain: .1 }); return; }
+    if (name === 'transcend') { [659, 988, 1319, 1976].forEach((f, i) => audio.tone(f, { type: 'triangle', t: at(i * 70), a: .004, d: .35, r: .3, gain: .1 })); audio.tone(55, { a: .005, d: .8, r: .2, gain: .25, slide: 40, slideT: .7 }); audio.noiseHit({ t: at(200), a: .02, d: .4, r: .3, f0: 2500, f1: 9000, q: .5, gain: .08 }); return; }
     if (name === 'cutin-impact') {
       audio.noiseHit({a:.002,d:.056,r:.002,f0:3000,f1:600,gain:.08});
       audio.noiseHit({a:.002,d:.026,r:.002,f0:1800,gain:.15}); return;
@@ -146,7 +164,7 @@ window.Clicker = (() => {
     gacha?.render();
   }
   function skillTip(s,id) {
-    const star = Math.max(1,E.stars(s.collection[id] || 0));
+    const star = Math.max(1,E.stars(E.dust(s,id) || 0));
     const now = E.skillAt(s,id,star);
     return `現在：${now.desc(now)}` + (star < 5 ? `\n下一星：${now.desc(E.skillAt(s,id,star+1))}` : '');
   }
@@ -181,7 +199,7 @@ window.Clicker = (() => {
       ticket.onclick=()=>action(()=>{if(commit(E.recommend(store.state,index,Date.now()))) {changed();showRoster();notice(`已套用${preset.name}，更換槽位等待 30 秒`);}});
       list.append(ticket);
     });
-    $('roster-grid').before(list);
+    $('album-book').before(list);
   }
   function renderSlots() {
     if (!store.state) return;
@@ -218,14 +236,14 @@ window.Clicker = (() => {
 
     });
   }
-  function changed() { numbers(true); renderSlots(); renderChain(); stage?.render(store.state); }
+  function changed() { numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); }
   function action(fn) {
     if (store.blocked || !ready || hiddenNow()) { if (hiddenNow()) jlog(`action blocked: visible=${visible} document.hidden=${document.hidden} suspended=${suspended}`); return; }
     try { fn(); } catch (err) { notice(err.message); slotsKey = ''; renderSlots(); }
   }
   function tap(point) {
     action(() => {
-      if (gacha.active || !$('roster').hidden || !$('receipt').hidden || !$('stats').hidden) return;
+      if (gacha.active || !$('roster').hidden || !$('wardrobe').hidden || !$('receipt').hidden || !$('stats').hidden) return;
       const time = performance.now(); inputTimes = inputTimes.filter((t) => time - t < 1000); if (inputTimes.length >= 8) return;
       inputTimes.push(time);
       const result = E.click(store.state, Date.now());
@@ -254,10 +272,11 @@ window.Clicker = (() => {
       cutin.play(result.effect); changed();
     });
   }
-  function showRoster(selected = null, targetSlot = null) {
+  // 第十輪起名冊改成卡冊（clicker-album.js）
+  function showRoster(selected = null, targetSlot = null) { if (!ready || cutin?.active) return; album.open(selected, targetSlot); }
+  function showRosterLegacy(selected = null, targetSlot = null) {
     if (!ready || cutin?.active) return;
     const s = store.state; $('roster-grid').replaceChildren(); $('recommendations')?.remove();
-    if (!$('recommend-open')) {const button=document.createElement('button');button.id='recommend-open';button.textContent='推薦組合';button.onclick=showRecommendations;$('roster-close').before(button);}
     for (const id of Object.keys(B.characters)) {
       const count = s.collection[id] || 0, el = document.createElement('article'); el.className = `roster-character${count ? '' : ' locked'}`;
       el.append(card.art.create(Pool.byId[id]));
@@ -342,7 +361,8 @@ window.Clicker = (() => {
     $('zoomer').style.left = `${(innerWidth - 960 * z) / 2}px`;
     $('zoomer').style.top = `${(innerHeight - 640 * z) / 2}px`;
   }
-  const card = window.GachaCard.create({ rarity: Pool.RARITY, byId: Pool.byId, canHover: () => gacha?.canHover() || false, fatal: $('fatal'), tagFor: E.tagFor });
+  let album = null;
+  const card = window.GachaCard.create({ rarity: Pool.RARITY, byId: Pool.byId, canHover: () => gacha?.canHover() || album?.isOpen || false, fatal: $('fatal'), tagFor: (entry, dup, owned) => E.tagFor(entry, dup, owned, store.state) });
   // 保留供共用 rig 查找的結構 id；所有 url(#id) 素材引用則在每個 SVG 實例內唯一。
   let artSerial = 0;
   function isolateArt(svg) {
@@ -389,6 +409,7 @@ window.Clicker = (() => {
     window.ClickerScene.mount(store.state.settings.scene, store.state.package.index);
     stage = window.ClickerStage.create({ card, sound, format, showRoster, notice });
     cutin = window.ClickerCutin.create({card, stage, sound, done:changed});
+    album = window.ClickerAlbum.create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations });
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
       canOpen: () => !stage.bossBusy,
       pauseStage() { cutin.stop(); stage.stop(); renderSlots(); },
@@ -452,7 +473,8 @@ window.Clicker = (() => {
       $('scenes').hidden=false; $('game-content').inert=true; $('scenes-close').focus();
     });
     $('scenes-close').onclick=()=>{$('scenes').hidden=true; $('game-content').inert=gacha.active; $('scene-open').focus();};
-    for (const id of ['roster', 'stats', 'receipt']) $(`${id}-close`).onclick = () => { $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
+    for (const id of ['roster', 'stats', 'receipt', 'wardrobe']) $(`${id}-close`).onclick = () => { if (id === 'roster') album.close(); $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
+    $('wardrobe-open').onclick = () => { if (!cutin.active) album.openWardrobe(); };
     $('stats-open').onclick = () => {
       if (cutin.active) return;
       const s = store.state;
@@ -470,11 +492,12 @@ window.Clicker = (() => {
     if (e.key === 'Escape') {
       if (!$('audio-panel').hidden) { $('audio-panel').hidden=true; $('audio-toggle').setAttribute('aria-expanded','false'); $('audio-toggle').focus(); e.preventDefault(); return; }
       if (cutin?.active) { e.preventDefault(); return; }
+      if (album?.escape()) { e.preventDefault(); return; }
       if (!$('scenes').hidden) $('scenes-close').click(); else if (!$('roster').hidden) $('roster-close').click(); else if (!$('stats').hidden) $('stats-close').click();
       else if (!$('receipt').hidden) $('receipt-close').click(); else if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();
     }
     if (e.key === 'Tab') {
-      const panel = ['save-error', 'receipt', 'roster', 'stats', 'scenes', 'recruit-layer'].map($).find((el) => !el.hidden);
+      const panel = ['save-error', 'receipt', 'wardrobe', 'roster', 'stats', 'scenes', 'recruit-layer'].map($).find((el) => !el.hidden);
       if (!panel) return;
       const focusable = [...panel.querySelectorAll('button,select,textarea')].filter((el) => !el.disabled && !el.hidden && el.getClientRects().length);
       const first = focusable[0], last = focusable.at(-1);

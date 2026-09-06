@@ -122,7 +122,7 @@ window.ClickerStage = (() => {
         el.title = `${entry.name}・查看名冊與裝備技能`; el.className = 'buddy'; el.dataset.id = id; el.style.setProperty('--rarity', {common:'#A9A297',rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[entry.rarity]);
         const portrait = document.createElement('span'); portrait.className = 'buddy-portrait'; portrait.append(card.art.create(entry));
         const name = document.createElement('b'); name.textContent = entry.name;
-        const stars = document.createElement('span'); stars.textContent = `★${E.stars(s.collection[id])}`;
+        const stars = document.createElement('span'); const t = s.transcend?.[id] || 0; stars.textContent = `★${E.stars(E.dust(s,id))}${t ? `◆${t}` : ''}`; if (t) stars.className = 'buddy-transcend';
         el.append(portrait, name, stars);
         if (window.ClickerScene.resolve(s.settings.scene).affinity.includes(id)) {const flag=document.createElement('small');flag.className='affinity-flag';flag.title=`${window.ClickerScene.resolve(s.settings.scene).name}當家：收益 ×1.5、冷卻 −20%`;flag.setAttribute('aria-label',flag.title);el.append(flag);}
         const slot = s.skillSlots.indexOf(id); if (slot >= 0) { const stamp = document.createElement('small'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${slot + 1}`; el.append(stamp); }
@@ -155,10 +155,31 @@ window.ClickerStage = (() => {
     }
     // 撕口錨點（全畫面座標）。碎紙要看得見：夠大、噴得高、有翻面暗色，落回時已在桌墊上
     const IMPACT = { x: 485, y: 240 };
-    function burst(count, heavy = false, chain = false, point = IMPACT, paperOnly = false) {
+    const fxImages = {};
+    function fxPreset(id) {
+      const list = window.ClickerBalance.wardrobe.fx, preset = list.find(f => f.id === (id || latestState?.settings?.clickFx)) || list[0];
+      if (preset.file && !fxImages[preset.file]) { const img = new Image(); img.src = preset.file; fxImages[preset.file] = img; }
+      return preset;
+    }
+    const RIBBON = ['#EF8E8E', '#E9B94E', '#94BED0', '#B8A2CF', '#9BAF6B'];
+    function burst(count, heavy = false, chain = false, point = IMPACT, paperOnly = false, fxId = null) {
       if (!fx) return;
       const rand = (a,b) => a + Math.random() * (b-a), sparks = paperOnly || count <= 6 ? 0 : 2;
       const k = chain ? 1.15 : 1;
+      const preset = paperOnly ? null : fxPreset(fxId);
+      if (preset && preset.id !== 'shard') {
+        // 更衣室特效：只換粒子的形狀與色，數量、噴發方向、重力、連點加成配方與碎紙相同
+        for (let i = 0; i < count; i++) {
+          const color = preset.id === 'ribbon' ? RIBBON[i % RIBBON.length] : preset.color;
+          fx.spawn({ sprite: preset.sprite, img: preset.file ? fxImages[preset.file] : undefined, x: point.x + rand(-10, 10), y: point.y + rand(-4, 4),
+            vx: rand(heavy ? -170 : -120, heavy ? 170 : 120) * k, vy: rand(heavy ? -330 : -260, heavy ? -170 : -130) * k, g: heavy ? 520 : 460,
+            life: heavy ? rand(.7, 1) : rand(.55, .8), r: heavy ? rand(11, 16) : rand(7, 11), rot: rand(0, Math.PI * 2), vr: rand(heavy ? -9 : -6, heavy ? 9 : 6),
+            drag: .99, color, blend: preset.blend || 'source-over', shrink: true, fadeK: 4 });
+        }
+        if (chain) fx.spawn({ sprite:14, x:point.x, y:point.y, r:6, vy:-90, life:.3, color:'#E9B94E', blend:'lighter' });
+        if (heavy) fx.spawn({ sprite:3, x:point.x, y:point.y, r:36, life:.25, color:'#E9B94E', blend:'lighter', update(p) { p.r = 36 + 54 * (1 - p.life / p.max); } });
+        return;
+      }
       for (let i = 0; i < count; i++) {
         const spark = i >= count - sparks;
         const pink = i % 6 < 4;
@@ -368,7 +389,13 @@ window.ClickerStage = (() => {
       }
       group(0);
     }
-    return { start, stop, click, render, skill, join, setPartners, freeze, shell, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
+    // 更衣室試用：在珍母旁噴一次該特效；覺醒：整個舞台撒金粒子
+    function preview(fxId) { if (!running) return; burst(10, false, true, IMPACT, false, fxId); }
+    function confetti() {
+      if (!fx) return; const rand = (a,b) => a + Math.random() * (b-a);
+      for (let i = 0; i < 24; i++) fx.spawn({ sprite:14, x:rand(40,570), y:rand(30,120), vx:rand(-30,30), vy:rand(20,60), g:40, r:rand(5,9), life:rand(.9,1.4), color:'#E9B94E', blend:'lighter', shrink:true });
+    }
+    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, preview, confetti, preview, confetti, shell, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
   }
   return { create };
 })();

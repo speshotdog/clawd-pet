@@ -47,7 +47,17 @@
     {name:'放置流',slots:['yang','zhenzhen2','zhenmu'],desc:'掛機：珍珍 → 珍母 → 羊咩'},
     {name:'爆發流',slots:['yang','fox','caihua'],desc:'冷凍包、王的最後一擊：羊咩 → 狐狐 → 采華'},
   ];
-  const api = { characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const wardrobe = {
+    sounds: ['soft','bubble','paper','coin','taiko','sticker','squish','bubblewrap','woodblock','jelly'].map((id,i)=>({id,name:['軟碰','泡泡','撕紙','金幣','太鼓','貼紙拍','擠壓','泡泡紙','木魚','果凍'][i]})),
+    fx: [
+      {id:'shard',name:'碎紙',sprite:9,color:'#EF8E8E'}, {id:'coin',name:'金幣噴泉',sprite:0,color:'#E9B94E'},
+      {id:'heart',name:'愛心',sprite:10,color:'#EF8E8E'}, {id:'paw',name:'肉球',sprite:11,color:'#FFF3DC'},
+      {id:'star',name:'五角星',sprite:2,color:'#E9B94E'}, {id:'ribbon',name:'彩帶',sprite:8,color:'#EF8E8E'},
+      {id:'bubble',name:'泡泡',sprite:3,color:'#94BED0'}, {id:'sakura',name:'櫻花',file:'clicker-fx-sakura.png',color:'#EF8E8E'},
+      {id:'spark',name:'小閃電',file:'clicker-fx-spark.png',color:'#E9B94E',blend:'lighter'}, {id:'snow',name:'雪花',file:'clicker-fx-snow.png',color:'#FFFFFF'},
+    ],
+  };
+  const api = { wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;
