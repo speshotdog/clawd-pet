@@ -341,7 +341,7 @@ window.Clicker = (() => {
     if (suspended) return; suspended = true; jlog(`suspend (document.hidden=${document.hidden})`);
     window.ClickerMusic?.suspend();
     if (store.state && !store.blocked) { store.stage(E.abandonBoss(store.state,Date.now())); settle(); commit(); }
-    stopTimers(); gacha?.suspend(); audio?.stop(0); audio = null;
+    stopTimers(); gacha?.suspend(); extras?.suspend?.(); audio?.stop(0); audio = null;
     const ac = window.GachaAudio.ensure(); ac?.suspend().catch(() => {});
   }
   function offline() {
@@ -383,7 +383,7 @@ window.Clicker = (() => {
     stage.setPartners(store.state); stage.render(store.state, { instant: true }); slotsKey = ''; changed(); status();
     if (store.state.pending) gacha.restore();
   }
-  const card = window.GachaCard.create({ rarity: Pool.RARITY, byId: Pool.byId, canHover: () => gacha?.canHover() || album?.isOpen || false, fatal: $('fatal'), tagFor: (entry, dup, owned) => E.tagFor(entry, dup, owned, store.state) });
+  const card = window.GachaCard.create({ rarity: Pool.RARITY, byId: Pool.byId, canHover: () => gacha?.canHover() || !!album?.detailId || false, fatal: $('fatal'), tagFor: (entry, dup, owned) => E.tagFor(entry, dup, owned, store.state) });
   // 保留供共用 rig 查找的結構 id；所有 url(#id) 素材引用則在每個 SVG 實例內唯一。
   let artSerial = 0;
   function isolateArt(svg) {

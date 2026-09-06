@@ -429,7 +429,9 @@
       found.earned.forEach(badgeEarned);
       renderDaily(); renderFrost();
     }
-    instance = { tick, afterClick: renderFrost, afterBurst, decorate, openWall, openShare, openPick, escape, badgeEarned, get share() { return share; }, compose };
+    // 隱藏時把分享鍵與徽章彈窗的計時器清掉（閒置狀態不能留任何 timer）
+    function suspend() { clearTimeout(offerTimer); offerTimer = 0; clearTimeout(popTimer); popTimer = 0; offer.hidden = true; }
+    instance = { tick, afterClick: renderFrost, afterBurst, decorate, openWall, openShare, openPick, escape, badgeEarned, suspend, get share() { return share; }, compose };
     decorate(); renderDaily(true); renderFrost();
     return instance;
   }

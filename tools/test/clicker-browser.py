@@ -868,14 +868,14 @@ def main():
         context.add_init_script('''const animate = Element.prototype.animate; Element.prototype.animate = function(...args) {const a=animate.apply(this,args);a.testBorn=performance.now();return a;};''')
         context.add_init_script('''const seed = sessionStorage.getItem('test-seed'); if(seed) {localStorage.setItem('clicker_save',seed);sessionStorage.removeItem('test-seed');}''')
         context.add_init_script('''(() => {
-          window.testSchedules={raf:new Set(),timeout:new Set(),interval:new Set()};
+          window.testSchedules={raf:new Set(),timeout:new Set(),interval:new Set()}; window.testFns=new Map();
           const raf=requestAnimationFrame.bind(window), cancel=cancelAnimationFrame.bind(window);
           window.requestAnimationFrame=fn=>{const id=raf(t=>{testSchedules.raf.delete(id);fn(t)});testSchedules.raf.add(id);return id};
           window.cancelAnimationFrame=id=>{testSchedules.raf.delete(id);cancel(id)};
           const timeout=setTimeout.bind(window), clear=clearTimeout.bind(window), interval=setInterval.bind(window), clearI=clearInterval.bind(window);
-          window.setTimeout=(fn,ms,...args)=>{const id=timeout(()=>{testSchedules.timeout.delete(id);fn(...args)},ms);testSchedules.timeout.add(id);return id};
+          window.setTimeout=(fn,ms,...args)=>{const id=timeout(()=>{testSchedules.timeout.delete(id);testFns.delete(id);fn(...args)},ms);testSchedules.timeout.add(id);testFns.set(id,String(fn).slice(0,160)+' @'+ms);return id};
           window.clearTimeout=id=>{testSchedules.timeout.delete(id);clear(id)};
-          window.setInterval=(fn,ms,...args)=>{const id=interval(fn,ms,...args);testSchedules.interval.add(id);return id};
+          window.setInterval=(fn,ms,...args)=>{const id=interval(fn,ms,...args);testSchedules.interval.add(id);testFns.set(id,'INTERVAL '+String(fn).slice(0,160)+' @'+ms);return id};
           window.clearInterval=id=>{testSchedules.interval.delete(id);clearI(id)};
         })();''')
 
@@ -995,7 +995,7 @@ def main():
         page.wait_for_timeout(1100)
         assert page.evaluate('Clicker.state.settledAt') == held
         assert page.evaluate('document.getAnimations().length') == 0
-        assert page.evaluate('[testSchedules.raf.size,testSchedules.timeout.size,testSchedules.interval.size]') == [0, 0, 0]
+        assert page.evaluate('[testSchedules.raf.size,testSchedules.timeout.size,testSchedules.interval.size]') == [0, 0, 0], page.evaluate('[...testSchedules.timeout, ...testSchedules.interval].map(id=>testFns.get(id))')
         page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:false}); document.dispatchEvent(new Event("visibilitychange"));')
         assert page.evaluate('Clicker.state.settledAt') > held
 
@@ -1003,7 +1003,7 @@ def main():
         page.wait_for_timeout(900)
         page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:true}); document.dispatchEvent(new Event("visibilitychange"));')
         page.wait_for_timeout(500)
-        assert page.evaluate('[testSchedules.raf.size,testSchedules.timeout.size,testSchedules.interval.size]') == [0, 0, 0]
+        assert page.evaluate('[testSchedules.raf.size,testSchedules.timeout.size,testSchedules.interval.size]') == [0, 0, 0], page.evaluate('[...testSchedules.timeout, ...testSchedules.interval].map(id=>testFns.get(id))')
         page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:false}); document.dispatchEvent(new Event("visibilitychange"));')
         assert page.locator('#collect').is_visible()
         page.locator('#collect').click()

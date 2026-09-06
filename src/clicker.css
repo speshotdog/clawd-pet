@@ -387,7 +387,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #audio-panel input::-moz-range-thumb { border:0; width:40px; height:40px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
 
 /* 舞台內只有點擊熱區與技能鍵吃指標；其他一切（教學便條、量尺、標籤、光、場景）都穿透，杜絕透明層擋住連點 */
-#stage > :not(#tap):not(#slots) { pointer-events:none; }
+#stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag) { pointer-events:none; }   /* :not(#id) 特異度 (3,0,0)，可點的元素都要列在這裡 */
 #slots > :not(.skill-slot) { pointer-events:none; }
 /* 滑鼠點擊不顯示焦點框（藍色框線）；鍵盤操作仍保留其他按鈕的 focus-visible */
 #tap, #tap:focus, #tap:focus-visible, .skill-use:focus, .skill-use:focus-visible { outline:none !important; box-shadow:none; }
@@ -403,19 +403,20 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 
 /* 9-slice 縫線修正：整個遊戲用 transform: scale 放大到非整數倍時，邊片與中間片之間會露出一條底色（大視窗的網頁版最明顯）。
    把每張貼圖的中心色填成 background、只填 padding box，縫線就會是同色；padding box 在描邊之內，不會露到圓角外面。 */
-#game button, #game select, #game .save-plate { --button-fill:#FBEECF; background:var(--button-fill); background-clip:padding-box; }
+/* 縫線填色只給透明邊 ≤1% 的貼圖（紫、粉）；奶油／綠／停用貼圖的透明邊有 7–18%，填色會露到框外 */
+#game button, #game select, #game .save-plate { --button-fill:transparent; background:transparent; }
 #game button:hover:enabled { background:var(--button-fill); background-clip:padding-box; }
-#game button:disabled { --button-fill:#D7CBB9; background:var(--button-fill); background-clip:padding-box; }
-#game .skill-use, #game #click-one, #game #training-one { --button-fill:#8B9B5A; }
-#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-fill:#B089C6; }
-#game #reveal-all { --button-fill:#FB7A6E; }
+#game button:disabled { --button-fill:transparent; background:transparent; }
+#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-fill:#B089C6; background:var(--button-fill); background-clip:padding-box; }
+#game #reveal-all { --button-fill:#FB7A6E; background:var(--button-fill); background-clip:padding-box; }
+#game #draw-one:disabled, #game #draw-five:disabled, #game #recruit-one:disabled, #game #recruit-five:disabled, #game #collect:disabled { background:transparent; }
 #game #tap, #game .buddy, #game .slot-pick, #game-content .text-button, #game #audio-panel button[aria-pressed] { background:transparent; }
 #game .skill-use, #game button.skill-use:disabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
-.price-ticket, #package-result, #effect-label, .package-meter { background:#FAEBC9; background-clip:padding-box; }
+/* 票券貼圖透明邊 2–9%，不填色 */
 .upgrade, .recruit, #team, .panel, .small-panel, #recruit-topbar, #audio-panel { background:#FDECCB; background-clip:padding-box; }
 /* 標題帶、錢包、票券帶的圓角比 9-slice 邊寬大，填色會露到框外，所以不填（縫線在這些元件上看不出來） */
 .scene-outgoing { position:absolute; inset:0; z-index:1; clip-path:inset(24px round 5px); pointer-events:none; filter:saturate(.78) contrast(.92) brightness(1.04); }
-#stage > #boss-challenge { pointer-events:auto; position:absolute; left:470px; top:40px; width:120px; height:48px; z-index:12; transform:rotate(-3deg); border:0; border-image:none; background:#FDECCB url('clicker-ui-boss-btn.png') center/100% 100%; padding:4px; font-size:16px; }
+#stage > #boss-challenge { pointer-events:auto; position:absolute; left:470px; top:40px; width:120px; height:48px; z-index:12; transform:rotate(-3deg); border:0; border-image:none; background:transparent url('clicker-ui-boss-btn.png') center/100% 100% no-repeat; padding:4px; font-size:16px; }
 #boss-view { position:absolute; left:330px; top:60px; width:260px; height:300px; z-index:13; transform-origin:50% 100%; }
 #boss-image { width:260px; height:300px; object-fit:contain; }
 #boss-health { position:absolute; left:-20px; bottom:-16px; width:300px; height:14px; background:#745E4A; border:2px solid #FFF6E6; border-radius:6px; }
@@ -478,8 +479,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #roster.album header span { font-size:12px; }
 #game .dust-jar { display:flex; align-items:center; gap:4px; padding:2px 10px 4px; }
 .dust-jar img { width:26px; height:26px; object-fit:contain; }
-#album-book { position:relative; flex:1 1 auto; min-height:0; display:flex; gap:0; padding:26px 44px 22px; border-image:url('clicker-ui-album.png') 120 fill / 60px stretch; perspective:1200px; }
-.album-page { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:6px 4px; padding:0 14px; transform-origin:center; backface-visibility:hidden; }
+#album-book { position:relative; flex:1 1 auto; min-height:0; display:flex; gap:0; padding:26px 44px 22px; border-image:url('clicker-ui-album.png') 120 fill / 60px stretch; }
+.album-page { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:6px 4px; padding:0 14px; transform-origin:center; }
 #album-left { transform-origin:right center; } #album-right { transform-origin:left center; }
 #game .album-slot { position:relative; width:auto; height:auto; padding:0; border:0; border-image:none; background:transparent; box-shadow:none; display:flex; flex-direction:column; align-items:center; gap:2px; overflow:visible; }
 #game .album-slot:hover:enabled { transform:none; filter:none; } #game .album-slot:active:enabled { transform:none; clip-path:none; }
@@ -514,8 +515,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .detail-info b { color:#B63329; }
 .detail-buttons, .detail-grow { display:flex; gap:6px; flex-wrap:wrap; }
 #game .detail-buttons button, #game .detail-grow button, #game .detail-back { font-size:13px; padding:3px 10px 6px; }
-#game .grow-btn.promote { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); }
-#game .grow-btn.transcend { --button-fill:#8FB4E8; --button-art:url('clicker-ui-btn-cream.png'); background:#8FB4E8; background-clip:padding-box; }
+#game .grow-btn.promote { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); background:var(--button-fill); background-clip:padding-box; }
+#game .grow-btn.transcend { --button-art:url('clicker-ui-btn-cream.png'); color:#2A4A8A; }
 #game .detail-back { align-self:flex-end; }
 .detail-flash { position:absolute; inset:0; background:#FFF6E6; pointer-events:none; z-index:9; }
 #dust-shop { flex-direction:column; gap:8px; }
@@ -533,7 +534,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #game .wardrobe-item { display:grid; grid-template-columns:22px 1fr; grid-template-rows:auto auto; column-gap:4px; align-items:center; text-align:left; font-size:12px; line-height:14px; padding:2px 6px 4px; }
 .wardrobe-icon { grid-row:1 / 3; font-size:18px; text-align:center; }
 .wardrobe-item small { font-size:10px; color:#735E4E; }
-.wardrobe-item.wearing { --button-fill:#8B9B5A; --button-art:url('clicker-ui-btn-green.png'); }
+.wardrobe-item.wearing { --button-art:url('clicker-ui-btn-green.png'); }
 .wardrobe-item:not(.owned) { opacity:.85; }
 .wardrobe-hint { font-size:11px; color:#735E4E; margin-top:6px; }
 .buddy-transcend { color:#3D7BE0; }
@@ -543,13 +544,13 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #prestige { display:flex; flex-direction:column; }
 #prestige header span { font-size:12px; }
 .prestige-tabs { display:flex; gap:6px; margin-bottom:10px; }
-#game .prestige-tabs button.active { --button-fill:#8B9B5A; --button-art:url('clicker-ui-btn-green.png'); }
+#game .prestige-tabs button.active { --button-art:url('clicker-ui-btn-green.png'); }
 .prestige-note { font-size:13px; line-height:18px; }
 .prestige-note p { margin:0 0 8px; }
 .prestige-cols { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 10px; }
 .prestige-cols ul { margin:4px 0 0; padding-left:18px; }
 .prestige-actions { display:flex; gap:8px; margin-top:auto; }
-#game #prestige-go { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); font-size:16px; padding:6px 18px 9px; }
+#game #prestige-go { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); background:var(--button-fill); background-clip:padding-box; font-size:16px; padding:6px 18px 9px; }
 .mark-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 #game .mark-ticket { display:grid; grid-template-columns:34px 1fr auto; gap:8px; align-items:center; text-align:left; padding:6px 12px 8px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 8px 12px stretch; background:#FAEBC9; background-clip:padding-box; }
 .mark-ticket img { width:32px; height:32px; object-fit:contain; }
@@ -559,12 +560,12 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .mark-stamp { position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); z-index:70; display:flex; flex-direction:column; align-items:center; gap:4px; pointer-events:none; }
 .mark-stamp img { width:140px; height:140px; }
 .mark-stamp b { font-size:28px; color:#3D7BE0; -webkit-text-stroke:1px #30251F; text-shadow:0 2px 0 #FFF6E6; }
-#game #prestige-hint { position:absolute; left:24px; top:40px; z-index:12; pointer-events:auto; font-size:12px; padding:4px 12px 6px; transform:rotate(-2deg); --button-fill:#FBEECF; }
+#game #prestige-hint { position:absolute; left:24px; top:40px; z-index:12; pointer-events:auto; font-size:12px; padding:4px 12px 6px; transform:rotate(-2deg); }
 #auto-finger { position:absolute; right:-6px; top:60px; width:48px; height:48px; object-fit:contain; transform-origin:20% 90%; z-index:3; pointer-events:none; }
 #deco-layer { position:absolute; inset:0; z-index:2; pointer-events:none; }
 #deco-layer .deco { position:absolute; height:44px; width:auto; transform:translate(-50%,-100%); }
 #deco-layer .deco-fallback { font-size:11px; background:#FFF6E6; border:1px solid #30251F; border-radius:4px; padding:1px 4px; height:auto; }
-#game .grow-btn.train { --button-fill:#8B9B5A; --button-art:url('clicker-ui-btn-green.png'); }
+#game .grow-btn.train { --button-art:url('clicker-ui-btn-green.png'); }
 #wardrobe { width:352px; }
 #wardrobe-body { grid-template-columns:1fr 1fr 1fr; }
 #wardrobe-decor-price { font-size:10px; color:#735E4E; }
@@ -576,7 +577,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #stage[data-scene="rooftop"] #hero-light { opacity:.7; }
 /* Round 11: 便利商店三連包、工廠輸送帶、夜市限時大禮包 */
 /* 舞台內只有珍母熱區、技能鍵與 #targets 裡的子包／禮包熱區吃指標；其他一律穿透 */
-#stage > :not(#tap):not(#slots):not(#targets) { pointer-events:none; }
+#stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag) { pointer-events:none; }
 #targets { position:absolute; inset:0; z-index:6; pointer-events:none; }
 #targets > button { pointer-events:auto; position:absolute; }
 #game .sub-hot, #game #gift-hot, #game .sub-hot:hover:enabled, #game #gift-hot:hover:enabled, #game .sub-hot:active:enabled, #game #gift-hot:active:enabled { border:0; border-image:none; background:transparent; box-shadow:none; transform:none; clip-path:none; filter:none; outline:none; border-radius:0; }
@@ -666,3 +667,20 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .pick-card svg { height:88px !important; width:auto; margin:0 !important; filter:none !important; }
 .pick-card small { font-size:10px; color:#735E4E; }
 @media (prefers-reduced-motion:reduce) { #daily-bag .daily-star { animation:none; } .badge-cell.earned .badge-icon { animation:none; } }
+
+/* 卡冊修正：紙上不發光、hover 不傾斜（GachaCard 的 live 只留給展示頁大卡） */
+.album-slot .card-glow, .detail-card .card-glow { display:none; }
+.album-slot .card .card-lift, .album-slot .card:hover .card-lift { transform:none !important; }
+.album-slot .card:hover .face-holo, .album-slot .card:hover .face-glare { opacity:0; }
+#game .album-slot:hover:enabled .card { filter:brightness(1.04); }
+.album-slot .card { will-change:auto; }
+/* 粉塵罐：字放大、列拉高、鍵用紫色貼圖 */
+#dust-shop h3 { font-size:22px; } #dust-shop > p { font-size:13px; }
+.dust-row { grid-template-columns:34px 68px 1fr auto auto; gap:6px; font-size:14px; min-height:44px; }
+.dust-row small { font-size:13px; }
+#game .dust-row button { font-size:13px; padding:3px 10px 5px; --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); background:var(--button-fill); background-clip:padding-box; color:#30251F; }
+#game .dust-row button:disabled { --button-art:url('clicker-ui-btn-disabled.png'); background:transparent; }
+#game .album-slot:hover:enabled, #game .album-slot:active:enabled { background:transparent; filter:none; transform:none; }
+#album-detail, #dust-shop { z-index:20; }
+#stage > #boss-challenge { background-size:100% 100%; }
+#stage > #boss-challenge { padding:4px 6px 6px 32px; text-align:left; font-size:14px; line-height:16px; }
