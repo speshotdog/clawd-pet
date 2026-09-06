@@ -19,7 +19,7 @@
   const localDate = ms => { const d = new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
   const totalPackages = s => (s.package.index - 1) + Object.entries(s.scenePackages || {}).filter(([id]) => id !== s.settings.scene).reduce((sum, [, p]) => sum + (p.index - 1), 0);
     // 今日限定包只吃點擊：需求用「當下 25 次點擊」估（原本 3×H(k) 在第 60 包是 24 萬，點五千下才拆得完）
-  const dailyNeed = s => Math.max(100, 25 * E.rates(s).D);
+  const dailyNeed = s => Math.max(100, 80 * E.rates(s).D);
   // ---------- 每日一包 ----------
   // 以 settledAt 的本地日期判斷；日期變了就換一包（沒拆不累積）。連續天數：昨天有拆才延續，否則歸零。
   function dailyRoll(state) {
@@ -34,6 +34,8 @@
     d.dealt = Math.min(d.need, d.dealt + amount);
     if (d.dealt < d.need) return false;
     d.done = true; d.streak++; s.freeDraws = (s.freeDraws || 0) + 1; s.universalDust = (s.universalDust || 0) + 1;
+    // 金幣獎勵：等於這包的需求（拆包時已經拿到一份，等於再給一份）
+    d.bonus = d.need; s.coins += d.bonus; s.lifetimeCoins += d.bonus;
     return true;
   }
   // 點今日限定包：拆包力進限定包、幣照給、一般包不動（E.click 的 sink）
@@ -174,6 +176,8 @@
       floatText('免費單抽 ＋1・萬用粉塵 ＋1', { x: DAILY_POINT.x + 40, y: DAILY_POINT.y - 60 }, '#E9B94E', 22);
       notice(`今日限定包拆完！連續 ${s.daily.streak} 天`);
       dailyShown = false; dailyEl.disabled = true;
+      // 拆完 700ms 後跳收據，把拿到什麼列清楚
+      setTimeout(() => { if ($('daily-done').hidden) { $('daily-done-text').innerHTML = `<b>免費單抽 ＋1</b><br><b>萬用粉塵 ＋1</b><br><b>金幣 ＋${format(s.daily.bonus || 0)}</b><br><small>連續 ${s.daily.streak} 天・明天再來拆一包</small>`; openPanel('daily-done'); } }, 700);
       motion(dailyEl, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(1.4) rotate(6deg)', opacity: 1, offset: .35 }, { transform: 'scale(.2) translateY(-40px)', opacity: 0 }], 360).finished.then(() => { dailyEl.hidden = true; renderDaily(); }).catch(() => { dailyEl.hidden = true; });
       changed();
     }
@@ -404,10 +408,10 @@
     function openPanel(id) { $(id).hidden = false; $('game-content').inert = true; $(`${id}-close`).focus(); }
     function closePanel(id) { $(id).hidden = true; $('game-content').inert = !!gacha?.active; $('tap').focus(); }
     function escape() {
-      for (const id of ['share', 'pick100']) if (!$(id).hidden) { closePanel(id); return true; }
+      for (const id of ['share', 'pick100', 'daily-done']) if (!$(id).hidden) { closePanel(id); return true; }
       return false;
     }
-    $('share-close').onclick = () => closePanel('share'); $('pick100-close').onclick = () => closePanel('pick100');
+    $('share-close').onclick = () => closePanel('share'); $('pick100-close').onclick = () => closePanel('pick100'); $('daily-done-close').onclick = () => closePanel('daily-done');
     $('share-download').onclick = download; $('share-copy').onclick = copyImage;
     $('badge-share').onclick = () => { closePanel('stats'); openShare('packs', { packages: totalPackages(store.state) }); };
     $('pick100-open').onclick = () => { closePanel('stats'); openPick(); };

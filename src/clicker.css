@@ -688,3 +688,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #stage > #boss-view { pointer-events:auto; cursor:pointer; }
 #boss-view > * { pointer-events:none; }
 #game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect, #game #reveal-all, #game .grow-btn.promote, #game #prestige-go, #game .dust-row button { border-radius:16px / 11px; }
+
+/* 點擊粒子與浮字要壓在王包／禮包／今日包之上（stage 沒有 z-index，裡面的 z 13 會直接壓過 canvas 的 6） */
+#click-fx { z-index:25; }
+#floaters { z-index:26; }
+#daily-done-text { font-size:18px; line-height:30px; }

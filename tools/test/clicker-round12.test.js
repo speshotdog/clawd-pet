@@ -36,7 +36,7 @@ test('round12 regen 王包：大冰磚照吃，但不低於裂痕起點', () => 
 });
 test('round12 每日一包：日期變了才換包、沒拆不累積、連續天數只在昨天拆完時延續', () => {
   const s = S.fresh(NOON), a = X.dailyRoll(s);
-  assert.equal(a.daily.date, X.localDate(NOON)); assert.equal(a.daily.done, false); near(a.daily.need, Math.max(100, 25 * E.rates(a).D)); assert.equal(a.daily.streak, 0);
+  assert.equal(a.daily.date, X.localDate(NOON)); assert.equal(a.daily.done, false); near(a.daily.need, Math.max(100, 80 * E.rates(a).D)); assert.equal(a.daily.streak, 0);
   assert.equal(X.dailyRoll(a), a);
   const same = E.clone(a); same.settledAt = NOON + 3600000; assert.equal(X.dailyRoll(same), same);
   a.daily.done = true; a.daily.streak = 3; a.settledAt = NOON + DAY;
@@ -52,7 +52,7 @@ test('round12 每日一包：點擊只進限定包、幣照給、一般包不動
   s = r.state; s.daily.dealt = s.daily.need - 1;
   const done = X.dailyClick(s, NOON + 100);
   assert.equal(done.done, true); assert.equal(done.state.daily.done, true); assert.equal(done.state.daily.dealt, done.state.daily.need);
-  assert.equal(done.state.freeDraws, 1); assert.equal(done.state.universalDust, 1); assert.equal(done.state.daily.streak, 1);
+  assert.equal(done.state.freeDraws, 1); assert.equal(done.state.universalDust, 1); assert.equal(done.state.daily.streak, 1); near(done.state.daily.bonus, done.state.daily.need);
   assert.throws(() => X.dailyClick(done.state, NOON + 200), /已經拆完/);
   S.validate(done.state, Pool);
   const burst = X.dailyBurst(s, s.daily.need); assert.equal(burst.done, true); assert.equal(burst.state.freeDraws, 1);

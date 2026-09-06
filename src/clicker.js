@@ -535,7 +535,7 @@ window.Clicker = (() => {
       else if (!$('receipt').hidden) $('receipt-close').click(); else if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();
     }
     if (e.key === 'Tab') {
-      const panel = ['save-error', 'receipt', 'prestige', 'wardrobe', 'roster', 'stats', 'scenes', 'share', 'pick100', 'recruit-layer'].map($).find((el) => !el.hidden);
+      const panel = ['save-error', 'receipt', 'daily-done', 'prestige', 'wardrobe', 'roster', 'stats', 'scenes', 'share', 'pick100', 'recruit-layer'].map($).find((el) => !el.hidden);
       if (!panel) return;
       const focusable = [...panel.querySelectorAll('button,select,textarea')].filter((el) => !el.disabled && !el.hidden && el.getClientRects().length);
       const first = focusable[0], last = focusable.at(-1);
