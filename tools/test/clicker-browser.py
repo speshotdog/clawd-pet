@@ -579,7 +579,8 @@ def round11(browser):
     def go(scene):
         # 真實路徑：場景票券選單 → switchScene → mount
         # 沒有夥伴（被動 0／秒）：三連包「只推指向的子包」與禮包「不進拆包進度」才能用等號斷言
-        page.evaluate('''() => {const s=Clicker.state;s.bossWins=['backyard','kitchen','market','factory'];}''')
+        # 種子包數會跨過第 100 包，先把 12 選 1 標成已選，免得第十二輪的選角面板蓋住熱區
+        page.evaluate('''() => {const s=Clicker.state;s.bossWins=['backyard','kitchen','market','factory'];s.badges=[...new Set([...(s.badges||[]),'pack100'])];s.pick100=s.pick100||'yueyue2';}''')
         page.locator('#scene-open').dispatch_event('click'); advance(100)
         page.locator(f'.scene-ticket[data-scene="{scene}"]').dispatch_event('click'); advance(500)
         assert page.evaluate('Clicker.state.settings.scene') == scene and page.evaluate('ClickerScene.current') == page.evaluate(f'ClickerScenes.{scene}')
