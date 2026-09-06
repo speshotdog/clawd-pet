@@ -7,7 +7,8 @@
     return { version: 1, balanceVersion: 1, revision: 0, savedAt: now, settledAt: now,
       coins: 0, lifetimeCoins: 0, manualClicks: 0, clickLevel: 0, trainingLevel: 0,
       collection: {}, paidDraws: 0, pity: { sinceLegendary: 0 }, pending: null,
-      package: { index: 1, progress: 0 }, claimedMilestones: [],
+      package: E.newPackage('backyard'), claimedMilestones: [],
+      boss: null, bossWins: [], bossCracks: {}, bossCooldownUntil: 0, bossResult: null, scenePackages: {}, freeDraws: 0, usedFreeDraws: 0,
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
       settings: { muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8 } };
   }
@@ -18,12 +19,15 @@
   function validate(s, pool) {
     const check = (ok, field) => { if (!ok) throw new Error(`存檔驗證失敗：${field}`); };
     check(object(s) && s.version === 1 && s.balanceVersion === 1, '版本（本版不降級或重置）');
+    s.boss ??= null; s.bossWins ??= []; s.bossCracks ??= {}; s.bossCooldownUntil ??= 0;
+    s.freeDraws ??= 0; s.usedFreeDraws ??= 0; s.scenePackages ??= {}; s.bossResult ??= null;
+    check(integer(s.freeDraws) && integer(s.usedFreeDraws) && number(s.bossCooldownUntil), '王包獎勵與冷卻');
     for (const key of ['coins', 'lifetimeCoins', 'savedAt', 'settledAt']) check(number(s[key]), key);
     for (const key of ['revision', 'manualClicks', 'clickLevel', 'trainingLevel', 'paidDraws']) check(integer(s[key]), key);
     check(s.lifetimeCoins >= s.coins, '累計收入');
     check(object(s.collection), 'collection');
     for (const [id, count] of Object.entries(s.collection)) check(known(id) && integer(count) && count > 0, '角色張數');
-    check(object(s.pity) && integer(s.pity.sinceLegendary) && s.pity.sinceLegendary < 40 && s.pity.sinceLegendary <= s.paidDraws, '保底');
+    check(object(s.pity) && integer(s.pity.sinceLegendary) && s.pity.sinceLegendary < 40 && s.pity.sinceLegendary <= s.paidDraws+s.usedFreeDraws, '保底');
     check(object(s.package) && integer(s.package.index) && s.package.index >= 1 && number(s.package.progress) && s.package.progress < E.requirement(s.package.index, s.settings?.scene), '拆包進度');
     check(Number.isFinite(E.requirement(s.package.index, s.settings?.scene)) && Object.values(E.rates(s)).every(number), '數值溢出');
     check(Array.isArray(s.claimedMilestones) && s.claimedMilestones.every((v) => v === 'tutorial50') && new Set(s.claimedMilestones).size === s.claimedMilestones.length, '獎勵紀錄');
@@ -50,11 +54,31 @@
     s.settings.musicVolume ??= .6; s.settings.sfxVolume ??= .8;
     check(['musicVolume','sfxVolume'].every(k => number(s.settings[k]) && s.settings[k] <= 1), '音量');
     const scenes = node ? require('./clicker-scene.js').scenes : root.ClickerScenes;
-    check(typeof s.settings.music === 'boolean' && Object.hasOwn(scenes, s.settings.scene) && s.package.index >= scenes[s.settings.scene].unlockPackages, '場景與音樂');
+    check(Array.isArray(s.bossWins) && new Set(s.bossWins).size===s.bossWins.length && s.bossWins.every(id=>Object.hasOwn(scenes,id) && !!scenes[id].boss), '王包勝利');
+    check(object(s.bossCracks) && Object.entries(s.bossCracks).every(([id,v])=>Object.hasOwn(scenes,id) && number(v) && v<=scenes[id].boss.crackMax), '王包裂痕');
+    if(s.bossResult!==null) {const r=s.bossResult;check(object(r) && Object.hasOwn(scenes,r.scene) && typeof r.won==='boolean' && number(r.at) && number(r.crack) && r.crack<=scenes[r.scene].boss.crackMax && r.next===E.nextScene(r.scene), '王包結算');}
+    check(typeof s.settings.music === 'boolean' && E.unlocked(s,s.settings.scene) && s.package.index >= scenes[s.settings.scene].unlockPackages, '場景與音樂');
+    function pack(p,id,need=E.requirement(p?.index,id)) {
+      check(object(p), '硬殼包');
+      p.shells ??= [...(scenes[id].enemy?.shell || [])]; p.shellHp ??= 3; p.blocked ??= 0;
+      const allowed=scenes[id].enemy?.shell || [];
+      check(Array.isArray(p.shells) && p.shells.every((v,i)=>allowed.includes(v) && (!i || p.shells[i-1]>v)) && integer(p.shellHp) && p.shellHp>=1 && p.shellHp<=3 && number(p.blocked), '硬殼');
+      check(number(p.progress) && p.progress<need && (!p.shells.length || p.progress<=need*(1-p.shells[0])+need*1e-12), '硬殼進度');
+    }
+    pack(s.package,s.settings.scene);
+    check(object(s.scenePackages), '場景進度');
+    for (const [id,p] of Object.entries(s.scenePackages)) {
+      check(E.unlocked(s,id) && integer(p.index) && p.index>=1 && Number.isFinite(E.requirement(p.index,id)), '場景進度'); pack(p,id);
+    }
+    if (s.boss) {
+      const b=s.boss, cfg=scenes[s.settings.scene].boss;
+      check(object(b) && b.scene===s.settings.scene && !s.bossWins.includes(b.scene) && !s.pending && number(b.need) && b.need===cfg.mul*E.requirement(s.package.index,b.scene) && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===cfg.seconds*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
+      pack({...b,progress:b.dealt},b.scene,b.need);
+    }
     if (s.pending !== null) {
       const draw = s.pending?.draw;
       check(object(draw) && typeof draw.id === 'string' && draw.id.length > 0 && integer(draw.visualSeed) && draw.visualSeed <= 0xffffffff, 'pending 身分');
-      check(Array.isArray(draw.entries) && [1, 5].includes(draw.entries.length) && draw.entries.length <= s.paidDraws, 'pending 張數');
+      check(Array.isArray(draw.entries) && [1, 5].includes(draw.entries.length) && draw.entries.length <= s.paidDraws+s.usedFreeDraws, 'pending 張數');
       const counts = { ...s.collection }, keys = new Set();
       for (const [i, item] of draw.entries.entries()) {
         const id = item?.entry?.id;
@@ -70,7 +94,7 @@
   }
   function create(storage, { now = Date.now, pool } = {}) {
     let state = null, raw = null, error = null, blocked = false;
-    try { raw = storage.getItem(KEY); state = raw === null ? fresh(now()) : validate(JSON.parse(raw), pool); }
+    try { raw = storage.getItem(KEY); state = raw === null ? fresh(now()) : validate(JSON.parse(raw), pool); if (state.boss) state=E.abandonBoss(state,now()); }
     catch (err) { error = err; blocked = true; }
     return {
       get state() { return state; }, get raw() { return raw; }, get error() { return error; }, get blocked() { return blocked; },

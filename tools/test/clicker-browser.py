@@ -3,7 +3,7 @@
 """
 import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import mimetypes
 import subprocess
 from pathlib import Path
@@ -45,7 +45,7 @@ def round5(context):
       const rows=[];
       for(let t=0;t<3;t++) {
         ClickerScene.update(t ? 1 : 0);
-        rows.push([...document.querySelectorAll('[data-layer="grass"] img')].map(e=>parseFloat(e.style.transform.slice(7))));
+        rows.push([...document.querySelectorAll('#clicker-scene [data-layer="grass"] img')].map(e=>parseFloat(e.style.transform.slice(7))));
       }
       return rows.every(r=>r.every(v=>v>0)) && rows[0][0]!==rows[1][0] && rows[1][0]!==rows[2][0];
     }''')
@@ -258,7 +258,7 @@ def round7(browser):
     page.goto('http://clicker-web.test/index.html')
     page.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
     page.clock.install()
-    page.clock.pause_at(datetime.now(timezone.utc))
+    page.clock.pause_at(datetime.now(timezone.utc) + timedelta(seconds=2))   # install 之後才 pause，時間要在未來，否則偶發 Cannot fast-forward to the past
     assert page.evaluate('!window.__TAURI__ && document.getElementById("close").hidden')
     assert page.evaluate('getComputedStyle(document.body).backgroundColor') == 'rgb(201, 164, 111)'
     page.set_viewport_size({'width': 720, 'height': 800})
@@ -341,6 +341,146 @@ def round7(browser):
     print('PASS round7: 12 cutins, burst, timed clicks, offline stacking, static web recruit/save/reload; no missing assets')
 
 
+def round8(browser):
+    context = browser.new_context(viewport={'width': 960, 'height': 640})
+    context.add_init_script('''let fx; window.round8fx=[];
+      Object.defineProperty(window,'GachaFx',{get:()=>fx,set:value=>{
+        fx=value;const create=fx.createScope;
+        fx.createScope=(...args)=>{const scope=create(...args),spawn=scope.spawn;
+          scope.spawn=p=>{round8fx.push({...p});spawn.call(scope,p)};return scope;};
+      }});
+      const animate=Element.prototype.animate;
+      Element.prototype.animate=function(...args){const a=animate.apply(this,args);a.testBorn=performance.now();return a;};''')
+    missing, errors = set(), []
+    def route(request):
+        name = unquote(urlparse(request.request.url).path).lstrip('/')
+        path = (SRC / name).resolve()
+        if path.is_relative_to(SRC) and path.is_file():
+            request.fulfill(body=path.read_bytes(), content_type=mimetypes.guess_type(path)[0] or 'application/octet-stream')
+        else:
+            missing.add(name)
+            request.fulfill(status=404, body='missing')
+    context.route('**/*', route)
+    page = context.new_page()
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.clock.install()
+    page.goto('http://clicker.test/clicker.html')
+    page.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
+    page.clock.pause_at(datetime.fromtimestamp((page.evaluate("Date.now()")+1000)/1000, timezone.utc))
+    # Virtual timers and WAAPI have separate clocks: sample both at the same time.
+    def advance(ms):
+        for _ in range(ms // 20):
+            page.clock.run_for(20)
+            page.evaluate('''() => {for(const a of document.getAnimations()) {
+              if(a.testBorn===undefined) continue;
+              a.currentTime=performance.now()-a.testBorn;
+            }}''')
+        if ms % 20:
+            page.clock.run_for(ms % 20)
+    def shot(name):
+        page.screenshot(path=str(OUT / name))
+    page.evaluate('''() => {const s=Clicker.state;s.package.index=51;
+      s.collection={yueyue2:1};s.manualClicks=50;s.claimedMilestones=['tutorial50'];document.getElementById('tap').click();}''')
+    advance(1100)
+    assert page.locator('#boss-challenge').is_visible(), page.evaluate('({state:Clicker.state,can:ClickerEconomy.canBoss(Clicker.state,Date.now()),notice:document.getElementById("notice").textContent})')
+    page.locator('#boss-challenge').dispatch_event('pointerdown')
+    page.locator('#boss-challenge').dispatch_event('click')
+    advance(600)
+    shot('round8-boss-enter.png')
+    assert page.evaluate('!!Clicker.state.boss')
+    assert page.evaluate('ClickerMusic.skill.target===.32')
+    assert page.locator('#scene-open').is_disabled()
+    page.locator('#recruit-open').dispatch_event('click')
+    assert page.locator('#recruit-layer').is_hidden()
+    page.evaluate('Clicker.state.boss.dealt=Clicker.state.boss.need*.8')
+    page.clock.fast_forward(30000)
+    advance(200)
+    shot('round8-boss-fail.png')
+    assert page.evaluate('!Clicker.state.boss && Clicker.state.bossCracks.backyard>=.4')
+    advance(1400)
+    page.clock.fast_forward(30000)
+    advance(1100)
+    page.locator('#boss-challenge').dispatch_event('click')
+    advance(700)
+    assert page.evaluate('Clicker.state.boss.crack>=.4')
+    page.evaluate('Clicker.state.clickLevel=100;round8fx.length=0')
+    page.locator('#tap').dispatch_event('click')
+    advance(160)
+    shot('round8-boss-win.png')
+    assert page.evaluate('Clicker.state.bossWins.includes("backyard") && Clicker.state.freeDraws===5')
+    assert page.evaluate('round8fx.filter(p=>p.shape==="shard").length>=48 && round8fx.filter(p=>p.sprite===3).length>=6')
+    advance(3300)
+    assert page.evaluate('ClickerScene.current===ClickerScenes.kitchen')
+    assert page.evaluate('ClickerMusic.scene.song.seed==="zhenmu-kitchen-1"')
+    shot('round8-kitchen.png')
+    assert not page.locator('#draw-five').is_disabled()
+    assert '5' in page.locator('#draw-five').inner_text(), page.evaluate('({text:document.getElementById("draw-five").textContent,state:Clicker.state})')
+    page.locator('#draw-five').dispatch_event('click')
+    assert page.evaluate('Clicker.state.freeDraws===0 && Clicker.state.usedFreeDraws===5 && Clicker.state.pending.draw.entries.length===5')
+    page.locator('#skip').dispatch_event('click')
+    advance(2200)
+    page.locator('#collect').dispatch_event('click')
+    advance(1200)
+    page.evaluate('''() => {const s=Clicker.state;s.clickLevel=0;s.package=ClickerEconomy.newPackage('kitchen');
+      s.collection={yueyue2:1};s.effects=[];s.skillSlots=['yueyue2',null,null];s.settledAt=Date.now()-100000;}''')
+    advance(1100)
+    assert page.evaluate('Clicker.state.package.progress===75 && Clicker.state.package.blocked>0')
+    for _ in range(2):
+        page.locator('#tap').dispatch_event('click')
+        advance(160)
+    assert page.evaluate('Clicker.state.package.shellHp===1 && Clicker.state.package.progress===75')
+    page.evaluate('round8fx.length=0')
+    page.locator('#tap').dispatch_event('click')
+    shot('round8-shell-release-0.png')
+    advance(120)
+    shot('round8-shell-release.png')
+    shot('round8-shell-release-120.png')
+    assert page.evaluate('round8fx.filter(p=>p.sprite===14 && p.color==="#D9D9D9").length===10')
+    assert page.evaluate('Clicker.state.package.index>1')
+    advance(280)
+    shot('round8-shell-release-400.png')
+    page.locator('#scene-open').dispatch_event('click')
+    advance(200)
+    shot('round8-scenes.png')
+    assert page.locator('.scene-ticket').count() == 6
+    page.locator('.scene-ticket[data-scene="backyard"]').dispatch_event('click')
+    advance(500)
+    assert page.evaluate('Clicker.state.settings.scene==="backyard" && ClickerScene.current===ClickerScenes.backyard')
+    # Record actual canvas draw alpha for one deterministic scene particle until expiry.
+    alphas = page.evaluate('''() => {
+      let layer;const random=Math.random;Math.random=()=>.5;
+      ClickerScene.mount('backyard');ClickerScene.attach({layer(p){layer=p;return p;}});
+      const values=[],ctx={save(){},restore(){},translate(){},rotate(){},beginPath(){},rect(){},clip(){},globalAlpha:1,
+        drawImage(img){if(img.naturalWidth) values.push(this.globalAlpha);}};
+      ClickerScene.update(2.35);Math.random=random;
+      window.alphaLayer=layer;window.alphaCtx=ctx;window.alphaValues=values;
+      return values;
+    }''')
+    page.wait_for_timeout(100)
+    alphas = page.evaluate('''() => {
+      // Stop additional spawning by making the next interval distant, keep the first particle.
+      const random=Math.random, cfg=ClickerScenes.backyard.particles, every=cfg.everyMs, max=cfg.max;
+      Math.random=()=>.5;cfg.everyMs=[1e9,1e9];cfg.max=1;
+      for(let i=0;i<450;i++){ClickerScene.update(.016);alphaLayer.draw(alphaCtx);}
+      Math.random=random;cfg.everyMs=every;cfg.max=max;return alphaValues;
+    }''')
+    assert alphas and all(0 <= a <= 1 for a in alphas) and alphas[-1] < .1, alphas[-10:]
+    # Real visibility handler must persist a loss before stopping animation/audio.
+    page.evaluate('''() => {const s=Clicker.state;s.bossWins=[];s.bossCracks={};s.bossCooldownUntil=0;
+      s.scenePackages={};s.package=ClickerEconomy.newPackage('backyard',51);s.bossResult=null;
+      document.getElementById('tap').click();}''')
+    advance(1100)
+    page.locator('#boss-challenge').dispatch_event('click')
+    advance(700)
+    page.evaluate('''() => {Clicker.state.boss.dealt=Clicker.state.boss.need*.8;
+      Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'));}''')
+    assert page.evaluate('!Clicker.state.boss && JSON.parse(localStorage.getItem("clicker_save")).bossCracks.backyard===.4')
+    (OUT / 'round8-results.json').write_text(json.dumps({'missingAssets': sorted(missing), 'errors': errors, 'lastParticleAlpha': alphas[-1]}, indent=2), encoding='utf8')
+    assert not errors, errors
+    context.close()
+    print('PASS round8: boss enter/fail/retry/win, free five-draw, kitchen shells, tickets, particle alpha; missing assets recorded')
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     os.chdir(OUT)  # Chromium audio may emit debug.log; keep all generated files here.
@@ -348,6 +488,10 @@ def main():
     original_css = subprocess.check_output(['git', 'show', 'HEAD:src/gacha-card.css'], cwd=ROOT) + subprocess.check_output(['git', 'show', 'HEAD:src/gacha.css'], cwd=ROOT)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=['--autoplay-policy=no-user-gesture-required', '--log-file='+str(OUT / 'chromium.log')])
+        if '--round8' in __import__('sys').argv:
+            round8(browser)
+            browser.close()
+            return
         if '--round7' in __import__('sys').argv:
             round7(browser)
             browser.close()
@@ -655,10 +799,10 @@ def main():
         shot('wallet-tween-increase')
         advance(240)
         assert float(scenes.locator('#coins').inner_text().replace(',',''))==int(target)
-        for coins, expected in [(9999,'9,999'),(12345,'1.23萬'),(120000000,'1.2億')]:
+        for coins, expected in [(9999,'9,999'),(12345,'1.23萬'),(120000000,'1.20億'),(12089300,'1209萬'),(2.4e12,'2.40兆')]:
             seed(0,coins=coins)
             assert scenes.locator('#coins').inner_text()==expected
-            assert scenes.locator('#coins').get_attribute('title')==f'{coins:,}'
+            assert scenes.locator('#coins').get_attribute('title')==f'{int(coins):,}'
         seed(0,99)
         scenes.locator('#tap').focus(); scenes.keyboard.press('Enter')
         values=[]

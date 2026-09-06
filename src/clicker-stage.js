@@ -10,6 +10,7 @@ window.ClickerStage = (() => {
     let parasite = null, lastPackage = 1, bagBusy = false, latestState = null, bagState = 0;
     let fx = null, page = 0, teamState = null, teamKey = '', clickChain = 0, fxClickAt = -Infinity, joining = false;
     let soundTimes = [];
+    let bossKey=null, resultKey=null, bossBusy=false, bossEntering=false, heartbeat=-1, shellTarget=null, struckRing=null;
     const timers = new Set(), animations = new Set();
 
     const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); if (frozen) later(fn, 32); else fn(); }, ms); timers.add(id); return id; };
@@ -42,6 +43,7 @@ window.ClickerStage = (() => {
       if (frozen || now - lastFrame < budget) return;
       lastFrame = now - (now - lastFrame) % budget;
       window.ClickerScene.update(Math.min(.1, (now - lastSceneFrame) / 1000)); lastSceneFrame = now;
+      bossClock();
       const duration = combo >= 3 ? 150 : 220, elapsed = now - pressAt;
       const squeeze = elapsed < 55 ? elapsed / 55 : Math.max(0, 1 - (elapsed - 55) / duration);
       const breath = reduced.matches ? 0 : Math.sin(now / 3400 * Math.PI * 2) * .015;
@@ -75,6 +77,11 @@ window.ClickerStage = (() => {
       $('floaters').replaceChildren();
       hero.style.transform = ''; limb(hero, 'legL', 0, cfg); limb(hero, 'legR', 0, cfg);
       bagBusy = false; if (latestState) showBag(stateOf(latestState)); pressAt = -Infinity; combo = 0; clickChain = 0; fxClickAt = -Infinity;
+      bossKey=null; bossBusy=false; bossEntering=false; resultKey=latestState?.bossResult ? JSON.stringify(latestState.bossResult) : null;
+      for (const id of ['boss-view','boss-timer','boss-flash','boss-banner']) $(id).hidden=true;
+      $('bag').style.visibility=''; $('bag').style.transform=''; $('stage').classList.remove('boss-shake');
+      $('shell-rings').classList.remove('blocked'); $('boss-shells').classList.remove('blocked');
+      document.querySelectorAll('.shell-hit-overlay').forEach(el=>el.remove()); struckRing=null;
     }
     function float(amount, heavy, point) {
       const el = document.createElement('span'); el.className = 'floater';
@@ -94,6 +101,7 @@ window.ClickerStage = (() => {
       if (soundTimes.length < 6) { sound(heavy ? 'skill' : 'click'); soundTimes.push(now); }
       clickChain = now - fxClickAt <= 180 ? clickChain + 1 : 1; fxClickAt = now;
       const crossed = s.package.index > lastPackage || stateOf(s) !== bagState;
+      struckRing=shellTarget?{el:shellTarget.cloneNode(true),parent:shellTarget.parentElement.parentElement}:null;
       render(s, { completed, manual: true, heavy });
       burst(heavy ? 18 : clickChain >= 3 ? 12 : 8, heavy, !heavy && clickChain >= 3, point);
       if (heavy) bounce(true); else if (!crossed && !bagBusy) bounce(false);
@@ -103,7 +111,7 @@ window.ClickerStage = (() => {
       teamState = s; if (frozen) return;
       const ids = Object.keys(window.ClickerBalance.characters).filter(id => s.collection[id]);
       page = Math.min(page, Math.max(0, Math.ceil(ids.length / 10) - 1));
-      const key = JSON.stringify([s.collection, s.skillSlots, s.effects.find(e => e.source === 'zhenmu')?.target, page]);
+      const key = JSON.stringify([s.settings.scene,s.collection, s.skillSlots, s.effects.find(e => e.source === 'zhenmu')?.target, page]);
       if (key === teamKey) return; teamKey = key;
       $('buddies').replaceChildren();
       $('buddy-page').textContent = `${page + 1}/${Math.max(1, Math.ceil(ids.length / 10))}`;
@@ -116,6 +124,7 @@ window.ClickerStage = (() => {
         const name = document.createElement('b'); name.textContent = entry.name;
         const stars = document.createElement('span'); stars.textContent = `★${E.stars(s.collection[id])}`;
         el.append(portrait, name, stars);
+        if (window.ClickerScene.resolve(s.settings.scene).affinity.includes(id)) {const flag=document.createElement('small');flag.className='affinity-flag';flag.textContent='親和';flag.title='場景親和（第九輪生效）';el.append(flag);}
         const slot = s.skillSlots.indexOf(id); if (slot >= 0) { const stamp = document.createElement('small'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${slot + 1}`; el.append(stamp); }
         if (s.effects.some(e => e.source === 'zhenmu' && e.target === id)) { const tag = document.createElement('small'); tag.className = 'parasite-stamp'; tag.textContent = '寄生'; el.append(tag); }
         el.onclick = () => showRoster(id); $('buddies').append(el);
@@ -140,7 +149,7 @@ window.ClickerStage = (() => {
       }
     }
     const stateOf = s => { const r = Math.max(0, 1 - s.package.progress / E.requirement(s.package.index, s.settings.scene)); return r > .75 ? 0 : r > .5 ? 1 : r > .25 ? 2 : 3; };
-    function showBag(state) { $('bag').dataset.skin = window.ClickerScene.current.bagSkin; bagState = state; $('bag-image').src = `clicker-bag-${state}.png`; $('bag-image').alt = `零食包：${['完整','輕損','中損','重損','撕開'][state]}`; }
+    function showBag(state) { $('bag').dataset.skin = window.ClickerScene.current.bagSkin; bagState = state; const img=$('bag-image'); img.onerror=()=>{img.style.visibility='hidden';}; const src=`clicker-${window.ClickerScene.current.bagSkin===1?'can':'bag'}-${state}.png`; if(img.getAttribute('src')!==src) {img.style.visibility=''; img.src=src;} img.alt = `包裝：${['完整','輕損','中損','重損','撕開'][state]}`; }
     function bounce(heavy) {
       motion($('bag-image'), heavy ? [{transform:'scale(1)'},{transform:'scale(1.10)',offset:.35},{transform:'scale(.97)',offset:.7},{transform:'scale(1)'}] : [{transform:'scale(1)'},{transform:'scale(1.045)',offset:.5},{transform:'scale(1)'}], heavy ? 180 : 140);
     }
@@ -194,6 +203,9 @@ window.ClickerStage = (() => {
     }
     function render(s, { instant = false, completed = 0, manual = false, heavy = false } = {}) {
       latestState = s; if (frozen) return; setPartners(s);
+      renderBoss(s,instant); rings(s);
+      document.querySelector('.package-meter').hidden=!!s.boss || bossBusy;
+      if (s.boss || bossBusy) { updateParasite(s,instant); return; }
       if (!running && !instant) { lastPackage = s.package.index; return; }
       const need = E.requirement(s.package.index, s.settings.scene), next = stateOf(s), crossed = next !== bagState;
       $('package-label').textContent = `${format(s.package.index)} 包`;
@@ -217,6 +229,99 @@ window.ClickerStage = (() => {
       if (reduced.matches) return;
       const el = document.createElement('img'); el.src = 'clicker-fx-impact-burst.png'; el.className = 'small-impact'; el.style.left = `${point.x - 65}px`; el.style.top = `${point.y - 65}px`; $('floaters').append(el);
       motion(el,[{transform:'scale(.2)',opacity:1},{transform:'scale(.5)',opacity:1,offset:.6},{transform:'scale(.6)',opacity:0}],150,()=>el.remove());
+    }
+    function shake(px,ms) {
+      $('stage').style.setProperty('--boss-shake',`${px}px`);
+      $('stage').classList.remove('boss-shake'); void $('stage').offsetWidth;
+      $('stage').style.setProperty('--boss-shake-time',`${ms}ms`); $('stage').classList.add('boss-shake');
+      later(()=>$('stage').classList.remove('boss-shake'),ms);
+    }
+    function rings(s) {
+      const p=s.boss || s.package, el=$(s.boss?'boss-shells':'shell-rings');
+      $('shell-rings').hidden=!!s.boss;
+      const count=p.shells?.length || 0;
+      if (el.children.length!==count) {
+        el.replaceChildren();
+        for(let i=0;i<count;i++) {const img=document.createElement('img');img.src='clicker-can-shell.png';img.alt='硬殼';img.style.top=`${25+i*22}%`;img.onerror=()=>{img.style.visibility='hidden';};el.append(img);}
+      }
+      el.classList.toggle('blocked',p.blocked>0); el.dataset.hp=p.shellHp ?? 3;
+      shellTarget=el.firstElementChild;
+    }
+    function shell(result) {
+      if(!result.shellHit || !running) return;
+      sound('shell');
+      const el=result.shellBroken?struckRing?.el:shellTarget;
+      if(el) {
+        if(result.shellBroken) {el.className='shell-hit-overlay';struckRing.parent.append(el);}
+        motion(el,[{transform:'scale(1)'},{transform:'scale(1.06)',offset:.4},{transform:'scale(1)',opacity:result.shellBroken?0:1}],120,()=>{if(result.shellBroken) el.remove();});
+      }
+      if(result.shellBroken) {
+        for(let i=0;i<10;i++) fx?.spawn({sprite:14,x:IMPACT.x,y:IMPACT.y,vx:(Math.random()-.5)*340,vy:-100-Math.random()*230,g:520,r:10,life:.65,rot:Math.random()*6,vr:8,drag:.99,color:'#D9D9D9',blend:'lighter'});
+        shake(4,120);
+        if(result.released>0) {float(result.released,true,{x:340,y:IMPACT.y});burst(18,true);}
+      }
+    }
+    function bossClock() {
+      const b=latestState?.boss; if(!b || $('boss-timer').hidden) return;
+      const left=Math.max(0,(b.endsAt-Math.max(Date.now(),latestState.settledAt))/1000), sec=Math.ceil(left);
+      $('boss-timer').firstElementChild.style.transform=`scaleX(${left/30})`;
+      $('boss-timer').classList.toggle('urgent',left<=10); $('boss-timer').lastElementChild.textContent=`${sec} 秒`;
+      if(sec<=10 && sec>0 && heartbeat!==sec) {heartbeat=sec;motion($('boss-timer'),[{transform:'scale(1)'},{transform:'scale(1.03)',offset:.5},{transform:'scale(1)'}],200);sound('boss-heart');}
+      const ratio=b.dealt/b.need, health=$('boss-health');health.firstElementChild.style.width=`${ratio*100}%`;
+      health.firstElementChild.style.background=`color-mix(in srgb,#E9B94E ${100-ratio*100}%,#EF8E8E)`;
+      const n=v=>v>=10000?`${(v/10000).toFixed(1)}萬`:format(v);
+      health.lastElementChild.textContent=`${n(b.dealt)} / ${n(b.need)}`;
+    }
+    function cracks(value) {
+      const el=$('boss-cracks');el.replaceChildren();
+      const count=value>=.75?3:value>.5?2:value>0?1:0;
+      for(let i=0;i<count;i++) {const img=document.createElement('img');img.src='clicker-boss-crack.png';img.alt='';img.onerror=()=>{img.hidden=true;};img.style.transform=`translateX(${i*25-20}px) rotate(${i*17}deg)`;el.append(img);}
+    }
+    function renderBoss(s,instant) {
+      const key=s.boss?`${s.boss.scene}:${s.boss.startedAt}`:null;
+      if(key && key!==bossKey) {
+        bossKey=key;bossBusy=true;bossEntering=true;heartbeat=-1;cracks(s.boss.crack);
+        $('boss-timer').hidden=false;$('boss-view').hidden=false;
+        $('boss-view').style.visibility='hidden';
+        motion($('bag'),[{transform:'translateX(0)'},{transform:'translateX(200px)'}],220,()=>{
+          $('bag').style.visibility='hidden';$('boss-view').style.visibility='';
+          motion($('boss-view'),[{transform:'translateY(-360px)'},{transform:'translateY(0)'}],300,()=>{
+            motion($('boss-view'),[{transform:'scale(1.06,.94)'},{transform:'scale(1)'}],90,()=>{bossBusy=false;bossEntering=false;render(latestState);});
+            shake(6,80);burst(24,true);sound('boss-enter');
+          },'ease-in');
+        },'ease-in');
+      }
+      bossClock();
+      const rk=s.bossResult?JSON.stringify(s.bossResult):null;
+      if(!s.boss && bossKey && rk && rk!==resultKey && !instant && !bossEntering) {
+        bossKey=null;resultKey=rk;bossBusy=true;$('boss-timer').hidden=true;
+        const r=s.bossResult;
+        if(r.won) {
+          motion($('boss-view'),[{transform:'scale(1)'},{transform:'scale(1.15)'}],120,()=>{
+            $('boss-flash').hidden=false;later(()=>$('boss-flash').hidden=true,60);
+            burst(48,false,false,IMPACT,true);
+            for(let i=0;i<6;i++) fx?.spawn({sprite:3,x:IMPACT.x+(i-2.5)*22,y:IMPACT.y,r:40+i*8,life:.65,color:'#FFF6E6',blend:'lighter',update(p){p.r+=2;}});
+            shake(8,160);sound('boss-win');$('boss-view').hidden=true;
+          });
+          later(()=>{
+            const banner=$('boss-banner');banner.textContent=`${window.ClickerScenes[r.next].name} 解鎖！`;banner.hidden=false;
+            motion(banner,[{transform:'scale(.8)'},{transform:'scale(1)'}],200);
+            later(()=>motion(banner,[{transform:'translateX(0)',opacity:1},{transform:'translateX(-600px)',opacity:0}],220,()=>{
+              banner.hidden=true;
+              window.ClickerScene.mount(latestState.settings.scene);$('bag').style.visibility='';bossBusy=false;lastPackage=latestState.package.index;render(latestState,{instant:true});
+            }),1800);
+          },800);
+        } else {
+          cracks(r.crack);
+          motion($('boss-view'),Array.from({length:7},(_,i)=>({transform:`rotate(${i===6?0:i%2?4:-4}deg)`})),480,()=>{
+            motion($('boss-view'),[{transform:'translateY(0)',opacity:1},{transform:'translateY(-80px)',opacity:0}],400,()=>{
+              $('boss-view').hidden=true;$('bag').style.visibility='';
+              motion($('bag'),[{transform:'translateX(200px)'},{transform:'translateX(0)'}],220,()=>{bossBusy=false;render(latestState);});
+            });
+          });
+          notice(`差一點！裂痕 ${Math.round(r.crack*100)}%，30 秒後再來`);
+        }
+      } else if(instant && !s.boss) {resultKey=rk;if(window.ClickerScene.current!==window.ClickerScene.resolve(s.settings.scene)) window.ClickerScene.mount(s.settings.scene);}
     }
     function freeze(on) {
       lastSceneFrame = performance.now();
@@ -263,7 +368,7 @@ window.ClickerStage = (() => {
       }
       group(0);
     }
-    return { start, stop, click, render, skill, join, setPartners, freeze, get frozen() { return frozen; } };
+    return { start, stop, click, render, skill, join, setPartners, freeze, shell, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
   }
   return { create };
 })();

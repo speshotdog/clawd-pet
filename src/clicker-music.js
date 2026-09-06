@@ -5,7 +5,7 @@ import { Transport } from './chipforge/scheduler.js';
 
 let volume, volumeTarget;
 let ctx, sceneTrack, skillTrack, unlocked = false, hidden = document.hidden;
-let state, battle = false, fadeTimer = 0, fadeKind = '', expiryTimer = 0, revision = 0;
+let state, battle = false, fadeTimer = 0, fadeKind = '', expiryTimer = 0, revision = 0, sceneId;
 function track(song, mixer, filtered = false) {
   const gain = ctx.createGain(); gain.gain.value = 0; gain.connect(volume);
   const filter = filtered ? ctx.createBiquadFilter() : null;
@@ -15,6 +15,7 @@ function track(song, mixer, filtered = false) {
   return { song, mixer, gain, filter, synth, transport: new Transport(synth, {song,mixer}), target:0 };
 }
 function create() {
+  sceneId=state.settings.scene;
   const music = window.ClickerScene.resolve(state.settings.scene,state.package.index).music;
   ctx = new AudioContext();
   volume = ctx.createGain(); volumeTarget = state.settings.musicVolume; volume.gain.value = volumeTarget; volume.connect(ctx.destination);
@@ -57,12 +58,21 @@ async function sync(next = state) {
   if (!next) return;
   state = next; const version = ++revision;
   clearTimeout(expiryTimer); expiryTimer = 0;
-  const alive = effectsAlive(); battle = alive.length > 0;
+  const alive = effectsAlive(); battle = !!state.boss || alive.length > 0;
   if (!hidden && alive.length) expiryTimer = setTimeout(() => { safely(sync()); },Math.max(1,Math.min(...alive.map(e=>e.expiresAt))-Date.now()));
   if (!unlocked) return;
   const off = hidden || state.settings.music === false;
   if (!ctx && !off) create();
   if (!ctx) return;
+  const mountedScene=document.getElementById('stage').dataset.scene || state.settings.scene;
+  if (!off && sceneId!==mountedScene) {
+    sceneId=mountedScene;
+    const music=window.ClickerScene.resolve(sceneId).music, old=sceneTrack;
+    const song=composeSong({theme:music.theme,steps:32*16,gen:{...defaultGen(),...music.gen},seed:music.seed});
+    sceneTrack=track(song,{...defaultMixer(),master:60,retro:false});
+    sceneTrack.transport.start(0); curve(old,0,.4); curve(sceneTrack,battle?.24*.15:.24,.4);
+    setTimeout(()=>{old.transport.stop();old.gain.disconnect();},400);
+  }
   if (off) {
     if (fadeKind !== 'suspend' && ctx.state === 'running') {
       curve(sceneTrack,0,.3); curve(skillTrack,0,.3);

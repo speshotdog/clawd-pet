@@ -2,7 +2,9 @@
   const sprites = (kind, n) => Array.from({ length: n }, (_, i) => `clicker-scene1-${kind}-${i}.png`);
   const scenes = {
     backyard: {
-      name: '後院草地', unlockPackages: 0, requirementMul: 1, bagSkin: 0,
+      name: '後院草地', unlockPackages: 0, requirementMul: 1, rewardMul: 1, bagSkin: 0,
+      unlock: null, enemy: { shell: null, timer: null, regen: null }, affinity: ['yueyue2','caihua'],
+      boss: { name: '大罐頭', mul: 1.35, seconds: 30, crackKeep: .5, crackMax: .75, cooldown: 30, reward: { freeDraws: 5 } },
       palette: { mat: '#8FA56E', sky: '#CFE7F5' },
       music: { theme: 'picnic', seed: 'zhenmu-backyard-1', gen: { density: 45, rhythm: 40, speed: 35, drama: 30, mood: 70, hook: 60, smooth: 65 } },
       layers: [
@@ -20,6 +22,29 @@
       particles: { sprites: sprites('particle', 2), everyMs: [1500,3200], max: 6, size: [10,16], life: [5,9] },
     },
   };
+  scenes.kitchen = {
+    name: '廚房流理台', unlockPackages: 0, requirementMul: 3, rewardMul: 3, bagSkin: 1,
+    unlock: { packages: 50, boss: 'backyard' }, enemy: { shell: [.75,.5,.25], timer: null, regen: null }, affinity: ['zhenzhen2','fox'],
+    boss: { ...scenes.backyard.boss, mul:6, reward: { freeDraws: 5 } },
+    palette: { mat: '#B9A58A', sky: '#F3E7D3' },
+    music: { theme: 'shop', seed: 'zhenmu-kitchen-1', gen: { density:50, rhythm:55, speed:45, drama:35, mood:65, hook:60, smooth:55 } },
+    layers: [
+      { id:'sky', src:'clicker-scene2-sky.png', y:0, h:360, parallax:0 },
+      // 層架與後櫃素材不是橫幅，用固定寬度放在牆上與窗戶錯開，不拉伸
+      { id:'far', src:'clicker-scene2-far.png', x:36, y:52, h:130, w:243, parallax:.35 },
+      { id:'mid', src:'clicker-scene2-mid.png', x:130, y:196, h:96, w:294, parallax:.55 },
+      { id:'ground', src:'clicker-scene2-ground.png', y:220, h:140, parallax:.8 },
+      { id:'props', sprites:[0,1,2].map(i=>`clicker-scene2-prop-${i}.png`), slots:[[80,270],[300,300],[550,270]], h:64, parallax:.7 },
+      { id:'steam', sprites:[0,1].map(i=>`clicker-scene2-steam-${i}.png`), slots:[[60,160],[490,180]], h:70, drift:[12,16], rise:true, parallax:.2 },
+      { id:'cloth', sprites:['clicker-scene2-cloth.png'], slots:[[200,150]], h:90, sway:{amp:5,stiff:.9}, hanging:true, parallax:.5 },
+    ],
+    particles: { sprites:[0,1].map(i=>`clicker-scene2-particle-${i}.png`), everyMs:[1500,3200], max:6, size:[10,16], life:[5,9], rise:true },
+  };
+  [['market','便利商店貨架',200,10,'kitchen'],['factory','包裝工廠',600,30,'market'],['nightmarket','夜市攤',1500,80,'factory'],['rainynight','神秘倉庫',4000,220,'nightmarket']].forEach(([id,name,packages,mul,boss]) => {
+    scenes[id] = { name, unlockPackages:0, requirementMul:mul, rewardMul:mul, unlock:{packages,boss}, available:false,
+      enemy:{shell:null,timer:id==='factory'?20:id==='nightmarket'?15:null,regen:id==='rainynight'?.01:null},
+      boss:{...scenes.backyard.boss,mul:6}, bagSkin:0, affinity:[], palette:{mat:'#aaa',sky:'#ddd'} };
+  });
   const resolve = (id, index = Infinity) => Object.hasOwn(scenes, id) && index >= scenes[id].unlockPackages ? scenes[id] : scenes.backyard;
   root.ClickerScenes = scenes;
   if (typeof module !== 'undefined' && module.exports) { module.exports = { scenes, resolve }; return; }
@@ -44,11 +69,16 @@
     document.getElementById('game').removeEventListener('pointerleave', center);
   }
   function mount(id, index) {
+    const old = host?.cloneNode(true); if (old) { old.removeAttribute('id'); old.classList.add('scene-outgoing'); }
+    const scope = fxScope;
     unmount(); scene = resolve(id, index); time = 0; gust = null; nextGust = rand(6,14); nextParticle = rand(...scene.particles.everyMs)/1000; center(); pointer = {...target};
     host = document.createElement('div'); host.id = 'clicker-scene'; host.setAttribute('aria-hidden','true');
     host.style.background = scene.palette.sky;
     document.querySelector('.desk-mat').after(host);
+    if (old) { host.before(old); old.animate([{opacity:1},{opacity:0}],{duration:400}).finished.then(()=>old.remove()).catch(()=>old.remove()); host.animate([{opacity:0},{opacity:1}],{duration:400}); }
+    if (scope) attach(scope);
     document.getElementById('stage').style.setProperty('--scene-mat',scene.palette.mat);
+    document.getElementById('stage').dataset.scene=id;
     function picture(parent, src, x, y, h, w, sway, leaf = false, anchor = false) {
       const el = document.createElement('img'); el.src = src; el.alt = ''; el.draggable = false;
       el.style.cssText = `left:${x}px;top:${y}px;height:${h}px;${w ? `width:${w}px;` : ''}${anchor ? 'translate:-50% -100%;' : ''}`;
@@ -62,7 +92,8 @@
       if (def.src) picture(el,def.src,def.x ?? -12,def.y,def.h,def.w ?? 632);
       def.slots?.forEach(([x,y],j) => {
         const img = picture(el,def.sprites[j % def.sprites.length],x,y,def.h,null,def.sway,!!def.sway,!def.drift);
-        if (def.drift) clouds.push({el:img,x,speed:def.drift[j]});
+        if (def.hanging) img.style.transformOrigin='50% 0';
+        if (def.drift) clouds.push({el:img,x,speed:def.drift[j],rise:def.rise});
       });
       // Trunk 360?443: branch tips (42,87)/(318,30), fork (180,165).
       // At (20,60), 120?240: tips (34,107)/(126,76), fork (80,149).
@@ -78,7 +109,9 @@
     update(0);
     return scene;
   }
+  let fxScope;
   function attach(scope) {
+    fxScope = scope;
     if (fxLayer) fxLayer.dead = true;
     fxLayer = scope.layer({ dead:false, update() {}, draw(ctx) {
       if (!host) return;
@@ -94,7 +127,7 @@
       ctx.restore();
     } });
   }
-  function detach() { if (fxLayer) fxLayer.dead = true; fxLayer = null; }
+  function detach() { if (fxLayer) fxLayer.dead = true; fxLayer = null; fxScope = null; }
   function update(dt) {
     if (!host) return;
     time += dt;
@@ -111,18 +144,18 @@
       const w = reduced.matches ? 0 : wind(time-x/608*.15);
       el.style.transform = `rotate(${w*sway.amp/sway.stiff}deg) scaleX(${1+(leaf ? .02*w : 0)})`;
     }
-    for (const c of clouds) c.el.style.transform = `translateX(${((c.x+time*c.speed+120)%848)-120-c.x}px)`;
+    for (const c of clouds) { c.el.style.transform = c.rise ? `translateY(${-time*c.speed%220}px)` : `translateX(${((c.x+time*c.speed+120)%848)-120-c.x}px)`; if (c.rise) c.el.style.opacity = Math.sin((time*c.speed%220)/220*Math.PI); }
     const cfg = scene.particles, max = reduced.matches ? 2 : cfg.max;
     particles = particles.filter(p => p.life > 0).slice(0,max);
     if (time >= nextParticle) {
       if (particles.length < max) {
         const top = Math.random() < .7;
         const life = rand(...cfg.life);
-        particles.push({x:top ? rand(40,570) : 615,y:top ? -10 : rand(30,240),rot:rand(0,Math.PI*2),vr:rand(-1.2,1.2),life,max:life,size:rand(...cfg.size),phase:rand(0,6),img:textures[Math.floor(Math.random()*textures.length)]});
+        particles.push({x:top ? rand(40,570) : 615,y:cfg.rise ? 320 : top ? -10 : rand(30,240),rot:rand(0,Math.PI*2),vr:rand(-1.2,1.2),life,max:life,size:rand(...cfg.size),phase:rand(0,6),img:textures[Math.floor(Math.random()*textures.length)]});
       }
       nextParticle = time+rand(...cfg.everyMs)/1000;
     }
-    for (const p of particles) { p.life-=dt; p.x+=(-18+wind(time)*22)*dt; p.y+=(8+6*Math.sin(time+p.phase))*dt; p.rot+=p.vr*dt; }
+    for (const p of particles) { p.life-=dt; p.x+=(-18+wind(time)*22)*dt; p.y+=(cfg.rise ? -18 : 8+6*Math.sin(time+p.phase))*dt; p.rot+=p.vr*dt; }
     // 到期的粒子當幀就移除，不留給 draw 多畫一格
     particles = particles.filter(p => p.life > 0);
   }

@@ -30,7 +30,10 @@
       <div class="desk-mat"></div><img class="stage-flag" src="clicker-ui-flag.png" alt="" /><img class="tape stage-tape" src="clicker-ui-tape-1.png" alt="" /><i class="contact hero-contact"></i><i class="contact bag-contact"></i>
       <div id="hero-light" aria-hidden="true"></div><div id="hero-position"><div id="hero"></div></div>
       <button id="tap" aria-label="點珍母拆零食包（空白鍵也可以）"></button>
-      <div id="bag"><img id="bag-image" src="clicker-bag-0.png" alt="零食包：完整" /></div>
+      <div id="bag"><img id="bag-image" src="clicker-bag-0.png" alt="零食包：完整" /><div id="shell-rings"></div></div>
+      <button id="boss-challenge" hidden>挑戰大罐頭！</button>
+      <div id="boss-view" hidden><img id="boss-image" src="clicker-boss-can.png" alt="大罐頭" onerror="this.style.visibility='hidden'" /><div id="boss-cracks"></div><div id="boss-shells"></div><div id="boss-health"><i></i><b></b></div></div>
+      <div id="boss-timer" hidden><i></i><b>30 秒</b></div><div id="boss-flash" hidden></div><div id="boss-banner" hidden></div>
       <div id="parasite-label" hidden></div>
       <div class="package-meter"><span id="package-label">第 1 包</span><progress id="package-progress" max="1" value="0"></progress><span id="package-number">0 / 100</span></div>
       <div id="slots" aria-label="必殺技槽"></div><div id="effect-label" hidden></div>
@@ -58,6 +61,7 @@
     <div class="reveal-controls"><button id="reveal-all" hidden>全部翻開</button><button id="skip" hidden>略過演出</button><button id="collect" hidden>收下夥伴</button></div><p id="recruit-hint" role="status"></p>
   </section>
   <section id="roster" class="panel" role="dialog" aria-modal="true" aria-label="夥伴名冊" hidden><header><h2>夥伴名冊</h2><span>所有已擁有夥伴皆提供被動收益</span><button id="roster-close">返回</button></header><div id="roster-grid"></div><div id="roster-detail"></div></section>
+  <section id="scenes" class="small-panel" role="dialog" aria-modal="true" aria-label="場景票券" hidden><h2>下一站，在哪拆？</h2><div id="scene-tickets"></div><button id="scenes-close">回到桌邊</button></section>
   <section id="stats" class="small-panel" role="dialog" aria-modal="true" aria-label="統計" hidden><h2>這一桌的紀錄</h2><div id="stats-body"></div><button id="stats-close">繼續開工</button></section>
   <section id="receipt" class="small-panel" role="dialog" aria-modal="true" aria-label="離線收據" hidden><small>夥伴幫你收好了</small><h2>回來啦。</h2><p id="receipt-text"></p><button id="receipt-close">繼續開工</button></section>
   <section id="save-error" class="small-panel" hidden><h2>存檔無法讀取</h2><p id="save-error-text"></p><button id="export-raw">匯出原始資料</button><textarea id="raw-save" aria-label="原始存檔" readonly hidden></textarea><button id="error-close">關閉視窗</button></section>

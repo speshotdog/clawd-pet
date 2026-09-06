@@ -10,7 +10,8 @@
   const individual = (s, id) => B.characters[id].base * starMultiplier(s.collection[id] || 0) * 1.15 ** s.trainingLevel;
   function rates(s) {
     const P = Object.keys(B.characters).reduce((sum, id) => sum + individual(s, id), 0);
-    return { P, D: 1.18 ** s.clickLevel + .05 * P };
+    const mul = Scenes(s.settings?.scene).rewardMul || 1;
+    return { P: P * mul, D: (1.18 ** s.clickLevel + .05 * P) * mul };
   }
   function tagFor(entry, dup, owned) {
     if (!owned) return { text: 'NEW', cls: 'new' };
@@ -21,7 +22,47 @@
   const requirement = (k, sceneId = 'backyard') => 100 * 1.12 ** (k - 1) * Scenes(sceneId).requirementMul;
   // expm1 保留小區間精度；二分搜尋只依包數的對數次數運算。
   const packageSum = (index, count, sceneId) => count === 0 ? 0 : requirement(index, sceneId) * Math.expm1(count * Math.log(1.12)) / .12;
-  function advancePackage(pack, power, sceneId) {
+  const shellsFor = id => [...(Scenes(id).enemy?.shell || [])];
+  const newPackage = (id, index = 1) => ({ index, progress:0, shells:shellsFor(id), shellHp:3, blocked:0 });
+  function shellPower(pack, power, need, source) {
+    const p = { ...pack, shells:[...(pack.shells || [])], blocked:pack.blocked || 0, shellHp:pack.shellHp ?? 3 };
+    let shellHit = false, shellBroken = false, released = 0;
+    const line = () => p.shells.length ? need * (1-p.shells[0]) : Infinity;
+    if (source === 'click' && p.progress >= line() - need*1e-12) {
+      shellHit = true; p.shellHp--;
+      if (p.shellHp > 0) return { package:p, shellHit, shellBroken, released, remaining:0 };
+      p.shells.shift(); p.shellHp=3; shellBroken=true; released=p.blocked; p.blocked=0;
+      if(released) return {package:p,shellHit,shellBroken,released,remaining:power};
+    }
+    const used = Math.min(power, Math.max(0,Math.min(need,line())-p.progress));
+    p.progress += used;
+    let remaining = power-used;
+    if (p.shells.length && p.progress >= line()-need*1e-12) {
+      p.blocked += remaining; remaining=0;
+      if (source === 'offline') p.blocked=Math.min(p.blocked,need*3);
+    }
+    return { package:p, shellHit, shellBroken, released, remaining };
+  }
+  function advancePackage(pack, power, sceneId, source = 'passive') {
+    if ((pack.shells || shellsFor(sceneId)).length || shellsFor(sceneId).length) {
+      let p = {...newPackage(sceneId,pack.index),...pack}, completed=0, shellHit=false, shellBroken=false, released=0;
+      do {
+        const r=shellPower(p,power,requirement(p.index,sceneId),source);
+        p=r.package; shellHit ||= r.shellHit; shellBroken ||= r.shellBroken; released+=r.released; power=r.remaining;
+        // Stored power already earned its coins; release bypasses rings, including across packages.
+        if (r.released) {
+          const fast=advancePlain(p,r.released,sceneId); completed+=fast.completed;
+          p={...p,...fast.package,shells:fast.completed?shellsFor(sceneId):p.shells};
+          p.shells=p.shells.filter(v=>p.progress < requirement(p.index,sceneId)*(1-v));
+        }
+        if (p.progress >= requirement(p.index,sceneId)-requirement(p.index,sceneId)*1e-12) { completed++; p=newPackage(sceneId,p.index+1); }
+        source=source==='click'?'passive':source;
+      } while (power>0);
+      return {package:p,completed,shellHit,shellBroken,released};
+    }
+    return advancePlain(pack,power,sceneId);
+  }
+  function advancePlain(pack, power, sceneId) {
     const total = pack.progress + power;
     let low = 0, high = 1;
     const fits = (n) => packageSum(pack.index, n, sceneId) <= total;
@@ -30,21 +71,43 @@
     let progress = Math.max(0, total - packageSum(pack.index, low, sceneId));
     // 累積等比浮點誤差不留下一包幾乎 100% 的幽靈進度。
     if (requirement(pack.index + low, sceneId) - progress <= requirement(pack.index + low, sceneId) * 1e-12) { low++; progress = 0; }
-    return { package: { index: pack.index + low, progress }, completed: low };
+    return { package: { ...newPackage(sceneId,pack.index+low), progress }, completed: low };
   }
-  function grant(s, amount) {
+  function grant(s, amount, source = 'passive', event = {}) {
     s.coins += amount; s.lifetimeCoins += amount;
-    const result = advancePackage(s.package, amount, s.settings.scene); s.package = result.package;
+    if (s.boss) {
+      const r=shellPower({...s.boss,progress:s.boss.dealt},amount,s.boss.need,source);
+      let p=r.package;
+      if(r.released) {
+        p.progress=Math.min(s.boss.need,p.progress+r.released);
+        p.shells=p.shells.filter(v=>p.progress<s.boss.need*(1-v));
+        p=shellPower(p,r.remaining,s.boss.need,'passive').package;
+      }
+      Object.assign(s.boss,{dealt:p.progress,shells:p.shells,shellHp:p.shellHp,blocked:p.blocked});
+      Object.assign(event,{shellHit:r.shellHit,shellBroken:r.shellBroken,released:r.released});
+      if (s.boss.dealt >= s.boss.need) finishBoss(s,true,s.settledAt);
+      return 0;
+    }
+    const result = advancePackage(s.package, amount, s.settings.scene, source); s.package = result.package;
+    Object.assign(event,{shellHit:result.shellHit,shellBroken:result.shellBroken,released:result.released});
     return result.completed;
   }
-  function settle(state, now) {
+  function settle(state, now, options = {}) {
     const s = clone(state), elapsed = Math.max(0, now - s.settledAt), duration = Math.min(elapsed, B.offlineMs);
+    if (options.offline && s.boss) finishBoss(s,false,s.settledAt);
+    // Split at the deadline, so no damage after the 30-second boundary can win.
+    if (s.boss && now > s.boss.endsAt) {
+      const first=settle(s,s.boss.endsAt), rest=settle(first.state,now,options);
+      return {...rest,earned:first.earned+rest.earned,completed:first.completed+rest.completed,elapsed,duration};
+    }
     const start = s.settledAt, end = start + duration;
     let earned = rates(s).P * duration / 1000;
     for (const effect of s.effects) if (['passive', 'self', 'team'].includes(effect.kind)) {
       earned += effect.value * Math.max(0, Math.min(end, effect.expiresAt) - Math.max(start, effect.startedAt)) / 1000;
     }
-    const completed = grant(s, earned);
+    s.settledAt = Math.max(s.settledAt, now);
+    const completed = grant(s, earned, options.offline ? 'offline' : 'passive');
+    if (s.boss && now >= s.boss.endsAt) finishBoss(s,false,now);
     s.settledAt = Math.max(s.settledAt, now);
     s.effects = s.effects.filter((e) => e.expiresAt > s.settledAt && (e.remaining === undefined || e.remaining > 0));
     return { state: s, earned, completed, elapsed, duration };
@@ -53,7 +116,7 @@
     const result = settle(state, now), s = result.state;
     const multiplier = Math.max(1, ...s.effects.filter((e) => ['click', 'clickTime'].includes(e.kind)).map((e) => e.multiplier));
     const amount = rates(s).D * multiplier + s.effects.filter(e => e.kind === 'clickAdd').reduce((sum, e) => sum + e.value, 0);
-    result.completed += grant(s, amount); s.manualClicks++;
+    result.completed += grant(s, amount, 'click', result); s.manualClicks++;
     for (const effect of s.effects) if (effect.remaining !== undefined) effect.remaining--;
     s.effects = s.effects.filter((e) => e.remaining === undefined || e.remaining > 0);
     const tutorial = s.manualClicks >= 50 && !s.claimedMilestones.includes('tutorial50');
@@ -92,14 +155,14 @@
     const effect = { source: id, kind: def.kind, startedAt: t, expiresAt: t + (def.duration || 0) * 1000 };
     if (def.kind === 'click') Object.assign(effect, { multiplier: def.multiplier, remaining: def.charges });
     else if (def.kind === 'clickTime') effect.multiplier = def.multiplier;
-    else if (def.kind === 'self') effect.value = individual(s, id) * (def.multiplier - 1);
+    else if (def.kind === 'self') effect.value = individual(s, id) * (def.multiplier - 1) * (Scenes(s.settings.scene).rewardMul || 1);
     else if (def.kind === 'team') effect.value = rates(s).P * def.ratio;
     else if (def.kind === 'clickAdd') Object.assign(effect, { value: rates(s).P * def.ratio, remaining: def.charges });
-    else if (def.kind === 'burst') effect.value = def.factor * (def.basis === 'individual' ? individual(s, id) : rates(s).P);
+    else if (def.kind === 'burst') effect.value = def.factor * (def.basis === 'individual' ? individual(s, id) * (Scenes(s.settings.scene).rewardMul || 1) : rates(s).P);
     else {
       const targets = Object.keys(s.collection).filter((key) => key !== id && s.collection[key] > 0).sort((a, b) => individual(s, b) - individual(s, a));
       if (!targets.length) throw new Error('需要另一位夥伴');
-      effect.target = targets[0]; effect.value = individual(s, effect.target);
+      effect.target = targets[0]; effect.value = individual(s, effect.target) * (Scenes(s.settings.scene).rewardMul || 1);
     }
     const completed = def.kind === 'burst' ? grant(s, effect.value) : 0;
     if (def.kind !== 'burst') s.effects.push(effect); s.cooldownUntil[id] = t + def.cd * 1000;
@@ -107,11 +170,12 @@
   }
   function purchaseDraw(state, count, now, pool, options = {}) {
     const s = settle(state, now).state;
-    if (s.pending || ![1, 5].includes(count)) throw new Error('尚有待收下結果或張數錯誤');
-    const price = drawCost(s.paidDraws, count);
+    if (state.boss || s.pending || ![1, 5].includes(count)) throw new Error('王包中或尚有待收下結果或張數錯誤');
+    const free = Math.min(s.freeDraws || 0,count), paid=count-free;
+    const price = drawCost(s.paidDraws, paid);
     if (!Number.isFinite(price) || s.coins < price) throw new Error('餘額不足');
     const result = pool.rollPack({ ...options, count, policy: pool.GAME_POLICY, pity: s.pity.sinceLegendary, collection: s.collection });
-    s.coins -= price; s.paidDraws += count; s.pity.sinceLegendary = result.nextPity;
+    s.coins -= price; s.paidDraws += paid; s.freeDraws=(s.freeDraws || 0)-free; s.usedFreeDraws=(s.usedFreeDraws || 0)+free; s.pity.sinceLegendary = result.nextPity;
     s.pending = { draw: result.draw };
     return s;
   }
@@ -124,7 +188,44 @@
     s.pending = null;
     return { state: s, accepted: true, newIds };
   }
+  const sceneMap = () => typeof module !== 'undefined' && module.exports ? require('./clicker-scene.js').scenes : root.ClickerScenes;
+  const nextScene = id => Object.keys(sceneMap()).find(key=>sceneMap()[key].unlock?.boss===id);
+  const unlocked = (s,id) => Object.hasOwn(sceneMap(),id) && sceneMap()[id].available!==false && (!sceneMap()[id].unlock || (s.bossWins || []).includes(sceneMap()[id].unlock.boss));
+  const canBoss = (s,now) => !s.boss && !s.pending && !!nextScene(s.settings.scene) && !(s.bossWins || []).includes(s.settings.scene) && s.package.index-1 >= Scenes(nextScene(s.settings.scene)).unlock.packages && now >= (s.bossCooldownUntil || 0);
+  function switchScene(state,id,now) {
+    if (state.boss || !unlocked(state,id)) throw new Error('王包中或場景尚未解鎖');
+    const s=settle(state,now).state; changeScene(s,id); return s;
+  }
+  function changeScene(s,id) {
+    if (s.settings.scene===id) return;
+    s.scenePackages ||= {}; s.scenePackages[s.settings.scene]=clone(s.package);
+    const oldMul=Scenes(s.settings.scene).rewardMul || 1, newMul=Scenes(id).rewardMul || 1;
+    s.effects.forEach(e=>{if (e.value !== undefined) e.value*=newMul/oldMul;});
+    s.settings.scene=id; s.package=clone(s.scenePackages[id] || newPackage(id));
+  }
+  function startBoss(state,now) {
+    const s=settle(state,now).state;
+    if (!canBoss(s,now)) throw new Error('王包尚未就緒');
+    const scene=s.settings.scene, cfg=Scenes(scene).boss, need=cfg.mul*requirement(s.package.index,scene), crack=s.bossCracks?.[scene] || 0;
+    s.boss={scene,need,dealt:crack*need,startedAt:now,endsAt:now+cfg.seconds*1000,crack,shells:shellsFor(scene).filter(v=>1-v>crack),shellHp:3,blocked:0};
+    s.bossResult=null; return s;
+  }
+  function finishBoss(s,won,now) {
+    const b=s.boss, cfg=Scenes(b.scene).boss;
+    const crack=won?0:Math.min(cfg.crackMax,b.dealt/b.need*cfg.crackKeep);
+    s.bossCracks ||= {}; s.bossCracks[b.scene]=crack; s.boss=null;
+    s.bossResult={scene:b.scene,won,crack,at:now,next:nextScene(b.scene)};
+    if (won) {
+      s.bossWins ||= []; if (!s.bossWins.includes(b.scene)) { s.bossWins.push(b.scene); s.freeDraws=(s.freeDraws || 0)+cfg.reward.freeDraws; }
+      s.bossCooldownUntil=0;
+      if (unlocked(s,s.bossResult.next)) changeScene(s,s.bossResult.next);
+    } else s.bossCooldownUntil=now+cfg.cooldown*1000;
+  }
+  function abandonBoss(state,now) {
+    const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
+  }
   const api = { clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor,
+    newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerEconomy = api;

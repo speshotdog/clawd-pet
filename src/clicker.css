@@ -66,8 +66,8 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 @keyframes clicker-shake {
   10%, 90% { transform: translate(-3px, 2px); }
   20%, 80% { transform: translate(3px, -2px); }
-  30%, 50%, 70% { transform: translate(-6px, 3px) rotate(-.3deg); }
-  40%, 60% { transform: translate(6px, -3px) rotate(.3deg); }
+  30%, 50%, 70% { transform: translate(calc(-1 * var(--boss-shake,6px)), 3px) rotate(-.3deg); }
+  40%, 60% { transform: translate(var(--boss-shake,6px), -3px) rotate(.3deg); }
 }
 @keyframes clicker-shake-soft {
   25% { transform: translate(2px, -1px); }
@@ -412,10 +412,37 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #game #tap, #game .buddy, #game .slot-pick, #game-content .text-button, #game #audio-panel button[aria-pressed] { background:transparent; }
 #game .skill-use, #game button.skill-use:disabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
 .price-ticket, #package-result, #effect-label, .package-meter { background:#FAEBC9; background-clip:padding-box; }
-.wallet, .upgrade, .recruit, #team, .panel, .small-panel, #recruit-topbar, #audio-panel { background:#FDECCB; background-clip:padding-box; }
-.wallet { background:#FAE5C1; background-clip:padding-box; }
-#shop h2, .buddy-header h2, .skills-heading, #game-content h1 { background:#F47D79; background-clip:padding-box; }
-#shop .upgrade:nth-child(2) h2, .skills-heading { background:#98A25A; background-clip:padding-box; }
-#shop .upgrade:nth-child(2) h2 { background:#F47D79; }
-#shop .recruit h2 { background:#B78DC5; background-clip:padding-box; }
-#game-content h1, .panel h2, .small-panel h2, #recruit-topbar > b { background:#F1887A; background-clip:padding-box; }
+.upgrade, .recruit, #team, .panel, .small-panel, #recruit-topbar, #audio-panel { background:#FDECCB; background-clip:padding-box; }
+/* 標題帶、錢包、票券帶的圓角比 9-slice 邊寬大，填色會露到框外，所以不填（縫線在這些元件上看不出來） */
+.scene-outgoing { position:absolute; inset:0; z-index:1; clip-path:inset(24px round 5px); pointer-events:none; filter:saturate(.78) contrast(.92) brightness(1.04); }
+#stage > #boss-challenge { pointer-events:auto; position:absolute; left:470px; top:40px; width:120px; height:48px; z-index:12; transform:rotate(-3deg); border:0; border-image:none; background:#FDECCB url('clicker-ui-boss-btn.png') center/100% 100%; padding:4px; font-size:16px; }
+#boss-view { position:absolute; left:330px; top:60px; width:260px; height:300px; z-index:13; transform-origin:50% 100%; }
+#boss-image { width:260px; height:300px; object-fit:contain; }
+#boss-health { position:absolute; left:-20px; bottom:-16px; width:300px; height:14px; background:#745E4A; border:2px solid #FFF6E6; border-radius:6px; }
+#boss-health i { display:block; height:100%; background:#E9B94E; border-radius:4px; }
+#boss-health b { position:absolute; top:-21px; left:0; width:100%; text-align:center; font-size:14px; color:#54382B; text-shadow:0 1px #FFF6E6; }
+#boss-timer { position:absolute; left:24px; top:28px; width:560px; height:16px; z-index:14; background:#745E4A66; }
+#boss-timer i { display:block; width:100%; height:100%; transform-origin:left; background:url('clicker-ui-boss-tape.png') center/100% 100%; }
+#boss-timer.urgent i { filter:saturate(1.6) brightness(1.05); }
+#boss-timer b { position:absolute; left:0; right:0; top:-3px; text-align:center; font-size:13px; }
+#boss-flash { position:absolute; inset:0; background:#FFF6E6; z-index:20; }
+#boss-banner { position:absolute; width:520px; height:70px; left:44px; top:140px; z-index:21; background:#FDECCB url('clicker-ui-title-tape.png') center/100% 100%; display:grid; place-items:center; font-size:30px; }
+#boss-cracks, #shell-rings, #boss-shells { position:absolute; inset:0; pointer-events:none; }
+#boss-cracks img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+#shell-rings img, #boss-shells img { position:absolute; left:0; width:100%; height:24%; object-fit:fill; }
+.shell-hit-overlay { position:absolute; left:0; width:100%; height:24%; object-fit:fill; pointer-events:none; }
+.blocked img { animation:shell-breathe 1.2s ease-in-out infinite; }
+@keyframes shell-breathe { 0%,100% {filter:brightness(1) drop-shadow(0 0 0 #FFF6E6);} 50% {filter:brightness(1.5) drop-shadow(0 0 7px #FFF6E6);} }
+#stage.boss-shake { animation:clicker-shake var(--boss-shake-time) linear; }
+.affinity-flag { position:absolute; left:0; top:0; padding:2px 5px; font-size:10px; background:#E9B94E url('clicker-ui-flag.png') center/100% 100%; }
+#scenes { left:150px; top:100px; width:660px; }
+#scene-tickets { display:grid; grid-template-columns:300px 300px; gap:12px; }
+#game #scenes .scene-ticket { width:300px; height:64px; margin:0; padding:5px 9px; display:flex; gap:10px; align-items:center; text-align:left; border:0; border-radius:0; border-image:url('clicker-ui-ticket.png') 60 fill / 12px; background:#FAEBC9; font-size:16px; }
+.scene-ticket > span:last-child { flex:1; min-width:0; }
+.scene-ticket b,.scene-ticket small { display:block; }
+.scene-ticket small { font-size:10px; line-height:13px; }
+.scene-ticket:disabled { filter:grayscale(.7); opacity:.65; }
+.scene-thumb { width:96px; height:54px; flex-shrink:0; overflow:hidden; }
+.scene-thumb img { width:96px; height:54px; object-fit:cover; }
+#stage[data-scene="kitchen"] .desk-mat { filter:grayscale(1) sepia(.45); }
+@media (prefers-reduced-motion:reduce) { .blocked img {animation:none;filter:brightness(1.2);} #stage.boss-shake {animation:none;} }

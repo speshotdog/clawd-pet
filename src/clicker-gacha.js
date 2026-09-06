@@ -1,19 +1,20 @@
 window.ClickerGacha = (() => {
-  function create({ store, card, commit, changed, pauseStage, resumeStage, joined, notice, format }) {
+  function create({ store, card, commit, changed, pauseStage, resumeStage, joined, notice, format, canOpen = () => true }) {
     const $ = (id) => document.getElementById(id), E = window.ClickerEconomy;
     let runtime = null, mode = null, state = 'idle', ready = false;
     let currentId = null, summaryReady = false, busy = false, previousFocus = null;
     const layer = $('recruit-layer');
     function priceButton(el, count, s, supported) {
-      const cost = E.drawCost(s.paidDraws, count), missing = Math.max(0, Math.ceil(cost - s.coins));
+      const cost = E.drawCost(s.paidDraws, Math.max(0,count-(s.freeDraws || 0))), missing = Math.max(0, Math.ceil(cost - s.coins));
       el.textContent = el.id === 'draw-one' ? '招募！' : el.id === 'draw-five' ? '五連' : `${count === 1 ? '單抽' : '五連'} · ${format(cost)}`; el.title = String(cost);
-        if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price'; price.textContent = format(cost); el.append(price); }
+        if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price'; price.textContent = s.freeDraws ? `免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}` : format(cost); el.append(price); }
+      if (s.freeDraws && el.id.startsWith('recruit-')) el.textContent=`${count===1?'單抽':'五連'} · 免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}`;
       if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)}`; el.append(note); }
-      el.disabled = !ready || store.blocked || !!s.pending || !supported || missing > 0 || busy;
+      el.disabled = !ready || !canOpen() || store.blocked || !!s.boss || !!s.pending || !supported || missing > 0 || busy;
     }
     function render() {
       const s = store.state; if (!s) return;
-      $('draw-price').textContent = format(E.drawCost(s.paidDraws, 1)); $('draw-ticket').title = String(E.drawCost(s.paidDraws, 1));
+      $('draw-price').textContent = s.freeDraws ? `免費 ×${s.freeDraws}` : format(E.drawCost(s.paidDraws, 1)); $('draw-ticket').title = String(E.drawCost(s.paidDraws, Math.max(0,1-s.freeDraws)));
       const supported = window.GachaModes[s.settings.mode].counts.includes(1);
       const note = supported ? '' : '此演出只支援五連；單抽請選流星或拆包桌面。';
       for (const id of ['draw-one', 'recruit-one']) priceButton($(id), 1, s, supported);
@@ -26,7 +27,7 @@ window.ClickerGacha = (() => {
       $('recruit-mute').textContent = s.settings.muted ? '音效關' : '音效開';
     }
     function open() {
-      if (!store.state || !ready) return;
+      if (!store.state || !ready || store.state.boss || !canOpen()) return;
       previousFocus = document.activeElement; layer.hidden = false; $('game-content').inert = true;
       pauseStage(); window.GachaFx.init($('fx'), $('fx-under')); $('mode-select').focus(); render();
     }
@@ -77,7 +78,7 @@ window.ClickerGacha = (() => {
     }
     async function start(count) {
       const s = store.state;
-      if (!ready || busy || store.blocked || s.pending || !window.GachaModes[s.settings.mode].counts.includes(count)) return;
+      if (!ready || !canOpen() || busy || store.blocked || s.boss || s.pending || !window.GachaModes[s.settings.mode].counts.includes(count)) return;
       busy = true;
       try {
         const next = E.purchaseDraw(s, count, Date.now(), window.GachaPool);

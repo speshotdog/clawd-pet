@@ -6,7 +6,8 @@ window.Clicker = (() => {
   const jlog = (m) => { try { window.__TAURI__?.core.invoke('js_log', { msg: `clicker ${m}` }).catch(() => {}); } catch (_) {} };
   const $ = (id) => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
   const TAURI = window.__TAURI__;
-  const format = (n) => n >= 1e8 ? `${(n / 1e8).toFixed(1)}億` : n >= 10000 ? `${(n / 10000).toFixed(2)}萬` : n.toLocaleString('zh-TW', { maximumFractionDigits: 1 });
+  // 萬／億／兆：數字部分最多 5 位（1234萬、123.4億、12.34兆），價籤與錢包才放得下
+  const format = (n) => { for (const [u, name] of [[1e12, '兆'], [1e8, '億'], [1e4, '萬']]) if (n >= u) { const v = n / u; return `${v.toFixed(v >= 1000 ? 0 : v >= 100 ? 1 : 2)}${name}`; } return n.toLocaleString('zh-TW', { maximumFractionDigits: 1 }); };
   const store = window.ClickerSave.create({ getItem: (k) => localStorage.getItem(k), setItem: (k, v) => localStorage.setItem(k, v) }, { pool: Pool });
   let stage, gacha, cutin, ready = false, tickTimer = 0, saveTimer = 0, numberTimer = 0, noticeTimer = 0;
   let audio = null, lastNumbers = -Infinity, inputTimes = [], slotsKey = '', suspended = false;
@@ -29,6 +30,10 @@ window.Clicker = (() => {
       audio.noiseHit({a:.002,d:.026,r:.002,f0:1800,gain:.15}); return;
     }
     if (name === 'cutin-stamp') { audio.tone(180,{a:.002,d:.056,r:.002,gain:.1}); return; }
+    if (name === 'shell') { audio.noiseHit({f0:5200,f1:2400,d:.04,gain:.18}); audio.tone(1320,{d:.05,gain:.18}); return; }
+    if (name === 'boss-enter') { audio.tone(70,{slide:40,slideT:.5,d:.5,gain:.5}); return; }
+    if (name === 'boss-heart') { audio.tone(880,{d:.06,gain:.08}); return; }
+    if (name === 'boss-win') { audio.reveal('legendary'); return; }
     const [from, to, duration, gain] = sounds[name];
     audio.tone(from, { slide: to, slideT: duration, a: .002, d: duration - .004, r: .002, gain });
   }
@@ -56,7 +61,8 @@ window.Clicker = (() => {
   }
   function settle() {
     if (store.blocked || !store.state) return;
-    const result = E.settle(store.state, Date.now()); store.stage(result.state);
+    const before=store.state.boss, result = E.settle(store.state, Date.now());
+    if (before && !result.state.boss) { if (!commit(result.state)) return; } else store.stage(result.state);
     stage?.render(result.state, { completed: result.completed });
   }
   let coinShown = null, coinTarget = null, coinRaf = 0, coinStarted = 0;
@@ -109,6 +115,10 @@ window.Clicker = (() => {
     }
     lastNumbers = time;
     const s = store.state, { D, P } = E.rates(s);
+    const challenge=$('boss-challenge'), show=E.canBoss(s,Date.now());
+    if (show && challenge.hidden) { pulse(challenge,[{transform:'rotate(-3deg) scale(0)'},{transform:'rotate(-3deg) scale(1.1)',offset:.7},{transform:'rotate(-3deg) scale(1)'}],260); sound('upgrade'); }
+    challenge.hidden=!show; challenge.disabled=store.blocked || !!cutin?.active || !!gacha?.active || !!stage?.bossBusy;
+    $('scene-open').disabled=!!s.boss || !!stage?.bossBusy; $('recruit-open').disabled=!!s.boss;
     balance(s.coins); rate($('click-rate'), `每次 ${format(D)}`, String(D)); rate($('passive-rate'), `每秒 ${format(P)}`, String(P));
     $('tutorial-progress').textContent = `${Math.min(50, s.manualClicks)} / 50`;
     if (s.claimedMilestones.includes('tutorial50') && !$('tutorial').hidden && !$('tutorial').classList.contains('leaving')) {
@@ -181,9 +191,10 @@ window.Clicker = (() => {
       const time = performance.now(); inputTimes = inputTimes.filter((t) => time - t < 1000); if (inputTimes.length >= 8) return;
       inputTimes.push(time);
       const result = E.click(store.state, Date.now());
-      if (result.tutorial) { if (!commit(result.state)) return; }
+      if (result.tutorial || (store.state.boss && !result.state.boss)) { if (!commit(result.state)) return; }
       else { store.stage(result.state); $('save-status').textContent = '等待自動儲存'; }
       stage.click(result.amount, result.multiplier >= 10, store.state, result.completed, point);
+      stage.shell(result);
       if (result.tutorial) { stage.setPartners(store.state); stage.join(store.state, [{id:'yueyue2'}]); renderSlots(); notice('教學獎勵：玥玥入隊！每秒 +4 幣，可發動尾巴節拍。'); }
       numbers(true);
     });
@@ -250,13 +261,13 @@ window.Clicker = (() => {
   function suspend() {
     if (suspended) return; suspended = true; jlog(`suspend (document.hidden=${document.hidden})`);
     window.ClickerMusic?.suspend();
-    if (store.state && !store.blocked) { settle(); commit(); }
+    if (store.state && !store.blocked) { store.stage(E.abandonBoss(store.state,Date.now())); settle(); commit(); }
     stopTimers(); gacha?.suspend(); audio?.stop(0); audio = null;
     const ac = window.GachaAudio.ensure(); ac?.suspend().catch(() => {});
   }
   function offline() {
     if (!store.state || store.blocked) return;
-    const result = E.settle(store.state, Date.now());
+    const result = E.settle(store.state, Date.now(), {offline:true});
     if (!commit(result.state)) return;
     if (result.elapsed >= 60000 && result.earned > 0) {
       const hours = (ms) => format(ms / 3600000);
@@ -334,6 +345,7 @@ window.Clicker = (() => {
     stage = window.ClickerStage.create({ card, sound, format, showRoster, notice });
     cutin = window.ClickerCutin.create({card, stage, sound, done:changed});
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
+      canOpen: () => !stage.bossBusy,
       pauseStage() { cutin.stop(); stage.stop(); renderSlots(); },
       resumeStage() { if (!hiddenNow() && !suspended) { stage.start(); stage.render(store.state, { instant: true }); } renderSlots(); },
       joined(entries) { stage.join(store.state, entries); },
@@ -376,6 +388,25 @@ window.Clicker = (() => {
     }
     $('retry-save').onclick = () => { if (commit()) { settle(); changed(); } };
     $('roster-open').onclick = () => showRoster();
+    $('boss-challenge').onclick = () => action(()=>{ if (stage.bossBusy || cutin.active || gacha.active) return; if (commit(E.startBoss(store.state,Date.now()))) changed(); });
+    $('scene-open').title='選擇場景';
+    $('scene-open').onclick = () => action(()=>{
+      if (store.state.boss || stage.bossBusy || cutin.active) return;
+      $('scene-tickets').replaceChildren();
+      Object.entries(window.ClickerScenes).forEach(([id,scene],i)=>{
+        const ticket=document.createElement('button'); ticket.className='scene-ticket'; ticket.dataset.scene=id;
+        const thumb=document.createElement('span'); thumb.className='scene-thumb'; thumb.style.background=scene.palette.sky;
+        const img=document.createElement('img'); img.src=`clicker-scene${i+1}-thumb.png`; img.alt=''; img.onerror=()=>{img.hidden=true;}; thumb.append(img);
+        const text=document.createElement('span'), name=document.createElement('b'), status=document.createElement('small'); name.textContent=scene.name;
+        const available=E.unlocked(store.state,id), current=store.state.settings.scene===id;
+        status.textContent=current?'目前':available?'已解鎖':`${window.ClickerScenes[scene.unlock.boss].name}拆滿 ${scene.unlock.packages} 包並打贏大罐頭${scene.available===false?'（後續開放）':''}`;
+        text.append(name,status); ticket.append(thumb,text); ticket.disabled=!available || current;
+        ticket.onclick=()=>action(()=>{if(commit(E.switchScene(store.state,id,Date.now()))) {window.ClickerScene.mount(id); $('scenes-close').click(); changed();}});
+        $('scene-tickets').append(ticket);
+      });
+      $('scenes').hidden=false; $('game-content').inert=true; $('scenes-close').focus();
+    });
+    $('scenes-close').onclick=()=>{$('scenes').hidden=true; $('game-content').inert=gacha.active; $('scene-open').focus();};
     for (const id of ['roster', 'stats', 'receipt']) $(`${id}-close`).onclick = () => { $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('stats-open').onclick = () => {
       if (cutin.active) return;
@@ -394,11 +425,11 @@ window.Clicker = (() => {
     if (e.key === 'Escape') {
       if (!$('audio-panel').hidden) { $('audio-panel').hidden=true; $('audio-toggle').setAttribute('aria-expanded','false'); $('audio-toggle').focus(); e.preventDefault(); return; }
       if (cutin?.active) { e.preventDefault(); return; }
-      if (!$('roster').hidden) $('roster-close').click(); else if (!$('stats').hidden) $('stats-close').click();
+      if (!$('scenes').hidden) $('scenes-close').click(); else if (!$('roster').hidden) $('roster-close').click(); else if (!$('stats').hidden) $('stats-close').click();
       else if (!$('receipt').hidden) $('receipt-close').click(); else if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();
     }
     if (e.key === 'Tab') {
-      const panel = ['save-error', 'receipt', 'roster', 'stats', 'recruit-layer'].map($).find((el) => !el.hidden);
+      const panel = ['save-error', 'receipt', 'roster', 'stats', 'scenes', 'recruit-layer'].map($).find((el) => !el.hidden);
       if (!panel) return;
       const focusable = [...panel.querySelectorAll('button,select,textarea')].filter((el) => !el.disabled && !el.hidden && el.getClientRects().length);
       const first = focusable[0], last = focusable.at(-1);
