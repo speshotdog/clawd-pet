@@ -87,7 +87,8 @@
       ctx.beginPath(); ctx.rect(24,24,560,312); ctx.clip();
       for (const p of particles) {
         if (!p.img.complete || !p.img.naturalWidth) continue;
-        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.min(1,p.life);
+        // 壽命最後一秒淡出；負值會被 canvas 忽略而以 alpha 1 畫出「消失前閃一下」，所以夾在 [0,1]
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.max(0,Math.min(1,p.life,(p.max-p.life)*2));
         ctx.drawImage(p.img,-p.size/2,-p.size/2,p.size,p.size); ctx.restore();
       }
       ctx.restore();
@@ -116,11 +117,14 @@
     if (time >= nextParticle) {
       if (particles.length < max) {
         const top = Math.random() < .7;
-        particles.push({x:top ? rand(40,570) : 615,y:top ? -10 : rand(30,240),rot:rand(0,Math.PI*2),vr:rand(-1.2,1.2),life:rand(...cfg.life),size:rand(...cfg.size),phase:rand(0,6),img:textures[Math.floor(Math.random()*textures.length)]});
+        const life = rand(...cfg.life);
+        particles.push({x:top ? rand(40,570) : 615,y:top ? -10 : rand(30,240),rot:rand(0,Math.PI*2),vr:rand(-1.2,1.2),life,max:life,size:rand(...cfg.size),phase:rand(0,6),img:textures[Math.floor(Math.random()*textures.length)]});
       }
       nextParticle = time+rand(...cfg.everyMs)/1000;
     }
     for (const p of particles) { p.life-=dt; p.x+=(-18+wind(time)*22)*dt; p.y+=(8+6*Math.sin(time+p.phase))*dt; p.rot+=p.vr*dt; }
+    // 到期的粒子當幀就移除，不留給 draw 多畫一格
+    particles = particles.filter(p => p.life > 0);
   }
   root.ClickerScene = { mount, unmount, resolve, update, attach, detach, wind,
     get current() { return scene; }, get time() { return time; }, get particleCount() { return particles.length; }, get gust() { return gust; } };
