@@ -70,6 +70,7 @@ cd "D:/claude研究/clawd-pet" && git worktree remove --force "$T"; git worktree
 
 - **罐頭錯位已修**（`clicker.css` `#bag[data-skin="1"]` 132×212 容器、底部對齊同一個接地陰影；`clicker-stage.js rings()` 一般包的環改成整張同畫布疊上去、依 shell 值 translateY −20%／0／+20%，王包仍用 24% 分段；`shell()` 的命中動畫疊在既有 transform 上）。Playwright 真 Chrome 2560×1215 驗過「種存檔進廚房」與「後院票券切過去再切回來」兩條路，截圖在 `D:\claude研究\_scratch\clawd\out-can\`。
 - **數值重整 v2**：見第五節與 `DESIGN-balance-v2.md`。單元測試 111 例已改成新數值。
+- **03:00 追加修正**：王包環改依大罐頭自己的金屬帶定位；被擋住的環亮度 1.5→1.22＋「硬殼！點 3 下敲開」膠帶（`#shell-hint`）；解鎖字卡 `#boss-banner` 去底色（膠帶貼圖四成透明會露白邊）。main `5d81d9c`、gh-pages 同步、exe 03:03 重 build。
 - **素材仍未生**：Codex 額度 9/7 11:03 才重置（凌晨探測確認 usage limit）。缺口清單見第六節。
 - 下一步：收使用者實玩回饋（王的手感、開包節奏、換桌布時機、印記是否太大方）。
 
