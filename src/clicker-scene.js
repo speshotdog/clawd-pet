@@ -40,6 +40,10 @@
     ],
     particles: { sprites:[0,1].map(i=>`clicker-scene2-particle-${i}.png`), everyMs:[1500,3200], max:6, size:[10,16], life:[5,9], rise:true },
   };
+  // 印記商店的新桌布「屋頂星空」：純外觀（層次先借後院，CSS 上夜色；素材另補），需求倍率同後院
+  scenes.rooftop = { ...scenes.backyard, name: '屋頂星空', unlock: null, requiresMark: 'rooftop', affinity: [], bagSkin: 0,
+    palette: { mat: '#3B3F5C', sky: '#1E2440' }, music: { theme: 'rainynight', seed: 'zhenmu-rooftop-1', gen: { density: 35, rhythm: 30, speed: 30, drama: 40, mood: 55, hook: 60, smooth: 80 } },
+    particles: { sprites: ['clicker-fx-spark.png', 'clicker-scene1-particle-1.png'], everyMs: [900, 2200], max: 8, size: [8, 14], life: [5, 9] } };
   [['market','便利商店貨架',200,10,'kitchen'],['factory','包裝工廠',600,30,'market'],['nightmarket','夜市攤',1500,80,'factory'],['rainynight','神秘倉庫',4000,220,'nightmarket']].forEach(([id,name,packages,mul,boss]) => {
     scenes[id] = { name, unlockPackages:0, requirementMul:mul, rewardMul:mul, unlock:{packages,boss}, available:false,
       enemy:{shell:null,timer:id==='factory'?20:id==='nightmarket'?15:null,regen:id==='rainynight'?.01:null},

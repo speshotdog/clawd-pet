@@ -239,7 +239,7 @@
     if (s.pending || slot >= slotCount(s) || !s.collection[id] || !def?.kind) throw new Error('技能尚未開放');
     if ((s.cooldownUntil[id] || 0) > t || s.slotReadyAt[slot] > t) throw new Error('技能冷卻中');
     const count = s.chain && t < s.chain.expiresAt && s.chain.count < 3 ? s.chain.count+1 : 1;
-    const windowMs = activeBonds(s).find(b=>b.effect.chainWindowMs)?.effect.chainWindowMs || 8000;
+    const windowMs = (activeBonds(s).find(b=>b.effect.chainWindowMs)?.effect.chainWindowMs || 8000) + (s.markShop?.chain2 ? 2000 : 0);
     const chainMul = [1,1.3,1.6][count-1];
     s.chain = {count,expiresAt:t+windowMs};
     const effect = { chain:count, params:{...def,desc:undefined}, source: id, kind: def.kind, startedAt: t, expiresAt: t + (def.duration || 0) * 1000 };
@@ -283,7 +283,7 @@
   }
   const sceneMap = () => typeof module !== 'undefined' && module.exports ? require('./clicker-scene.js').scenes : root.ClickerScenes;
   const nextScene = id => Object.keys(sceneMap()).find(key=>sceneMap()[key].unlock?.boss===id);
-  const unlocked = (s,id) => Object.hasOwn(sceneMap(),id) && sceneMap()[id].available!==false && (!sceneMap()[id].unlock || (s.bossWins || []).includes(sceneMap()[id].unlock.boss));
+  const unlocked = (s,id) => Object.hasOwn(sceneMap(),id) && sceneMap()[id].available!==false && (!sceneMap()[id].requiresMark || !!s.markShop?.[sceneMap()[id].requiresMark]) && (!sceneMap()[id].unlock || (s.bossWins || []).includes(sceneMap()[id].unlock.boss));
   const canBoss = (s,now) => !s.boss && !s.pending && !!nextScene(s.settings.scene) && !(s.bossWins || []).includes(s.settings.scene) && s.package.index-1 >= Scenes(nextScene(s.settings.scene)).unlock.packages && now >= (s.bossCooldownUntil || 0);
   function switchScene(state,id,now) {
     if (state.boss || !unlocked(state,id)) throw new Error('王包中或場景尚未解鎖');
@@ -305,7 +305,7 @@
   }
   function finishBoss(s,won,now) {
     const b=s.boss, cfg=Scenes(b.scene).boss;
-    const crack=won?0:Math.min(cfg.crackMax,b.dealt/b.need*cfg.crackKeep);
+    const crack=won?0:Math.min(cfg.crackMax,b.dealt/b.need*(s.markShop?.crack75 ? .75 : cfg.crackKeep));
     s.bossCracks ||= {}; s.bossCracks[b.scene]=crack; s.boss=null;
     s.bossResult={scene:b.scene,won,crack,at:now,next:nextScene(b.scene)};
     if (won) {

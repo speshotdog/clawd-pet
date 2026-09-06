@@ -569,3 +569,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #wardrobe-body { grid-template-columns:1fr 1fr 1fr; }
 #wardrobe-decor-price { font-size:10px; color:#735E4E; }
 #game #prestige-open { font-size:13px; }
+
+/* 屋頂星空（印記商店桌布）：借後院層次上夜色 */
+#stage[data-scene="rooftop"] #clicker-scene { filter:saturate(.6) brightness(.55) hue-rotate(200deg) contrast(1.05); }
+#stage[data-scene="rooftop"] .desk-mat { filter:brightness(.7) hue-rotate(200deg); }
+#stage[data-scene="rooftop"] #hero-light { opacity:.7; }

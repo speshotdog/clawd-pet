@@ -475,8 +475,8 @@ window.Clicker = (() => {
         const thumb=document.createElement('span'); thumb.className='scene-thumb'; thumb.style.background=scene.palette.sky;
         const img=document.createElement('img'); img.src=`clicker-scene${i+1}-thumb.png`; img.alt=''; img.onerror=()=>{img.hidden=true;}; thumb.append(img);
         const text=document.createElement('span'), name=document.createElement('b'), status=document.createElement('small'); name.textContent=scene.name;
-        const available=E.unlocked(store.state,id), current=store.state.settings.scene===id;
-        status.textContent=current?'目前':available?'已解鎖':`${window.ClickerScenes[scene.unlock.boss].name}拆滿 ${scene.unlock.packages} 包並打贏大罐頭${scene.available===false?'（後續開放）':''}`;
+        const available=E.unlocked(store.state,id), current=store.state.settings.scene===id, markLocked=scene.requiresMark && !store.state.markShop?.[scene.requiresMark];
+        status.textContent=current?'目前':available?'已解鎖':markLocked?'印記商店 5 印記解鎖':`${window.ClickerScenes[scene.unlock.boss].name}拆滿 ${scene.unlock.packages} 包並打贏大罐頭${scene.available===false?'（後續開放）':''}`;
         text.append(name,status); ticket.append(thumb,text); ticket.disabled=!available || current;
         ticket.onclick=()=>action(()=>{if(commit(E.switchScene(store.state,id,Date.now()))) {window.ClickerScene.mount(id); $('scenes-close').click(); changed();}});
         $('scene-tickets').append(ticket);
