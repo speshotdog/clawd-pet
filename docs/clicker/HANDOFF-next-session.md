@@ -2,7 +2,7 @@
 
 ## 一、現況一眼看
 
-- **程式碼**：`D:\claude研究\clawd-pet`，分支 `main`。第八～十三輪全部合併，`npm test` 111 例、Playwright 全套件（round4~7 舊套件＋`--round8/9/11/12`）全綠。main **未 push** 到 origin（使用者只授權 gh-pages）。
+- **程式碼**：`D:\claude研究\clawd-pet`，分支 `main`。第八～十三輪全部合併，`npm test` 111 例、Playwright 全套件（round4~7 舊套件＋`--round8/9/11/12`）全綠。main 已於 2026-09-07 push 到 origin（`f319ebd` 之後可在別台機器 clone 續作；之前只推 gh-pages）。
 - **網頁版**：https://speshotdog.github.io/clawd-pet/ ，來源是 `gh-pages` 分支（只放 `dist-web/` 內容＋`.nojekyll`，orphan commit，每次 force push 不保留歷史）。存檔在瀏覽器 localStorage 的 `clicker_save`（跟 exe 各自獨立；可用徽章牆的「匯出存檔／匯入存檔」搬家）。
 - **桌面版**：Tauri 視窗 `clicker`（`src-tauri/target/release/clawd-pet.exe`，右鍵選單「珍母點點」）。與網頁版共用同一套 `src/clicker*.*`，差別只有 `window.__TAURI__` 有無（見 `clicker.js` 的 `TAURI` 分支：拖曳、關窗、fit_window）。
 - **設計定案**：`docs/clicker/DESIGN-round8-roadmap.md`（王包規則、技能四規則、升星影響技能、角色粉塵／升階／超越、卡冊、更衣室、消費手段、輪迴）。各輪簡報 `BRIEF-astra-impl-round8~13.md`；第八、九輪由 GPT-6 Astra 實作，第十輪 Astra 只做經濟層一半（Codex 額度），其餘由 Claude 與子代理完成。
@@ -64,7 +64,7 @@ cd "D:/claude研究/clawd-pet" && git worktree remove --force "$T"; git worktree
 - 第十二輪素材：`clicker-scene6-*`（冰箱拆層）、`clicker-frozen-{0..4}`、`clicker-frozen-frost/ice`、`clicker-daily-bag`、`clicker-badge-*`（目前借廚房層加藍色調、罐頭加霜、禮包當今日包、徽章用既有貼紙）；`clicker-scene3/4/5/6-thumb.png` 場景縮圖；第十三輪 `clicker-deco-{0..9}`（裝飾目前顯示文字標籤）、`clicker-scene7-*` 屋頂星空（借後院層上夜色）。生完換檔名即可（extras 的 `ASSETS`、scene 的 `bagPrefix`），並把 round7 測試對這些前綴的缺檔容忍拿掉。
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：卡冊閃爍已修（refresh 只在相關欄位變動時重建）、「顏色出框」在 2560／960 兩種寬度截圖看不到，若再出現請附截圖指出元件。
-- main 未 push；exe build 於 09-06 深夜進行（見筆記）。
+- main 已 push（09-07）；exe 於 09-07 凌晨以數值重整 v2 重 build。
 
 ## 七、2026-09-07 凌晨：罐頭錯位已修、數值重整 v2
 
