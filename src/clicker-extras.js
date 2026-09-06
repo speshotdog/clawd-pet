@@ -232,7 +232,8 @@
         motion(pop, [{ transform: 'scale(0) rotate(-12deg)' }, { transform: 'scale(1.18) rotate(3deg)', offset: .7 }, { transform: 'scale(1) rotate(0)' }], 220, 'cubic-bezier(.2,1.4,.4,1)').finished.then(() => { stage.shake(4, 120); sound('badge'); }).catch(() => {});
         popTimer = setTimeout(() => { motion(pop, [{ opacity: 1 }, { opacity: 0 }], 260).finished.then(() => { pop.hidden = true; }).catch(() => { pop.hidden = true; }); }, 1800);
       }
-      if (id === 'pack100' && !$('game-content').inert && !busy()) openPick();
+      // 第 100 包的 12 選 1 不再自動彈出（會蓋到王包／禮包），改由徽章牆的按鈕手動開
+      if (id === 'pack100') notice('第 100 包！到徽章牆選一位夥伴，送該角色粉塵 1 顆');
     }
     // 里程碑玩具進當前場景的 props 槽（缺 props 層就補一層）
     const TOY_SLOTS = [[62, 334], [122, 338], [178, 332]];

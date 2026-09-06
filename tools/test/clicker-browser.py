@@ -791,6 +791,8 @@ def round12(browser):
     checks.append('badge pop, toy in scene, wall')
     # 第 100 包 12 選 1
     page.locator('#stats-close').click();page.evaluate('Clicker.state.package.index=101');advance(1100)
+    assert page.locator('#pick100').is_hidden()   # 不再自動彈出，改由徽章牆按鈕手動開
+    page.locator('#stats-open').click();advance(200);page.locator('#pick100-open').click();advance(200)
     assert page.locator('#pick100').is_visible(), page.evaluate('Clicker.state.badges')
     shot('pick100');page.locator('.pick-card[data-id="zhenmu"]').click();advance(200)
     assert page.evaluate('Clicker.state.pick100==="zhenmu" && ClickerEconomy.dust(Clicker.state,"zhenmu")===1')
