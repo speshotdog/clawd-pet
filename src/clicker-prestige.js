@@ -53,13 +53,16 @@
     const total = (s.autoRemainder || 0) + rate * seconds, n = Math.floor(total);
     s.autoRemainder = total - n; return n;
   }
-  const trainCost = (L) => Math.ceil(50 * 1.22 ** L);   // 1.5 會讓 100 級要 2e19 幣，1.22 約 2e10
+  // 夥伴訓練價＝CC 建築：基礎價 200×base（回本 200 秒；CC 游標 150 秒、農場 137 秒、礦坑 255 秒），每級 ×1.15；效果在 economy.partnerMul（線性＋里程碑 ×2）
+  const PARTNER_CAP = 200;
+  // 里程碑那一級（→10／25／50／100／150／200）價 ×10：CC 的建築升級品是另外買的、約十倍建築價，這裡併進那一級
+  const trainCost = (L, id) => Math.ceil(200 * B.characters[id].base * 1.15 ** L * (E.PARTNER_MILESTONES.includes(L + 1) ? 10 : 1));
   function train(state, id, now, max = false) {
     const s = E.settle(state, now).state;
     if (!s.collection[id]) throw new Error('尚未招募');
     s.partnerLevels ||= {}; let levels = 0;
-    do { const L = s.partnerLevels[id] || 0, price = trainCost(L); if (L >= 100 || price > s.coins) break; s.coins -= price; s.partnerLevels[id] = L + 1; levels++; } while (max);
-    if (!levels) throw new Error((s.partnerLevels[id] || 0) >= 100 ? '已經 100 級' : '餘額不足');
+    do { const L = s.partnerLevels[id] || 0, price = trainCost(L, id); if (L >= PARTNER_CAP || price > s.coins) break; s.coins -= price; s.partnerLevels[id] = L + 1; levels++; } while (max);
+    if (!levels) throw new Error((s.partnerLevels[id] || 0) >= PARTNER_CAP ? `已經 ${PARTNER_CAP} 級` : '餘額不足');
     return { state: s, levels };
   }
   const nextMilestone = (L) => [25, 50, 75, 100].find(m => L < m) || null;
@@ -72,12 +75,14 @@
     const price = decoPrice(s); if (s.coins < price) throw new Error('餘額不足');
     s.coins -= price; s.deco.push(id); return s;
   }
-  // 「桌子有點滿了」：最近收益不到本輪巔峰的 15%、且有印記可領，一天提示一次
-  function hint(s, currentP, today) {
+  // 「桌子有點滿了」：最近收益不到本輪巔峰的 15%，或（2026-09-07）一包要拆超過三分鐘且已有 5 枚以上印記可領——
+  // 數值重整後停滯的樣子是「收益不掉、包變慢」，只看收益下降永遠不會提示。一天一次。
+  function hint(s, currentP, today, needSeconds = 0) {
     s.peakRate = Math.max(s.peakRate || 0, currentP);
-    if (!canPrestige(s) && currentP < (s.peakRate || 0) * .15 && s.prestigeHintDate !== today) { s.prestigeHintDate = today; return true; }
+    const stalled = needSeconds > 180 && marksAvailable(s) >= 5;
+    if (!canPrestige(s) && (currentP < (s.peakRate || 0) * .15 || stalled) && s.prestigeHintDate !== today) { s.prestigeHintDate = today; return true; }
     return false;
   }
-  const api = { THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, buyMark, autoClickCost, buyAutoClick, autoClicks, trainCost, train, nextMilestone, decoPrice, buyDeco, hint };
+  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, buyMark, autoClickCost, buyAutoClick, autoClicks, trainCost, train, nextMilestone, decoPrice, buyDeco, hint };
   if (node) module.exports = api; else root.ClickerPrestige = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

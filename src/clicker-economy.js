@@ -2,9 +2,16 @@
   const B = typeof module !== 'undefined' && module.exports ? require('./clicker-balance.js') : root.ClickerBalance;
   const Scenes = typeof module !== 'undefined' && module.exports ? require('./clicker-scene.js').resolve : root.ClickerScene.resolve;
   const clone = (s) => JSON.parse(JSON.stringify(s));
-  const clickCost = (l) => Math.ceil(10 * 1.30 ** l);
-  const trainingCost = (t) => Math.ceil(1000 * 1.60 ** t);
-  const drawCost = (n, count = 1) => Array.from({ length: count }, (_, i) => Math.ceil(150 * 1.30 ** Math.floor((n + i) / 5))).reduce((a, b) => a + b, 0);
+  // 手勁：每級固定點擊力 ×1.15、價 ×1.35（翻倍約 ×4 價）；原本 1.18／1.30 翻倍只要 ×3 價，前十分鐘點擊力就超過被動
+  const clickCost = (l) => Math.ceil(10 * 1.35 ** l);
+  // 2026-09-06 數值重整（參考 Cookie Clicker）：全隊訓練每級 ×1.25、價 ×2.5（一次翻倍約 ×17 價；CC 升級品每步約 ×10～×100）
+  const trainingCost = (t) => Math.ceil(2500 * 2.5 ** t);
+  // 招募價釘在「現在每秒收益」：單抽 30 秒、五連 135 秒的被動收益（下限 150／700），後期永遠抽得起
+  const DRAW_SECONDS = { single: 30, five: 135 }, DRAW_FLOOR = { single: 150, five: 700 };
+  const drawCost = (s, count = 1) => { const P = rates(s).P; return count >= 5 ? Math.max(DRAW_FLOOR.five, Math.ceil(DRAW_SECONDS.five * P)) : count * Math.max(DRAW_FLOOR.single, Math.ceil(DRAW_SECONDS.single * P)); };
+  // 夥伴訓練＝CC 的建築：每級 +1 倍（線性），10／25／50／100／150／200 級各 ×2（CC 的建築升級品節奏）
+  const PARTNER_MILESTONES = [10, 25, 50, 100, 150, 200];
+  const partnerMul = (L) => (1 + L) * 2 ** PARTNER_MILESTONES.filter(m => L >= m).length;
   const stars = (n) => n < 1 ? 0 : B.stars.filter((threshold) => n >= threshold).length;
   const starMultiplier = (n) => n < 1 ? 0 : 1 + .25 * (stars(n) - 1);
   const origin = id => Object.keys(B.characters).indexOf(id) >> 2;
@@ -61,7 +68,7 @@
     }
     return s;
   }
-  const individual = (s, id) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2][tier(s,id)]/[1,1.8,3.2][origin(id)]) * (1+[.06,.09,.14][origin(id)]*(s.transcend?.[id] || 0)) * 1.15 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * (1 + .05 * (s.partnerLevels?.[id] || 0));
+  const individual = (s, id) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2][tier(s,id)]/[1,1.8,3.2][origin(id)]) * (1+[.06,.09,.14][origin(id)]*(s.transcend?.[id] || 0)) * 1.25 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * partnerMul(s.partnerLevels?.[id] || 0);
   // 第十三輪：印記永久倍率、桌面裝飾
   const markMul = (s) => 1 + .05 * (s.marksClaimed || 0);
   const decoMul = (s) => 1 + .01 * (s.deco?.length || 0);
@@ -96,7 +103,7 @@
   function rates(s) {
     const P = Object.keys(B.characters).reduce((sum, id) => sum + individual(s, id), 0);
     const mul = (Scenes(s.settings?.scene).rewardMul || 1) * decoMul(s), M = markMul(s);
-    return { P: M * P * mul, D: (M * 1.18 ** s.clickLevel + .05 * M * P) * mul };
+    return { P: M * P * mul, D: (M * 1.15 ** s.clickLevel + .05 * M * P) * mul };
   }
   function tagFor(entry, dup, owned, state) {
     if (state?.transcend?.[entry.id]===5) return {text:`萬用 +${['¼','½','1'][origin(entry.id)]}`,cls:'mastery'};
@@ -378,7 +385,7 @@
     const s = settle(state, now).state;
     if (state.boss || s.pending || ![1, 5].includes(count)) throw new Error('王包中或尚有待收下結果或張數錯誤');
     const free = Math.min(s.freeDraws || 0,count), paid=count-free;
-    const price = drawCost(s.paidDraws, paid);
+    const price = drawCost(s, paid);
     if (!Number.isFinite(price) || s.coins < price) throw new Error('餘額不足');
     const result = pool.rollPack({ ...options, count, policy: pool.GAME_POLICY, pity: s.pity.sinceLegendary, collection: s.collection });
     s.coins -= price; s.paidDraws += paid; s.freeDraws=(s.freeDraws || 0)-free; s.usedFreeDraws=(s.usedFreeDraws || 0)+free; s.pity.sinceLegendary = result.nextPity;
@@ -417,7 +424,12 @@
   function startBoss(state,now) {
     const s=settle(state,now).state;
     if (!canBoss(s,now)) throw new Error('王包尚未就緒');
-    const scene=s.settings.scene, cfg=Scenes(scene).boss, need=cfg.mul*requirement(s.package.index,scene), crack=s.bossCracks?.[scene] || 0;
+    const scene=s.settings.scene, cfg=Scenes(scene).boss, r=rates(s), crack=s.bossCracks?.[scene] || 0;
+    // 王包血量＝玩家「現在的 30 秒容量」（被動 30 秒＋每秒 6 下點擊）× mul，下限門檻包需求：
+    // 純放置約 60%、連點不用技約 80%、連點＋技能 110%↑；離線衝過門檻不會讓王變得打不動
+    // 下限用「門檻那一包」而不是現在這一包：離線衝過門檻幾十包，王不能跟著變成不可能
+    const floor=requirement(Scenes(nextScene(scene)).unlock.packages+1,scene);
+    const need=Math.max(floor, cfg.mul*(30*r.P+180*r.D)*cfg.seconds/30);
     s.boss={scene,need,dealt:crack*need,startedAt:now,endsAt:now+cfg.seconds*1000,crack,shells:shellsFor(scene).filter(v=>1-v>crack),shellHp:3,blocked:0};
     if (s.gift) endGift(s, now, false);
     s.bossResult=null; return s;
@@ -437,7 +449,7 @@
   function abandonBoss(state,now) {
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
-  const api = { tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, decoMul,
+  const api = { PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, decoMul,
     newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

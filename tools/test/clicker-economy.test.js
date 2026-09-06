@@ -60,9 +60,9 @@ test('round7 self + team + parasite integrate only remaining offline intervals',
   assert.equal(E.settle(r.state, t + 40000).earned, 0);
 });
 
-test('手勁費用 L=0/5/10/20/30 及訓練費用依公式逐級向上取整', () => {
-  assert.deepEqual([0, 5, 10, 20, 30].map(E.clickCost), [10, 38, 138, 1901, 26200]);
-  assert.deepEqual([0, 1, 2, 5, 10].map(E.trainingCost), [1000, 1600, 2561, 10486, 109952]);
+test('手勁費用 10×1.35^L、全隊訓練 2500×2.5^t 逐級向上取整', () => {
+  assert.deepEqual([0, 5, 10, 20, 30].map(E.clickCost), [10, 45, 202, 4043, 81286]);
+  assert.deepEqual([0, 1, 2, 5, 10].map(E.trainingCost), [2500, 6250, 15625, 244141, 23841858]);
 });
 
 test('1/2/4/8/16/20 張的星級倍率；逐張角標', () => {
@@ -78,7 +78,7 @@ test('1/2/4/8/16/20 張的星級倍率；逐張角標', () => {
 test('12 隻被動全數計入；D/P 不含暫時技能，沒有槽位限制', () => {
   const s = fresh(); s.collection = Object.fromEntries(Object.keys(B.characters).map((id) => [id, 1]));
   assert.equal(E.rates(s).P, 129); s.collection.yueyue2 = 4; s.trainingLevel = 3; s.clickLevel = 10;
-  close(E.rates(s).P, 132 * 1.15 ** 3); close(E.rates(s).D, 1.18 ** 10 + .05 * 132 * 1.15 ** 3);
+  close(E.rates(s).P, 132 * 1.25 ** 3); close(E.rates(s).D, 1.15 ** 10 + .05 * 132 * 1.25 ** 3);   // 全隊訓練每級 ×1.25、手勁固定部分 1.15^L
   const before = E.rates(s); s.effects = [{ kind: 'passive', value: 99999 }]; assert.deepEqual(E.rates(s), before);
 });
 
@@ -141,10 +141,10 @@ test('第 50 次明示贈卡一次，不計保底；贈卡前按舊產能結算'
 
 test('升級最多按逐級總價；訓練前結算舊產能；不足不修改輸入', () => {
   const s = money(100); const upgraded = E.upgrade(s, 'click', true, s.settledAt);
-  assert.equal(upgraded.levels, 5); assert.equal(upgraded.state.coins, 9); assert.equal(s.clickLevel, 0);
-  const train = money(1000); train.collection = { yueyue2: 1 };
+  assert.equal(upgraded.levels, 4); assert.equal(upgraded.state.coins, 32); assert.equal(s.clickLevel, 0);   // 10+14+19+25=68，第五級 34 買不起
+  const train = money(5000); train.collection = { yueyue2: 1 };
   const r = E.upgrade(train, 'training', false, train.settledAt + 10000);
-  close(r.state.coins, 60); close(E.rates(r.state).P, 6.9);
+  close(r.state.coins, 2560); close(E.rates(r.state).P, 7.5);   // 玥玥後院當家 6/秒：先結算 10 秒，再扣 2500；訓練後 6 → 7.5
   assert.throws(() => E.upgrade(fresh(), 'click', false, 1000000), /餘額不足/);
 });
 
@@ -156,8 +156,10 @@ test('累計收益解鎖槽位，换槽保留 CD 並等 30 秒', () => {
   assert.equal(E.activate(swapped, 0, swapped.settledAt + 30000).effect.multiplier, 10);
 });
 
-test('單抽／五連連續價格；五連跨第 40 張，收下雙擊 id 防重', () => {
-  assert.equal(E.drawCost(0), 150); assert.equal(E.drawCost(0, 5), 750); assert.equal(E.drawCost(4, 5), 930);
+test('招募價釘在每秒收益（單抽 30 秒、五連 135 秒，下限 150／700）；五連跨第 40 張，收下雙擊 id 防重', () => {
+  assert.equal(E.drawCost(fresh()), 150); assert.equal(E.drawCost(fresh(), 5), 700);
+  const rich = { ...fresh(), collection: { zhenmu: 1 } };   // P = 16
+  assert.equal(E.drawCost(rich), 480); assert.equal(E.drawCost(rich, 5), 2160); assert.equal(E.drawCost(rich, 0), 0);
   const s = money(); s.paidDraws = 37; s.pity.sinceLegendary = 37; s.collection = { yueyue2: 1 };
   const pending = E.purchaseDraw(s, 5, s.settledAt, Pool, opts);
   assert.equal(pending.pending.draw.entries[2].entry.rarity, 'legendary'); assert.equal(pending.pity.sinceLegendary, 2);
@@ -186,7 +188,7 @@ test('原子寫入與失敗防護：不變更記憶體、重啟 pending、同 id
   fail = true; assert.equal(store.commit(next), false); assert.equal(store.state, before); assert.equal(store.blocked, true); assert.equal(writes, 0);
   fail = false; assert.equal(store.commit(), true); assert.equal(store.blocked, false);
   assert.equal(store.commit(next), true); assert.equal(writes, 2);
-  assert.equal(JSON.parse(raw).coins, before.coins - 750); assert.equal(JSON.parse(raw).pending.draw.id, opts.id);
+  assert.equal(JSON.parse(raw).coins, before.coins - 700); assert.equal(JSON.parse(raw).pending.draw.id, opts.id);
   const reopened = S.create(storage, { now: () => 1000000, pool: Pool });
   const collected = E.collect(reopened.state, opts.id, 1000000); fail = true;
   assert.equal(reopened.commit(collected.state), false); assert.equal(reopened.state.pending.draw.id, opts.id);

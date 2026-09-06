@@ -23,7 +23,7 @@ test('three collection bonds: charges +1, window 11000, self duration ×1.25',()
 });
 test('scene affinity income ×1.5 and cd ×.8, switching recalculates',()=>{
   let s=state(['caihua','fox']);near(E.individual(s,'caihua'),6);near(E.skillAt(s,'caihua').cd,36);s.bossWins=['backyard'];s=E.switchScene(s,'kitchen',0);
-  near(E.individual(s,'caihua'),4);near(E.individual(s,'fox'),12);near(E.skillAt(s,'fox').cd,96);near(E.rates(s).P,48);
+  near(E.individual(s,'caihua'),4);near(E.individual(s,'fox'),12);near(E.skillAt(s,'fox').cd,96);near(E.rates(s).P,24);   // 廚房收益 ×1.5
 });
 test('recommendations equip all three, swap existing slots, retain missing and locked slots; 30s wait',()=>{
   for(let index=0;index<3;index++){let s=state(Object.keys(B.characters));s.skillSlots=[...B.recommendations[index].slots].reverse();const r=E.recommend(s,index,0);assert.deepEqual(r.skillSlots,B.recommendations[index].slots);assert.equal(r.slotReadyAt[0],30000);assert.throws(()=>E.activate(r,0,29999));}

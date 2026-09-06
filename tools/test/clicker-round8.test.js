@@ -3,28 +3,29 @@ const E=require('../../src/clicker-economy.js'), S=require('../../src/clicker-sa
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8*Math.max(1,b),`${a} ~= ${b}`);
 const kitchen=()=>{const s=S.fresh(0);s.bossWins=['backyard'];s.settings.scene='kitchen';s.package=E.newPackage('kitchen');return s;};
 const boss=()=>{const s=S.fresh(0);s.package.index=51;return E.startBoss(s,0);};
+const N=E.requirement(1,'kitchen');   // 廚房第一包需求（800）
 test('round8 shell: passive and burst stop at first ring, coins still granted',()=>{
   let s=kitchen();s.collection={fox:1};s.skillSlots[0]='fox';s=E.activate(s,0,0).state;
-  near(s.package.progress,75);near(s.package.blocked,465);near(s.coins,540);
+  near(s.package.progress,N*.25);near(s.package.blocked,270-N*.25);near(s.coins,270);   // 狐狐當家 8×1.5×收益 1.5 = 18/秒，×15 = 270
 });
 test('round8 shell: exactly three effective clicks, independent of power',()=>{
-  let p=E.advancePackage(E.newPackage('kitchen'),100,'kitchen').package;
-  for(let i=0;i<2;i++){const r=E.advancePackage(p,10000,'kitchen','click');p=r.package;assert.equal(r.shellBroken,false);near(p.progress,75);assert.equal(p.shellHp,2-i);}
-  const r=E.advancePackage(p,1,'kitchen','click');assert.equal(r.shellBroken,true);assert.equal(r.package.shellHp,3);near(r.released,25);near(r.package.progress,101);
-  const huge=E.advancePackage(p,10000,'kitchen','click');near(huge.package.progress,150);near(huge.package.blocked,9950);
+  let p=E.advancePackage(E.newPackage('kitchen'),300,'kitchen').package;
+  for(let i=0;i<2;i++){const r=E.advancePackage(p,10000,'kitchen','click');p=r.package;assert.equal(r.shellBroken,false);near(p.progress,200);assert.equal(p.shellHp,2-i);}
+  const r=E.advancePackage(p,1,'kitchen','click');assert.equal(r.shellBroken,true);assert.equal(r.package.shellHp,3);near(r.released,100);near(r.package.progress,301);
+  const huge=E.advancePackage(p,10000,'kitchen','click');near(huge.package.progress,400);near(huge.package.blocked,9900);
 });
 test('round8 shell: release gives no duplicate coins and can open multiple packages',()=>{
-  let s=kitchen();s.collection={yueyue2:1};s=E.settle(s,100000,{offline:true}).state;
-  const coins=s.coins;s=E.click(s,100000).state;s=E.click(s,100000).state;const r=E.click(s,100000);
-  near(r.released,900);assert.equal(r.completed,2);near(r.state.coins-coins,E.rates(s).D*3);
+  let s=kitchen();s.collection={yueyue2:1};s=E.settle(s,1000000,{offline:true}).state;   // 1000 秒 ×6 才會頂到 3N 的離線上限
+  const coins=s.coins;s=E.click(s,1000000).state;s=E.click(s,1000000).state;const r=E.click(s,1000000);
+  near(r.released,3*N);assert.equal(r.completed,2);near(r.state.coins-coins,E.rates(s).D*3);
 });
 test('round8 shell: offline caps blocked at three needs and keeps first shell',()=>{
   let s=kitchen();s.collection={zhenmu:16};const r=E.settle(s,8*3600000,{offline:true});
-  near(r.state.package.progress,75);near(r.state.package.blocked,900);assert.equal(r.state.package.index,1);assert.deepEqual(r.state.package.shells,[.75,.5,.25]);
-  assert.ok(r.earned>900);
+  near(r.state.package.progress,N*.25);near(r.state.package.blocked,3*N);assert.equal(r.state.package.index,1);assert.deepEqual(r.state.package.shells,[.75,.5,.25]);
+  assert.ok(r.earned>3*N);
 });
 test('round8 shell: new packages copy scene shells without sharing arrays',()=>{
-  const p=E.newPackage('kitchen');p.shells=[];p.progress=299;
+  const p=E.newPackage('kitchen');p.shells=[];p.progress=N-1;
   const r=E.advancePackage(p,2,'kitchen','click');assert.equal(r.package.index,2);assert.deepEqual(r.package.shells,[.75,.5,.25]);near(r.package.progress,1);assert.deepEqual(p.shells,[]);
 });
 test('round8 shell: backyard geometric multi-package behavior remains unchanged',()=>{
@@ -34,9 +35,11 @@ test('round8 boss: appearance threshold and cooldown guards',()=>{
   const s=S.fresh(0);s.package.index=50;assert.equal(E.canBoss(s,0),false);s.package.index=51;assert.equal(E.canBoss(s,0),true);
   s.bossCooldownUntil=30;assert.throws(()=>E.startBoss(s,29));assert.ok(E.startBoss(s,30).boss);
 });
-test('round8 boss: need, deadline and saved crack seed',()=>{
+test('round8 boss: need = max(門檻包需求, 1.25×30 秒容量), deadline and saved crack seed',()=>{
   const s=S.fresh(0);s.package.index=51;s.bossCracks.backyard=.4;const b=E.startBoss(s,100).boss;
-  near(b.need,E.requirement(51)*1.35);near(b.dealt,b.need*.4);assert.equal(b.endsAt,30100);
+  near(b.need,E.requirement(51));near(b.dealt,b.need*.4);assert.equal(b.endsAt,30100);   // 沒有夥伴：容量 1.25×180×1 < 門檻包
+  const t=S.fresh(0);t.package.index=80;t.collection={zhenmu:16};t.trainingLevel=40;const r=E.rates(t);
+  near(E.startBoss(t,0).boss.need,1.25*(30*r.P+180*r.D));assert.ok(1.25*(30*r.P+180*r.D)>E.requirement(80));   // 離線衝到第 80 包，下限仍是第 51 包
 });
 test('round8 boss: all sources earn coins into boss, normal package paused',()=>{
   let s=boss();s.collection={fox:1};s.skillSlots[0]='fox';const p=structuredClone(s.package);
@@ -69,7 +72,7 @@ test('round8 boss: save rejects forged wins, crack, boss timing and shells',()=>
 });
 test('round8 rewardMul includes D/P and upgrade preview without double multiplication',()=>{
   const s=kitchen();s.collection={dog:1};const b={...s,settings:{...s.settings,scene:'backyard'}};
-  for(const delta of [0,1]) {s.clickLevel=b.clickLevel=delta;near(E.rates(s).D,E.rates(b).D*3);near(E.rates(s).P,E.rates(b).P*3);}
+  for(const delta of [0,1]) {s.clickLevel=b.clickLevel=delta;near(E.rates(s).D,E.rates(b).D*1.5);near(E.rates(s).P,E.rates(b).P*1.5);}
 });
 test('round8 scene validation, switch roundtrip and free five-draw accounting',()=>{
   const s=S.fresh(0);s.settings.scene='kitchen';assert.throws(()=>S.validate(s));s.bossWins=['backyard'];s.package=E.newPackage('kitchen');S.validate(s);

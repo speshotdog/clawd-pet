@@ -7,7 +7,7 @@ window.Clicker = (() => {
   const $ = (id) => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
   const TAURI = window.__TAURI__;
   // 萬／億／兆：數字部分最多 5 位（1234萬、123.4億、12.34兆），價籤與錢包才放得下
-  const format = (n) => { for (const [u, name] of [[1e12, '兆'], [1e8, '億'], [1e4, '萬']]) if (n >= u) { const v = n / u; return `${v.toFixed(v >= 1000 ? 0 : v >= 100 ? 1 : 2)}${name}`; } return n.toLocaleString('zh-TW', { maximumFractionDigits: 1 }); };
+  const format = (n) => { for (const [u, name] of [[1e16, '京'], [1e12, '兆'], [1e8, '億'], [1e4, '萬']]) if (n >= u) { const v = n / u; return `${v.toFixed(v >= 1000 ? 0 : v >= 100 ? 1 : 2)}${name}`; } return n.toLocaleString('zh-TW', { maximumFractionDigits: 1 }); };
   const store = window.ClickerSave.create({ getItem: (k) => localStorage.getItem(k), setItem: (k, v) => localStorage.setItem(k, v) }, { pool: Pool });
   let stage, gacha, cutin, ready = false, tickTimer = 0, saveTimer = 0, numberTimer = 0, noticeTimer = 0;
   let audio = null, lastNumbers = -Infinity, inputTimes = [], slotsKey = '', suspended = false;
@@ -88,13 +88,16 @@ window.Clicker = (() => {
     let state = s, amount = 0, completed = 0, multiplier = 1;
     for (let i = 0; i < n; i++) { const r = E.click(state, Date.now(), undefined, { auto: true }); state = r.state; amount += r.amount; completed += r.completed; multiplier = Math.max(multiplier, r.multiplier); }
     store.stage(state); stage.autoClick(amount, multiplier >= 10, state, completed, n);
-    window.ClickerPrestige.hint(state, E.rates(state).P, new Date().toDateString()) && prestigeUI?.hint();
   }
   function settle() {
     if (store.blocked || !store.state) return;
     const before=store.state.boss, result = E.settle(store.state, Date.now());
+    // 換桌布提示（原本只在電動手指 tick 裡檢查，沒買電動手指的玩家永遠看不到）
+    const P = E.rates(result.state).P, need = E.requirement(result.state.package.index, result.state.settings.scene);
+    const hinted = window.ClickerPrestige?.hint(result.state, P, new Date().toDateString(), P > 0 ? need / P : 0);
     if (before && !result.state.boss) { if (!commit(result.state)) return; } else store.stage(result.state);
     stage?.render(result.state, { completed: result.completed });
+    if (hinted) prestigeUI?.hint();
   }
   let coinShown = null, coinTarget = null, coinRaf = 0, coinStarted = 0;
   function pulse(el, frames, duration) {

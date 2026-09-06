@@ -1,10 +1,13 @@
 (function (root) {
+  // 2026-09-06 數值重整：rewardMul 從「與需求同倍率」改成 1.5／2／2.5／3／3.5。同倍率時新場景只需再長 ×3 就到王，
+  // 一個場景五分鐘就過；需求倍率改 1／8／64／500／2000／12000，每個場景約需 ×20 的養成成長（≈4.4 次翻倍）；一夜離線約 ×10～20，所以大約「一個場景＝一段遊玩或一夜」。
   const sprites = (kind, n) => Array.from({ length: n }, (_, i) => `clicker-scene1-${kind}-${i}.png`);
   const scenes = {
     backyard: {
       name: '後院草地', unlockPackages: 0, requirementMul: 1, rewardMul: 1, bagSkin: 0,
       unlock: null, enemy: { shell: null, timer: null, regen: null }, affinity: ['yueyue2','caihua'],
-      boss: { name: '大罐頭', mul: 1.35, seconds: 30, crackKeep: .5, crackMax: .75, cooldown: 30, reward: { freeDraws: 5 } },
+      // mul 是「玩家 30 秒容量（被動＋每秒 6 點）」的倍數（見 economy.startBoss），不再是包需求的倍數
+      boss: { name: '大罐頭', mul: 1.25, seconds: 30, crackKeep: .5, crackMax: .75, cooldown: 30, reward: { freeDraws: 5 } },
       palette: { mat: '#8FA56E', sky: '#CFE7F5' },
       music: { theme: 'picnic', seed: 'zhenmu-backyard-1', gen: { density: 45, rhythm: 40, speed: 35, drama: 30, mood: 70, hook: 60, smooth: 65 } },
       layers: [
@@ -23,9 +26,9 @@
     },
   };
   scenes.kitchen = {
-    name: '廚房流理台', unlockPackages: 0, requirementMul: 3, rewardMul: 3, bagSkin: 1,
+    name: '廚房流理台', unlockPackages: 0, requirementMul: 8, rewardMul: 1.5, bagSkin: 1,
     unlock: { packages: 50, boss: 'backyard' }, enemy: { shell: [.75,.5,.25], timer: null, regen: null }, affinity: ['zhenzhen2','fox'],
-    boss: { ...scenes.backyard.boss, mul:1.35, reward: { freeDraws: 5 } },   // 王包尺度是「30 秒產出對一包需求」，6 倍模擬只有 0.1%，先與後院同係數，第十一輪各場景再校
+    boss: { ...scenes.backyard.boss, mul:1.25, reward: { freeDraws: 5 } },
     palette: { mat: '#B9A58A', sky: '#F3E7D3' },
     music: { theme: 'shop', seed: 'zhenmu-kitchen-1', gen: { density:50, rhythm:55, speed:45, drama:35, mood:65, hook:60, smooth:55 } },
     layers: [
@@ -43,9 +46,9 @@
   // 第十一輪：三個場景的敵人只靠 enemy 參數（triple／timer／gift）做差異，經濟層不認場景名。
   // far／mid 素材都是有邊界的物件（貨架、機台、攤位），照廚房用 x,y,h,w 固定尺寸擺放；sky 與 ground 才拉滿 632。
   const sceneSprites = (n, kind, count) => Array.from({ length: count }, (_, i) => `clicker-scene${n}-${kind}-${i}.png`);
-  const boss = (name, image, size, center) => ({ ...scenes.backyard.boss, name, mul: 1.35, image, size, ...(center ? { center } : {}), reward: { freeDraws: 5 } });
+  const boss = (name, image, size, center) => ({ ...scenes.backyard.boss, name, mul: 1.25, image, size, ...(center ? { center } : {}), reward: { freeDraws: 5 } });
   scenes.market = {
-    name: '便利商店貨架', unlockPackages: 0, requirementMul: 8, rewardMul: 8, bagSkin: 0,
+    name: '便利商店貨架', unlockPackages: 0, requirementMul: 64, rewardMul: 2, bagSkin: 0,
     unlock: { packages: 60, boss: 'kitchen' }, enemy: { shell: null, timer: null, regen: null, triple: true }, affinity: ['dog', 'jiaobu2'],
     boss: boss('大三連包', 'clicker-boss3-pack.png', [320, 150], 440),   // 寬王：中心左移到 440，右緣 600 不出舞台
     palette: { mat: '#C9D3DA', sky: '#EEF3F6' },
@@ -61,7 +64,7 @@
     particles: { sprites: sceneSprites(3, 'particle', 4), everyMs: [1500, 3200], max: 6, size: [10, 16], life: [5, 9] },
   };
   scenes.factory = {
-    name: '零食工廠', unlockPackages: 0, requirementMul: 20, rewardMul: 20, bagSkin: 0,
+    name: '零食工廠', unlockPackages: 0, requirementMul: 500, rewardMul: 2.5, bagSkin: 0,
     unlock: { packages: 70, boss: 'market' }, enemy: { shell: null, timer: 20, regen: null }, affinity: ['lk', 'jiaobu'],
     boss: boss('大輸送箱', 'clicker-boss4-crate.png', [260, 285]),
     palette: { mat: '#9DA3A8', sky: '#DCE1E4' },
@@ -78,7 +81,7 @@
     particles: { sprites: sceneSprites(4, 'particle', 4), everyMs: [1500, 3200], max: 6, size: [10, 16], life: [5, 9], rise: true },
   };
   scenes.nightmarket = {
-    name: '夜市攤', unlockPackages: 0, requirementMul: 50, rewardMul: 50, bagSkin: 0,
+    name: '夜市攤', unlockPackages: 0, requirementMul: 2000, rewardMul: 3, bagSkin: 0,
     unlock: { packages: 80, boss: 'factory' }, enemy: { shell: null, timer: null, regen: null, gift: { everyMs: [45000, 90000], seconds: 15, mul: 10 } }, affinity: ['yang', 'yueyue'],
     boss: boss('老闆的巨無霸禮包', 'clicker-boss5-bag.png', [220, 312]),
     palette: { mat: '#4B3B52', sky: '#2B2440' },
@@ -101,9 +104,9 @@
   // 第十二輪：深夜冰箱（舊 id rainynight，存檔遷移在 clicker-save.js）。regen：需求每秒回升 1%，靠 burst 打穿。
   // 素材尚未產出：先重用廚房各層加 tint 藍色調；冷凍包用罐頭 + 霜層（bagPrefix 換成 'clicker-frozen-' 即可切到新素材）。
   scenes.fridge = {
-    name: '深夜冰箱', unlockPackages: 0, requirementMul: 120, rewardMul: 120, bagSkin: 1, bagPrefix: 'clicker-can-',
+    name: '深夜冰箱', unlockPackages: 0, requirementMul: 12000, rewardMul: 3.5, bagSkin: 1, bagPrefix: 'clicker-can-',
     unlock: { packages: 90, boss: 'nightmarket' }, enemy: { shell: null, timer: null, regen: .01 }, affinity: ['zhenmu','zhenzhen'],
-    boss: { ...scenes.backyard.boss, name: '大冰磚', mul: 1.35, reward: { freeDraws: 5 } },
+    boss: { ...scenes.backyard.boss, name: '大冰磚', mul: .95, reward: { freeDraws: 5 } },   // 王也吃 1%/s 回升，30 秒約掉 30%，係數補回
     palette: { mat: '#AEC6D6', sky: '#DCE9F2' },
     tint: { color: '#7FB5E6', opacity: .34, blend: 'multiply' },
     frost: { layer: 'clicker-frozen-frost.png', ice: 'clicker-frozen-ice.png', shards: { sprite: 9, count: 16, color: '#DFF3FF' } },

@@ -432,11 +432,12 @@ def round8(browser):
     page.evaluate('''() => {const s=Clicker.state;s.clickLevel=0;s.package=ClickerEconomy.newPackage('kitchen');
       s.collection={yueyue2:1};s.effects=[];s.skillSlots=['yueyue2',null,null];s.settledAt=Date.now()-100000;}''')
     advance(1100)
-    assert page.evaluate('Clicker.state.package.progress===75 && Clicker.state.package.blocked>0')
+    LINE="ClickerEconomy.requirement(1,'kitchen')*.25"   # 第一層硬殼線（廚房第一包 800 的 25%）
+    assert page.evaluate(f'Clicker.state.package.progress==={LINE} && Clicker.state.package.blocked>0')
     for _ in range(2):
         page.locator('#tap').dispatch_event('click')
         advance(160)
-    assert page.evaluate('Clicker.state.package.shellHp===1 && Clicker.state.package.progress===75')
+    assert page.evaluate(f'Clicker.state.package.shellHp===1 && Clicker.state.package.progress==={LINE}')
     page.evaluate('round8fx.length=0')
     page.locator('#tap').dispatch_event('click')
     shot('round8-shell-release-0.png')

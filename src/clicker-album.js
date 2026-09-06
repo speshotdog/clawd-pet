@@ -126,13 +126,13 @@ window.ClickerAlbum = (() => {
       trans.disabled = !canTranscend || !five || E.availableDust(s, id) < E.transcendCost(s, id) || store.blocked;
       trans.onclick = () => action(() => { if (commit(E.transcend(store.state, id, Date.now()))) { changed(); celebrate(big, store.state.transcend[id] === 5 ? 'awaken' : 'transcend'); notice(`${Pool.byId[id].name} 超越 ${store.state.transcend[id]}！`); later(() => { openDetail(id); renderBook(); }, 900); } });
       grow.append(promote, trans);
-      // 夥伴個別訓練（第十三輪）：每級 +5%，25/50/75/100 給技能副軸
-      const P = window.ClickerPrestige, L = s.partnerLevels?.[id] || 0, ms = P.nextMilestone(L);
+      // 夥伴個別訓練：每級 +1 倍（CC 建築），10/25/50/100/150/200 收益 ×2；25/50/75/100 給技能副軸
+      const P = window.ClickerPrestige, L = s.partnerLevels?.[id] || 0, ms = P.nextMilestone(L), om = E.PARTNER_MILESTONES.find(m => L < m), CAP = P.PARTNER_CAP;
       const train = document.createElement('button'); train.className = 'grow-btn train';
-      train.textContent = owned ? (L >= 100 ? '訓練 Lv.100（滿）' : `訓練 Lv.${L}（${format(P.trainCost(L))} 幣）`) : '訓練（招募後）';
-      train.title = ms ? `下一里程碑 ${ms}：${{25:'次數 +1／持續 +2 秒',50:'持續 +2 秒',75:'冷卻 −5%',100:'效果 ×1.1'}[ms]}` : '';
-      train.disabled = !owned || L >= 100 || s.coins < P.trainCost(L) || store.blocked;
-      train.onclick = () => action(() => { const r = P.train(store.state, id, Date.now()); if (commit(r.state)) { changed(); sound('upgrade'); if (!reduced.matches) big.animate([{ transform: 'scale(1.15)' }, { transform: 'scale(1.19)', offset: .5 }, { transform: 'scale(1.15)' }], { duration: 100 }); if ([25,50,75,100].includes(store.state.partnerLevels[id])) { celebrate(big, 'promote'); notice(`${Pool.byId[id].name} 訓練里程碑 ${store.state.partnerLevels[id]}！`); } openDetail(id); } });
+      train.textContent = owned ? (L >= CAP ? `訓練 Lv.${CAP}（滿）` : `訓練 Lv.${L}（${format(P.trainCost(L, id))} 幣）`) : '訓練（招募後）';
+      train.title = `每級被動 +1 倍（現在 ×${format(E.partnerMul(L))}）` + (om ? `・Lv.${om} 收益 ×2` : '') + (ms ? `・Lv.${ms} 技能：${{25:'次數 +1／持續 +2 秒',50:'持續 +2 秒',75:'冷卻 −5%',100:'效果 ×1.1'}[ms]}` : '');
+      train.disabled = !owned || L >= CAP || s.coins < P.trainCost(L, id) || store.blocked;
+      train.onclick = () => action(() => { const r = P.train(store.state, id, Date.now()); if (commit(r.state)) { changed(); sound('upgrade'); if (!reduced.matches) big.animate([{ transform: 'scale(1.15)' }, { transform: 'scale(1.19)', offset: .5 }, { transform: 'scale(1.15)' }], { duration: 100 }); if ([10,25,50,75,100,150,200].includes(store.state.partnerLevels[id])) { celebrate(big, 'promote'); notice(`${Pool.byId[id].name} 訓練里程碑 ${store.state.partnerLevels[id]}！`); } openDetail(id); } });
       const trainMax = document.createElement('button'); trainMax.className = 'grow-btn train'; trainMax.textContent = '最多'; trainMax.disabled = train.disabled;
       trainMax.onclick = () => action(() => { const r = P.train(store.state, id, Date.now(), true); if (commit(r.state)) { changed(); sound('upgrade'); notice(`${Pool.byId[id].name} 訓練 +${r.levels} 級`); openDetail(id); } });
       grow.append(train, trainMax);
@@ -261,7 +261,7 @@ window.ClickerAlbum = (() => {
       // 每秒結算都會呼叫；只有卡冊真正關心的欄位變了才重建，否則每秒重建卡片會閃爍
       refresh() {
         const s = store.state; if (!s) return;
-        const key = JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0)]);
+        const key = JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
         if (key === refreshKey) return; refreshKey = key;
         if (!$('roster').hidden) { renderBook(); if (detailId) openDetail(detailId); }
         if (!$('wardrobe').hidden) renderWardrobe();

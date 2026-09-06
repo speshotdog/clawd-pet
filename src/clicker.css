@@ -431,6 +431,10 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #boss-cracks img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
 #shell-rings img, #boss-shells img { position:absolute; left:0; width:100%; height:24%; object-fit:fill; }
 .shell-hit-overlay { position:absolute; left:0; width:100%; height:24%; object-fit:fill; pointer-events:none; }
+/* 罐頭（bagSkin 1）：容器改成罐頭比例 132×212、底部對齊同一個接地陰影；硬殼環與罐頭同畫布（319×512），整張疊上去再依序位移，不用 24% 分段 */
+#bag[data-skin="1"] { width:132px; height:212px; margin-left:11px; margin-top:-40px; }
+#bag[data-skin="1"] #bag-image { width:132px; height:212px; transform-origin:50% 95.7%; }
+#bag[data-skin="1"] #shell-rings img, #bag[data-skin="1"] .shell-hit-overlay { top:0; height:100%; object-fit:contain; }
 .blocked img { animation:shell-breathe 1.2s ease-in-out infinite; }
 @keyframes shell-breathe { 0%,100% {filter:brightness(1) drop-shadow(0 0 0 #FFF6E6);} 50% {filter:brightness(1.5) drop-shadow(0 0 7px #FFF6E6);} }
 #stage.boss-shake { animation:clicker-shake var(--boss-shake-time) linear; }

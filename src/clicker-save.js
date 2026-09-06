@@ -77,7 +77,7 @@
     s.marks ??= 0; s.marksClaimed ??= 0; s.prestiges ??= 0; s.markShop ??= {}; s.autoClick ??= 0; s.autoRemainder ??= 0; s.autoClicks ??= 0; s.partnerLevels ??= {}; s.deco ??= []; s.peakRate ??= 0; s.prestigeHintDate ??= null;
     check(integer(s.marks) && integer(s.marksClaimed) && s.marks <= s.marksClaimed && integer(s.prestiges) && integer(s.autoClick) && s.autoClick <= B.autoClickMax && number(s.autoRemainder) && s.autoRemainder < 1 && integer(s.autoClicks), '輪迴與電動手指');
     check(object(s.markShop) && Object.entries(s.markShop).every(([id, v]) => B.marks.some(m => m.id === id) && v === true) && s.marksClaimed >= s.marks + Object.keys(s.markShop).reduce((sum, id) => sum + B.marks.find(m => m.id === id).cost, 0), '印記商店');
-    check(object(s.partnerLevels) && Object.entries(s.partnerLevels).every(([id, L]) => known(id) && s.collection[id] > 0 && integer(L) && L <= 100), '夥伴訓練');
+    check(object(s.partnerLevels) && Object.entries(s.partnerLevels).every(([id, L]) => known(id) && s.collection[id] > 0 && integer(L) && L <= 200), '夥伴訓練');
     check(Array.isArray(s.deco) && new Set(s.deco).size === s.deco.length && s.deco.every(id => B.decor.some(d => d.id === id)), '裝飾');
     check(number(s.peakRate) && (s.prestigeHintDate === null || typeof s.prestigeHintDate === 'string'), '輪迴提示');
     const slotLen = s.markShop.slot4 ? 4 : 3;
@@ -150,7 +150,7 @@
     }
     if (s.boss) {
       const b=s.boss, cfg=scenes[s.settings.scene].boss;
-      check(object(b) && b.scene===s.settings.scene && !s.bossWins.includes(b.scene) && !s.pending && number(b.need) && b.need===cfg.mul*E.requirement(s.package.index,b.scene) && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===cfg.seconds*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
+      check(object(b) && b.scene===s.settings.scene && !s.bossWins.includes(b.scene) && !s.pending && number(b.need) && b.need>0 && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===cfg.seconds*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
       pack({...b,progress:b.dealt},b.scene,b.need,true);
     }
     if (s.pending !== null) {

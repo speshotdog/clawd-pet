@@ -5,7 +5,7 @@ window.ClickerGacha = (() => {
     let currentId = null, summaryReady = false, busy = false, previousFocus = null;
     const layer = $('recruit-layer');
     function priceButton(el, count, s, supported) {
-      const cost = E.drawCost(s.paidDraws, Math.max(0,count-(s.freeDraws || 0))), missing = Math.max(0, Math.ceil(cost - s.coins));
+      const cost = E.drawCost(s, Math.max(0,count-(s.freeDraws || 0))), missing = Math.max(0, Math.ceil(cost - s.coins));
       el.textContent = el.id === 'draw-one' ? '招募！' : el.id === 'draw-five' ? '五連' : `${count === 1 ? '單抽' : '五連'} · ${format(cost)}`; el.title = String(cost);
         if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price'; price.textContent = s.freeDraws ? `免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}` : format(cost); el.append(price); }
       if (s.freeDraws && el.id.startsWith('recruit-')) el.textContent=`${count===1?'單抽':'五連'} · 免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}`;
@@ -14,7 +14,7 @@ window.ClickerGacha = (() => {
     }
     function render() {
       const s = store.state; if (!s) return;
-      $('draw-price').textContent = s.freeDraws ? `免費 ×${s.freeDraws}` : format(E.drawCost(s.paidDraws, 1)); $('draw-ticket').title = String(E.drawCost(s.paidDraws, Math.max(0,1-s.freeDraws)));
+      $('draw-price').textContent = s.freeDraws ? `免費 ×${s.freeDraws}` : format(E.drawCost(s, 1)); $('draw-ticket').title = String(E.drawCost(s, Math.max(0,1-s.freeDraws)));
       const supported = window.GachaModes[s.settings.mode].counts.includes(1);
       const note = supported ? '' : '此演出只支援五連；單抽請選流星或拆包桌面。';
       for (const id of ['draw-one', 'recruit-one']) priceButton($(id), 1, s, supported);

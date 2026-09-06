@@ -6,10 +6,10 @@ const near = (a, b, tol = 1e-6) => assert.ok(Math.abs(a - b) < tol * Math.max(1,
 const NOON = new Date(2026, 8, 6, 12).getTime(), DAY = 86400000;
 const fridge = (now = 0) => { const s = S.fresh(now); s.bossWins = ['backyard', 'kitchen', 'market', 'factory', 'nightmarket']; s.settings.scene = 'fridge'; s.package = E.newPackage('fridge'); return s; };
 
-test('round12 scene: 深夜冰箱取代 rainynight，regen 1%/秒、倍率 120、王「大冰磚」×6', () => {
+test('round12 scene: 深夜冰箱取代 rainynight，regen 1%/秒、需求倍率 12000、王「大冰磚」係數 .95', () => {
   assert.equal(scenes.rainynight, undefined);
-  assert.equal(scenes.fridge.name, '深夜冰箱'); assert.equal(scenes.fridge.enemy.regen, .01); assert.equal(scenes.fridge.requirementMul, 120);
-  assert.deepEqual(scenes.fridge.unlock, { packages: 90, boss: 'nightmarket' }); assert.equal(scenes.fridge.boss.name, '大冰磚'); assert.equal(scenes.fridge.boss.mul, 1.35);
+  assert.equal(scenes.fridge.name, '深夜冰箱'); assert.equal(scenes.fridge.enemy.regen, .01); assert.equal(scenes.fridge.requirementMul, 12000);
+  assert.deepEqual(scenes.fridge.unlock, { packages: 90, boss: 'nightmarket' }); assert.equal(scenes.fridge.boss.name, '大冰磚'); assert.equal(scenes.fridge.boss.mul, .95);
   assert.equal(E.nextScene('nightmarket'), 'fridge'); S.validate(fridge(), Pool);
 });
 test('round12 regen 可見：每秒吃掉 need×1%，不低於 0；其他場景不受影響', () => {
@@ -22,7 +22,7 @@ test('round12 regen 離線：P < need×regen 進度停在原地、幣照給；P 
   const s = fridge(0); s.collection = { yueyue2: 1 }; s.dust = { yueyue2: 1 }; s.package.index = 30; s.package.progress = 500;   // P 480/秒 < need×1% ≈ 3.2k/秒
   const r = E.settle(s, 3600000, { offline: true });
   assert.equal(r.state.package.progress, 500); near(r.state.coins, r.earned); assert.ok(r.earned > 0);
-  const big = fridge(0); big.collection = { zhenmu: 1 }; big.dust = { zhenmu: 1 }; big.package.progress = 500;   // P 1920/秒 > 120/秒
+  const big = fridge(0); big.collection = { zhenmu: 16 }; big.dust = { zhenmu: 16 }; big.trainingLevel = 30; big.package.progress = 500;   // P ≈ 9 萬/秒 > need×1% = 1.2 萬/秒
   const need = E.requirement(1, 'fridge'), b = E.settle(big, 3000, { offline: true });
   near(b.state.package.progress, 500 + b.earned - need * .01 * 3); near(b.state.coins, b.earned);
 });

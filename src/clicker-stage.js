@@ -414,7 +414,10 @@ window.ClickerStage = (() => {
       const count=p.shells?.length || 0;
       if (el.children.length!==count) {
         el.replaceChildren();
-        for(let i=0;i<count;i++) {const img=document.createElement('img');img.src='clicker-can-shell.png';img.alt='硬殼';img.style.top=`${25+i*22}%`;img.onerror=()=>{img.style.visibility='hidden';};el.append(img);}
+        for(let i=0;i<count;i++) {const img=document.createElement('img');img.src='clicker-can-shell.png';img.alt='硬殼';
+          // 一般包（罐頭）：環圖與罐頭同畫布，整張疊上去、三環各差 20% 高度；王包：沿用容器 24% 分段
+          if (s.boss) img.style.top=`${25+i*22}%`; else img.style.transform=`translateY(${Math.round((.5-p.shells[i])*80)}%)`;   // .75→−20%、.5→0、.25→+20%：破掉的環不會讓剩下的往上擠
+          img.onerror=()=>{img.style.visibility='hidden';};el.append(img);}
       }
       el.classList.toggle('blocked',p.blocked>0); el.dataset.hp=p.shellHp ?? 3;
       shellTarget=el.firstElementChild;
@@ -425,7 +428,8 @@ window.ClickerStage = (() => {
       const el=result.shellBroken?struckRing?.el:shellTarget;
       if(el) {
         if(result.shellBroken) {el.className='shell-hit-overlay';struckRing.parent.append(el);}
-        motion(el,[{transform:'scale(1)'},{transform:'scale(1.06)',offset:.4},{transform:'scale(1)',opacity:result.shellBroken?0:1}],120,()=>{if(result.shellBroken) el.remove();});
+        const base=el.style.transform || '';   // 罐頭環有 translateY 位移，動畫要疊在它上面
+        motion(el,[{transform:`${base} scale(1)`},{transform:`${base} scale(1.06)`,offset:.4},{transform:`${base} scale(1)`,opacity:result.shellBroken?0:1}],120,()=>{if(result.shellBroken) el.remove();});
       }
       if(result.shellBroken) {
         for(let i=0;i<10;i++) fx?.spawn({sprite:14,x:IMPACT.x,y:IMPACT.y,vx:(Math.random()-.5)*340,vy:-100-Math.random()*230,g:520,r:10,life:.65,rot:Math.random()*6,vr:8,drag:.99,color:'#D9D9D9',blend:'lighter'});

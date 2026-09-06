@@ -7,11 +7,11 @@ const wins = { market: ['backyard', 'kitchen'], factory: ['backyard', 'kitchen',
 const enter = (id, index = 1, now = 0) => { const s = S.fresh(now); s.bossWins = wins[id]; s.settings.scene = id; s.package = E.newPackage(id, index); return s; };
 const H = (id, k = 1) => E.requirement(k, id);
 
-test('scene configs: three enemies driven by parameters, home pairs, boss mul 1.35 with images', () => {
+test('scene configs: three enemies driven by parameters, home pairs, boss mul 1.25 with images', () => {
   assert.equal(scenes.market.enemy.triple, true); assert.equal(scenes.factory.enemy.timer, 20);
   assert.deepEqual(scenes.nightmarket.enemy.gift, { everyMs: [45000, 90000], seconds: 15, mul: 10 });
-  assert.deepEqual([scenes.market, scenes.factory, scenes.nightmarket].map(s => [s.requirementMul, s.rewardMul, s.unlock.packages, s.unlock.boss]), [[8, 8, 60, 'kitchen'], [20, 20, 70, 'market'], [50, 50, 80, 'factory']]);
-  for (const id of ['market', 'factory', 'nightmarket']) { assert.equal(scenes[id].boss.mul, 1.35); assert.ok(scenes[id].boss.image && scenes[id].boss.name); assert.notEqual(scenes[id].available, false); }
+  assert.deepEqual([scenes.market, scenes.factory, scenes.nightmarket].map(s => [s.requirementMul, s.rewardMul, s.unlock.packages, s.unlock.boss]), [[64, 2, 60, 'kitchen'], [500, 2.5, 70, 'market'], [2000, 3, 80, 'factory']]);
+  for (const id of ['market', 'factory', 'nightmarket']) { assert.equal(scenes[id].boss.mul, 1.25); assert.ok(scenes[id].boss.image && scenes[id].boss.name); assert.notEqual(scenes[id].available, false); }
   assert.notEqual(scenes.fridge.available, false);   // 第十二輪起冰箱已可用
   assert.ok(E.tripleFor('market') && !E.tripleFor('kitchen') && E.timerFor('factory') === 20 && !E.timerFor('market') && E.giftFor('nightmarket') && !E.giftFor('factory'));
 });
@@ -77,7 +77,7 @@ test('timer: deadline stamped on entry, online expiry drops the package without 
 test('timer: completing a package starts a fresh window; offline never misses, only settles the package up to the deadline', () => {
   let s = enter('factory'); s.clickLevel = 200; s = E.settle(s, 1000).state;
   const r = E.click(s, 4000); assert.ok(r.completed >= 1); assert.equal(r.state.package.deadline, 24000);
-  s = enter('factory'); s.collection = { zhenmu: 16 }; s = E.settle(s, 1000).state;
+  s = enter('factory'); s.collection = { zhenmu: 16 }; s.trainingLevel = 16; s = E.settle(s, 1000).state;   // P×21 秒要拆得完工廠第一包（50,000）
   const P = E.rates(s).P, off = E.settle(s, 3601000, { offline: true }), o = off.state;
   assert.equal(o.missed, 0); near(o.coins - s.coins, P * 3600); near(off.earned, P * 3600);
   // 包裝只結算到 deadline 前（一個 20 秒窗口），之後的時間只進錢包
