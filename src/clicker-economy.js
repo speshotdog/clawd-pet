@@ -7,7 +7,29 @@
   const drawCost = (n, count = 1) => Array.from({ length: count }, (_, i) => Math.ceil(150 * 1.30 ** Math.floor((n + i) / 5))).reduce((a, b) => a + b, 0);
   const stars = (n) => n < 1 ? 0 : B.stars.filter((threshold) => n >= threshold).length;
   const starMultiplier = (n) => n < 1 ? 0 : 1 + .25 * (stars(n) - 1) + .01 * Math.max(0, n - 16);
-  const individual = (s, id) => B.characters[id].base * starMultiplier(s.collection[id] || 0) * 1.15 ** s.trainingLevel;
+  const individual = (s, id) => B.characters[id].base * starMultiplier(s.collection[id] || 0) * 1.15 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1);
+  const affinity = (s,id) => (Scenes(s.settings?.scene).affinity || []).includes(id);
+  const activeBonds = s => B.bonds.filter(b => b.pair.every(id => s.collection[id] > 0));
+  function skillAt(s,id,star = stars(s.collection[id] || 1)) {
+    const p = B.skillAt(id,star);
+    for (const b of activeBonds(s)) {
+      if (b.effect.chargesPlus && ['click','clickAdd'].includes(p.kind)) p.charges += b.effect.chargesPlus;
+      if (b.effect.selfDurationMul && p.kind === 'self') p.duration *= b.effect.selfDurationMul;
+    }
+    if (affinity(s,id)) p.cd *= .8;
+    return p;
+  }
+  function recommend(state,index,now) {
+    const preset = B.recommendations[index];
+    if (!preset) throw new Error('未知組合');
+    let s = clone(state);
+    const desired = s.skillSlots.map((id,i) => i < slotCount(s) && s.collection[preset.slots[i]] ? preset.slots[i] : id);
+    // Missing-character slots retain their occupants; those occupants cannot also move.
+    for (let pass=0;pass<3;pass++) for (let i=0;i<3;i++) if (desired[i] !== s.skillSlots[i] && desired.some((id,j)=>j!==i && id===desired[i] && desired[j]===s.skillSlots[j])) desired[i]=s.skillSlots[i];
+    for (let i=0;i<slotCount(s);i++) if (desired[i] !== s.skillSlots[i]) s=equip(s,i,null,now);
+    for (let i=0;i<slotCount(s);i++) if (desired[i] !== s.skillSlots[i]) s=equip(s,i,desired[i],now);
+    return s;
+  }
   function rates(s) {
     const P = Object.keys(B.characters).reduce((sum, id) => sum + individual(s, id), 0);
     const mul = Scenes(s.settings?.scene).rewardMul || 1;
@@ -115,7 +137,7 @@
   function click(state, now) {
     const result = settle(state, now), s = result.state;
     const multiplier = Math.max(1, ...s.effects.filter((e) => ['click', 'clickTime'].includes(e.kind)).map((e) => e.multiplier));
-    const amount = rates(s).D * multiplier + s.effects.filter(e => e.kind === 'clickAdd').reduce((sum, e) => sum + e.value, 0);
+    const amount = (rates(s).D + s.effects.filter(e => e.kind === 'clickAdd').reduce((sum, e) => sum + e.value, 0)) * multiplier;
     result.completed += grant(s, amount, 'click', result); s.manualClicks++;
     for (const effect of s.effects) if (effect.remaining !== undefined) effect.remaining--;
     s.effects = s.effects.filter((e) => e.remaining === undefined || e.remaining > 0);
@@ -149,21 +171,28 @@
     return s;
   }
   function activate(state, slot, now) {
-    const s = settle(state, now).state, id = s.skillSlots[slot], def = B.characters[id], t = s.settledAt;
+    const s = settle(state, now).state, id = s.skillSlots[slot], def = id && skillAt(s,id), t = s.settledAt;
     if (s.pending || slot >= slotCount(s) || !s.collection[id] || !def?.kind) throw new Error('技能尚未開放');
     if ((s.cooldownUntil[id] || 0) > t || s.slotReadyAt[slot] > t) throw new Error('技能冷卻中');
-    const effect = { source: id, kind: def.kind, startedAt: t, expiresAt: t + (def.duration || 0) * 1000 };
+    const count = s.chain && t < s.chain.expiresAt && s.chain.count < 3 ? s.chain.count+1 : 1;
+    const windowMs = activeBonds(s).find(b=>b.effect.chainWindowMs)?.effect.chainWindowMs || 8000;
+    const chainMul = [1,1.3,1.6][count-1];
+    s.chain = {count,expiresAt:t+windowMs};
+    const effect = { chain:count, params:{...def,desc:undefined}, source: id, kind: def.kind, startedAt: t, expiresAt: t + (def.duration || 0) * 1000 };
     if (def.kind === 'click') Object.assign(effect, { multiplier: def.multiplier, remaining: def.charges });
     else if (def.kind === 'clickTime') effect.multiplier = def.multiplier;
     else if (def.kind === 'self') effect.value = individual(s, id) * (def.multiplier - 1) * (Scenes(s.settings.scene).rewardMul || 1);
     else if (def.kind === 'team') effect.value = rates(s).P * def.ratio;
     else if (def.kind === 'clickAdd') Object.assign(effect, { value: rates(s).P * def.ratio, remaining: def.charges });
-    else if (def.kind === 'burst') effect.value = def.factor * (def.basis === 'individual' ? individual(s, id) * (Scenes(s.settings.scene).rewardMul || 1) : rates(s).P);
+    else if (def.kind === 'burst') effect.value = def.factor * (def.basis === 'individual' ? individual(s, id) * (Scenes(s.settings.scene).rewardMul || 1) : rates(s).P + s.effects.filter(e=>e.kind==='team').reduce((sum,e)=>sum+e.value,0));
     else {
-      const targets = Object.keys(s.collection).filter((key) => key !== id && s.collection[key] > 0).sort((a, b) => individual(s, b) - individual(s, a));
+      const copied = target => individual(s,target)*(Scenes(s.settings.scene).rewardMul || 1) + s.effects.filter(e=>e.kind==='self' && e.source===target).reduce((sum,e)=>sum+e.value,0);
+      const targets = Object.keys(s.collection).filter((key) => key !== id && s.collection[key] > 0).sort((a, b) => copied(b) - copied(a));
       if (!targets.length) throw new Error('需要另一位夥伴');
-      effect.target = targets[0]; effect.value = individual(s, effect.target) * (Scenes(s.settings.scene).rewardMul || 1);
+      effect.target = targets[0]; effect.value = copied(effect.target) * def.copy;
     }
+    if (effect.multiplier !== undefined) effect.multiplier = 1+(effect.multiplier-1)*chainMul;
+    if (effect.value !== undefined) effect.value *= chainMul;
     const completed = def.kind === 'burst' ? grant(s, effect.value) : 0;
     if (def.kind !== 'burst') s.effects.push(effect); s.cooldownUntil[id] = t + def.cd * 1000;
     return { state: s, effect, completed };
@@ -224,7 +253,7 @@
   function abandonBoss(state,now) {
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
-  const api = { clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor,
+  const api = { affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor,
     newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

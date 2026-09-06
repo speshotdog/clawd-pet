@@ -11,9 +11,9 @@ const opts = { id: 'draw-1', visualSeed: 12, rng: () => .9 };
 
 for (const id of ['caihua', 'fox', 'lk', 'zhenzhen2', 'yang', 'zhenzhen', 'dog', 'jiaobu2', 'yueyue']) {
   test(`round7 ${id}: snapshot, expiry, cooldown and save roundtrip`, () => {
-    const s = money(); s.collection = Object.fromEntries(Object.keys(B.characters).map(id => [id, 4]));
+    const s = money(); s.collection = Object.fromEntries(Object.keys(B.characters).map(id => [id, 1]));
     s.trainingLevel = 2; s.skillSlots[0] = id;
-    const t = s.settledAt, def = B.characters[id], { P, D } = E.rates(s), pi = E.individual(s, id);
+    const t = s.settledAt, def = E.skillAt(s,id), { P, D } = E.rates(s), pi = E.individual(s, id);
     const r = E.activate(s, 0, t), a = r.state;
     assert.throws(() => E.activate(a, 0, t), /冷卻/);
     S.validate(JSON.parse(JSON.stringify(a)), Pool);
@@ -41,12 +41,12 @@ for (const id of ['caihua', 'fox', 'lk', 'zhenzhen2', 'yang', 'zhenzhen', 'dog',
   });
 }
 
-test('round7 click multiplier max then fixed add; all charge effects consume together', () => {
+test('round7 click multiplier add then max with chain; all charge effects consume together', () => {
   let s = money(); s.collection = { dog: 1, jiaobu2: 1, yueyue: 1 };
   s.skillSlots = ['dog', 'jiaobu2', 'yueyue'];
   for (let i = 0; i < 3; i++) s = E.activate(s, i, s.settledAt).state;
   const r = E.click(s, s.settledAt);
-  close(r.amount, E.rates(s).D * 4 + E.rates(s).P * .5);
+  close(r.amount, (E.rates(s).D + E.rates(s).P * .5) * 4.9);
   assert.deepEqual(r.state.effects.map(e => e.remaining), [19, 4, undefined]);
 });
 
@@ -56,7 +56,7 @@ test('round7 self + team + parasite integrate only remaining offline intervals',
   for (let i = 0; i < 3; i++) s = E.activate(s, i, t).state;
   s = E.settle(s, t + 10000).state;
   const r = E.settle(s, t + 40000);
-  close(r.earned, 26 * 30 + 10 * 10 + 5.2 * 20 + 5 * 10);
+  close(r.earned, 26 * 30 + 10 * 10 + 6.76 * 20 + 24 * 10);
   assert.equal(E.settle(r.state, t + 40000).earned, 0);
 });
 
@@ -77,8 +77,8 @@ test('1/2/4/8/16/20 張的星級倍率；逐張角標', () => {
 
 test('12 隻被動全數計入；D/P 不含暫時技能，沒有槽位限制', () => {
   const s = fresh(); s.collection = Object.fromEntries(Object.keys(B.characters).map((id) => [id, 1]));
-  assert.equal(E.rates(s).P, 125); s.collection.yueyue2 = 4; s.trainingLevel = 3; s.clickLevel = 10;
-  close(E.rates(s).P, 127 * 1.15 ** 3); close(E.rates(s).D, 1.18 ** 10 + .05 * 127 * 1.15 ** 3);
+  assert.equal(E.rates(s).P, 129); s.collection.yueyue2 = 4; s.trainingLevel = 3; s.clickLevel = 10;
+  close(E.rates(s).P, 132 * 1.15 ** 3); close(E.rates(s).D, 1.18 ** 10 + .05 * 132 * 1.15 ** 3);
   const before = E.rates(s); s.effects = [{ kind: 'passive', value: 99999 }]; assert.deepEqual(E.rates(s), before);
 });
 
@@ -97,17 +97,17 @@ test('拆包需求、二分結算、溢出與多包只計一次收入', () => {
     const actual = E.advancePackage(initial, power); assert.equal(actual.package.index, index); close(actual.package.progress, progress, 1e-7);
   }
   const s = fresh(); s.collection = { yueyue2: 1 }; const paid = E.settle(s, s.settledAt + 60000);
-  close(paid.state.coins, 240); close(paid.state.lifetimeCoins, 240); assert.equal(paid.completed, 2);
+  close(paid.state.coins, 360); close(paid.state.lifetimeCoins, 360); assert.equal(paid.completed, 3);
 });
 
 test('离線 100% 效率、8 小時上限；倒退不付錢且保留高水位', () => {
   const s = fresh(); s.collection = { yueyue2: 1 };
   const r = E.settle(s, s.settledAt + 12 * 3600000);
-  assert.equal(r.duration, 8 * 3600000); assert.equal(r.elapsed, 12 * 3600000); close(r.earned, 4 * 8 * 3600);
+  assert.equal(r.duration, 8 * 3600000); assert.equal(r.elapsed, 12 * 3600000); close(r.earned, 6 * 8 * 3600);
   const backwards = E.settle(r.state, r.state.settledAt - 3600000);
   assert.equal(backwards.earned, 0); assert.equal(backwards.state.settledAt, r.state.settledAt);
   assert.equal(E.settle(backwards.state, r.state.settledAt).earned, 0);
-  close(E.settle(backwards.state, r.state.settledAt + 1000).earned, 4);
+  close(E.settle(backwards.state, r.state.settledAt + 1000).earned, 6);
 });
 
 test('跨技能到期區間積分，離線效果不重施放；分段結算一致', () => {
@@ -124,7 +124,7 @@ test('跨技能到期區間積分，離線效果不重施放；分段結算一�
 test('點擊倍率只取最高，每次消耗所有次數型效果，15 秒到期', () => {
   let s = money(); s.collection = { yueyue2: 1, jiaobu: 1 }; s.skillSlots = ['yueyue2', 'jiaobu', null];
   s = E.activate(s, 0, s.settledAt).state; s = E.activate(s, 1, s.settledAt).state;
-  const r = E.click(s, s.settledAt); close(r.amount, E.rates(s).D * 10);
+  const r = E.click(s, s.settledAt); close(r.amount, E.rates(s).D * 12.7);
   assert.equal(r.state.effects.length, 1); assert.equal(r.state.effects[0].remaining, 9);
   close(E.click(r.state, s.settledAt + 1).amount, E.rates(s).D * 2);
   close(E.click(r.state, s.settledAt + 15000).amount, E.rates(s).D);
@@ -144,7 +144,7 @@ test('升級最多按逐級總價；訓練前結算舊產能；不足不修改�
   assert.equal(upgraded.levels, 5); assert.equal(upgraded.state.coins, 9); assert.equal(s.clickLevel, 0);
   const train = money(1000); train.collection = { yueyue2: 1 };
   const r = E.upgrade(train, 'training', false, train.settledAt + 10000);
-  close(r.state.coins, 40); close(E.rates(r.state).P, 4.6);
+  close(r.state.coins, 60); close(E.rates(r.state).P, 6.9);
   assert.throws(() => E.upgrade(fresh(), 'click', false, 1000000), /餘額不足/);
 });
 
@@ -165,7 +165,7 @@ test('單抽／五連連續價格；五連跨第 40 張，收下雙擊 id 防重
   S.validate(pending, Pool); assert.throws(() => E.purchaseDraw(pending, 1, s.settledAt, Pool), /待收下/);
   assert.equal(E.collect(pending, 'wrong', s.settledAt).accepted, false);
   const collected = E.collect(pending, opts.id, s.settledAt + 10000);
-  close(collected.state.coins - pending.coins, 40); assert.equal(collected.state.pending, null);
+  close(collected.state.coins - pending.coins, 60); assert.equal(collected.state.pending, null);
   const double = E.collect(collected.state, opts.id, s.settledAt + 20000);
   assert.equal(double.accepted, false); assert.equal(double.state, collected.state);
   assert.equal(Object.values(collected.state.collection).reduce((a, b) => a + b), 6);

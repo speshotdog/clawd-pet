@@ -25,7 +25,7 @@
   scenes.kitchen = {
     name: '廚房流理台', unlockPackages: 0, requirementMul: 3, rewardMul: 3, bagSkin: 1,
     unlock: { packages: 50, boss: 'backyard' }, enemy: { shell: [.75,.5,.25], timer: null, regen: null }, affinity: ['zhenzhen2','fox'],
-    boss: { ...scenes.backyard.boss, mul:6, reward: { freeDraws: 5 } },
+    boss: { ...scenes.backyard.boss, mul:1.35, reward: { freeDraws: 5 } },   // 王包尺度是「30 秒產出對一包需求」，6 倍模擬只有 0.1%，先與後院同係數，第十一輪各場景再校
     palette: { mat: '#B9A58A', sky: '#F3E7D3' },
     music: { theme: 'shop', seed: 'zhenmu-kitchen-1', gen: { density:50, rhythm:55, speed:45, drama:35, mood:65, hook:60, smooth:55 } },
     layers: [
@@ -43,7 +43,7 @@
   [['market','便利商店貨架',200,10,'kitchen'],['factory','包裝工廠',600,30,'market'],['nightmarket','夜市攤',1500,80,'factory'],['rainynight','神秘倉庫',4000,220,'nightmarket']].forEach(([id,name,packages,mul,boss]) => {
     scenes[id] = { name, unlockPackages:0, requirementMul:mul, rewardMul:mul, unlock:{packages,boss}, available:false,
       enemy:{shell:null,timer:id==='factory'?20:id==='nightmarket'?15:null,regen:id==='rainynight'?.01:null},
-      boss:{...scenes.backyard.boss,mul:6}, bagSkin:0, affinity:[], palette:{mat:'#aaa',sky:'#ddd'} };
+      boss:{...scenes.backyard.boss,mul:1.35}, bagSkin:0, affinity:[], palette:{mat:'#aaa',sky:'#ddd'} };
   });
   const resolve = (id, index = Infinity) => Object.hasOwn(scenes, id) && index >= scenes[id].unlockPackages ? scenes[id] : scenes.backyard;
   root.ClickerScenes = scenes;

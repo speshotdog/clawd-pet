@@ -124,7 +124,7 @@ window.ClickerStage = (() => {
         const name = document.createElement('b'); name.textContent = entry.name;
         const stars = document.createElement('span'); stars.textContent = `★${E.stars(s.collection[id])}`;
         el.append(portrait, name, stars);
-        if (window.ClickerScene.resolve(s.settings.scene).affinity.includes(id)) {const flag=document.createElement('small');flag.className='affinity-flag';flag.textContent='親和';flag.title='場景親和（第九輪生效）';el.append(flag);}
+        if (window.ClickerScene.resolve(s.settings.scene).affinity.includes(id)) {const flag=document.createElement('small');flag.className='affinity-flag';flag.title=`${window.ClickerScene.resolve(s.settings.scene).name}當家：收益 ×1.5、冷卻 −20%`;flag.setAttribute('aria-label',flag.title);el.append(flag);}
         const slot = s.skillSlots.indexOf(id); if (slot >= 0) { const stamp = document.createElement('small'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${slot + 1}`; el.append(stamp); }
         if (s.effects.some(e => e.source === 'zhenmu' && e.target === id)) { const tag = document.createElement('small'); tag.className = 'parasite-stamp'; tag.textContent = '寄生'; el.append(tag); }
         el.onclick = () => showRoster(id); $('buddies').append(el);

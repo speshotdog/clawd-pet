@@ -9,6 +9,7 @@
       collection: {}, paidDraws: 0, pity: { sinceLegendary: 0 }, pending: null,
       package: E.newPackage('backyard'), claimedMilestones: [],
       boss: null, bossWins: [], bossCracks: {}, bossCooldownUntil: 0, bossResult: null, scenePackages: {}, freeDraws: 0, usedFreeDraws: 0,
+      chain: {count:1,expiresAt:0},
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
       settings: { muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8 } };
   }
@@ -19,6 +20,8 @@
   function validate(s, pool) {
     const check = (ok, field) => { if (!ok) throw new Error(`存檔驗證失敗：${field}`); };
     check(object(s) && s.version === 1 && s.balanceVersion === 1, '版本（本版不降級或重置）');
+    if (s.chain === undefined) s.chain = {count:1,expiresAt:0};
+    check(object(s.chain) && integer(s.chain.count) && s.chain.count >= 1 && s.chain.count <= 3 && number(s.chain.expiresAt), '連鎖');
     s.boss ??= null; s.bossWins ??= []; s.bossCracks ??= {}; s.bossCooldownUntil ??= 0;
     s.freeDraws ??= 0; s.usedFreeDraws ??= 0; s.scenePackages ??= {}; s.bossResult ??= null;
     check(integer(s.freeDraws) && integer(s.usedFreeDraws) && number(s.bossCooldownUntil), '王包獎勵與冷卻');
@@ -36,15 +39,29 @@
     check(new Set(s.skillSlots.filter(Boolean)).size === s.skillSlots.filter(Boolean).length, '重複槽位');
     check(Array.isArray(s.slotReadyAt) && s.slotReadyAt.length === 3 && s.slotReadyAt.every(number), '換槽時間');
     check(object(s.cooldownUntil) && Object.entries(s.cooldownUntil).every(([id, t]) => known(id) && s.collection[id] > 0 && number(t)), '冷卻');
-    check(Array.isArray(s.effects) && s.effects.length <= 3, '效果');
+    check(Array.isArray(s.effects) && s.effects.length <= Object.keys(B.characters).length, '效果');
     const sources = new Set();
     for (const e of s.effects) {
       check(object(e) && known(e.source) && s.collection[e.source] > 0 && !sources.has(e.source), '效果來源'); sources.add(e.source);
-      const def = B.characters[e.source];
-      check(def.kind && e.kind === def.kind && number(e.startedAt) && number(e.expiresAt) && e.expiresAt - e.startedAt === def.duration * 1000 && e.startedAt <= s.settledAt, '效果期限');
-      check(s.cooldownUntil[e.source] === e.startedAt + def.cd * 1000, '效果冷卻');
-      if (e.kind === 'click') check(e.multiplier === def.multiplier && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '次數效果');
-      else if (e.kind === 'clickTime') check(e.multiplier === def.multiplier, '時間倍率');
+      const base = B.characters[e.source], def = e.params || base;
+      if (e.chain === undefined) e.chain = 1;
+      check(integer(e.chain) && e.chain>=1 && e.chain<=3, '效果快照');
+      if (e.params) {
+        check(object(e.params) && def.kind===base.kind, '效果快照');
+        const variants = [1,2,3,4,5].flatMap(star=>[false,true].flatMap(bond=>[false,true].map(home=>{
+          const p=B.skillAt(e.source,star);
+          if (bond && ['click','clickAdd'].includes(p.kind)) p.charges++;
+          if (bond && p.kind==='self') p.duration*=1.25;
+          if (home) p.cd*=.8;
+          return p;
+        })));
+        check(variants.some(p=>['kind','multiplier','ratio','factor','copy','charges','duration','cd','basis'].every(k=>p[k]===def[k])), '技能快照參數');
+      }
+      const mult = def.multiplier === undefined ? undefined : 1+(def.multiplier-1)*[1,1.3,1.6][e.chain-1];
+      check(def.kind && e.kind === def.kind && number(e.startedAt) && number(e.expiresAt) && Math.abs(e.expiresAt - e.startedAt - def.duration * 1000) < .001 && e.startedAt <= s.settledAt, '效果期限');
+      check(Math.abs(s.cooldownUntil[e.source] - e.startedAt - def.cd * 1000) < .001, '效果冷卻');
+      if (e.kind === 'click') check(e.multiplier === mult && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '次數效果');
+      else if (e.kind === 'clickTime') check(e.multiplier === mult, '時間倍率');
       else if (e.kind === 'clickAdd') check(number(e.value) && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '點擊加法');
       else if (['self', 'team'].includes(e.kind)) check(number(e.value), '產能快照');
       else check(known(e.target) && e.target !== e.source && s.collection[e.target] > 0 && number(e.value), '寄生快照');

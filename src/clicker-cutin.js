@@ -32,7 +32,7 @@ window.ClickerCutin = (() => {
       color:{rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[rarity],
       stripe:{rare:'#5E93AA',epic:'#80679E',legendary:'#B8862A'}[rarity], rig:rigs[id],
       name:def.skill.length >= 6 ? def.skill.slice(0, Math.floor(def.skill.length / 2)) + '\n' + def.skill.slice(Math.floor(def.skill.length / 2)) : def.skill,
-      sub:() => def.desc.split('・冷卻')[0], stamp:effect => stamps[id] || `×${effect.multiplier || def.multiplier}` };
+      sub:effect => def.desc(effect.params || window.ClickerBalance.skillAt(id,1)).split('・冷卻')[0], stamp:effect => ['yang','zhenzhen'].includes(id) ? `+${Number(((effect.params?.ratio || def.ratio)*100).toFixed(2))}%` : stamps[id] || `×${effect.multiplier || def.multiplier}` };
   }
   const ready = Promise.all(['speedlines','speedlines-h','stripe-tile','brush-banner','impact-burst','halftone-tile','ink-splash','ring','stamp','paper-grain'].map(name => new Promise(resolve => {
     const img = new Image(); img.onload = () => img.decode().catch(()=>{}).then(resolve); img.onerror = resolve; img.src = `clicker-fx-${name}.png`;
@@ -89,6 +89,11 @@ window.ClickerCutin = (() => {
       const name = node('cutin-name',panel); name.textContent = spec.name;
       const subtitle = node('cutin-subtitle',panel); subtitle.textContent = spec.sub(effect);
       const stamp = node('cutin-stamp',panel); stamp.textContent = spec.stamp(effect);
+      if (effect.chain >= 2) {
+        const chain=node('cutin-chain-stamp',panel);chain.textContent=`連鎖 ×${effect.chain}`;
+        motion(chain,reduced.matches ? [{opacity:0},{opacity:1}] : [{opacity:0,transform:'scale(1.6) rotate(9deg)'},{opacity:1,transform:'scale(1) rotate(9deg)'}],90,T.stamp+120,EASE.settle);
+        later(()=>{sound('cutin-stamp');shake();},T.stamp+120);
+      }
       if (reduced.matches) {
         motion(panel,[{opacity:0},{opacity:1}],T.arrive,T.panel);
         ink.hidden = banner.hidden = stamp.hidden = true;

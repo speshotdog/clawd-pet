@@ -15,6 +15,8 @@
 | market | 便利商店貨架 | `{ packages: 200, boss: 'kitchen' }` | 8 | `{ triple: true }` | dog, jiaobu2 | mat #C9D3DA／sky #EEF3F6 | theme `market`, seed `zhenmu-market-1`, gen density 55 rhythm 60 speed 55 drama 30 mood 75 hook 65 smooth 50 |
 | factory | 零食工廠 | `{ packages: 600, boss: 'market' }` | 20 | `{ timer: 20 }` | lk, jiaobu | mat #9DA3A8／sky #DCE1E4 | theme `factory`, seed `zhenmu-factory-1`, gen density 65 rhythm 75 speed 65 drama 45 mood 50 hook 60 smooth 35 |
 | nightmarket | 夜市攤 | `{ packages: 1500, boss: 'factory' }` | 50 | `{ gift: { everyMs: [45000, 90000], seconds: 15, mul: 10 } }` | yang, yueyue | mat #4B3B52／sky #2B2440 | theme `nightmarket`, seed `zhenmu-nightmarket-1`, gen density 60 rhythm 65 speed 60 drama 55 mood 70 hook 80 smooth 45 |
+素材已在 `src/`（檔名）：scene3：`clicker-scene3-{sky,far,mid,ground}.png`、`clicker-scene3-prop-{0..2}.png`、`clicker-scene3-tag-{0,1}.png`（掛牌，sway）、`clicker-scene3-particle-{0..3}.png`、三連包 `clicker-pack3-{0..4}.png`（160×300 同畫布底對齊）、王 `clicker-boss3-pack.png`；scene4：`clicker-scene4-*`、`clicker-belt-track.png`（可橫向無縫捲動）、`clicker-belt-lamp.png`、`clicker-scene4-mover-{0,1}.png`（齒輪、煙）、王 `clicker-boss4-crate.png`；scene5：`clicker-scene5-*`、`clicker-scene5-lantern-{0,1}.png`（sway）、老闆 `clicker-gift-boss.png`、禮包 `clicker-gift-bag.png`、王 `clicker-boss5-bag.png`。**far／mid 不是橫幅**（跟廚房一樣是有邊界的物件），用 `x, y, h, w` 固定尺寸擺放、不拉伸，照 `scenes.kitchen` 的做法；sky 與 ground 才拉滿 632。缺檔一律 `onerror` 隱藏。
+
 每場景層次照 scene1／scene2 規格：sky／far／mid／ground／props×3／drift 物×2（商店：懸掛價牌搖晃；工廠：齒輪轉、煙；夜市：燈籠搖、蛾）／particles×2。王：market「大三連包」、factory「大輸送箱」、nightmarket「老闆的巨無霸禮包」，都用 `boss.mul: 6` 起，跑模擬校準。
 
 ## 二、三連包（`enemy.triple`）

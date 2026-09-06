@@ -145,16 +145,54 @@ window.Clicker = (() => {
     for (const kind of ['music','sfx']) if (document.activeElement !== $(`${kind}-volume`)) $(`${kind}-volume`).value = s.settings[`${kind}Volume`];
     gacha?.render();
   }
+  function skillTip(s,id) {
+    const star = Math.max(1,E.stars(s.collection[id] || 0));
+    const now = E.skillAt(s,id,star);
+    return `現在：${now.desc(now)}` + (star < 5 ? `\n下一星：${now.desc(E.skillAt(s,id,star+1))}` : '');
+  }
+  function homeFlag(s,id) {
+    if (!E.affinity(s,id)) return null;
+    const flag=document.createElement('span'); flag.className='affinity-flag';
+    flag.title=`${window.ClickerScene.resolve(s.settings.scene).name}當家：收益 ×1.5、冷卻 −20%`;
+    flag.setAttribute('aria-label',flag.title); return flag;
+  }
+  function renderChain() {
+    let tape=$('chain-tape');
+    if (!tape) { tape=document.createElement('div');tape.id='chain-tape';tape.setAttribute('role','status');$('slots').before(tape); }
+    tape.style.left=`${$('slots').offsetLeft}px`;tape.style.top=`${$('slots').offsetTop-28}px`;
+    const chain=store.state.chain, seconds=Math.max(0,Math.ceil(((chain?.expiresAt || 0)-Date.now())/1000));
+    tape.classList.toggle('visible',seconds>0);tape.dataset.count=chain?.count || 1;
+    tape.textContent=chain?.count>=2 ? `連鎖 ×${chain.count} · ${seconds}s` : `連鎖 ${seconds}s`;
+  }
+  function showRecommendations() {
+    let list=$('recommendations');
+    if (list) {list.remove();return;}
+    list=document.createElement('div');list.id='recommendations';
+    B.recommendations.forEach((preset,index)=>{
+      const ticket=document.createElement('button');ticket.className='recommend-ticket';ticket.dataset.index=index;
+      const portraits=document.createElement('span');portraits.className='recommend-portraits';
+      for(const id of preset.slots) {const art=card.art.create(Pool.byId[id]);art.classList.toggle('missing',!store.state.collection[id]);art.setAttribute('aria-label',Pool.byId[id].name);portraits.append(art);}
+      const label=document.createElement('b');label.textContent=preset.name;
+      const desc=document.createElement('small');desc.textContent=preset.desc;
+      ticket.title=preset.slots.some(id=>!store.state.collection[id])?'招募到即可套用':'套用後更換槽位等待 30 秒';
+      ticket.append(portraits,label,desc);
+      if(preset.slots.some(id=>!store.state.collection[id])) {const missing=document.createElement('small');missing.textContent='招募到即可套用';ticket.append(missing);}
+      ticket.disabled=store.blocked || !!store.state.pending;
+      ticket.onclick=()=>action(()=>{if(commit(E.recommend(store.state,index,Date.now()))) {changed();showRoster();notice(`已套用${preset.name}，更換槽位等待 30 秒`);}});
+      list.append(ticket);
+    });
+    $('roster-grid').before(list);
+  }
   function renderSlots() {
     if (!store.state) return;
-    const s = store.state, key = JSON.stringify([s.collection, s.skillSlots, E.slotCount(s)]);
+    const s = store.state, key = JSON.stringify([s.settings.scene, s.collection, s.skillSlots, E.slotCount(s)]);
     if (slotsKey !== key) {
       slotsKey = key; $('slots').replaceChildren();
       for (let i = 0; i < 3; i++) {
         const el = document.createElement('article'); el.className = 'skill-slot';
         const id = s.skillSlots[i];
         const button = document.createElement('button'); button.className = 'skill-use';
-        if (id) button.append(card.art.create(Pool.byId[id]));
+        if (id) {button.append(card.art.create(Pool.byId[id]));const flag=homeFlag(s,id);if(flag) button.append(flag);}
         else button.textContent = '＋';
         button.onclick = () => id ? activate(i) : showRoster(null,i);
         const name = document.createElement('span'); name.className = 'skill-name'; name.textContent = id ? Pool.byId[id].name.replace('（原版）','') : i < E.slotCount(s) ? '選夥伴' : '未解鎖';
@@ -162,7 +200,7 @@ window.Clicker = (() => {
       }
     }
     [...$('slots').children].forEach((el, i) => {
-      const id = s.skillSlots[i], def = B.characters[id], t = Math.max(Date.now(), s.settledAt);
+      const id = s.skillSlots[i], def = id && E.skillAt(s,id), t = Math.max(Date.now(), s.settledAt);
       const remaining = Math.max(0, Math.ceil((Math.max(s.cooldownUntil[id] || 0, s.slotReadyAt[i]) - t) / 1000));
       const effect = s.effects.find((e) => e.source === id);
       const button = el.querySelector('.skill-use');
@@ -174,13 +212,13 @@ window.Clicker = (() => {
       if (available && !wasReady) pulse(button,[{transform:'scale(1)'},{transform:'scale(1.12)',offset:.5},{transform:'scale(1)'}],240);
       const detail = i >= E.slotCount(s) ? `累積 ${format(B.slotThresholds[i])} 幣解鎖` : effect ? `${effect.remaining !== undefined ? `餘 ${effect.remaining} 次` : effect.kind === 'clickTime' ? `點擊 ×${effect.multiplier}` : `+${format(effect.value)}/秒`}・${Math.max(0,Math.ceil((effect.expiresAt-t)/1000))} 秒` : !def ? '點我選一位夥伴' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
       el.querySelector('small').textContent = effect?.remaining !== undefined ? `餘 ${effect.remaining} 次` : remaining ? `${remaining}s` : '';
-      const tip = def ? `${def.skill}\n${def.desc}${def.kind ? '' : '\n（後續開放）'}` : (i >= E.slotCount(s) ? detail : '點我選一位夥伴');
-      if (button.title !== tip) button.title = tip;   // title 不隨冷卻秒數改寫，hover 提示才不會每秒閃
+      const tip = def ? `${def.skill}\n${skillTip(s,id)}${def.kind ? '' : '\n（後續開放）'}` : (i >= E.slotCount(s) ? detail : '點我選一位夥伴');
+      if (button.title !== tip) {button.title = tip;button.dataset.tooltip = tip;}   // title 不隨冷卻秒數改寫，hover 提示才不會每秒閃
       button.setAttribute('aria-label',`槽 ${i+1}・${def ? def.skill + '・' : ''}${detail}`);
 
     });
   }
-  function changed() { numbers(true); renderSlots(); stage?.render(store.state); }
+  function changed() { numbers(true); renderSlots(); renderChain(); stage?.render(store.state); }
   function action(fn) {
     if (store.blocked || !ready || hiddenNow()) { if (hiddenNow()) jlog(`action blocked: visible=${visible} document.hidden=${document.hidden} suspended=${suspended}`); return; }
     try { fn(); } catch (err) { notice(err.message); slotsKey = ''; renderSlots(); }
@@ -218,7 +256,8 @@ window.Clicker = (() => {
   }
   function showRoster(selected = null, targetSlot = null) {
     if (!ready || cutin?.active) return;
-    const s = store.state; $('roster-grid').replaceChildren();
+    const s = store.state; $('roster-grid').replaceChildren(); $('recommendations')?.remove();
+    if (!$('recommend-open')) {const button=document.createElement('button');button.id='recommend-open';button.textContent='推薦組合';button.onclick=showRecommendations;$('roster-close').before(button);}
     for (const id of Object.keys(B.characters)) {
       const count = s.collection[id] || 0, el = document.createElement('article'); el.className = `roster-character${count ? '' : ' locked'}`;
       el.append(card.art.create(Pool.byId[id]));
@@ -226,11 +265,17 @@ window.Clicker = (() => {
       const stars = document.createElement('div'); stars.className = 'stars'; stars.setAttribute('aria-label', `${E.stars(count)} 星`);
       stars.innerHTML = '<img src="clicker-star.png" alt="" />'.repeat(E.stars(count));
       const passive = document.createElement('small'); passive.textContent = count ? `${count} 張 · 每秒 ${format(E.individual(s, id))}` : '尚未招募';
-      const skill = document.createElement('small'); skill.textContent = `${B.characters[id].skill}${B.characters[id].kind ? '' : ' · 後續開放'}`; skill.title = B.characters[id].desc;
-      const desc = document.createElement('small'); desc.className = 'skill-desc'; desc.textContent = B.characters[id].desc;
+      const skill = document.createElement('small'); skill.textContent = `${B.characters[id].skill}${B.characters[id].kind ? '' : ' · 後續開放'}`; skill.title = skillTip(s,id); skill.dataset.tooltip=skill.title;
+      const desc = document.createElement('small'); desc.className = 'skill-desc'; desc.textContent = skillTip(s,id);
       const mastery = document.createElement('small'); mastery.textContent = count > 16 ? `熟練 +${count - 16}%` : count ? `下次升星 ${count}/${B.stars[E.stars(count)] || 16}` : '';
       const rarity = document.createElement('small'); rarity.textContent = {common:'普通',rare:'精良',epic:'史詩',legendary:'傳說'}[Pool.byId[id].rarity];
-      el.append(name, rarity, stars, passive, skill, desc, mastery); el.dataset.id = id;
+      el.append(name, rarity, stars, passive, skill, desc, mastery);
+      const bond=B.bonds.find(b=>b.pair.includes(id));
+      if(bond) {
+        const row=document.createElement('div');row.className='bond-row';const active=bond.pair.every(key=>s.collection[key]);row.classList.toggle('inactive',!active);
+        bond.pair.forEach((key,i)=>{if(i) {const chain=document.createElement('span');chain.className='bond-chain';chain.textContent='⛓';const img=new Image();img.src='clicker-ui-bond-chain.png';img.alt='';img.onload=()=>chain.replaceChildren(img);row.append(chain);}row.append(card.art.create(Pool.byId[key]));});
+        const label=document.createElement('small');label.textContent=active?`${bond.name} · 已生效`:`需要 ${bond.pair.filter(key=>!s.collection[key]).map(key=>Pool.byId[key].name).join('、')}`;row.append(label);el.append(row);
+      } el.dataset.id = id;
       el.tabIndex = 0; el.setAttribute('role','button'); el.onclick = () => showRoster(id, targetSlot);
       el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showRoster(id,targetSlot); } };
       el.classList.toggle('selected', selected === id); $('roster-grid').append(el);

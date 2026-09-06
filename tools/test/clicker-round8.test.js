@@ -5,7 +5,7 @@ const kitchen=()=>{const s=S.fresh(0);s.bossWins=['backyard'];s.settings.scene='
 const boss=()=>{const s=S.fresh(0);s.package.index=51;return E.startBoss(s,0);};
 test('round8 shell: passive and burst stop at first ring, coins still granted',()=>{
   let s=kitchen();s.collection={fox:1};s.skillSlots[0]='fox';s=E.activate(s,0,0).state;
-  near(s.package.progress,75);near(s.package.blocked,285);near(s.coins,360);
+  near(s.package.progress,75);near(s.package.blocked,465);near(s.coins,540);
 });
 test('round8 shell: exactly three effective clicks, independent of power',()=>{
   let p=E.advancePackage(E.newPackage('kitchen'),100,'kitchen').package;
@@ -68,7 +68,7 @@ test('round8 boss: save rejects forged wins, crack, boss timing and shells',()=>
   S.validate(boss());
 });
 test('round8 rewardMul includes D/P and upgrade preview without double multiplication',()=>{
-  const s=kitchen();s.collection={yueyue2:1};const b={...s,settings:{...s.settings,scene:'backyard'}};
+  const s=kitchen();s.collection={dog:1};const b={...s,settings:{...s.settings,scene:'backyard'}};
   for(const delta of [0,1]) {s.clickLevel=b.clickLevel=delta;near(E.rates(s).D,E.rates(b).D*3);near(E.rates(s).P,E.rates(b).P*3);}
 });
 test('round8 scene validation, switch roundtrip and free five-draw accounting',()=>{

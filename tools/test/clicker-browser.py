@@ -481,6 +481,53 @@ def round8(browser):
     print('PASS round8: boss enter/fail/retry/win, free five-draw, kitchen shells, tickets, particle alpha; missing assets recorded')
 
 
+def round9(browser):
+    context=browser.new_context(viewport={'width':960,'height':640})
+    context.add_init_script("const animate=Element.prototype.animate;Element.prototype.animate=function(...args){const a=animate.apply(this,args);a.testBorn=performance.now();return a;};")
+    errors=[]
+    def route(request):
+        path=(SRC/unquote(urlparse(request.request.url).path).lstrip('/')).resolve()
+        if path.is_relative_to(SRC) and path.is_file():
+            request.fulfill(body=path.read_bytes(),content_type=mimetypes.guess_type(path)[0] or 'application/octet-stream')
+        else: request.fulfill(status=404,body='missing')
+    context.route('**/*',route)
+    page=context.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
+    page.clock.install();page.goto('http://clicker.test/clicker.html')
+    page.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
+    page.clock.pause_at(datetime.fromtimestamp((page.evaluate('Date.now()')+1000)/1000,timezone.utc))
+    def advance(ms):
+        for _ in range(ms//20):
+            page.clock.run_for(20)
+            page.evaluate('for(const a of document.getAnimations()) if(a.testBorn!==undefined) a.currentTime=performance.now()-a.testBorn')
+    def shot(name): page.screenshot(path=str(OUT/('round9-'+name+'.png')))
+    page.evaluate("""() => {const s=Clicker.state;s.collection=Object.fromEntries(Object.keys(ClickerBalance.characters).map(id=>[id,1]));s.lifetimeCoins=1e6;s.skillSlots=['caihua','yueyue','jiaobu'];s.manualClicks=50;s.claimedMilestones=['tutorial50'];s.slotReadyAt=[0,0,0];}""")
+    advance(1100)
+    page.locator('.skill-use').first.hover();shot('hover')
+    assert '現在：' in page.locator('.skill-use').first.get_attribute('title')
+    assert '下一星：' in page.locator('.skill-use').first.get_attribute('title')
+    assert page.locator('.skill-use .affinity-flag').count()==1
+    assert page.locator('.buddy .affinity-flag').count()==2
+    page.locator('#roster-open').click();shot('bonds')
+    assert page.locator('.bond-row').count()==6
+    page.locator('#recommend-open').click();shot('recommendations')
+    page.locator('.recommend-ticket').first.click()
+    assert page.evaluate('Clicker.state.skillSlots')==['yueyue','dog','jiaobu']
+    assert page.evaluate('Clicker.state.slotReadyAt[0]>Date.now()')
+    page.locator('#roster-close').click();page.mouse.move(900,620);advance(31000)
+    page.locator('.skill-use').nth(1).click();shot('chain-0');advance(2400)
+    page.locator('.skill-use').nth(0).click();advance(300);shot('chain-2-300')
+    assert page.locator('#chain-tape').get_attribute('data-count')=='2'
+    advance(800);shot('chain-stamp-2');assert page.locator('#cutin-chain-stamp').inner_text()=='連鎖 ×2'
+    advance(1300)
+    page.locator('.skill-use').nth(2).click();page.mouse.move(900,620);advance(700);shot('chain-3-700')
+    assert page.locator('#chain-tape').get_attribute('data-count')=='3'
+    advance(400);shot('chain-stamp-3');advance(11000)
+    assert 'visible' not in page.locator('#chain-tape').get_attribute('class')
+    assert not errors,errors
+    (OUT/'round9-results.json').write_text(json.dumps({'errors':errors,'checks':['hover','bonds','recommendations','flags','three chain stages','stamps','expiry']},ensure_ascii=False,indent=2),encoding='utf8')
+    context.close();print('PASS round9 browser')
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     os.chdir(OUT)  # Chromium audio may emit debug.log; keep all generated files here.
@@ -488,6 +535,10 @@ def main():
     original_css = subprocess.check_output(['git', 'show', 'HEAD:src/gacha-card.css'], cwd=ROOT) + subprocess.check_output(['git', 'show', 'HEAD:src/gacha.css'], cwd=ROOT)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=['--autoplay-policy=no-user-gesture-required', '--log-file='+str(OUT / 'chromium.log')])
+        if '--round9' in __import__('sys').argv:
+            round9(browser)
+            browser.close()
+            return
         if '--round8' in __import__('sys').argv:
             round8(browser)
             browser.close()

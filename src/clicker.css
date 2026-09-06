@@ -446,3 +446,28 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .scene-thumb img { width:96px; height:54px; object-fit:cover; }
 #stage[data-scene="kitchen"] .desk-mat { filter:grayscale(1) sepia(.45); }
 @media (prefers-reduced-motion:reduce) { .blocked img {animation:none;filter:brightness(1.2);} #stage.boss-shake {animation:none;} }
+
+/* Round 9: paper chain tape, affinity flags and recipe tickets. */
+#chain-tape { position:absolute; width:120px; height:18px; z-index:10; background:#76543b; color:#fff0cc; font-size:12px; line-height:18px; text-align:center; transform:rotate(-3deg); opacity:0; pointer-events:none; transition:opacity 200ms; clip-path:polygon(3% 0,100% 5%,97% 100%,0 95%); }
+#chain-tape.visible { opacity:1; }
+#chain-tape[data-count="2"] { color:#ffdc69; }
+#chain-tape[data-count="3"] { color:#ffaac5; }
+#slots { overflow:visible; }
+.skill-use { position:relative; }
+.affinity-flag { position:absolute!important; top:0!important; right:0!important; left:auto!important; width:18px!important; height:18px!important; background:url('clicker-ui-flag.png') center/contain no-repeat!important; border:0!important; padding:0!important; }
+.buddy .slot-stamp { right:18px; }
+#cutin-chain-stamp { position:absolute; right:-1px; bottom:-72px; width:60px; height:60px; background:url('clicker-fx-stamp.png') center/contain no-repeat; display:grid; place-items:center; color:#B63329; font-size:15px; font-weight:bold; }
+.skill-use[data-tooltip]:hover::before, .skill-use[data-tooltip]:focus-visible::before { content:attr(data-tooltip); position:absolute; bottom:calc(100% + 30px); left:0; width:290px; white-space:pre-line; font-size:12px; line-height:1.5; text-align:left; padding:10px; color:#30251f; background:#fff0d6; border:2px solid #76543b; border-radius:6px; box-shadow:3px 4px 0 #30251f33; z-index:20; pointer-events:none; }
+.roster-character .skill-desc { white-space:pre-line; }
+.bond-row { margin-top:5px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; min-height:40px; border-top:1px dashed #be9b76; padding-top:4px; }
+.roster-character .bond-row svg { width:24px!important; height:24px!important; margin:0!important; }
+.bond-row small { width:100%; font-size:10px; }
+.bond-row.inactive { filter:grayscale(1); opacity:.55; }
+.bond-chain, .bond-chain img { width:24px; height:24px; }
+#recommendations { flex:none; display:flex; gap:6px; justify-content:center; margin:0 0 14px; }
+#roster .recommend-ticket { box-sizing:border-box; width:280px; height:64px; padding:3px 8px; border:10px solid transparent; border-image:url('clicker-ui-ticket.png') 24 fill / 10px; border-radius:0; box-shadow:none; background:transparent; text-align:left; }
+.recommend-ticket b { font-size:13px; }
+.recommend-ticket small { display:block; font-size:9px; white-space:nowrap; }
+.recommend-portraits { display:flex; float:right; }
+.recommend-portraits svg { width:24px!important; height:24px!important; }
+.recommend-portraits .missing { filter:grayscale(1); opacity:.35; }

@@ -46,3 +46,37 @@ const suggested=(lower+upper)/2;
 const mul=scenes.backyard.boss.mul;
 console.log(JSON.stringify({seed:'0x8a57a',elapsedSeconds:elapsed/1000,package:s.package.index,clickLevel:s.clickLevel,trainingLevel:s.trainingLevel,paidDraws:s.paidDraws,collection:s.collection,rates:E.rates(s),combo,mul,need:base*mul,feasibleMul:[lower,upper],suggestedMul:suggested},null,2));
 console.table(raw.map((d,i)=>({style:['idle','6 clicks/s','6 clicks/s + skills'][i],damage:d,percent:d/(base*mul)*100,target:targets[i].map(v=>v*100).join('-')+'%'})));
+
+// Round 9: use the upgrade budget observed at each boss threshold, all twelve at 5 stars. Each scene
+// uses the same three-step click combo; both home characters are in collection.
+const full=[];
+for(const scene of ['backyard','kitchen']) {
+  if(scene==='kitchen') {
+    s.bossWins=['backyard'];s=E.switchScene(s,'kitchen',s.settledAt);
+    const limit=elapsed+3650*86400000;
+    while(s.package.index<201 && elapsed<limit) {
+      const dayTime=(elapsed-1800000)%43200000;
+      if(dayTime>=600000) {elapsed+=43200000-dayTime;s=E.settle(s,elapsed,{offline:true}).state;}
+      else {elapsed+=1000/6;s=E.click(s,elapsed).state;buy();}
+    }
+    console.log('KITCHEN_PROGRESSION '+JSON.stringify({elapsedDays:elapsed/86400000,reachedPackage:s.package.index,clickLevel:s.clickLevel,trainingLevel:s.trainingLevel}));
+  }
+  let f=E.clone(s);f.collection=Object.fromEntries(Object.keys(B.characters).map(id=>[id,16]));
+  f.settings.scene=scene;f.bossWins=scene==='kitchen'?['backyard']:[];
+  f.package=E.newPackage(scene,scene==='kitchen'?201:51);f.lifetimeCoins=Math.max(f.lifetimeCoins,100000);
+  f.skillSlots=['dog','yueyue','jiaobu'];f.slotReadyAt=[0,0,0];f.effects=[];f.cooldownUntil={};f.chain={count:1,expiresAt:0};
+  const start=f.settledAt,need=E.requirement(f.package.index,scene)*scenes[scene].boss.mul;
+  // A distant ordinary package keeps capacity measurement in the same scene.
+  // Count earned power, including blocked power; a separate real fight checks rings.
+  let real=E.startBoss(f,start), capacity=E.clone(f);capacity.package=E.newPackage(scene,1000);
+  const initial=capacity.coins;
+  for(let i=0;i<180;i++) {
+    const now=start+i*1000/6;
+    if(i<3) {capacity=E.activate(capacity,i,now).state;if(real.boss) real=E.activate(real,i,now).state;}
+    capacity=E.click(capacity,now).state;if(real.boss) real=E.click(real,now).state;
+  }
+  capacity=E.settle(capacity,start+30000).state;if(real.boss) real=E.settle(real,start+30000).state;
+  const damage=capacity.coins-initial,percent=damage/need*100;
+  full.push({scene,progressionPackage:s.package.index,elapsedDays:elapsed/86400000,stars:5,home:scenes[scene].affinity,combo:['dog','yueyue','jiaobu'],clickLevel:f.clickLevel,trainingLevel:f.trainingLevel,need,damage,percent,won:real.bossResult?.won || false,cap:180,overCap:percent>180,mul:scenes[scene].boss.mul,minimumMulAt180:scenes[scene].boss.mul*percent/180});
+}
+console.log('ROUND9_FULL '+JSON.stringify(full));
