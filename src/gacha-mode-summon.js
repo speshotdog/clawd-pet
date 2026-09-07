@@ -28,6 +28,11 @@ window.GachaModes.summon = {
     return {
       async open(draw) {
         const R = ctx.motion.reduced;
+        const mythic = draw.entries.some(it => it.entry.rarity === 'mythic');
+        if (mythic) {
+          circle.classList.add('mythic-circle');
+          [...paw.children].forEach((el,i)=>el.style.fill=window.GachaFx.rainbow[i%7]);
+        }
         // ---- 蓋印：腳印從上方蓋下來，桌面輕震、揚起一圈灰塵
         ctx.audio.tone(110, { type: 'sine', slide: 70, slideT: .08, a: .002, d: .09, r: .03, gain: .2 });
         await ctx.animate(paw, R ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'scale(2.2) translateY(-40px)' }, { opacity: 1, transform: 'scale(.92)', offset: .7 }, { opacity: 1, transform: 'scale(1)' }], { duration: 200, easing: 'cubic-bezier(.3,0,.7,1)' });

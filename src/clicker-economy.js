@@ -1,6 +1,7 @@
 (function (root) {
   const B = typeof module !== 'undefined' && module.exports ? require('./clicker-balance.js') : root.ClickerBalance;
   const Scenes = typeof module !== 'undefined' && module.exports ? require('./clicker-scene.js').resolve : root.ClickerScene.resolve;
+  const Pool = typeof module !== 'undefined' && module.exports ? require('./gacha-pool.js') : root.GachaPool;
   const clone = (s) => JSON.parse(JSON.stringify(s));
   // 手勁：每級固定點擊力 ×1.15、價 ×1.35（翻倍約 ×4 價）；原本 1.18／1.30 翻倍只要 ×3 價，前十分鐘點擊力就超過被動
   const clickCost = (l) => Math.ceil(10 * 1.35 ** l);
@@ -14,21 +15,22 @@
   const partnerMul = (L) => (1 + L) * 2 ** PARTNER_MILESTONES.filter(m => L >= m).length;
   const stars = (n) => n < 1 ? 0 : B.stars.filter((threshold) => n >= threshold).length;
   const starMultiplier = (n) => n < 1 ? 0 : 1 + .25 * (stars(n) - 1);
-  const origin = id => Object.keys(B.characters).indexOf(id) >> 2;
+  const origin = id => ['rare','epic','legendary','mythic'].indexOf(Pool.byId[id]?.rarity);
   const tier = (s,id) => origin(id) + (s.promotions?.[id] || 0);
   const dust = (s,id) => s.dust?.[id] ?? s.collection[id] ?? 0;
-  const transcendCosts = [[6,8,10,12,14],[6,7,8,9,10],[4,5,6,7,10]];
+  const transcendCosts = [[6,8,10,12,14],[6,7,8,9,10],[4,5,6,7,10],[4,5,6,7,10]];
   const promotionCost = (s,id) => tier(s,id) >= 2 ? 0 : origin(id) === 0 && s.promotions?.[id] === 1 ? 16 : 12;
   const transcendCost = (s,id) => transcendCosts[origin(id)][s.transcend?.[id] || 0] || 0;
   // Dust is cumulative. Paid progression records account for spending; the first 16 retain five stars.
   const spentDust = (s,id) => ((s.promotions?.[id] || 0) ? 12 + (s.promotions[id] === 2 ? 16 : 0) : 0) + transcendCosts[origin(id)].slice(0,s.transcend?.[id] || 0).reduce((a,b)=>a+b,0);
   const availableDust = (s,id) => Math.max(0,dust(s,id)-16-spentDust(s,id));
-  const rarity = (s,id) => ['rare','epic','legendary'][tier(s,id)];
+  const exchangeRate = id => origin(id) === 3 ? 6 : origin(id)+1;
+  const rarity = (s,id) => ['rare','epic','legendary','mythic'][tier(s,id)];
   function grow(state,id,now,trans) {
     const s=settle(state,now).state;
     if (!Object.hasOwn(B.characters,id) || s.pending || stars(dust(s,id))<5) throw new Error('要 5★ 才能升階或超越');
     const cost=trans ? transcendCost(s,id) : promotionCost(s,id);
-    if (!cost || (trans && tier(s,id)!==2)) throw new Error('已是最高階，或還沒升到傳說階')
+    if (!cost || (trans && tier(s,id)<2)) throw new Error('已是最高階，或還沒升到傳說階')
     if (availableDust(s,id)<cost) throw new Error('粉塵不足');
     const key=trans?'transcend':'promotions'; s[key] ||= {}; s[key][id]=(s[key][id] || 0)+1;
     s.awakened ||= {}; if (s.transcend?.[id]===5) s.awakened[id]=true;
@@ -41,7 +43,7 @@
     const before=stars(dust(s,id)); s.dust[id]=dust(s,id);
     s.collection[id]=(s.collection[id] || 0)+1;
     if (s.transcend?.[id]===5) {
-      const rate=[4,2,1][origin(id)], count=(s.overflow[id] || 0)+1;
+      const rate=[4,2,1,.5][origin(id)], count=(s.overflow[id] || 0)+1;
       s.universalDust+=Math.floor(count/rate); s.overflow[id]=count%rate;
     } else s.dust[id]++;
     return {id,from:before,to:stars(s.dust[id])};
@@ -50,7 +52,7 @@
     const s=settle(state,now).state;
     if (!Object.hasOwn(B.characters,id) || !Number.isSafeInteger(amount) || amount<1 || s.pending || s.transcend?.[id]===5) throw new Error('無法兌換');
     // amount is the universal-dust budget; unconvertible remainder stays in the jar.
-    const rate=origin(id)+1, count=Math.floor(amount/rate);
+    const rate=exchangeRate(id), count=Math.floor(amount/rate);
     if (!count || amount>s.universalDust) throw new Error('萬用粉塵不足');
     s.universalDust-=count*rate; s.dust[id]=dust(s,id)+count;
     return s;
@@ -68,7 +70,7 @@
     }
     return s;
   }
-  const individual = (s, id) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2][tier(s,id)]/[1,1.8,3.2][origin(id)]) * (1+[.06,.09,.14][origin(id)]*(s.transcend?.[id] || 0)) * 1.25 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * partnerMul(s.partnerLevels?.[id] || 0);
+  const individual = (s, id) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2,5.5][tier(s,id)]/[1,1.8,3.2,5.5][origin(id)]) * (1+[.06,.09,.14,.20][origin(id)]*(s.transcend?.[id] || 0)) * 1.25 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * partnerMul(s.partnerLevels?.[id] || 0);
   // 第十三輪：印記永久倍率、桌面裝飾
   const markMul = (s) => 1 + .05 * (s.marksClaimed || 0);
   const decoMul = (s) => 1 + .01 * (s.deco?.length || 0);
@@ -106,7 +108,7 @@
     return { P: M * P * mul, D: (M * 1.15 ** s.clickLevel + .05 * M * P) * mul };
   }
   function tagFor(entry, dup, owned, state) {
-    if (state?.transcend?.[entry.id]===5) return {text:`萬用 +${['¼','½','1'][origin(entry.id)]}`,cls:'mastery'};
+    if (state?.transcend?.[entry.id]===5) return {text:`萬用 +${['¼','½','1','2'][origin(entry.id)]}`,cls:'mastery'};
     if (!owned) return { text: 'NEW', cls: 'new' };
     if (owned >= 16) return { text: `熟練 +${owned + 1 - 16}%`, cls: 'mastery' };
     if (stars(owned + 1) > stars(owned)) return { text: `${stars(owned)}★ → ${stars(owned + 1)}★`, cls: 'star-up' };
@@ -359,7 +361,7 @@
     if (s.pending || slot >= slotCount(s) || !s.collection[id] || !def?.kind) throw new Error('技能尚未開放');
     if ((s.cooldownUntil[id] || 0) > t || s.slotReadyAt[slot] > t) throw new Error('技能冷卻中');
     const count = s.chain && t < s.chain.expiresAt && s.chain.count < 3 ? s.chain.count+1 : 1;
-    const windowMs = (activeBonds(s).find(b=>b.effect.chainWindowMs)?.effect.chainWindowMs || 8000) + (s.markShop?.chain2 ? 2000 : 0);
+    const windowMs = Math.max(8000, ...activeBonds(s).map(b=>b.effect.chainWindowMs || 0)) + (s.markShop?.chain2 ? 2000 : 0);
     const chainMul = [1,1.3,1.6][count-1];
     s.chain = {count,expiresAt:t+windowMs};
     const effect = { chain:count, params:{...def,desc:undefined}, source: id, kind: def.kind, startedAt: t, expiresAt: t + (def.duration || 0) * 1000 };
@@ -449,7 +451,7 @@
   function abandonBoss(state,now) {
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
-  const api = { PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, decoMul,
+  const api = { exchangeRate, PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, decoMul,
     newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

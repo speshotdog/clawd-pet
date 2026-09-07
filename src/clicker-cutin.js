@@ -29,10 +29,10 @@ window.ClickerCutin = (() => {
   for (const [id, def] of Object.entries(window.ClickerBalance.characters)) {
     const rarity = window.GachaPool.byId[id].rarity;
     CUTIN[id] = { side:id === 'zhenmu' ? 'right' : 'left',
-      color:{rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[rarity],
-      stripe:{rare:'#5E93AA',epic:'#80679E',legendary:'#B8862A'}[rarity], rig:rigs[id],
+      color:{rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E',mythic:'#FF4FD8'}[rarity],
+      stripe:{rare:'#5E93AA',epic:'#80679E',legendary:'#B8862A',mythic:'conic-gradient(#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8)'}[rarity], rig:rigs[window.GachaPool.byId[id].art || id],
       name:def.skill.length >= 6 ? def.skill.slice(0, Math.floor(def.skill.length / 2)) + '\n' + def.skill.slice(Math.floor(def.skill.length / 2)) : def.skill,
-      sub:effect => def.desc(effect.params || window.ClickerBalance.skillAt(id,1)).split('・冷卻')[0], stamp:effect => ['yang','zhenzhen'].includes(id) ? `+${Number(((effect.params?.ratio || def.ratio)*100).toFixed(2))}%` : stamps[id] || `×${effect.multiplier || def.multiplier}` };
+      sub:effect => def.desc(effect.params || window.ClickerBalance.skillAt(id,1)).split('・冷卻')[0], stamp:effect => def.kind === 'team' ? `+${Number(((effect.params?.ratio || def.ratio)*100).toFixed(2))}%` : stamps[id] || `×${effect.multiplier || def.multiplier || effect.params?.factor || def.factor || '發動'}` };
   }
   const ready = Promise.all(['speedlines','speedlines-h','stripe-tile','brush-banner','impact-burst','halftone-tile','ink-splash','ring','stamp','paper-grain'].map(name => new Promise(resolve => {
     const img = new Image(); img.onload = () => img.decode().catch(()=>{}).then(resolve); img.onerror = resolve; img.src = `clicker-fx-${name}.png`;
@@ -63,6 +63,7 @@ window.ClickerCutin = (() => {
       active = true; stage.freeze(true); sound('skill');
       const entry = window.GachaPool.byId[effect.source];
       const spec = CUTIN[effect.source], mother = spec.side === 'right', direction = mother ? 1 : -1;
+      root.classList.toggle('mythic', entry.rarity === 'mythic');
       root.style.setProperty('--skill', spec.color);
       root.style.setProperty('--stripe', spec.stripe);
       root.style.setProperty('--focus-x', mother ? '320px' : '320px'); root.dataset.phase = 'hit-stop';
@@ -107,6 +108,9 @@ window.ClickerCutin = (() => {
         const impact = node('cutin-impact',panel,'img'); impact.src = 'clicker-fx-impact-burst.png';
         motion(impact,[{opacity:0,transform:'scale(.4)'},{opacity:1,transform:'scale(1.15)',offset:T.impact/(T.impact+T.impactOut)},{opacity:0,transform:'scale(1.15)'}],T.impact+T.impactOut,T.panel+T.arrive);
         later(()=>{
+          if (entry.src) {
+            motion(svg, [{transform:'skewX(6deg) translateY(0)'},{transform:'skewX(6deg) translateY(-6px)',offset:.5},{transform:'skewX(6deg) translateY(0)'}],1200,0,'ease-in-out'); return;
+          }
           const cfg = card.art.cfg(entry.id), start = performance.now();
           function setLimb(key, angle) { const el = svg.querySelector(`#${key}`), pivot = cfg[key]; if (el && pivot) el.setAttribute('transform',`rotate(${angle * (key === 'tail' ? cfg.tailScale ?? cfg.limbScale ?? 1 : key === 'pawR' ? cfg.pawScale ?? cfg.limbScale ?? 1 : cfg.limbScale ?? 1)} ${pivot[0]} ${pivot[1]})`); }
           function rig(now) {

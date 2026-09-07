@@ -14,7 +14,7 @@ const albumEl = $('album'), albumBody = $('album-body'), albumProgress = $('albu
 
 // ---------- 卡池：目錄與抽樣在共用的 gacha-pool.js；這裡只補演示區自己的「塵」 ----------
 const Pool = window.GachaPool;
-const DUST = { common: 5, rare: 20, epic: 100, legendary: 400 };
+const DUST = { common: 5, rare: 20, epic: 100, legendary: 400, mythic: 1000 };
 const RARITY = Object.fromEntries(Object.entries(Pool.RARITY).map(([k, r]) => [k, { ...r, dust: DUST[k] }]));
 const RARITY_ORDER = Pool.RARITY_ORDER;
 const POOL = Pool.CATALOG;

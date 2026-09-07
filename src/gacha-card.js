@@ -35,15 +35,19 @@ const assetsReady = fetch('index.html').then((r) => r.text())
   });
 
 function buildArt(entry) {
+  if (entry.kind === 'char' && entry.src) {
+    const img = document.createElement('img'); img.className = 'character-png';
+    img.src = entry.src; img.alt = ''; img.draggable = false; return img;
+  }
   if (entry.kind === 'char') {
-    const src = templates?.[entry.id];
+    const src = templates?.[entry.art || entry.id];
     if (!src) return document.createElement('span');
     const svg = document.importNode(src, true);
     svg.removeAttribute('id');
     svg.querySelector('#shadow')?.remove();
     // 只留睜眼；happy/closed 在 pet.css 靠 stage class 切換，這裡沒有那套
     ['eyes-happy', 'eyes-closed'].forEach((k) => { const g = svg.querySelector('#' + k); if (g) g.style.display = 'none'; });
-    svg.style.height = `${(CHAR_CFG[entry.id]?.height || 170) * ART_SCALE}px`;
+    svg.style.height = `${(CHAR_CFG[entry.art || entry.id]?.height || 170) * ART_SCALE}px`;
     svg.style.width = 'auto';
     svg.style.overflow = 'visible';
     svg.style.marginBottom = '10px';
@@ -86,8 +90,8 @@ function buildCard(entry, { dup = false, tag = true, owned = 0 } = {}) {
   const art = card.querySelector('.face-art');
   art.appendChild(buildArt(entry));
   // 鍍膜與反光只蓋畫窗（放在立繪之後、餘燼之前）
-  art.insertAdjacentHTML('beforeend', '<div class="face-holo"></div><div class="face-glare"></div>');
-  if (entry.rarity === 'legendary' || entry.rarity === 'epic') {
+  (entry.rarity === 'mythic' ? card.querySelector('.card-face') : art).insertAdjacentHTML('beforeend', '<div class="face-holo"></div><div class="face-glare"></div>');
+  if (entry.rarity === 'mythic' || entry.rarity === 'legendary' || entry.rarity === 'epic') {
     // 活起來時畫框裡飄的餘燼／星屑（CSS 動畫，只在 .live 時顯示）
     const embers = document.createElement('div');
     embers.className = 'face-embers';
@@ -105,6 +109,7 @@ function buildCard(entry, { dup = false, tag = true, owned = 0 } = {}) {
 // 入場時角色做「一次」回應（呼吸＋眨眼＋一組肢體），之後靜止。
 // rAF 只在傾斜還沒收斂或入場動作未結束時跑；游標停住就停，符合本專案「閒置不跑動畫」的規矩。
 const LIVE_CFG = {
+  mythic: { tilt: 8, lift: 11, scale: 1.055, parallax: 3 },
   common:    { tilt: 4, lift: 8,  scale: 1.035, parallax: 1 },
   rare:      { tilt: 5, lift: 8,  scale: 1.04,  parallax: 1.5 },
   epic:      { tilt: 6, lift: 9,  scale: 1.045, parallax: 2 },
@@ -124,7 +129,7 @@ function liveStart(el, entry) {
   live.t0 = performance.now();
   live.rx = live.ry = live.tx = live.ty = 0;
   const svg = el.querySelector('.face-art > svg');
-  const cfg = entry.kind === 'char' ? CHAR_CFG[entry.id] : null;
+  const cfg = entry.kind === 'char' ? CHAR_CFG[entry.art || entry.id] : null;
   live.rig = svg && cfg ? {
     svg, cfg,
     tail: svg.querySelector('#tail'), pawR: svg.querySelector('#pawR'),
@@ -233,7 +238,7 @@ window.addEventListener('blur', liveEnd);
 document.addEventListener('visibilitychange', () => { if (document.hidden) liveEnd(); });
 
 
-return { create: buildCard, art: { create: buildArt, cfg: (id) => CHAR_CFG[id] }, ready: assetsReady, liveEnd };
+return { create: buildCard, art: { create: buildArt, cfg: (id) => byId[id]?.src ? null : CHAR_CFG[byId[id]?.art || id] }, ready: assetsReady, liveEnd };
 }
 return { create };
 })();

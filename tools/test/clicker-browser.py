@@ -532,7 +532,7 @@ def round9(browser):
     advance(1300)
     page.locator('.skill-use').nth(2).click();page.mouse.move(900,620);advance(700);shot('chain-3-700')
     assert page.locator('#chain-tape').get_attribute('data-count')=='3'
-    advance(400);shot('chain-stamp-3');advance(11000)
+    advance(400);shot('chain-stamp-3');advance(13000)   # 第十五輪玥圓羈絆連鎖窗 12 秒
     assert 'visible' not in page.locator('#chain-tape').get_attribute('class')
     assert not errors,errors
     (OUT/'round9-results.json').write_text(json.dumps({'errors':errors,'checks':['hover','bonds','recommendations','flags','three chain stages','stamps','expiry']},ensure_ascii=False,indent=2),encoding='utf8')
@@ -950,9 +950,9 @@ def main():
         }''')
         page.reload(); page.wait_for_function('window.Clicker && !document.getElementById("tap").disabled')
         page.locator('#slots .skill-use').nth(2).click()
-        assert page.evaluate('Clicker.state.effects[0].target') == 'zhenzhen'
+        assert page.evaluate('Clicker.state.effects[0].target') == 'yueyuexian'   # 第十五輪起最高收益夥伴是神話玥來玥閒
         page.wait_for_timeout(1400)
-        assert page.locator('#parasite-label svg').count() == 1
+        assert page.locator('#parasite-label svg, #parasite-label img').count() == 1
         assert page.locator('#stage .partner, #parasite-host').count() == 0
         page.screenshot(path=str(OUT / 'parasite.png'))
         page.locator('#roster-open').click(); assert page.locator('.album-slot').count() == 8   # 第十輪起是卡冊：一跨頁 8 張
@@ -1109,7 +1109,7 @@ def main():
             assert abs(float(scenes.locator('.floater b').inner_text()[1:].replace(',',''))-scenes.evaluate('heldExpected')) <= .051
             if character == 'zhenmu':
                 advance(320); shot('round4-parasite-merge')
-                assert scenes.locator('#parasite-label svg').count() == 1
+                assert scenes.locator('#parasite-label svg, #parasite-label img').count() == 1
         seed(10); scenes.emulate_media(reduced_motion='reduce')
         scenes.evaluate("document.querySelector('.skill-use').click()")
         advance(700); shot('round4-cutin-reduced')
@@ -1195,7 +1195,7 @@ def main():
         scenes.locator('#recruit-close').click()
         seed(7,cooldown=True); shot('skills-cooldown')
         seed(7); scenes.locator('#slots .skill-use').nth(2).click(); advance(1400)
-        assert scenes.locator('#parasite-label svg').count()==1; shot('parasite-active')
+        assert scenes.locator('#parasite-label svg, #parasite-label img').count()==1; shot('parasite-active')
         for state,progress in enumerate([0,30,55,80]):
             seed(1,progress); assert scenes.locator('#bag-image').get_attribute('src')==f'clicker-bag-{state}.png', (state, scenes.locator('#bag-image').get_attribute('src'), scenes.evaluate('({state:Clicker.state,now:Date.now(),time:performance.now()})'))
             shot('bag-'+str(state))

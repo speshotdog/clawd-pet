@@ -11,7 +11,7 @@ const opts = { id: 'draw-1', visualSeed: 12, rng: () => .9 };
 
 for (const id of ['caihua', 'fox', 'lk', 'zhenzhen2', 'yang', 'zhenzhen', 'dog', 'jiaobu2', 'yueyue']) {
   test(`round7 ${id}: snapshot, expiry, cooldown and save roundtrip`, () => {
-    const s = money(); s.collection = Object.fromEntries(Object.keys(B.characters).map(id => [id, 1]));
+    const s = money(); s.collection = Object.fromEntries(B.originalIds.map(id => [id, 1]));
     s.trainingLevel = 2; s.skillSlots[0] = id;
     const t = s.settledAt, def = E.skillAt(s,id), { P, D } = E.rates(s), pi = E.individual(s, id);
     const r = E.activate(s, 0, t), a = r.state;
@@ -76,7 +76,7 @@ test('1/2/4/8/16/20 張的星級倍率；逐張角標', () => {
 });
 
 test('12 隻被動全數計入；D/P 不含暫時技能，沒有槽位限制', () => {
-  const s = fresh(); s.collection = Object.fromEntries(Object.keys(B.characters).map((id) => [id, 1]));
+  const s = fresh(); s.collection = Object.fromEntries(B.originalIds.map((id) => [id, 1]));
   assert.equal(E.rates(s).P, 129); s.collection.yueyue2 = 4; s.trainingLevel = 3; s.clickLevel = 10;
   close(E.rates(s).P, 132 * 1.25 ** 3); close(E.rates(s).D, 1.15 ** 10 + .05 * 132 * 1.25 ** 3);   // 全隊訓練每級 ×1.25、攻擊力固定部分 1.15^L
   const before = E.rates(s); s.effects = [{ kind: 'passive', value: 99999 }]; assert.deepEqual(E.rates(s), before);

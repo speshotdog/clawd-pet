@@ -38,7 +38,7 @@
     s.daily ??= null; s.badges ??= []; s.pick100 ??= null;
     if (s.daily !== null) { const d = s.daily; check(object(d) && /^\d{4}-\d{2}-\d{2}$/.test(d.date) && typeof d.done === 'boolean' && number(d.need) && d.need > 0 && number(d.dealt) && d.dealt <= d.need && (d.done || d.dealt < d.need) && integer(d.streak), '每日一包'); }
     check(Array.isArray(s.badges) && new Set(s.badges).size === s.badges.length && s.badges.every(id => X.BADGES.some(b => b.id === id)), '徽章');
-    check(s.pick100 === null || (known(s.pick100) && s.badges.includes('pack100')), '百包選角');
+    check(s.pick100 === null || (B.originalIds.includes(s.pick100) && s.badges.includes('pack100')), '百包選角');
     if (s.chain === undefined) s.chain = {count:1,expiresAt:0};
     check(object(s.chain) && integer(s.chain.count) && s.chain.count >= 1 && s.chain.count <= 3 && number(s.chain.expiresAt), '連鎖');
     s.boss ??= null; s.bossWins ??= []; s.bossCracks ??= {}; s.bossCooldownUntil ??= 0;
@@ -61,9 +61,9 @@
     for (const key of ['dust','promotions','transcend','overflow']) for (const [id,n] of Object.entries(s[key])) check(known(id) && integer(n),key);
     for (const id of Object.keys(B.characters)) {
       const p=s.promotions[id] || 0, t=s.transcend[id] || 0;
-      check(p<=2-E.origin(id) && t<=5 && (!t || E.tier(s,id)===2),'升階與超越');
+      check(p<=Math.max(0,2-E.origin(id)) && t<=5 && (!t || E.tier(s,id)>=2),'升階與超越');
       check(!(p || t) || (s.dust[id]>=16+E.spentDust(s,id) && s.collection[id]>0),'粉塵帳');
-      check((s.overflow[id] || 0)<[4,2,1][E.origin(id)] && (!(s.overflow[id] || 0) || t===5),'溢出');
+      check((s.overflow[id] || 0)<[4,2,1,.5][E.origin(id)] && (!(s.overflow[id] || 0) || t===5),'溢出');
       check((s.awakened[id] || false)===(t===5),'覺醒');
     }
     check(Object.entries(s.awakened).every(([id,v])=>known(id) && typeof v==='boolean'),'覺醒欄位');
@@ -77,7 +77,7 @@
     s.marks ??= 0; s.marksClaimed ??= 0; s.prestiges ??= 0; s.markShop ??= {}; s.autoClick ??= 0; s.autoRemainder ??= 0; s.autoClicks ??= 0; s.partnerLevels ??= {}; s.deco ??= []; s.peakRate ??= 0; s.prestigeHintDate ??= null;
     check(integer(s.marks) && integer(s.marksClaimed) && s.marks <= s.marksClaimed && integer(s.prestiges) && integer(s.autoClick) && s.autoClick <= B.autoClickMax && number(s.autoRemainder) && s.autoRemainder < 1 && integer(s.autoClicks), '輪迴與電動手指');
     check(object(s.markShop) && Object.entries(s.markShop).every(([id, v]) => B.marks.some(m => m.id === id) && v === true) && s.marksClaimed >= s.marks + Object.keys(s.markShop).reduce((sum, id) => sum + B.marks.find(m => m.id === id).cost, 0), '印記商店');
-    check(object(s.partnerLevels) && Object.entries(s.partnerLevels).every(([id, L]) => known(id) && s.collection[id] > 0 && integer(L) && L <= 200), '夥伴訓練');
+    check(object(s.partnerLevels) && Object.entries(s.partnerLevels).every(([id, L]) => known(id) && (s.collection[id] > 0 || L === 0) && integer(L) && L <= 200), '夥伴訓練');
     check(Array.isArray(s.deco) && new Set(s.deco).size === s.deco.length && s.deco.every(id => B.decor.some(d => d.id === id)), '裝飾');
     check(number(s.peakRate) && (s.prestigeHintDate === null || typeof s.prestigeHintDate === 'string'), '輪迴提示');
     const slotLen = s.markShop.slot4 ? 4 : 3;
@@ -95,10 +95,10 @@
       if (e.params) {
         check(object(e.params) && def.kind===base.kind, '效果快照');
         // 快照可能來自任一組：星級 × 超越 × 羈絆 × 當家 × 夥伴訓練里程碑（0/25/50/75/100，與 economy.skillAt 同一套加法）
-        const variants = [0,1,2,3,4,5].flatMap(trans=>[1,2,3,4,5].flatMap(star=>[false,true].flatMap(bond=>[false,true].flatMap(home=>[0,25,50,75,100].map(L=>{
+        const variants = [0,1,2,3,4,5].flatMap(trans=>[1,2,3,4,5].flatMap(star=>[0,1,2].flatMap(bond=>[false,true].flatMap(home=>[0,25,50,75,100].map(L=>{
           const p=B.skillAt(e.source,star,trans);
-          if (bond && ['click','clickAdd'].includes(p.kind)) p.charges++;
-          if (bond && p.kind==='self') p.duration*=1.25;
+          if (bond && ['click','clickAdd'].includes(p.kind)) p.charges+=bond;
+          if (bond && p.kind==='self') p.duration*=1.25**bond;
           if (home) p.cd*=.8;
           if (L >= 25) { if (['click','clickAdd'].includes(p.kind) && p.charges) p.charges += 1; else if (p.duration) p.duration += 2; }
           if (L >= 50 && p.duration) p.duration += 2;
@@ -165,8 +165,11 @@
         if (pool) check(item.entry.kind === pool.byId[id].kind && item.entry.rarity === pool.byId[id].rarity && item.entry.name === pool.byId[id].name, 'pending 目錄');
         counts[id] = (counts[id] || 0) + 1;
       }
-      const lastLegendary = draw.entries.findLastIndex((item) => item.entry.rarity === 'legendary');
+      const lastLegendary = draw.entries.findLastIndex((item) => ['legendary','mythic'].includes(item.entry.rarity));
       if (lastLegendary >= 0) check(s.pity.sinceLegendary === draw.entries.length - lastLegendary - 1, 'pending 保底');
+    }
+    for (const id of Object.keys(B.characters).filter(id => !B.originalIds.includes(id))) {
+      s.dust[id] ??= s.collection[id] || 0; s.promotions[id] ??= 0; s.transcend[id] ??= 0; s.partnerLevels[id] ??= 0;
     }
     return s;
   }

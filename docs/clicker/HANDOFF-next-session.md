@@ -79,6 +79,15 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
 
+## 十、2026-09-07 深夜：第十五輪（十張新卡＋神話階級）、第十六輪（轉彩）
+
+- 第十五輪：簡報 `BRIEF-astra-impl-round15.md`、報告 `REPORT-astra-impl-round15.md`。新卡素材 `src/card-*.png`（PNG 靜態圖，沒有 rig；所有讀 `CHAR_CFG` 的地方都有 `entry.src` 圖片分支）。神話 0.5%、係數 5.5、超越 +20%、萬用粉塵匯率 6。單元測試 122 例。
+  驗收：`_art/out/r15-*.png`（卡冊第三跨頁、神話展示頁、神話翻牌五格）。舊瀏覽器測試兩處期望值已改（珍母複製對象→玥來玥閒、玥圓羈絆連鎖窗 12 秒）。
+  強制抽神話的方法：在頁面裡包一層 `GachaPool.rollPack`，重抽到 entries 含 mythic 為止（見本次 session 的 `myth.py` 作法）。
+- 「玥玥傳說卡」（`yuelegend`）是使用者輸入錯誤，第十六輪移除。
+- 第十六輪：簡報 `BRIEF-astra-impl-round16.md`：轉彩（傳說的 30% 偽裝成精良、翻開後掃色帶轉成傳說）、卡冊翻頁改成書頁邊緣的箭頭鍵、展示頁神話星星列彩虹底條拉滿與鍍膜洗白角色的修正。
+- 使用者回報「留聲機無法正常購買」：在線上版 Playwright 走完整流程（9 件→點兩下→扣款→放上桌）正常，重現不出來，待使用者說明具體症狀。
+
 ## 九、2026-09-07 晚：第十四輪（使用者實玩回饋五項）
 
 簡報 `BRIEF-astra-impl-round14.md`，Astra 實作，Claude 驗收（`python tools/test/clicker-round14.py`，需 `PYTHONIOENCODING=utf-8`，截圖在 `_art/out/r14-*.png`）：

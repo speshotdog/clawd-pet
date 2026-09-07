@@ -476,6 +476,17 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .recommend-ticket small { display:block; font-size:9px; white-space:nowrap; }
 .recommend-portraits { display:flex; float:right; }
 .recommend-portraits svg { width:24px!important; height:24px!important; }
+.recommend-portraits .character-png, .bond-row .character-png, .slot-pick .character-png, #parasite-label .character-png { width:24px; height:24px; margin:0; }
+.buddy-portrait .character-png, #game .skill-use .character-png { width:40px; height:40px; margin:0; }
+.joining-portrait .character-png, .roster-character > .character-png { width:64px; height:64px; }
+.dust-row .character-png { width:28px; height:28px; }
+#cutin-actor .character-png { width:100%; height:100%; object-fit:contain; transform:skewX(6deg); }
+#cutin.mythic #cutin-panel { background:linear-gradient(115deg,#ffc6ec,#fff0b6,#c3f5e7,#d7cbff); }
+#cutin.mythic #cutin-stripes { background:var(--stripe); opacity:.5; }
+.album-card.locked .face-art .character-png { opacity:.3; }
+.mythic-stars { background:var(--mythic-rainbow); border-radius:5px; }
+.mythic-stars img { mix-blend-mode:luminosity; }
+@media (prefers-reduced-motion:reduce) { #cutin-actor .character-png { transform:none; } }
 .recommend-portraits .missing { filter:grayscale(1); opacity:.35; }
 
 /* Round 10: 夥伴卡冊、展示頁、粉塵罐、更衣室 */

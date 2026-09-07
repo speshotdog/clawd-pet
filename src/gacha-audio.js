@@ -145,6 +145,7 @@ window.GachaAudio = (() => {
       rare: { f: 880, d: 0.25, g: 0.06 },
       epic: { f: 1174, d: 0.4, g: 0.08 },
       legendary: { f: 1568, d: 0.7, g: 0.1 },
+      mythic: { f: 2093, d: 1.0, g: .12 },
     }[rarity];
     if (!cfg) { noiseHit({ t, d: 0.03, gain: 0.05, f0: 3000, q: 2 }); return; }
     tone(cfg.f, { type: 'sine', t, a: 0.02, d: cfg.d, r: 0.15, gain: cfg.g, to: verb });
@@ -186,6 +187,11 @@ window.GachaAudio = (() => {
       noiseHit({ t, a: 0.02, d: 0.5, r: 0.3, gain: 0.12, f0: 3000, f1: 9000, q: 0.5, to: verb });
       tone(1568, { type: 'sine', t: t + 0.3, a: 0.02, d: 0.6, gain: 0.08, slide: 2093, slideT: 0.5, to: verb });
       return;
+    }
+    if (rarity === 'mythic') {
+      [1,1.25,1.5].forEach(ratio => tone(2093*ratio,{type:'sine',t,a:.02,d:1.0,r:.5,gain:.12,to:verb}));
+      tone(65,{type:'triangle',t,a:.05,d:1.6,r:.4,gain:.12,slide:32,slideT:1.4,to:verb});
+      bell(1047,t+.4,{gain:.18,decay:3.6,to:verb});
     }
     // 傳說：大鐘。先一記低沉的鐘身，再疊一顆高的，最後灑一串亮片
     tone(55, { type: 'sine', t, a: 0.005, d: 1.2, gain: 0.6, slide: 40, slideT: 1 });        // 地面震動

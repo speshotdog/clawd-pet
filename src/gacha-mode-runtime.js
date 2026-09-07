@@ -80,20 +80,21 @@ window.GachaModeRuntime = (() => {
       const c = cards.get(key);
       if (!c || c.flipped || busy) return;
       busy = true; host.card.liveEnd(); host.state('revealing');
-      const rarity = c.entry.rarity, legendary = rarity === 'legendary';
+      const rarity = c.entry.rarity, mythic = rarity === 'mythic', legendary = mythic || rarity === 'legendary';
       const sound = audio.createScope();
       const inner = c.el.querySelector('.card-inner');
       inner.style.transition = 'none';
       let rays = null;
       if (legendary && !motion.reduced) {
         // 「來了」：桌子壓暗、其他卡沉下去、卡在抖、橘光從卡背後升起、蓄力音在漲——故意拖一秒再翻
-        host.charging?.(true); c.el.classList.add('charging'); host.dim.classList.add('on');
-        rays = window.GachaFx.rays(c.x, c.y - 10, { fadeIn: .6, hold: 1.6 });
+        host.charging?.(true); c.el.classList.add('charging'); host.dim.classList.add('on'); host.dim.classList.toggle('mythic-dim', mythic);
+        rays = window.GachaFx.rays(c.x, c.y - 10, { fadeIn: .6, hold: mythic ? 2 : 1.6, mythic });
         sound.charge(1.05);
         await wait(560); c.el.classList.add('hard');
         await wait(520);
         c.el.classList.remove('charging', 'hard');
       }
+      if (mythic && !motion.reduced) await mythicFlash();
       onFlip?.(); sound.flip();
       const flipping = animate(inner, motion.reduced ? [
         { transform: 'rotateY(180deg)', opacity: 0 }, { transform: 'rotateY(180deg)', opacity: 1 },
@@ -106,10 +107,10 @@ window.GachaModeRuntime = (() => {
       notify(key); sound.reveal(rarity);
       if (!motion.reduced) {
         window.GachaFx.reveal(c.x, c.y - 6, rarity);
-        if (legendary) host.shake?.(); else if (rarity === 'epic') host.shake?.(true);
+        if (legendary) { host.shake?.(); if (mythic) { c.el.classList.add('mythic-ripple'); await wait(120); host.shake?.(); } } else if (rarity === 'epic') host.shake?.(true);
       }
-      await wait(legendary ? 900 : 300);
-      if (legendary) { host.dim.classList.remove('on'); host.charging?.(false); rays?.stop(1.4); }
+      await wait(mythic ? 1180 : legendary ? 900 : 300);
+      if (legendary) { host.dim.classList.remove('on', 'mythic-dim'); host.charging?.(false); rays?.stop(1.4); }
       (await flipping).cancel(); inner.style.transition = '';
       c.el.classList.remove('reveal-pop');
       sound.stop(200);
@@ -128,13 +129,13 @@ window.GachaModeRuntime = (() => {
         c.el.querySelector('.card-inner').style.transition = 'none';
         notify(item.key);
       }
-      host.dim.classList.remove('on'); host.charging?.(false); host.state('fanned');
+      host.dim.classList.remove('on', 'mythic-dim'); host.charging?.(false); host.state('fanned');
       complete = true; host.summary(); resolveDone();
     }
     function stop() {
       if (signal.aborted) return;
       controller.abort(); rejectDone(aborted()); animations.forEach((a) => a.cancel()); animations.clear();
-      audio.stop(30); fx.stop(); host.dim.classList.remove('on'); host.charging?.(false);
+      audio.stop(30); fx.stop(); host.dim.classList.remove('on', 'mythic-dim'); host.charging?.(false);
       host.cardsEl.querySelectorAll('.charging').forEach((el) => el.classList.remove('charging', 'hard'));
       host.root.replaceChildren();
     }
@@ -169,11 +170,16 @@ window.GachaModeRuntime = (() => {
       const now = performance.now();
       if ((cooldown.get(c.key) || 0) > now) return;
       cooldown.set(c.key, now + 800); audio.hover(c.entry.rarity);
-      if (c.entry.rarity === 'legendary' && !motion.reduced) {
+      if (['legendary','mythic'].includes(c.entry.rarity) && !motion.reduced) {
         animate(el.querySelector('.back-leak'), [{ opacity: .55 }, { opacity: 1 }], { duration: 180 }).then((a) => a.cancel()).catch(() => {});
       }
     }, { signal });
-    const ctx = { root: host.root, size: host.size, center: host.center,
+    async function mythicFlash() {
+      check(); const el = document.createElement('div'); el.className = 'mythic-flash'; host.root.append(el);
+      try { await animate(el,[{opacity:1},{opacity:0}],{duration:120}); } finally { el.remove(); }
+    }
+    const ctx = {
+      mythicFlash, dim: on => host.dim.classList.toggle('mythic-dim', on), root: host.root, size: host.size, center: host.center,
       cards: { create: createCard, deal, reveal, showSummary }, art: host.card.art,
       audio, fx, wait, animate, signal, motion, onReveal: notify, rng, cancel: stop,
       flash: () => host.flash?.(), shake: (soft) => host.shake?.(soft),

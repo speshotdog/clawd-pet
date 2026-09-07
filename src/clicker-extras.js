@@ -74,7 +74,7 @@
   const canPick = s => (s.badges || []).includes('pack100') && !s.pick100;
   function pick100(state, id) {
     if (!canPick(state)) throw new Error('還沒到第 100 包，或已經選過');
-    if (!Object.hasOwn(B.characters, id)) throw new Error('未知角色');
+    if (!B.originalIds.includes(id)) throw new Error('未知角色');
     const s = E.clone(state); s.pick100 = id; s.dust ||= {}; s.dust[id] = E.dust(s, id) + 1;
     return s;
   }
@@ -258,7 +258,7 @@
     function openPick() {
       const s = store.state; if (!canPick(s)) return;
       const grid = $('pick100-grid'); grid.replaceChildren();
-      for (const id of Object.keys(B.characters)) {
+      for (const id of B.originalIds) {
         const entry = Pool.byId[id], el = document.createElement('button'); el.type = 'button'; el.className = 'pick-card'; el.dataset.id = id;
         el.append(card.art.create(entry)); const name = document.createElement('b'); name.textContent = entry.name; el.append(name);
         const owned = document.createElement('small'); owned.textContent = s.collection[id] ? `粉塵 ${E.dust(s, id)} 顆` : '尚未招募'; el.append(owned);
@@ -271,7 +271,7 @@
     // ---------- 徽章牆（統計面板） ----------
     function openWall() {
       const s = store.state; if (!s) return;
-      $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${totalPackages(s)} 包｜夥伴 ${Object.keys(s.collection).length} / 12｜付費抽數 ${s.paidDraws}｜漏掉 ${s.missed || 0} 包｜連續 ${s.daily?.streak || 0} 天`;
+      $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${totalPackages(s)} 包｜夥伴 ${Object.keys(s.collection).length} / ${Object.keys(B.characters).length}｜付費抽數 ${s.paidDraws}｜漏掉 ${s.missed || 0} 包｜連續 ${s.daily?.streak || 0} 天`;
       const grid = $('badge-grid'); grid.replaceChildren();
       for (const b of BADGES) {
         const el = document.createElement('div'); el.className = 'badge-cell'; el.dataset.id = b.id; el.classList.toggle('earned', s.badges.includes(b.id));
@@ -296,7 +296,7 @@
       try {
         const v = prepareImport(S.validate(decodeSave($('io-text').value), Pool), Date.now()), info = summary(v);
         importCandidate = v;
-        $('io-status').textContent = `存檔 OK：${format(info.coins)} 幣、已拆 ${info.packages} 包、夥伴 ${info.partners} / 12、場景 ${info.scene}、存檔時間 ${new Date(info.savedAt).toLocaleString('zh-TW')}。確定要覆蓋現在的存檔嗎？`;
+        $('io-status').textContent = `存檔 OK：${format(info.coins)} 幣、已拆 ${info.packages} 包、夥伴 ${info.partners} / ${Object.keys(B.characters).length}、場景 ${info.scene}、存檔時間 ${new Date(info.savedAt).toLocaleString('zh-TW')}。確定要覆蓋現在的存檔嗎？`;
         $('import-confirm').hidden = false;
       } catch (err) { $('io-status').textContent = `無法匯入：${err.message}`; }
     }
@@ -314,6 +314,7 @@
     const inline = href => dataUrls.get(href) || dataUrls.set(href, fetch(href).then(r => r.blob()).then(blob => new Promise(resolve => { const fr = new FileReader(); fr.onload = () => resolve(fr.result); fr.onerror = () => resolve(null); fr.readAsDataURL(blob); })).catch(() => null)).get(href);
     // 角色 SVG 立繪 → 內嵌所有 <image> → data:image/svg+xml → Image
     async function portrait(id) {
+      if (Pool.byId[id].src) return load(Pool.byId[id].src);
       const svg = card.art.create(Pool.byId[id]); if (!(svg instanceof SVGElement)) return null;
       const box = (svg.getAttribute('viewBox') || '0 0 200 200').split(/[\s,]+/).map(Number);
       svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); svg.setAttribute('width', box[2]); svg.setAttribute('height', box[3]); svg.removeAttribute('style');

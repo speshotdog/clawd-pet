@@ -121,8 +121,10 @@ window.GachaModes.rip = {
     }
     return {
       async open(draw) {
+        const mythic = draw.entries.some(it => it.entry.rarity === 'mythic');
         const lid = document.createElement('div'), bottom = document.createElement('div');
         lid.className = 'rip-wrapper rip-lid'; bottom.className = 'rip-wrapper rip-bottom';
+        if (mythic) { lid.classList.add('mythic-pack'); bottom.classList.add('mythic-pack'); }
         ctx.root.append(bottom, lid); ctx.audio.tear();
         await Promise.all([
           ctx.animate(lid, [{ opacity: 1, transform: 'translate(0,0)' }, { opacity: 0, transform: 'translate(150px,-65px) rotate(25deg)' }], { duration: ctx.motion.reduced ? 150 : 360 }),
@@ -136,7 +138,7 @@ window.GachaModes.rip = {
           for (let i = 0; i < 6; i++) ctx.fx.spawn({ sprite: 4, x: tx + (ctx.rng() - .5) * 90, y: ty, vx: (ctx.rng() - .5) * 60, vy: -40 - ctx.rng() * 40, g: -15, r: 18 + ctx.rng() * 14, life: .7, color: '#e9e2d0', grow: true, fadeK: 1, blend: 'source-over' });
           for (let i = 0; i < 34; i++) { const a = -Math.PI / 2 + (ctx.rng() - .5) * 2.2, sp = 160 + ctx.rng() * 360;
             ctx.fx.spawn({ sprite: i % 4 === 0 ? 8 : i % 4 === 1 ? 9 : 14, x: tx + (ctx.rng() - .5) * 80, y: ty, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 520, drag: .985, r: 6 + ctx.rng() * 9, life: .9 + ctx.rng() * .7,
-              color: ['#4f8a8b', '#f3e6c4', '#ffd27a', '#9fe3e0'][i % 4], rot: ctx.rng() * 6, vr: (ctx.rng() - .5) * 10, blend: i % 4 === 3 ? 'lighter' : 'source-over', fadeK: 1.3 }); }
+              color: mythic ? window.GachaFx.rainbow[i % 7] : ['#4f8a8b', '#f3e6c4', '#ffd27a', '#9fe3e0'][i % 4], rot: ctx.rng() * 6, vr: (ctx.rng() - .5) * 10, blend: i % 4 === 3 ? 'lighter' : 'source-over', fadeK: 1.3 }); }
         }
         draw.entries.forEach((item) => {
           const c = ctx.cards.create(item); ownedCards.push(c);

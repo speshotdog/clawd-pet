@@ -6,9 +6,9 @@ const Pool = require('../../src/gacha-pool.js');
 const seq = (values) => { let i = 0; return () => (i < values.length ? values[i++] : 0.5); };
 const rollGame = (opts) => Pool.rollPack({ policy: Pool.GAME_POLICY, id: 'd', visualSeed: 1, ...opts });
 
-test('目錄：12 隻角色進遊戲池，玩具與 emoji 不進', () => {
-  assert.equal(Pool.CATALOG.length, 17);
-  assert.equal(Pool.GAME_POLICY.candidates.length, 12);
+test('目錄：22 隻角色進遊戲池，玩具與 emoji 不進', () => {
+  assert.equal(Pool.CATALOG.length, 27);
+  assert.equal(Pool.GAME_POLICY.candidates.length, 22);
   assert.ok(Pool.GAME_POLICY.candidates.every((id) => Pool.byId[id].kind === 'char'));
 });
 

@@ -9,8 +9,9 @@ window.GachaFx = (() => {
   let last = 0;
 
   const RC = {
-    common: '#9d9d9d', rare: '#0070dd', epic: '#a335ee', legendary: '#ff8000',
+    common: '#9d9d9d', rare: '#0070dd', epic: '#a335ee', legendary: '#ff8000', mythic: '#FF4FD8',
   };
+  const rainbow = ['#ff4fd8','#ffb347','#fff275','#7dff9c','#5ad7ff','#b48bff','#ff7ab8'];
   const rand = (a, b) => a + Math.random() * (b - a);
   const TAU = Math.PI * 2;
 
@@ -162,6 +163,7 @@ window.GachaFx = (() => {
   // ---------- 揭曉：依稀有度 ----------
   function reveal(x, y, rarity) {
     const c = RC[rarity] || RC.common;
+    if (rarity === 'mythic') { const scope = createScope(); scope.reveal(x,y,rarity); scope.rainbowRing(x,y); }
     if (rarity === 'common') {
       // 幾顆灰塵掉下來就好
       for (let i = 0; i < 8; i++) {
@@ -210,7 +212,7 @@ window.GachaFx = (() => {
 
   // ---------- 傳說射線：從卡後方放射、緩慢旋轉的橘光，fadeIn → 停留 → fadeOut ----------
   // 回傳的物件有 stop()，讓流程在揭曉後把它慢慢收掉
-  function rays(x, y, { color = '#ff8000', n = 14, len = 900, fadeIn = 0.5, hold = 0.6 } = {}) {
+  function rays(x, y, { color = '#ff8000', n = 14, len = 900, fadeIn = 0.5, hold = 0.6, mythic = false } = {}) {
     hold = Number.isFinite(hold) ? Math.min(hold, 4) : 0.6;
     let t = 0, rot = rand(0, TAU), alpha = 0, stopping = false, fadeOut = 0;
     const layer = {
@@ -240,8 +242,9 @@ window.GachaFx = (() => {
             const a = r + (i / count) * TAU;
             const w = (set ? 0.05 : 0.09) * (0.7 + 0.3 * Math.sin(t * 2.3 + i * 1.7));
             const grad = ctx.createLinearGradient(0, 0, Math.cos(a) * len, Math.sin(a) * len);
-            grad.addColorStop(0, `rgba(255,210,120,${(set ? 0.28 : 0.42) * alpha})`);
-            grad.addColorStop(0.5, `rgba(255,128,0,${0.14 * alpha})`);
+            grad.addColorStop(0, mythic ? rainbow[i % 7] + '99' : `rgba(255,210,120,${(set ? 0.28 : 0.42) * alpha})`);
+            grad.addColorStop(0.5, mythic ? rainbow[i % 7] + '44' : `rgba(255,128,0,${0.14 * alpha})`);
+            if (mythic) ctx.globalAlpha = alpha;
             grad.addColorStop(1, 'rgba(255,128,0,0)');
             ctx.fillStyle = grad;
             ctx.beginPath();
@@ -306,17 +309,25 @@ window.GachaFx = (() => {
         layers.push(l); ownedLayers.add(l); kick(); return l;
       },
       ring,
+      rainbowRing(x, y, dur = .8, maxR = 220) {
+        let age = 0;
+        return this.layer({dead:false, update(dt) { age += dt; this.dead = age >= dur; }, draw(c) {
+          c.save(); c.globalAlpha = Math.max(0,1-age/dur); c.lineWidth = 7;
+          for (let i=0;i<7;i++) { c.strokeStyle=rainbow[i]; c.beginPath(); c.arc(x,y,20+maxR*Math.min(1,age/dur),i*TAU/7,(i+1)*TAU/7); c.stroke(); }
+          c.restore();
+        }});
+      },
       packBurst(x, y) { if (!stopped) packBurst(x, y); },
       reveal(x, y, rarity) {
-        const count = { common: 0, rare: 8, epic: 12, legendary: 20 }[rarity];
-        const life = { common: 0, rare: .24, epic: .42, legendary: .6 }[rarity];
+        const count = { common: 0, rare: 8, epic: 12, legendary: 20, mythic: 32 }[rarity];
+        const life = { common: 0, rare: .24, epic: .42, legendary: .6, mythic: .8 }[rarity];
         for (let i = 0; i < count; i++) {
           const a = i / count * TAU + (rng() - .5) * .2;
           this.spawn({ x: x + Math.cos(a) * 78, y: y + Math.sin(a) * 108,
             vx: Math.cos(a) * 60, vy: Math.sin(a) * 60, r: 1.5, life,
-            color: RC[rarity], shape: rarity === 'epic' ? 'star' : 'streak', shrink: true });
+            color: rarity === 'mythic' ? rainbow[i % 7] : RC[rarity], shape: rarity === 'epic' ? 'star' : 'streak', shrink: true });
         }
-        if (rarity === 'legendary') {
+        if (rarity === 'legendary' || rarity === 'mythic') {
           let age = 0;
           this.layer({ dead: false, under: true,
             update(dt) { age += dt; this.dead = age >= .6; },
@@ -350,5 +361,5 @@ window.GachaFx = (() => {
     c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = alpha; c.translate(x, y); c.rotate(rot);
     c.drawImage(tinted(idx, color), -w / 2, -h / 2, w, h); c.restore();
   }
-  return { init, packBurst, reveal, rays, dustStream, puff, createScope, blit, sheetReady: () => sheetReady };
+  return { rainbow, init, packBurst, reveal, rays, dustStream, puff, createScope, blit, sheetReady: () => sheetReady };
 })();

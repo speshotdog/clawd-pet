@@ -4,7 +4,7 @@ window.ClickerAlbum = (() => {
   function create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations }) {
     const $ = id => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
     const IDS = Object.keys(B.characters), PER_PAGE = 4, PAGES = Math.ceil(IDS.length / PER_PAGE);
-    const RAR = { rare: '精良', epic: '史詩', legendary: '傳說' }, ORIGIN = ['精良', '史詩', '傳說'];
+    const RAR = { rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' }, ORIGIN = ['精良', '史詩', '傳說', '神話'];
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let spread = 0, targetSlot = null, detailId = null, blinkTimer = 0, flipping = false, pendingBuy = null, refreshKey = '';
     const timers = new Set();
@@ -12,7 +12,7 @@ window.ClickerAlbum = (() => {
 
     // ---------- 共用零件 ----------
     function starRow(s, id) {
-      const n = E.stars(E.dust(s, id)), t = s.transcend?.[id] || 0, row = document.createElement('div'); row.className = 'star-row';
+      const n = E.stars(E.dust(s, id)), t = s.transcend?.[id] || 0, row = document.createElement('div'); row.className = E.rarity(s,id) === 'mythic' ? 'star-row mythic-stars' : 'star-row';
       for (let i = 0; i < n; i++) { const img = new Image(); img.src = i < t ? 'clicker-star-gem.png' : 'clicker-star.png'; img.alt = ''; img.className = i < t ? 'gem' : ''; row.append(img); }
       row.setAttribute('aria-label', `${n} 星${t ? `・超越 ${t}` : ''}`); return row;
     }
@@ -99,8 +99,7 @@ window.ClickerAlbum = (() => {
         [def.skill, skillTip(s, id).replace(/\n/g, '\n')],
         ['粉塵', owned ? `持有 ${E.dust(s, id)} 顆・可用 ${E.availableDust(s, id)} 顆・${nextStep(s, id)}` : '尚未招募'],
       ];
-      const bond = B.bonds.find(b => b.pair.includes(id));
-      if (bond) rows.push(['羈絆', bond.pair.every(k => s.collection[k]) ? `${bond.name}・已生效` : `${bond.name}・需要 ${bond.pair.filter(k => !s.collection[k]).map(k => Pool.byId[k].name).join('、')}`]);
+      for (const bond of B.bonds.filter(b => b.pair.includes(id))) rows.push(['羈絆', bond.pair.every(k => s.collection[k]) ? `${bond.name}・已生效` : `${bond.name}・需要 ${bond.pair.filter(k => !s.collection[k]).map(k => Pool.byId[k].name).join('、')}`]);
       const home = Object.entries(window.ClickerScenes).filter(([, sc]) => (sc.affinity || []).includes(id)).map(([, sc]) => sc.name);
       if (home.length) rows.push(['當家', `${home.join('、')}：收益 ×1.5、冷卻 −20%`]);
       for (const [k, v] of rows) { const r = document.createElement('p'); const b = document.createElement('b'); b.textContent = k; const span = document.createElement('span'); span.textContent = v; r.append(b, span); info.append(r); }
@@ -115,10 +114,10 @@ window.ClickerAlbum = (() => {
         buttons.append(btn);
       }
       const grow = document.createElement('div'); grow.className = 'detail-grow';
-      const canPromote = owned && E.tier(s, id) < 2, canTranscend = owned && E.tier(s, id) === 2 && (s.transcend?.[id] || 0) < 5;
+      const canPromote = owned && E.tier(s, id) < 2, canTranscend = owned && E.tier(s, id) >= 2 && (s.transcend?.[id] || 0) < 5;
       const five = owned && E.stars(E.dust(s, id)) >= 5;
       const promote = document.createElement('button'); promote.className = 'grow-btn promote';
-      promote.textContent = canPromote ? `升階（${E.availableDust(s, id)}/${E.promotionCost(s, id)} 顆）` : E.tier(s, id) === 2 ? '已是傳說階' : '升階';
+      promote.textContent = canPromote ? `升階（${E.availableDust(s, id)}/${E.promotionCost(s, id)} 顆）` : E.tier(s, id) >= 2 ? `已是${RAR[E.rarity(s,id)]}階` : '升階';
       promote.disabled = !canPromote || !five || E.availableDust(s, id) < E.promotionCost(s, id) || store.blocked;
       promote.title = !five ? '要 5★ 才能升階' : '';
       promote.onclick = () => action(() => { if (commit(E.promote(store.state, id, Date.now()))) { changed(); celebrate(big, 'promote'); notice(`${Pool.byId[id].name} 升階為${RAR[E.rarity(store.state, id)]}！`); later(() => { openDetail(id); renderBook(); }, 700); } });
@@ -180,7 +179,7 @@ window.ClickerAlbum = (() => {
       const hint = document.createElement('p'); hint.textContent = '兌換成指定夥伴的粉塵：精良 1:1、史詩 2:1、傳說 3:1。萬用粉塵來自每隻王首勝、每日一包與滿養夥伴的重複卡。'; root.append(hint);
       const list = document.createElement('div'); list.className = 'dust-list';
       for (const id of IDS) {
-        const row = document.createElement('div'); row.className = 'dust-row'; const rate = E.origin(id) + 1;
+        const row = document.createElement('div'); row.className = 'dust-row'; const rate = E.exchangeRate(id);
         row.append(card.art.create(Pool.byId[id]));
         const name = document.createElement('b'); name.textContent = `${Pool.byId[id].name}`; row.append(name);
         const have = document.createElement('small'); have.textContent = s.collection[id] ? `${E.dust(s, id)} 顆・${nextStep(s, id)}` : '尚未招募'; row.append(have);

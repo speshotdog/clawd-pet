@@ -6,10 +6,10 @@ window.GachaModes = window.GachaModes || {};
 window.GachaModes.stage = {
   label: '拉幕登場', counts: [5],
   create(ctx) {
-    const RC = { common: '#d9d4c7', rare: '#78baff', epic: '#d5a2ff', legendary: '#ffc477' };
-    const RC2 = { common: '#9d9d9d', rare: '#0070dd', epic: '#a335ee', legendary: '#ff8000' };
-    const LABEL = { common: '普通', rare: '精良', epic: '史詩', legendary: '傳說' };
-    const holds = { common: 600, rare: 800, epic: 1000, legendary: 1250 };
+    const RC = { common: '#d9d4c7', rare: '#78baff', epic: '#d5a2ff', legendary: '#ffc477', mythic: '#FF4FD8' };
+    const RC2 = { common: '#9d9d9d', rare: '#0070dd', epic: '#a335ee', legendary: '#ff8000', mythic: '#FF4FD8' };
+    const LABEL = { common: '普通', rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' };
+    const holds = { common: 600, rare: 800, epic: 1000, legendary: 1250, mythic: 1600 };
     const CX = ctx.center.x, FLOOR = 452;            // 角色腳底的 y
     const style = document.createElement('style');
     style.textContent = `
@@ -122,13 +122,16 @@ window.GachaModes.stage = {
       ctx.fx.layer(ctx.fx.ring(x, y, '#ffd27a', .6, 320, 10));
       let t = 0; ctx.fx.layer({ dead: false, update(dt) { t += dt; if (t > 1.4) { this.dead = true; return; }
         for (let i = 0; i < 2; i++) ctx.fx.spawn({ sprite: ctx.rng() < .5 ? 8 : 9, x: CX + (ctx.rng() - .5) * 700, y: 60, vx: (ctx.rng() - .5) * 40, vy: 60 + ctx.rng() * 80, g: 120, drag: .99,
-          r: 8 + ctx.rng() * 8, life: 2.2 + ctx.rng(), color: ['#ffd27a', '#ff8000', '#fff3d0', '#ffb04d'][Math.floor(ctx.rng() * 4)], rot: ctx.rng() * 6, vr: (ctx.rng() - .5) * 6, blend: 'source-over', fadeK: 1.2 }); }, draw() {} });
+          r: 8 + ctx.rng() * 8, life: 2.2 + ctx.rng(), color: rarity === 'mythic' ? window.GachaFx.rainbow[Math.floor(ctx.rng()*7)] : ['#ffd27a', '#ff8000', '#fff3d0', '#ffb04d'][Math.floor(ctx.rng() * 4)], rot: ctx.rng() * 6, vr: (ctx.rng() - .5) * 6, blend: 'source-over', fadeK: 1.2 }); }, draw() {} });
     }
     const dispose = () => { ctx.cancel(); style.remove(); scene.remove(); };
     return {
       async open(draw) {
         // ---- 開場：拉環扣、布幕向兩側拉開（帶布料的晃）、燈亮、塵開始飄
         back.classList.add('on');
+        if (draw.entries.some(it => it.entry.rarity === 'mythic') && !ctx.motion.reduced) {
+          for (let i=0;i<32;i++) ctx.fx.spawn({sprite:9,x:CX+(ctx.rng()-.5)*700,y:60,vy:90,g:120,r:9,life:2.2,color:window.GachaFx.rainbow[i%7],vr:4});
+        }
         ctx.audio.tone(240, { type: 'triangle', slide: 170, slideT: .065, d: .065, r: .025, gain: .09 });
         await ctx.wait(420);   // 先讓觀眾看到閉著的幕
         ctx.audio.noiseHit({ type: 'lowpass', f0: 1600, f1: 450, a: .03, d: .32, r: .12, gain: .12 });
@@ -142,7 +145,7 @@ window.GachaModes.stage = {
         if (!ctx.motion.reduced) startDust();
         await ctx.wait(220);
         for (let i = 0; i < draw.entries.length; i++) {
-          const item = draw.entries[i], rarity = item.entry.rarity, legendary = rarity === 'legendary';
+          const item = draw.entries[i], rarity = item.entry.rarity, mythic = rarity === 'mythic', legendary = mythic || rarity === 'legendary';
           beam.style.color = '#fff'; pool.style.color = '#fff'; ribbon.style.opacity = '0';
           const actor = document.createElement('div'); actor.className = 'st-actor shadow';
           const art = ctx.art.create(item.entry), cfg = item.entry.kind === 'char' ? ctx.art.cfg(item.entry.id) : null;
@@ -156,6 +159,7 @@ window.GachaModes.stage = {
           const [entered] = await Promise.all([movement, gesture(art, cfg, entrance, true)]); entered.cancel();
           actor.style.transform = cfg && !fromLeft ? 'scaleX(-1)' : '';
           if (!cfg) { ctx.audio.drop(); for (let k = 0; k < 6; k++) ctx.fx.spawn({ sprite: 4, x: CX + (ctx.rng() - .5) * 120, y: FLOOR - 10, vx: (ctx.rng() - .5) * 90, vy: -20 - ctx.rng() * 30, g: -10, r: 16 + ctx.rng() * 12, life: .6, color: '#d9d4c7', grow: true, fadeK: 1, blend: 'source-over' }); }
+          if (mythic) ctx.dim(true);
           if (legendary) {
             // 燈忽明忽暗、地板低頻、角色停在燈下——「來了」
             ctx.audio.charge(1.05);
@@ -164,21 +168,28 @@ window.GachaModes.stage = {
               [{ opacity: .7 }, { opacity: .1 }, { opacity: .9 }, { opacity: .15 }, { opacity: .6 }, { opacity: .05 }, { opacity: .8 }, { opacity: .04 }], { duration: 1080 });
             beam.getAnimations().forEach((a) => a.cancel());
           }
+          if (mythic && !ctx.motion.reduced) await ctx.mythicFlash();
           // ---- 露臉：燈變色、揭曉音、特效、緞帶名牌
           actor.classList.remove('shadow'); beam.style.color = RC[rarity]; pool.style.color = RC[rarity]; beam.style.opacity = '.95'; pool.style.opacity = '.9';
           ctx.audio.reveal(rarity);
           if (legendary) {
             ctx.flash();
-            if (!ctx.motion.reduced) { ctx.shake(); rays = window.GachaFx.rays(CX, FLOOR - 110, { fadeIn: .08, hold: 1.3 }); }
+            if (!ctx.motion.reduced) { ctx.shake(); rays = window.GachaFx.rays(CX, FLOOR - 110, { fadeIn: .08, hold: mythic ? 1.7 : 1.3, mythic }); }
           } else if (rarity === 'epic' && !ctx.motion.reduced) ctx.shake(true);
           if (!ctx.motion.reduced) revealFx(rarity);
+          if (mythic) {
+            beam.classList.add('mythic-sweep'); pool.classList.add('mythic-sweep');
+            if (!ctx.motion.reduced) { ctx.fx.reveal(CX,FLOOR-110,'mythic'); ctx.fx.rainbowRing(CX,FLOOR-110); ctx.wait(120).then(()=>ctx.shake()).catch(()=>{}); }
+          }
           ribbon.innerHTML = `${item.entry.name}<small>${LABEL[rarity]}</small>`; ribbon.style.setProperty('--sc', RC2[rarity]);
           const naming = ctx.animate(ribbon, [{ opacity: 0, transform: 'translateY(14px) scaleX(.6)' }, { opacity: 1, transform: 'translateY(0) scaleX(1)' }], { duration: 240, easing: 'cubic-bezier(.2,1.2,.3,1)' });
           await Promise.all([naming, gesture(art, cfg, 440, false), ctx.wait(holds[rarity])]);
           ribbon.getAnimations().forEach((a) => a.cancel()); ribbon.style.opacity = '0';
           // ---- 收進卡：本尊縮小、卡從舞台中央飛到扇形位
           const c = ctx.cards.create(item); c.flipped = true; ctx.onReveal(item.key);
-          c.el.classList.add('dealt', 'flipped'); c.el.style.transition = 'none';
+          c.el.classList.add('dealt', 'flipped');
+          if (mythic && !ctx.motion.reduced) c.el.classList.add('mythic-ripple');
+          c.el.style.transition = 'none';
           const transform = `translate(${c.x}px, ${c.y}px) rotate(${ctx.motion.reduced ? 0 : c.rot}deg)`;
           c.el.style.transform = transform;
           ctx.audio.deal(i);
@@ -187,6 +198,7 @@ window.GachaModes.stage = {
             ctx.animate(c.el, [{ opacity: 0, transform: `translate(${CX}px, ${FLOOR - 100}px) scale(.7)` }, { opacity: 1, transform }], { duration: ctx.motion.reduced ? 150 : 360, easing: 'cubic-bezier(.22,.9,.32,1.12)' }),
           ]);
           c.el.getAnimations().forEach((a) => a.cancel()); actor.remove();
+          ctx.dim(false); beam.classList.remove('mythic-sweep'); pool.classList.remove('mythic-sweep');
           if (rays) { rays.stop(.25); rays = null; }
           beam.style.color = '#fff'; pool.style.color = '#fff'; beam.style.opacity = '.7'; pool.style.opacity = '.55';
           if (i < draw.entries.length - 1) await waitNext();

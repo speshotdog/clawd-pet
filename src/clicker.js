@@ -174,7 +174,7 @@ window.Clicker = (() => {
       $(`${type}-one`).disabled = $(`${type}-max`).disabled = store.blocked || cost > s.coins || !Number.isFinite(cost);
     }
     $('completed').textContent = `已拆 ${s.package.index - 1} 包`;
-    $('owned-count').textContent = `${Object.keys(s.collection).length} / 12`;
+    $('owned-count').textContent = `${Object.keys(s.collection).length} / ${Object.keys(B.characters).length}`;
     const nextSlot = B.slotThresholds[E.slotCount(s)];
     $('next-goal').textContent = s.manualClicks < 50 ? '下一目標：50 點迎接玥玥' : nextSlot ? `累計 ${format(nextSlot)} 幣開下一技能槽` : '三個技能槽全部開放';
     $('mute').setAttribute('aria-pressed', String(s.settings.muted));
@@ -307,10 +307,9 @@ window.Clicker = (() => {
       const skill = document.createElement('small'); skill.textContent = `${B.characters[id].skill}${B.characters[id].kind ? '' : ' · 後續開放'}`; skill.title = skillTip(s,id); skill.dataset.tooltip=skill.title;
       const desc = document.createElement('small'); desc.className = 'skill-desc'; desc.textContent = skillTip(s,id);
       const mastery = document.createElement('small'); mastery.textContent = count > 16 ? `熟練 +${count - 16}%` : count ? `下次升星 ${count}/${B.stars[E.stars(count)] || 16}` : '';
-      const rarity = document.createElement('small'); rarity.textContent = {common:'普通',rare:'精良',epic:'史詩',legendary:'傳說'}[Pool.byId[id].rarity];
+      const rarity = document.createElement('small'); rarity.textContent = {common:'普通',rare:'精良',epic:'史詩',legendary:'傳說',mythic:'神話'}[Pool.byId[id].rarity];
       el.append(name, rarity, stars, passive, skill, desc, mastery);
-      const bond=B.bonds.find(b=>b.pair.includes(id));
-      if(bond) {
+      for(const bond of B.bonds.filter(b=>b.pair.includes(id))) {
         const row=document.createElement('div');row.className='bond-row';const active=bond.pair.every(key=>s.collection[key]);row.classList.toggle('inactive',!active);
         bond.pair.forEach((key,i)=>{if(i) {const chain=document.createElement('span');chain.className='bond-chain';chain.textContent='⛓';const img=new Image();img.src='clicker-ui-bond-chain.png';img.alt='';img.onload=()=>chain.replaceChildren(img);row.append(chain);}row.append(card.art.create(Pool.byId[key]));});
         const label=document.createElement('small');label.textContent=active?`${bond.name} · 已生效`:`需要 ${bond.pair.filter(key=>!s.collection[key]).map(key=>Pool.byId[key].name).join('、')}`;row.append(label);el.append(row);

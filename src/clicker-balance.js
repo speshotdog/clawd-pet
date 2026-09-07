@@ -14,6 +14,19 @@
     yueyue: { base: 18, skill: '玥來越快', kind: 'clickTime', multiplier: 3, duration: 12, cd: 90 },
     zhenzhen: { base: 20, skill: '大團圓', kind: 'team', ratio: .5, duration: 20, cd: 120 },
   };
+  const originalIds = Object.freeze(Object.keys(characters));
+  Object.assign(characters, {
+    yueyuexian: { base: 30, skill: '躺著也會贏', kind: 'team', ratio: 1.0, duration: 20, cd: 120 },
+    zhenfang: { base: 20, skill: '方方正正', kind: 'self', multiplier: 5, duration: 30, cd: 120 },
+    lksphinx: { base: 18, skill: '謎語時間', kind: 'clickTime', multiplier: 3.5, duration: 12, cd: 90 },
+    zhenmoss: { base: 19, skill: '苔原大團圓', kind: 'burst', factor: 40, basis: 'team', cd: 150 },
+    yuetrumpet: { base: 9, skill: '起床號', kind: 'click', multiplier: 4, charges: 8, duration: 15, cd: 75 },
+    zhencao: { base: 9, skill: '光合作用', kind: 'team', ratio: .3, duration: 30, cd: 120 },
+    mianhua: { base: 8, skill: '蓬蓬鬆鬆', kind: 'self', multiplier: 4, duration: 30, cd: 120 },
+    yangpu: { base: 10, skill: '噗噗數羊', kind: 'clickAdd', ratio: .6, charges: 20, duration: 20, cd: 90 },
+    alu: { base: 5, skill: '一鳴驚人', kind: 'burst', factor: 20, basis: 'individual', cd: 45 },
+    yuelegend: { base: 4, skill: '傳說中的玥玥', kind: 'click', multiplier: 2, charges: 10, duration: 15, cd: 60 },
+  });
   const fmt = n => Number(n.toFixed(4));
   function describe(p) {
     const tail = `・冷卻 ${fmt(p.cd)} 秒`;
@@ -27,7 +40,7 @@
   }
   for (const def of Object.values(characters)) def.desc = describe;
   function skillAt(id, stars, transcend = 0) {
-    const p = {...characters[id]}, k = Math.max(0, Math.min(4, stars - 1)), t = 1 + .05*transcend;
+    const p = {...characters[id]}, k = Math.max(0, Math.min(4, stars - 1)), t = 1 + (id === 'yueyuexian' ? .07 : .05)*transcend;
     if (['click','clickTime'].includes(p.kind)) { p.multiplier = 1+(p.multiplier-1)*(1+.08*k)*t; p.duration += k; }
     if (p.kind === 'clickAdd') { p.ratio = (p.ratio+.05*k)*t; p.charges += 2*k; }
     if (p.kind === 'burst') p.factor *= (1+.1*k)*t;
@@ -38,6 +51,10 @@
     return p;
   }
   const bonds = [
+    {pair:['lk','lksphinx'],name:'獅王',effect:{chargesPlus:1}},
+    {pair:['zhenzhen','zhenmoss'],name:'苔球',effect:{selfDurationMul:1.25}},
+    {pair:['yang','yangpu'],name:'雙咩',effect:{chainWindowMs:11000}},
+    {pair:['yueyue','yueyuexian'],name:'玥圓',effect:{chainWindowMs:12000}},
     {pair:['jiaobu','jiaobu2'],name:'雙刀',effect:{chargesPlus:1}},
     {pair:['yueyue','yueyue2'],name:'雙尾',effect:{chainWindowMs:11000}},
     {pair:['zhenzhen','zhenzhen2'],name:'雙球',effect:{selfDurationMul:1.25}},
@@ -47,6 +64,7 @@
     {name:'放置流',slots:['yang','zhenzhen2','zhenmu'],desc:'掛機：珍珍 → 珍母 → 羊咩'},
     {name:'爆發流',slots:['yang','fox','caihua'],desc:'冷凍包、王的最後一擊：羊咩 → 狐狐 → 采華'},
   ];
+  recommendations.push({name:'神話流',slots:['yueyuexian','zhenfang','zhenmoss'],desc:'躺著也會贏 → 方方正正 → 苔原大團圓'});
   const wardrobe = {
     sounds: ['soft','bubble','paper','coin','taiko','sticker','squish','bubblewrap','woodblock','jelly'].map((id,i)=>({id,name:['軟碰','泡泡','撕紙','金幣','太鼓','貼紙拍','擠壓','泡泡紙','木魚','果凍'][i]})),
     fx: [
@@ -67,7 +85,7 @@
   ];
   const autoClickMax = 6;
   const decor = ['花盆','燈串','小鼓','風鈴','貓抓板','相框','香氛蠟燭','小旗串','多肉','留聲機'].map((name,i)=>({ id:`deco${i}`, name, file:`clicker-deco-${i}.png` }));
-  const api = { marks, autoClickMax, decor, wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const api = { originalIds, marks, autoClickMax, decor, wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;

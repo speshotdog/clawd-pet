@@ -369,3 +369,36 @@
 
 /* 遊戲宿主升星標籤 */
 .face-tag.star-up { background: #ffe29a url('clicker-star.png') 3px center / auto 13px no-repeat; color: #54382b; padding-left: 20px; letter-spacing: 0; } .face-tag.mastery { color: #ffe9b5; background: #5a422e; letter-spacing: 0; }
+
+/* 神話：兩套卡皮與縮圖共用整面彩虹，靜止時仍能辨認。 */
+@property --spin { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
+:root { --c-mythic:#FF4FD8; --mythic-rainbow:linear-gradient(115deg,#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff7ab8); }
+.character-png { width:128px; height:128px; object-fit:contain; object-position:center; }
+.face-art > .character-png { width:84%; height:84%; margin:auto; object-fit:contain; align-self:center; }
+.card.r-mythic, .skin-af .card.r-mythic { --rc:var(--c-mythic); --rc-a:#ff4fd880; --rc-b:#5ad7ff55; --rim-hi:#fff275; --ink-rarity:#a91686; --gem:16px; --leak:1; --spin:0deg; animation:mythic-spin 6s linear infinite; }
+.r-mythic .card-face, .skin-af .r-mythic .card-face,
+.r-mythic .face-art, .skin-af .r-mythic .face-art { background:linear-gradient(115deg,#f5b7e7,#f8d7ac,#fff3ac,#b9efc4,#b4e8f8,#d5c4f5,#f4b8d9); }
+.r-mythic .face-frame, .skin-af .r-mythic .face-frame { border:4px solid #ff4fd8; border-image:conic-gradient(from var(--spin),#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8) 1; box-shadow:inset 0 0 12px #ff4fd880; }
+.r-mythic .face-plate, .skin-af .r-mythic .face-plate { background:linear-gradient(115deg,#ffc6ec,#fff0b6,#c3f5e7,#d7cbff); }
+.r-mythic .face-name, .skin-af .r-mythic .face-name { color:#472242; text-shadow:0 1px #fff8; }
+.r-mythic .face-rarity, .skin-af .r-mythic .face-rarity { color:#a91686; }
+.card.r-mythic .face-holo, .skin-af .card.r-mythic .face-holo, .skin-af .mini .card.r-mythic .face-holo { display:block; inset:0; z-index:4; opacity:.35; background:var(--mythic-rainbow); background-size:180% 180%; background-position:var(--mx) var(--my); mix-blend-mode:color-dodge; }
+.r-mythic .face-gem, .skin-af .r-mythic .face-gem { background:conic-gradient(from var(--spin),#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8); }
+.r-mythic .back-leak, .skin-af .r-mythic .back-leak { background:conic-gradient(from var(--spin),#ff4fd888,#ffb34788,#fff27588,#7dff9c88,#5ad7ff88,#b48bff88,#ff4fd888); box-shadow:inset 0 0 40px 12px #ff4fd8,0 0 45px #5ad7ff; }
+.r-mythic .card-glow, .skin-af .r-mythic .card-glow { box-shadow:0 0 42px 16px #ff4fd888,0 0 110px 40px #5ad7ff66; }
+.card.r-mythic:hover .card-glow, .card.r-mythic.charging .card-glow,
+.skin-af .card.r-mythic:not(.flipped):hover .card-glow, .skin-af .card.r-mythic.charging .card-glow { animation:glow-throb .8s ease-in-out infinite; }
+.mythic-ripple::after { content:''; position:absolute; inset:-15px; pointer-events:none; border:6px solid #ff4fd8; border-image:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8) 1; animation:mythic-ripple .8s ease-out both; }
+.mythic-flash { position:absolute; inset:0; z-index:50; background:white; pointer-events:none; }
+.dim.mythic-dim { background:#080313ed; opacity:1; }
+.mythic-pack::after { content:''; position:absolute; inset:5%; background:var(--mythic-rainbow); mix-blend-mode:screen; opacity:.65; pointer-events:none; }
+.mythic-circle::after { content:''; position:absolute; inset:0; background:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8); mask:url('gacha-summon-circle.png') center/contain no-repeat; mix-blend-mode:screen; animation:mythic-hue 3s linear infinite; }
+.mythic-sweep { animation:mythic-hue 1.6s linear infinite; }
+@keyframes mythic-spin { to { --spin:360deg; } }
+@keyframes glow-throb { 50% { opacity:.6; } }
+@keyframes mythic-ripple { from { transform:scale(.9); opacity:1; } to { transform:scale(1.8); opacity:0; } }
+@keyframes mythic-hue { to { filter:hue-rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) {
+  .card.r-mythic, .skin-af .card.r-mythic, .card.r-mythic .card-glow, .mythic-circle::after, .mythic-sweep { animation:none !important; }
+  .mythic-ripple::after { display:none; }
+}

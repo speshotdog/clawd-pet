@@ -146,7 +146,7 @@ window.ClickerStage = (() => {
       if (!ids.length) $('buddies').textContent = '還沒有夥伴。點 50 次，玥玥會來幫忙。';
       ids.slice(page * 10, page * 10 + 10).forEach(id => {
         const entry = window.GachaPool.byId[id], el = document.createElement('button');
-        el.title = `${entry.name}・查看名冊與裝備技能`; el.className = 'buddy'; el.dataset.id = id; el.style.setProperty('--rarity', {common:'#A9A297',rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E'}[entry.rarity]);
+        el.title = `${entry.name}・查看名冊與裝備技能`; el.className = 'buddy'; el.dataset.id = id; el.style.setProperty('--rarity', {common:'#A9A297',rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E',mythic:'#FF4FD8'}[entry.rarity]);
         const portrait = document.createElement('span'); portrait.className = 'buddy-portrait'; portrait.append(card.art.create(entry));
         const name = document.createElement('b'); name.textContent = entry.name;
         const stars = document.createElement('span'); const t = s.transcend?.[id] || 0; stars.textContent = `★${E.stars(E.dust(s,id))}${t ? `◆${t}` : ''}`; if (t) stars.className = 'buddy-transcend';
