@@ -2,12 +2,12 @@ const test = require('node:test'), assert = require('node:assert/strict');
 const E = require('../../src/clicker-economy.js'), S = require('../../src/clicker-save.js'), P = require('../../src/clicker-prestige.js'), Pool = require('../../src/gacha-pool.js');
 const seed = () => { const s=S.fresh(0); s.collection={lk:1}; s.partnerLevels={lk:3}; s.marks=s.marksClaimed=30; return s; };
 
-test('round20: five costs 80 seconds, training pricing has half the exponent', () => {
+test('round20: five costs 135 seconds, training pricing has half the exponent', () => {
   const s=seed(); s.marks=s.marksClaimed=0;
   const price=E.drawCost(s,5), rate=E.rates(s), individual=E.individual(s,'lk');
-  assert.equal(price,1600); assert.equal(E.DRAW_SECONDS.single,30);
+  assert.equal(price,2700); assert.equal(E.DRAW_SECONDS.single,30);
   s.trainingLevel=4;
-  assert.equal(E.drawCost(s,5),price*1.25**2);
+  assert.equal(E.drawCost(s,5),Math.ceil(price*1.25**2));
   assert.equal(E.rates(s).P,rate.P*1.25**4);
   assert.equal(E.individual(s,'lk'),individual*1.25**4);
   assert.deepEqual(E.rates(s,{trainingLevel:0}),rate);

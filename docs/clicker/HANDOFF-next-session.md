@@ -82,7 +82,7 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 ## 十四、2026-09-08：第二十輪（五連 80 秒＋訓練通膨、卡面去特質字、寄生標籤、數字爽感、印記祝福）
 
 - 簡報 `BRIEF-astra-impl-round20.md`、報告 `REPORT-astra-impl-round20.md`；驗收 `PYTHONIOENCODING=utf-8 python tools/test/clicker-round20.py`。`npm test` 154 例。
-- **招募**：`DRAW_SECONDS.five` 135 → 80；`drawCost` 的 P 只吃一半全隊訓練倍率（`rates(s,{trainingLevel:T/2})`）。模擬：每日五連數首日 28 → 36，其餘日相同；粉塵入帳不變。
+- **招募**：`DRAW_SECONDS.five` 135 → 80，使用者實玩覺得太快，同日改回 135（保留一半訓練倍率）；`drawCost` 的 P 只吃一半全隊訓練倍率（`rates(s,{trainingLevel:T/2})`）。模擬：每日五連數首日 28 → 36，其餘日相同；粉塵入帳不變。
 - **卡面**不再顯示「裝備時攻擊力 ×N」（`buildCard` 的 trait 參數已移除），資訊留在卡冊展示頁「特質」列。
 - **寄生標籤** `#parasite-label` 移到 left 150／top 120、z-index 10（原本落在技能槽名字那排且層級較低）；「連鎖」標籤上移 24px。
 - **數字爽感**：被動收益每秒一個 18px 淡金斜體浮字（`.floater.passive`，往右上飄 1400ms，優先回收）；點擊浮字依 `amount/P` 分 26／30／36／42px 四階（≥200 倍粉紅＋2px 描邊，`heavy` 併入）；每秒收益首次破十倍關卡蓋章（`s.peakRateStamp`，換桌布歸零）。

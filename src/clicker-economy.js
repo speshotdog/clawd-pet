@@ -7,8 +7,8 @@
   const clickCost = (l) => Math.ceil(10 * 1.35 ** l);
   // 2026-09-06 數值重整（參考 Cookie Clicker）：全隊訓練每級 ×1.25、價 ×2.5（一次翻倍約 ×17 價；CC 升級品每步約 ×10～×100）
   const trainingCost = (t) => Math.ceil(2500 * 2.5 ** t);
-  // 招募價釘在「全員視為中位數等級的每秒收益」：單抽 30 秒、五連 80 秒，招募只計一半全隊訓練倍率的被動收益（下限 150／700），後期永遠抽得起
-  const DRAW_SECONDS = { single: 30, five: 80 }, DRAW_FLOOR = { single: 150, five: 700 };
+  // 招募價釘在「全員視為中位數等級的每秒收益」：單抽 30 秒、五連 135 秒，招募只計一半全隊訓練倍率的被動收益（下限 150／700），後期永遠抽得起
+  const DRAW_SECONDS = { single: 30, five: 135 }, DRAW_FLOOR = { single: 150, five: 700 };
   const drawCost = (s, count = 1) => { const P = rates(s, { partnerLevel: medianPartnerLevel(s), trainingLevel: s.trainingLevel / 2 }).P; return count >= 5 ? Math.max(DRAW_FLOOR.five, Math.ceil(DRAW_SECONDS.five * P)) : count * Math.max(DRAW_FLOOR.single, Math.ceil(DRAW_SECONDS.single * P)); };
   // 夥伴訓練＝CC 的建築：每級 +1 倍（線性），10／25／50／100／150／200 級各 ×2（CC 的建築升級品節奏）
   const PARTNER_MILESTONES = [10, 25, 50, 100, 150, 200];
