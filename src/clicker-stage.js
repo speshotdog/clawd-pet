@@ -1,6 +1,24 @@
 window.ClickerStage = (() => {
-  function create({ card, sound, format, showRoster, notice, tick }) {
+  function create({ card, sound, format, showRoster, notice, tick, thiefHit }) {
     const $ = (id) => document.getElementById(id), E = window.ClickerEconomy;
+    const thiefEl = document.createElement('button'); thiefEl.id = 'snack-thief'; thiefEl.hidden = true;
+    thiefEl.innerHTML = '<img alt="零食小偷"><span>🍪</span>'; $('targets').append(thiefEl);
+    thiefEl.onclick = () => thiefHit?.();
+    let thiefActive = false, thiefLeaving = false;
+    function renderThief(s, instant) {
+      const active = !!s.thief?.active && !s.boss, cfg = window.ClickerScene.resolve(s.settings.scene).thief;
+      if (active) {
+        thiefEl.firstElementChild.src = cfg.sprite;
+        thiefEl.hidden = false; thiefEl.disabled = s.thief.remainingMs > 12000;
+        thiefEl.setAttribute('aria-label', `零食小偷：還要點 ${cfg.hits-s.thief.hits} 下`);
+        thiefEl.lastElementChild.hidden = true;
+        if (!thiefActive && !instant) motion(thiefEl,[{transform:'translateX(180px)'},{transform:'translateX(0)'}],600);
+      } else if (thiefActive && !instant && !s.boss && cfg) {
+        thiefLeaving = true; thiefEl.disabled = true; thiefEl.lastElementChild.hidden = !!s.thief?.won;
+        motion(thiefEl,[{transform:'translateX(0)',opacity:1},{transform:'translateX(180px)',opacity:0}],600,()=>{thiefEl.hidden=true;thiefLeaving=false;});
+      } else if (!thiefLeaving || instant || s.boss || !cfg) { thiefEl.hidden = true; thiefLeaving = false; }
+      thiefActive = active;
+    }
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const hero = card.art.create(window.GachaPool.byId.zhenmu), cfg = card.art.cfg('zhenmu');
     $('hero').append(hero);
@@ -264,7 +282,7 @@ window.ClickerStage = (() => {
       latestState = s; if (frozen) return; setPartners(s); renderDeco(s);
       renderBoss(s,instant); rings(s); layout(s);
       document.querySelector('.package-meter').hidden=!!s.boss || bossBusy;
-      renderGift(s, instant);
+      renderGift(s, instant); renderThief(s, instant);
       if (s.boss || bossBusy) { updateParasite(s,instant); return; }
       if (!running && !instant) { lastPackage = s.package.index; return; }
       const need = E.requirement(s.package.index, s.settings.scene);
@@ -448,7 +466,7 @@ window.ClickerStage = (() => {
     function bossClock() {
       const b=latestState?.boss; if(!b || $('boss-timer').hidden) return;
       const left=Math.max(0,(b.endsAt-Math.max(Date.now(),latestState.settledAt))/1000), sec=Math.ceil(left);
-      $('boss-timer').firstElementChild.style.transform=`scaleX(${left/30})`;
+      $('boss-timer').firstElementChild.style.transform=`scaleX(${left/((b.endsAt-b.startedAt)/1000)})`;
       $('boss-timer').classList.toggle('urgent',left<=10); $('boss-timer').lastElementChild.textContent=`${sec} 秒`;
       if(sec<=10 && sec>0 && heartbeat!==sec) {heartbeat=sec;motion($('boss-timer'),[{transform:'scale(1)'},{transform:'scale(1.03)',offset:.5},{transform:'scale(1)'}],200);sound('boss-heart');}
       const ratio=b.dealt/b.need, health=$('boss-health');health.firstElementChild.style.width=`${ratio*100}%`;
@@ -492,7 +510,7 @@ window.ClickerStage = (() => {
             shake(8,160);sound('boss-win');$('boss-view').hidden=true;
           });
           later(()=>{
-            const banner=$('boss-banner');banner.textContent=`${window.ClickerScenes[r.next].name} 解鎖！`;banner.hidden=false;
+            const banner=$('boss-banner');banner.textContent=r.scene === 'fridge' ? '六站全破！珍母的零食櫃清空了' : `${window.ClickerScenes[r.next].name} 解鎖！`;banner.classList.toggle('final-win',r.scene === 'fridge');banner.hidden=false;
             motion(banner,[{transform:'scale(.8)'},{transform:'scale(1)'}],200);
             later(()=>motion(banner,[{transform:'translateX(0)',opacity:1},{transform:'translateX(-600px)',opacity:0}],220,()=>{
               banner.hidden=true;

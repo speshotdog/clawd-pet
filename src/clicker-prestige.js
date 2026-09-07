@@ -24,6 +24,7 @@
     s.coins = 0; s.clickLevel = 0; s.trainingLevel = 0; s.autoClick = 0; s.partnerLevels = {}; s.autoRemainder = 0;
     s.package = E.newPackage('backyard'); s.settings.scene = 'backyard'; s.scenePackages = {};
     s.bossCracks = {}; s.bossCooldownUntil = 0; s.bossResult = null; s.gift = null; s.boss = null;
+    delete s.thief;
     s.effects = []; s.cooldownUntil = {}; s.slotReadyAt = s.slotReadyAt.map(() => 0); s.chain = { count: 1, expiresAt: 0 };
     if (s.markShop?.starter5) s.freeDraws = (s.freeDraws || 0) + 5;
     s.universalDust = (s.universalDust || 0) + 3;
@@ -37,14 +38,15 @@
     if (s.markShop[id]) throw new Error('已經擁有');
     if ((s.marks || 0) < item.cost) throw new Error('印記不足');
     s.marks -= item.cost; s.markShop[id] = true;
+    if (id === 'bossTime' && s.boss) s.boss.endsAt += 10000;
     if (id === 'slot4' && s.skillSlots.length < 4) { s.skillSlots.push(null); s.slotReadyAt.push(0); }
     return s;
   }
   const autoClickCost = (L) => Math.ceil(5000 * 2.2 ** L);
   function buyAutoClick(state, now, max = false) {
     const s = E.settle(state, now).state; let levels = 0;
-    do { const price = autoClickCost(s.autoClick || 0); if ((s.autoClick || 0) >= B.autoClickMax || price > s.coins) break; s.coins -= price; s.autoClick = (s.autoClick || 0) + 1; levels++; } while (max);
-    if (!levels) throw new Error((s.autoClick || 0) >= B.autoClickMax ? '電動手指已滿級' : '餘額不足');
+    do { const price = autoClickCost(s.autoClick || 0); if ((s.autoClick || 0) >= B.autoClickCap(s) || price > s.coins) break; s.coins -= price; s.autoClick = (s.autoClick || 0) + 1; levels++; } while (max);
+    if (!levels) throw new Error((s.autoClick || 0) >= B.autoClickCap(s) ? '電動手指已滿級' : '餘額不足');
     return { state: s, levels };
   }
   // 每秒自動點擊次數 .5×L；用累積器把小數留到下一秒，回傳這一秒該點幾下

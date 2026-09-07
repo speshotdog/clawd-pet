@@ -75,7 +75,7 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
   75% { transform: translate(1px, 0); }
 }
 /* Paper textures supply all nine slices, including the center. */
-#game { --ink:#30251F; --text-secondary:#735E4E; --paper:#FFF6E6; --paper-edge:#B69B78; --pink:#EF8E8E; --gold:#E9B94E; color:var(--ink); font-variant-numeric:tabular-nums; }
+#game { --ink:#30251F; --text-secondary:#735E4E; --paper:#FFF6E6; --paper-edge:#B69B78; --pink:#EF8E8E; --tape:#EF8E8E; --gold:#E9B94E; color:var(--ink); font-variant-numeric:tabular-nums; }
 #game-content button, #roster button { border:3px solid var(--ink); border-radius:9px; box-shadow:0 4px 0 var(--ink); background:var(--paper); transition:background 80ms,transform 80ms; }
 #game-content button:hover:enabled, #roster button:hover:enabled { background:#F8DFAD; }
 #game-content button:active:enabled, #roster button:active:enabled { transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
@@ -223,7 +223,7 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #pity { line-height:14px; margin:0; }
 #single-note { position:absolute; top:100%; right:0; font-size:10px; }
 .badge { width:24px; height:24px; object-fit:contain; vertical-align:middle; flex:none; }
-.buddy-header h2 { width:146px; display:flex; align-items:center; gap:3px; padding:0 5px; }
+.buddy-header h2 { width:auto; min-width:146px; display:flex; align-items:center; gap:3px; padding:0 12px 0 8px; }
 footer { gap:10px; padding:0 8px; height:34px; }
 footer button, .save-plate { display:flex; align-items:center; justify-content:center; gap:5px; height:34px; padding:4px 12px 7px; min-width:96px; }
 .save-plate { margin-left:auto; min-width:144px; }
@@ -379,13 +379,15 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .topbar { z-index:30; }
 .audio-controls { position:relative; }
 #game #audio-toggle { width:38px; height:38px; font-size:22px; }
-#audio-panel { position:absolute; right:0; top:44px; width:160px; height:110px; padding:7px 10px; border-image:url('clicker-ui-paper.png') 88 fill / 12px stretch; cursor:default; }
-#audio-panel .audio-row { display:grid; grid-template-columns:26px 1fr; grid-template-rows:20px 26px; column-gap:4px; align-items:center; font-size:14px; }
+#audio-panel { position:absolute; right:0; top:44px; width:220px; height:auto; padding:7px 10px; border-image:url('clicker-ui-paper.png') 88 fill / 12px stretch; cursor:default; }
+#audio-panel .audio-row { display:grid; grid-template-columns:26px minmax(0,1fr) 40px; grid-template-rows:20px 30px; column-gap:4px; align-items:center; font-size:13px; }
 #game #audio-panel button { grid-row:1 / 3; min-width:0; width:26px; height:26px; padding:0; font-size:14px; }
 #audio-panel button[aria-pressed="true"] { opacity:.5; text-decoration:line-through; }
-#audio-panel input { grid-column:2; appearance:none; width:100%; height:12px; margin:0; background:url('clicker-ui-tape-0.png') center/100% 100%; cursor:pointer; }
-#audio-panel input::-webkit-slider-thumb { appearance:none; width:40px; height:40px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
-#audio-panel input::-moz-range-thumb { border:0; width:40px; height:40px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
+#audio-panel .audio-row > span { grid-column:2 / 4; }
+#audio-panel output { grid-column:3; grid-row:2; text-align:right; font-size:12px; font-variant-numeric:tabular-nums; }
+#audio-panel input { grid-column:2; grid-row:2; appearance:none; box-sizing:border-box; width:100%; height:10px; margin:0; border:2px solid var(--ink); border-radius:6px; background:linear-gradient(90deg,var(--tape) var(--p,0%),#E9D6B4 var(--p,0%)); cursor:pointer; }
+#audio-panel input::-webkit-slider-thumb { appearance:none; box-sizing:border-box; width:24px; height:24px; border:2px solid var(--ink); border-radius:50%; background:#FFF3DC; box-shadow:2px 2px 0 var(--ink); }
+#audio-panel input::-moz-range-thumb { box-sizing:border-box; width:24px; height:24px; border:2px solid var(--ink); border-radius:50%; background:#FFF3DC; box-shadow:2px 2px 0 var(--ink); }
 
 /* 舞台內只有點擊熱區與技能鍵吃指標；其他一切（教學便條、量尺、標籤、光、場景）都穿透，杜絕透明層擋住連點 */
 #stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag):not(#boss-view) { pointer-events:none; }   /* :not(#id) 特異度 (3,0,0)，可點的元素都要列在這裡 */
@@ -548,9 +550,9 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #wardrobe { left:592px; right:16px; top:72px; bottom:56px; inset:auto; width:352px; height:auto; position:absolute; padding:12px 14px; display:flex; flex-direction:column; }
 #wardrobe header { margin-bottom:6px; gap:8px; } #wardrobe header span { font-size:12px; }
 #wardrobe-body { flex:1; min-height:0; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.wardrobe-col { min-height:0; display:flex; flex-direction:column; gap:3px; overflow-y:auto; }
+.wardrobe-col { min-width:0; min-height:0; display:flex; flex-direction:column; gap:3px; overflow-y:auto; }
 .wardrobe-col h4 { margin:0 0 2px; font-size:13px; border-bottom:2px dashed #735E4E; }
-#game .wardrobe-item { display:grid; grid-template-columns:22px 1fr; grid-template-rows:auto auto; column-gap:4px; align-items:center; text-align:left; font-size:12px; line-height:14px; padding:2px 6px 4px; }
+#game .wardrobe-item { min-width:0; display:grid; grid-template-columns:22px minmax(0,1fr); grid-template-rows:auto auto; column-gap:4px; align-items:center; text-align:left; font-size:12px; line-height:14px; padding:2px 6px 4px; }
 .wardrobe-icon { grid-row:1 / 3; font-size:18px; text-align:center; }
 .wardrobe-item small { font-size:10px; color:#735E4E; }
 .wardrobe-item.wearing { --button-art:url('clicker-ui-btn-green.png'); }
@@ -586,7 +588,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #deco-layer .deco-fallback { font-size:11px; background:#FFF6E6; border:1px solid #30251F; border-radius:4px; padding:1px 4px; height:auto; }
 #game .grow-btn.train { --button-art:url('clicker-ui-btn-green.png'); }
 #wardrobe { width:352px; }
-#wardrobe-body { grid-template-columns:1fr 1fr 1fr; }
+#wardrobe-body { grid-template-columns:repeat(3, minmax(0, 1fr)); }
 #wardrobe-decor-price { font-size:10px; color:#735E4E; }
 #game #prestige-open { font-size:13px; }
 
@@ -713,3 +715,13 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #click-fx { z-index:25; }
 #floaters { z-index:26; }
 #daily-done-text { font-size:18px; line-height:30px; }
+
+.wardrobe-item b, .wardrobe-item small { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#wardrobe-decor-price { white-space:normal; }
+#boss-banner.final-win { font-size:24px; }
+.card-trait { position:absolute; top:8px; left:8px; right:8px; text-align:center; font-size:11px; color:#30251F; background:#FFF3DC; border-radius:4px; }
+#game #snack-thief { left:506px; top:184px; width:90px; height:110px; padding:0; border:0; border-image:none; background:transparent; box-shadow:none; z-index:8; }
+#snack-thief img { width:100%; height:100%; object-fit:contain; animation:thief-bob 1.2s ease-in-out infinite; }
+#snack-thief span { position:absolute; right:5px; bottom:15px; }
+@keyframes thief-bob { 50% { translate:0 -6px; } }
+@media (prefers-reduced-motion:reduce) { #snack-thief img { animation:none; } }

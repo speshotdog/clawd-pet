@@ -24,6 +24,10 @@
     zhencao: { base: 9, skill: '光合作用', kind: 'team', ratio: .3, duration: 30, cd: 120 },
     mianhua: { base: 8, skill: '蓬蓬鬆鬆', kind: 'self', multiplier: 4, duration: 30, cd: 120 },
     yangpu: { base: 10, skill: '噗噗數羊', kind: 'clickAdd', ratio: .6, charges: 20, duration: 20, cd: 90 },
+    jiaotou: { base: 18, skill: '燃額連擊', kind: 'clickTime', multiplier: 4, duration: 15, cd: 90, trait: { clickMul: 1.5 } },
+    jinggou: { base: 18, skill: '警棍敲擊', kind: 'click', multiplier: 8, charges: 3, duration: 15, cd: 60 },
+    gebugou: { base: 9, skill: '偷吃一口', kind: 'burst', factor: 18, basis: 'team', cd: 100 },
+    zhenjpg: { base: 5, skill: '壓縮失真', kind: 'self', multiplier: 4.5, duration: 20, cd: 110 },
     alu: { base: 5, skill: '一鳴驚人', kind: 'burst', factor: 20, basis: 'individual', cd: 45 },
   });
   const fmt = n => Number(n.toFixed(4));
@@ -46,6 +50,7 @@
     if (p.kind === 'self') { p.duration += 2*k; p.multiplier = 1+(p.multiplier-1)*t; }
     if (p.kind === 'team') { p.ratio = (p.ratio+.02*k)*t; p.duration += 2*k; }
     if (p.kind === 'passive') { p.duration += 2*k; p.copy = (k === 4 ? 1.1 : 1)*t; }
+    if (p.trait) p.trait = { clickMul: fmt(p.trait.clickMul + .1*k + .05*transcend) };
     p.cd *= (1-.03*k)*(1-.02*transcend);
     return p;
   }
@@ -75,6 +80,10 @@
     ],
   };
   const marks = [
+    { id:'finger14', name:'電動手指擴充', cost:3, desc:'電動手指上限 10 → 14' },
+    { id:'bossTime', name:'王包 +10 秒', cost:3, desc:'限時 30 → 40 秒，血量不變' },
+    { id:'offline15', name:'離線收益 ×1.5', cost:4, desc:'離線金幣 ×1.5，包進度不變' },
+    { id:'daily2', name:'每日包雙倍', cost:2, desc:'免費單抽 +2、萬用粉塵 +2、獎勵金幣 ×2' },
     { id:'slot4', name:'第四技能槽', cost:3, desc:'三槽變四槽，連鎖窗可接到第四個（×1.9）' },
     { id:'offline12', name:'離線 12 小時', cost:2, desc:'離線結算上限 8 → 12 小時' },
     { id:'chain2', name:'連鎖窗 +2 秒', cost:2, desc:'與玥玥羈絆相加' },
@@ -82,9 +91,10 @@
     { id:'crack75', name:'裂痕 75% 起跳', cost:2, desc:'王包失敗保留 75% 傷害' },
     { id:'rooftop', name:'新桌布「屋頂星空」', cost:5, desc:'第七場景，純外觀與 BGM' },
   ];
-  const autoClickMax = 6;
+  const autoClickMax = 10;
+  const autoClickCap = s => s.markShop?.finger14 ? 14 : autoClickMax;
   const decor = ['花盆','燈串','小鼓','風鈴','貓抓板','相框','香氛蠟燭','小旗串','多肉','留聲機'].map((name,i)=>({ id:`deco${i}`, name, file:`clicker-deco-${i}.png` }));
-  const api = { originalIds, marks, autoClickMax, decor, wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const api = { originalIds, marks, autoClickMax, autoClickCap, decor, wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;

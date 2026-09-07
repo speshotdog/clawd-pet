@@ -20,8 +20,8 @@
       <div class="rates"><span id="click-rate">每次 1.0</span><span id="passive-rate">每秒 0.0</span></div>
       <div class="audio-controls"><button id="audio-toggle" aria-label="音量設定" aria-expanded="false" aria-controls="audio-panel">♪</button>
         <div id="audio-panel" role="group" aria-label="音量設定" hidden>
-          <div class="audio-row"><button id="music" type="button" aria-label="音樂靜音" aria-pressed="false">♪</button><span>音樂</span><input id="music-volume" aria-label="音樂音量" type="range" min="0" max="1" step=".01" value=".6"></div>
-          <div class="audio-row"><button id="mute" type="button" aria-label="音效靜音" aria-pressed="false">♫</button><span>音效</span><input id="sfx-volume" aria-label="音效音量" type="range" min="0" max="1" step=".01" value=".8"></div>
+          <div class="audio-row"><button id="music" type="button" aria-label="音樂靜音" aria-pressed="false">♪</button><span>音樂</span><input id="music-volume" aria-label="音樂音量" type="range" min="0" max="1" step=".01" value=".6"><output id="music-percent" for="music-volume">60%</output></div>
+          <div class="audio-row"><button id="mute" type="button" aria-label="音效靜音" aria-pressed="false">♫</button><span>音效</span><input id="sfx-volume" aria-label="音效音量" type="range" min="0" max="1" step=".01" value=".8"><output id="sfx-percent" for="sfx-volume">80%</output></div>
         </div>
       </div><button id="close" aria-label="關閉視窗">×</button>
     </header>

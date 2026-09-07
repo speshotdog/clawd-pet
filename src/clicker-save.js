@@ -81,7 +81,7 @@
     check(Array.isArray(s.claimedMilestones) && s.claimedMilestones.every((v) => v === 'tutorial50') && new Set(s.claimedMilestones).size === s.claimedMilestones.length, '獎勵紀錄');
     check(s.manualClicks < 50 ? !s.claimedMilestones.includes('tutorial50') : s.claimedMilestones.includes('tutorial50') && s.collection.yueyue2 > 0, '教學獎勵');
     s.marks ??= 0; s.marksClaimed ??= 0; s.prestiges ??= 0; s.markShop ??= {}; s.autoClick ??= 0; s.autoRemainder ??= 0; s.autoClicks ??= 0; s.partnerLevels ??= {}; s.deco ??= []; s.peakRate ??= 0; s.prestigeHintDate ??= null;
-    check(integer(s.marks) && integer(s.marksClaimed) && s.marks <= s.marksClaimed && integer(s.prestiges) && integer(s.autoClick) && s.autoClick <= B.autoClickMax && number(s.autoRemainder) && s.autoRemainder < 1 && integer(s.autoClicks), '輪迴與電動手指');
+    check(integer(s.marks) && integer(s.marksClaimed) && s.marks <= s.marksClaimed && integer(s.prestiges) && integer(s.autoClick) && s.autoClick <= B.autoClickCap(s) && number(s.autoRemainder) && s.autoRemainder < 1 && integer(s.autoClicks), '輪迴與電動手指');
     check(object(s.markShop) && Object.entries(s.markShop).every(([id, v]) => B.marks.some(m => m.id === id) && v === true) && s.marksClaimed >= s.marks + Object.keys(s.markShop).reduce((sum, id) => sum + B.marks.find(m => m.id === id).cost, 0), '印記商店');
     check(object(s.partnerLevels) && Object.entries(s.partnerLevels).every(([id, L]) => known(id) && (s.collection[id] > 0 || L === 0) && integer(L) && L <= 200), '夥伴訓練');
     check(Array.isArray(s.deco) && new Set(s.deco).size === s.deco.length && s.deco.every(id => B.decor.some(d => d.id === id)), '裝飾');
@@ -154,9 +154,10 @@
     for (const [id,p] of Object.entries(s.scenePackages)) {
       check(E.unlocked(s,id) && integer(p.index) && p.index>=1 && Number.isFinite(E.requirement(p.index,id)), '場景進度'); pack(p,id);
     }
+    if (s.thief !== undefined) check(object(s.thief) && !!scenes[s.settings.scene].thief && !s.boss && typeof s.thief.active === 'boolean' && number(s.thief.remainingMs) && s.thief.remainingMs <= (s.thief.active ? 12600 : 120000) && integer(s.thief.hits) && s.thief.hits < 5, '零食小偷');
     if (s.boss) {
       const b=s.boss, cfg=scenes[s.settings.scene].boss;
-      check(object(b) && b.scene===s.settings.scene && !s.bossWins.includes(b.scene) && !s.pending && number(b.need) && b.need>0 && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===cfg.seconds*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
+      check(object(b) && b.scene===s.settings.scene && (b.scene === 'fridge' || !s.bossWins.includes(b.scene)) && !s.pending && number(b.need) && b.need>0 && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===(cfg.seconds+(s.markShop?.bossTime ? 10 : 0))*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
       pack({...b,progress:b.dealt},b.scene,b.need,true);
     }
     if (s.pending !== null) {
@@ -194,7 +195,7 @@
           const candidate = E.clone(next);
           candidate.revision = state.revision + 1; candidate.savedAt = Math.max(state.savedAt, now());
           validate(candidate, pool);
-          const encoded = JSON.stringify(candidate);
+          const encoded = JSON.stringify(candidate, (key,value) => key === 'thief' ? undefined : value);
           storage.setItem(KEY, encoded);
           state = candidate; raw = encoded; error = null; blocked = false; return true;
         } catch (err) { error = err; blocked = true; return false; }

@@ -3,7 +3,7 @@
 window.ClickerAlbum = (() => {
   function create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations }) {
     const $ = id => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
-    const IDS = Object.keys(B.characters), PER_PAGE = 4, PAGES = Math.ceil(IDS.length / PER_PAGE);
+    const IDS = Pool.CHARACTER_IDS.filter(id => B.characters[id]).sort((a,b) => E.origin(a)-E.origin(b)), PER_PAGE = 4, PAGES = Math.ceil(IDS.length / PER_PAGE);
     const RAR = { rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' }, ORIGIN = ['精良', '史詩', '傳說', '神話'];
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let spread = 0, targetSlot = null, detailId = null, blinkTimer = 0, flipping = false, pendingBuy = null, refreshKey = '';
@@ -29,7 +29,7 @@ window.ClickerAlbum = (() => {
       return `${RAR[cur]}${cur !== Pool.byId[id].rarity ? `（${o}出身）` : ''}${t ? `・超越 ${t}` : ''}${t === 5 ? '・覺醒' : ''}`;
     }
     function makeCard(s, id) {
-      const el = card.create({ ...Pool.byId[id], rarity: E.rarity(s, id) }, { tag: false });
+      const el = card.create({ ...Pool.byId[id], rarity: E.rarity(s, id) }, { tag: false, trait: E.skillAt(s,id).trait?.clickMul });
       el.classList.add('flipped', 'album-card'); el.classList.toggle('locked', !s.collection[id]); el.classList.toggle('awakened', s.transcend?.[id] === 5);
       if (!s.collection[id]) { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; el.append(q); }
       return el;
@@ -99,6 +99,7 @@ window.ClickerAlbum = (() => {
         [def.skill, skillTip(s, id).replace(/\n/g, '\n')],
         ['粉塵', owned ? `持有 ${E.dust(s, id)} 顆・可用 ${E.availableDust(s, id)} 顆・${nextStep(s, id)}` : '尚未招募'],
       ];
+      if (def.trait) rows.push(['特質', `裝備時攻擊力 ×${E.skillAt(s,id).trait.clickMul}`]);
       for (const bond of B.bonds.filter(b => b.pair.includes(id))) rows.push(['羈絆', bond.pair.every(k => s.collection[k]) ? `${bond.name}・已生效` : `${bond.name}・需要 ${bond.pair.filter(k => !s.collection[k]).map(k => Pool.byId[k].name).join('、')}`]);
       const home = Object.entries(window.ClickerScenes).filter(([, sc]) => (sc.affinity || []).includes(id)).map(([, sc]) => sc.name);
       if (home.length) rows.push(['當家', `${home.join('、')}：收益 ×1.5、冷卻 −20%`]);
@@ -139,6 +140,7 @@ window.ClickerAlbum = (() => {
       grow.append(train, trainMax);
       if (owned) rows.push(['訓練', `Lv.${L}・被動 +${5 * L}%${ms ? `・下一里程碑 ${ms}` : ''}`]);
       right.append(buttons, grow);
+      for (const [dir,label] of [[-1,'上一位'],[1,'下一位']]) { const nav = document.createElement('button'), index = IDS.indexOf(id)+dir; nav.textContent = label; nav.disabled = index < 0 || index >= IDS.length; nav.onclick = () => openDetail(IDS[index]); buttons.append(nav); }
       const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); right.append(back);
       root.append(left, right);
       if (!reduced.matches) big.animate([{ transform: 'scale(.6)', opacity: 0 }, { transform: 'scale(1.15)', opacity: 1 }], { duration: 220, easing: 'cubic-bezier(.17,.89,.32,1.28)', fill: 'forwards' });
@@ -198,6 +200,7 @@ window.ClickerAlbum = (() => {
 
     // ---------- 更衣室 ----------
     function renderWardrobe() {
+      const scrolls = [...document.querySelectorAll('.wardrobe-col')].map(el => [el,el.scrollTop]);
       const s = store.state, price = E.wardrobePrice(s);
       $('wardrobe-price').textContent = `每件 ${format(price)} 幣`;
       renderDecor();
@@ -224,11 +227,12 @@ window.ClickerAlbum = (() => {
           col.append(btn);
         }
       }
+      for (const [el,top] of scrolls) el.scrollTop = top;
     }
     // 桌面裝飾（第十三輪）：買了放進場景，各 +1% 全隊
     function renderDecor() {
       const s = store.state, P = window.ClickerPrestige, col = $('wardrobe-decor'); if (!col) return; col.replaceChildren();
-      const price = P.decoPrice(s); $('wardrobe-decor-price').textContent = `下一件 ${format(price)} 幣・各 +1% 全隊（擁有 ${s.deco.length}/10）`;
+      const price = P.decoPrice(s); $('wardrobe-decor-price').textContent = `下一件 ${format(price)} 幣・+1%／件（${s.deco.length}/10）`;
       for (const item of B.decor) {
         const owned = s.deco.includes(item.id), btn = document.createElement('button'); btn.className = 'wardrobe-item'; btn.dataset.key = `deco:${item.id}`; btn.classList.toggle('owned', owned); btn.classList.toggle('wearing', owned);
         const icon = document.createElement('span'); icon.className = 'wardrobe-icon'; icon.textContent = '❀';

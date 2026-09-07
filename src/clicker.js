@@ -180,7 +180,13 @@ window.Clicker = (() => {
     $('mute').setAttribute('aria-pressed', String(s.settings.muted));
     $('music').setAttribute('aria-pressed', String(!s.settings.music));
     for (const kind of ['music','sfx']) if (document.activeElement !== $(`${kind}-volume`)) $(`${kind}-volume`).value = s.settings[`${kind}Volume`];
+    for (const kind of ['music','sfx']) renderVolume(kind);
     gacha?.render();
+  }
+  function renderVolume(kind) {
+    const input = $(`${kind}-volume`), percent = Math.round(Number(input.value)*100);
+    input.style.setProperty('--p', `${percent}%`);
+    $(`${kind}-percent`).textContent = percent ? `${percent}%` : '靜音';
   }
   function skillTip(s,id) {
     const star = Math.max(1,E.stars(E.dust(s,id) || 0));
@@ -208,7 +214,7 @@ window.Clicker = (() => {
     B.recommendations.forEach((preset,index)=>{
       const ticket=document.createElement('button');ticket.className='recommend-ticket';ticket.dataset.index=index;
       const portraits=document.createElement('span');portraits.className='recommend-portraits';
-      for(const id of preset.slots) {const art=card.art.create(Pool.byId[id]);art.classList.toggle('missing',!store.state.collection[id]);art.setAttribute('aria-label',Pool.byId[id].name);portraits.append(art);}
+      for(const id of [...preset.slots].sort((a,b)=>E.origin(a)-E.origin(b) || Pool.CHARACTER_IDS.indexOf(a)-Pool.CHARACTER_IDS.indexOf(b))) {const art=card.art.create(Pool.byId[id]);art.classList.toggle('missing',!store.state.collection[id]);art.setAttribute('aria-label',Pool.byId[id].name);portraits.append(art);}
       const label=document.createElement('b');label.textContent=preset.name;
       const desc=document.createElement('small');desc.textContent=preset.desc;
       ticket.title=preset.slots.some(id=>!store.state.collection[id])?'招募到即可套用':'套用後更換槽位等待 30 秒';
@@ -432,7 +438,7 @@ window.Clicker = (() => {
     await document.fonts.ready;
     await window.ClickerCutin.ready;
     window.ClickerScene.mount(store.state.settings.scene, store.state.package.index);
-    stage = window.ClickerStage.create({ card, sound, format, showRoster, notice, tick: () => { settle(); changed(); } });
+    stage = window.ClickerStage.create({ card, sound, format, showRoster, notice, tick: () => { settle(); changed(); }, thiefHit: () => action(() => { if (store.blocked || hiddenNow() || cutin?.active || gacha?.active) return; const r = E.thiefHit(store.state,Date.now()); if (commit(r.state)) { changed(); if (r.won) { stage.float(r.reward, true, {x:520,y:195}, {text:`零食小偷跑了！+${format(r.reward)}`}); notice(`零食小偷跑了！+${format(r.reward)}`); } } }) });
     cutin = window.ClickerCutin.create({card, stage, sound, done:changed});
     album = window.ClickerAlbum.create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations });
     prestigeUI = window.ClickerPrestigeUI.create({ store, card, commit, changed, action, format, notice, sound, stage, album });
@@ -492,7 +498,7 @@ window.Clicker = (() => {
         const key = `${kind}Volume`;
         if (!volumeDrafts.has(key)) volumeDrafts.set(key,store.state.settings[key]);
         const s = E.clone(store.state); s.settings[key] = Number(input.value);
-        store.stage(s); muteAudio();
+        store.stage(s); renderVolume(kind); muteAudio();
       });
       input.onchange = () => action(() => { volumeDrafts.delete(`${kind}Volume`); commit(); });
     }

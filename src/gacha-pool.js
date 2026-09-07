@@ -33,6 +33,10 @@
     { id: 'mianhua', name: '棉花糖', rarity: 'epic', kind: 'char', src: 'card-mianhua.png' },
     { id: 'yangpu', name: '羊咩噗', rarity: 'epic', kind: 'char', src: 'card-yangpu.png' },
     { id: 'alu', name: '阿漉', rarity: 'rare', kind: 'char', src: 'card-alu.png' },
+    { id: 'jiaotou', name: '膠頭燃額', rarity: 'legendary', kind: 'char', src: 'card-jiaotou.png' },
+    { id: 'jinggou', name: '警狗', rarity: 'legendary', kind: 'char', src: 'card-jinggou.png' },
+    { id: 'gebugou', name: '哥不狗', rarity: 'epic', kind: 'char', src: 'card-gebugou.png' },
+    { id: 'zhenjpg', name: '珍珍JPG', rarity: 'rare', kind: 'char', src: 'card-zhenjpg.png' },
     { id: 'dino',       name: '小恐龍',      rarity: 'common', kind: 'toy', src: 'toy-dino.png', w: 120 },
     { id: 'ballyellow', name: '黃色球',      rarity: 'common', kind: 'toy', src: 'toy-ballyellow.png', w: 109.4 },
     { id: 'beachball',  name: '皮球',        rarity: 'common', kind: 'toy', src: 'toy-beachball.png', w: 94.7 },
@@ -49,7 +53,7 @@
     packMinRarity: 'rare',
     pity: { unit: 'pack', hard: 10 },
   });
-  // 遊戲（珍母點點）的政策：只抽 21 隻角色、69.5/25/5/0.5、
+  // 遊戲（珍母點點）的政策：只抽 25 隻角色、69.5/25/5/0.5、
   // 保底按「張」算：第 30 張起每張傳說率 +5%（第 30 張 10%、第 31 張 15%…），第 40 張必出。
   const GAME_POLICY = Object.freeze({
     candidates: CHARACTER_IDS,

@@ -24,9 +24,9 @@ test('印記商店：扣印記、第四槽開一格、離線 12 小時、開局�
   S.validate(s, Pool);
   const r = P.prestige(Object.assign(own(s, 'zhenmu', 1), { lifetimeCoins: 49e8 }), 0); assert.equal(r.state.freeDraws, 5); assert.equal(r.state.skillSlots.length, 4);
 });
-test('電動手指：5000×2.2^L、上限 6、每秒 .5L 次帶小數累積、不算手點', () => {
+test('電動手指：5000×2.2^L、上限 10、每秒 .5L 次帶小數累積、不算手點', () => {
   let s = seed({ coins: 1e9, lifetimeCoins: 1e9 });
-  const r = P.buyAutoClick(s, 0, true); assert.equal(r.state.autoClick, 6); assert.equal(r.levels, 6); assert.throws(() => P.buyAutoClick(r.state, 0), /滿級/);
+  const r = P.buyAutoClick(s, 0, true); assert.equal(r.state.autoClick, 10); assert.equal(r.levels, 10); assert.throws(() => P.buyAutoClick(r.state, 0), /滿級/);
   const t = seed({ autoClick: 1 }); assert.equal(P.autoClicks(t, 1), 0); assert.equal(P.autoClicks(t, 1), 1); assert.ok(Math.abs(t.autoRemainder) < 1e-9);
   const c = E.click(seed(), 0, undefined, { auto: true }); assert.equal(c.state.manualClicks, 0); assert.equal(c.state.autoClicks, 1);
 });

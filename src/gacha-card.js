@@ -69,7 +69,7 @@ function buildArt(entry) {
   return span;
 }
 
-function buildCard(entry, { dup = false, tag = true, owned = 0, veil } = {}) {
+function buildCard(entry, { dup = false, tag = true, owned = 0, veil, trait = window.ClickerBalance?.characters[entry.id]?.trait?.clickMul } = {}) {
   const label = tag ? tagFor(entry, dup, owned) : null;
   const card = document.createElement('div');
   const shown = window.GachaPool.shownRarity({ entry, veil });
@@ -102,6 +102,7 @@ function buildCard(entry, { dup = false, tag = true, owned = 0, veil } = {}) {
   if (label) card.querySelector('.face-tag').textContent = label.text;
   card.querySelector('.face-name').textContent = entry.name;
   card.querySelector('.face-rarity').textContent = RARITY[shown].label;
+  if (trait) { const line = document.createElement('small'); line.className = 'card-trait'; line.textContent = `裝備時攻擊力 ×${trait}`; card.querySelector('.card-face').appendChild(line); }
   return card;
 }
 

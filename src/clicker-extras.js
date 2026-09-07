@@ -33,9 +33,10 @@
     const d = s.daily; if (!d || d.done || !(amount > 0)) return false;
     d.dealt = Math.min(d.need, d.dealt + amount);
     if (d.dealt < d.need) return false;
-    d.done = true; d.streak++; s.freeDraws = (s.freeDraws || 0) + 1; s.universalDust = (s.universalDust || 0) + 1;
+    const reward = s.markShop?.daily2 ? 2 : 1;
+    d.done = true; d.streak++; s.freeDraws = (s.freeDraws || 0) + reward; s.universalDust = (s.universalDust || 0) + reward;
     // 金幣獎勵：等於這包的需求（拆包時已經拿到一份，等於再給一份）
-    d.bonus = d.need; s.coins += d.bonus; s.lifetimeCoins += d.bonus;
+    d.bonus = d.need * reward; s.coins += d.bonus; s.lifetimeCoins += d.bonus;
     return true;
   }
   // 點今日限定包：拆包力進限定包、幣照給、一般包不動（E.click 的 sink）
@@ -79,7 +80,7 @@
     return s;
   }
   // ---------- 匯出／匯入 ----------
-  const encodeSave = s => PREFIX + btoa(unescape(encodeURIComponent(JSON.stringify(s))));
+  const encodeSave = s => PREFIX + btoa(unescape(encodeURIComponent(JSON.stringify(s, (key,value) => key === 'thief' ? undefined : value))));
   function decodeSave(text) {
     const t = String(text || '').trim();
     if (!t.startsWith(PREFIX)) throw new Error(`格式不對：存檔字串要以 ${PREFIX} 開頭`);
@@ -159,12 +160,13 @@
       const s = store.state, d = s?.daily, show = !!d && !d.done && !s.boss && !stage.bossBusy;
       if (show) {
         dailyMeter.firstElementChild.style.width = `${Math.min(100, d.dealt / d.need * 100)}%`;
-        dailyEl.title = `今日限定包 ${format(d.dealt)} / ${format(d.need)}・拆完送免費單抽 +1、萬用粉塵 +1`;
+        dailyEl.title = `今日限定包 ${format(d.dealt)} / ${format(d.need)}・拆完送免費單抽 +${s.markShop?.daily2 ? 2 : 1}、萬用粉塵 +${s.markShop?.daily2 ? 2 : 1}`;
+        dailyEl.setAttribute('aria-label', dailyEl.title);
         if (!dailyShown) {
           dailyEl.hidden = false; dailyShown = true;
           if (!instant && stage.running) {
             motion(dailyEl, [{ transform: 'translateY(-120px) rotate(-8deg)', opacity: 0 }, { transform: 'translateY(0) rotate(0)', opacity: 1, offset: .7 }, { transform: 'scale(1.1,.9)', opacity: 1, offset: .82 }, { transform: 'scale(1)', opacity: 1 }], 420, 'ease-in').finished.then(() => { stage.shake(4, 100); sound('upgrade'); }).catch(() => {});
-            notice('今日限定包上桌！拆完送免費單抽 +1、萬用粉塵 +1');
+            notice(`今日限定包上桌！拆完送免費單抽 +${s.markShop?.daily2 ? 2 : 1}、萬用粉塵 +${s.markShop?.daily2 ? 2 : 1}`);
           }
         }
       } else if (dailyShown) { dailyShown = false; dailyEl.hidden = true; }
@@ -173,11 +175,11 @@
     function dailyDone(s) {
       if (!commit(s)) return;
       ribbons(24, DAILY_POINT); sound('daily'); stage.shake(4, 140);
-      floatText('免費單抽 ＋1・萬用粉塵 ＋1', { x: DAILY_POINT.x + 40, y: DAILY_POINT.y - 60 }, '#E9B94E', 22);
+      floatText(`免費單抽 ＋${s.markShop?.daily2 ? 2 : 1}・萬用粉塵 ＋${s.markShop?.daily2 ? 2 : 1}`, { x: DAILY_POINT.x + 40, y: DAILY_POINT.y - 60 }, '#E9B94E', 22);
       notice(`今日限定包拆完！連續 ${s.daily.streak} 天`);
       dailyShown = false; dailyEl.disabled = true;
       // 拆完 700ms 後跳收據，把拿到什麼列清楚
-      setTimeout(() => { if ($('daily-done').hidden) { $('daily-done-text').innerHTML = `<b>免費單抽 ＋1</b><br><b>萬用粉塵 ＋1</b><br><b>金幣 ＋${format(s.daily.bonus || 0)}</b><br><small>連續 ${s.daily.streak} 天・明天再來拆一包</small>`; openPanel('daily-done'); } }, 700);
+      setTimeout(() => { if ($('daily-done').hidden) { $('daily-done-text').innerHTML = `<b>免費單抽 ＋${s.markShop?.daily2 ? 2 : 1}</b><br><b>萬用粉塵 ＋${s.markShop?.daily2 ? 2 : 1}</b><br><b>金幣 ＋${format(s.daily.bonus || 0)}</b><br><small>連續 ${s.daily.streak} 天・明天再來拆一包</small>`; openPanel('daily-done'); } }, 700);
       motion(dailyEl, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(1.4) rotate(6deg)', opacity: 1, offset: .35 }, { transform: 'scale(.2) translateY(-40px)', opacity: 0 }], 360).finished.then(() => { dailyEl.hidden = true; renderDaily(); }).catch(() => { dailyEl.hidden = true; });
       changed();
     }

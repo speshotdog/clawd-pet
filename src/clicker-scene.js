@@ -4,6 +4,7 @@
   const sprites = (kind, n) => Array.from({ length: n }, (_, i) => `clicker-scene1-${kind}-${i}.png`);
   const scenes = {
     backyard: {
+      thief: { sprite:'monster-0.png', everyMs:[60000,120000], hits:5, reward:20 },
       name: '後院草地', unlockPackages: 0, requirementMul: 1, rewardMul: 1, bagSkin: 0,
       unlock: null, enemy: { shell: null, timer: null, regen: null }, affinity: ['yueyue2','caihua'],
       // mul 是「玩家 30 秒容量（被動＋每秒 6 點）」的倍數（見 economy.startBoss），不再是包需求的倍數
@@ -48,6 +49,7 @@
   const sceneSprites = (n, kind, count) => Array.from({ length: count }, (_, i) => `clicker-scene${n}-${kind}-${i}.png`);
   const boss = (name, image, size, center) => ({ ...scenes.backyard.boss, name, mul: 1.25, image, size, ...(center ? { center } : {}), reward: { freeDraws: 5 } });
   scenes.market = {
+    thief: { sprite:'monster-1.png', everyMs:[60000,120000], hits:5, reward:20 },
     name: '便利商店貨架', unlockPackages: 0, requirementMul: 64, rewardMul: 2, bagSkin: 0,
     unlock: { packages: 60, boss: 'kitchen' }, enemy: { shell: null, timer: null, regen: null, triple: true }, affinity: ['dog', 'jiaobu2'],
     boss: boss('大三連包', 'clicker-boss3-pack.png', [320, 150], 440),   // 寬王：中心左移到 440，右緣 600 不出舞台
@@ -64,6 +66,7 @@
     particles: { sprites: sceneSprites(3, 'particle', 4), everyMs: [1500, 3200], max: 6, size: [10, 16], life: [5, 9] },
   };
   scenes.factory = {
+    thief: { sprite:'monster-2.png', everyMs:[60000,120000], hits:5, reward:20 },
     name: '零食工廠', unlockPackages: 0, requirementMul: 500, rewardMul: 2.5, bagSkin: 0,
     unlock: { packages: 70, boss: 'market' }, enemy: { shell: null, timer: 20, regen: null }, affinity: ['lk', 'jiaobu'],
     boss: boss('大輸送箱', 'clicker-boss4-crate.png', [260, 285]),
@@ -98,12 +101,13 @@
     particles: { sprites: sceneSprites(5, 'particle', 4).slice(1), everyMs: [1500, 3200], max: 6, size: [10, 16], life: [5, 9], rise: true },
   };
   // 印記商店的新桌布「屋頂星空」：純外觀（層次先借後院，CSS 上夜色；素材另補），需求倍率同後院
-  scenes.rooftop = { ...scenes.backyard, name: '屋頂星空', unlock: null, requiresMark: 'rooftop', affinity: [], bagSkin: 0,
+  scenes.rooftop = { ...scenes.backyard, thief: null, name: '屋頂星空', unlock: null, requiresMark: 'rooftop', affinity: [], bagSkin: 0,
     palette: { mat: '#3B3F5C', sky: '#1E2440' }, music: { theme: 'rainynight', seed: 'zhenmu-rooftop-1', gen: { density: 35, rhythm: 30, speed: 30, drama: 40, mood: 55, hook: 60, smooth: 80 } },
     particles: { sprites: ['clicker-fx-spark.png', 'clicker-scene1-particle-1.png'], everyMs: [900, 2200], max: 8, size: [8, 14], life: [5, 9] } };
   // 第十二輪：深夜冰箱（舊 id rainynight，存檔遷移在 clicker-save.js）。regen：需求每秒回升 1%，靠 burst 打穿。
   // 冰箱自己的層已產出（clicker-scene6-*）；tint 只留一點冷色。冷凍包仍用罐頭 + 霜層（clicker-frozen-frost/ice）。
   scenes.fridge = {
+    bossPackages: 100,
     name: '深夜冰箱', unlockPackages: 0, requirementMul: 12000, rewardMul: 3.5, bagSkin: 1, bagPrefix: 'clicker-can-',
     unlock: { packages: 90, boss: 'nightmarket' }, enemy: { shell: null, timer: null, regen: .01 }, affinity: ['zhenmu','zhenzhen'],
     boss: { ...scenes.backyard.boss, name: '大冰磚', mul: .95, reward: { freeDraws: 5 } },   // 王也吃 1%/s 回升，30 秒約掉 30%，係數補回

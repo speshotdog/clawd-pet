@@ -42,11 +42,11 @@ window.ClickerPrestigeUI = (() => {
     function renderFinger(s, body) {
       const L = s.autoClick || 0, price = P.autoClickCost(L);
       const note = document.createElement('div'); note.className = 'prestige-note';
-      note.innerHTML = `<p><img src="clicker-ui-hanger.png" alt="" style="display:none" />電動手指 <b>Lv.${L}</b>／${B.autoClickMax}：每秒自動點 <b>${(.5 * L).toFixed(1)}</b> 次（吃所有點擊倍率與次數型技能，不算手點）。累計自動點 ${format(s.autoClicks || 0)} 次。</p><p>下一級 ${L >= B.autoClickMax ? '已滿級' : `${format(price)} 幣`}。換桌布會歸零。</p>`;
+      note.innerHTML = `<p><img src="clicker-ui-hanger.png" alt="" style="display:none" />電動手指 <b>Lv.${L}</b>／${B.autoClickCap(s)}：每秒自動點 <b>${(.5 * L).toFixed(1)}</b> 次（吃所有點擊倍率與次數型技能，不算手點）。累計自動點 ${format(s.autoClicks || 0)} 次。</p><p>下一級 ${L >= B.autoClickCap(s) ? '已滿級' : `${format(price)} 幣`}。換桌布會歸零。</p>`;
       body.append(note);
       const row = document.createElement('div'); row.className = 'prestige-actions';
       for (const [label, max] of [['升一級', false], ['最多', true]]) {
-        const b = document.createElement('button'); b.textContent = label; b.disabled = L >= B.autoClickMax || s.coins < price || store.blocked;
+        const b = document.createElement('button'); b.textContent = label; b.disabled = L >= B.autoClickCap(s) || s.coins < price || store.blocked;
         b.onclick = () => action(() => { const r = P.buyAutoClick(store.state, Date.now(), max); if (commit(r.state)) { sound('upgrade'); changed(); notice(`電動手指 +${r.levels} 級`); render(); } });
         row.append(b);
       }

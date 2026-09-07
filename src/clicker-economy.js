@@ -24,7 +24,7 @@
   // Dust is cumulative. Paid progression records account for spending; the first 16 retain five stars.
   const spentDust = (s,id) => ((s.promotions?.[id] || 0) ? 12 + (s.promotions[id] === 2 ? 16 : 0) : 0) + transcendCosts[origin(id)].slice(0,s.transcend?.[id] || 0).reduce((a,b)=>a+b,0);
   const availableDust = (s,id) => Math.max(0,dust(s,id)-16-spentDust(s,id));
-  const exchangeRate = id => origin(id) === 3 ? 6 : origin(id)+1;
+  const exchangeRate = id => origin(id) === 3 ? 100 : origin(id)+1;   // 神話 100 萬用粉塵換 1 顆（使用者 2026-09-08）
   const rarity = (s,id) => ['rare','epic','legendary','mythic'][tier(s,id)];
   function grow(state,id,now,trans) {
     const s=settle(state,now).state;
@@ -43,8 +43,8 @@
     const before=stars(dust(s,id)); s.dust[id]=dust(s,id);
     s.collection[id]=(s.collection[id] || 0)+1;
     if (s.transcend?.[id]===5) {
-      const rate=[4,2,1,.5][origin(id)], count=(s.overflow[id] || 0)+1;
-      s.universalDust+=Math.floor(count/rate); s.overflow[id]=count%rate;
+      if (origin(id)===3) { s.universalDust+=100; }   // 神話滿養重複一張＝100 萬用粉塵（與兌換價對稱）
+      else { const rate=[4,2,1][origin(id)], count=(s.overflow[id] || 0)+1; s.universalDust+=Math.floor(count/rate); s.overflow[id]=count%rate; }
     } else s.dust[id]++;
     return {id,from:before,to:stars(s.dust[id])};
   }
@@ -105,7 +105,8 @@
   function rates(s) {
     const P = Object.keys(B.characters).reduce((sum, id) => sum + individual(s, id), 0);
     const mul = (Scenes(s.settings?.scene).rewardMul || 1) * decoMul(s), M = markMul(s);
-    return { P: M * P * mul, D: (M * 1.15 ** s.clickLevel + .05 * M * P) * mul };
+    const trait = (s.skillSlots || []).reduce((m,id) => m * (id && s.collection[id] ? skillAt(s,id).trait?.clickMul || 1 : 1), 1);
+    return { P: M * P * mul, D: trait * (M * 1.15 ** s.clickLevel + .05 * M * P) * mul };
   }
   function tagFor(entry, dup, owned, state) {
     if (state?.transcend?.[entry.id]===5) return {text:`萬用 +${['¼','½','1','2'][origin(entry.id)]}`,cls:'mastery'};
@@ -252,6 +253,28 @@
     if (!s.nextGiftAt) s.nextGiftAt = now + rand(cfg.everyMs, options.rng);
     else if (now >= s.nextGiftAt) spawnGift(s, now);
   }
+  // 暫態小偷：只扣可見時間，重開不保留事件。
+  function tickThief(s, elapsed, options) {
+    const cfg = Scenes(s.settings.scene).thief;
+    if (!cfg) { delete s.thief; return; }
+    if (options.offline || options.visible === false || s.boss) { delete s.thief; return; }
+    if (!s.thief) s.thief = { active:false, remainingMs:rand(cfg.everyMs, options.rng), hits:0 };
+    s.thief.remainingMs -= elapsed;
+    if (s.thief.remainingMs > 0) return;
+    s.thief = s.thief.active
+      ? { active:false, remainingMs:rand(cfg.everyMs, options.rng), hits:0 }
+      : { active:true, remainingMs:12600, hits:0 };
+  }
+  function thiefHit(state, now) {
+    const result = settle(state, now), s = result.state, cfg = Scenes(s.settings.scene).thief;
+    let reward = 0, won = false;
+    if (cfg && !s.boss && s.thief?.active && s.thief.remainingMs <= 12000 && ++s.thief.hits >= cfg.hits) {
+      won = true; reward = rates(s).P * cfg.reward;
+      grant(s, reward, 'passive', {coinsOnly:true});
+      s.thief = { active:false, remainingMs:rand(cfg.everyMs), hits:0, won:true };
+    }
+    return { ...result, reward, won };
+  }
   // 第十二輪 regen（冰箱）：每秒 progress -= need × regen，不低於 0。可見時直接吃進度；離線時回傳要從被動裡先扣掉的量
   // （P < need×regen 時離線進度停在原地、幣照給）。王包照吃，但不低於裂痕起點。
   function regen(s, duration, offline) {
@@ -297,8 +320,10 @@
     const completed = grant(s, earned - kept, options.offline ? 'offline' : 'passive', { coinsOnly:!!options.coinsOnly });
     if (s.boss && now >= s.boss.endsAt) finishBoss(s,false,now);
     s.settledAt = Math.max(s.settledAt, now);
+    if (options.offline && s.markShop?.offline15) { grant(s, earned * .5, 'offline', {coinsOnly:true}); earned *= 1.5; }
     stampDeadline(s, now);
     tickGift(s, now, options);
+    tickThief(s, state.boss ? 0 : elapsed, options);
     s.effects = s.effects.filter((e) => e.expiresAt > s.settledAt && (e.remaining === undefined || e.remaining > 0));
     return { state: s, earned, completed, elapsed, duration };
   }
@@ -406,7 +431,8 @@
   const sceneMap = () => typeof module !== 'undefined' && module.exports ? require('./clicker-scene.js').scenes : root.ClickerScenes;
   const nextScene = id => Object.keys(sceneMap()).find(key=>sceneMap()[key].unlock?.boss===id);
   const unlocked = (s,id) => Object.hasOwn(sceneMap(),id) && sceneMap()[id].available!==false && (!sceneMap()[id].requiresMark || !!s.markShop?.[sceneMap()[id].requiresMark]) && (!sceneMap()[id].unlock || (s.bossWins || []).includes(sceneMap()[id].unlock.boss));
-  const canBoss = (s,now) => !s.boss && !s.pending && !!nextScene(s.settings.scene) && !(s.bossWins || []).includes(s.settings.scene) && s.package.index-1 >= Scenes(nextScene(s.settings.scene)).unlock.packages && now >= (s.bossCooldownUntil || 0);
+  const bossPackages = id => Scenes(id).bossPackages ?? sceneMap()[nextScene(id)]?.unlock?.packages;
+  const canBoss = (s,now) => !s.boss && !s.pending && bossPackages(s.settings.scene) != null && (s.settings.scene === 'fridge' || !(s.bossWins || []).includes(s.settings.scene)) && s.package.index-1 >= bossPackages(s.settings.scene) && now >= (s.bossCooldownUntil || 0);
   function switchScene(state,id,now) {
     if (state.boss || !unlocked(state,id)) throw new Error('王包中或場景尚未解鎖');
     const s=settle(state,now).state; changeScene(s,id); return s;
@@ -417,6 +443,7 @@
     const oldMul=Scenes(s.settings.scene).rewardMul || 1, newMul=Scenes(id).rewardMul || 1;
     s.effects.forEach(e=>{if (e.value !== undefined) e.value*=newMul/oldMul;});
     if (s.gift) endGift(s, s.settledAt, false);
+    delete s.thief;
     s.settings.scene=id; s.package=clone(s.scenePackages[id] || newPackage(id));
     if (giftFor(id)) s.nextGiftAt = s.settledAt + rand(giftFor(id).everyMs);
     if (timerFor(id)) s.package.deadline = s.settledAt + timerFor(id) * 1000; else delete s.package.deadline;
@@ -430,10 +457,11 @@
     // 王包血量＝玩家「現在的 30 秒容量」（被動 30 秒＋每秒 6 下點擊）× mul，下限門檻包需求：
     // 純放置約 60%、連點不用技約 80%、連點＋技能 110%↑；離線衝過門檻不會讓王變得打不動
     // 下限用「門檻那一包」而不是現在這一包：離線衝過門檻幾十包，王不能跟著變成不可能
-    const floor=requirement(Scenes(nextScene(scene)).unlock.packages+1,scene);
-    const need=Math.max(floor, cfg.mul*(30*r.P+180*r.D)*cfg.seconds/30);
-    s.boss={scene,need,dealt:crack*need,startedAt:now,endsAt:now+cfg.seconds*1000,crack,shells:shellsFor(scene).filter(v=>1-v>crack),shellHp:3,blocked:0};
+    const floor=requirement(bossPackages(scene)+1,scene);
+    const need=Math.max(floor, cfg.mul*(30*r.P+180*r.D));
+    s.boss={scene,need,dealt:crack*need,startedAt:now,endsAt:now+(cfg.seconds+(s.markShop?.bossTime ? 10 : 0))*1000,crack,shells:shellsFor(scene).filter(v=>1-v>crack),shellHp:3,blocked:0};
     if (s.gift) endGift(s, now, false);
+    delete s.thief;
     s.bossResult=null; return s;
   }
   function finishBoss(s,won,now) {
@@ -443,7 +471,7 @@
     s.bossResult={scene:b.scene,won,crack,at:now,next:nextScene(b.scene)};
     if (won) {
       s.bossWins ||= []; if (!s.bossWins.includes(b.scene)) { s.bossWins.push(b.scene); s.universalDust=(s.universalDust || 0)+3; s.freeDraws=(s.freeDraws || 0)+cfg.reward.freeDraws; }
-      s.bossCooldownUntil=0;
+      s.bossCooldownUntil=b.scene === 'fridge' ? now+cfg.cooldown*1000 : 0;
       if (unlocked(s,s.bossResult.next)) changeScene(s,s.bossResult.next);
     } else s.bossCooldownUntil=now+cfg.cooldown*1000;
     stampDeadline(s, now, true);
@@ -452,7 +480,7 @@
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
   const api = { exchangeRate, PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, decoMul,
-    newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
+    thiefHit, newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerEconomy = api;
