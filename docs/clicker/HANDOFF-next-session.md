@@ -3,7 +3,7 @@
 ## 一、現況一眼看
 
 - **程式碼**：分支 `main`，已 push 到 origin（最新 `eec6587`）。
-  ⚠ **每台機器路徑不一樣**：公司機是 `D:\claude研究\clawd-pet`，家裡機是 `D:\claude\clawd-pet`。本文件底下的指令若寫死路徑，請先換成你這台的。
+  ⚠ **每台機器路徑不一樣**：目前看過的有 `D:\claude研究\clawd-pet` 與 `D:\claude\clawd-pet` 兩種。本文件底下的指令一律不要寫死路徑，用 `git rev-parse --show-toplevel`。
   ⚠ **接手前一定先 `git fetch` + `git pull --ff-only`**（2026-09-07 就發生過本機落後 origin 66 個 commit，差點直接改到舊檔）。
   原（2026-09-06 深夜）：第八～十三輪全部合併，`npm test` 111 例、Playwright 全套件（round4~7 舊套件＋`--round8/9/11/12`）全綠。main 已於 2026-09-07 push 到 origin（`f319ebd` 之後可在別台機器 clone 續作；之前只推 gh-pages）。
 - **網頁版**：https://speshotdog.github.io/clawd-pet/ ，來源是 `gh-pages` 分支（只放 `dist-web/` 內容＋`.nojekyll`，orphan commit，每次 force push 不保留歷史）。存檔在瀏覽器 localStorage 的 `clicker_save`（跟 exe 各自獨立；可用徽章牆的「匯出存檔／匯入存檔」搬家）。
@@ -13,7 +13,7 @@
 ## 二、網頁版怎麼更新（每次改完 main 都要做）
 
 ```bash
-REPO="$(git rev-parse --show-toplevel)"   # 別再寫死路徑：公司機 D:/claude研究/clawd-pet、家裡機 D:/claude/clawd-pet
+REPO="$(git rev-parse --show-toplevel)"   # 別再寫死路徑（各機器不同：D:/claude研究/clawd-pet、D:/claude/clawd-pet）
 cd "$REPO"
 python tools/export-web.py            # → dist-web/（2026-09-07 起 307 檔、約 43 MB；clicker.html→index.html、內嵌角色 template）
 git branch -D gh-pages 2>/dev/null   # 本地舊分支擋 orphan
