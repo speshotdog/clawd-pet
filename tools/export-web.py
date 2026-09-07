@@ -31,6 +31,10 @@ def main():
     # GachaCard fetches index.html for templates. Keep them in the game entry
     # without executing any desktop scripts or changing the shared renderer.
     html = (SRC / 'clicker.html').read_text(encoding='utf8')
+    # 防快取：CSS／JS 連結加上 main 的 short hash（2026-09-07 玩家拿到新 JS 配舊 CSS：新卡圖沒被限制大小、卡冊翻頁鍵還是舊的）
+    import subprocess
+    ver = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT).decode().strip()
+    html = re.sub(r'((?:href|src)=")([^"?]+\.(?:css|js))(")', lambda m: f'{m.group(1)}{m.group(2)}?v={ver}{m.group(3)}', html)
     (DEST / 'index.html').write_text(html.replace('</body>', templates + '\n</body>'), encoding='utf8')
     shutil.copy2(ROOT / 'docs/clicker/shots/v6-scene.png', DEST / 'og.png')
     exported = sorted(p for p in DEST.rglob('*') if p.is_file())
