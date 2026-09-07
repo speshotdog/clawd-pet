@@ -120,8 +120,8 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 .upgrade > img { width:40px; height:40px; object-fit:contain; }
 #shop h2, .buddy-header h2, .skills-heading { font-size:18px; line-height:24px; border-image:url('clicker-ui-label.png') 80 110 fill / 10px 14px stretch; padding:1px 8px; white-space:nowrap; }
 /* 標題帶 9-slice：切片要蓋過整個圓端與硬陰影（實測 pink 端 ~80px、purple ~70、green ~125），否則中段拉伸會把圓端的一截拉成出框的淡色帶（2560 實測） */
-#shop .upgrade:nth-child(2) h2, .skills-heading { border-image:url('clicker-ui-label-green.png') 110 150 fill / 14px 19px stretch; }
-#shop .recruit h2 { border-image:url('clicker-ui-label-purple.png') 70 100 fill / 9px 13px stretch; }
+#shop .upgrade:nth-child(2) h2, .skills-heading { border-image:url('clicker-ui-label-green.png') 110 158 fill / 14px 20px stretch; }
+#shop .recruit h2 { border-image:url('clicker-ui-label-purple.png') 78 108 fill / 10px 14px stretch; }
 .upgrade p { font-size:13px; line-height:18px; margin:0; }
 .purchase { margin-top:4px; }
 .purchase button { font-size:15px; line-height:16px; height:36px; padding:0 4px; }
@@ -190,9 +190,9 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-art:url('clicker-ui-btn-purple.png'); }
 #game #reveal-all { --button-art:url('clicker-ui-btn-pink.png'); }
 #game h1, #game h2, #game b, #game .rates { font-weight:800; }
-#game-content h1 { width:250px; height:52px; display:flex; justify-content:center; align-items:center; border-image:url('clicker-ui-title-tape.png') 100 160 fill / 15px stretch; padding:6px 18px; }
+#game-content h1 { width:250px; height:52px; display:flex; justify-content:center; align-items:center; border-image:url('clicker-ui-title-tape.png') 107 171 fill / 16px stretch; padding:6px 18px; }
 .topbar { top:14px; height:50px; gap:12px; }
-.wallet { position:absolute; left:356px; width:220px; height:52px; justify-content:center; padding:6px 24px; border-image:url('clicker-ui-coinplate.png') 70 120 78 90 fill / 12px 20px 13px 15px stretch; }
+.wallet { position:absolute; left:356px; width:220px; height:52px; justify-content:center; padding:6px 24px; border-image:url('clicker-ui-coinplate.png') 70 120 84 96 fill / 12px 20px 14px 16px stretch; }
 .wallet img { width:32px; height:32px; object-fit:contain; }
 .wallet b { display:inline-block; }
 .rates { margin-left:auto; margin-right:12px; }
@@ -215,7 +215,7 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 .purchase { border-top:2px dashed #735E4E; padding-top:5px; gap:5px; align-items:center; margin-top:2px; }
 #shop .purchase button { flex:1; height:32px; font-size:15px; line-height:16px; padding:3px 7px 6px; white-space:nowrap; }
 #shop #click-max, #shop #training-max { flex:0 0 43px; font-size:11px; padding:3px 4px 6px; }
-.price-ticket { display:flex; align-items:center; justify-content:center; gap:3px; height:31px; min-width:92px; padding:3px 9px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 7px 10px stretch; font-size:16px; }
+.price-ticket { display:flex; align-items:center; justify-content:center; gap:3px; height:31px; min-width:92px; padding:3px 9px; border-image:url('clicker-ui-ticket.png') 57 70 fill / 8px 10px stretch; font-size:16px; }
 .price-ticket img { width:22px; height:22px; object-fit:contain; }
 #shop #draw-five { font-size:11px; }
 #shop .purchase small { display:none; }
@@ -279,7 +279,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #tutorial { top:-3px; left:90px; width:420px; height:32px; line-height:32px; border-radius:0; background:#FFF6E6e8; transform:rotate(-1deg); box-shadow:0 2px 2px #30251f22; }
 #tutorial::before, #tutorial::after { content:''; position:absolute; width:45px; height:24px; background:url('clicker-ui-tape-0.png') center/contain no-repeat; top:-5px; left:-18px; transform:rotate(-18deg); }
 #tutorial::after { left:auto; right:-18px; transform:rotate(22deg); }
-#package-result { left:388px; top:134px; bottom:auto; width:150px; text-align:center; opacity:0; border-image:url('clicker-ui-ticket.png') 50 70 fill / 7px 10px; padding:4px 10px; color:#30251F; z-index:5; }
+#package-result { left:388px; top:134px; bottom:auto; width:150px; text-align:center; opacity:0; border-image:url('clicker-ui-ticket.png') 57 70 fill / 8px 10px; padding:4px 10px; color:#30251F; z-index:5; }
 #package-progress::-webkit-progress-value { transition:background-color 200ms; }
 #package-progress.meter-full::-webkit-progress-value { background:#E9B94E; }
 .small-impact { position:absolute; width:130px; height:130px; pointer-events:none; }
@@ -370,7 +370,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .floater { font-size:26px; color:#FFF6E6; text-shadow:0 2px 0 #30251F; }
 #game .floater b { -webkit-text-stroke:1.2px #30251F; paint-order:stroke fill; }
 .floater img { width:22px; height:22px; }
-.package-meter { left:24px; top:308px; width:560px; height:40px; padding:6px 12px; display:grid; grid-template-columns:72px minmax(0,1fr) 150px; gap:10px; border:0; border-image:url('clicker-ui-ticket.png') 50 70 fill / 7px 12px stretch; background:transparent; clip-path:none; }
+.package-meter { left:24px; top:308px; width:560px; height:40px; padding:6px 12px; display:grid; grid-template-columns:72px minmax(0,1fr) 150px; gap:10px; border:0; border-image:url('clicker-ui-ticket.png') 57 70 fill / 8px 12px stretch; background:transparent; clip-path:none; }
 #package-label { grid-column:1; grid-row:1; width:72px; font-size:18px; }
 #package-progress { grid-column:2; grid-row:1; width:100%; height:14px; border-radius:7px; overflow:hidden; }
 #package-number { grid-column:3; grid-row:1; width:150px; font-size:16px; line-height:22px; text-align:right; }
@@ -725,3 +725,5 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #snack-thief span { position:absolute; right:5px; bottom:15px; }
 @keyframes thief-bob { 50% { translate:0 -6px; } }
 @media (prefers-reduced-motion:reduce) { #snack-thief img { animation:none; } }
+
+#roster #train-all { flex:none; white-space:nowrap; font-size:12px; padding:8px 12px; }

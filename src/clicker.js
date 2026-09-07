@@ -379,10 +379,13 @@ window.Clicker = (() => {
     if (!ready) return;
     offline(); window.ClickerMusic?.resume(store.state); gacha.restore(); stage.render(store.state, { instant: true }); changed(); startTimers(); muteAudio();
   }
-  function applyZoom(z) { $('zoomer').style.transform = `scale(${Number.isFinite(z) && z > 0 ? z : 1})`; }
+  function applyZoom(z) {
+    z = Math.max(.75, Math.floor((Number.isFinite(z) && z > 0 ? z : 1) / .25) * .25);
+    $('zoomer').style.transform = `scale(${z})`; return z;
+  }
   function fitWindow() {
     if (TAURI) { TAURI.core.invoke('fit_window', { dpr: window.devicePixelRatio || 1 }).catch(() => {}); return; }
-    const z = Math.min(innerWidth / 960, innerHeight / 640); applyZoom(z);
+    const z = applyZoom(Math.min(innerWidth / 960, innerHeight / 640));
     $('zoomer').style.left = `${(innerWidth - 960 * z) / 2}px`;
     $('zoomer').style.top = `${(innerHeight - 640 * z) / 2}px`;
   }

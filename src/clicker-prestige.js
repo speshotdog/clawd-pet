@@ -67,6 +67,26 @@
     if (!levels) throw new Error((s.partnerLevels[id] || 0) >= PARTNER_CAP ? `已經 ${PARTNER_CAP} 級` : '餘額不足');
     return { state: s, levels };
   }
+  function trainAll(state, now) {
+    let s = E.settle(state, now).state, levels = 0, spent = 0;
+    const perPartner = {};
+    const ids = Object.keys(B.characters).filter(id => s.collection[id]);
+    while (levels < 500) {
+      const round = ids.filter(id => (s.partnerLevels?.[id] || 0) < PARTNER_CAP)
+        .sort((a,b) => (s.partnerLevels?.[a] || 0) - (s.partnerLevels?.[b] || 0));
+      let bought = 0;
+      for (const id of round) {
+        const price = trainCost(s.partnerLevels?.[id] || 0, id);
+        if (price > s.coins) continue;
+        s = train(s, id, now).state;
+        spent += price; levels++; bought++; perPartner[id] = (perPartner[id] || 0) + 1;
+        if (levels >= 500) break;
+      }
+      if (!bought) break;
+    }
+    if (!levels) throw new Error('餘額不足');
+    return { state: s, levels, spent, perPartner };
+  }
   const nextMilestone = (L) => [25, 50, 75, 100].find(m => L < m) || null;
   const decoPrice = (s) => Math.round(50000 * 1.5 ** s.deco.length);
   function buyDeco(state, id, now) {
@@ -85,6 +105,6 @@
     if (!canPrestige(s) && (currentP < (s.peakRate || 0) * .15 || stalled) && s.prestigeHintDate !== today) { s.prestigeHintDate = today; return true; }
     return false;
   }
-  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, buyMark, autoClickCost, buyAutoClick, autoClicks, trainCost, train, nextMilestone, decoPrice, buyDeco, hint };
+  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, buyMark, autoClickCost, buyAutoClick, autoClicks, trainCost, train, trainAll, nextMilestone, decoPrice, buyDeco, hint };
   if (node) module.exports = api; else root.ClickerPrestige = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -36,8 +36,16 @@ window.ClickerAlbum = (() => {
     }
 
     // ---------- 卡冊 ----------
+    function refreshTrainAll() {
+      const s = store.state, P = window.ClickerPrestige;
+      const ids = IDS.filter(id => s.collection[id] && (s.partnerLevels?.[id] || 0) < P.PARTNER_CAP);
+      const cost = ids.reduce((sum,id) => sum + P.trainCost(s.partnerLevels?.[id] || 0, id), 0);
+      $('train-all').disabled = !ids.length || s.coins < cost || store.blocked;
+      $('train-all').textContent = !ids.length ? '平均訓練（無可訓練夥伴）' : `平均訓練（${s.coins < cost ? '需' : '約'} ${format(cost)} 幣）`;
+    }
     function renderBook(instant = false) {
       const s = store.state; if (!s) return;
+      refreshTrainAll();
       $('dust-count').textContent = s.universalDust || 0;
       $('album-page').textContent = `${spread + 1} / ${Math.ceil(PAGES / 2)}`;
       $('album-prev').disabled = spread === 0; $('album-next').disabled = (spread + 1) * 2 >= PAGES;
@@ -254,6 +262,14 @@ window.ClickerAlbum = (() => {
       if (!e.target.closest('.album-slot, .page-corner')) flip(dir);
     };
     $('album-prev').onclick = () => flip(-1); $('album-next').onclick = () => flip(1);
+    $('train-all').onclick = () => action(() => {
+      const r = window.ClickerPrestige.trainAll(store.state, Date.now());
+      if (commit(r.state)) {
+        changed(); sound('upgrade');
+        notice(`平均訓練：${Object.keys(r.perPartner).length} 位夥伴共 +${r.levels} 級，花 ${format(r.spent)} 幣`);
+        renderBook(); if (detailId) openDetail(detailId);
+      }
+    });
     $('dust-open').onclick = () => $('dust-shop').hidden ? openDustShop() : closeDustShop();
     $('recommend-open').onclick = () => showRecommendations();
     // Esc：先關展示頁／粉塵罐，再關卡冊
@@ -269,6 +285,7 @@ window.ClickerAlbum = (() => {
       // 每秒結算都會呼叫；只有卡冊真正關心的欄位變了才重建，否則每秒重建卡片會閃爍
       refresh() {
         const s = store.state; if (!s) return;
+        if (!$('roster').hidden) refreshTrainAll();
         const key = JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
         if (key === refreshKey) return; refreshKey = key;
         if (!$('roster').hidden) { renderBook(); if (detailId) openDetail(detailId); }
