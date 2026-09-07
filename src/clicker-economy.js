@@ -55,7 +55,7 @@
     s.universalDust-=count*rate; s.dust[id]=dust(s,id)+count;
     return s;
   }
-  const wardrobePrice = s => Math.max(5000,Math.round(rates(s).P*1200));
+  const wardrobePrice = s => 20000;
   function wardrobe(state,kind,id,wear,now) {
     const s=settle(state,now).state, key=`${kind}:${id}`;
     if (!B.wardrobe[kind]?.some(item=>item.id===id) || s.pending) throw new Error('更衣室沒有這件');

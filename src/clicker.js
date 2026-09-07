@@ -529,15 +529,25 @@ window.Clicker = (() => {
   window.addEventListener('pagehide', suspend);
   if (!TAURI) window.addEventListener('beforeunload', suspend);
   window.addEventListener('resize', fitWindow);
+  function closeTopPanel() {
+    if (album?.escape()) return true;
+    if (!$('prestige').hidden) { $('prestige-close').click(); return true; }
+    if (extras?.escape()) return true;
+    for (const id of ['scenes', 'roster', 'stats', 'receipt']) if (!$(id).hidden) { $(`${id}-close`).click(); return true; }
+    return false;
+  }
+  document.addEventListener('pointerdown', e => {
+    if (cutin?.active || !$('save-error').hidden) return;
+    if (!['save-error', 'receipt', 'daily-done', 'prestige', 'wardrobe', 'roster', 'stats', 'scenes', 'share', 'pick100'].some(id => !$(id).hidden)) return;
+    if (e.target.closest('.panel, .small-panel, #album-detail, #dust-shop, #recruit-layer, .audio-controls')) return;
+    closeTopPanel();
+  });
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (!$('audio-panel').hidden) { $('audio-panel').hidden=true; $('audio-toggle').setAttribute('aria-expanded','false'); $('audio-toggle').focus(); e.preventDefault(); return; }
       if (cutin?.active) { e.preventDefault(); return; }
-      if (album?.escape()) { e.preventDefault(); return; }
-      if (!$('prestige').hidden) { $('prestige-close').click(); e.preventDefault(); return; }
-      if (extras?.escape()) { e.preventDefault(); return; }
-      if (!$('scenes').hidden) $('scenes-close').click(); else if (!$('roster').hidden) $('roster-close').click(); else if (!$('stats').hidden) $('stats-close').click();
-      else if (!$('receipt').hidden) $('receipt-close').click(); else if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();
+      if (closeTopPanel()) { e.preventDefault(); return; }
+      if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();
     }
     if (e.key === 'Tab') {
       const panel = ['save-error', 'receipt', 'daily-done', 'prestige', 'wardrobe', 'roster', 'stats', 'scenes', 'share', 'pick100', 'recruit-layer'].map($).find((el) => !el.hidden);

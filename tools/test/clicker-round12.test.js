@@ -46,7 +46,7 @@ test('round12 每日一包：日期變了才換包、沒拆不累積、連續天
   S.validate(c, Pool);
 });
 test('round12 每日一包：點擊只進限定包、幣照給、一般包不動；拆完送免費單抽 +1 與萬用粉塵 +1', () => {
-  let s = S.fresh(NOON); s.clickLevel = 30; s = X.dailyRoll(s);   // 需求以當下 25 次點擊估，所以先設手勁再生包
+  let s = S.fresh(NOON); s.clickLevel = 30; s = X.dailyRoll(s);   // 需求以當下 25 次點擊估，所以先設攻擊力再生包
   const before = E.clone(s.package), r = X.dailyClick(s, NOON);
   assert.equal(r.done, false); near(r.state.daily.dealt, r.amount); near(r.state.coins, r.amount); assert.deepEqual(r.state.package, before); assert.equal(r.state.manualClicks, 1);
   s = r.state; s.daily.dealt = s.daily.need - 1;

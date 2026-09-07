@@ -62,14 +62,14 @@ while(now<DAYS*86400000) {
     if(now>=skipUntil && E.canBoss(s,now)) { fight(); lastPkgAt=now; }
     active+=dt;
   }
-  s=E.settle(s,now).state; shop(); if(now<86400000) daily.push(`${fmt(now)} 收工 ${s.settings.scene}#${s.package.index} P=${E.rates(s).P.toExponential(2)} D=${E.rates(s).D.toExponential(1)} 訓練Lv${s.trainingLevel} 手勁Lv${s.clickLevel} 夥伴${Object.keys(s.collection).length} Lv中位${[...Object.values(s.partnerLevels||{})].sort((a,b)=>a-b)[Object.keys(s.partnerLevels||{}).length>>1]||0}`);
+  s=E.settle(s,now).state; shop(); if(now<86400000) daily.push(`${fmt(now)} 收工 ${s.settings.scene}#${s.package.index} P=${E.rates(s).P.toExponential(2)} D=${E.rates(s).D.toExponential(1)} 訓練Lv${s.trainingLevel} 攻擊力Lv${s.clickLevel} 夥伴${Object.keys(s.collection).length} Lv中位${[...Object.values(s.partnerLevels||{})].sort((a,b)=>a-b)[Object.keys(s.partnerLevels||{}).length>>1]||0}`);
   now+=8*3600000; s=E.settle(s,now,{offline:true}).state; lastPkgAt=now; const pre=s.coins; shop();
   daily.push(`${fmt(now)} ${s.settings.scene}#${s.package.index} P=${E.rates(s).P.toExponential(2)} 醒來幣=${pre.toExponential(1)} 剩=${s.coins.toExponential(1)} 訓練Lv${s.trainingLevel} 夥伴Lv中位${[...Object.values(s.partnerLevels||{})].sort((a,b)=>a-b)[Object.keys(s.partnerLevels||{}).length>>1]||0}`);
 }
 const won=order.filter(id=>s.bossWins.includes(id));
 console.log('=== 曲線模擬 CPS',CPS,'session',SESSION/60000,'min，天數',DAYS,'===');
 console.log('王勝：',won.join(' → ')||'無','；目前場景',s.settings.scene,'第',s.package.index,'包；P=',E.rates(s).P.toExponential(2),'coins=',s.coins.toExponential(2),'lifetime=',s.lifetimeCoins.toExponential(2));
-console.log('升級次數',buys,'五連',draws,'夥伴',Object.keys(s.collection).length,'訓練 Lv',s.trainingLevel,'手勁 Lv',s.clickLevel,'夥伴訓練',JSON.stringify(s.partnerLevels));
+console.log('升級次數',buys,'五連',draws,'夥伴',Object.keys(s.collection).length,'訓練 Lv',s.trainingLevel,'攻擊力 Lv',s.clickLevel,'夥伴訓練',JSON.stringify(s.partnerLevels));
 for(const b of bossLog) console.log(' 王',b.scene,'第',b.try,'次',b.won?'勝':'敗','比例',b.ratio,'need',b.need.toExponential(2),'時間',fmt(b.at),'主動',fmt(b.active),'P',b.P.toExponential(2),b.note||'');
 const byScene={}; for(const p of packLog){(byScene[p.scene]||=[]).push(p.sec);} 
 for(const [sc,arr] of Object.entries(byScene)) { const a=[...arr].sort((x,y)=>x-y); console.log(' 包速',sc,'n=',a.length,'中位',a[a.length>>1].toFixed(1)+'s','p90',a[Math.floor(a.length*.9)].toFixed(1)+'s','最長',a[a.length-1].toFixed(0)+'s'); }

@@ -18,7 +18,7 @@ window.ClickerPrestigeUI = (() => {
       const why = P.canPrestige(s), gained = P.marksAvailable(s), next = (P.marksTotal(s) + 1) ** 2 * P.THRESHOLD;
       const note = document.createElement('div'); note.className = 'prestige-note';
       note.innerHTML = `<p>生涯收入 <b>${format(s.lifetimeCoins)}</b> 幣。可領印記 <b>${gained}</b> 顆（下一顆在 ${format(next)} 幣）。換桌布後永久倍率 ×${(1 + .05 * (s.marksClaimed + gained)).toFixed(2)}。</p>
-        <div class="prestige-cols"><div><b>會清除</b><ul><li>錢幣、手勁、全隊訓練</li><li>電動手指、夥伴訓練</li><li>當輪包數，回到後院草地</li><li>王包裂痕、技能效果與冷卻</li></ul></div>
+        <div class="prestige-cols"><div><b>會清除</b><ul><li>錢幣、攻擊力、全隊訓練</li><li>電動手指、夥伴訓練</li><li>當輪包數，回到後院草地</li><li>王包裂痕、技能效果與冷卻</li></ul></div>
         <div><b>會保留</b><ul><li>夥伴、粉塵、升階、超越</li><li>保底與抽數、王的勝利紀錄</li><li>徽章、更衣室、桌面裝飾</li><li>印記與印記商店</li></ul></div></div>
         <p>換桌布另送萬用粉塵 3 顆${s.markShop?.starter5 ? '，以及開局五連' : ''}。</p>`;
       body.append(note);

@@ -11,7 +11,7 @@ test('印記：floor(sqrt(生涯/1e8)) − 已領；倍率 1+.05×已領', () =>
   assert.ok(Math.abs(E.markMul(r.state) - 1.1) < 1e-9); assert.throws(() => P.prestige(r.state, 0), /沒有可領/);
   S.validate(r.state, Pool);
 });
-test('倍率進 rates：P 與手勁部分都乘 M，不重複乘', () => {
+test('倍率進 rates：P 與攻擊力部分都乘 M，不重複乘', () => {
   const s = own(seed({ marksClaimed: 4, marks: 0, lifetimeCoins: 1e9, coins: 0 }), 'yueyue2', 1);
   const base = own(seed(), 'yueyue2', 1);
   assert.ok(Math.abs(E.rates(s).P / E.rates(base).P - 1.2) < 1e-9); assert.ok(Math.abs(E.rates(s).D / E.rates(base).D - 1.2) < 1e-9);
@@ -40,9 +40,12 @@ test('夥伴訓練：200×base×1.15^L（里程碑級 ×10）、每級 +1 倍、
   const sk = E.skillAt(s, 'yueyue2'); assert.equal(sk.charges, sk0.charges + 1); assert.equal(sk.duration, sk0.duration + 2); assert.ok(Math.abs(sk.cd - sk0.cd * .95) < 1e-9); assert.ok(sk.multiplier > sk0.multiplier);
   assert.throws(() => P.train(s, 'yueyue2', 0), /200 級/); assert.throws(() => P.train(seed(), 'yueyue2', 0), /尚未招募/); S.validate(s, Pool);
 });
-test('桌面裝飾：max(20000, P×3600)、各 +1%、輪迴保留', () => {
-  let s = own(seed({ coins: 1e6, lifetimeCoins: 1e8 }), 'zhenmu', 1); assert.equal(P.decoPrice(s), 57600);
-  s = P.buyDeco(s, 'deco0', 0); assert.ok(Math.abs(E.decoMul(s) - 1.01) < 1e-9); assert.throws(() => P.buyDeco(s, 'deco0', 0), /已經擁有/);
+test('桌面裝飾：50000×1.5^擁有數、各 +1%、輪迴保留', () => {
+  let s = own(seed({ coins: 1e6, lifetimeCoins: 1e8 }), 'zhenmu', 1); assert.equal(P.decoPrice(s), 50000);
+  assert.equal(P.decoPrice(seed({ trainingLevel: 50 })), 50000);
+  assert.equal(P.decoPrice(seed({ deco: Array.from({ length: 9 }, (_, i) => `deco${i}`) })), 1922168);
+  assert.throws(() => P.buyDeco(seed({ coins: 49999 }), 'deco0', 0), /餘額不足/);
+  s = P.buyDeco(s, 'deco0', 0); assert.equal(s.coins, 950000); assert.equal(P.decoPrice(s), 75000); assert.ok(Math.abs(E.decoMul(s) - 1.01) < 1e-9); assert.throws(() => P.buyDeco(s, 'deco0', 0), /已經擁有/);
   const r = P.prestige(Object.assign(s, { lifetimeCoins: 1e8 }), 0); assert.deepEqual(r.state.deco, ['deco0']); S.validate(r.state, Pool);
 });
 test('提示：低於巔峰 15% 且有印記可領才提示，一天一次', () => {

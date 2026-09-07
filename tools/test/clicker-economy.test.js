@@ -60,7 +60,7 @@ test('round7 self + team + parasite integrate only remaining offline intervals',
   assert.equal(E.settle(r.state, t + 40000).earned, 0);
 });
 
-test('手勁費用 10×1.35^L、全隊訓練 2500×2.5^t 逐級向上取整', () => {
+test('攻擊力費用 10×1.35^L、全隊訓練 2500×2.5^t 逐級向上取整', () => {
   assert.deepEqual([0, 5, 10, 20, 30].map(E.clickCost), [10, 45, 202, 4043, 81286]);
   assert.deepEqual([0, 1, 2, 5, 10].map(E.trainingCost), [2500, 6250, 15625, 244141, 23841858]);
 });
@@ -78,7 +78,7 @@ test('1/2/4/8/16/20 張的星級倍率；逐張角標', () => {
 test('12 隻被動全數計入；D/P 不含暫時技能，沒有槽位限制', () => {
   const s = fresh(); s.collection = Object.fromEntries(Object.keys(B.characters).map((id) => [id, 1]));
   assert.equal(E.rates(s).P, 129); s.collection.yueyue2 = 4; s.trainingLevel = 3; s.clickLevel = 10;
-  close(E.rates(s).P, 132 * 1.25 ** 3); close(E.rates(s).D, 1.15 ** 10 + .05 * 132 * 1.25 ** 3);   // 全隊訓練每級 ×1.25、手勁固定部分 1.15^L
+  close(E.rates(s).P, 132 * 1.25 ** 3); close(E.rates(s).D, 1.15 ** 10 + .05 * 132 * 1.25 ** 3);   // 全隊訓練每級 ×1.25、攻擊力固定部分 1.15^L
   const before = E.rates(s); s.effects = [{ kind: 'passive', value: 99999 }]; assert.deepEqual(E.rates(s), before);
 });
 

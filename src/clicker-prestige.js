@@ -66,7 +66,7 @@
     return { state: s, levels };
   }
   const nextMilestone = (L) => [25, 50, 75, 100].find(m => L < m) || null;
-  const decoPrice = (s) => Math.max(20000, Math.round(E.rates(s).P * 3600));
+  const decoPrice = (s) => Math.round(50000 * 1.5 ** s.deco.length);
   function buyDeco(state, id, now) {
     const s = E.settle(state, now).state, item = B.decor.find(d => d.id === id);
     if (!item) throw new Error('沒有這件裝飾');

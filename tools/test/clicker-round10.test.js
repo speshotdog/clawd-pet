@@ -40,8 +40,10 @@ test('粉塵商店：萬用 → 指定角色，匯率 1／2／3，餘額不足�
   assert.throws(() => E.exchange(a, 'zhenmu', 3, 0), /不足/);
   const b = E.exchange(own(seed({ universalDust: 2 }), 'yueyue2', 1), 'yueyue2', 2, 0); assert.equal(b.dust.yueyue2, 3);
 });
-test('更衣室：定價 max(5000, P×1200)、買過永久、穿上要先擁有', () => {
-  const s = seed({ coins: 6000, lifetimeCoins: 6000 }); assert.equal(E.wardrobePrice(s), 5000);
+test('更衣室：每件固定 20000 幣、買過永久、穿上要先擁有', () => {
+  const s = seed({ coins: 21000, lifetimeCoins: 21000 }); assert.equal(E.wardrobePrice(s), 20000);
+  assert.equal(E.wardrobePrice(own(seed({ trainingLevel: 50 }), 'zhenmu', 1)), 20000);
+  assert.throws(() => E.wardrobe(seed({ coins: 19999 }), 'fx', 'heart', false, 0), /餘額不足/);
   assert.throws(() => E.wardrobe(s, 'fx', 'heart', true, 0), /尚未擁有/);
   const a = E.wardrobe(s, 'fx', 'heart', false, 0); assert.equal(a.coins, 1000); assert.ok(a.owned.wardrobe.includes('fx:heart'));
   assert.throws(() => E.wardrobe(a, 'fx', 'heart', false, 0), /已經擁有/);

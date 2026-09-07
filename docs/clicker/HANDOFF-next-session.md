@@ -79,6 +79,16 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
 
+## 九、2026-09-07 晚：第十四輪（使用者實玩回饋五項）
+
+簡報 `BRIEF-astra-impl-round14.md`，Astra 實作，Claude 驗收（`python tools/test/clicker-round14.py`，需 `PYTHONIOENCODING=utf-8`，截圖在 `_art/out/r14-*.png`）：
+- 卡冊點左右書頁空白就翻頁（角落鍵保留）；卡片下方只剩「升階 24/12」一行，粉塵數移到 title／aria-label。
+- 點面板外空白關最上層面板（`clicker.js` `closeTopPanel()`，Escape 共用；不關招募、不關視窗、save-error 不關）。
+- 分享卡標題依 470px 可用寬自動縮字／拆兩行；順手修 `#share-canvas` 撐出面板底部（下載鍵被擠掉）。
+- 更衣室：音效／特效固定 2 萬、裝飾 `50000×1.5^擁有數`，不再跟收益走。
+- 「手勁」改顯示「攻擊力」（變數／存檔欄位不動）。
+- 待做：gh-pages 更新、exe 重 build（要先問）。
+
 ## 八、2026-09-07 下午：素材補齊＋三個 UI 修正（main `eec6587`）
 
 **補了 22 張素材**（Codex imagegen，單行 prompt；批次清單留在 `_art/TASK-deco.md`、`_art/TASK2.md`）：

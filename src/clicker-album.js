@@ -43,13 +43,15 @@ window.ClickerAlbum = (() => {
       $('album-prev').disabled = spread === 0; $('album-next').disabled = (spread + 1) * 2 >= PAGES;
       [['album-left', spread * 2], ['album-right', spread * 2 + 1]].forEach(([pageId, page]) => {
         const el = $(pageId); el.replaceChildren();
+        el.dataset.canFlip = String(pageId === 'album-left' ? spread > 0 : (spread + 1) * 2 < PAGES);
         IDS.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE).forEach(id => {
           const slot = document.createElement('button'); slot.className = 'album-slot'; slot.dataset.id = id; slot.type = 'button';
-          slot.setAttribute('aria-label', `${Pool.byId[id].name}・${nextStep(s, id)}`);
+          const hint = `${Pool.byId[id].name}・${s.collection[id] ? `粉塵 ${format(E.dust(s, id))} 顆・` : ''}${nextStep(s, id)}`;
+          slot.setAttribute('aria-label', hint); slot.title = hint;
           slot.append(makeCard(s, id));
           const meta = document.createElement('div'); meta.className = 'album-meta';
           meta.append(starRow(s, id));
-          const line = document.createElement('small'); line.textContent = s.collection[id] ? `粉塵 ${E.dust(s, id)} 顆・${nextStep(s, id)}` : '？？？'; meta.append(line);
+          const line = document.createElement('small'); line.textContent = s.collection[id] ? nextStep(s, id) : '？？？'; meta.append(line);
           if (s.skillSlots.includes(id)) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${s.skillSlots.indexOf(id) + 1}`; slot.append(stamp); }
           slot.append(meta); slot.onclick = () => openDetail(id);
           el.append(slot);
@@ -227,7 +229,7 @@ window.ClickerAlbum = (() => {
     // 桌面裝飾（第十三輪）：買了放進場景，各 +1% 全隊
     function renderDecor() {
       const s = store.state, P = window.ClickerPrestige, col = $('wardrobe-decor'); if (!col) return; col.replaceChildren();
-      const price = P.decoPrice(s); $('wardrobe-decor-price').textContent = `每件 ${format(price)} 幣・各 +1% 全隊（擁有 ${s.deco.length}/10）`;
+      const price = P.decoPrice(s); $('wardrobe-decor-price').textContent = `下一件 ${format(price)} 幣・各 +1% 全隊（擁有 ${s.deco.length}/10）`;
       for (const item of B.decor) {
         const owned = s.deco.includes(item.id), btn = document.createElement('button'); btn.className = 'wardrobe-item'; btn.dataset.key = `deco:${item.id}`; btn.classList.toggle('owned', owned); btn.classList.toggle('wearing', owned);
         const icon = document.createElement('span'); icon.className = 'wardrobe-icon'; icon.textContent = '❀';
@@ -245,6 +247,9 @@ window.ClickerAlbum = (() => {
     function openWardrobe() { pendingBuy = null; $('wardrobe').hidden = false; $('game-content').inert = true; renderWardrobe(); $('wardrobe-close').focus(); }
     function closeWardrobe() { $('wardrobe').hidden = true; }
 
+    for (const [id, dir] of [['album-left', -1], ['album-right', 1]]) $(id).onclick = e => {
+      if (!e.target.closest('.album-slot, .page-corner')) flip(dir);
+    };
     $('album-prev').onclick = () => flip(-1); $('album-next').onclick = () => flip(1);
     $('dust-open').onclick = () => $('dust-shop').hidden ? openDustShop() : closeDustShop();
     $('recommend-open').onclick = () => showRecommendations();

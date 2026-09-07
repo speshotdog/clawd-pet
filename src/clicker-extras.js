@@ -324,9 +324,9 @@
       const url = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(svg))}`;
       return new Promise(resolve => { const el = new Image(); el.onload = () => resolve(el); el.onerror = () => resolve(null); el.src = url; });
     }
-    function text(ctx, str, x, y, size, { color = '#30251F', stroke = '#FFF6E6', width = 6, align = 'left', weight = 800 } = {}) {
+    function text(ctx, str, x, y, size, { color = '#30251F', stroke = '#FFF6E6', width = 6, align = 'left', weight = 800, maxWidth } = {}) {
       ctx.font = `${weight} ${size}px "Noto Sans TC","Microsoft JhengHei",sans-serif`; ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
-      ctx.lineJoin = 'round'; ctx.lineWidth = width; ctx.strokeStyle = stroke; ctx.strokeText(str, x, y); ctx.fillStyle = color; ctx.fillText(str, x, y);
+      ctx.lineJoin = 'round'; ctx.lineWidth = width; ctx.strokeStyle = stroke; ctx.strokeText(str, x, y, maxWidth); ctx.fillStyle = color; ctx.fillText(str, x, y, maxWidth);
     }
     // 場景縮圖：依 scene.layers 座標把各層 img 重畫一次（舞台 24..584 × 24..336 的可見區）
     async function drawScene(ctx, sc, x, y, w, h) {
@@ -357,8 +357,26 @@
       if (tape) ctx.drawImage(tape, 40, 26, 300, 72); else { ctx.fillStyle = '#EF8E8E'; ctx.fillRect(40, 30, 300, 64); }
       text(ctx, '珍母點點', 190, 78, 34, { align: 'center', stroke: '#FFF6E6', width: 5 });
       const title = shareTitle(kind, data);
-      text(ctx, title, 48, 210, title.length > 9 ? 52 : 64, { width: 9 });
-      text(ctx, `${sc.name}・${localDate(Date.now())}`, 50, 252, 22, { color: '#735E4E', width: 4 });
+      const width = 9, available = 470;
+      ctx.font = '800 64px "Noto Sans TC","Microsoft JhengHei",sans-serif';
+      let size = Math.max(30, Math.min(64, Math.floor(64 * available / (ctx.measureText(title).width + width))));
+      ctx.font = `800 ${size}px "Noto Sans TC","Microsoft JhengHei",sans-serif`;
+      // 描邊不隨字級縮小，取整後再確認實際寬度。
+      while (size > 30 && ctx.measureText(title).width + width > available) {
+        size--; ctx.font = `800 ${size}px "Noto Sans TC","Microsoft JhengHei",sans-serif`;
+      }
+      const lines = [title];
+      if (ctx.measureText(title).width + width > available) {
+        let split = -1;
+        for (let i = 1; i < title.length; i++) {
+          if (title[i] === '「' || title[i] === '・') split = i;
+          else if (title[i] === '」' && i + 1 < title.length) split = i + 1;
+        }
+        if (split < 0) split = Math.ceil(title.length / 2);
+        lines.splice(0, 1, title.slice(0, split), title.slice(split));
+      }
+      lines.forEach((line, i) => text(ctx, line, 48, 210 + i * size * 1.05, size, { width, maxWidth: available - width }));
+      text(ctx, `${sc.name}・${localDate(Date.now())}`, 50, 252 + (lines.length - 1) * size * 1.05, 22, { color: '#735E4E', width: 4 });
       const ids = [...new Set([...s.skillSlots.filter(Boolean), ...Object.keys(B.characters).filter(id => s.collection[id])])].slice(0, 3);
       const arts = await Promise.all(ids.map(portrait));
       ids.forEach((id, i) => {
