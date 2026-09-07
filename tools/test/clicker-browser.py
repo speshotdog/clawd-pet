@@ -978,7 +978,7 @@ def main():
             before = page.evaluate('Object.values(Clicker.state.collection).reduce((a,b)=>a+b,0)')
             page.evaluate('document.getElementById("collect").click();document.getElementById("collect").click()')
             if name == 'wish':
-                page.wait_for_selector('#join-flight svg')
+                page.wait_for_selector('#join-flight svg, #join-flight img')
                 page.screenshot(path=str(OUT / 'join-duplicate.png'))
             assert page.evaluate('Clicker.state.pending') is None
             assert page.evaluate('Object.values(Clicker.state.collection).reduce((a,b)=>a+b,0)') == before + 5

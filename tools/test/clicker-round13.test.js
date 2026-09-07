@@ -30,10 +30,10 @@ test('電動手指：5000×2.2^L、上限 10、每秒 .5L 次帶小數累積、�
   const t = seed({ autoClick: 1 }); assert.equal(P.autoClicks(t, 1), 0); assert.equal(P.autoClicks(t, 1), 1); assert.ok(Math.abs(t.autoRemainder) < 1e-9);
   const c = E.click(seed(), 0, undefined, { auto: true }); assert.equal(c.state.manualClicks, 0); assert.equal(c.state.autoClicks, 1);
 });
-test('夥伴訓練：200×base×1.15^L（里程碑級 ×10）、每級 +1 倍、10/25/50/100 收益 ×2、25/50/75/100 給技能副軸', () => {
+test('夥伴訓練：200×base×1.15^L（里程碑級不加價，2026-09-08）、每級 +1 倍、10/25/50/100 收益 ×2、25/50/75/100 給技能副軸', () => {
   let s = own(seed({ coins: 1e18, lifetimeCoins: 1e18 }), 'yueyue2', 1);
   const before = E.individual(s, 'yueyue2'), sk0 = E.skillAt(s, 'yueyue2');
-  assert.equal(P.trainCost(0, 'yueyue2'), 800); assert.equal(P.trainCost(9, 'yueyue2'), Math.ceil(800 * 1.15 ** 9 * 10)); assert.equal(P.trainCost(0, 'zhenzhen'), 4000);
+  assert.equal(P.trainCost(0, 'yueyue2'), 800); assert.equal(P.trainCost(9, 'yueyue2'), Math.ceil(800 * 1.15 ** 9)); assert.equal(P.trainCost(0, 'zhenzhen'), 4000);
   assert.deepEqual([0, 1, 9, 10, 25, 100].map(E.partnerMul), [1, 2, 10, 22, 104, 1616]);
   s = P.train(s, 'yueyue2', 0).state; assert.ok(Math.abs(E.individual(s, 'yueyue2') / before - 2) < 1e-9);
   s = P.train(s, 'yueyue2', 0, true).state; assert.equal(s.partnerLevels.yueyue2, 200);

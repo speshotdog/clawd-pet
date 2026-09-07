@@ -79,6 +79,17 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
 
+## 十二、2026-09-08 凌晨收尾：第十八輪＋訓練里程碑不加價（公司電腦接手從這裡開始）
+
+**接手第一步**：`git fetch && git pull --ff-only`（家機 main 已 push），`npm test`（142 例），`PYTHONIOENCODING=utf-8 python tools/test/clicker-round18.py`。
+
+- 第十八輪（報告 `REPORT-astra-impl-round18.md`）：卡冊標頭「平均訓練」鍵（`clicker-prestige.js trainAll`：每輪依等級低→高各買一級、買不起跳過、一次 commit）；`applyZoom` 縮放比向下取 0.25 倍數（下限 0.75）＋ border-image 寬度改偶數 → 9-slice 角落缺塊消失，四種解析度放大圖 `_art/out/r18-corner-*.png`。素材本身的淡色切片縫線仍在，要徹底消除得改素材或改 CSS 畫按鈕。
+- **使用者定**：夥伴訓練里程碑那一級**不再 ×10 價**（只保留 10/25/50/100/150/200 的 ×2 倍率）；`trainCost = ceil(200×base×1.15^L)`。模擬器跑過（14 天到 fridge#112）。
+- `card-zhencao.png` 重切：這張沒有白色部件，所有近白（含手臂與身體間的封閉白袋）都當背景去掉。
+- 瀏覽器測試改的期望值：round7 `#join-flight svg` → 也接受 `img`（新招募的可能是 PNG 角色）。
+- 待做／待收：徽章 17 張底圖、屋頂星空專屬素材（換圖要拆 hue-rotate）、冷凍包五狀態；使用者實玩回饋（轉彩 30%、神話 0.5%、零食小偷節奏、平均訓練手感）；「留聲機無法購買」仍未重現。
+- 派工原則（給下一個 session）：簡報開頭列「不要動的旗標」（`WISH_TELEGRAPH=false`、`T`／`EASE`、點空白關面板、卡冊箭頭、轉彩 30%）；Astra 跑完先 `grep "??"`、`npm test`、再跑該輪 `clicker-roundNN.py`；瀏覽器套件裡 `gacha-card.css` 與 HEAD 比對那條要在 commit 後才會綠。
+
 ## 十一、2026-09-08：第十七輪（冰箱終點、新卡 2.0、印記四項、音量面板、零食小偷）＋第十八輪派工
 
 - 第十七輪已 commit `f91d05b`（報告 `REPORT-astra-impl-round17.md`，驗收 `python tools/test/clicker-round17.py` 兩種寬度）。冰箱固定 100 包可挑戰、王勝＝六站全破不切場景；新卡 膠頭燃額（傳說、裝備時攻擊力 ×1.5 的唯一 trait）、警狗（傳說）、哥不狗（史詩）、珍珍JPG（**精良**，使用者定）；卡冊依稀有度低→高；電動手指上限 10（印記 finger14 → 14）；印記商店多 bossTime／offline15／daily2；零食小偷（monster-0/1/2 → 後院／便利商店／工廠）。
