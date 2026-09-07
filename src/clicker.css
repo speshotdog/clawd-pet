@@ -46,16 +46,16 @@ progress { height: 10px; flex: 1; accent-color: #aa6c42; } #package-number { min
 footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px; display: flex; align-items: center; gap: 20px; padding: 0 8px; font-size: 11px; } #save-status { margin-left: auto; } #retry-save { padding: 2px 6px; font-size: 11px; }
 #recruit-layer { position: absolute; inset: 0; z-index: 40; background: #172239; color: #fff0cc; overflow: hidden; }
 #recruit-layer button { background: #f6dfac; color: #503724; } #recruit-topbar { position: absolute; left: 20px; right: 20px; top: 15px; z-index: 40; display: flex; align-items: center; gap: 16px; } #recruit-topbar b { margin-right: auto; } #mode-select { background: #27334b; border: 1px solid #bc9d64; border-radius: 6px; padding: 5px; color: #ffe6b6; }
-#recruit-entry { position: absolute; inset: 95px 100px 80px; text-align: center; z-index: 20; } #recruit-entry > img { height: 210px; width: auto; transform: rotate(-5deg); margin: 15px; } #recruit-entry h2 { font-size: 22px; } #recruit-entry p { margin: 15px 0; } #recruit-entry button { margin: 0 8px; min-width: 150px; white-space: pre-line; }
+#recruit-entry { position: absolute; inset: 95px 100px 80px; text-align: center; z-index: 20; } #recruit-entry > img { height: 210px; width: auto; transform: rotate(-5deg); margin: 15px; } #recruit-entry h2 { font-size: 22px; } #recruit-entry p { margin: 15px 0; } #recruit-entry button { padding:3px 7px; margin: 0 8px; min-width: 150px; white-space: pre-line; }
 .dim { position: absolute; inset: 0; z-index: 8; pointer-events: none; opacity: 0; background: #160c08c9; transition: opacity 120ms; } .dim.on { opacity: 1; }
 .flash { position: absolute; inset: 0; z-index: 24; pointer-events: none; background: #fff5d7; opacity: 0; } .flash.on { animation: clicker-flash 450ms ease-out; } @keyframes clicker-flash { from { opacity: .8; } to { opacity: 0; } }
 .fx { position: absolute; inset: 0; z-index: 15; pointer-events: none; } .fx-under { z-index: 9; } .mode-root { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
 .reveal-controls { position: absolute; bottom: 48px; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; z-index: 35; } #collect { font-size: 19px; padding: 10px 40px; } #recruit-hint { position: absolute; bottom: 18px; left: 30px; right: 30px; text-align: center; z-index: 35; font-size: 12px; }
 .pack { position: absolute; left: 480px; top: 320px; margin: -107px 0 0 -75px; width: 150px; height: 214px; background: url('gacha-pack.png') center / contain no-repeat; } .pack.tearing { animation: clicker-pack-tear 430ms ease-out both; } .pack.burst { opacity: 0; } @keyframes clicker-pack-tear { 30% { transform: rotate(-5deg); } 70% { transform: rotate(5deg); } }
-.panel, .small-panel { position: absolute; z-index: 60; border: 3px solid #694936; border-radius: 16px; background: #fff1d5; box-shadow: 0 12px 0 #54382b28; padding: 20px; }
+.panel, .small-panel { position: absolute; z-index: 60; border: 3px solid #694936; border-radius: 16px; background: #fff1d5; box-shadow: 0 12px 0 #54382b28; padding: 17px; }
 .panel { inset: 75px 20px 42px; } .panel header { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; } .panel header span { font-size: 12px; flex: 1; } #roster-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
 .roster-character { min-width: 0; text-align: center; border: 1px solid #be9b76; border-radius: 9px; padding: 7px 3px; } .roster-character svg { display: block; margin: 0 auto 5px !important; height: 80px !important; width: auto; filter: none !important; } .roster-character.locked svg { opacity: .25; filter: grayscale(1) !important; } .roster-character b, .roster-character small { display: block; } .roster-character .stars { height: 16px; display: flex; justify-content: center; align-items: center; margin: 3px 0; } .stars img { height: 14px; width: auto; } .roster-character small { font-size: 10px; }
-.small-panel { left: 220px; top: 180px; width: 520px; padding: 28px; } .small-panel h2 { font-size: 25px; margin: 8px 0 16px; } .small-panel p { margin-bottom: 20px; } .small-panel button { margin-top: 14px; } #stats-body { line-height: 2; }
+.small-panel { left: 220px; top: 180px; width: 520px; padding: 25px; } .small-panel h2 { font-size: 25px; margin: 8px 0 16px; } .small-panel p { margin-bottom: 20px; } .small-panel button { margin-top: 14px; } #stats-body { line-height: 2; }
 #notice { position: absolute; z-index: 75; top: 66px; left: 180px; right: 180px; padding: 10px 18px; background: #54382b; color: #fff3d7; border-radius: 9px; text-align: center; pointer-events: none; }
 #raw-save { width: 100%; height: 140px; user-select: text; margin-top: 15px; } #save-error { z-index: 90; top: 100px; } #fatal { position: absolute; z-index: 85; inset: 70px 40px auto; padding: 20px; color: #7c281f; background: #fff3df; border: 2px solid #7c281f; white-space: pre-wrap; }
 @media (prefers-reduced-motion: reduce) { #game *, #game *::before, #game *::after { animation-duration: .01s !important; transition-duration: .01s !important; } }
@@ -82,7 +82,7 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #game button:disabled { opacity:1; color:#8B7D6C; background:#DED4C3; cursor:default; }
 #game-content h1 { font-size:24px; line-height:30px; letter-spacing:0; gap:8px; }
 #game-content h1 small { font-size:11px; }
-.wallet, .upgrade, .recruit, #team { border:0; border-image:url('clicker-ui-paper.png') 88 fill / 18px round; background:transparent; border-radius:0; }
+.upgrade, .recruit, #team { border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; }
 .wallet { padding:4px 16px; min-width:160px; height:48px; }
 .wallet b { font-size:32px; line-height:36px; font-weight:800; }
 .rates { font-size:13px; line-height:18px; }
@@ -127,7 +127,7 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 .purchase button { font-size:15px; line-height:16px; height:36px; padding:0 4px; }
 .purchase button small { display:block; font-size:11px; line-height:12px; }
 #game-content .purchase button:first-child { background:#9BAF6B; }
-#game-content .purchase button:disabled { background:#DED4C3; }
+#game-content .purchase button:disabled { background:#D9CCBB; }
 .upgrade .purchase button:first-child { flex:0 0 176px; }
 .recruit { padding:6px 16px; grid-template-rows:42px 40px auto auto auto; }
 .recruit small { font-size:11px; }
@@ -178,17 +178,17 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #game-content h1 { border-image:url('clicker-ui-label.png') 70 fill / 10px stretch; padding:4px 10px; }
 /* Round 3: artwork includes the ink edge and hard shadow. */
 #game::after { content:''; position:absolute; inset:0; border-image:url('clicker-ui-frame.png') 96 / 16px stretch; pointer-events:none; z-index:100; }
-#game button, #game select, #game .save-plate { --button-art:url('clicker-ui-btn-cream.png'); border:0; border-radius:0; border-image:var(--button-art) 52 96 64 96 fill / 8px 12px stretch; background:transparent; box-shadow:none; color:#30251F; text-decoration:none; font-weight:800; }
-#game button:hover:enabled { background:transparent; filter:brightness(1.035); }
-#game button:active:enabled { transform:translateY(3px); clip-path:inset(0 0 3px); box-shadow:none; }
-#game button:disabled { border-image-source:url('clicker-ui-btn-disabled.png'); background:transparent; color:#30251F; }
-#game #tap, #game .buddy, #game .slot-pick { border-image:none; background:transparent; box-shadow:none; }
+#game button, #game select, #game .save-plate { --button-bg:#FBEED0; border:3px solid #30251F; border-radius:12px; background:var(--button-bg); box-shadow:0 4px 0 #30251F; outline:2px dashed #FFF6E6AA; outline-offset:-6px; color:#30251F; text-decoration:none; font-weight:800; }
+#game button:hover:enabled { background:var(--button-bg); transform:translateY(-1px); box-shadow:0 5px 0 #30251F; filter:brightness(1.035); }
+#game button:active:enabled { transform:translateY(3px); box-shadow:0 1px 0 #30251F; }
+#game button:disabled { --button-bg:#D9CCBB; background:#D9CCBB; color:#30251F; }
+#game #tap, #game .buddy, #game .slot-pick { border-image:none; border:0; box-shadow:none; outline:none; background:transparent; }
 #game #tap:active { transform:none; clip-path:none; }
 #game #tap { border-radius:0; }
 #game .buddy { border-bottom:4px solid var(--rarity); }
-#game .skill-use, #game #click-one, #game #training-one { --button-art:url('clicker-ui-btn-green.png'); }
-#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-art:url('clicker-ui-btn-purple.png'); }
-#game #reveal-all { --button-art:url('clicker-ui-btn-pink.png'); }
+#game .skill-use, #game #click-one, #game #training-one { --button-bg:#8D9C5B; }
+#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-bg:#B48CCB; }
+#game #reveal-all { --button-bg:#FA776B; }
 #game h1, #game h2, #game b, #game .rates { font-weight:800; }
 #game-content h1 { width:250px; height:52px; display:flex; justify-content:center; align-items:center; border-image:url('clicker-ui-title-tape.png') 107 171 fill / 16px stretch; padding:6px 18px; }
 .topbar { top:14px; height:50px; gap:12px; }
@@ -209,12 +209,12 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #package-progress::-webkit-progress-bar { background:#FFF6E6; }
 #package-progress::-webkit-progress-value { background:#EF8E8E; }
 #shop { gap:10px; }
-.upgrade { height:104px; padding:8px 12px; grid-template-rows:42px 40px; }
-.recruit { height:132px; padding:8px 12px; grid-template-rows:42px 38px auto auto auto; }
+.upgrade { height:104px; padding:5px 9px; grid-template-rows:42px 40px; }
+.recruit { height:132px; padding:5px 9px; grid-template-rows:42px 38px auto auto auto; }
 #shop .upgrade:nth-child(2) h2 { border-image:url('clicker-ui-label.png') 80 110 fill / 10px 14px stretch; }
 .purchase { border-top:2px dashed #735E4E; padding-top:5px; gap:5px; align-items:center; margin-top:2px; }
-#shop .purchase button { flex:1; height:32px; font-size:15px; line-height:16px; padding:3px 7px 6px; white-space:nowrap; }
-#shop #click-max, #shop #training-max { flex:0 0 43px; font-size:11px; padding:3px 4px 6px; }
+#shop .purchase button { flex:1; height:32px; font-size:15px; line-height:16px; padding:0 4px 3px; white-space:nowrap; }
+#shop #click-max, #shop #training-max { flex:0 0 43px; font-size:11px; padding:0 1px 3px; }
 .price-ticket { display:flex; align-items:center; justify-content:center; gap:3px; height:31px; min-width:92px; padding:3px 9px; border-image:url('clicker-ui-ticket.png') 57 70 fill / 8px 10px stretch; font-size:16px; }
 .price-ticket img { width:22px; height:22px; object-fit:contain; }
 #shop #draw-five { font-size:11px; }
@@ -225,13 +225,13 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 .badge { width:24px; height:24px; object-fit:contain; vertical-align:middle; flex:none; }
 .buddy-header h2 { width:auto; min-width:146px; display:flex; align-items:center; gap:3px; padding:0 12px 0 8px; }
 footer { gap:10px; padding:0 8px; height:34px; }
-footer button, .save-plate { display:flex; align-items:center; justify-content:center; gap:5px; height:34px; padding:4px 12px 7px; min-width:96px; }
+footer button, .save-plate { display:flex; align-items:center; justify-content:center; gap:5px; height:34px; padding:1px 9px 4px; min-width:96px; }
 .save-plate { margin-left:auto; min-width:144px; }
 #save-status { margin:0; }
 #next-goal { max-width:200px; }
-#recruit-topbar { top:14px; gap:12px; height:54px; padding:5px 12px; border-image:url('clicker-ui-paper.png') 88 fill / 14px stretch; color:#30251F; }
+#recruit-topbar { top:14px; gap:12px; height:54px; padding:2px 9px; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; color:#30251F; }
 #recruit-topbar > b { border-image:url('clicker-ui-title-tape.png') 100 160 fill / 12px stretch; padding:8px 30px; font-size:20px; }
-#recruit-topbar button, #mode-select { height:34px; padding:4px 12px 7px; }
+#recruit-topbar button, #mode-select { height:34px; padding:1px 9px 4px; }
 #mode-select { color:#30251F; }
 #recruit-entry h2, #recruit-entry p, #recruit-hint { color:#30251F; background:#FFF6E6; width:fit-content; margin:12px auto; padding:3px 12px; }
 #recruit-hint { left:0; right:0; } #recruit-hint:empty, #recruit-entry p:empty { display:none; }
@@ -267,9 +267,9 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #buddies { width:900px; gap:10px; }
 #team::after { display:none; }
 #notice { left:170px; max-width:480px; }
-#slots { left:28px; top:auto; bottom:20px; gap:8px; z-index:9; }
+#slots { left:28px; top:auto; bottom:20px; gap:16px; z-index:9; }
 .skill-slot { position:relative; width:64px; height:64px; padding:0; }
-#game .skill-use { position:relative; display:flex; align-items:center; justify-content:center; width:64px; height:64px; padding:0; border-image:none; border-radius:50%; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; font-size:30px; }
+#game .skill-use { position:relative; display:flex; align-items:center; justify-content:center; width:64px; height:64px; padding:0; border-image:none; border:0; box-shadow:none; outline:none; border-radius:50%; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; font-size:30px; }
 #game .skill-use svg { width:40px!important; height:40px!important; margin:0!important; filter:none; }
 .skill-slot[data-state="empty"] .skill-use, .skill-slot[data-state="unavailable"] .skill-use { filter:grayscale(1); }
 .skill-slot[data-state="cooldown"] .skill-use::after { content:''; position:absolute; inset:7px; border-radius:50%; background:conic-gradient(from 0deg, #30251fa6 0deg var(--cooldown),transparent var(--cooldown) 360deg); pointer-events:none; }
@@ -284,10 +284,10 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #package-progress.meter-full::-webkit-progress-value { background:#E9B94E; }
 .small-impact { position:absolute; width:130px; height:130px; pointer-events:none; }
 #effect-label { position:absolute; left:138px; top:48px; padding:4px 12px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 8px 12px; z-index:10; pointer-events:none; }
-.panel, .small-panel { border:0; border-radius:0; border-image:url('clicker-ui-paper.png') 88 fill / 22px stretch; background:transparent; box-shadow:none; }
+.panel, .small-panel { border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; }
 .panel:not([hidden]), .small-panel:not([hidden]) { animation:paper-panel-in 140ms ease-out; }
 .panel h2, .small-panel h2 { border-image:url('clicker-ui-title-tape.png') 100 160 fill / 12px 20px; padding:8px 22px; width:fit-content; font-size:26px; }
-#game .panel button, #game .small-panel button { font-size:16px; --button-art:url('clicker-ui-btn-cream.png'); padding:6px 14px 9px; }
+#game .panel button, #game .small-panel button { font-size:16px; --button-bg:#FBEED0; padding:3px 11px 6px; }
 .roster-character small { font-size:12px; }
 .panel header span { font-size:14px; }
 #roster-detail { font-size:14px; }
@@ -328,11 +328,11 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 
 .wallet { left:340px; width:260px; padding:6px 20px; }
 .wallet b { white-space:nowrap; }
-#game button.skill-use:disabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; border-image:none; }
+#game button.skill-use:disabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; border-image:none; border:0; box-shadow:none; outline:none; }
 #cutin-actor { left:-20px; }
 #cutin-actor svg { max-width:340px; }
 
-.skill-name { white-space:nowrap; }
+.skill-name { left:50%; right:auto; top:auto; bottom:calc(100% - 4px); transform:translateX(-50%) rotate(-3deg); width:max-content; max-width:96px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
 
 #cutin-name { white-space:pre-line; }
 
@@ -379,7 +379,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .topbar { z-index:30; }
 .audio-controls { position:relative; }
 #game #audio-toggle { width:38px; height:38px; font-size:22px; }
-#audio-panel { position:absolute; right:0; top:44px; width:220px; height:auto; padding:7px 10px; border-image:url('clicker-ui-paper.png') 88 fill / 12px stretch; cursor:default; }
+#audio-panel { position:absolute; right:0; top:44px; width:220px; height:auto; padding:4px 7px; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; cursor:default; }
 #audio-panel .audio-row { display:grid; grid-template-columns:26px minmax(0,1fr) 40px; grid-template-rows:20px 30px; column-gap:4px; align-items:center; font-size:13px; }
 #game #audio-panel button { grid-row:1 / 3; min-width:0; width:26px; height:26px; padding:0; font-size:14px; }
 #audio-panel button[aria-pressed="true"] { opacity:.5; text-decoration:line-through; }
@@ -404,21 +404,9 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .roster-character svg { height:64px !important; margin-bottom:3px !important; }
 .roster-character .skill-desc { font-size:10px; line-height:12px; }
 
-/* 9-slice 縫線修正：整個遊戲用 transform: scale 放大到非整數倍時，邊片與中間片之間會露出一條底色（大視窗的網頁版最明顯）。
-   把每張貼圖的中心色填成 background、只填 padding box，縫線就會是同色；padding box 在描邊之內，不會露到圓角外面。 */
-/* 縫線填色只給透明邊 ≤1% 的貼圖（紫、粉）；奶油／綠／停用貼圖的透明邊有 7–18%，填色會露到框外 */
-#game button, #game select, #game .save-plate { --button-fill:transparent; background:transparent; }
-#game button:hover:enabled { background:transparent; }
-#game button:disabled { --button-fill:transparent; background:transparent; }
-/* 紫／粉貼圖的圓角與硬陰影同樣會讓填色露出來（2560 實測），按鈕一律不填色；縫線只剩紙色細線，比出框好 */
-#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect, #game #reveal-all { background:transparent; }
-#game #tap, #game .buddy, #game .slot-pick, #game-content .text-button, #game #audio-panel button[aria-pressed] { background:transparent; }
-#game .skill-use, #game button.skill-use:disabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
-/* 票券貼圖透明邊 2–9%，不填色 */
-.upgrade, .recruit, #team, .panel, .small-panel, #recruit-topbar, #audio-panel { background:#FDECCB; background-clip:padding-box; }
 /* 標題帶、錢包、票券帶的圓角比 9-slice 邊寬大，填色會露到框外，所以不填（縫線在這些元件上看不出來） */
 .scene-outgoing { position:absolute; inset:0; z-index:1; clip-path:inset(24px round 5px); pointer-events:none; filter:saturate(.78) contrast(.92) brightness(1.04); }
-#stage > #boss-challenge { pointer-events:auto; position:absolute; left:470px; top:40px; width:120px; height:48px; z-index:12; transform:rotate(-3deg); border:0; border-image:none; background:transparent url('clicker-ui-boss-btn.png') center/100% 100% no-repeat; padding:4px; font-size:16px; }
+#stage > #boss-challenge { pointer-events:auto; position:absolute; left:470px; top:40px; width:120px; height:48px; z-index:12; transform:rotate(-3deg); border:0; border-image:none; box-shadow:none; outline:none; background:transparent url('clicker-ui-boss-btn.png') center/100% 100% no-repeat; padding:4px; font-size:16px; }
 #boss-view { position:absolute; left:330px; top:60px; width:260px; height:300px; z-index:13; transform-origin:50% 100%; }
 #boss-image { width:260px; height:300px; object-fit:contain; }
 #boss-health { position:absolute; left:-20px; bottom:-16px; width:300px; height:14px; background:#745E4A; border:2px solid #FFF6E6; border-radius:6px; }
@@ -501,7 +489,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .album-page[data-can-flip="true"] { cursor:pointer; }
 .album-page { cursor:default; min-width:0; flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:6px 4px; padding:0 14px; transform-origin:center; }
 #album-left { transform-origin:right center; padding-left:58px; } #album-right { transform-origin:left center; padding-right:58px; }
-#game .album-slot { min-width:0; position:relative; width:auto; height:auto; padding:0; border:0; border-image:none; background:transparent; box-shadow:none; display:flex; flex-direction:column; align-items:center; gap:2px; overflow:visible; }
+#game .album-slot { min-width:0; position:relative; width:auto; height:auto; padding:0; border:0; border-image:none; box-shadow:none; outline:none; background:transparent; display:flex; flex-direction:column; align-items:center; gap:2px; overflow:visible; }
 #game .album-slot:hover:enabled { transform:none; filter:none; } #game .album-slot:active:enabled { transform:none; clip-path:none; }
 .album-slot .card { position:relative; left:auto; top:auto; width:150px; height:210px; margin:0; transform:scale(.6); transform-origin:center top; opacity:1; transition:none; pointer-events:none; }
 .album-slot .card-wrap { height:126px; }
@@ -517,13 +505,13 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .star-row { width:fit-content; display:flex; gap:1px; height:14px; align-items:center; }
 .star-row img { height:13px; width:auto; }
 .album-slot .slot-stamp { position:absolute; right:8px; top:6px; font-style:normal; z-index:6; }
-#game .page-corner { position:absolute; top:50%; width:52px; height:52px; padding:0; transform:translateY(-50%); font-size:34px; font-weight:800; color:#30251F; --button-art:url('clicker-ui-btn-cream.png'); }
+#game .page-corner { position:absolute; top:50%; width:52px; height:52px; padding:0; transform:translateY(-50%); font-size:34px; font-weight:800; color:#30251F; --button-bg:#FBEED0; }
 #game #album-next { right:10px; } #game #album-prev { left:10px; }
 #game .page-corner:hover:enabled { transform:translateY(calc(-50% - 2px)); }
 #game .page-corner:active:enabled { transform:translateY(-50%); }
-#game .page-corner:disabled { opacity:.3; border-image-source:var(--button-art); }
+#game .page-corner:disabled { opacity:.3; }
 .album-pageno { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); font-size:12px; color:#735E4E; }
-#album-detail, #dust-shop { position:absolute; inset:52px 20px 20px; z-index:5; border-image:url('clicker-ui-paper.png') 88 fill / 18px stretch; background:#FDECCB; background-clip:padding-box; padding:16px 20px; display:flex; gap:18px; overflow:hidden; }
+#album-detail, #dust-shop { position:absolute; inset:52px 20px 20px; z-index:5; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; padding:13px 17px; display:flex; gap:18px; overflow:hidden; }
 .detail-left { width:220px; flex:none; display:flex; align-items:flex-start; justify-content:center; padding-top:16px; }
 .detail-card.card { position:relative; left:auto; top:auto; margin:0; opacity:1; transform:scale(1.15); transform-origin:center top; transition:none; pointer-events:auto; }
 .detail-card .face-art svg { animation:album-breathe 3.4s ease-in-out infinite; transform-origin:50% 100%; }
@@ -536,8 +524,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .detail-info b { color:#B63329; }
 .detail-buttons, .detail-grow { display:flex; gap:6px; flex-wrap:wrap; }
 #game .detail-buttons button, #game .detail-grow button, #game .detail-back { font-size:13px; padding:3px 10px 6px; }
-#game .grow-btn.promote { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); }
-#game .grow-btn.transcend { --button-art:url('clicker-ui-btn-cream.png'); color:#2A4A8A; }
+#game .grow-btn.promote { --button-bg:#B48CCB; }
+#game .grow-btn.transcend { --button-bg:#FBEED0; color:#2A4A8A; }
 #game .detail-back { align-self:flex-end; }
 .detail-flash { position:absolute; inset:0; background:#FFF6E6; pointer-events:none; z-index:9; }
 #dust-shop { flex-direction:column; gap:8px; }
@@ -547,7 +535,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .dust-row svg { width:28px!important; height:28px!important; margin:0!important; filter:none!important; }
 #game .dust-row button { font-size:11px; padding:1px 6px 3px; }
 #game #dust-shop > button:last-child { align-self:flex-end; }
-#wardrobe { left:592px; right:16px; top:72px; bottom:56px; inset:auto; width:352px; height:auto; position:absolute; padding:12px 14px; display:flex; flex-direction:column; }
+#wardrobe { left:592px; right:16px; top:72px; bottom:56px; inset:auto; width:352px; height:auto; position:absolute; padding:9px 11px; display:flex; flex-direction:column; }
 #wardrobe header { margin-bottom:6px; gap:8px; } #wardrobe header span { font-size:12px; }
 #wardrobe-body { flex:1; min-height:0; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .wardrobe-col { min-width:0; min-height:0; display:flex; flex-direction:column; gap:3px; overflow-y:auto; }
@@ -555,7 +543,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #game .wardrobe-item { min-width:0; display:grid; grid-template-columns:22px minmax(0,1fr); grid-template-rows:auto auto; column-gap:4px; align-items:center; text-align:left; font-size:12px; line-height:14px; padding:2px 6px 4px; }
 .wardrobe-icon { grid-row:1 / 3; font-size:18px; text-align:center; }
 .wardrobe-item small { font-size:10px; color:#735E4E; }
-.wardrobe-item.wearing { --button-art:url('clicker-ui-btn-green.png'); }
+.wardrobe-item.wearing { --button-bg:#8D9C5B; }
 .wardrobe-item:not(.owned) { opacity:.85; }
 .wardrobe-hint { font-size:11px; color:#735E4E; margin-top:6px; }
 .buddy-transcend { color:#3D7BE0; }
@@ -565,13 +553,13 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #prestige { display:flex; flex-direction:column; }
 #prestige header span { font-size:12px; }
 .prestige-tabs { display:flex; gap:6px; margin-bottom:10px; }
-#game .prestige-tabs button.active { --button-art:url('clicker-ui-btn-green.png'); }
+#game .prestige-tabs button.active { --button-bg:#8D9C5B; }
 .prestige-note { font-size:13px; line-height:18px; }
 .prestige-note p { margin:0 0 8px; }
 .prestige-cols { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 10px; }
 .prestige-cols ul { margin:4px 0 0; padding-left:18px; }
 .prestige-actions { display:flex; gap:8px; margin-top:auto; }
-#game #prestige-go { --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); font-size:16px; padding:6px 18px 9px; }
+#game #prestige-go { --button-bg:#B48CCB; font-size:16px; padding:6px 18px 9px; }
 .mark-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 #game .mark-ticket { display:grid; grid-template-columns:34px 1fr auto; gap:8px; align-items:center; text-align:left; padding:6px 12px 8px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 8px 12px stretch; background:#FAEBC9; background-clip:padding-box; }
 .mark-ticket img { width:32px; height:32px; object-fit:contain; }
@@ -586,7 +574,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #deco-layer { position:absolute; inset:0; z-index:2; pointer-events:none; }
 #deco-layer .deco { position:absolute; height:44px; width:auto; max-width:88px; object-fit:contain; object-position:bottom center; transform:translate(-50%,-100%); }
 #deco-layer .deco-fallback { font-size:11px; background:#FFF6E6; border:1px solid #30251F; border-radius:4px; padding:1px 4px; height:auto; }
-#game .grow-btn.train { --button-art:url('clicker-ui-btn-green.png'); }
+#game .grow-btn.train { --button-bg:#8D9C5B; }
 #wardrobe { width:352px; }
 #wardrobe-body { grid-template-columns:repeat(3, minmax(0, 1fr)); }
 #wardrobe-decor-price { font-size:10px; color:#735E4E; }
@@ -601,7 +589,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag):not(#boss-view) { pointer-events:none; }
 #targets { position:absolute; inset:0; z-index:6; pointer-events:none; }
 #targets > button { pointer-events:auto; position:absolute; }
-#game .sub-hot, #game #gift-hot, #game .sub-hot:hover:enabled, #game #gift-hot:hover:enabled, #game .sub-hot:active:enabled, #game #gift-hot:active:enabled { border:0; border-image:none; background:transparent; box-shadow:none; transform:none; clip-path:none; filter:none; outline:none; border-radius:0; }
+#game .sub-hot, #game #gift-hot, #game .sub-hot:hover:enabled, #game #gift-hot:hover:enabled, #game .sub-hot:active:enabled, #game #gift-hot:active:enabled { border:0; border-image:none; box-shadow:none; outline:none; background:transparent; transform:none; clip-path:none; filter:none; border-radius:0; }
 .sub-hot { top:186px; width:100px; height:120px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 .sub-hot[data-sub="0"] { left:330px; } .sub-hot[data-sub="1"] { left:392px; } .sub-hot[data-sub="2"] { left:454px; }
 #gift-hot { left:28px; top:108px; width:104px; height:136px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
@@ -650,7 +638,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #frost::after { content:''; position:absolute; inset:0; background:url('clicker-fx-snow.png') 12% 18%/26px no-repeat, url('clicker-fx-snow.png') 70% 40%/20px no-repeat, url('clicker-fx-snow.png') 30% 70%/22px no-repeat, url('clicker-fx-snow.png') 78% 82%/18px no-repeat; opacity:.9; }
 #frost[data-level="1"]::after { opacity:.35; } #frost[data-level="2"]::after { opacity:.65; }
 #frost .frost-image { position:absolute; inset:0; width:100%; height:100%; object-fit:fill; }
-#stage > #daily-bag { pointer-events:auto; position:absolute; z-index:6; border:0; border-image:none; background:transparent; box-shadow:none; padding:0; transform-origin:50% 100%; }
+#stage > #daily-bag { pointer-events:auto; position:absolute; z-index:6; border:0; border-image:none; box-shadow:none; outline:none; background:transparent; padding:0; transform-origin:50% 100%; }
 #game #daily-bag:hover:enabled { filter:brightness(1.06); transform:translateY(-2px); } #game #daily-bag:active:enabled { transform:translateY(1px) scale(.98); clip-path:none; }
 #daily-bag .daily-image { position:absolute; left:0; top:0; width:100%; height:100%; object-fit:contain; transform-origin:50% 100%; filter:drop-shadow(0 3px 0 #30251F44); }
 #daily-bag .daily-tape { position:absolute; left:8px; top:-6px; width:64px; height:22px; object-fit:contain; transform:rotate(-8deg); filter:hue-rotate(-20deg) saturate(1.6) brightness(1.15); }
@@ -665,11 +653,11 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .badge-icon .badge-art, .badge-icon .badge-base { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
 .badge-icon .badge-star { position:absolute; right:-8%; top:-10%; width:42%; height:42%; object-fit:contain; }
 .badge-icon b { position:absolute; left:50%; top:52%; translate:-50% -50%; font-size:calc(var(--size,64px) * .26); line-height:1; color:#30251F; -webkit-text-stroke:0; padding:1px 4px; background:#FFF6E6e6; border-radius:4px; white-space:nowrap; }
-#team #share-offer { position:absolute; left:604px; top:0; height:24px; z-index:9; padding:1px 10px 3px; font-size:11px; --button-art:url('clicker-ui-btn-pink.png'); --button-fill:#FB7A6E; }
+#team #share-offer { position:absolute; left:604px; top:0; height:24px; z-index:9; padding:1px 10px 3px; font-size:11px; --button-bg:#FA776B; }
 .extra-floater { white-space:nowrap; }
 #stats.badge-wall header { margin-bottom:8px; } #stats.badge-wall header h2 { display:flex; align-items:center; gap:4px; } #stats.badge-wall header h2 b { font-size:14px; margin-left:4px; }
 #stats.badge-wall header span { font-size:11px; line-height:14px; }
-#badge-grid { display:grid; grid-template-columns:repeat(9,1fr); gap:6px 4px; padding:10px 6px; border-image:url('clicker-ui-paper.png') 88 fill / 14px stretch; background:#FDECCB; background-clip:padding-box; }
+#badge-grid { display:grid; grid-template-columns:repeat(9,1fr); gap:6px 4px; padding:7px 3px; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; }
 .badge-cell { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:10px; line-height:12px; text-align:center; }
 .badge-cell:not(.earned) .badge-icon { filter:grayscale(1) brightness(.85); opacity:.42; }
 .badge-cell.earned .badge-icon { animation:badge-settle 220ms cubic-bezier(.2,1.4,.4,1) backwards; }
@@ -699,17 +687,16 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #dust-shop h3 { font-size:22px; } #dust-shop > p { font-size:13px; }
 .dust-row { grid-template-columns:34px 68px 1fr auto auto; gap:6px; font-size:14px; min-height:44px; }
 .dust-row small { font-size:13px; }
-#game .dust-row button { font-size:13px; padding:3px 10px 5px; --button-fill:#B089C6; --button-art:url('clicker-ui-btn-purple.png'); color:#30251F; }
-#game .dust-row button:disabled { --button-art:url('clicker-ui-btn-disabled.png'); background:transparent; }
+#game .dust-row button { font-size:13px; padding:3px 10px 5px; --button-bg:#B48CCB; color:#30251F; }
+#game .dust-row button:disabled { --button-bg:#D9CCBB; background:var(--button-bg); }
 #game .album-slot:hover:enabled, #game .album-slot:active:enabled { background:transparent; filter:none; transform:none; }
 #album-detail, #dust-shop { z-index:20; }
 #stage > #boss-challenge { background-size:100% 100%; }
 #stage > #boss-challenge { padding:4px 6px 6px 32px; text-align:left; font-size:14px; line-height:16px; }
 
-/* 王包本體也是熱區（點珍母或點罐頭都算打王）；紫／粉按鈕的填色用圓角裁掉，才不會在圓角外露出來 */
+/* 王包本體也是熱區（點珍母或點罐頭都算打王） */
 #stage > #boss-view { pointer-events:auto; cursor:pointer; }
 #boss-view > * { pointer-events:none; }
-#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect, #game #reveal-all, #game .grow-btn.promote, #game #prestige-go, #game .dust-row button { border-radius:16px / 11px; }
 
 /* 點擊粒子與浮字要壓在王包／禮包／今日包之上（stage 沒有 z-index，裡面的 z 13 會直接壓過 canvas 的 6） */
 #click-fx { z-index:25; }
@@ -720,10 +707,22 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #wardrobe-decor-price { white-space:normal; }
 #boss-banner.final-win { font-size:24px; }
 .card-trait { position:absolute; top:8px; left:8px; right:8px; text-align:center; font-size:11px; color:#30251F; background:#FFF3DC; border-radius:4px; }
-#game #snack-thief { left:506px; top:184px; width:90px; height:110px; padding:0; border:0; border-image:none; background:transparent; box-shadow:none; z-index:8; }
+#game #snack-thief { left:506px; top:184px; width:90px; height:110px; padding:0; border:0; border-image:none; box-shadow:none; outline:none; background:transparent; z-index:8; }
 #snack-thief img { width:100%; height:100%; object-fit:contain; animation:thief-bob 1.2s ease-in-out infinite; }
 #snack-thief span { position:absolute; right:5px; bottom:15px; }
 @keyframes thief-bob { 50% { translate:0 -6px; } }
 @media (prefers-reduced-motion:reduce) { #snack-thief img { animation:none; } }
 
-#roster #train-all { flex:none; white-space:nowrap; font-size:12px; padding:8px 12px; }
+#roster #train-all { flex:none; white-space:nowrap; font-size:12px; padding:5px 9px; }
+
+/* 貼圖熱區、圓貼紙與票券保留自己的輪廓。 */
+#game :is(#tap, .buddy, .slot-pick, .skill-use, #boss-challenge, .scene-ticket, .recommend-ticket, .album-slot, .mark-ticket, .sub-hot, #gift-hot, #daily-bag, #snack-thief):is(:hover, :active, :disabled),
+#game :is(#boss-challenge, .scene-ticket, .recommend-ticket, .mark-ticket) { box-shadow:none; outline:none; }
+#game :is(#tap, .buddy, .slot-pick, .album-slot):hover:enabled { background:transparent; }
+#game .skill-use:hover:enabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
+#game .mark-ticket { border:0; border-radius:0; }
+#game :is(button, select):focus-visible { outline:3px solid #0070dd; outline-offset:3px; }
+#game :is(.text-button, #audio-panel button[aria-pressed]) { background:transparent; border:0; box-shadow:none; outline:none; }
+#game :is(.scene-ticket, .mark-ticket):hover:enabled { background:#FAEBC9; }
+#game #roster .recommend-ticket:hover:enabled { background:transparent; }
+#game #prestige-go { padding:3px 15px 6px; }

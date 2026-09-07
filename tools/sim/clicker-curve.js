@@ -18,7 +18,11 @@ function shop() {
   if(s.pending||s.boss) return;
   // 五連：付得起就抽（最多每 90 秒一次，模擬真人開包時間）
   while(!s.pending && (s.freeDraws>=5 || s.coins>=E.drawCost(s,5)) && now-lastDrawAt>=90000) {
-    s=E.purchaseDraw(s,5,now,Pool,{rng,id:`d${++draws}`,visualSeed:seed}); s=E.collect(s,s.pending.draw.id,now).state; lastDrawAt=now; drawLog.push({at:now,scene:s.settings.scene,pkg:s.package.index});
+    const paidState=E.settle(s,now).state, price=E.drawCost(paidState,5-Math.min(paidState.freeDraws||0,5));
+    s=E.purchaseDraw(s,5,now,Pool,{rng,id:`d${++draws}`,visualSeed:seed});
+    const beforeP=E.rates(s).P, collected=E.collect(s,s.pending.draw.id,now);
+    s=collected.state; const gainPerSec=E.rates(s).P-beforeP;
+    lastDrawAt=now; drawLog.push({at:now,scene:s.settings.scene,pkg:s.package.index,price,newIds:collected.newIds,gainPerSec,paybackSec:collected.newIds.length ? price/gainPerSec : null});
     for(let i=0;i<3;i++) if(!s.skillSlots[i]) for(const c of combos) for(const id of c) if(s.collection[id]&&!s.skillSlots.includes(id)&&i<E.slotCount(s)) {s=E.equip(s,i,id,now);break;}
   }
   // 存錢買包：距上次五連超過 90 秒就先攢到五連價，攢夠之前不買升級（真人「想開包」的行為）
@@ -75,3 +79,8 @@ const byScene={}; for(const p of packLog){(byScene[p.scene]||=[]).push(p.sec);}
 for(const [sc,arr] of Object.entries(byScene)) { const a=[...arr].sort((x,y)=>x-y); console.log(' 包速',sc,'n=',a.length,'中位',a[a.length>>1].toFixed(1)+'s','p90',a[Math.floor(a.length*.9)].toFixed(1)+'s','最長',a[a.length-1].toFixed(0)+'s'); }
 const dHours={}; for(const d of drawLog){const h=Math.floor(d.at/3600000/24); dHours[h]=(dHours[h]||0)+1;} console.log(' 每日五連數',JSON.stringify(dHours));
 console.log(' 主動遊玩總時數',fmt(active)); for(const d of daily) console.log(' 醒來',d);
+
+const paidBack=drawLog.map((d,i)=>({...d,n:i+1})).filter(d=>d.paybackSec!==null).sort((a,b)=>a.paybackSec-b.paybackSec);
+const worst=paidBack.at(-1), duplicates=drawLog.filter(d=>d.paybackSec===null).length;
+console.log(' 五連回本秒數 中位數',paidBack.length ? paidBack[Math.floor((paidBack.length-1)/2)].paybackSec.toFixed(2) : '無','／最差',worst ? `${worst.paybackSec.toFixed(2)}（第${worst.n}抽、第${Math.floor(worst.at/86400000)+1}天）` : '無','／整包重複比例',`${duplicates}/${draws} (${(100*duplicates/(draws||1)).toFixed(2)}%)`);
+for(const [label,rows] of [['前5抽',drawLog.slice(0,5)],['後5抽',drawLog.slice(-5)]]) for(const d of rows) console.log(' ',label,JSON.stringify({n:drawLog.indexOf(d)+1,day:Math.floor(d.at/86400000)+1,...d}));

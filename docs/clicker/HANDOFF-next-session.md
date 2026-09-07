@@ -79,7 +79,14 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
 
-## 十二之前：新 session 先讀 `NEXT-SESSION-KICKOFF.md`（第十九輪：招募回本、CSS 畫按鈕）。留聲機使用者已確認可買。
+## 十三、2026-09-08：第十九輪（招募回本、按鈕紙框改 CSS 畫、技能槽名字不遮角色）
+
+- 簡報 `BRIEF-astra-impl-round19.md`、報告 `REPORT-astra-impl-round19.md`（含四份模擬全文）；驗收 `PYTHONIOENCODING=utf-8 python tools/test/clicker-round19.py`（四解析度＋dpr 1.25／1.5 四角放大、技能名字矩形不相交）。`npm test` 148 例。
+- **招募價改釘「全員視為中位數等級」的 P**（`clicker-economy.js medianPartnerLevel`、`rates(s,{partnerLevel})`、`drawCost`）；不是 KICKOFF 寫的「未訓練 P」——那樣夥伴 100 級時五連只值 0.2 秒收益、等於免費。**新夥伴第一次入隊自動設為中位數等級**（`receive`，免費、不觸發慶祝）。模擬：五連回本中位數 112 分 → 14 分，最差 52.9 分（第 29 抽、第 2 天，未達 30 分目標，`DRAW_SECONDS` 沒動，要不要調給使用者定）；到 fridge 提前 8 小時。
+- **按鈕與紙框不再用 9-slice**：`#game button`／`.upgrade`／`.recruit`／`#team`／`.panel`／`#recruit-topbar`／`#audio-panel` 改 CSS 畫（取樣色 奶油 #FBEED0、綠 #8D9C5B、粉 #FA776B、紫 #B48CCB、停用 #D9CCBB、紙 #FCECC8；3px 描邊、硬陰影、內虛線）。標題帶、票券、錢包牌、外框、桌墊、卡冊書仍用素材。任何 dpr 都乾淨，`_art/out/r19-corner-*.png`。
+- **技能槽名字**：`.skill-name` 改到圓貼紙正上方置中（只咬合 4px），`#slots` gap 16px；四字以上名字不再蓋住角色圖。
+- 待收：使用者實機 exe（dpr 1.25／1.5）看按鈕角；最差回本 52.9 分要不要再壓；其他待辦見 `NEXT-SESSION-KICKOFF.md`。
+
 
 ## 十二、2026-09-08 凌晨收尾：第十八輪＋訓練里程碑不加價（公司電腦接手從這裡開始）
 

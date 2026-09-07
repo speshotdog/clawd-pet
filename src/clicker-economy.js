@@ -7,12 +7,16 @@
   const clickCost = (l) => Math.ceil(10 * 1.35 ** l);
   // 2026-09-06 數值重整（參考 Cookie Clicker）：全隊訓練每級 ×1.25、價 ×2.5（一次翻倍約 ×17 價；CC 升級品每步約 ×10～×100）
   const trainingCost = (t) => Math.ceil(2500 * 2.5 ** t);
-  // 招募價釘在「現在每秒收益」：單抽 30 秒、五連 135 秒的被動收益（下限 150／700），後期永遠抽得起
+  // 招募價釘在「全員視為中位數等級的每秒收益」：單抽 30 秒、五連 135 秒的被動收益（下限 150／700），後期永遠抽得起
   const DRAW_SECONDS = { single: 30, five: 135 }, DRAW_FLOOR = { single: 150, five: 700 };
-  const drawCost = (s, count = 1) => { const P = rates(s).P; return count >= 5 ? Math.max(DRAW_FLOOR.five, Math.ceil(DRAW_SECONDS.five * P)) : count * Math.max(DRAW_FLOOR.single, Math.ceil(DRAW_SECONDS.single * P)); };
+  const drawCost = (s, count = 1) => { const P = rates(s, { partnerLevel: medianPartnerLevel(s) }).P; return count >= 5 ? Math.max(DRAW_FLOOR.five, Math.ceil(DRAW_SECONDS.five * P)) : count * Math.max(DRAW_FLOOR.single, Math.ceil(DRAW_SECONDS.single * P)); };
   // 夥伴訓練＝CC 的建築：每級 +1 倍（線性），10／25／50／100／150／200 級各 ×2（CC 的建築升級品節奏）
   const PARTNER_MILESTONES = [10, 25, 50, 100, 150, 200];
   const partnerMul = (L) => (1 + L) * 2 ** PARTNER_MILESTONES.filter(m => L >= m).length;
+  function medianPartnerLevel(s) {
+    const levels = Object.keys(s.collection).filter(id => s.collection[id] > 0).map(id => s.partnerLevels?.[id] || 0).sort((a,b) => a-b);
+    return levels.length ? levels[Math.floor((levels.length-1)/2)] : 0;
+  }
   const stars = (n) => n < 1 ? 0 : B.stars.filter((threshold) => n >= threshold).length;
   const starMultiplier = (n) => n < 1 ? 0 : 1 + .25 * (stars(n) - 1);
   const origin = id => ['rare','epic','legendary','mythic'].indexOf(Pool.byId[id]?.rarity);
@@ -41,6 +45,7 @@
   function receive(s,id) {
     s.dust ||= {}; s.overflow ||= {}; s.universalDust ||= 0;
     const before=stars(dust(s,id)); s.dust[id]=dust(s,id);
+    if (!s.collection[id]) { s.partnerLevels ||= {}; s.partnerLevels[id]=medianPartnerLevel(s); }
     s.collection[id]=(s.collection[id] || 0)+1;
     if (s.transcend?.[id]===5) {
       if (origin(id)===3) { s.universalDust+=100; }   // 神話滿養重複一張＝100 萬用粉塵（與兌換價對稱）
@@ -70,7 +75,7 @@
     }
     return s;
   }
-  const individual = (s, id) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2,5.5][tier(s,id)]/[1,1.8,3.2,5.5][origin(id)]) * (1+[.06,.09,.14,.20][origin(id)]*(s.transcend?.[id] || 0)) * 1.25 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * partnerMul(s.partnerLevels?.[id] || 0);
+  const individual = (s, id, partnerLevel = s.partnerLevels?.[id] || 0) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2,5.5][tier(s,id)]/[1,1.8,3.2,5.5][origin(id)]) * (1+[.06,.09,.14,.20][origin(id)]*(s.transcend?.[id] || 0)) * 1.25 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * partnerMul(partnerLevel);
   // 第十三輪：印記永久倍率、桌面裝飾
   const markMul = (s) => 1 + .05 * (s.marksClaimed || 0);
   const decoMul = (s) => 1 + .01 * (s.deco?.length || 0);
@@ -102,8 +107,8 @@
     for (let i=0;i<slotCount(s);i++) if (desired[i] !== s.skillSlots[i]) s=equip(s,i,desired[i],now);
     return s;
   }
-  function rates(s) {
-    const P = Object.keys(B.characters).reduce((sum, id) => sum + individual(s, id), 0);
+  function rates(s, options = {}) {
+    const P = Object.keys(B.characters).reduce((sum, id) => sum + individual(s, id, options.partnerLevel), 0);
     const mul = (Scenes(s.settings?.scene).rewardMul || 1) * decoMul(s), M = markMul(s);
     const trait = (s.skillSlots || []).reduce((m,id) => m * (id && s.collection[id] ? skillAt(s,id).trait?.clickMul || 1 : 1), 1);
     return { P: M * P * mul, D: trait * (M * 1.15 ** s.clickLevel + .05 * M * P) * mul };
@@ -479,7 +484,7 @@
   function abandonBoss(state,now) {
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
-  const api = { exchangeRate, PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, decoMul,
+  const api = { medianPartnerLevel, exchangeRate, PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, decoMul,
     thiefHit, newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
