@@ -3,7 +3,7 @@
 // 節拍：入夜 300 → 起飛 → 飛行 900 → 撞擊 → 五張從坑裡升起 → 揭曉
 window.GachaModes = window.GachaModes || {};
 // 尾光預告表面最高色階；轉彩卡在這裡仍是精良。
-const WISH_TELEGRAPH = true;
+const WISH_TELEGRAPH = false;   // 使用者要求流星投遞不預告（ec563bf）；第十六輪誤開，2026-09-08 關回。只有神話例外（彩虹流星）
 window.GachaModes.wish = {
   label: '流星投遞', counts: [1, 5, 10],
   create(ctx) {
