@@ -13,7 +13,7 @@ def main():
     for pattern in ['clicker*.*', 'chipforge/**', 'fonts/**', 'gacha-audio.js',
                     'gacha-fx.js', 'gacha-card.js', 'gacha-card.css',
                     'gacha-mode-runtime.js', 'gacha-mode-*.js', 'gacha-pool.js',
-                    'character-config.js', 'gacha-*.png', 'gacha-*.jpg', 'toy-*.png']:
+                    'character-config.js', 'gacha-*.png', 'gacha-*.jpg', 'toy-*.png', 'card-*.png']:
         files.update(p for p in SRC.glob(pattern) if p.is_file())
     for folder in ['chipforge', 'fonts']:
         files.update(p for p in (SRC / folder).rglob('*') if p.is_file() and 'worklet' not in p.parts)
