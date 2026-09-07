@@ -79,6 +79,14 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
 
+## 十一、2026-09-08：第十七輪（冰箱終點、新卡 2.0、印記四項、音量面板、零食小偷）＋第十八輪派工
+
+- 第十七輪已 commit `f91d05b`（報告 `REPORT-astra-impl-round17.md`，驗收 `python tools/test/clicker-round17.py` 兩種寬度）。冰箱固定 100 包可挑戰、王勝＝六站全破不切場景；新卡 膠頭燃額（傳說、裝備時攻擊力 ×1.5 的唯一 trait）、警狗（傳說）、哥不狗（史詩）、珍珍JPG（**精良**，使用者定）；卡冊依稀有度低→高；電動手指上限 10（印記 finger14 → 14）；印記商店多 bossTime／offline15／daily2；零食小偷（monster-0/1/2 → 後院／便利商店／工廠）。
+- 使用者定：**萬用粉塵換神話 100 換 1；神話滿養重複一張折 100 萬用粉塵**（`clicker-economy.js exchangeRate`／`receive`）。
+- 素材：`src/card-{zhenjpg,jiaotou,jinggou,gebugou}.png`、`src/monster-{0,1,2}.png`（export-web 白名單已含 `card-*`，`monster-*` 這次一併加）。
+- 第十八輪簡報 `BRIEF-astra-impl-round18.md`：卡冊「平均訓練」鍵（低等級先升、輪流買）、`fitWindow` 縮放比取 0.25 倍數修 9-slice 邊角缺塊。
+- 舊瀏覽器測試改的期望值：round7 切入角色接受 `img`（PNG 角色）。
+
 ## 十、2026-09-07 深夜：第十五輪（十張新卡＋神話階級）、第十六輪（轉彩）
 
 - 第十五輪：簡報 `BRIEF-astra-impl-round15.md`、報告 `REPORT-astra-impl-round15.md`。新卡素材 `src/card-*.png`（PNG 靜態圖，沒有 rig；所有讀 `CHAR_CFG` 的地方都有 `entry.src` 圖片分支）。神話 0.5%、係數 5.5、超越 +20%、萬用粉塵匯率 6。單元測試 122 例。
