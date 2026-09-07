@@ -102,21 +102,21 @@
     palette: { mat: '#3B3F5C', sky: '#1E2440' }, music: { theme: 'rainynight', seed: 'zhenmu-rooftop-1', gen: { density: 35, rhythm: 30, speed: 30, drama: 40, mood: 55, hook: 60, smooth: 80 } },
     particles: { sprites: ['clicker-fx-spark.png', 'clicker-scene1-particle-1.png'], everyMs: [900, 2200], max: 8, size: [8, 14], life: [5, 9] } };
   // 第十二輪：深夜冰箱（舊 id rainynight，存檔遷移在 clicker-save.js）。regen：需求每秒回升 1%，靠 burst 打穿。
-  // 素材尚未產出：先重用廚房各層加 tint 藍色調；冷凍包用罐頭 + 霜層（bagPrefix 換成 'clicker-frozen-' 即可切到新素材）。
+  // 冰箱自己的層已產出（clicker-scene6-*）；tint 只留一點冷色。冷凍包仍用罐頭 + 霜層（clicker-frozen-frost/ice）。
   scenes.fridge = {
     name: '深夜冰箱', unlockPackages: 0, requirementMul: 12000, rewardMul: 3.5, bagSkin: 1, bagPrefix: 'clicker-can-',
     unlock: { packages: 90, boss: 'nightmarket' }, enemy: { shell: null, timer: null, regen: .01 }, affinity: ['zhenmu','zhenzhen'],
     boss: { ...scenes.backyard.boss, name: '大冰磚', mul: .95, reward: { freeDraws: 5 } },   // 王也吃 1%/s 回升，30 秒約掉 30%，係數補回
     palette: { mat: '#AEC6D6', sky: '#DCE9F2' },
-    tint: { color: '#7FB5E6', opacity: .34, blend: 'multiply' },
+    tint: { color: '#7FB5E6', opacity: .12, blend: 'multiply' },
     frost: { layer: 'clicker-frozen-frost.png', ice: 'clicker-frozen-ice.png', shards: { sprite: 9, count: 16, color: '#DFF3FF' } },
     music: { theme: 'rainynight', seed: 'zhenmu-fridge-1', gen: { density: 35, rhythm: 30, speed: 30, drama: 40, mood: 45, hook: 55, smooth: 80 } },
     layers: [
-      { id:'sky', src:'clicker-scene2-sky.png', y:0, h:360, parallax:0 },
-      { id:'far', src:'clicker-scene2-far.png', x:330, y:44, h:130, w:243, parallax:.35 },
-      { id:'mid', src:'clicker-scene2-mid.png', x:40, y:196, h:96, w:294, parallax:.55 },
-      { id:'ground', src:'clicker-scene2-ground.png', y:220, h:140, parallax:.8 },
-      { id:'props', sprites:[0,1,2].map(i=>`clicker-scene2-prop-${i}.png`), slots:[[62,274],[330,298],[556,272]], h:64, parallax:.7 },
+      { id:'sky', src:'clicker-scene6-sky.png', y:0, h:360, parallax:0 },
+      { id:'far', src:'clicker-scene6-far.png', x:330, y:44, h:130, w:243, parallax:.35 },
+      { id:'mid', src:'clicker-scene6-mid.png', x:40, y:196, h:96, w:294, parallax:.55 },
+      { id:'ground', src:'clicker-scene6-ground.png', y:220, h:140, parallax:.8 },
+      { id:'props', sprites:[0,1,2].map(i=>`clicker-scene6-prop-${i}.png`), slots:[[62,274],[330,298],[556,272]], h:64, parallax:.7 },
       { id:'mist', sprites:[0,1].map(i=>`clicker-scene2-steam-${i}.png`), slots:[[90,150],[470,176]], h:70, drift:[8,11], rise:true, parallax:.2 },
       { id:'frost-edge', sprites:['clicker-fx-snow.png','clicker-fx-snow.png'], slots:[[40,40],[540,36]], h:40, drift:[3,4], parallax:.15 },
     ],

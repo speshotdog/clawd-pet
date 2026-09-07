@@ -6,3 +6,6 @@ __pycache__/
 tools/test/.clicker-artifacts/
 tools/test/clicker-artifacts/
 dist-web/
+_art/out/
+_art/*.json
+_art/*-source.png

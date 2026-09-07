@@ -7,7 +7,9 @@ window.Clicker = (() => {
   const $ = (id) => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
   const TAURI = window.__TAURI__;
   // 萬／億／兆：數字部分最多 5 位（1234萬、123.4億、12.34兆），價籤與錢包才放得下
-  const format = (n) => { for (const [u, name] of [[1e16, '京'], [1e12, '兆'], [1e8, '億'], [1e4, '萬']]) if (n >= u) { const v = n / u; return `${v.toFixed(v >= 1000 ? 0 : v >= 100 ? 1 : 2)}${name}`; } return n.toLocaleString('zh-TW', { maximumFractionDigits: 1 }); };
+  // 單位一路排到「極」（1e48）：只排到京的話，深層場景的需求會變成十幾位數字，把版位（#package-number 等固定寬）撐爆並被切掉。
+  const UNITS = [[1e48, '極'], [1e44, '載'], [1e40, '正'], [1e36, '澗'], [1e32, '溝'], [1e28, '穰'], [1e24, '秭'], [1e20, '垓'], [1e16, '京'], [1e12, '兆'], [1e8, '億'], [1e4, '萬']];
+  const format = (n) => { if (n >= 1e52) return n.toExponential(2); for (const [u, name] of UNITS) if (n >= u) { const v = n / u; return `${v.toFixed(v >= 1000 ? 0 : v >= 100 ? 1 : 2)}${name}`; } return n.toLocaleString('zh-TW', { maximumFractionDigits: 1 }); };
   const store = window.ClickerSave.create({ getItem: (k) => localStorage.getItem(k), setItem: (k, v) => localStorage.setItem(k, v) }, { pool: Pool });
   let stage, gacha, cutin, ready = false, tickTimer = 0, saveTimer = 0, numberTimer = 0, noticeTimer = 0;
   let audio = null, lastNumbers = -Infinity, inputTimes = [], slotsKey = '', suspended = false;

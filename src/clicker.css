@@ -567,7 +567,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #game #prestige-hint { position:absolute; left:24px; top:40px; z-index:12; pointer-events:auto; font-size:12px; padding:4px 12px 6px; transform:rotate(-2deg); }
 #auto-finger { position:absolute; right:-6px; top:60px; width:48px; height:48px; object-fit:contain; transform-origin:20% 90%; z-index:3; pointer-events:none; }
 #deco-layer { position:absolute; inset:0; z-index:2; pointer-events:none; }
-#deco-layer .deco { position:absolute; height:44px; width:auto; transform:translate(-50%,-100%); }
+#deco-layer .deco { position:absolute; height:44px; width:auto; max-width:88px; object-fit:contain; object-position:bottom center; transform:translate(-50%,-100%); }
 #deco-layer .deco-fallback { font-size:11px; background:#FFF6E6; border:1px solid #30251F; border-radius:4px; padding:1px 4px; height:auto; }
 #game .grow-btn.train { --button-art:url('clicker-ui-btn-green.png'); }
 #wardrobe { width:352px; }
@@ -622,8 +622,8 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 @media (prefers-reduced-motion:reduce) { #belt-lamp.warn { animation:none; filter:brightness(1.5); } #bag.shiver { animation:none; } }
 /* Round 12: 深夜冰箱（藍色調＋霜層＋回升標）、今日限定包、里程碑徽章牆、分享卡、匯出匯入 */
 .scene-tint { position:absolute; inset:0; pointer-events:none; z-index:60; }
-#stage[data-scene="fridge"] #clicker-scene, #stage[data-scene="fridge"] .scene-outgoing { filter:hue-rotate(160deg) saturate(.55) brightness(1.06) contrast(.95); }
-#stage[data-scene="fridge"] .desk-mat { filter:saturate(.4) hue-rotate(170deg) brightness(1.05); }
+#stage[data-scene="fridge"] #clicker-scene, #stage[data-scene="fridge"] .scene-outgoing { filter:saturate(.82) brightness(1.05) contrast(.95); }   /* 冰箱有自己的冷色素材了，不再 hue-rotate 廚房圖（會把藍轉成粉） */
+#stage[data-scene="fridge"] .desk-mat { filter:saturate(.5) brightness(1.05); }
 #stage[data-scene="fridge"] #hero-light { background:radial-gradient(ellipse, #DFF3FFb8 0%, #DFF3FF00 70%); }
 .scene-toy { z-index:2; filter:drop-shadow(0 2px 0 #30251F55); }
 #stage > #regen-tag { position:absolute; left:296px; top:330px; height:22px; display:flex; align-items:center; gap:2px; z-index:13; padding:0 6px 2px 3px; font-size:11px; line-height:14px; color:#2A4A66; background:#DFF3FF; border:2px solid #30251F; border-radius:4px; pointer-events:none; }

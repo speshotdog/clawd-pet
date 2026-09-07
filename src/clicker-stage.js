@@ -570,8 +570,8 @@ window.ClickerStage = (() => {
     function renderDeco(s) {
       let layer = $('deco-layer'); if (!layer) { layer = document.createElement('div'); layer.id = 'deco-layer'; $('hero-light').before(layer); }
       const key = JSON.stringify([s.deco || [], s.settings.scene]); if (layer.dataset.key === key) return; layer.dataset.key = key; layer.replaceChildren();
-      const slots = window.ClickerScene.current?.decoSlots || [[60, 300], [150, 306], [560, 296], [100, 260], [520, 250], [30, 250], [580, 330], [200, 330], [470, 330], [320, 100]];
-      (s.deco || []).forEach((id, i) => { const item = window.ClickerBalance.decor.find(d => d.id === id); if (!item) return; const [x, y] = slots[i % slots.length]; const img = document.createElement('img'); img.src = item.file; img.alt = ''; img.className = 'deco'; img.style.left = `${x}px`; img.style.top = `${y}px`; img.onerror = () => { img.replaceWith(Object.assign(document.createElement('span'), { className: 'deco deco-fallback', textContent: item.name, style: `left:${x}px;top:${y}px` })); }; layer.append(img); });
+      const slots = window.ClickerScene.current?.decoSlots || [[352, 310], [150, 54], [42, 310], [452, 56], [578, 302], [106, 310], [170, 310], [470, 112], [234, 310], [298, 310]];
+      (s.deco || []).forEach((id, i) => { const at = window.ClickerBalance.decor.findIndex(d => d.id === id); const item = at < 0 ? null : window.ClickerBalance.decor[at]; if (!item) return; const [x, y] = slots[at % slots.length]; const img = document.createElement('img'); img.src = item.file; img.alt = ''; img.className = 'deco'; img.style.left = `${x}px`; img.style.top = `${y}px`; img.onerror = () => { img.replaceWith(Object.assign(document.createElement('span'), { className: 'deco deco-fallback', textContent: item.name, style: `left:${x}px;top:${y}px` })); }; layer.append(img); });
     }
     // 更衣室試用：在珍母旁噴一次該特效；覺醒：整個舞台撒金粒子
     function preview(fxId) { if (!running) return; burst(10, false, true, IMPACT, false, fxId); }
