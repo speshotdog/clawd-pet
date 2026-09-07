@@ -1,8 +1,11 @@
-# 珍母點點：交接（2026-09-06 深夜，第八～十三輪全部上線）
+# 珍母點點：交接（2026-09-07 下午，素材補齊＋三個 UI 修正）
 
 ## 一、現況一眼看
 
-- **程式碼**：`D:\claude研究\clawd-pet`，分支 `main`。第八～十三輪全部合併，`npm test` 111 例、Playwright 全套件（round4~7 舊套件＋`--round8/9/11/12`）全綠。main 已於 2026-09-07 push 到 origin（`f319ebd` 之後可在別台機器 clone 續作；之前只推 gh-pages）。
+- **程式碼**：分支 `main`，已 push 到 origin（最新 `eec6587`）。
+  ⚠ **每台機器路徑不一樣**：公司機是 `D:\claude研究\clawd-pet`，家裡機是 `D:\claude\clawd-pet`。本文件底下的指令若寫死路徑，請先換成你這台的。
+  ⚠ **接手前一定先 `git fetch` + `git pull --ff-only`**（2026-09-07 就發生過本機落後 origin 66 個 commit，差點直接改到舊檔）。
+  原（2026-09-06 深夜）：第八～十三輪全部合併，`npm test` 111 例、Playwright 全套件（round4~7 舊套件＋`--round8/9/11/12`）全綠。main 已於 2026-09-07 push 到 origin（`f319ebd` 之後可在別台機器 clone 續作；之前只推 gh-pages）。
 - **網頁版**：https://speshotdog.github.io/clawd-pet/ ，來源是 `gh-pages` 分支（只放 `dist-web/` 內容＋`.nojekyll`，orphan commit，每次 force push 不保留歷史）。存檔在瀏覽器 localStorage 的 `clicker_save`（跟 exe 各自獨立；可用徽章牆的「匯出存檔／匯入存檔」搬家）。
 - **桌面版**：Tauri 視窗 `clicker`（`src-tauri/target/release/clawd-pet.exe`，右鍵選單「珍母點點」）。與網頁版共用同一套 `src/clicker*.*`，差別只有 `window.__TAURI__` 有無（見 `clicker.js` 的 `TAURI` 分支：拖曳、關窗、fit_window）。
 - **設計定案**：`docs/clicker/DESIGN-round8-roadmap.md`（王包規則、技能四規則、升星影響技能、角色粉塵／升階／超越、卡冊、更衣室、消費手段、輪迴）。各輪簡報 `BRIEF-astra-impl-round8~13.md`；第八、九輪由 GPT-6 Astra 實作，第十輪 Astra 只做經濟層一半（Codex 額度），其餘由 Claude 與子代理完成。
@@ -59,12 +62,58 @@ cd "D:/claude研究/clawd-pet" && git worktree remove --force "$T"; git worktree
 - 換桌布提示改在 1Hz 結算檢查，多一個「一包 >3 分鐘且 ≥5 印記可領」的觸發。
 - 第 100 包 12 選 1 不自動彈出，徽章牆按鈕手動開（避免蓋住王包／禮包）。
 
-## 六、尚未做／素材缺口（Codex imagegen 額度 9/7 11:03 重置）
+## 六、尚未做／素材缺口（2026-09-07 下午更新）
 
-- 第十二輪素材：`clicker-scene6-*`（冰箱拆層）、`clicker-frozen-{0..4}`、`clicker-frozen-frost/ice`、`clicker-daily-bag`、`clicker-badge-*`（目前借廚房層加藍色調、罐頭加霜、禮包當今日包、徽章用既有貼紙）；`clicker-scene3/4/5/6-thumb.png` 場景縮圖；第十三輪 `clicker-deco-{0..9}`（裝飾目前顯示文字標籤）、`clicker-scene7-*` 屋頂星空（借後院層上夜色）。生完換檔名即可（extras 的 `ASSETS`、scene 的 `bagPrefix`），並把 round7 測試對這些前綴的缺檔容忍拿掉。
+**已補齊**（見第八節）：桌面裝飾、深夜冰箱場景層、場景縮圖 3~7、今日限定包、霜層。
+
+**還缺**：
+- `clicker-badge-*` 17 檔（pack10/25/50/100/300/1000、boss-<六場景>、star5、promote、transcend、streak7、coins1e8）。
+  目前走既有的合成 fallback（星／肉球／愛心底圖 ＋ DOM 疊字），文字保證正確、看起來也成立。
+  ⚠ **不要直接叫 imagegen 把字畫進去**：徽章上有「王1」「升階」「超越」「7日」「1億」，gpt-image-2 畫中文會出錯字。
+  要做就生「無字底圖」17 張，讓 `badgeNode()` 照舊疊字。
+- `clicker-scene7-*` 屋頂星空（仍是借後院層＋`clicker.css` 的 `[data-scene="rooftop"]` 夜色濾鏡）。
+  ⚠ 做這個時記得看第八節的冰箱教訓：**素材換成夜色的當下，要同時把那條 `hue-rotate` 濾鏡拿掉**，否則會二次調色調成怪顏色。
+- `clicker-frozen-{0..4}` 冷凍包五狀態（目前用 `clicker-can-*` ＋ 霜層，看起來還可以）。
+  五個狀態要彼此一致，分五次 imagegen 很難對齊，建議用同一張圖改圖或改用程式疊霜。
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
-- 使用者實玩回饋待收：卡冊閃爍已修（refresh 只在相關欄位變動時重建）、「顏色出框」在 2560／960 兩種寬度截圖看不到，若再出現請附截圖指出元件。
-- main 已 push（09-07）；exe 於 09-07 凌晨以數值重整 v2 重 build。
+- 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
+
+## 八、2026-09-07 下午：素材補齊＋三個 UI 修正（main `eec6587`）
+
+**補了 22 張素材**（Codex imagegen，單行 prompt；批次清單留在 `_art/TASK-deco.md`、`_art/TASK2.md`）：
+- `clicker-deco-0~9` 桌面裝飾十件 — 原本畫面上只印文字標籤
+- `clicker-scene6-*` sky/far/mid/ground/prop×3 — 深夜冰箱終於有自己的圖，不再借廚房
+- `clicker-scene3~7-thumb` — 場景票券縮圖，**不是 imagegen，是 Playwright 實機截圖裁 192×54**
+  （`python _art/audit.py thumbs`；會連 scene1/2 一起重產，記得 `git checkout` 把原本那兩張還原）
+- `clicker-daily-bag`、`clicker-frozen-frost`、`clicker-frozen-ice`
+
+**修掉三個 bug**：
+1. **深夜冰箱整場變粉紅**。`clicker.css` 的 `[data-scene="fridge"] #clicker-scene { filter:hue-rotate(160deg) }`
+   本來是把暖色廚房圖轉藍；換成冰箱自己的冷色素材後，反而把藍轉成粉。已拿掉 hue-rotate，`tint.opacity` 從 .34 降到 .12。
+   **教訓：借圖用的調色濾鏡，跟素材是綁在一起的，換素材必須同時拆濾鏡。**（scene7 屋頂星空之後會踩同一顆）
+2. **大數字撐爆版位被切掉**。`clicker.js` 的 `format()` 單位只排到「京」，
+   冰箱第 400 包需求變成 `5214015183京`（`scrollWidth 190 > clientWidth 150`，尾巴被票券框切掉）。
+   單位補到 垓／秭／穰／溝／澗／正／載／極，`>= 1e52` 退回科學記號。現在顯示 `52.14秭`。
+3. **裝飾壓在技能槽與進度條上**。`decoSlots` 舊座標落在夥伴圓鈕（x28-308, y224-288）與進度條（y308-348）上。
+   改成 **依裝飾自己在 `B.decor` 的編號固定位置**（原本是依購買順序 `i % slots.length` 輪流佔位，
+   所以同一件裝飾會因為買的順序不同跑到不同地方）；會掛的（燈串／風鈴／小旗串）放上方、其餘排地面線；
+   `.deco` 加 `max-width:88px; object-fit:contain` 免得燈串／旗串橫向爆出畫面。
+
+**一個查了不是 bug 的**：面板關閉鍵上的藍色外框。那是用 JS `element.click()` 開面板才觸發的 `:focus-visible`，
+真滑鼠點不會出現。**寫瀏覽器驗證時用 `locator.click()`，不要用 `evaluate` 裡的 `el.click()`**，否則會驗出假 bug。
+
+**新的稽核工具**（`_art/`，`_art/out/` 與原始生圖已 gitignore）：
+- `python _art/audit.py audit` — 種一份滿等存檔，掃七個場景＋各面板，印出「缺素材清單／破圖／JS 錯誤」並每個狀態存一張截圖
+- `python _art/audit.py thumbs` — 產場景縮圖
+- `python _art/shot.py <寬> <高> <前綴>` — 指定解析度截全套面板（驗 960／1280／2560 用）
+- `python _art/postproc.py <來源> <檔名> <目標高>` — imagegen 產出去背裁邊丟進 `src/`
+- ⚠ 種存檔要過 `S.validate()`，很多欄位互相牽制（`marksClaimed >= marks + 印記商店總價`、
+  `skillSlots.length === slotLen`、`slotReadyAt` 長度要跟著、升階／超越要有對應粉塵）。
+  **改種子先用 `node -e` 跑 `S.validate()` 試，不要在瀏覽器裡猜**——驗證失敗時遊戲只跳「存檔無法讀取」不噴錯。
+
+**已出貨**：main `eec6587` 已 push；gh-pages 已 force push 並確認線上 200；
+exe 於 2026-09-07 16:17 重 build（`grep -c "^error" build.log` = 0），NSIS 安裝檔 `ClawdPet_0.5.3_x64-setup.exe` 一併產出。
+`npm test` 111 例、Playwright round4~7 與 `--round8/9/11/12` 全綠。
 
 ## 七、2026-09-07 凌晨：罐頭錯位已修、數值重整 v2
 
