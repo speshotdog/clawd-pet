@@ -102,6 +102,7 @@ window.ClickerStage = (() => {
       clearTimeout(blinkTimer); clearTimeout(openTimer); eyes(false);
       timers.forEach(clearTimeout); timers.clear(); animations.forEach((a) => a.cancel()); animations.clear();
       $('floaters').replaceChildren();
+      document.querySelectorAll('.rate-stamp').forEach(el => el.remove()); passiveAt = -Infinity;
       hero.style.transform = ''; limb(hero, 'legL', 0, cfg); limb(hero, 'legR', 0, cfg);
       bagBusy = false; if (latestState) showBag(stateOf(latestState)); pressAt = -Infinity; combo = 0; clickChain = 0; fxClickAt = -Infinity;
       bossKey=null; bossBusy=false; bossEntering=false; resultKey=latestState?.bossResult ? JSON.stringify(latestState.bossResult) : null;
@@ -115,17 +116,48 @@ window.ClickerStage = (() => {
       $('shell-rings').classList.remove('blocked'); $('boss-shells').classList.remove('blocked');
       document.querySelectorAll('.shell-hit-overlay').forEach(el=>el.remove()); struckRing=null;
     }
+    function appendFloater(el) {
+      const list = $('floaters');
+      if (list.querySelectorAll('.floater').length >= 12) (list.querySelector('.floater.passive') || list.querySelector('.floater')).remove();
+      list.append(el);
+    }
+    let passiveAt = -Infinity;
+    function floatPassive(amount) {
+      const now = Math.floor(performance.now() / 1000);
+      if (!running || frozen || reduced.matches || amount <= 0 || !latestState || E.rates(latestState).P <= 0 || now === passiveAt) return;
+      passiveAt = now;
+      const el = document.createElement('span'); el.className = 'floater passive'; el.textContent = `+${format(amount)}`;
+      el.style.left = `${IMPACT.x + 70 + Math.random() * 32 - 16}px`; el.style.top = `${IMPACT.y + 30 + Math.random() * 32 - 16}px`;
+      appendFloater(el);
+      motion(el, [{transform:'translate(-100%,0)',opacity:.85},{transform:'translate(calc(-100% + 24px),-30px)',opacity:.85,offset:.7},{transform:'translate(calc(-100% + 36px),-44px)',opacity:0}],1400,()=>el.remove(),'linear');
+    }
+    function rateStamp(s) {
+      if (!running || frozen) return false;
+      const exponent = Math.floor(Math.log10(E.rates(s).P));
+      if (exponent < 3 || exponent <= (s.peakRateStamp || 0)) return false;
+      s.peakRateStamp = exponent;
+      const el = document.createElement('div'); el.className = 'rate-stamp'; el.setAttribute('role','status');
+      const label = exponent === 3 ? '1 千' : format(10 ** exponent).replace(/\.0+(?=\D|$)/,'').replace(/(\d)([\u4e00-\u9fff])/,'$1 $2');
+      el.textContent = `每秒破 ${label}！`; $('stage').append(el);
+      sound('upgrade');
+      motion(el,[{transform:'translate(-50%,-50%) scale(1.6) rotate(-8deg)',opacity:0},{transform:'translate(-50%,-50%) scale(1) rotate(-4deg)',opacity:1}],260);
+      later(()=>motion(el,[{opacity:1},{opacity:0}],300,()=>el.remove()),1700);
+      return true;
+    }
     function float(amount, heavy, point, { sweep = false, text = null } = {}) {
+      if (!running || frozen || reduced.matches) return;
+      const P = latestState ? E.rates(latestState).P : 0, ratio = P > 0 ? amount / P : amount > 0 ? Infinity : 0;
+      const size = ratio >= 200 ? 42 : ratio >= 30 ? 36 : ratio >= 5 ? 30 : 26, tilt = ratio >= 30 ? -4 : 0;
       const el = document.createElement('span'); el.className = 'floater';
       el.innerHTML = '<img src="clicker-coin.png" alt="" /><b></b>';
       el.querySelector('b').textContent = `+${format(amount)}`;
       // 掃過去的浮字加「掃！」小章；漏包的浮字是灰字、沒有錢幣
       if (sweep) { const stamp = document.createElement('i'); stamp.className = 'sweep-stamp'; stamp.textContent = '掃！'; el.append(stamp); }
       if (text) { el.classList.add('miss'); el.querySelector('img').remove(); el.querySelector('b').textContent = text; }
-      el.style.left = `${point.x + Math.random() * 20 - 10}px`; el.style.top = `${point.y - 12}px`; el.style.fontSize = heavy ? '34px' : clickChain >= 3 ? '28px' : '26px'; el.style.color = text ? '#9A9A9A' : heavy ? '#EF8E8E' : clickChain >= 3 ? '#E9B94E' : '#FFF6E6';
-      if ($('floaters').querySelectorAll('.floater').length >= 12) $('floaters').querySelector('.floater').remove();
-      $('floaters').append(el);
-      motion(el, [{ transform: `translateY(0) scale(.6) rotate(${heavy ? -6 : 0}deg)`, opacity: 1 }, { transform:'translateY(-2px) scale(1.15) rotate(0)', opacity:1, offset:30/720 }, { transform:'translateY(-4px) scale(1)', opacity:1, offset:60/720 }, { transform: 'translateY(-40px)', opacity: 1, offset:520/720 }, { transform: 'translateY(-56px)', opacity: 0 }], 720, () => { el.remove(); }, 'linear');
+      el.style.left = `${point.x + Math.random() * 20 - 10}px`; el.style.top = `${point.y - 12}px`; el.style.fontSize = `${size}px`; el.style.color = text ? '#9A9A9A' : ratio >= 200 ? '#EF8E8E' : clickChain >= 3 ? '#E9B94E' : '#FFF6E6';
+      if (ratio >= 200) el.querySelector('b').style.webkitTextStroke = '2px #30251F';
+      appendFloater(el);
+      motion(el, [{ transform: `translateY(0) scale(.6) rotate(${tilt}deg)`, opacity: 1 }, { transform:`translateY(-2px) scale(1.15) rotate(${tilt}deg)`, opacity:1, offset:30/720 }, { transform:`translateY(-4px) scale(1) rotate(${tilt}deg)`, opacity:1, offset:60/720 }, { transform: `translateY(-40px) rotate(${tilt}deg)`, opacity: 1, offset:520/720 }, { transform: `translateY(-56px) rotate(${tilt}deg)`, opacity: 0 }], 720, () => { el.remove(); }, 'linear');
     }
     function click(amount, heavy = false, s, completed = 0, point = IMPACT, result = {}) {
       if (frozen) { heldAmount += amount; latestState = s; return; }
@@ -548,7 +580,8 @@ window.ClickerStage = (() => {
       motion(label,[{transform:'translateY(8px) scale(.8)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],180);
       later(()=>{ label.hidden = true; },1800);
       if (effect.source === 'zhenmu') {
-        motion($('parasite-label'),[{transform:'translateY(-40px) scale(1.3)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],300,()=>impact({x:250,y:285}));
+        const label = $('parasite-label');
+        motion(label,[{transform:'translateY(-20px) scale(1.3)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],300,()=>impact({x:label.offsetLeft+label.offsetWidth/2,y:label.offsetTop+label.offsetHeight/2}));
       }
       const el = document.querySelector(`.buddy[data-id="${effect.source}"]`);
       if (el && running) motion(el,[{transform:'scale(1)'},{transform:'scale(1.08)',offset:.5},{transform:'scale(1)'}],140);
@@ -599,7 +632,7 @@ window.ClickerStage = (() => {
     }
     // 第十二輪 extras（每日一包、徽章、碎冰）借用舞台的粒子、浮字與震動
     const spawn = p => fx?.spawn(p);
-    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, autoClick, shell, spawn, float, shake, motion, get running() { return running; }, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
+    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, autoClick, shell, spawn, float, floatPassive, rateStamp, shake, motion, get running() { return running; }, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
   }
   return { create };
 })();

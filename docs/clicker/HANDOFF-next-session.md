@@ -79,6 +79,16 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
 
+## 十四、2026-09-08：第二十輪（五連 80 秒＋訓練通膨、卡面去特質字、寄生標籤、數字爽感、印記祝福）
+
+- 簡報 `BRIEF-astra-impl-round20.md`、報告 `REPORT-astra-impl-round20.md`；驗收 `PYTHONIOENCODING=utf-8 python tools/test/clicker-round20.py`。`npm test` 154 例。
+- **招募**：`DRAW_SECONDS.five` 135 → 80；`drawCost` 的 P 只吃一半全隊訓練倍率（`rates(s,{trainingLevel:T/2})`）。模擬：每日五連數首日 28 → 36，其餘日相同；粉塵入帳不變。
+- **卡面**不再顯示「裝備時攻擊力 ×N」（`buildCard` 的 trait 參數已移除），資訊留在卡冊展示頁「特質」列。
+- **寄生標籤** `#parasite-label` 移到 left 150／top 120、z-index 10（原本落在技能槽名字那排且層級較低）；「連鎖」標籤上移 24px。
+- **數字爽感**：被動收益每秒一個 18px 淡金斜體浮字（`.floater.passive`，往右上飄 1400ms，優先回收）；點擊浮字依 `amount/P` 分 26／30／36／42px 四階（≥200 倍粉紅＋2px 描邊，`heavy` 併入）；每秒收益首次破十倍關卡蓋章（`s.peakRateStamp`，換桌布歸零）。
+- **印記商店**新增「祝福」區：收益祝福（每級 +10%、第 n 級價 n 印記、無上限、`blessMul` 乘在 `rates` 的 M 旁，換桌布保留）、粉塵兌換（1 印記→5 萬用粉塵，有 ×10）、招募券（2 印記→5 次免費單抽）。`s.blessing`。模擬器沒有輪迴策略，所以「剩餘印記 <10」的目標沒有被真正驗證，要靠使用者實玩回饋。
+- 待收：使用者實玩 80 秒與通膨手感、被動浮字會不會太吵、祝福定價。
+
 ## 十三、2026-09-08：第十九輪（招募回本、按鈕紙框改 CSS 畫、技能槽名字不遮角色）
 
 - 簡報 `BRIEF-astra-impl-round19.md`、報告 `REPORT-astra-impl-round19.md`（含四份模擬全文）；驗收 `PYTHONIOENCODING=utf-8 python tools/test/clicker-round19.py`（四解析度＋dpr 1.25／1.5 四角放大、技能名字矩形不相交）。`npm test` 148 例。

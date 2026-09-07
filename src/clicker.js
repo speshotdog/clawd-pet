@@ -99,6 +99,13 @@ window.Clicker = (() => {
     const hinted = window.ClickerPrestige?.hint(result.state, P, new Date().toDateString(), P > 0 ? need / P : 0);
     if (before && !result.state.boss) { if (!commit(result.state)) return; } else store.stage(result.state);
     stage?.render(result.state, { completed: result.completed });
+    if (!hiddenNow()) {
+      stage?.floatPassive(result.earned);
+      if (stage?.rateStamp(result.state)) {
+        commit(result.state);
+        pulse(document.querySelector('.wallet'), [{transform:'scale(1)'},{transform:'scale(1.08)',offset:.4},{transform:'scale(1)'}],300);
+      }
+    }
     if (hinted) prestigeUI?.hint();
   }
   let coinShown = null, coinTarget = null, coinRaf = 0, coinStarted = 0;
@@ -202,7 +209,7 @@ window.Clicker = (() => {
   function renderChain() {
     let tape=$('chain-tape');
     if (!tape) { tape=document.createElement('div');tape.id='chain-tape';tape.setAttribute('role','status');$('slots').before(tape); }
-    tape.style.left=`${$('slots').offsetLeft}px`;tape.style.top=`${$('slots').offsetTop-28}px`;
+    tape.style.left=`${$('slots').offsetLeft}px`;tape.style.top=`${$('slots').offsetTop-52}px`;
     const chain=store.state.chain, seconds=Math.max(0,Math.ceil(((chain?.expiresAt || 0)-Date.now())/1000));
     tape.classList.toggle('visible',seconds>0);tape.dataset.count=chain?.count || 1;
     tape.textContent=chain?.count>=2 ? `連鎖 ×${chain.count} · ${seconds}s` : `連鎖 ${seconds}s`;

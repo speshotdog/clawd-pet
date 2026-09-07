@@ -28,7 +28,7 @@
     s.effects = []; s.cooldownUntil = {}; s.slotReadyAt = s.slotReadyAt.map(() => 0); s.chain = { count: 1, expiresAt: 0 };
     if (s.markShop?.starter5) s.freeDraws = (s.freeDraws || 0) + 5;
     s.universalDust = (s.universalDust || 0) + 3;
-    s.prestigeHintDate = null; s.peakRate = 0;
+    s.prestigeHintDate = null; s.peakRate = 0; s.peakRateStamp = 0;
     return { state: s, gained };
   }
   function buyMark(state, id, now) {
@@ -41,6 +41,23 @@
     if (id === 'bossTime' && s.boss) s.boss.endsAt += 10000;
     if (id === 'slot4' && s.skillSlots.length < 4) { s.skillSlots.push(null); s.slotReadyAt.push(0); }
     return s;
+  }
+  function buyBlessing(state, now = state.settledAt) {
+    const s = E.settle(state, now).state, level = (s.blessing || 0) + 1;
+    if ((s.marks || 0) < level) throw new Error('印記不足');
+    s.marks -= level; s.blessing = level; return s;
+  }
+  function tradeDust(state, n = 1, now = state.settledAt) {
+    if (!Number.isSafeInteger(n) || n < 1) throw new Error('兌換數量無效');
+    const s = E.settle(state, now).state;
+    if ((s.marks || 0) < n) throw new Error('印記不足');
+    s.marks -= n; s.universalDust = (s.universalDust || 0) + 5 * n; return s;
+  }
+  function buyDrawTicket(state, n = 1, now = state.settledAt) {
+    if (!Number.isSafeInteger(n) || n < 1) throw new Error('兌換數量無效');
+    const s = E.settle(state, now).state;
+    if ((s.marks || 0) < 2 * n) throw new Error('印記不足');
+    s.marks -= 2 * n; s.freeDraws = (s.freeDraws || 0) + 5 * n; return s;
   }
   const autoClickCost = (L) => Math.ceil(5000 * 2.2 ** L);
   function buyAutoClick(state, now, max = false) {
@@ -105,6 +122,6 @@
     if (!canPrestige(s) && (currentP < (s.peakRate || 0) * .15 || stalled) && s.prestigeHintDate !== today) { s.prestigeHintDate = today; return true; }
     return false;
   }
-  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, buyMark, autoClickCost, buyAutoClick, autoClicks, trainCost, train, trainAll, nextMilestone, decoPrice, buyDeco, hint };
+  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, buyMark, buyBlessing, tradeDust, buyDrawTicket, autoClickCost, buyAutoClick, autoClicks, trainCost, train, trainAll, nextMilestone, decoPrice, buyDeco, hint };
   if (node) module.exports = api; else root.ClickerPrestige = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

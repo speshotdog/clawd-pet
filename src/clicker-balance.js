@@ -91,10 +91,15 @@
     { id:'crack75', name:'裂痕 75% 起跳', cost:2, desc:'王包失敗保留 75% 傷害' },
     { id:'rooftop', name:'新桌布「屋頂星空」', cost:5, desc:'第七場景，純外觀與 BGM' },
   ];
+  const blessings = [
+    { id:'blessing', name:'收益祝福', desc:'全隊每秒收益與攻擊力，每級 +10%' },
+    { id:'dustTrade', name:'粉塵兌換', cost:1, desc:'1 印記 → 5 萬用粉塵' },
+    { id:'drawTicket', name:'招募券', cost:2, desc:'2 印記 → 5 次免費單抽' },
+  ];
   const autoClickMax = 10;
   const autoClickCap = s => s.markShop?.finger14 ? 14 : autoClickMax;
   const decor = ['花盆','燈串','小鼓','風鈴','貓抓板','相框','香氛蠟燭','小旗串','多肉','留聲機'].map((name,i)=>({ id:`deco${i}`, name, file:`clicker-deco-${i}.png` }));
-  const api = { originalIds, marks, autoClickMax, autoClickCap, decor, wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const api = { originalIds, marks, blessings, autoClickMax, autoClickCap, decor, wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;

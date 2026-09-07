@@ -28,6 +28,7 @@ window.ClickerPrestigeUI = (() => {
       row.append(go); body.append(row);
     }
     function renderMarks(s, body) {
+      const permanent = document.createElement('h3'); permanent.textContent = '永久'; body.append(permanent);
       const list = document.createElement('div'); list.className = 'mark-list';
       for (const item of B.marks) {
         const owned = !!s.markShop?.[item.id];
@@ -38,6 +39,23 @@ window.ClickerPrestigeUI = (() => {
         list.append(t);
       }
       body.append(list);
+      const heading = document.createElement('h3'); heading.textContent = '祝福'; body.append(heading);
+      const repeat = document.createElement('div'); repeat.className = 'mark-list';
+      for (const item of B.blessings) {
+        for (const n of item.id === 'dustTrade' ? [1,10] : [1]) {
+          const cost = item.id === 'blessing' ? (s.blessing || 0) + 1 : item.cost * n;
+          const t = document.createElement('button'); t.className = 'mark-ticket'; t.dataset.item = item.id; t.dataset.quantity = n;
+          const title = item.id === 'blessing' ? `${item.name} Lv.${s.blessing || 0}（×${E.blessMul(s).toFixed(2)}）` : `${item.name}${n > 1 ? ' ×10' : ''}`;
+          t.innerHTML = `<img src="clicker-ui-stamp-transcend.png" alt="" /><span><b>${title}</b><small>${item.desc}</small></span><i>${item.id === 'blessing' ? '下一級 ' : ''}${cost} 印記</i>`;
+          t.disabled = s.marks < cost || store.blocked;
+          t.onclick = () => action(() => {
+            const next = item.id === 'blessing' ? P.buyBlessing(store.state, Date.now()) : item.id === 'dustTrade' ? P.tradeDust(store.state, n, Date.now()) : P.buyDrawTicket(store.state, n, Date.now());
+            if (commit(next)) { sound('upgrade'); changed(); notice(`${item.name}${n > 1 ? ' ×10' : ''}`); render(); }
+          });
+          repeat.append(t);
+        }
+      }
+      body.append(repeat);
     }
     function renderFinger(s, body) {
       const L = s.autoClick || 0, price = P.autoClickCost(L);

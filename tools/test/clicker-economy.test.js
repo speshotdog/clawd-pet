@@ -156,10 +156,10 @@ test('累計收益解鎖槽位，换槽保留 CD 並等 30 秒', () => {
   assert.equal(E.activate(swapped, 0, swapped.settledAt + 30000).effect.multiplier, 10);
 });
 
-test('招募價釘在每秒收益（單抽 30 秒、五連 135 秒，下限 150／700）；五連跨第 40 張，收下雙擊 id 防重', () => {
+test('招募價釘在每秒收益（單抽 30 秒、五連 80 秒，下限 150／700）；五連跨第 40 張，收下雙擊 id 防重', () => {
   assert.equal(E.drawCost(fresh()), 150); assert.equal(E.drawCost(fresh(), 5), 700);
   const rich = { ...fresh(), collection: { zhenmu: 1 } };   // P = 16
-  assert.equal(E.drawCost(rich), 480); assert.equal(E.drawCost(rich, 5), 2160); assert.equal(E.drawCost(rich, 0), 0);
+  assert.equal(E.drawCost(rich), 480); assert.equal(E.drawCost(rich, 5), 1280); assert.equal(E.drawCost(rich, 0), 0);
   const s = money(); s.paidDraws = 37; s.pity.sinceLegendary = 37; s.collection = { yueyue2: 1 };
   const pending = E.purchaseDraw(s, 5, s.settledAt, Pool, opts);
   assert.equal(pending.pending.draw.entries[2].entry.rarity, 'legendary'); assert.equal(pending.pity.sinceLegendary, 2);

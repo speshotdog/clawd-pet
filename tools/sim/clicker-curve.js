@@ -16,6 +16,7 @@ function payback(kind,id) {   // 回本秒數：花費 / 每秒增加的 P（點
 }
 function shop() {
   if(s.pending||s.boss) return;
+  while((s.marks || 0) >= (s.blessing || 0) + 1) s=P.buyBlessing(s,now);
   // 五連：付得起就抽（最多每 90 秒一次，模擬真人開包時間）
   while(!s.pending && (s.freeDraws>=5 || s.coins>=E.drawCost(s,5)) && now-lastDrawAt>=90000) {
     const paidState=E.settle(s,now).state, price=E.drawCost(paidState,5-Math.min(paidState.freeDraws||0,5));
@@ -54,6 +55,8 @@ function fight() {
 }
 function fmt(ms){return (ms/3600000).toFixed(2)+'h';}
 const daily=[]; let lastPkgAt=0;
+const dailyDust={}; let previousDust=0;
+function recordDust() { const day=Math.floor(now/86400000); dailyDust[day]=(dailyDust[day]||0)+s.universalDust-previousDust; previousDust=s.universalDust; }
 while(now<DAYS*86400000) {
   // 一段主動遊玩
   const end=now+SESSION;
@@ -64,10 +67,11 @@ while(now<DAYS*86400000) {
     if(s.package.index>before) { packLog.push({scene:s.settings.scene,pkg:before,sec:(now-lastPkgAt)/1000}); lastPkgAt=now; }
     if(Math.round(now/dt)%(CPS*5)===0) shop();
     if(now>=skipUntil && E.canBoss(s,now)) { fight(); lastPkgAt=now; }
-    active+=dt;
+    recordDust(); active+=dt;
   }
   s=E.settle(s,now).state; shop(); if(now<86400000) daily.push(`${fmt(now)} 收工 ${s.settings.scene}#${s.package.index} P=${E.rates(s).P.toExponential(2)} D=${E.rates(s).D.toExponential(1)} 訓練Lv${s.trainingLevel} 攻擊力Lv${s.clickLevel} 夥伴${Object.keys(s.collection).length} Lv中位${[...Object.values(s.partnerLevels||{})].sort((a,b)=>a-b)[Object.keys(s.partnerLevels||{}).length>>1]||0}`);
   now+=8*3600000; s=E.settle(s,now,{offline:true}).state; lastPkgAt=now; const pre=s.coins; shop();
+  recordDust();
   daily.push(`${fmt(now)} ${s.settings.scene}#${s.package.index} P=${E.rates(s).P.toExponential(2)} 醒來幣=${pre.toExponential(1)} 剩=${s.coins.toExponential(1)} 訓練Lv${s.trainingLevel} 夥伴Lv中位${[...Object.values(s.partnerLevels||{})].sort((a,b)=>a-b)[Object.keys(s.partnerLevels||{}).length>>1]||0}`);
 }
 const won=order.filter(id=>s.bossWins.includes(id));
@@ -78,6 +82,8 @@ for(const b of bossLog) console.log(' 王',b.scene,'第',b.try,'次',b.won?'勝'
 const byScene={}; for(const p of packLog){(byScene[p.scene]||=[]).push(p.sec);} 
 for(const [sc,arr] of Object.entries(byScene)) { const a=[...arr].sort((x,y)=>x-y); console.log(' 包速',sc,'n=',a.length,'中位',a[a.length>>1].toFixed(1)+'s','p90',a[Math.floor(a.length*.9)].toFixed(1)+'s','最長',a[a.length-1].toFixed(0)+'s'); }
 const dHours={}; for(const d of drawLog){const h=Math.floor(d.at/3600000/24); dHours[h]=(dHours[h]||0)+1;} console.log(' 每日五連數',JSON.stringify(dHours));
+console.log(' 每日萬用粉塵入帳',JSON.stringify(dailyDust));
+console.log(' 收益祝福 Lv',s.blessing || 0,'剩餘印記',s.marks || 0);
 console.log(' 主動遊玩總時數',fmt(active)); for(const d of daily) console.log(' 醒來',d);
 
 const paidBack=drawLog.map((d,i)=>({...d,n:i+1})).filter(d=>d.paybackSec!==null).sort((a,b)=>a.paybackSec-b.paybackSec);

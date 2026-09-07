@@ -29,7 +29,7 @@ window.ClickerAlbum = (() => {
       return `${RAR[cur]}${cur !== Pool.byId[id].rarity ? `（${o}出身）` : ''}${t ? `・超越 ${t}` : ''}${t === 5 ? '・覺醒' : ''}`;
     }
     function makeCard(s, id) {
-      const el = card.create({ ...Pool.byId[id], rarity: E.rarity(s, id) }, { tag: false, trait: E.skillAt(s,id).trait?.clickMul });
+      const el = card.create({ ...Pool.byId[id], rarity: E.rarity(s, id) }, { tag: false });
       el.classList.add('flipped', 'album-card'); el.classList.toggle('locked', !s.collection[id]); el.classList.toggle('awakened', s.transcend?.[id] === 5);
       if (!s.collection[id]) { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; el.append(q); }
       return el;

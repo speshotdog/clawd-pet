@@ -11,7 +11,7 @@
       package: E.newPackage('backyard'), claimedMilestones: [],
       boss: null, bossWins: [], bossCracks: {}, bossCooldownUntil: 0, bossResult: null, scenePackages: {}, freeDraws: 0, usedFreeDraws: 0,
       chain: {count:1,expiresAt:0}, daily: null, badges: [], pick100: null,
-      marks: 0, marksClaimed: 0, prestiges: 0, markShop: {}, autoClick: 0, autoRemainder: 0, autoClicks: 0, partnerLevels: {}, deco: [], peakRate: 0, prestigeHintDate: null,
+      marks: 0, marksClaimed: 0, prestiges: 0, markShop: {}, autoClick: 0, autoRemainder: 0, autoClicks: 0, partnerLevels: {}, deco: [], peakRate: 0, peakRateStamp: 0, blessing: 0, prestigeHintDate: null,
       missed: 0, sweep: {last:null,count:0,at:0}, gift: null, nextGiftAt: 0, giftResult: null,
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
       settings: { clickSound:'soft', clickFx:'shard', muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8 } };
@@ -41,6 +41,9 @@
     if (Array.isArray(s.bossWins)) s.bossWins = s.bossWins.map(rename);
     if (object(s.bossResult)) { s.bossResult.scene = rename(s.bossResult.scene); s.bossResult.next = rename(s.bossResult.next); }
     if (object(s.boss)) s.boss.scene = rename(s.boss.scene);
+    s.blessing ??= 0; s.peakRateStamp ??= 0;
+    check(integer(s.blessing), '收益祝福');
+    check(integer(s.peakRateStamp) && (s.peakRateStamp === 0 || (s.peakRateStamp >= 3 && s.peakRateStamp <= 308)), '收益關卡章');
     s.daily ??= null; s.badges ??= []; s.pick100 ??= null;
     if (s.daily !== null) { const d = s.daily; check(object(d) && /^\d{4}-\d{2}-\d{2}$/.test(d.date) && typeof d.done === 'boolean' && number(d.need) && d.need > 0 && number(d.dealt) && d.dealt <= d.need && (d.done || d.dealt < d.need) && integer(d.streak), '每日一包'); }
     check(Array.isArray(s.badges) && new Set(s.badges).size === s.badges.length && s.badges.every(id => X.BADGES.some(b => b.id === id)), '徽章');
@@ -82,7 +85,7 @@
     check(s.manualClicks < 50 ? !s.claimedMilestones.includes('tutorial50') : s.claimedMilestones.includes('tutorial50') && s.collection.yueyue2 > 0, '教學獎勵');
     s.marks ??= 0; s.marksClaimed ??= 0; s.prestiges ??= 0; s.markShop ??= {}; s.autoClick ??= 0; s.autoRemainder ??= 0; s.autoClicks ??= 0; s.partnerLevels ??= {}; s.deco ??= []; s.peakRate ??= 0; s.prestigeHintDate ??= null;
     check(integer(s.marks) && integer(s.marksClaimed) && s.marks <= s.marksClaimed && integer(s.prestiges) && integer(s.autoClick) && s.autoClick <= B.autoClickCap(s) && number(s.autoRemainder) && s.autoRemainder < 1 && integer(s.autoClicks), '輪迴與電動手指');
-    check(object(s.markShop) && Object.entries(s.markShop).every(([id, v]) => B.marks.some(m => m.id === id) && v === true) && s.marksClaimed >= s.marks + Object.keys(s.markShop).reduce((sum, id) => sum + B.marks.find(m => m.id === id).cost, 0), '印記商店');
+    check(object(s.markShop) && Object.entries(s.markShop).every(([id, v]) => B.marks.some(m => m.id === id) && v === true) && s.marksClaimed >= s.marks + s.blessing * (s.blessing + 1) / 2 + Object.keys(s.markShop).reduce((sum, id) => sum + B.marks.find(m => m.id === id).cost, 0), '印記商店');
     check(object(s.partnerLevels) && Object.entries(s.partnerLevels).every(([id, L]) => known(id) && (s.collection[id] > 0 || L === 0) && integer(L) && L <= 200), '夥伴訓練');
     check(Array.isArray(s.deco) && new Set(s.deco).size === s.deco.length && s.deco.every(id => B.decor.some(d => d.id === id)), '裝飾');
     check(number(s.peakRate) && (s.prestigeHintDate === null || typeof s.prestigeHintDate === 'string'), '輪迴提示');
