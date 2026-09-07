@@ -39,7 +39,7 @@ window.GachaModeRuntime = (() => {
     }
     function createCard(item) {
       if (cards.has(item.key)) return cards.get(item.key);
-      const el = host.card.create(item.entry, { dup: item.dup, owned: item.owned });
+      const el = host.card.create(item.entry, { dup: item.dup, owned: item.owned, veil: item.veil });
       const card = { ...item, el, ...host.layout(draw.entries.indexOf(item), draw.entries.length), flipped: false };
       el.dataset.key = item.key;
       host.cardsEl.append(el); cards.set(item.key, card);
@@ -75,12 +75,13 @@ window.GachaModeRuntime = (() => {
       complete = true; host.summary(); resolveDone();
     }
     // R 只有這一份：身份、音效落點與動畫完成分開記錄。分鏡沿用第一版（回饋感最好的那版）
-    async function reveal(key, { deferSummary = false, onFlip = null } = {}) {
+    async function reveal(key, { deferSummary = false, onFlip = null, onUnveil = null } = {}) {
       check();
       const c = cards.get(key);
       if (!c || c.flipped || busy) return;
       busy = true; host.card.liveEnd(); host.state('revealing');
-      const rarity = c.entry.rarity, mythic = rarity === 'mythic', legendary = mythic || rarity === 'legendary';
+      const rarity = window.GachaPool.shownRarity(c), veiled = !!c.veil;
+      const mythic = rarity === 'mythic', legendary = mythic || rarity === 'legendary';
       const sound = audio.createScope();
       const inner = c.el.querySelector('.card-inner');
       inner.style.transition = 'none';
@@ -109,8 +110,32 @@ window.GachaModeRuntime = (() => {
         window.GachaFx.reveal(c.x, c.y - 6, rarity);
         if (legendary) { host.shake?.(); if (mythic) { c.el.classList.add('mythic-ripple'); await wait(120); host.shake?.(); } } else if (rarity === 'epic') host.shake?.(true);
       }
-      await wait(mythic ? 1180 : legendary ? 900 : 300);
-      if (legendary) { host.dim.classList.remove('on', 'mythic-dim'); host.charging?.(false); rays?.stop(1.4); }
+      if (veiled) {
+        // 先讓精良框的角色完整可見 500ms，再揭露真正的傳說色階。
+        (await flipping).cancel(); inner.style.transition = '';
+        await wait(500);
+        c.el.classList.remove('reveal-pop');
+        if (!motion.reduced) {
+          sound.tick();
+          const pause = await animate(c.el.querySelector('.card-lift'), [
+            { transform: 'rotate(-1.5deg)' }, { transform: 'rotate(1.5deg)' }, { transform: 'rotate(-1.5deg)' },
+            { transform: 'rotate(1.5deg)' }, { transform: 'rotate(0deg)' },
+          ], { duration: 320, easing: 'linear' });
+          pause.cancel();
+        }
+        await host.card.unveil(c.el, { reduced: motion.reduced, wait, onChange: onUnveil });
+        check();
+        if (!motion.reduced) {
+          fx.unveil(c.x + 65, c.y - 90);
+          host.dim.classList.add('on');
+          rays = window.GachaFx.rays(c.x, c.y - 10, { fadeIn: .3, hold: 1.6 });
+          host.shake?.(); window.GachaFx.reveal(c.x, c.y - 6, 'legendary');
+          c.el.classList.add('reveal-pop');
+        }
+        sound.reveal('legendary');
+        await wait(900);
+      } else await wait(mythic ? 1180 : legendary ? 900 : 300);
+      if (legendary || veiled) { host.dim.classList.remove('on', 'mythic-dim'); host.charging?.(false); rays?.stop(1.4); }
       (await flipping).cancel(); inner.style.transition = '';
       c.el.classList.remove('reveal-pop');
       sound.stop(200);
@@ -121,6 +146,7 @@ window.GachaModeRuntime = (() => {
       host.card.liveEnd();
       for (const item of items) {
         const c = createCard(item);
+        if (c.el.classList.contains('veiled')) host.card.unveil(c.el, { reduced: true });
         c.el.getAnimations({ subtree: true }).forEach((a) => a.cancel());
         c.el.classList.remove('charging', 'reveal-pop');
         c.el.classList.add('dealt', 'flipped'); c.flipped = true;
@@ -139,8 +165,11 @@ window.GachaModeRuntime = (() => {
       host.cardsEl.querySelectorAll('.charging').forEach((el) => el.classList.remove('charging', 'hard'));
       host.root.replaceChildren();
     }
-    async function all() {
-      if (host.mode === 'rip' || host.mode === 'stage') return;
+    async function all(force = false) {
+      if (host.mode === 'rip' || host.mode === 'stage') {
+        if (complete || signal.aborted) return;
+        automatic = true; host.root.dispatchEvent(new Event('reveal-all')); return;
+      }
       if (busy || automatic || complete || signal.aborted) return;
       automatic = true;
       try {
@@ -149,7 +178,7 @@ window.GachaModeRuntime = (() => {
             await reveal(item.key);
             if (!complete) await wait(80);
           }
-          if (!host.isAuto() && host.mode !== 'hearthstone') break;
+          if (!force && !host.isAuto() && host.mode !== 'hearthstone') break;
         }
       } finally { automatic = false; }
     }
@@ -169,8 +198,9 @@ window.GachaModeRuntime = (() => {
       if (!c || c.flipped || busy || !host.isFanned() || el.contains(event.relatedTarget)) return;
       const now = performance.now();
       if ((cooldown.get(c.key) || 0) > now) return;
-      cooldown.set(c.key, now + 800); audio.hover(c.entry.rarity);
-      if (['legendary','mythic'].includes(c.entry.rarity) && !motion.reduced) {
+      const rarity = window.GachaPool.shownRarity(c);
+      cooldown.set(c.key, now + 800); audio.hover(rarity);
+      if (['legendary','mythic'].includes(rarity) && !motion.reduced) {
         animate(el.querySelector('.back-leak'), [{ opacity: .55 }, { opacity: 1 }], { duration: 180 }).then((a) => a.cancel()).catch(() => {});
       }
     }, { signal });
@@ -184,6 +214,8 @@ window.GachaModeRuntime = (() => {
       audio, fx, wait, animate, signal, motion, onReveal: notify, rng, cancel: stop,
       flash: () => host.flash?.(), shake: (soft) => host.shake?.(soft),
       isAuto: () => host.isAuto(),
+      isRevealingAll: () => automatic,
+      enableRevealAll() { host.state('fanned'); host.interactive(); },
       // 等待互動的 Promise 也在略過總覽時結束，不把收下算進模式生命週期。
       async interact() {
         check(); host.interactive();
@@ -191,7 +223,7 @@ window.GachaModeRuntime = (() => {
         return done;
       },
     };
-    return { ctx, all: () => run(all()), stop, summary: () => showSummary(draw.entries), run,
+    return { ctx, all: () => run(all(true)), stop, summary: () => showSummary(draw.entries), run,
       skip() { stop(); showSummary(draw.entries); } };
   }
   return { create };

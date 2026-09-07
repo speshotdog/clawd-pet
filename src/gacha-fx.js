@@ -309,6 +309,13 @@ window.GachaFx = (() => {
         layers.push(l); ownedLayers.add(l); kick(); return l;
       },
       ring,
+      unveil(x, y) {
+        for (let i = 0; i < 8; i++) {
+          const a = -Math.PI / 2 + (rng() - .5) * Math.PI, speed = 70 + rng() * 100;
+          this.spawn({ sprite: 6, x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
+            g: 180, r: 3 + rng() * 3, life: .45, color: '#ff8000', shrink: true });
+        }
+      },
       rainbowRing(x, y, dur = .8, maxR = 220) {
         let age = 0;
         return this.layer({dead:false, update(dt) { age += dt; this.dead = age >= dur; }, draw(c) {

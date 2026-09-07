@@ -85,7 +85,7 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
   驗收：`_art/out/r15-*.png`（卡冊第三跨頁、神話展示頁、神話翻牌五格）。舊瀏覽器測試兩處期望值已改（珍母複製對象→玥來玥閒、玥圓羈絆連鎖窗 12 秒）。
   強制抽神話的方法：在頁面裡包一層 `GachaPool.rollPack`，重抽到 entries 含 mythic 為止（見本次 session 的 `myth.py` 作法）。
 - 「玥玥傳說卡」（`yuelegend`）是使用者輸入錯誤，第十六輪移除。
-- 第十六輪：簡報 `BRIEF-astra-impl-round16.md`：轉彩（傳說的 30% 偽裝成精良、翻開後掃色帶轉成傳說）、卡冊翻頁改成書頁邊緣的箭頭鍵、展示頁神話星星列彩虹底條拉滿與鍍膜洗白角色的修正。
+- 第十六輪已完成（報告 `REPORT-astra-impl-round16.md`，驗收 `python tools/test/clicker-round16.py`，截圖 `_art/out/r16-*.png`）：轉彩（傳說的 30% 偽裝成精良、翻開後掃色帶轉成傳說）、卡冊翻頁改成書頁邊緣的箭頭鍵、展示頁神話星星列彩虹底條拉滿與鍍膜洗白角色的修正。
 - 使用者回報「留聲機無法正常購買」：在線上版 Playwright 走完整流程（9 件→點兩下→扣款→放上桌）正常，重現不出來，待使用者說明具體症狀。
 
 ## 九、2026-09-07 晚：第十四輪（使用者實玩回饋五項）

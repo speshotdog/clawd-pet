@@ -498,7 +498,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #album-book { position:relative; flex:1 1 auto; min-height:0; display:flex; gap:0; padding:26px 44px 22px; border-image:url('clicker-ui-album.png') 120 fill / 60px stretch; }
 .album-page[data-can-flip="true"] { cursor:pointer; }
 .album-page { cursor:default; min-width:0; flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:6px 4px; padding:0 14px; transform-origin:center; }
-#album-left { transform-origin:right center; } #album-right { transform-origin:left center; }
+#album-left { transform-origin:right center; padding-left:58px; } #album-right { transform-origin:left center; padding-right:58px; }
 #game .album-slot { min-width:0; position:relative; width:auto; height:auto; padding:0; border:0; border-image:none; background:transparent; box-shadow:none; display:flex; flex-direction:column; align-items:center; gap:2px; overflow:visible; }
 #game .album-slot:hover:enabled { transform:none; filter:none; } #game .album-slot:active:enabled { transform:none; clip-path:none; }
 .album-slot .card { position:relative; left:auto; top:auto; width:150px; height:210px; margin:0; transform:scale(.6); transform-origin:center top; opacity:1; transition:none; pointer-events:none; }
@@ -512,13 +512,14 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 @keyframes album-sheen { from { transform:translateX(-120%) rotate(12deg); } to { transform:translateX(120%) rotate(12deg); } }
 .album-meta small { white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; height:13px; flex-shrink:0; }
 .album-meta { max-width:100%; display:flex; flex-direction:column; align-items:center; gap:1px; font-size:11px; line-height:13px; color:#30251F; }
-.star-row { display:flex; gap:1px; height:14px; align-items:center; }
+.star-row { width:fit-content; display:flex; gap:1px; height:14px; align-items:center; }
 .star-row img { height:13px; width:auto; }
 .album-slot .slot-stamp { position:absolute; right:8px; top:6px; font-style:normal; z-index:6; }
-#game .page-corner { position:absolute; bottom:8px; width:44px; height:44px; padding:0; border:0; border-image:none; box-shadow:none; background:url('clicker-ui-page-corner.png') center/contain no-repeat; }
-#game .page-corner.next { right:14px; } #game .page-corner.prev { left:14px; transform:scaleX(-1); }
-#game .page-corner:hover:enabled { transform:translateY(-2px); } #game .page-corner.prev:hover:enabled { transform:scaleX(-1) translateY(-2px); }
-#game .page-corner:disabled { opacity:.25; background-image:url('clicker-ui-page-corner.png'); }
+#game .page-corner { position:absolute; top:50%; width:52px; height:52px; padding:0; transform:translateY(-50%); font-size:34px; font-weight:800; color:#30251F; --button-art:url('clicker-ui-btn-cream.png'); }
+#game #album-next { right:10px; } #game #album-prev { left:10px; }
+#game .page-corner:hover:enabled { transform:translateY(calc(-50% - 2px)); }
+#game .page-corner:active:enabled { transform:translateY(-50%); }
+#game .page-corner:disabled { opacity:.3; border-image-source:var(--button-art); }
 .album-pageno { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); font-size:12px; color:#735E4E; }
 #album-detail, #dust-shop { position:absolute; inset:52px 20px 20px; z-index:5; border-image:url('clicker-ui-paper.png') 88 fill / 18px stretch; background:#FDECCB; background-clip:padding-box; padding:16px 20px; display:flex; gap:18px; overflow:hidden; }
 .detail-left { width:220px; flex:none; display:flex; align-items:flex-start; justify-content:center; padding-top:16px; }

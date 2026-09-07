@@ -1,9 +1,9 @@
 // 流星投遞：借原神祈願的語彙——夜空、一顆越飛越亮的流星、落地白閃、卡片從光裡升起。
-// 整段只有一個主體（流星），其他東西都在等它。預告（尾光變色）預設關閉，驚喜留到翻卡。
+// 整段只有一個主體（流星），預告只看表面色階，轉彩驚喜留到翻卡。
 // 節拍：入夜 300 → 起飛 → 飛行 900 → 撞擊 → 五張從坑裡升起 → 揭曉
 window.GachaModes = window.GachaModes || {};
-// TELEGRAPH：原神式「尾光先變色告訴你這批多好」。使用者要驚喜感，關掉；留著開關是給之後別的遊戲用。
-const WISH_TELEGRAPH = false;
+// 尾光預告表面最高色階；轉彩卡在這裡仍是精良。
+const WISH_TELEGRAPH = true;
 window.GachaModes.wish = {
   label: '流星投遞', counts: [1, 5, 10],
   create(ctx) {
@@ -41,8 +41,8 @@ window.GachaModes.wish = {
     return {
       async open(draw) {
         const order = ['common', 'rare', 'epic', 'legendary', 'mythic'];
-        const telegraph = WISH_TELEGRAPH || draw.entries.some(it => it.entry.rarity === 'mythic');
-        const rank = telegraph ? Math.max(...draw.entries.map((it) => order.indexOf(it.entry.rarity))) : 0;
+        const telegraph = WISH_TELEGRAPH || draw.entries.some(it => window.GachaPool.shownRarity(it) === 'mythic');
+        const rank = telegraph ? Math.max(...draw.entries.map((it) => order.indexOf(window.GachaPool.shownRarity(it)))) : 0;
         // 不預告時流星一律暖白，撞擊也用白光；顏色第一次出現是在翻卡那一刻
         const top = order[rank], color = telegraph ? RC[top] : '#ffe7a6', rgb = telegraph ? RGB[top] : [255, 231, 166];
         const { x: cx, y: cy } = ctx.center;

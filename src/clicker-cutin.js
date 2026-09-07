@@ -30,7 +30,7 @@ window.ClickerCutin = (() => {
     const rarity = window.GachaPool.byId[id].rarity;
     CUTIN[id] = { side:id === 'zhenmu' ? 'right' : 'left',
       color:{rare:'#94BED0',epic:'#B8A2CF',legendary:'#E9B94E',mythic:'#FF4FD8'}[rarity],
-      stripe:{rare:'#5E93AA',epic:'#80679E',legendary:'#B8862A',mythic:'conic-gradient(#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8)'}[rarity], rig:rigs[window.GachaPool.byId[id].art || id],
+      stripe:{rare:'#5E93AA',epic:'#80679E',legendary:'#B8862A',mythic:'conic-gradient(#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8)'}[rarity], rig:rigs[id],
       name:def.skill.length >= 6 ? def.skill.slice(0, Math.floor(def.skill.length / 2)) + '\n' + def.skill.slice(Math.floor(def.skill.length / 2)) : def.skill,
       sub:effect => def.desc(effect.params || window.ClickerBalance.skillAt(id,1)).split('・冷卻')[0], stamp:effect => def.kind === 'team' ? `+${Number(((effect.params?.ratio || def.ratio)*100).toFixed(2))}%` : stamps[id] || `×${effect.multiplier || def.multiplier || effect.params?.factor || def.factor || '發動'}` };
   }

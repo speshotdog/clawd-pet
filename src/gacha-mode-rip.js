@@ -111,17 +111,20 @@ window.GachaModes.rip = {
       ctx.cancel(); style.remove(); note.remove();
     };
     async function topClick(c) {
+      if (ctx.isRevealingAll()) return;
       const listeners = new AbortController(); c.el.style.pointerEvents = 'auto';
       try {
         await new Promise((resolve, reject) => {
           c.el.addEventListener('click', resolve, { once: true, signal: listeners.signal });
+          ctx.root.addEventListener('reveal-all', resolve, { once: true, signal: listeners.signal });
           ctx.signal.addEventListener('abort', () => reject(new DOMException('演出取消', 'AbortError')), { once: true, signal: listeners.signal });
         });
       } finally { listeners.abort(); c.el.style.pointerEvents = 'none'; }
     }
     return {
       async open(draw) {
-        const mythic = draw.entries.some(it => it.entry.rarity === 'mythic');
+        ctx.enableRevealAll();
+        const mythic = draw.entries.some(it => window.GachaPool.shownRarity(it) === 'mythic');
         const lid = document.createElement('div'), bottom = document.createElement('div');
         lid.className = 'rip-wrapper rip-lid'; bottom.className = 'rip-wrapper rip-bottom';
         if (mythic) { lid.classList.add('mythic-pack'); bottom.classList.add('mythic-pack'); }

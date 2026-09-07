@@ -238,7 +238,7 @@ window.GachaAudio = (() => {
   // 塵計數器跳數：每跳一格一聲極短的 tick
   api.tick = (i = 0) => {
     if (!ensure()) return;
-    tone(1200 + (i % 5) * 60, { type: 'square', t: now(), a: 0.001, d: 0.02, r: 0.01, gain: 0.04 });
+    tone(2400 + (i % 5) * 60, { type: 'sine', t: now(), a: 0.001, d: 0.014, r: 0.005, gain: 0.04 });
   };
   // 一般按鈕
   api.ui = () => { if (!ensure()) return; tone(660, { type: 'triangle', t: now(), a: 0.002, d: 0.06, gain: 0.1 }); };

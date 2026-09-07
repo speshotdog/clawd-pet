@@ -25,7 +25,6 @@
     mianhua: { base: 8, skill: '蓬蓬鬆鬆', kind: 'self', multiplier: 4, duration: 30, cd: 120 },
     yangpu: { base: 10, skill: '噗噗數羊', kind: 'clickAdd', ratio: .6, charges: 20, duration: 20, cd: 90 },
     alu: { base: 5, skill: '一鳴驚人', kind: 'burst', factor: 20, basis: 'individual', cd: 45 },
-    yuelegend: { base: 4, skill: '傳說中的玥玥', kind: 'click', multiplier: 2, charges: 10, duration: 15, cd: 60 },
   });
   const fmt = n => Number(n.toFixed(4));
   function describe(p) {

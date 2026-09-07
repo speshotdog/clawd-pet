@@ -40,14 +40,14 @@ function buildArt(entry) {
     img.src = entry.src; img.alt = ''; img.draggable = false; return img;
   }
   if (entry.kind === 'char') {
-    const src = templates?.[entry.art || entry.id];
+    const src = templates?.[entry.id];
     if (!src) return document.createElement('span');
     const svg = document.importNode(src, true);
     svg.removeAttribute('id');
     svg.querySelector('#shadow')?.remove();
     // 只留睜眼；happy/closed 在 pet.css 靠 stage class 切換，這裡沒有那套
     ['eyes-happy', 'eyes-closed'].forEach((k) => { const g = svg.querySelector('#' + k); if (g) g.style.display = 'none'; });
-    svg.style.height = `${(CHAR_CFG[entry.art || entry.id]?.height || 170) * ART_SCALE}px`;
+    svg.style.height = `${(CHAR_CFG[entry.id]?.height || 170) * ART_SCALE}px`;
     svg.style.width = 'auto';
     svg.style.overflow = 'visible';
     svg.style.marginBottom = '10px';
@@ -69,10 +69,11 @@ function buildArt(entry) {
   return span;
 }
 
-function buildCard(entry, { dup = false, tag = true, owned = 0 } = {}) {
+function buildCard(entry, { dup = false, tag = true, owned = 0, veil } = {}) {
   const label = tag ? tagFor(entry, dup, owned) : null;
   const card = document.createElement('div');
-  card.className = `card r-${entry.rarity}`;
+  const shown = window.GachaPool.shownRarity({ entry, veil });
+  card.className = `card r-${shown}${veil ? ' veiled' : ''}`;
   card.dataset.entry = entry.id;
   card.innerHTML = `
     <div class="card-glow"></div>
@@ -100,8 +101,23 @@ function buildCard(entry, { dup = false, tag = true, owned = 0 } = {}) {
   }
   if (label) card.querySelector('.face-tag').textContent = label.text;
   card.querySelector('.face-name').textContent = entry.name;
-  card.querySelector('.face-rarity').textContent = RARITY[entry.rarity].label;
+  card.querySelector('.face-rarity').textContent = RARITY[shown].label;
   return card;
+}
+
+// 等待由 runtime 提供，210ms 計時可隨演出取消；摘要直接切回真實色階。
+async function unveil(el, { reduced = false, wait, onChange = null } = {}) {
+  if (!el.classList.contains('veiled')) return;
+  const entry = byId[el.dataset.entry];
+  if (!reduced) el.classList.add('unveiling');
+  try {
+    if (!reduced) await wait(210);
+    el.classList.remove('r-rare', 'veiled'); el.classList.add(`r-${entry.rarity}`);
+    el.querySelector('.face-rarity').textContent = RARITY[entry.rarity].label;
+    if (live.el === el) live.cfg = el.closest('.mini') ? LIVE_MINI : LIVE_CFG[entry.rarity];
+    onChange?.();
+    if (!reduced) await wait(210);
+  } finally { el.classList.remove('unveiling'); }
 }
 
 // ---------- 動態卡面：翻開的卡指上去，像拿起來看一眼 ----------
@@ -125,11 +141,11 @@ function liveStart(el, entry) {
   if (live.el === el) return;
   liveEnd();
   const mini = !!el.closest('.mini');
-  live.el = el; live.entry = entry; live.cfg = mini ? LIVE_MINI : LIVE_CFG[entry.rarity];
+  live.el = el; live.entry = entry; live.cfg = mini ? LIVE_MINI : LIVE_CFG[el.classList.contains('veiled') ? 'rare' : entry.rarity];
   live.t0 = performance.now();
   live.rx = live.ry = live.tx = live.ty = 0;
   const svg = el.querySelector('.face-art > svg');
-  const cfg = entry.kind === 'char' ? CHAR_CFG[entry.art || entry.id] : null;
+  const cfg = entry.kind === 'char' ? CHAR_CFG[entry.id] : null;
   live.rig = svg && cfg ? {
     svg, cfg,
     tail: svg.querySelector('#tail'), pawR: svg.querySelector('#pawR'),
@@ -238,7 +254,7 @@ window.addEventListener('blur', liveEnd);
 document.addEventListener('visibilitychange', () => { if (document.hidden) liveEnd(); });
 
 
-return { create: buildCard, art: { create: buildArt, cfg: (id) => byId[id]?.src ? null : CHAR_CFG[byId[id]?.art || id] }, ready: assetsReady, liveEnd };
+return { create: buildCard, unveil, art: { create: buildArt, cfg: (id) => byId[id]?.src ? null : CHAR_CFG[id] }, ready: assetsReady, liveEnd };
 }
 return { create };
 })();

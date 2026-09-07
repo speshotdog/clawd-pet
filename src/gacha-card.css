@@ -383,6 +383,10 @@
 .r-mythic .face-name, .skin-af .r-mythic .face-name { color:#472242; text-shadow:0 1px #fff8; }
 .r-mythic .face-rarity, .skin-af .r-mythic .face-rarity { color:#a91686; }
 .card.r-mythic .face-holo, .skin-af .card.r-mythic .face-holo, .skin-af .mini .card.r-mythic .face-holo { display:block; inset:0; z-index:4; opacity:.35; background:var(--mythic-rainbow); background-size:180% 180%; background-position:var(--mx) var(--my); mix-blend-mode:color-dodge; }
+.card.r-mythic .face-holo, .skin-af .card.r-mythic .face-holo {
+  mask:linear-gradient(#fff 0 0) 0 0 / 100% 100% no-repeat, linear-gradient(#fff 0 0) 10px 10px / calc(100% - 20px) 148px no-repeat;
+  mask-composite:exclude;
+}
 .r-mythic .face-gem, .skin-af .r-mythic .face-gem { background:conic-gradient(from var(--spin),#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8); }
 .r-mythic .back-leak, .skin-af .r-mythic .back-leak { background:conic-gradient(from var(--spin),#ff4fd888,#ffb34788,#fff27588,#7dff9c88,#5ad7ff88,#b48bff88,#ff4fd888); box-shadow:inset 0 0 40px 12px #ff4fd8,0 0 45px #5ad7ff; }
 .r-mythic .card-glow, .skin-af .r-mythic .card-glow { box-shadow:0 0 42px 16px #ff4fd888,0 0 110px 40px #5ad7ff66; }
@@ -398,7 +402,22 @@
 @keyframes glow-throb { 50% { opacity:.6; } }
 @keyframes mythic-ripple { from { transform:scale(.9); opacity:1; } to { transform:scale(1.8); opacity:0; } }
 @keyframes mythic-hue { to { filter:hue-rotate(360deg); } }
+/* 轉彩：兩套卡皮共用精良 class，立繪保持真身；掃帶只跑一次。 */
+.card.veiled .face-embers { display:none; }
+.card.unveiling { overflow:hidden; }
+.card.unveiling::after {
+  content:''; position:absolute; inset:0; z-index:20; pointer-events:none; border-radius:12px;
+  background:linear-gradient(115deg, transparent 40%, #fff 50%, transparent 60%);
+  animation:unveil-sweep 420ms linear both;
+  clip-path:inset(0 round 12px);
+}
+@keyframes unveil-sweep {
+  from { transform:translate(-100%,100%); opacity:0; }
+  20%, 70% { opacity:.85; }
+  to { transform:translate(200%,-200%); opacity:0; }
+}
 @media (prefers-reduced-motion:reduce) {
   .card.r-mythic, .skin-af .card.r-mythic, .card.r-mythic .card-glow, .mythic-circle::after, .mythic-sweep { animation:none !important; }
   .mythic-ripple::after { display:none; }
+  .card.unveiling::after { display:none; }
 }

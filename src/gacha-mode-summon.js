@@ -28,7 +28,9 @@ window.GachaModes.summon = {
     return {
       async open(draw) {
         const R = ctx.motion.reduced;
-        const mythic = draw.entries.some(it => it.entry.rarity === 'mythic');
+        const mythic = draw.entries.some(it => window.GachaPool.shownRarity(it) === 'mythic');
+        const colors = { common:'#9d9d9d', rare:'#0070dd', epic:'#a335ee', legendary:'#ff8000', mythic:'#FF4FD8' };
+        [...paw.children].forEach((el, i) => { el.style.fill = colors[window.GachaPool.shownRarity(draw.entries[i % draw.entries.length])]; });
         if (mythic) {
           circle.classList.add('mythic-circle');
           [...paw.children].forEach((el,i)=>el.style.fill=window.GachaFx.rainbow[i%7]);

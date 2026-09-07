@@ -28,6 +28,12 @@
       s.settings={...s.settings,clickSound:'soft',clickFx:'shard'}; s.version=2;
     }
     check(object(s) && s.version === 2 && s.balanceVersion === 1, '版本（本版不降級或重置）');
+    // 移除誤植角色，也清理它可能留下的養成與技能快照。
+    for (const key of ['collection','dust','promotions','transcend','partnerLevels','overflow','awakened','cooldownUntil']) {
+      if (object(s[key])) delete s[key].yuelegend;
+    }
+    if (Array.isArray(s.skillSlots)) s.skillSlots = s.skillSlots.map(id => id === 'yuelegend' ? null : id);
+    if (Array.isArray(s.effects)) s.effects = s.effects.filter(e => e?.source !== 'yuelegend' && e?.target !== 'yuelegend');
     // 第十二輪：第六場景 id rainynight → fridge
     const rename = id => id === 'rainynight' ? 'fridge' : id;
     if (object(s.settings)) s.settings.scene = rename(s.settings.scene);
@@ -162,6 +168,7 @@
         const id = item?.entry?.id;
         check(known(id) && item.key === `${draw.id}:${i}` && !keys.has(item.key), 'pending 角色'); keys.add(item.key);
         check(item.owned === (counts[id] || 0) && item.dup === (item.owned > 0), 'pending 升星計數');
+        check(item.veil === undefined || (item.veil === 'rare' && item.entry.rarity === 'legendary'), 'pending 轉彩');
         if (pool) check(item.entry.kind === pool.byId[id].kind && item.entry.rarity === pool.byId[id].rarity && item.entry.name === pool.byId[id].name, 'pending 目錄');
         counts[id] = (counts[id] || 0) + 1;
       }

@@ -6,12 +6,11 @@ const near = (a,b) => assert.ok(Math.abs(a-b)<1e-9, `${a} ~= ${b}`);
 const roll = (x, pity=0, policy=Pool.GAME_POLICY) => Pool.rollPack({count:1,policy,pity,rng:()=>x,id:'r15',visualSeed:15});
 const raised = id => { const s=S.fresh(0); s.collection[id]=16; s.dust[id]=100; return s; };
 
-test('round15: 22 characters, nine PNG assets and rare yuelegend alias', () => {
-  assert.equal(Pool.CHARACTER_IDS.length,22); assert.equal(Object.keys(B.characters).length,22);
+test('round15: 21 characters and nine PNG assets', () => {
+  assert.equal(Pool.CHARACTER_IDS.length,21); assert.equal(Object.keys(B.characters).length,21);
   assert.equal(Pool.RARITY_ORDER[0],'mythic'); assert.equal(Pool.RARITY.mythic.label,'神話');
   const png=Pool.CATALOG.filter(e=>e.kind==='char' && e.src); assert.equal(png.length,9);
   for(const e of png) assert.ok(fs.existsSync(new URL(`../../src/${e.src}`,`file://${__filename.replaceAll('\\','/')}`)));
-  assert.equal(Pool.byId.yuelegend.art,'yueyue'); assert.equal(Pool.byId.yuelegend.rarity,'rare'); assert.equal(Pool.byId.yuelegend.src,undefined);
 });
 test('round15: weights total 1000, exact stratified base rates 69.5/25/5/0.5', () => {
   assert.equal(Object.values(Pool.GAME_POLICY.weights).reduce((a,b)=>a+b),1000);
@@ -38,12 +37,12 @@ test('round15: explicit origin tiers, mythic 5.5 tier and .20 transcend growth',
   near(E.individual(s,'yueyuexian'),30*2*5.5/5.5);
   const t=E.transcend(s,'yueyuexian',0); near(E.individual(t,'yueyuexian'),72);
   near(B.skillAt('yueyuexian',1,2).ratio,1.14); near(B.skillAt('zhenzhen',1,2).ratio,.55);
-  assert.equal(E.origin('zhenfang'),2); assert.equal(E.origin('mianhua'),1); assert.equal(E.origin('yuelegend'),0);
+  assert.equal(E.origin('zhenfang'),2); assert.equal(E.origin('mianhua'),1); assert.equal(E.origin('alu'),0);
 });
 test('round15: promotion stops at legendary, mythic can transcend five times', () => {
   for(const id of ['zhenfang','yueyuexian']) assert.throws(()=>E.promote(raised(id),id,0));
-  let s=raised('yuelegend'); s=E.promote(s,'yuelegend',0); s=E.promote(s,'yuelegend',0);
-  assert.equal(E.rarity(s,'yuelegend'),'legendary'); assert.throws(()=>E.promote(s,'yuelegend',0));
+  let s=raised('alu'); s=E.promote(s,'alu',0); s=E.promote(s,'alu',0);
+  assert.equal(E.rarity(s,'alu'),'legendary'); assert.throws(()=>E.promote(s,'alu',0));
   s=raised('yueyuexian'); for(let i=0;i<5;i++) s=E.transcend(s,'yueyuexian',0);
   assert.equal(s.awakened.yueyuexian,true); near(E.individual(s,'yueyuexian'),120);
   assert.throws(()=>E.transcend(s,'yueyuexian',0)); S.validate(s,Pool);
@@ -57,7 +56,7 @@ test('round15: mythic exchange costs six universal dust and overflow pays two', 
   s=E.purchaseDraw(s,1,0,Pool,{rng:()=>.052,id:'overflow',visualSeed:1});
   s=E.collect(s,'overflow',0).state; assert.equal(s.universalDust,3); assert.equal(s.overflow.yueyuexian,0); S.validate(s,Pool);
 });
-test('round15: 22-character save and stacked new bonds survive active snapshots', () => {
+test('round15: 21-character save and stacked new bonds survive active snapshots', () => {
   let s=S.fresh(0); s.lifetimeCoins=1e6;
   s.collection=Object.fromEntries(Pool.CHARACTER_IDS.map(id=>[id,16]));
   s.skillSlots=['lk','yangpu','yueyuexian'];
@@ -86,9 +85,9 @@ test('round15: pending mythic resets save pity on paid and free draw paths', () 
 test('round15: hundred-pack selection stays at the original twelve', () => {
   const s=S.fresh(0); s.badges=['pack100']; assert.equal(B.originalIds.length,12);
   for(const id of B.originalIds) assert.equal(X.pick100(s,id).pick100,id);
-  assert.throws(()=>X.pick100(s,'yuelegend')); assert.throws(()=>X.pick100(s,'yueyuexian'));
+  assert.throws(()=>X.pick100(s,'alu')); assert.throws(()=>X.pick100(s,'yueyuexian'));
 });
-test('round15: card art creates PNG and yuelegend uses the original SVG/config', async () => {
+test('round15: card art creates PNG and original SVG/config', async () => {
   const element = tag => ({tag,style:{},removeAttribute(){},querySelector(){return null;},querySelectorAll(){return [];}});
   const svg=element('svg'), cfg={height:170};
   const document={createElement:element,importNode:()=>element('svg'),addEventListener(){}};
@@ -96,6 +95,6 @@ test('round15: card art creates PNG and yuelegend uses the original SVG/config',
   const context={window,document,fetch:async()=>({text:async()=>''}),DOMParser:class {parseFromString(){return {querySelectorAll:()=>[{id:'char-yueyue',content:{querySelector:()=>svg}}]};}},Image:class {decode(){return Promise.resolve();}}};
   vm.runInNewContext(fs.readFileSync(require.resolve('../../src/gacha-card.js'),'utf8'),context);
   const card=window.GachaCard.create({rarity:Pool.RARITY,byId:Pool.byId,fatal:{},canHover:()=>false}); await card.ready;
-  assert.equal(card.art.create(Pool.byId.yuelegend).tag,'svg'); assert.equal(card.art.cfg('yuelegend'),cfg);
+  assert.equal(card.art.create(Pool.byId.yueyue).tag,'svg'); assert.equal(card.art.cfg('yueyue'),cfg);
   const png=card.art.create(Pool.byId.yueyuexian); assert.equal(png.tag,'img'); assert.equal(png.src,'card-yueyuexian.png'); assert.equal(card.art.cfg('yueyuexian'),null);
 });

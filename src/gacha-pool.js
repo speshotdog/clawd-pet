@@ -33,7 +33,6 @@
     { id: 'mianhua', name: '棉花糖', rarity: 'epic', kind: 'char', src: 'card-mianhua.png' },
     { id: 'yangpu', name: '羊咩噗', rarity: 'epic', kind: 'char', src: 'card-yangpu.png' },
     { id: 'alu', name: '阿漉', rarity: 'rare', kind: 'char', src: 'card-alu.png' },
-    { id: 'yuelegend', name: '玥玥傳說卡', rarity: 'rare', kind: 'char', art: 'yueyue' },
     { id: 'dino',       name: '小恐龍',      rarity: 'common', kind: 'toy', src: 'toy-dino.png', w: 120 },
     { id: 'ballyellow', name: '黃色球',      rarity: 'common', kind: 'toy', src: 'toy-ballyellow.png', w: 109.4 },
     { id: 'beachball',  name: '皮球',        rarity: 'common', kind: 'toy', src: 'toy-beachball.png', w: 94.7 },
@@ -50,7 +49,7 @@
     packMinRarity: 'rare',
     pity: { unit: 'pack', hard: 10 },
   });
-  // 遊戲（珍母點點）的政策：只抽 22 隻角色、69.5/25/5/0.5、
+  // 遊戲（珍母點點）的政策：只抽 21 隻角色、69.5/25/5/0.5、
   // 保底按「張」算：第 30 張起每張傳說率 +5%（第 30 張 10%、第 31 張 15%…），第 40 張必出。
   const GAME_POLICY = Object.freeze({
     candidates: CHARACTER_IDS,
@@ -134,13 +133,15 @@
       const entry = pick(pool[r], rng);
       const had = owned[entry.id] || 0;
       owned[entry.id] = had + 1;
-      return Object.freeze({ key: `${id}:${i}`, entry: Object.freeze({ ...entry }), dup: had > 0, owned: had });
+      const veil = r === 'legendary' && rng() < .3 ? { veil: 'rare' } : {};
+      return Object.freeze({ key: `${id}:${i}`, entry: Object.freeze({ ...entry }), ...veil, dup: had > 0, owned: had });
     });
     const draw = Object.freeze({ id, entries: Object.freeze(entries), visualSeed });
     return { draw, nextPity };
   }
 
-  const api = { rank, RARITY, RARITY_ORDER, CATALOG, byId, CHARACTER_IDS, DEMO_POLICY, GAME_POLICY, rollPack };
+  const shownRarity = item => item.veil || item.entry.rarity;
+  const api = { shownRarity, rank, RARITY, RARITY_ORDER, CATALOG, byId, CHARACTER_IDS, DEMO_POLICY, GAME_POLICY, rollPack };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.GachaPool = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

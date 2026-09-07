@@ -114,6 +114,7 @@ window.ClickerGacha = (() => {
     function restore() {
       if (!store.state.pending || !ready) return;
       open(); $('recruit-entry').hidden = true;
+      // pending 保留 veil；沿用重開直接總覽，由 runtime 將卡面還原真實色階。
       makeRuntime(store.state.pending.draw).skip();
     }
     $('draw-one').onclick = $('recruit-one').onclick = () => start(1);

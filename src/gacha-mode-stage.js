@@ -24,9 +24,9 @@ window.GachaModes.stage = {
         filter:drop-shadow(0 8px 10px rgba(0,0,0,.55)); transform-origin:50% 0; }
       .mode-stage .st-curtain.l { left:-8px; }
       .mode-stage .st-curtain.r { right:-8px; transform:scaleX(-1); }
-      .mode-stage .st-beam { position:absolute; left:calc(50% - 230px); top:56px; width:460px; height:420px; color:#fff; opacity:0; transition:color .25s; }
+      .mode-stage .st-beam { position:absolute; left:calc(50% - 230px); top:56px; width:460px; height:420px; color:#fff; opacity:0; transition:color .3s; }
       .mode-stage .st-pool { position:absolute; left:calc(50% - 180px); top:${FLOOR - 34}px; width:360px; height:68px; border-radius:50%; opacity:0;
-        background:radial-gradient(ellipse, currentColor, transparent 70%); color:#fff; filter:blur(6px); mix-blend-mode:screen; transition:color .25s; }
+        background:radial-gradient(ellipse, currentColor, transparent 70%); color:#fff; filter:blur(6px); mix-blend-mode:screen; transition:color .3s; }
       .mode-stage .st-actor { position:absolute; left:calc(50% - 130px); top:${FLOOR - 210}px; width:260px; height:210px; display:flex; justify-content:center; align-items:flex-end; transform-origin:50% 100%; }
       .mode-stage .st-actor > svg { height:200px !important; width:auto; margin:0 !important; filter:none !important; }
       .mode-stage .st-actor > img { max-width:170px; max-height:160px; object-fit:contain; margin:0 !important; filter:none !important; }
@@ -89,12 +89,13 @@ window.GachaModes.stage = {
           r: 3 + ctx.rng() * 5, life: 2 + ctx.rng() * 2, color: '#fff3d0', fadeK: .9, blend: 'lighter' }); } }, draw() {} });
     }
     async function waitNext() {
-      if (ctx.isAuto()) { await ctx.wait(60); return; }
+      if (ctx.isAuto() || ctx.isRevealingAll()) { await ctx.wait(60); return; }
       next.hidden = false;
       const listeners = new AbortController();
       try {
         await new Promise((resolve, reject) => {
           next.addEventListener('click', resolve, { signal: listeners.signal });
+          ctx.root.addEventListener('reveal-all', resolve, { signal: listeners.signal });
           document.addEventListener('keydown', (e) => { if (e.code === 'Space' && !e.target.closest('select, input, button')) { e.preventDefault(); resolve(); } }, { signal: listeners.signal });
           document.addEventListener('change', () => { if (ctx.isAuto()) resolve(); }, { signal: listeners.signal });
           ctx.signal.addEventListener('abort', () => reject(new DOMException('演出取消', 'AbortError')), { once: true, signal: listeners.signal });
@@ -127,9 +128,10 @@ window.GachaModes.stage = {
     const dispose = () => { ctx.cancel(); style.remove(); scene.remove(); };
     return {
       async open(draw) {
+        ctx.enableRevealAll();
         // ---- 開場：拉環扣、布幕向兩側拉開（帶布料的晃）、燈亮、塵開始飄
         back.classList.add('on');
-        if (draw.entries.some(it => it.entry.rarity === 'mythic') && !ctx.motion.reduced) {
+        if (draw.entries.some(it => window.GachaPool.shownRarity(it) === 'mythic') && !ctx.motion.reduced) {
           for (let i=0;i<32;i++) ctx.fx.spawn({sprite:9,x:CX+(ctx.rng()-.5)*700,y:60,vy:90,g:120,r:9,life:2.2,color:window.GachaFx.rainbow[i%7],vr:4});
         }
         ctx.audio.tone(240, { type: 'triangle', slide: 170, slideT: .065, d: .065, r: .025, gain: .09 });
@@ -141,12 +143,13 @@ window.GachaModes.stage = {
           { transform: `${i ? 'scaleX(-1) ' : ''}translateX(-42%) skewX(0)` },
         ], { duration: 620, easing: 'cubic-bezier(.3,.7,.3,1)' })));
         ctx.audio.tone(1200, { type: 'triangle', d: .035, r: .02, gain: .035 });
+        beam.style.color = pool.style.color = RC[window.GachaPool.shownRarity(draw.entries[0])];
         beam.style.opacity = '.7'; pool.style.opacity = '.55';
         if (!ctx.motion.reduced) startDust();
         await ctx.wait(220);
         for (let i = 0; i < draw.entries.length; i++) {
-          const item = draw.entries[i], rarity = item.entry.rarity, mythic = rarity === 'mythic', legendary = mythic || rarity === 'legendary';
-          beam.style.color = '#fff'; pool.style.color = '#fff'; ribbon.style.opacity = '0';
+          const item = draw.entries[i], rarity = window.GachaPool.shownRarity(item), mythic = rarity === 'mythic', legendary = mythic || rarity === 'legendary';
+          beam.style.color = RC[rarity]; pool.style.color = RC[rarity]; ribbon.style.opacity = '0';
           const actor = document.createElement('div'); actor.className = 'st-actor shadow';
           const art = ctx.art.create(item.entry), cfg = item.entry.kind === 'char' ? ctx.art.cfg(item.entry.id) : null;
           actor.append(art); scene.insertBefore(actor, curtains[0]);
@@ -185,6 +188,24 @@ window.GachaModes.stage = {
           const naming = ctx.animate(ribbon, [{ opacity: 0, transform: 'translateY(14px) scaleX(.6)' }, { opacity: 1, transform: 'translateY(0) scaleX(1)' }], { duration: 240, easing: 'cubic-bezier(.2,1.2,.3,1)' });
           await Promise.all([naming, gesture(art, cfg, 440, false), ctx.wait(holds[rarity])]);
           ribbon.getAnimations().forEach((a) => a.cancel()); ribbon.style.opacity = '0';
+          if (item.veil) {
+            const turning = ctx.cards.create(item), fan = { x: turning.x, y: turning.y, rot: turning.rot };
+            turning.x = CX; turning.y = FLOOR - 100; turning.rot = 0;
+            turning.el.classList.add('dealt'); turning.el.style.transition = 'none';
+            turning.el.style.transform = `translate(${turning.x}px, ${turning.y}px)`;
+            ctx.root.style.zIndex = '9';
+            await ctx.cards.reveal(item.key, { deferSummary: true,
+              onFlip() { actor.style.opacity = '0'; },
+              onUnveil() {
+                beam.style.color = RC.legendary; pool.style.color = RC.legendary;
+                ribbon.innerHTML = `${item.entry.name}<small>${LABEL.legendary}</small>`;
+                ribbon.style.setProperty('--sc', RC2.legendary); ribbon.style.opacity = '1';
+                if (!ctx.motion.reduced) revealFx('legendary');
+              },
+            });
+            Object.assign(turning, fan);
+            ribbon.style.opacity = '0';
+          }
           // ---- 收進卡：本尊縮小、卡從舞台中央飛到扇形位
           const c = ctx.cards.create(item); c.flipped = true; ctx.onReveal(item.key);
           c.el.classList.add('dealt', 'flipped');
@@ -194,10 +215,10 @@ window.GachaModes.stage = {
           c.el.style.transform = transform;
           ctx.audio.deal(i);
           await Promise.all([
-            ctx.animate(actor, [{ opacity: 1, transform: actor.style.transform + ' scale(1)' }, { opacity: 0, transform: actor.style.transform + ' scale(.3)' }], { duration: ctx.motion.reduced ? 150 : 240 }),
+            ctx.animate(actor, [{ opacity: item.veil ? 0 : 1, transform: actor.style.transform + ' scale(1)' }, { opacity: 0, transform: actor.style.transform + ' scale(.3)' }], { duration: ctx.motion.reduced ? 150 : 240 }),
             ctx.animate(c.el, [{ opacity: 0, transform: `translate(${CX}px, ${FLOOR - 100}px) scale(.7)` }, { opacity: 1, transform }], { duration: ctx.motion.reduced ? 150 : 360, easing: 'cubic-bezier(.22,.9,.32,1.12)' }),
           ]);
-          c.el.getAnimations().forEach((a) => a.cancel()); actor.remove();
+          c.el.getAnimations().forEach((a) => a.cancel()); actor.remove(); ctx.root.style.zIndex = '';
           ctx.dim(false); beam.classList.remove('mythic-sweep'); pool.classList.remove('mythic-sweep');
           if (rays) { rays.stop(.25); rays = null; }
           beam.style.color = '#fff'; pool.style.color = '#fff'; beam.style.opacity = '.7'; pool.style.opacity = '.55';

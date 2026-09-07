@@ -12,7 +12,7 @@ window.GachaModes.hearthstone = {
       async open(draw) {
         // 卡包是宿主交付的視覺副本（原本那顆留在原位隱藏，拖曳手感不動）
         const pack = ctx.root.querySelector('.pack');
-        const mythic = draw.entries.some(it => it.entry.rarity === 'mythic');
+        const mythic = draw.entries.some(it => window.GachaPool.shownRarity(it) === 'mythic');
         if (mythic) pack?.classList.add('mythic-pack');
         if (pack && !ctx.motion.reduced) {
           pack.classList.add('tearing');
