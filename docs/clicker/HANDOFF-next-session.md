@@ -88,6 +88,10 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - 第十六輪已完成（報告 `REPORT-astra-impl-round16.md`，驗收 `python tools/test/clicker-round16.py`，截圖 `_art/out/r16-*.png`）：轉彩（傳說的 30% 偽裝成精良、翻開後掃色帶轉成傳說）、卡冊翻頁改成書頁邊緣的箭頭鍵、展示頁神話星星列彩虹底條拉滿與鍍膜洗白角色的修正。
 - 使用者回報「留聲機無法正常購買」：在線上版 Playwright 走完整流程（9 件→點兩下→扣款→放上桌）正常，重現不出來，待使用者說明具體症狀。
 
+- **待決 bug**：深夜冰箱的王打不到（`rooftop` 沒有 `unlock`，`nextScene('fridge')` 拿不到門檻，`canBoss` 永遠 false，`boss-fridge` 徽章不可得）。要使用者決定：冰箱設固定門檻、王勝當終點，或屋頂星空當第七站。
+- 流星投遞「本次最高」預告 `WISH_TELEGRAPH` 是使用者要求關掉的，第十六輪誤開已關回（`041aa11`）；派工簡報要列「不要動的旗標」。
+- 開發者玩法總覽 `docs/clicker/珍母點點玩法總覽.html`（也發佈成 Claude artifact）。
+
 ## 九、2026-09-07 晚：第十四輪（使用者實玩回饋五項）
 
 簡報 `BRIEF-astra-impl-round14.md`，Astra 實作，Claude 驗收（`python tools/test/clicker-round14.py`，需 `PYTHONIOENCODING=utf-8`，截圖在 `_art/out/r14-*.png`）：
