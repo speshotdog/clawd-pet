@@ -79,6 +79,8 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
 
+## 十二之前：新 session 先讀 `NEXT-SESSION-KICKOFF.md`（第十九輪：招募回本、CSS 畫按鈕）。留聲機使用者已確認可買。
+
 ## 十二、2026-09-08 凌晨收尾：第十八輪＋訓練里程碑不加價（公司電腦接手從這裡開始）
 
 **接手第一步**：`git fetch && git pull --ff-only`（家機 main 已 push），`npm test`（142 例），`PYTHONIOENCODING=utf-8 python tools/test/clicker-round18.py`。
