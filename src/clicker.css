@@ -118,9 +118,10 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 .floater img { height:18px; }
 .upgrade { padding:6px 16px; grid-template-columns:40px 1fr; grid-template-rows:42px 40px; }
 .upgrade > img { width:40px; height:40px; object-fit:contain; }
-#shop h2, .buddy-header h2, .skills-heading { font-size:18px; line-height:24px; border-image:url('clicker-ui-label.png') 70 fill / 9px stretch; padding:1px 8px; white-space:nowrap; }
-#shop .upgrade:nth-child(2) h2, .skills-heading { border-image-source:url('clicker-ui-label-green.png'); }
-#shop .recruit h2 { border-image-source:url('clicker-ui-label-purple.png'); }
+#shop h2, .buddy-header h2, .skills-heading { font-size:18px; line-height:24px; border-image:url('clicker-ui-label.png') 80 110 fill / 10px 14px stretch; padding:1px 8px; white-space:nowrap; }
+/* 標題帶 9-slice：切片要蓋過整個圓端與硬陰影（實測 pink 端 ~80px、purple ~70、green ~125），否則中段拉伸會把圓端的一截拉成出框的淡色帶（2560 實測） */
+#shop .upgrade:nth-child(2) h2, .skills-heading { border-image:url('clicker-ui-label-green.png') 110 150 fill / 14px 19px stretch; }
+#shop .recruit h2 { border-image:url('clicker-ui-label-purple.png') 70 100 fill / 9px 13px stretch; }
 .upgrade p { font-size:13px; line-height:18px; margin:0; }
 .purchase { margin-top:4px; }
 .purchase button { font-size:15px; line-height:16px; height:36px; padding:0 4px; }
@@ -210,7 +211,7 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #shop { gap:10px; }
 .upgrade { height:104px; padding:8px 12px; grid-template-rows:42px 40px; }
 .recruit { height:132px; padding:8px 12px; grid-template-rows:42px 38px auto auto auto; }
-#shop .upgrade:nth-child(2) h2 { border-image-source:url('clicker-ui-label.png'); }
+#shop .upgrade:nth-child(2) h2 { border-image:url('clicker-ui-label.png') 80 110 fill / 10px 14px stretch; }
 .purchase { border-top:2px dashed #735E4E; padding-top:5px; gap:5px; align-items:center; margin-top:2px; }
 #shop .purchase button { flex:1; height:32px; font-size:15px; line-height:16px; padding:3px 7px 6px; white-space:nowrap; }
 #shop #click-max, #shop #training-max { flex:0 0 43px; font-size:11px; padding:3px 4px 6px; }
