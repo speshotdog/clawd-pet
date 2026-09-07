@@ -1,0 +1,396 @@
+<title>珍母點點玩法總覽</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --kraft:#C9A063; --kraft-deep:#A87E48; --paper:#FDF1D6; --paper-2:#F6E2B8; --ink:#30251F; --ink-soft:#6B5646;
+  --tape:#EF8E8E; --leaf:#9BAF6B; --grape:#B8A2CF; --gold:#E9B94E; --sky:#94BED0; --mythic:#FF4FD8;
+  --line:#8C6A47; --shadow:#54382b3d; --code-bg:#F3E3C2;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --kraft:#3A2C22; --kraft-deep:#2A1F18; --paper:#4A3A2E; --paper-2:#3F3128; --ink:#F6E7CF; --ink-soft:#CDB8A0;
+  --tape:#D97B7B; --leaf:#8CA35F; --grape:#A58FC2; --gold:#D9AB3F; --sky:#7FAEC2; --mythic:#F55BD5;
+  --line:#8C6A47; --shadow:#00000066; --code-bg:#3A2D24;
+}}
+:root[data-theme="dark"]{
+  --kraft:#3A2C22; --kraft-deep:#2A1F18; --paper:#4A3A2E; --paper-2:#3F3128; --ink:#F6E7CF; --ink-soft:#CDB8A0;
+  --tape:#D97B7B; --leaf:#8CA35F; --grape:#A58FC2; --gold:#D9AB3F; --sky:#7FAEC2; --mythic:#F55BD5;
+  --line:#8C6A47; --shadow:#00000066; --code-bg:#3A2D24;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--kraft);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;font-size:15px;line-height:1.7;
+  background-image:repeating-linear-gradient(0deg,transparent 0 6px,#00000008 6px 7px),repeating-linear-gradient(90deg,transparent 0 9px,#ffffff08 9px 10px);}
+h1,h2,h3{font-family:"Zen Maru Gothic","Noto Sans TC",sans-serif;font-weight:900;letter-spacing:.01em;text-wrap:balance;margin:0}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.88em}
+code{background:var(--code-bg);padding:.05em .4em;border-radius:5px}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+/* 頂部標題帶：遊戲裡的膠帶標籤 */
+.masthead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:18px 28px;margin:12px 0 26px}
+.tape{display:inline-block;background:var(--tape);color:#30251F;padding:8px 26px;border:3px solid #30251F;border-radius:14px;box-shadow:0 5px 0 #30251F;transform:rotate(-1.5deg);
+  font-family:"Zen Maru Gothic","Noto Sans TC",sans-serif;font-weight:900;font-size:34px;line-height:1.1;position:relative}
+.tape::before,.tape::after{content:"";position:absolute;top:-10px;width:46px;height:16px;background:#F5D58Bcc;border:2px solid #30251F55;transform:rotate(-8deg)}
+.tape::before{left:-14px}.tape::after{right:-14px;transform:rotate(9deg)}
+.masthead p{margin:0 0 6px;color:var(--ink);max-width:56ch}
+.meta{font-size:13px;color:var(--ink-soft)}
+/* 目錄 */
+nav.toc{position:sticky;top:0;z-index:5;background:var(--kraft-deep);border:3px solid var(--ink);border-radius:12px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:4px 10px;margin-bottom:26px;box-shadow:0 6px 0 var(--shadow)}
+nav.toc a{color:#FDF1D6;text-decoration:none;font-size:13px;padding:3px 8px;border-radius:8px;font-weight:500}
+nav.toc a:hover,nav.toc a:focus-visible{background:#ffffff22;outline:2px solid var(--gold)}
+/* 每張「紙」＝一段 */
+section.sheet{background:var(--paper);border:3px solid var(--ink);border-radius:18px;padding:26px 30px 30px;margin-bottom:28px;box-shadow:0 10px 0 var(--shadow);position:relative}
+section.sheet::before{content:"";position:absolute;inset:8px;border:2px dashed #30251F33;border-radius:12px;pointer-events:none}
+section.sheet > *{position:relative}
+.sheet h2{font-size:26px;display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.sheet h2 .badge{display:inline-grid;place-items:center;width:38px;height:38px;border:3px solid var(--ink);border-radius:50%;font-size:15px;font-family:"JetBrains Mono",monospace;background:var(--gold);color:#30251F;box-shadow:0 3px 0 var(--ink)}
+.lead{color:var(--ink);max-width:66ch;margin:0 0 14px}
+.sheet h3{font-size:17px;margin:22px 0 8px;padding-left:10px;border-left:6px solid var(--leaf)}
+p{margin:0 0 10px;max-width:72ch}
+ul{margin:0 0 10px;padding-left:1.3em;max-width:72ch}li{margin:2px 0}
+/* 表格 */
+.tbl{overflow-x:auto;margin:8px 0 6px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{border:1.5px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
+th{background:var(--paper-2);font-weight:700;white-space:nowrap}
+td.num{text-align:right;white-space:nowrap}
+tr.myth td:first-child{background:linear-gradient(90deg,#ff4fd855,#ffb34755,#fff27555,#7dff9c55,#5ad7ff55,#b48bff55);font-weight:700}
+.r-rare{color:#2C78B8;font-weight:700}.r-epic{color:#8A5CC7;font-weight:700}.r-legendary{color:#C96A12;font-weight:700}.r-mythic{color:var(--mythic);font-weight:700}
+/* 核心循環圖 */
+.loop{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:10px 0 6px}
+.loop .node{background:var(--paper-2);border:2.5px solid var(--ink);border-radius:12px;padding:10px 12px;box-shadow:0 4px 0 var(--ink);text-align:center}
+.loop .node b{display:block;font-family:"Zen Maru Gothic","Noto Sans TC",sans-serif;font-size:16px}
+.loop .node small{color:var(--ink-soft);font-size:12px;line-height:1.4;display:block;margin-top:3px}
+@media (max-width:720px){.loop{grid-template-columns:1fr 1fr}}
+/* 場景票券 */
+.tickets{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:8px}
+.ticket{border:3px solid var(--ink);border-radius:14px;background:var(--paper-2);padding:12px 14px 14px;box-shadow:0 5px 0 var(--ink);position:relative;display:grid;gap:6px;align-content:start}
+.ticket .no{position:absolute;right:12px;top:-14px;background:var(--gold);border:2.5px solid var(--ink);border-radius:999px;padding:1px 10px;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:#30251F}
+.ticket h4{margin:0;font-family:"Zen Maru Gothic","Noto Sans TC",sans-serif;font-size:19px}
+.ticket .mech{font-size:13.5px}
+.ticket .row{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--ink-soft)}
+.ticket .row b{color:var(--ink)}
+.chip{display:inline-block;border:2px solid var(--ink);border-radius:999px;padding:0 9px;font-size:12px;font-weight:700;line-height:20px;color:#30251F}
+.chip.shell{background:var(--gold)}.chip.triple{background:var(--sky)}.chip.timer{background:var(--tape)}.chip.gift{background:var(--grape)}.chip.regen{background:#BFE3F0}.chip.none{background:var(--paper)}
+.ticket.boss-off{border-style:dashed}
+/* 公式框 */
+.formula{background:var(--code-bg);border:2px solid var(--line);border-radius:10px;padding:10px 14px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.75;overflow-x:auto;margin:6px 0 12px;white-space:pre}
+/* 稀有度條 */
+.rates{display:flex;height:34px;border:3px solid var(--ink);border-radius:10px;overflow:hidden;margin:8px 0 4px;font-size:12.5px;font-weight:700;color:#30251F}
+.rates span{display:grid;place-items:center;white-space:nowrap}
+.rates .rare{flex:695;background:#8FC3EA}.rates .epic{flex:250;background:#C9B3E6}.rates .leg{flex:50;background:#F3B36A}.rates .myth{flex:5;background:linear-gradient(90deg,#ff4fd8,#5ad7ff);min-width:6px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-soft);margin-bottom:8px}
+/* 二欄 */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+.note{border-left:5px solid var(--tape);background:#EF8E8E22;padding:8px 12px;border-radius:0 10px 10px 0;margin:10px 0;font-size:13.5px;max-width:none}
+.note b{color:var(--ink)}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;font-size:13.5px;margin:6px 0 10px;max-width:none}
+.kv dt{font-weight:700;white-space:nowrap}.kv dd{margin:0}
+footer{color:#FDF1D6cc;font-size:12.5px;text-align:center;margin-top:10px}
+@media (prefers-reduced-motion:no-preference){.tape{transition:transform .2s}.tape:hover{transform:rotate(0)}}
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <span class="tape">珍母點點</span>
+    <div>
+      <p><strong>給開發者的玩法總覽。</strong>點珍母拆零食包賺金幣、招募夥伴掛機、打王換場景、養卡、輪迴。所有數字取自程式碼（main <code>041aa11</code>，2026-09-08），設計文件與程式不一致處以程式為準。</p>
+      <p class="meta">七個場景・21 隻夥伴・五階稀有度・七種技能・129 個單元測試。網頁版與 Tauri 桌面版共用同一套 <code>src/clicker*.*</code>。</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="章節">
+    <a href="#loop">核心循環</a><a href="#scenes">七個場景</a><a href="#upgrades">升級</a><a href="#gacha">招募</a><a href="#chars">夥伴與技能</a><a href="#growth">養成</a><a href="#prestige">輪迴</a><a href="#extras">其他系統</a><a href="#arch">架構</a><a href="#gaps">已知缺口</a>
+  </nav>
+
+  <section class="sheet" id="loop">
+    <h2><span class="badge">1</span>核心循環</h2>
+    <p class="lead">一種資源：金幣。所有「拆包力」同時進錢包也推進包裝進度，沒有分開的傷害數值。包越拆越貴，收益靠夥伴與升級追上。</p>
+    <div class="loop">
+      <div class="node"><b>點珍母</b><small>每次 D 金幣<br>硬殼只吃點擊</small></div>
+      <div class="node"><b>拆包</b><small>第 k 包需求<br>100 × 1.12^(k−1) × 場景倍率</small></div>
+      <div class="node"><b>金幣</b><small>拆包力 = 金幣<br>1Hz 結算</small></div>
+      <div class="node"><b>升級／招募</b><small>攻擊力、全隊訓練<br>單抽 30 秒收益</small></div>
+      <div class="node"><b>更高被動 P</b><small>夥伴 × 訓練 × 親和<br>× 印記 × 裝飾</small></div>
+    </div>
+    <div class="formula">P（每秒） = markMul × Σ individual(id) × sceneRewardMul × decoMul
+D（每點） = (markMul × 1.15^clickLevel + 0.05 × markMul × P) × sceneRewardMul
+individual = base × 升星倍率 × (階級係數 ÷ 出身係數) × (1 + 超越%×n) × 1.25^全隊訓練 × (親和 ? 1.5 : 1) × partnerMul</div>
+    <ul>
+      <li><b>教學</b>：手動點滿 50 下自動獲得玥玥並裝進槽 1。</li>
+      <li><b>技能槽</b>：生涯幣 0／5,000／100,000 各開一槽；第四槽在印記商店。</li>
+      <li><b>硬殼模型</b>：廚房與王包用 <code>shell=[.75,.5,.25]</code>，進度推到每層門檻就被擋住，只有點擊能敲（每層 3 下），被擋期間累積的被動力在敲破時一次釋放（離線上限 need×3）。</li>
+      <li><b>離線結算</b>：上限 8 小時（印記可到 12），全額計算；離線中王包直接算失敗、禮包過期、輸送帶不算漏。</li>
+    </ul>
+  </section>
+
+  <section class="sheet" id="scenes">
+    <h2><span class="badge">2</span>七個場景</h2>
+    <p class="lead">每個場景一種敵人機制，打贏該場景的王才能到下一站。需求倍率與收益倍率不同步：需求跳 8 倍、收益只跳 1.5 倍，用招募與訓練補差。</p>
+    <div class="tbl"><table>
+      <tr><th>#</th><th>場景</th><th>可挑戰王的包數</th><th>需求倍率</th><th>收益倍率</th><th>親和夥伴（收益 ×1.5、CD ×0.8）</th></tr>
+      <tr><td>1</td><td>後院草地 <code>backyard</code></td><td class="num">50</td><td class="num">×1</td><td class="num">×1</td><td>玥玥、采華</td></tr>
+      <tr><td>2</td><td>廚房流理台 <code>kitchen</code></td><td class="num">60</td><td class="num">×8</td><td class="num">×1.5</td><td>珍珍、女僕狐狐</td></tr>
+      <tr><td>3</td><td>便利商店貨架 <code>market</code></td><td class="num">70</td><td class="num">×64</td><td class="num">×2</td><td>熱狗狗狗、膠布</td></tr>
+      <tr><td>4</td><td>零食工廠 <code>factory</code></td><td class="num">80</td><td class="num">×500</td><td class="num">×2.5</td><td>ㄌㄎ、膠布（原版）</td></tr>
+      <tr><td>5</td><td>夜市攤 <code>nightmarket</code></td><td class="num">90</td><td class="num">×2000</td><td class="num">×3</td><td>羊咩、玥玥（原版）</td></tr>
+      <tr><td>6</td><td>深夜冰箱 <code>fridge</code></td><td class="num">—（見缺口）</td><td class="num">×12000</td><td class="num">×3.5</td><td>珍母、珍珍（原版）</td></tr>
+      <tr><td>7</td><td>屋頂星空 <code>rooftop</code></td><td>印記商店 5 印記</td><td class="num">×1</td><td class="num">×1</td><td>無（純外觀＋BGM）</td></tr>
+    </table></div>
+    <p class="meta">「可挑戰王的包數」在程式裡是下一個場景的 <code>unlock.packages</code>，容易誤讀成解鎖包數。</p>
+
+    <div class="tickets">
+      <article class="ticket"><span class="no">01</span><h4>後院草地</h4><div><span class="chip none">無機制</span></div>
+        <div class="mech">教學場。王「大罐頭」。連點流與放置流都能過。</div></article>
+      <article class="ticket"><span class="no">02</span><h4>廚房流理台</h4><div><span class="chip shell">硬殼 shell</span></div>
+        <div class="mech">罐頭三層硬殼（75%／50%／25%）。進度到門檻就卡住，只有點擊能敲，每層 3 下；敲開時把被擋住的被動力一次放出來。逼玩家回來點。</div>
+        <div class="row"><span>王 <b>大罐頭</b></span><span>係數 <b>1.25</b></span></div></article>
+      <article class="ticket"><span class="no">03</span><h4>便利商店貨架</h4><div><span class="chip triple">三連包 triple</span></div>
+        <div class="mech">三個子包各需 H/3，點哪拆哪；被動與爆發平均分給未完成的子包。1.5 秒內連續掃過不同子包，第 3 下起 +15%。</div>
+        <div class="row"><span>王 <b>大三連包</b></span><span>係數 <b>1.25</b></span></div></article>
+      <article class="ticket"><span class="no">04</span><h4>零食工廠</h4><div><span class="chip timer">輸送帶 20 秒</span></div>
+        <div class="mech">每包進場蓋 20 秒期限，逾時算漏包：進度歸零、不給幣。離線不算漏（停在到期進度，其餘時間只進錢包）。剩 5 秒抖動與警示燈。</div>
+        <div class="row"><span>王 <b>大輸送箱</b></span><span>係數 <b>1.25</b></span></div></article>
+      <article class="ticket"><span class="no">05</span><h4>夜市攤</h4><div><span class="chip gift">限時禮包 gift</span></div>
+        <div class="mech">老闆每 45～90 秒出現一次，需求 4×H(k)、15 秒內、只吃點擊。成功額外給 need×9 金幣（不進拆包進度），逾時消失。</div>
+        <div class="row"><span>王 <b>老闆的巨無霸禮包</b></span><span>係數 <b>1.25</b></span></div></article>
+      <article class="ticket boss-off"><span class="no">06</span><h4>深夜冰箱</h4><div><span class="chip regen">回血 1%／秒</span></div>
+        <div class="mech">進度每秒倒退 need×1%（不低於 0，王包不低於裂痕起點）。離線先從被動扣，扣不完就停滯但金幣照給。霜層三階，敲擊有碎冰。</div>
+        <div class="row"><span>王 <b>大冰磚</b></span><span>係數 <b>0.95</b></span><span><b>目前打不到</b>（見缺口）</span></div></article>
+      <article class="ticket"><span class="no">07</span><h4>屋頂星空</h4><div><span class="chip none">純外觀</span></div>
+        <div class="mech">印記商店 5 印記買的桌布。沿用後院的敵人與倍率，換夜色與 BGM。素材仍借後院層加濾鏡。</div></article>
+    </div>
+
+    <h3>王包規則（所有場景共用）</h3>
+    <div class="formula">need = max( requirement(門檻包+1, 本場景), 係數 × (30·P + 180·D) )      ← 玩家當下 30 秒的容量，不是包需求的倍數
+限時 30 秒；失敗留裂痕 crack = min(.75, dealt/need × .5)，下次從 crack×need 起跳；失敗冷卻 30 秒
+勝利：免費五連 +5、萬用粉塵 +3、自動切到下一場景</div>
+    <p class="meta">校準值：純放置約 0.6、連點 6 下／秒 0.8、連點＋三技能 1.1。冰箱王因為會回血，係數降到 0.95。</p>
+  </section>
+
+  <section class="sheet" id="upgrades">
+    <h2><span class="badge">3</span>升級</h2>
+    <p class="lead">照 Cookie Clicker 的骨架：夥伴訓練是「建築」（線性加倍、價格 ×1.15、里程碑翻倍），全隊訓練與攻擊力是乘算層。</p>
+    <div class="tbl"><table>
+      <tr><th>項目</th><th>效果</th><th>價格</th><th>上限</th></tr>
+      <tr><td>攻擊力 <code>clickLevel</code></td><td>點擊固定部分 1.15^L；另每級等同 +5% 每秒收益</td><td class="mono">ceil(10 × 1.35^L)</td><td>無</td></tr>
+      <tr><td>全隊訓練 <code>trainingLevel</code></td><td>全員 ×1.25／級</td><td class="mono">ceil(2500 × 2.5^t)</td><td>無</td></tr>
+      <tr><td>夥伴個別訓練 <code>partnerLevels</code></td><td>partnerMul = (1+L) × 2^(通過的里程碑數)，里程碑 10／25／50／100／150／200</td><td class="mono">ceil(200 × base × 1.15^L)，里程碑那級 ×10</td><td>200 級</td></tr>
+      <tr><td>訓練里程碑對技能</td><td>L≥25 次數 +1（非次數型 +2 秒）／L≥50 持續 +2 秒／L≥75 CD ×0.95／L≥100 效果 ×1.1</td><td>—</td><td>—</td></tr>
+      <tr><td>電動手指 <code>autoClick</code></td><td>每級每秒自動點 0.5 下，吃所有點擊倍率與次數型技能</td><td class="mono">ceil(5000 × 2.2^L)</td><td>6 級（3 下／秒）</td></tr>
+    </table></div>
+    <p class="meta">改任何常數前先跑 <code>node tools/sim/clicker-curve.js [點擊/秒] [每段分鐘] [天數]</code>，模擬真人節奏。</p>
+  </section>
+
+  <section class="sheet" id="gacha">
+    <h2><span class="badge">4</span>招募</h2>
+    <p class="lead">價格釘在每秒收益，所以任何階段抽一次都是「30 秒的錢」。稀有度五階，神話 0.5% 沒有保底。</p>
+    <div class="rates" aria-label="稀有度比例"><span class="rare">精良 69.5%</span><span class="epic">史詩 25%</span><span class="leg">傳說 5%</span><span class="myth" title="神話 0.5%"></span></div>
+    <div class="legend"><span>神話 0.5%（最右邊那一條）</span><span>普通只在抽卡試作區出現</span></div>
+    <div class="cols">
+      <div>
+        <h3>價格與保底</h3>
+        <dl class="kv">
+          <dt>單抽</dt><dd><code>max(150, ceil(30 × P))</code></dd>
+          <dt>五連</dt><dd><code>max(700, ceil(135 × P))</code></dd>
+          <dt>軟保底</dt><dd>第 30 張起每張傳說率 +5%</dd>
+          <dt>硬保底</dt><dd>第 40 張必出傳說以上（傳說 99.5%／神話 0.5%）</dd>
+          <dt>重置</dt><dd>抽到傳說或神話都歸零；神話本身沒有保底</dd>
+          <dt>免費抽</dt><dd>王首勝 +5、每日包 +1、印記 starter5 每次輪迴 +5</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>轉彩</h3>
+        <p>抽到傳說的 30% 帶 <code>veil:'rare'</code>。翻開前所有提示照精良（卡背光漏、hover、舞台燈光、腳印）；翻開後停 0.5 秒 → 抖兩下＋叮 → 斜向光帶掃過、框與底換成傳說 → 才播傳說演出。保底、粉塵、存檔只看真實稀有度。</p>
+        <h3>五種演出</h3>
+        <p>流星投遞（預設，不預告「本次最高」）、拆包桌面、腳印召喚陣、拉幕登場、撕包。神話在五種裡都疊白閃、彩虹光線、漣漪、雙震與和弦。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet" id="chars">
+    <h2><span class="badge">5</span>夥伴與技能</h2>
+    <p class="lead">21 隻。前 12 隻是 SVG rig 會動，後 9 隻是靜態 PNG（<code>card-*.png</code>）。base 對齊稀有度：精良 4～5、史詩 8～10、傳說 16～20、神話 30。</p>
+    <div class="tbl"><table>
+      <tr><th>名稱</th><th>稀有度</th><th>base</th><th>技能</th></tr>
+      <tr class="myth"><td>玥來玥閒</td><td class="r-mythic">神話</td><td class="num">30</td><td>躺著也會贏：全隊 +100% 20 秒，CD 120</td></tr>
+      <tr><td>珍母</td><td class="r-legendary">傳說</td><td class="num">16</td><td>這個頭我收下了：複製最高夥伴收益 20 秒，CD 90</td></tr>
+      <tr><td>膠布（原版）</td><td class="r-legendary">傳說</td><td class="num">18</td><td>一刀開封：1 次點擊 ×10，CD 45</td></tr>
+      <tr><td>玥玥（原版）</td><td class="r-legendary">傳說</td><td class="num">18</td><td>玥來越快：所有點擊 ×3 持續 12 秒，CD 90</td></tr>
+      <tr><td>珍珍（原版）</td><td class="r-legendary">傳說</td><td class="num">20</td><td>大團圓：全隊 +50% 20 秒，CD 120</td></tr>
+      <tr><td>珍的很方</td><td class="r-legendary">傳說</td><td class="num">20</td><td>方方正正：自身 ×5 30 秒，CD 120</td></tr>
+      <tr><td>獅身ㄌㄎ</td><td class="r-legendary">傳說</td><td class="num">18</td><td>謎語時間：所有點擊 ×3.5 持續 12 秒，CD 90</td></tr>
+      <tr><td>苔蘚珍珍</td><td class="r-legendary">傳說</td><td class="num">19</td><td>苔原大團圓：立即獲得全隊 P ×40，CD 150</td></tr>
+      <tr><td>熱狗狗狗</td><td class="r-epic">史詩</td><td class="num">8</td><td>聞到零食：20 次點擊各 +50% P，CD 90</td></tr>
+      <tr><td>女僕狐狐</td><td class="r-epic">史詩</td><td class="num">8</td><td>收拾桌面：立即獲得全隊 P ×15，CD 120</td></tr>
+      <tr><td>膠布</td><td class="r-epic">史詩</td><td class="num">9</td><td>俐落拆封：5 次點擊 ×4，CD 75</td></tr>
+      <tr><td>珍珍</td><td class="r-epic">史詩</td><td class="num">10</td><td>綿綿加班：自身 ×4 30 秒，CD 120</td></tr>
+      <tr><td>小號玥</td><td class="r-epic">史詩</td><td class="num">9</td><td>起床號：8 次點擊 ×4，CD 75</td></tr>
+      <tr><td>珍的是草</td><td class="r-epic">史詩</td><td class="num">9</td><td>光合作用：全隊 +30% 30 秒，CD 120</td></tr>
+      <tr><td>棉花糖</td><td class="r-epic">史詩</td><td class="num">8</td><td>蓬蓬鬆鬆：自身 ×4 30 秒，CD 120</td></tr>
+      <tr><td>羊咩噗</td><td class="r-epic">史詩</td><td class="num">10</td><td>噗噗數羊：20 次點擊各 +60% P，CD 90</td></tr>
+      <tr><td>玥玥</td><td class="r-rare">精良</td><td class="num">4</td><td>尾巴節拍：10 次點擊 ×2，CD 60</td></tr>
+      <tr><td>采華</td><td class="r-rare">精良</td><td class="num">4</td><td>龍尾掃袋：立即獲得自身 p ×20，CD 45</td></tr>
+      <tr><td>ㄌㄎ</td><td class="r-rare">精良</td><td class="num">5</td><td>穩穩站好：自身 ×3 20 秒，CD 90</td></tr>
+      <tr><td>羊咩</td><td class="r-rare">精良</td><td class="num">5</td><td>數羊開工：全隊 +20% 30 秒，CD 120</td></tr>
+      <tr><td>阿漉</td><td class="r-rare">精良</td><td class="num">5</td><td>一鳴驚人：立即獲得自身 p ×20，CD 45</td></tr>
+    </table></div>
+    <div class="cols">
+      <div>
+        <h3>七種技能型別</h3>
+        <ul>
+          <li><b>click</b> 接下來 N 次點擊 ×M（限時內用完）</li>
+          <li><b>clickTime</b> 期間所有點擊 ×M</li>
+          <li><b>clickAdd</b> 接下來 N 次點擊各追加 ratio × P</li>
+          <li><b>burst</b> 立即獲得 factor × p 或 P 的拆包力</li>
+          <li><b>self</b> 自身收益 ×M 持續 T</li>
+          <li><b>team</b> 全隊每秒 +ratio × P 持續 T</li>
+          <li><b>passive</b>（珍母）複製最高夥伴含 self 的收益</li>
+        </ul>
+        <h3>連鎖</h3>
+        <p>連鎖窗基礎 8 秒，羈絆取最大、印記再 +2。窗內第 2、3 個技能 ×1.3／×1.6，第四槽 ×1.9。換裝夥伴後該槽 30 秒才能用。</p>
+      </div>
+      <div>
+        <h3>升星與超越對技能</h3>
+        <div class="formula">k = 星 − 1，t = 1 + .05×超越（神話 .07）
+click/clickTime  M' = 1 + (M−1)(1+.08k)·t，持續 +k 秒
+clickAdd         ratio' = (ratio+.05k)·t，次數 +2k
+burst            factor × (1+.1k)·t
+self             持續 +2k，倍率 1+(M−1)t
+team             ratio' = (ratio+.02k)·t，持續 +2k
+passive          持續 +2k，5★ 複製 110%
+CD               × (1−.03k) × (1−.02×超越)</div>
+        <h3>羈絆（兩隻都持有即生效）</h3>
+        <ul>
+          <li>雙刀 膠布＋膠布原版：次數 +1</li>
+          <li>雙尾 玥玥＋玥玥原版：連鎖窗 11 秒</li>
+          <li>雙球 珍珍＋珍珍原版：self 持續 ×1.25</li>
+          <li>獅王 ㄌㄎ＋獅身ㄌㄎ：次數 +1</li>
+          <li>苔球 珍珍原版＋苔蘚珍珍：self 持續 ×1.25</li>
+          <li>雙咩 羊咩＋羊咩噗：連鎖窗 11 秒</li>
+          <li>玥圓 玥玥原版＋玥來玥閒：連鎖窗 12 秒</li>
+        </ul>
+        <h3>推薦組合（一鍵裝三槽）</h3>
+        <ul>
+          <li>連點流：玥玥原版／熱狗狗狗／膠布原版</li>
+          <li>放置流：羊咩／珍珍／珍母</li>
+          <li>爆發流：羊咩／女僕狐狐／采華</li>
+          <li>神話流：玥來玥閒／珍的很方／苔蘚珍珍</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet" id="growth">
+    <h2><span class="badge">6</span>養成</h2>
+    <p class="lead">重複卡不是廢卡：每張變成該角色 1 顆粉塵。升星到 5★ 之後粉塵拿去升階與超越，滿養後溢出折成萬用粉塵。</p>
+    <div class="cols">
+      <div>
+        <dl class="kv">
+          <dt>升星門檻</dt><dd>累計 1／2／4／8／16 顆，倍率 1 + .25×(星−1)，5★ = ×2</dd>
+          <dt>階級係數</dt><dd>精良 1／史詩 1.8／傳說 3.2／神話 5.5，用「目前階 ÷ 出身階」</dd>
+          <dt>升階</dt><dd>需 5★。精良→史詩 12 顆、→傳說再 16；史詩→傳說 12。傳說與神話出身不能升階</dd>
+          <dt>可用粉塵</dt><dd>總數 − 16 − 已花費，前 16 顆永遠保住 5★</dd>
+          <dt>萬用粉塵兌換</dt><dd>1 顆該角粉塵 = 精良 1／史詩 2／傳說 3／神話 6 萬用粉塵，無反向</dd>
+          <dt>滿養溢出</dt><dd>精良 4 張＝1 萬用、史詩 2 張＝1、傳說 1 張＝1、神話 1 張＝2</dd>
+          <dt>萬用粉塵來源</dt><dd>每日包 +1、每隻王首勝 +3、輪迴 +3</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>超越（五級）</h3>
+        <div class="tbl"><table>
+          <tr><th>出身</th><th>一～五級粉塵</th><th>每級被動</th><th>每級技能</th></tr>
+          <tr><td class="r-rare">精良</td><td>6／8／10／12／14</td><td class="num">+6%</td><td class="num">+5%</td></tr>
+          <tr><td class="r-epic">史詩</td><td>6／7／8／9／10</td><td class="num">+9%</td><td class="num">+5%</td></tr>
+          <tr><td class="r-legendary">傳說</td><td>4／5／6／7／10</td><td class="num">+14%</td><td class="num">+5%</td></tr>
+          <tr class="myth"><td>神話</td><td>4／5／6／7／10</td><td class="num">+20%</td><td class="num">+7%</td></tr>
+        </table></div>
+        <p class="meta">每級 CD −2%。超越五＝覺醒，卡面加金邊呼吸，沒有額外數值。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet" id="prestige">
+    <h2><span class="badge">7</span>輪迴（換桌布）</h2>
+    <p class="lead">生涯收入到 1 億可換桌布。印記是永久倍率，也是唯一能買第四槽與屋頂星空的貨幣。</p>
+    <div class="formula">印記總數 = floor( sqrt( 生涯幣 / 1e8 ) )        可領 = 總數 − 已領
+永久倍率 markMul = 1 + 0.05 × 已領印記         同時作用於 P 與 D</div>
+    <div class="cols">
+      <div>
+        <h3>清除</h3><ul><li>金幣、攻擊力、全隊訓練、電動手指、夥伴個別訓練</li><li>當輪包數（回後院第 1 包）、各場景包數</li><li>王包裂痕、技能效果與冷卻、連鎖</li></ul>
+        <h3>保留</h3><ul><li>角色、粉塵、升階、超越、保底計數</li><li>王勝紀錄、徽章、更衣室、裝飾、印記與商店</li><li>額外給萬用粉塵 +3；有 starter5 再送免費抽 5</li></ul>
+      </div>
+      <div>
+        <h3>印記商店</h3>
+        <div class="tbl"><table>
+          <tr><th>項目</th><th>印記</th><th>效果</th></tr>
+          <tr><td>第四技能槽</td><td class="num">3</td><td>連鎖可接到第四個（×1.9）</td></tr>
+          <tr><td>離線 12 小時</td><td class="num">2</td><td>離線上限 8 → 12 小時</td></tr>
+          <tr><td>連鎖窗 +2 秒</td><td class="num">2</td><td>與羈絆相加</td></tr>
+          <tr><td>開局送五連</td><td class="num">1</td><td>每次輪迴送 5 次免費招募</td></tr>
+          <tr><td>裂痕 75% 起跳</td><td class="num">2</td><td>王包失敗保留 75% 傷害</td></tr>
+          <tr><td>屋頂星空</td><td class="num">5</td><td>第七場景，純外觀與 BGM</td></tr>
+        </table></div>
+        <p class="meta">提示便條一天一次：目前收益不到本輪巔峰 15%，或一包要拆超過 3 分鐘且可領印記 ≥ 5。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet" id="extras">
+    <h2><span class="badge">8</span>其他系統</h2>
+    <div class="cols">
+      <div>
+        <h3>每日限定包</h3>
+        <p>以結算時的本地日期換包，只吃點擊與爆發。需求 max(100, 80 × D)，約 80 下。拆完給免費單抽 +1、萬用粉塵 +1、等額金幣，跳收據面板。連續天數只在昨天有拆完時延續。</p>
+        <h3>徽章牆（17 枚）</h3>
+        <p>第 10／25／50／100／300／1000 包（前三枚放玩具進場景）、六場景的王、第一次 5★、第一次升階、第一次超越、連續 7 天、生涯 1 億。取代舊的統計面板；素材仍是底圖疊字的 fallback。</p>
+        <h3>第 100 包 12 選 1</h3>
+        <p>拿到第 100 包徽章後可在徽章牆手動開，只能選原始 12 隻之一，送該角粉塵 1 顆。不自動彈出，避免蓋住王包與禮包。</p>
+        <h3>分享卡</h3>
+        <p>網頁版 canvas 960×540 合成：牛皮紙、標題、場景縮圖、三位夥伴頭像、網址。標題依 470px 可用寬自動縮字或拆兩行。可下載或複製到剪貼簿。</p>
+      </div>
+      <div>
+        <h3>更衣室</h3>
+        <p>10 種點擊音效、10 種點擊特效，每件固定 20,000 幣，永久持有、輪迴不清。點一下試用，未擁有的按兩次購買。</p>
+        <h3>桌面裝飾</h3>
+        <p>10 件（花盆、燈串、小鼓、風鈴、貓抓板、相框、香氛蠟燭、小旗串、多肉、留聲機），價格 50,000 × 1.5^已擁有數（第一件 5 萬、第十件約 192 萬），每件全隊 +1%。位置依編號固定，掛的放上方。</p>
+        <h3>存檔</h3>
+        <p>localStorage <code>clicker_save</code>，版本 v2。匯出為 <code>ZMDD1.</code> + base64；匯入先驗證再覆蓋，時間不能在未來，進行中的王視同放棄。網頁版與 exe 各自獨立，靠匯出匯入搬家。</p>
+        <h3>面板操作</h3>
+        <p>Esc 與點面板外空白都關最上層一層；卡冊點書頁空白或邊緣箭頭翻頁；點卡進展示頁裝備、訓練、升階、超越。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet" id="arch">
+    <h2><span class="badge">9</span>架構與工具</h2>
+    <div class="tbl"><table>
+      <tr><th>檔</th><th>職責</th></tr>
+      <tr><td><code>clicker.js</code></td><td>宿主：1Hz 結算、存檔、技能槽、切入、場景票券、電動手指、音效、面板開關</td></tr>
+      <tr><td><code>clicker-balance.js</code></td><td>角色技能基準、skillAt、羈絆、推薦組合、更衣室目錄、印記商店、裝飾清單</td></tr>
+      <tr><td><code>clicker-economy.js</code></td><td>純邏輯：click／settle／王包／粉塵／升階／超越／兌換／場景切換。所有數值公式在這裡</td></tr>
+      <tr><td><code>clicker-save.js</code></td><td>fresh／validate、版本遷移、新欄位補預設。驗證失敗只跳「存檔無法讀取」不噴錯</td></tr>
+      <tr><td><code>clicker-scene.js</code></td><td>七場景設定（enemy／boss／affinity／layers）＋層次渲染、風、視差、粒子</td></tr>
+      <tr><td><code>clicker-stage.js</code></td><td>舞台：包裝五狀態、硬殼、王包演出、三連包／輸送帶／禮包、粒子、電動手指、裝飾層</td></tr>
+      <tr><td><code>clicker-album.js</code></td><td>卡冊、展示頁、粉塵罐、更衣室</td></tr>
+      <tr><td><code>clicker-prestige.js</code>／<code>-ui.js</code></td><td>輪迴純邏輯與面板</td></tr>
+      <tr><td><code>clicker-extras.js</code></td><td>每日包、徽章牆、12 選 1、分享卡、匯出匯入、冰箱霜層</td></tr>
+      <tr><td><code>gacha-pool.js</code>、<code>gacha-mode-*.js</code></td><td>共用卡池（稀有度、權重、保底、轉彩）與五種演出</td></tr>
+      <tr><td><code>tools/export-web.py</code></td><td>白名單靜態匯出到 dist-web，CSS／JS 加 ?v=hash 防快取。新素材前綴要加進 pattern</td></tr>
+      <tr><td><code>tools/test/</code>、<code>tools/sim/</code></td><td>npm test 129 例；Playwright round4～7、--round8/9/11/12、round14／16 驗收；clicker-curve.js 曲線模擬</td></tr>
+    </table></div>
+    <p>兩個載體共用同一套檔案：網頁版在 GitHub Pages（gh-pages orphan 分支，只放 dist-web），桌面版是 Tauri 視窗 <code>clicker</code>，差別只有 <code>window.__TAURI__</code> 分支（拖曳、關窗、fit_window）。沒有後端、沒有排行榜、沒有雲端存檔。</p>
+  </section>
+
+  <section class="sheet" id="gaps">
+    <h2><span class="badge">!</span>已知缺口</h2>
+    <div class="note"><b>冰箱王打不到。</b>屋頂星空沒有 <code>unlock</code> 設定，<code>nextScene('fridge')</code> 拿不到門檻，<code>canBoss</code> 永遠 false，徽章 boss-fridge 實際不可得。要決定：冰箱設固定門檻（例如 100 包）並把王勝當終點，或讓屋頂星空成為第七站。</div>
+    <ul>
+      <li>徽章 17 張無字底圖未生（現走底圖疊字）；屋頂星空無專屬素材（借後院層加濾鏡，換圖時要拆濾鏡）；冷凍包五狀態圖未生。</li>
+      <li>模擬器未覆蓋三～六場景的王與滿養情境。</li>
+      <li>設計文件落差：round8 路線圖的解鎖包數、王血量、更衣室與訓練公式都已被 balance v2 取代；balance v2 寫 22 隻，實際 21 隻。</li>
+      <li>待收玩家回饋：王的手感、開包節奏、換桌布時機、轉彩 30% 與神話 0.5% 的感受、「留聲機無法購買」的具體症狀。</li>
+    </ul>
+  </section>
+
+  <footer>珍母點點・玩法總覽・2026-09-08・數值以 <code>src/clicker-economy.js</code> 與 <code>clicker-balance.js</code> 為準</footer>
+</div>
