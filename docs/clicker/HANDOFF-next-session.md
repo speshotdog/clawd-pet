@@ -13,16 +13,17 @@
 ## 二、網頁版怎麼更新（每次改完 main 都要做）
 
 ```bash
-cd "D:/claude研究/clawd-pet"
-python tools/export-web.py            # → dist-web/（189 檔、約 22 MB；clicker.html→index.html、內嵌角色 template）
+REPO="$(git rev-parse --show-toplevel)"   # 別再寫死路徑：公司機 D:/claude研究/clawd-pet、家裡機 D:/claude/clawd-pet
+cd "$REPO"
+python tools/export-web.py            # → dist-web/（2026-09-07 起 307 檔、約 43 MB；clicker.html→index.html、內嵌角色 template）
 git branch -D gh-pages 2>/dev/null   # 本地舊分支擋 orphan
 T="$(mktemp -d)" && git worktree add --detach -q "$T" HEAD && cd "$T" \
- && git checkout -q --orphan gh-pages && git rm -rfq . && cp -r "D:/claude研究/clawd-pet/dist-web/." . && touch .nojekyll \
+ && git checkout -q --orphan gh-pages && git rm -rfq . && cp -r "$REPO/dist-web/." . && touch .nojekyll \
  && git add -A && git commit -q -m "網頁版：<說明>（main <hash>）" && git push -u origin gh-pages --force
-cd "D:/claude研究/clawd-pet" && git worktree remove --force "$T"; git worktree prune
+cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -D gh-pages
 ```
 
-- Pages 大約 30 秒生效；玩家瀏覽器可能快取舊 CSS，重新整理即可。
+- Pages 大約 30 秒生效；**推完馬上 curl 會拿到 404，那是 CDN 還在舊快取，不是推失敗**——先用 `gh api repos/speshotdog/clawd-pet/pages/builds/latest --jq '.status, .created_at'` 確認 build 完成再驗。玩家瀏覽器可能快取舊 CSS，重新整理即可。
 - 網頁版驗證：`python tools/test/clicker-browser.py`（round7 會用 route 讀 `dist-web/`，所以要先 export）；真 Chrome 用 Playwright `channel='chrome'`，並把 viewport 開到 2560×1215 才會重現大視窗的 9-slice 縫線問題（見筆記）。
 - 網頁版沒有後端：沒有排行榜、沒有雲端存檔；分享卡是 canvas 合成後下載／複製到剪貼簿。
 
