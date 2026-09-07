@@ -317,7 +317,7 @@ def round7(browser):
             assert abs(page.evaluate('Clicker.state.coins') - old - expected) < 1e-6
         page.clock.run_for(400)
         page.evaluate('document.getAnimations().forEach(a=>{if(a.testBorn===undefined) return; a.pause();a.currentTime=performance.now()-a.testBorn;})')   # CSS 動畫（今日限定包星星）沒有 testBorn，略過
-        assert page.locator('#cutin-actor svg').count() == 1
+        assert page.locator('#cutin-actor svg, #cutin-actor img').count() == 1
         assert '冷卻' not in page.locator('#cutin-subtitle').inner_text()
         page.screenshot(path=str(OUT / f'round7-web-cutin-{ident}-400.png'))
         page.evaluate('document.getAnimations().forEach(a=>a.play())')
