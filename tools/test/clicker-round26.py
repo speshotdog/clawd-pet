@@ -106,8 +106,21 @@ def main():
         check(bleed['qinghua']['cover'] < .8 and bleed['qinghua']['fit'] == 'contain',
               f"一般去背角色維持 84%＋contain（青花膠佔 {bleed['qinghua']['cover']:.0%}）")
 
+        # ---- 三之前、推薦組合不可以穿出紙面 ----
+        pg.locator('#roster-open').click(); pg.wait_for_timeout(500)
+        pg.locator('#recommend-open').click(); pg.wait_for_timeout(500)
+        rec = pg.evaluate("""() => { const r=document.getElementById('recommendations'); if(!r) return null;
+          const p=document.getElementById('roster').getBoundingClientRect();
+          const t=[...r.querySelectorAll('.recommend-ticket')].map(x=>x.getBoundingClientRect());
+          return {out:t.filter(x=>x.right>p.right+1||x.left<p.left-1).length, n:t.length,
+                  rows:new Set(t.map(x=>Math.round(x.top))).size}; }""")
+        check(rec and rec['n'] > 0, f"推薦組合開得起來：{rec and rec['n']} 張票券")
+        check(rec and rec['out'] == 0,
+              f"四張票券排成 {rec and rec['rows']} 列都在紙面內，沒有穿出去（穿出去的有 {rec and rec['out']} 張）")
+        pg.screenshot(path=str(OUT / 'r26-recommend.png'))
+        pg.evaluate("() => document.getElementById('recommendations')?.remove()")
+
         # ---- 三、粉塵罐：兌換後不跳回最上面 ----
-        pg.locator('#roster-open').click(); pg.wait_for_timeout(400)
         pg.locator('#dust-open').click(); pg.wait_for_timeout(400)
         before = pg.evaluate("""() => { const l=document.querySelector('.dust-list');
           l.scrollTop=Math.floor(l.scrollHeight/2); return l.scrollTop; }""")
