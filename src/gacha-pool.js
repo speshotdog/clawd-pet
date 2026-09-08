@@ -63,6 +63,7 @@
     { id: 'seal', name: '快樂海豹', rarity: 'rare', kind: 'char', src: 'card-seal.png' },
     { id: 'chaichai', name: '柴柴', rarity: 'rare', kind: 'char', src: 'card-chaichai.png' },
     { id: 'jiaolan', name: '膠頭爛額', rarity: 'rare', kind: 'char', src: 'card-jiaolan.png' },
+    { id: 'wanwumythic', name: '玩物就玩物', rarity: 'mythic', kind: 'char', src: 'card-wanwumythic.png' },
     { id: 'dino',       name: '小恐龍',      rarity: 'common', kind: 'toy', src: 'toy-dino.png', w: 120 },
     { id: 'ballyellow', name: '黃色球',      rarity: 'common', kind: 'toy', src: 'toy-ballyellow.png', w: 109.4 },
     { id: 'beachball',  name: '皮球',        rarity: 'common', kind: 'toy', src: 'toy-beachball.png', w: 94.7 },

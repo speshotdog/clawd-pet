@@ -106,3 +106,25 @@ test('round25: 好的存檔照常載入，不會被誤判成要修', () => {
   assert.equal(store.repaired, null, '沒壞的存檔不該說自己被修過');
   assert.equal(mem[S.BROKEN_KEY], undefined, '沒壞就不該留備份');
 });
+
+// ---- 第二十五輪的新神話：玩物就玩物 ----
+const B = require('../../src/clicker-balance.js');
+
+test('round25: 玩物就玩物是神話，走 clickAdd 補上這一族的空格', () => {
+  const e = Pool.byId.wanwumythic;
+  assert.ok(e, '不在卡池');
+  assert.equal(e.rarity, 'mythic');
+  assert.equal(e.kind, 'char');
+  assert.equal(e.src, 'card-wanwumythic.png');
+  assert.ok(require('node:fs').existsSync(require('node:path').join(__dirname, '../../src/', e.src)));
+  const def = B.characters.wanwumythic;
+  assert.equal(def.kind, 'clickAdd');
+  // 神話這格本來是空的：既有 clickAdd 全是史詩起跳，最高 .6
+  const others = ['dog','yangpu','zhenpete','foxmoney','seal'].map(id => B.characters[id].ratio);
+  assert.ok(def.ratio > Math.max(...others), '神話的 clickAdd 要比史詩那批強');
+  // 神話的 base 要跟另外三張同一個量級
+  const mythics = Pool.CATALOG.filter(x => x.rarity === 'mythic' && x.kind === 'char').map(x => B.characters[x.id].base);
+  assert.equal(mythics.length, 4);
+  assert.ok(Math.min(...mythics) >= 30 && Math.max(...mythics) <= 32, `神話 base 應在 30~32：${mythics}`);
+  assert.match(def.desc(def), /接下來 30 次點擊各追加 150% 每秒收益/);
+});

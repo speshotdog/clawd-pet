@@ -74,6 +74,11 @@
     jiaolan: { base: 5, skill: '爛額狂點', kind: 'clickTime', multiplier: 2.8, duration: 12, cd: 82, trait: { clickMul: 1.15 } },
     shiyi: { base: 19, skill: '十一連發', kind: 'click', multiplier: 4.5, charges: 11, duration: 15, cd: 85 },
   });
+  // 第二十五輪：神話「玩物就玩物」。clickAdd 這一族目前最高只到史詩（.6），神話這一格是空的，
+  // 所以它走 clickAdd 而不是再開一張 team（三張神話裡已經有兩張是 team 了）。
+  Object.assign(characters, {
+    wanwumythic: { base: 31, skill: '捧在手心', kind: 'clickAdd', ratio: 1.5, charges: 30, duration: 25, cd: 130 },
+  });
   const fmt = n => Number(n.toFixed(4));
   function describe(p) {
     const tail = `・冷卻 ${fmt(p.cd)} 秒`;

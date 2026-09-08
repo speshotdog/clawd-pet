@@ -6,10 +6,10 @@ const near = (a,b) => assert.ok(Math.abs(a-b)<1e-9, `${a} ~= ${b}`);
 const roll = (x, pity=0, policy=Pool.GAME_POLICY) => Pool.rollPack({count:1,policy,pity,rng:()=>x,id:'r15',visualSeed:15});
 const raised = id => { const s=S.fresh(0); s.collection[id]=16; s.dust[id]=100; return s; };
 
-test('round15: 51 characters and 39 PNG assets', () => {
-  assert.equal(Pool.CHARACTER_IDS.length,51); assert.equal(Object.keys(B.characters).length,51);   // 第二十二輪 +13、第二十四輪 +5
+test('round15: 52 characters and 40 PNG assets', () => {
+  assert.equal(Pool.CHARACTER_IDS.length,52); assert.equal(Object.keys(B.characters).length,52);   // 第二十二輪 +13、第二十四輪 +5、第二十五輪 +1
   assert.equal(Pool.RARITY_ORDER[0],'mythic'); assert.equal(Pool.RARITY.mythic.label,'神話');
-  const png=Pool.CATALOG.filter(e=>e.kind==='char' && e.src); assert.equal(png.length,39);
+  const png=Pool.CATALOG.filter(e=>e.kind==='char' && e.src); assert.equal(png.length,40);
   for(const e of png) assert.ok(fs.existsSync(new URL(`../../src/${e.src}`,`file://${__filename.replaceAll('\\','/')}`)));
 });
 test('round15: weights total 1000, exact stratified base rates 69.5/25/5/0.5', () => {

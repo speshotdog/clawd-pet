@@ -59,7 +59,7 @@ test('round16: paid/free pending preserves veil through JSON, validates and coll
 
 test('round16: removed character is absent and old progression/slots are cleaned', () => {
   assert.equal(Pool.byId.yuelegend, undefined); assert.equal(B.characters.yuelegend, undefined);
-  assert.equal(Pool.CHARACTER_IDS.length, 51);
+  assert.equal(Pool.CHARACTER_IDS.length, 52);
   const s = S.fresh(0);
   const keys = ['collection','dust','promotions','transcend','partnerLevels','overflow','awakened','cooldownUntil'];
   for (const key of keys) s[key].yuelegend = 1;

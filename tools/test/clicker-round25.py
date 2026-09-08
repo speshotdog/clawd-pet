@@ -10,6 +10,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[2]
 SRC, OUT = ROOT / 'src', ROOT / '_art/out'
 fails = []
+CARDS = None      # 角色總數改成從遊戲自己讀，免得每次加新卡都要回來改這個數字
 
 def check(ok, msg):
     print(('ok   ' if ok else 'FAIL ') + msg)
@@ -58,6 +59,7 @@ def main():
         pg.goto('http://clicker.test/clicker.html')
         pg.wait_for_function('window.Clicker?.state')
         good = pg.evaluate(SEED)
+        global CARDS; CARDS = pg.evaluate('Object.keys(ClickerBalance.characters).length')
 
         # ---- 一、暫時狀態壞掉：直接進得了遊戲，還會告訴玩家修了什麼 ----
         broken = json.loads(good)
@@ -77,7 +79,7 @@ def main():
         check(not state['blocked'], "壞掉的存檔不再擋住畫面，直接進得了遊戲")
         # 判準是「有沒有掉東西」，不是「有沒有變」——載入後被動收益就開始進帳、
         # 離線結算還會補發徽章，用等號的話會被遊戲正常運作弄成假失敗。
-        check(state['coins'] >= 1e12 and state['click'] == 60 and state['cards'] == 51,
+        check(state['coins'] >= 1e12 and state['click'] == 60 and state['cards'] == CARDS,
               f"養成進度全在：幣 {state['coins']:.3e}（>=1e12）／點擊等級 {state['click']}／卡 {state['cards']} 種")
         check(set(['pack10','pack25','boss-backyard']) <= set(state['badges'])
               and set(['backyard','kitchen']) <= set(state['wins']),
@@ -116,7 +118,7 @@ def main():
           blocked:!document.getElementById('save-error').hidden,
           coins:Clicker.state.coins, cards:Object.keys(Clicker.state.collection).length,
         })""")
-        check(not after['blocked'] and after['coins'] >= 1e12 and after['cards'] == 51,
+        check(not after['blocked'] and after['coins'] >= 1e12 and after['cards'] == CARDS,
               f"貼上好存檔就救回來了：幣 {after['coins']:.3e}／卡 {after['cards']} 種")
         pg.screenshot(path=str(OUT / 'r25-rescued.png'))
 

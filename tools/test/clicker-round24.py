@@ -9,7 +9,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC, OUT = ROOT / 'src', ROOT / '_art/out'
-NEW = ['shiyi', 'shiwang', 'seal', 'chaichai', 'jiaolan']
+NEW = ['shiyi', 'shiwang', 'seal', 'chaichai', 'jiaolan', 'wanwumythic']   # 第二十五輪追加神話「玩物就玩物」
 fails = []
 
 def check(ok, msg):
@@ -62,8 +62,8 @@ def main():
                                desc:B.characters[id] && B.characters[id].desc(B.characters[id])})),
             inPool:ids.filter(id=>P.GAME_POLICY.candidates.includes(id)).length};
         }""", NEW)
-        check(info['total'] == 51 and info['catalog'] == 56, f"角色 {info['total']} 隻、CATALOG {info['catalog']} 項")
-        check(info['inPool'] == 5, f"五張新卡都抽得到（在 GAME_POLICY.candidates 裡的有 {info['inPool']} 張）")
+        check(info['total'] == 52 and info['catalog'] == 57, f"角色 {info['total']} 隻、CATALOG {info['catalog']} 項")
+        check(info['inPool'] == len(NEW), f"新卡都抽得到（在 GAME_POLICY.candidates 裡的有 {info['inPool']}／{len(NEW)} 張）")
         for row in info['rows']:
             check(bool(row['name'] and row['skill'] and row['src']),
                   f"{row['id']}：{row['name']}・{row['rarity']}・{row['skill']}")
@@ -79,7 +79,7 @@ def main():
           }
           return out;
         }""", NEW)
-        check(not broken, f"五張 card-*.png 都解得開，沒有破圖：{broken or '全部 OK'}")
+        check(not broken, f"新卡的 card-*.png 都解得開，沒有破圖：{broken or '全部 OK'}")
 
         # ---- 三、卡冊裡看得到（依稀有度排序，新卡不能被排丟） ----
         pg.locator('#roster-open').click(); pg.wait_for_timeout(500)
@@ -88,8 +88,8 @@ def main():
           return ids.filter(id=>names.includes('card-'+id+'.png'));
         }""", NEW)
         found = list(seen)
-        for _ in range(8):
-            if len(found) == 5: break
+        for _ in range(24):        # 神話排在最後（卡冊依稀有度低→高），52 張要翻十幾頁才看得到
+            if len(found) == len(NEW): break
             if not pg.locator('#album-next').count(): break
             pg.locator('#album-next').click(); pg.wait_for_timeout(260)
             more = pg.evaluate("""(ids) => {
@@ -97,7 +97,7 @@ def main():
               return ids.filter(id=>names.includes('card-'+id+'.png'));
             }""", NEW)
             found = sorted(set(found) | set(more))
-        check(len(found) == 5, f"翻完卡冊五張新卡都露臉了：{found}")
+        check(len(found) == len(NEW), f"翻完卡冊新卡都露臉了：{found}")
         pg.screenshot(path=str(OUT / 'r24-album.png'))
         pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
 

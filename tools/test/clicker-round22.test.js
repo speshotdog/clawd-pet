@@ -22,7 +22,7 @@ test('round22: 十三張新卡都有卡面、技能與稀有度', () => {
     assert.ok(B.characters[id].base > 0);
   }
   assert.deepEqual(NEW_IDS.filter(id => Pool.byId[id].rarity === 'mythic'), ['mieshi','qinghua']);
-  assert.equal(Pool.CHARACTER_IDS.length, 51);
+  assert.equal(Pool.CHARACTER_IDS.length, 52);
 });
 
 test('round22: bossDamage 王關中砍血量百分比，平常退化成爆發', () => {
