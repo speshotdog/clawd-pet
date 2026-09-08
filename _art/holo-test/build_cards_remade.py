@@ -39,6 +39,9 @@ for line in body.splitlines():
         'rarity': re.search(r"\brarity:\s*'([^']*)'", line).group(1),
         'file': f,
         'pal': palette.get(f, {}),
+        # 卡型是資料欄位（HANDOFF 三節）：有背景但拆不出前後關係的走 flat，
+        # 不是每張都當去背卡框卡。CATALOG 的 bleed 就是在標這件事。
+        'kind': 'flat' if 'bleed: true' in line else 'framed',
         **({'bleed': True} if 'bleed: true' in line else {}),
     })
 RANK = {'mythic': 0, 'legendary': 1, 'epic': 2, 'rare': 3, 'common': 4}
@@ -136,7 +139,7 @@ function paint(card,rarity){
 const grid=$('#grid');
 for(const d of POOL){
  const cell=node('div','cell'),hit=node('div','hit');
- const card=node('div',`hcard r-${d.rarity} kind-framed gem-faceted${d.bleed?' bleed':''}`);
+ const card=node('div',`hcard r-${d.rarity} kind-${d.kind||'framed'} gem-faceted${d.bleed?' bleed':''}`);
  card.dataset.id=d.id;card.dataset.rarity=d.rarity;
  const p=d.pal||{};
  card.style.setProperty('--pal-base',p.base||'#141b2e');
@@ -149,7 +152,7 @@ for(const d of POOL){
  material(bg);
  const media=node('div','art-media'),img=node('img');
  img.src='art/'+d.file;img.alt='';img.draggable=false;media.append(img);
- if(masks[d.file]){const m=node('div','subject-mask');m.style.setProperty('--subject',`url("${masks[d.file]}")`);material(m);media.append(m);}
+ if(masks[d.file]&&d.kind!=='flat'){const m=node('div','subject-mask');m.style.setProperty('--subject',`url("${masks[d.file]}")`);material(m);media.append(m);}
  art.append(media);
  frame.append(node('div','frame-material'));
  plate.append(node('b','face-name',d.name),node('span','face-rarity',`${LABEL[d.rarity]} / ${d.rarity.toUpperCase()}`));

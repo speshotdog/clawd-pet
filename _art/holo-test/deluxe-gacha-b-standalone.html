@@ -505,7 +505,8 @@ function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x!=
 function material(p){const s=node('div','foil-stack');['spectrum','relief','etch'].forEach(x=>s.append(node('div','foil-'+x)));
   p.append(s,node('div','foil-fiber'),node('div','foil-grain'),node('div','foil-glare'));}
 function makeFace(d){
-  const kind=d.scene?'depth':'framed';
+  // 卡型照 HANDOFF 三節的資料欄位：depth／flat／framed，不要寫死
+  const kind=d.scene?'depth':(d.bleed?'flat':'framed');
   const card=node('div',`hcard r-${d.rarity} kind-${kind} gem-faceted${d.scene?' scene':''}${d.bleed?' bleed':''}`);
   card.dataset.rarity=d.rarity;
   const lift=node('div','card-lift'),inner=node('div','card-inner'),front=node('div','card-face');
@@ -517,7 +518,7 @@ function makeFace(d){
   else bg.append(node('div','floor'));
   material(bg);
   const media=node('div','art-media'),img=node('img');img.src=srcPath;img.alt='';img.draggable=false;media.append(img);
-  if(masks[key]){const m=node('div','subject-mask');m.style.setProperty('--subject',`url("${masks[key]}")`);material(m);media.append(m);}
+  if(masks[key]&&kind!=='flat'){const m=node('div','subject-mask');m.style.setProperty('--subject',`url("${masks[key]}")`);material(m);media.append(m);}
   art.append(media);
   frame.append(node('div','frame-material'));
   const text=node('div','face-text');
