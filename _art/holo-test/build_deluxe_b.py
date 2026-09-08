@@ -118,6 +118,18 @@ body{margin:0;font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-s
 .shock{position:absolute;left:50%;top:50%;translate:-50% -50%;width:20px;aspect-ratio:1;border-radius:50%;
  border:3px solid var(--sc,#fff);opacity:0;pointer-events:none}
 .flashwrap{position:absolute;inset:0;pointer-events:none;opacity:0;mix-blend-mode:screen}
+.rays{position:absolute;left:50%;top:50%;translate:-50% -50%;width:150%;aspect-ratio:1;opacity:0;pointer-events:none;
+ background:conic-gradient(from 0deg,transparent 0 3deg,var(--ray,#fff) 3deg 5deg,transparent 5deg 15deg);
+ filter:blur(.4px)}
+.spark{position:absolute;width:7px;height:7px;border-radius:50%;pointer-events:none;
+ background:radial-gradient(circle,#fff,var(--sp,#ffd45c) 55%,transparent 72%)}
+.win.shake{animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{10%,90%{translate:-2px 0}20%,80%{translate:4px 0}30%,50%,70%{translate:-7px 1px}40%,60%{translate:7px -1px}}
+.slot.tease .veilback{animation:tease .5s ease-in-out infinite}
+@keyframes tease{0%,100%{filter:brightness(1)}50%{filter:brightness(1.5) saturate(1.3)}}
+.slot.rattle{animation:rattle .34s linear}
+@keyframes rattle{0%,100%{rotate:0deg}25%{rotate:-3.5deg}50%{rotate:3.5deg}75%{rotate:-2deg}}
+@media(prefers-reduced-motion:reduce){.win.shake,.slot.tease .veilback,.slot.rattle{animation:none}}
 
 /* ── 卡在舞台上的排列 ─────────────────────────────── */
 .fan{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
@@ -155,7 +167,8 @@ body{margin:0;font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-s
    <div class="orbit" id="orbit">
     <div class="ring r3 spin"></div><div class="ring r1 spin"></div><div class="ring r2 spin"></div>
     <div class="charge" id="charge"></div><div class="core" id="core"></div>
-    <div class="starfield" id="starfield"></div><div class="flashwrap" id="flashwrap"></div>
+    <div class="rays" id="rays"></div>
+<div class="starfield" id="starfield"></div><div class="flashwrap" id="flashwrap"></div>
    </div>
    <div class="idlepack" id="idlepack"><div class="veilback"></div></div>
    <div class="fan" id="fan"></div>
@@ -247,7 +260,7 @@ function paintCard(card,rarity,x,y){
 }
 
 /* ── 演出 ─────────────────────────────────────────── */
-const stage=$('#stage'),fan=$('#fan'),charge=$('#charge'),core=$('#core'),
+const stage=$('#stage'),fan=$('#fan'),charge=$('#charge'),core=$('#core'),rays=$('#rays'),win=$('#win'),
       starfield=$('#starfield'),flashwrap=$('#flashwrap'),idlepack=$('#idlepack'),hint=$('#hint');
 const btn={p1:$('#p1'),p5:$('#p5'),p10:$('#p10'),all:$('#revealall'),fin:$('#finish')};
 let busy=false, slots=[], pending=0, tickets=30;
@@ -273,6 +286,26 @@ function shock(color,scale,dur){
        {transform:`translate(-50%,-50%) scale(${scale})`,opacity:0,borderWidth:'1px'}],
     {duration:dur,easing:'cubic-bezier(.15,.7,.2,1)'}).finished.catch(()=>{}).finally(()=>s.remove());
 }
+function burst(color,count,spread){
+  const box=$('#orbit').getBoundingClientRect();
+  for(let i=0;i<count;i++){
+    const el=node('div','spark');el.style.setProperty('--sp',color);
+    el.style.left=(box.width/2)+'px';el.style.top=(box.height/2)+'px';$('#orbit').append(el);
+    const a=Math.random()*Math.PI*2,d=spread*(.35+Math.random()*.85);
+    A(el,[{transform:'translate(-50%,-50%) scale(1)',opacity:1},
+          {transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(${(.2+Math.random()*.5).toFixed(2)})`,opacity:0}],
+      {duration:700+Math.random()*600,easing:'cubic-bezier(.1,.7,.2,1)'})
+      .finished.catch(()=>{}).finally(()=>el.remove());
+  }
+}
+function rayBurst(color,dur,turns){
+  rays.style.setProperty('--ray',color);
+  A(rays,[{opacity:0,rotate:'0deg',scale:.2},{opacity:.5,offset:.14},
+          {opacity:0,rotate:turns+'deg',scale:1.25}],{duration:dur,easing:'cubic-bezier(.1,.6,.2,1)'});
+}
+function shakeWin(){ if(reduced.matches)return;
+  win.classList.remove('shake');void win.offsetWidth;win.classList.add('shake');
+  setTimeout(()=>win.classList.remove('shake'),470); }
 function flash(bg,dur,blend){
   flashwrap.style.background=bg;flashwrap.style.mixBlendMode=blend||'screen';
   A(flashwrap,[{opacity:0},{opacity:.85,offset:.12},{opacity:0}],{duration:dur,easing:'ease-out'});
@@ -283,6 +316,13 @@ async function pull(n){
   busy=true;tickets-=n;$('#ticket').textContent=tickets;
   for(const b of [btn.p1,btn.p5,btn.p10])b.disabled=true;
   const result=draw(n);
+  // 先把這一抽會用到的圖解碼好，不然揭曉的那一瞬間卡面可能還是空的
+  for(const c of result){
+    const im=new Image();
+    const path = n => (typeof asset==='function' ? asset(n) : (n.startsWith('layer-') ? n : `../../src/${n}`));
+    im.src = path(c.scene ? `layer-${c.id}-subject.png` : c.file);
+    if(c.scene){const bgIm=new Image();bgIm.src=path(`layer-${c.id}-background.png`);}
+  }
   const best=result.reduce((b,c)=>['common','rare','epic','legendary','mythic'].indexOf(c.rarity)>
                                   ['common','rare','epic','legendary','mythic'].indexOf(b)?c.rarity:b,'common');
 
@@ -319,40 +359,69 @@ async function pull(n){
 async function revealOne(s){
   if(s.revealed)return;s.revealed=true;s.el.classList.add('done');
   const r=s.data.rarity, big=r==='legendary'||r==='mythic';
+
+  // (1) 預告：卡背先亮起來，稀有的還會抖一下
+  s.el.classList.add('tease');
+  if(big){ s.el.classList.add('rattle'); await wait(340); s.el.classList.remove('rattle'); }
+  else await wait(140);
+  s.el.classList.remove('tease');
+
   const face=makeFace(s.data);face.style.opacity='0';s.el.append(face);
 
-  // 卡背翻走
+  // (2) 撞擊：白閃一格 + 卡片衝出來 + 傳說以上震一下畫面
+  flash('radial-gradient(circle,#fff,#fff 30%,transparent 72%)', big?260:170);
   A(s.el.querySelector('.veilback'),[{transform:'rotateY(0deg)'},{transform:'rotateY(90deg)'}],
-    {duration:260,easing:'ease-in'});
+    {duration:big?200:230,easing:'ease-in'});
   if(big){
-    A(s.el,[{transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1)`,zIndex:5},
-            {transform:`translate(${s.spot.x*.35}px,${s.spot.y*.35}px) scale(1.42)`,zIndex:5}],
-      {duration:420,easing:'cubic-bezier(.2,.8,.2,1)'});
+    shakeWin();
+    A(s.el,[{transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1)`},
+            {transform:`translate(${s.spot.x*.3}px,${s.spot.y*.3}px) scale(1.72)`,offset:.55},
+            {transform:`translate(${s.spot.x*.35}px,${s.spot.y*.35}px) scale(1.5)`}],
+      {duration:520,easing:'cubic-bezier(.16,1.1,.3,1)'});
+    s.el.style.zIndex='6';
+  } else {
+    A(s.el,[{transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1)`},
+            {transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1.14)`,offset:.5},
+            {transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1)`}],
+      {duration:420,easing:'cubic-bezier(.2,.9,.25,1)'});
   }
-  await wait(250);
+  await wait(big?190:205);
   s.el.querySelector('.veilback').style.display='none';
   face.style.opacity='1';
-  A(face,[{transform:'rotateY(-90deg)'},{transform:'rotateY(0deg)'}],{duration:300,easing:'ease-out'});
+  A(face,[{transform:'rotateY(-90deg)'},{transform:'rotateY(0deg)'}],{duration:big?260:280,easing:'ease-out'});
 
+  // (3) 回報：份量隨稀有度階梯
   if(r==='mythic'){
-    flash('linear-gradient(120deg,#ff7ad0,#ffc25e,#fff87d,#7dffab,#6fd8ff,#c39dff)',760);
-    shock('#ff7ad0',13,760);setTimeout(()=>shock('#6fd8ff',16,860),110);
-    A(starfield,[{opacity:0},{opacity:.85,offset:.2},{opacity:0}],{duration:1400});
-    A(charge,[{opacity:.9},{opacity:0}],{duration:900});
+    rayBurst('#ffffff',1500,140);
+    flash('linear-gradient(120deg,#ff7ad0,#ffc25e,#fff87d,#7dffab,#6fd8ff,#c39dff)',900);
+    shock('#ff7ad0',13,760);
+    setTimeout(()=>shock('#6fd8ff',17,900),120);
+    setTimeout(()=>shock('#fff87d',21,1000),250);
+    burst('#ff7ad0',46,190);
+    setTimeout(()=>burst('#6fd8ff',34,230),180);
+    A(starfield,[{opacity:0},{opacity:.9,offset:.18},{opacity:0}],{duration:2200});
+    A(charge,[{opacity:.9},{opacity:0}],{duration:1000});
+    for(const el of document.querySelectorAll('.ring'))
+      A(el,[{filter:'hue-rotate(0deg) brightness(1)'},{filter:'hue-rotate(360deg) brightness(1.6)'}],{duration:1600});
   } else if(r==='legendary'){
-    flash('radial-gradient(circle,#ffe6a0,#ffd45c 40%,transparent 72%)',560);
-    shock('#ffd45c',11,640);
+    rayBurst('#ffe6a0',1100,110);
+    flash('radial-gradient(circle,#fff3c9,#ffd45c 42%,transparent 74%)',700);
+    shock('#ffd45c',11,660);
+    setTimeout(()=>shock('#fff3c9',15,780),110);
+    burst('#ffd45c',30,150);
   } else if(r==='epic'){
-    shock('#c39dff',8,500);
+    rayBurst('#d9c2ff',760,70);
+    shock('#c39dff',8,520);burst('#c39dff',14,105);
   } else {
-    shock(SURGE[r],6,420);
+    shock(SURGE[r],6,420);burst(SURGE[r],7,80);
   }
+
   // 放大的傳說／神話看完就歸位，不然會壓到旁邊的卡
   if(big){
-    await wait(760);
-    A(s.el,[{transform:`translate(${s.spot.x*.35}px,${s.spot.y*.35}px) scale(1.42)`},
+    await wait(980);
+    A(s.el,[{transform:`translate(${s.spot.x*.35}px,${s.spot.y*.35}px) scale(1.5)`},
             {transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1.06)`}],
-      {duration:420,easing:'cubic-bezier(.3,.8,.3,1)'});
+      {duration:460,easing:'cubic-bezier(.3,.8,.3,1)'});
     s.el.style.zIndex='3';
   }
   // 揭曉後給一點傾斜的呼吸感
@@ -372,7 +441,11 @@ function updateFinish(){
 }
 btn.all.addEventListener('click',async()=>{
   if(busy)return;busy=true;
-  for(const s of slots){if(!s.revealed){revealOne(s);await wait(360);}}
+  for(const s of slots){ if(s.revealed) continue;
+    const r=s.data.rarity;
+    revealOne(s);
+    await wait(r==='mythic'?2700:r==='legendary'?2000:r==='epic'?560:300);
+  }
   busy=false;updateFinish();
 });
 btn.fin.addEventListener('click',()=>{

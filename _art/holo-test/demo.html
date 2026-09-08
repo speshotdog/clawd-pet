@@ -827,6 +827,55 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 .card-back:before{content:none !important}
 .back-emblem,.back-title,.back-edition,.back-pip,.back-ring,.back-medallion{display:none !important}
 </style>
+<style id="round12-deluxe-template">
+/* Round 12（使用者退件重做）：精裝版的標準版型就是「圖二」那張——
+   滿版的圖窗、人物放大置中並壓過文字框上緣、底部文字框帶寶石與名字。
+   第十輪我把沒有背景的卡做成舊卡那種「小人物浮在稀有度平塗漸層上」，
+   那是舊卡的長相，不是精裝版。這一輪把它改成同一個版型。 */
+.r-common{--deluxe-glow:#2b3446}.r-rare{--deluxe-glow:#1b4a6e}.r-epic{--deluxe-glow:#452a70}
+.r-legendary{--deluxe-glow:#6d5320}.r-mythic{--deluxe-glow:#5d2b59}
+.kind-framed .face-depth-bg{
+ background:radial-gradient(68% 52% at 50% 40%,var(--deluxe-glow) 0%,transparent 72%),
+  radial-gradient(120% 90% at 50% 108%,#0a0f1c,transparent 60%),
+  linear-gradient(168deg,#161d31,#0d1322 58%,#080c17) !important}
+.kind-framed .face-depth-bg .floor{display:none !important}
+.kind-framed .face-art{z-index:30 !important;inset:0 !important}
+.kind-framed .art-media{inset:0 !important;display:grid !important;
+ place-items:end center !important;padding:0 4% 10% !important}
+.kind-framed .art-media img{max-width:94% !important;max-height:84% !important;
+ object-fit:contain;margin:0 auto;filter:drop-shadow(0 10px 18px #0009)}
+.kind-framed .subject-mask{inset:0 !important}
+/* 文字框：第七輪把它做成透明，第八輪只幫 kind-depth 補回來，
+   所以 framed 與 flat 一直沒有文字框。使用者說「不接受沒有文字框的」，這裡補齊。 */
+.kind-framed .face-plate,.kind-flat .face-plate,.bleed .face-plate{
+ z-index:20 !important;left:5% !important;right:5% !important;bottom:4% !important;height:16% !important;
+ min-height:0 !important;padding:0 8% !important;border:1px solid #b4b7c733 !important;
+ border-top:1px solid var(--accent-card) !important;border-radius:5px !important;
+ background:linear-gradient(140deg,#161b26f7,#111821fc) !important;
+ box-shadow:0 0 0 1px #0a0d15,0 7px 18px #0008,inset 0 1px 0 #ffffff18 !important;
+ transform:translateZ(calc(var(--zp) + 1px)) !important}
+/* 人物底部壓在文字框上緣，不要被卡片下緣切掉 */
+/* 圖二的前後關係：文字框壓在圖上（行星下緣是被文字框切掉的），
+   所以 framed 的文字框要在人物之上，人物往下延伸被它切掉就對了。 */
+/* 卡面是 preserve-3d，決定前後的是 translateZ 不是 z-index：
+   圖層 .face-art 在 var(--za)（最高 56px），文字框原本只有 13px，所以人物會壓在名字上。
+   framed/flat 的文字框推到 70px，確保它蓋在人物之上（圖二就是文字框壓著行星）。 */
+.kind-framed .face-plate,.kind-flat .face-plate,.bleed .face-plate{
+ z-index:40 !important;transform:translateZ(70px) !important}
+.kind-framed .art-media{padding:2% 4% 9% !important}
+/* 寶石一律用圖一那顆：在文字框左側，不是浮在卡片上方。 */
+.kind-framed .face-gem{
+ left:calc(5% + 14px) !important;right:auto !important;top:auto !important;
+ bottom:calc(4% + 8% - 8px) !important;width:22px !important;height:22px !important;margin:0 !important;
+ z-index:45 !important;transform:translateZ(72px) rotate(45deg) !important;
+ border:2px solid #fff3d0 !important;border-radius:3px !important;
+ background:radial-gradient(circle at 35% 35%,#fff,var(--accent-card) 55%) !important;
+ box-shadow:0 0 10px color-mix(in srgb,var(--accent-card) 58%,transparent) !important;
+ clip-path:none !important;filter:saturate(.98) !important}
+.kind-depth .face-gem,.kind-flat .face-gem{transform:translateZ(72px) rotate(45deg) !important;z-index:45 !important}
+/* 文字框左邊留出寶石的位置，名字才不會被推歪 */
+.kind-framed .face-plate,.kind-flat .face-plate,.bleed .face-plate{padding:0 34px !important}
+</style>
 <style id="round9-name-ink">
 /* Round 9 (使用者定案)：傳說＝亮金字，神話＝彩虹字（跟卡框同一條 conic 漸層，隨 --phase 轉）。
    蓋掉第六輪的燙金漸層：它的 78% 暗棕段在小卡上吞掉字身，
