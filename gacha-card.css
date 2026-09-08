@@ -1,0 +1,426 @@
+:root {
+  --c-common: #9d9d9d;
+  --c-rare: #0070dd;
+  --c-epic: #a335ee;
+  --c-legendary: #ff8000;
+}
+/* ---------- 卡 ---------- */
+.cards { position: absolute; inset: 0; z-index: 10; perspective: 1400px; pointer-events: none; }
+.card {
+  position: absolute; left: 0; top: 0; width: 150px; height: 210px; margin: -105px 0 0 -75px;
+  pointer-events: auto; cursor: pointer; will-change: transform;
+  transition: transform .62s cubic-bezier(.22, .9, .32, 1.12), opacity .3s, filter .5s;
+  transform: translate(480px, 330px) scale(.2);
+  opacity: 0;
+  --rc: var(--c-common); --rc-a: rgba(157,157,157,.55); --rc-b: rgba(157,157,157,.25);
+}
+.card.r-rare { --rc: var(--c-rare); --rc-a: rgba(0,112,221,.7); --rc-b: rgba(0,112,221,.3); }
+.card.r-epic { --rc: var(--c-epic); --rc-a: rgba(163,53,238,.72); --rc-b: rgba(163,53,238,.32); }
+.card.r-legendary { --rc: var(--c-legendary); --rc-a: rgba(255,128,0,.85); --rc-b: rgba(255,128,0,.4); }
+.card.dealt { opacity: 1; }
+.card.flipped { cursor: default; }
+.card.flying { transition: transform .5s cubic-bezier(.5, 0, .9, .4), opacity .25s .3s; opacity: 0; }
+.card.dusting { pointer-events: none; }
+.card.dusting .card-lift { animation: crumble .7s cubic-bezier(.4,0,.8,.4) both; }
+@keyframes crumble {
+  0% { filter: brightness(1); }
+  35% { transform: translateY(-6px) scale(1.03); filter: brightness(1.6) saturate(.6); }
+  100% { transform: translateY(24px) scale(.6); opacity: 0; filter: brightness(2.5) saturate(0) blur(3px); }
+}
+
+.card-lift { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .28s cubic-bezier(.2,.9,.3,1.2); }
+.card:not(.flipped):not(.charging):hover .card-lift { transform: translateY(-16px) scale(1.06); }
+.card.charging .card-lift { animation: tremble .09s linear infinite; transform: translateY(-8px) scale(1.05); }
+.card.charging.hard .card-lift { animation-duration: .055s; }
+@keyframes tremble {
+  0% { transform: translate(-1.5px, -8px) scale(1.05) rotate(-.6deg); }
+  25% { transform: translate(1.5px, -9px) scale(1.05) rotate(.5deg); }
+  50% { transform: translate(-1px, -7px) scale(1.05) rotate(.4deg); }
+  75% { transform: translate(1.2px, -8.5px) scale(1.05) rotate(-.5deg); }
+  100% { transform: translate(-1.5px, -8px) scale(1.05) rotate(-.6deg); }
+}
+
+/* 傳說蓄力中：其他卡全部沉下去，視線只剩那一張 */
+.table.charging-mode .card:not(.charging) { filter: brightness(.3); }
+
+/* 稀有度先透光：卡還沒翻，光從卡背四邊滲出來 */
+.card-glow {
+  position: absolute; inset: 6px; border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 34px 10px var(--rc-a), 0 0 90px 30px var(--rc-b);
+  opacity: 0; transition: opacity .35s ease;
+}
+.card:not(.flipped):hover .card-glow, .card.charging .card-glow { opacity: 1; }
+.card.r-legendary:not(.flipped):hover .card-glow, .card.charging .card-glow { animation: glow-throb 1.1s ease-in-out infinite; }
+.card.charging.hard .card-glow { animation-duration: .35s; box-shadow: 0 0 50px 18px var(--rc-a), 0 0 140px 60px var(--rc-b); }
+@keyframes glow-throb { 50% { opacity: .55; } }
+/* 翻開後留一圈安靜的底光，不再閃 */
+.card.flipped .card-glow { opacity: .55; box-shadow: 0 0 22px 4px var(--rc-b); }
+.card.flipped.r-common .card-glow { opacity: 0; }
+
+.card-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .58s cubic-bezier(.35, .1, .25, 1); }
+.card.flipped .card-inner { transform: rotateY(180deg); }
+.card-back, .card-face { position: absolute; inset: 0; border-radius: 12px; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
+
+.card-back {
+  background: #101a33 url("gacha-cardback.jpg") center / cover no-repeat;
+  box-shadow: 0 10px 18px rgba(0,0,0,.55), inset 0 0 0 1px rgba(217,178,90,.35);
+}
+/* 卡背內緣的透光帶：hover 時從邊往內滲 */
+.back-leak { position: absolute; inset: 0; border-radius: 12px; opacity: 0; transition: opacity .35s;
+  box-shadow: inset 0 0 26px 4px var(--rc-a), inset 0 0 0 2px var(--rc); }
+.card:not(.flipped):hover .back-leak, .card.charging .back-leak { opacity: 1; }
+
+.card-face {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #1b2440, #0d1426);
+  box-shadow: 0 10px 18px rgba(0,0,0,.55);
+  padding: 5px;
+}
+.face-frame {
+  position: absolute; inset: 0; border-radius: 12px; pointer-events: none;
+  border: 4px solid var(--rc);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.5), inset 0 0 0 3px rgba(255,255,255,.12);
+}
+.r-legendary .face-frame { border-image: linear-gradient(160deg, #ffd27a, #ff8000 45%, #c25200 60%, #ffd27a) 1; border-radius: 0; }
+.r-epic .face-frame { border-image: linear-gradient(160deg, #e2b6ff, #a335ee 45%, #6b1fa8 60%, #e2b6ff) 1; border-radius: 0; }
+.face-art {
+  position: absolute; left: 10px; right: 10px; top: 10px; height: 148px; border-radius: 8px 8px 0 0;
+  display: flex; align-items: flex-end; justify-content: center; overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 95%, var(--rc-b), transparent 70%),
+    radial-gradient(ellipse 100% 80% at 50% 0%, rgba(255,255,255,.08), transparent 60%),
+    linear-gradient(180deg, #223052, #141c33);
+}
+.face-art > svg, .face-art > img { display: block; height: auto; }
+.face-art .emoji { font-size: 78px; line-height: 1; padding-bottom: 20px; filter: drop-shadow(0 4px 4px rgba(0,0,0,.5)); }
+.face-art .floor { position: absolute; left: 12%; right: 12%; bottom: 8px; height: 14px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.45), transparent 70%); }
+.face-plate {
+  position: absolute; left: 10px; right: 10px; bottom: 10px; height: 38px; border-radius: 0 0 8px 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
+  border-top: 1px solid var(--rc);
+}
+.face-name { font-size: 14px; letter-spacing: .08em; color: #fff3d0; text-shadow: 0 1px 0 #000; white-space: nowrap; }
+.face-rarity { font-size: 10px; letter-spacing: .3em; color: var(--rc); text-shadow: 0 0 6px var(--rc-b); }
+.face-gem {
+  position: absolute; left: 50%; top: 150px; width: 16px; height: 16px; margin-left: -8px;
+  transform: rotate(45deg); border: 2px solid #fff3d0; border-radius: 3px;
+  background: radial-gradient(circle at 35% 35%, #fff, var(--rc) 55%);
+  box-shadow: 0 0 10px var(--rc-a);
+}
+.face-tag {
+  position: absolute; top: 14px; right: 14px; padding: 2px 7px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: .12em; transform: rotate(6deg) scale(0);
+  transition: transform .35s cubic-bezier(.2,1.6,.4,1) .25s;
+}
+.card.flipped .face-tag { transform: rotate(6deg) scale(1); }
+.face-tag.new { background: #ffd24a; color: #4a2f1a; box-shadow: 0 2px 0 #a66a37; }
+.face-tag.dup { background: rgba(0,0,0,.6); color: #cfd6e6; border: 1px solid rgba(255,255,255,.3); }
+/* ---------- 動態卡面（.live，由 gacha.js 的 live 控制器掛上） ----------
+   card-lift 的傾斜由 JS 每幀寫 inline；這裡管鍍膜、反光、餘燼與立繪回彈 */
+.card.live .card-lift { transition: none; }
+.card.live .card-glow { opacity: .9; }
+.face-art > svg, .face-art > img, .face-art > .emoji { transition: transform .45s cubic-bezier(.2,.9,.3,1.1); }
+.card.live .face-art > svg, .card.live .face-art > img, .card.live .face-art > .emoji { transition: none; }
+/* 鍍膜：一道跟著滑鼠走的斜向亮帶；史詩／傳說再疊彩虹／金箔（color-dodge 只在亮處發作） */
+.card { --mx: 50%; --my: 50%; --tilt: 0; }
+.face-holo {
+  position: absolute; inset: 0; border-radius: 12px; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.28), rgba(255,255,255,.06) 28%, transparent 55%);
+  mix-blend-mode: screen;
+  transition: opacity .35s;
+}
+.card.live .face-holo { opacity: calc(.45 + var(--tilt) * .55); }
+.r-rare .face-holo {
+  background:
+    linear-gradient(115deg, transparent calc(var(--mx) - 22%), rgba(160,210,255,.32) var(--mx), transparent calc(var(--mx) + 22%)),
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.22), transparent 50%);
+}
+.r-epic .face-holo {
+  background:
+    linear-gradient(115deg, transparent calc(var(--mx) - 30%), rgba(255,120,220,.35) calc(var(--mx) - 10%), rgba(120,220,255,.35) var(--mx), rgba(255,240,120,.3) calc(var(--mx) + 10%), transparent calc(var(--mx) + 30%)),
+    repeating-linear-gradient(115deg, rgba(255,255,255,.07) 0 2px, transparent 2px 7px),
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.25), transparent 50%);
+  mix-blend-mode: color-dodge;
+}
+.r-legendary .face-holo {
+  background:
+    linear-gradient(115deg, transparent calc(var(--mx) - 28%), rgba(255,200,90,.45) calc(var(--mx) - 8%), rgba(255,255,220,.55) var(--mx), rgba(255,140,40,.4) calc(var(--mx) + 8%), transparent calc(var(--mx) + 28%)),
+    repeating-linear-gradient(-30deg, rgba(255,220,140,.08) 0 3px, transparent 3px 9px),
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,240,200,.3), transparent 50%);
+  mix-blend-mode: color-dodge;
+}
+/* 跟著滑鼠跑的反光點，讓「這是一片有厚度的東西」 */
+.face-glare {
+  position: absolute; inset: 0; border-radius: 12px; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.35), transparent 22%);
+  transition: opacity .3s;
+}
+.card.live .face-glare { opacity: 1; }
+/* 餘燼：畫框底部慢慢飄上來的小光點，史詩紫、傳說橘 */
+.face-embers { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .5s; }
+.card.live .face-embers { opacity: 1; }
+.face-embers i {
+  position: absolute; bottom: 8px; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--rc); box-shadow: 0 0 6px var(--rc), 0 0 12px var(--rc-b);
+  animation: ember 3.2s linear infinite paused; opacity: 0;
+}
+.card.live .face-embers i { animation-play-state: running; }
+.face-embers i:nth-child(1) { left: 12%; animation-delay: 0s; }
+.face-embers i:nth-child(2) { left: 24%; animation-delay: -.7s; width: 3px; height: 3px; }
+.face-embers i:nth-child(3) { left: 36%; animation-delay: -1.4s; }
+.face-embers i:nth-child(4) { left: 48%; animation-delay: -2.1s; width: 2px; height: 2px; }
+.face-embers i:nth-child(5) { left: 58%; animation-delay: -.3s; }
+.face-embers i:nth-child(6) { left: 68%; animation-delay: -1.9s; width: 3px; height: 3px; }
+.face-embers i:nth-child(7) { left: 78%; animation-delay: -1.1s; }
+.face-embers i:nth-child(8) { left: 88%; animation-delay: -2.6s; width: 2px; height: 2px; }
+.face-embers i:nth-child(9) { left: 30%; animation-delay: -2.9s; }
+@keyframes ember {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(6px, -120px); opacity: 0; }
+}
+
+/* 翻開瞬間掃一道光，只掃一次 */
+.face-sheen { position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.35) 48%, transparent 58%);
+  background-size: 300% 100%; background-position: 130% 0; }
+.card.flipped .face-sheen { animation: face-sheen .9s ease-out .32s both; }
+@keyframes face-sheen { 0% { opacity: 1; background-position: 130% 0; } 100% { opacity: 0; background-position: -80% 0; } }
+/* 揭曉的一下：卡面本身也要「彈」——不是只有周圍在炸 */
+.card.reveal-pop .card-lift { animation: reveal-pop .5s cubic-bezier(.2,1.2,.3,1) both; }
+@keyframes reveal-pop { 0% { transform: scale(1); } 35% { transform: translateY(-14px) scale(1.14); } 100% { transform: translateY(-6px) scale(1.05); } }
+.card.flipped .card-lift { transform: translateY(-6px) scale(1.05); }
+
+
+.mini { position: relative; width: 96px; height: 134px; }
+.mini .card { position: absolute; left: 0; top: 0; margin: 0; transform: scale(.64); transform-origin: 0 0; opacity: 1; transition: none; cursor: default; pointer-events: none; }
+.mini:not(.locked) .card { pointer-events: auto; }
+.mini .card.live { z-index: 2; }
+.mini .card .card-inner { transform: rotateY(180deg); transition: none; }
+.mini .card .card-glow { display: none; }
+.mini .card .face-sheen, .mini .card .face-tag { display: none; }
+.mini .count { position: absolute; right: -4px; bottom: -4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #ffd24a; color: #4a2f1a; font-size: 12px; font-weight: 700; display: grid; place-items: center; box-shadow: 0 2px 0 #a66a37; }
+.mini.locked .card { filter: grayscale(1) brightness(.35); }
+.mini.locked::after { content: "?"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 34px; font-family: Georgia, serif; color: rgba(246,227,180,.45); }
+.mini.just { animation: mini-just 1.2s ease-out; }
+@keyframes mini-just { 0% { box-shadow: 0 0 0 0 rgba(255,210,74,.9); } 100% { box-shadow: 0 0 0 14px rgba(255,210,74,0); } }
+
+/* ================= 定案卡面：A 的實體感 + F 的局部透光（規格：docs/gacha/DESIGN-astra-round1.md §一） =================
+   厚框、暗玻璃畫窗、獨立玻璃名牌；鍍膜與反光只蓋畫窗，不洗名字與框線。
+   稀有度差異不只換色：普通霧面安靜、史詩四角扣、傳說頂部三齒扣＋卡背也有靜態橘漏光。 */
+.skin-af .card { --rim: 3px; --rim-hi: #b8babd; --ink-rarity: #b8babd; --wash: rgba(157,157,157,.06); --gem: 10px; --foil: .08; --glare: .05; }
+.skin-af .card.r-rare { --rim-hi: #78baff; --ink-rarity: #78baff; --wash: rgba(0,112,221,.14); --gem: 12px; --foil: .15; --glare: .09; }
+.skin-af .card.r-epic { --rim: 4px; --rim-hi: #d5a2ff; --ink-rarity: #d5a2ff; --wash: rgba(163,53,238,.17); --gem: 14px; --foil: .20; --glare: .12; }
+.skin-af .card.r-legendary { --rim: 4px; --rim-hi: #ffd28a; --ink-rarity: #ffc477; --wash: rgba(255,128,0,.20); --gem: 16px; --foil: .26; --glare: .15; }
+
+.skin-af .card-face { padding: 0; border-radius: 12px; background: linear-gradient(160deg, #202b43, #0d1423 65%); box-shadow: 0 8px 14px rgba(0,0,0,.46); }
+.skin-af .face-frame {
+  inset: 0; z-index: 5; border: 1px solid #101217; border-image: none; border-radius: 12px;
+  box-shadow: inset 0 0 0 var(--rim) var(--rc), inset 0 0 0 calc(var(--rim) + 1px) rgba(255,255,255,.14), inset 0 0 0 calc(var(--rim) + 3px) #101827;
+}
+.skin-af .face-art {
+  left: 10px; right: 10px; top: 10px; height: 148px; border: 0; border-radius: 7px; isolation: isolate;
+  background: radial-gradient(ellipse 85% 48% at 50% 100%, var(--wash), transparent 80%), linear-gradient(160deg, #29364f, #141d30 75%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), inset 0 2px 0 rgba(255,255,255,.04);
+}
+.skin-af .face-art > svg, .skin-af .face-art > img, .skin-af .face-art > .emoji { position: relative; z-index: 1; }
+.skin-af .face-art .floor { height: 10px; bottom: 8px; background: radial-gradient(ellipse, rgba(0,0,0,.36), transparent 72%); }
+.skin-af .face-plate {
+  left: 10px; right: 10px; bottom: 10px; height: 34px; padding: 2px 3px; gap: 0;
+  border: 1px solid rgba(255,255,255,.10); border-top-color: var(--rc); border-radius: 6px;
+  background: linear-gradient(180deg, #151c2b, #090e18); box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.skin-af .face-name { max-width: 100%; font-size: 13px; line-height: 17px; letter-spacing: .04em; color: #fff1d2; text-shadow: 0 1px 0 #000; white-space: nowrap; }
+.skin-af .face-rarity { font-size: 10px; line-height: 12px; letter-spacing: .22em; color: var(--ink-rarity); text-shadow: none; }
+.skin-af .face-gem {
+  z-index: 6; top: calc(158px - var(--gem) / 2); left: 50%; width: var(--gem); height: var(--gem); margin-left: calc(var(--gem) / -2);
+  border: 1px solid var(--rim-hi); border-radius: 2px; background: linear-gradient(135deg, var(--rim-hi), var(--rc) 45%, #202333); box-shadow: 0 0 0 2px #101827;
+}
+.skin-af .r-common .face-gem { background: #9d9d9d; border-color: #b8babd; }
+/* 史詩／傳說：四個內角扣 */
+.skin-af .r-epic .face-frame::after, .skin-af .r-legendary .face-frame::after {
+  content: ""; position: absolute; inset: 5px; border-radius: 7px; background-repeat: no-repeat;
+  background:
+    linear-gradient(var(--rim-hi), var(--rim-hi)) left top / 13px 2px no-repeat,
+    linear-gradient(var(--rim-hi), var(--rim-hi)) right top / 13px 2px no-repeat,
+    linear-gradient(var(--rim-hi), var(--rim-hi)) left bottom / 13px 2px no-repeat,
+    linear-gradient(var(--rim-hi), var(--rim-hi)) right bottom / 13px 2px no-repeat;
+}
+/* 傳說：頂部三齒扣（只在卡面；卡背要保持驚喜，指上去才透光） */
+.skin-af .r-legendary .face-frame::before {
+  content: ""; position: absolute; z-index: 2; left: calc(50% - 12px); top: 3px; width: 24px; height: 8px; background: #ffd28a;
+  clip-path: polygon(0 100%, 0 30%, 25% 58%, 50% 0, 75% 58%, 100% 30%, 100% 100%);
+}
+.skin-af .r-legendary .face-plate { box-shadow: 0 0 0 1px #5b3216, inset 0 0 0 1px rgba(255,196,119,.10); }
+.skin-af .face-tag { top: 15px; right: 15px; z-index: 7; font-size: 9px; line-height: 14px; padding: 1px 5px; letter-spacing: .04em; }
+
+/* 卡背：靜態預告，不閃 */
+.skin-af .card.flipped .card-glow { opacity: .25; }
+.skin-af .card.live .card-glow { opacity: .35; }
+
+/* 鍍膜／反光住在畫窗裡 */
+.skin-af .face-holo, .skin-af .face-glare { inset: 0; z-index: 2; border-radius: 7px; mix-blend-mode: screen; pointer-events: none; opacity: 0; transition: opacity .25s; }
+.skin-af .face-holo { background: linear-gradient(115deg, transparent calc(var(--mx) - 18%), var(--rim-hi) var(--mx), transparent calc(var(--mx) + 18%)); }
+.skin-af .face-glare { background: radial-gradient(circle at var(--mx) var(--my), #fff5df, transparent 24%); }
+.skin-af .card.live .face-holo { opacity: calc(var(--foil) * (.4 + var(--tilt) * .6)); }
+.skin-af .card.live .face-glare { opacity: var(--glare); }
+
+/* 餘燼：入場只飄一次（史詩 2 顆、傳說 4 顆） */
+.skin-af .face-embers { opacity: 1; transition: none; }
+.skin-af .face-embers i { animation: none; opacity: 0; box-shadow: 0 0 4px var(--rc); }
+.skin-af .card.live-enter .face-embers i { animation: af-ember 900ms ease-out 1 both; }
+.skin-af .face-embers i:nth-child(n + 5) { display: none; }
+.skin-af .r-epic .face-embers i:nth-child(n + 3) { display: none; }
+.skin-af .r-legendary .face-embers i:nth-child(4) { background: #fff3d0; box-shadow: 0 0 4px #fff3d0; }
+@keyframes af-ember { 0% { transform: translateY(0); opacity: 0; } 18% { opacity: .55; } 100% { transform: translateY(-38px); opacity: 0; } }
+.skin-af .card.flipped .face-sheen { animation: none; }
+.skin-af .card.reveal-pop .face-sheen { animation: face-sheen 550ms ease-out 1 both; }
+
+/* 圖鑑：保留結構，拿掉細碎特效；未擁有只把立繪變黑影，框色保留讓分類看得出來 */
+.skin-af .mini { height: 135px; }
+.skin-af .mini .face-name { font-size: 15px; letter-spacing: 0; }
+.skin-af .mini .face-rarity { display: none; }
+.skin-af .mini .face-holo, .skin-af .mini .face-glare, .skin-af .mini .face-embers, .skin-af .mini .face-frame::after { display: none; }
+.skin-af .mini.locked .card { filter: none; }
+.skin-af .mini.locked .face-art > svg, .skin-af .mini.locked .face-art > img, .skin-af .mini.locked .face-art > .emoji { filter: brightness(0) !important; opacity: .72; }
+.skin-af .mini.locked .face-art { background: #1b2538; }
+.skin-af .mini.locked .face-name { visibility: hidden; }
+.skin-af .mini.locked .face-plate::after { content: "未擁有"; position: absolute; color: #aeb7c8; font-size: 15px; }
+.skin-af .mini.locked::after { display: none; }
+
+/* ready 是等待狀態：光帶只掃兩次就停，光暈靜態 */
+@media (prefers-reduced-motion: reduce) { .skin-af .face-embers { display: none; } }
+
+
+.table.state-revealing .card:not(.charging):not(.flipped) { pointer-events:none; }
+.table.state-revealing .card { cursor:default; }
+.table.state-presenting .card, .table.state-dealing .card { pointer-events:none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skin-af .card-lift, .skin-af .card:not(.flipped):not(.charging):hover .card-lift,
+  .skin-af .card.charging .card-lift { transform:none; animation:none; }
+  .skin-af .card.reveal-pop .face-sheen { animation:none; }
+}
+
+
+/* ================= 卡背透光（hover 預告）：像把卡舉到燈前面，光是從卡「裡面」透出來的 =================
+   四層：整片卡背由中心透出稀有度色（back-leak）→ 外圈光暈跟著呼吸（card-glow）→ 入場一道同色掃光（back-sweep）
+   → 史詩以上有光點從卡裡往上飄（back-motes）。普通只有一圈灰邊與抬起，安靜。沒 hover 什麼都不透——驚喜要留到你靠近。 */
+.skin-af .back-leak {
+  opacity: 0; transition: opacity .32s ease;
+  box-shadow: inset 0 0 0 2px var(--rc), inset 0 0 22px 6px var(--rc-a);
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 46%, var(--rc-a), transparent 72%),
+    radial-gradient(ellipse 120% 100% at 50% 50%, transparent 40%, var(--rc-b) 100%);
+  mix-blend-mode: screen;
+}
+.skin-af .r-rare .back-leak { --leak: .75; }
+.skin-af .r-epic .back-leak { --leak: .9; }
+.skin-af .r-legendary .back-leak { --leak: 1; }
+.skin-af .card:not(.flipped):hover .back-leak, .skin-af .card.charging .back-leak { opacity: var(--leak, 1); }
+.skin-af .r-common .back-leak { background: none; box-shadow: inset 0 0 0 1px #b8babd; mix-blend-mode: normal; --leak: .6; }
+/* 徽章亮起來：中央那圈奶油底跟著透出稀有度色，像燈就在卡後面 */
+.skin-af .back-leak::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 92px; height: 92px; margin: -46px 0 0 -46px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.55), var(--rc-a) 45%, transparent 72%);
+  mix-blend-mode: screen;
+}
+.skin-af .r-common .back-leak::before { display: none; }
+
+/* 外圈光暈：hover 時大一圈並呼吸；卡越貴呼吸越明顯 */
+.skin-af .card-glow { animation: none; opacity: 0; transition: opacity .32s; box-shadow: 0 0 26px 8px var(--rc-a), 0 0 70px 24px var(--rc-b); }
+.skin-af .card:not(.flipped):hover .card-glow, .skin-af .card.charging .card-glow { opacity: 1; animation: af-breathe 1.6s ease-in-out infinite; }
+.skin-af .r-rare .card-glow { box-shadow: 0 0 22px 6px var(--rc-a), 0 0 56px 18px var(--rc-b); }
+.skin-af .r-legendary .card-glow { box-shadow: 0 0 34px 12px var(--rc-a), 0 0 96px 34px var(--rc-b); }
+.skin-af .card.charging.hard .card-glow { animation-duration: .35s; box-shadow: 0 0 50px 18px var(--rc-a), 0 0 140px 60px var(--rc-b); }
+.skin-af .r-common .card-glow, .skin-af .r-common.live .card-glow, .skin-af .r-common:not(.flipped):hover .card-glow { opacity: 0; animation: none; }
+@keyframes af-breathe { 50% { opacity: .6; } }
+
+/* 入場掃光：hover 的第一拍，一道同色光從左上掃到右下（只掃一次） */
+.back-sweep {
+  position: absolute; inset: 0; border-radius: 12px; pointer-events: none; opacity: 0; mix-blend-mode: screen;
+  background: linear-gradient(115deg, transparent 38%, var(--rc-a) 48%, rgba(255,255,255,.55) 50%, var(--rc-a) 52%, transparent 62%);
+  background-size: 260% 100%; background-position: 140% 0;
+}
+.skin-af .card:not(.flipped):not(.r-common):hover .back-sweep { animation: back-sweep .7s ease-out 1 both; }
+@keyframes back-sweep { 0% { opacity: 1; background-position: 140% 0; } 100% { opacity: 0; background-position: -60% 0; } }
+
+/* 光點：史詩 3 顆、傳說 5 顆，從卡的下半部往上飄；只在 hover 時動 */
+.back-motes { position: absolute; inset: 0; pointer-events: none; }
+.back-motes i {
+  position: absolute; bottom: 30px; width: 5px; height: 5px; border-radius: 50%; opacity: 0;
+  background: #fff; box-shadow: 0 0 8px 2px var(--rc), 0 0 16px 6px var(--rc-b);
+  animation: back-mote 2.2s ease-out infinite paused;
+}
+.skin-af .card:not(.flipped):hover .back-motes i, .skin-af .card.charging .back-motes i { animation-play-state: running; }
+.back-motes i:nth-child(1) { left: 22%; animation-delay: 0s; }
+.back-motes i:nth-child(2) { left: 50%; animation-delay: -.8s; width: 4px; height: 4px; }
+.back-motes i:nth-child(3) { left: 74%; animation-delay: -1.5s; }
+.back-motes i:nth-child(4) { left: 36%; animation-delay: -.4s; width: 3px; height: 3px; }
+.back-motes i:nth-child(5) { left: 62%; animation-delay: -1.9s; width: 4px; height: 4px; }
+.r-rare .back-motes i:nth-child(n + 2), .r-epic .back-motes i:nth-child(n + 4) { display: none; }
+@keyframes back-mote {
+  0% { transform: translate(0, 0) scale(.6); opacity: 0; }
+  15% { opacity: .95; }
+  100% { transform: translate(6px, -110px) scale(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .back-motes, .back-sweep { display: none; } .skin-af .card-glow { animation: none !important; } }
+
+/* 遊戲宿主升星標籤 */
+.face-tag.star-up { background: #ffe29a url('clicker-star.png') 3px center / auto 13px no-repeat; color: #54382b; padding-left: 20px; letter-spacing: 0; } .face-tag.mastery { color: #ffe9b5; background: #5a422e; letter-spacing: 0; }
+
+/* 神話：兩套卡皮與縮圖共用整面彩虹，靜止時仍能辨認。 */
+@property --spin { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
+:root { --c-mythic:#FF4FD8; --mythic-rainbow:linear-gradient(115deg,#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff7ab8); }
+.character-png { width:128px; height:128px; object-fit:contain; object-position:center; }
+.face-art > .character-png { width:84%; height:84%; margin:auto; object-fit:contain; align-self:center; }
+/* 場景畫型的卡面（目前只有滅世珍獸）：鋪滿整個圖窗。84% + contain 是給去背角色用的，
+   套在不透明的橫幅畫上會縮成中間一小塊、四周露出深藍底（使用者回報「還不是滿版圖」）。 */
+.face-art > .character-png.bleed { width:100%; height:100%; margin:0; object-fit:cover; object-position:center; border-radius:8px 8px 0 0; }
+.card.r-mythic, .skin-af .card.r-mythic { --rc:var(--c-mythic); --rc-a:#ff4fd880; --rc-b:#5ad7ff55; --rim-hi:#fff275; --ink-rarity:#a91686; --gem:16px; --leak:1; --spin:0deg; animation:mythic-spin 6s linear infinite; }
+.r-mythic .card-face, .skin-af .r-mythic .card-face,
+.r-mythic .face-art, .skin-af .r-mythic .face-art { background:linear-gradient(115deg,#f5b7e7,#f8d7ac,#fff3ac,#b9efc4,#b4e8f8,#d5c4f5,#f4b8d9); }
+.r-mythic .face-frame, .skin-af .r-mythic .face-frame { border:4px solid #ff4fd8; border-image:conic-gradient(from var(--spin),#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8) 1; box-shadow:inset 0 0 12px #ff4fd880; }
+.r-mythic .face-plate, .skin-af .r-mythic .face-plate { background:linear-gradient(115deg,#ffc6ec,#fff0b6,#c3f5e7,#d7cbff); }
+.r-mythic .face-name, .skin-af .r-mythic .face-name { color:#472242; text-shadow:0 1px #fff8; }
+.r-mythic .face-rarity, .skin-af .r-mythic .face-rarity { color:#a91686; }
+.card.r-mythic .face-holo, .skin-af .card.r-mythic .face-holo, .skin-af .mini .card.r-mythic .face-holo { display:block; inset:0; z-index:4; opacity:.35; background:var(--mythic-rainbow); background-size:180% 180%; background-position:var(--mx) var(--my); mix-blend-mode:color-dodge; }
+.card.r-mythic .face-holo, .skin-af .card.r-mythic .face-holo {
+  mask:linear-gradient(#fff 0 0) 0 0 / 100% 100% no-repeat, linear-gradient(#fff 0 0) 10px 10px / calc(100% - 20px) 148px no-repeat;
+  mask-composite:exclude;
+}
+.r-mythic .face-gem, .skin-af .r-mythic .face-gem { background:conic-gradient(from var(--spin),#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8); }
+.r-mythic .back-leak, .skin-af .r-mythic .back-leak { background:conic-gradient(from var(--spin),#ff4fd888,#ffb34788,#fff27588,#7dff9c88,#5ad7ff88,#b48bff88,#ff4fd888); box-shadow:inset 0 0 40px 12px #ff4fd8,0 0 45px #5ad7ff; }
+.r-mythic .card-glow, .skin-af .r-mythic .card-glow { box-shadow:0 0 42px 16px #ff4fd888,0 0 110px 40px #5ad7ff66; }
+.card.r-mythic:hover .card-glow, .card.r-mythic.charging .card-glow,
+.skin-af .card.r-mythic:not(.flipped):hover .card-glow, .skin-af .card.r-mythic.charging .card-glow { animation:glow-throb .8s ease-in-out infinite; }
+.mythic-ripple::after { content:''; position:absolute; inset:-15px; pointer-events:none; border:6px solid #ff4fd8; border-image:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8) 1; animation:mythic-ripple .8s ease-out both; }
+.mythic-flash { position:absolute; inset:0; z-index:50; background:white; pointer-events:none; }
+.dim.mythic-dim { background:#080313ed; opacity:1; }
+.mythic-pack::after { content:''; position:absolute; inset:5%; background:var(--mythic-rainbow); mix-blend-mode:screen; opacity:.65; pointer-events:none; }
+.mythic-circle::after { content:''; position:absolute; inset:0; background:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8); mask:url('gacha-summon-circle.png') center/contain no-repeat; mix-blend-mode:screen; animation:mythic-hue 3s linear infinite; }
+.mythic-sweep { animation:mythic-hue 1.6s linear infinite; }
+@keyframes mythic-spin { to { --spin:360deg; } }
+@keyframes glow-throb { 50% { opacity:.6; } }
+@keyframes mythic-ripple { from { transform:scale(.9); opacity:1; } to { transform:scale(1.8); opacity:0; } }
+@keyframes mythic-hue { to { filter:hue-rotate(360deg); } }
+/* 轉彩：兩套卡皮共用精良 class，立繪保持真身；掃帶只跑一次。 */
+.card.veiled .face-embers { display:none; }
+.card.unveiling { overflow:hidden; }
+.card.unveiling::after {
+  content:''; position:absolute; inset:0; z-index:20; pointer-events:none; border-radius:12px;
+  background:linear-gradient(115deg, transparent 40%, #fff 50%, transparent 60%);
+  animation:unveil-sweep 420ms linear both;
+  clip-path:inset(0 round 12px);
+}
+@keyframes unveil-sweep {
+  from { transform:translate(-100%,100%); opacity:0; }
+  20%, 70% { opacity:.85; }
+  to { transform:translate(200%,-200%); opacity:0; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .card.r-mythic, .skin-af .card.r-mythic, .card.r-mythic .card-glow, .mythic-circle::after, .mythic-sweep { animation:none !important; }
+  .mythic-ripple::after { display:none; }
+  .card.unveiling::after { display:none; }
+}

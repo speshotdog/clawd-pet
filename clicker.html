@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="clicker-coin.png" />
+  <meta property="og:title" content="珍母點點" />
+  <meta property="og:description" content="和十二位夥伴一起拆零食包、發動技能、招募新朋友。" />
+  <meta property="og:image" content="og.png" />
+  <title>珍母點點</title>
+  <link rel="stylesheet" href="gacha-card.css" />
+  <link rel="stylesheet" href="clicker.css" />
+</head>
+<body>
+<div id="zoomer"><main id="game">
+  <div id="game-content">
+    <header id="topbar" class="topbar">
+      <h1>珍母點點</h1>
+      <div class="wallet"><img src="clicker-coin.png" alt="錢幣" /><b id="coins">0</b></div>
+      <div class="rates"><span id="click-rate">每次 1.0</span><span id="passive-rate">每秒 0.0</span></div>
+      <div class="audio-controls"><button id="audio-toggle" aria-label="音量設定" aria-expanded="false" aria-controls="audio-panel">♪</button>
+        <div id="audio-panel" role="group" aria-label="音量設定" hidden>
+          <div class="audio-row"><button id="music" type="button" aria-label="音樂靜音" aria-pressed="false">♪</button><span>音樂</span><input id="music-volume" aria-label="音樂音量" type="range" min="0" max="1" step=".01" value=".6"><output id="music-percent" for="music-volume">60%</output></div>
+          <div class="audio-row"><button id="mute" type="button" aria-label="音效靜音" aria-pressed="false">♫</button><span>音效</span><input id="sfx-volume" aria-label="音效音量" type="range" min="0" max="1" step=".01" value=".8"><output id="sfx-percent" for="sfx-volume">80%</output></div>
+        </div>
+      </div><button id="close" aria-label="關閉視窗">×</button>
+    </header>
+    <div id="stage-fit"><section id="stage" aria-label="拆包舞台">
+      <p id="tutorial">教學獎勵 · 點擊 50 次，玥玥直接入隊 <b id="tutorial-progress">0 / 50</b></p>
+      <div class="desk-mat"></div><img class="stage-flag" src="clicker-ui-flag.png" alt="" /><img class="tape stage-tape" src="clicker-ui-tape-1.png" alt="" /><i class="contact hero-contact"></i><i class="contact bag-contact"></i>
+      <div id="hero-light" aria-hidden="true"></div><div id="hero-position"><div id="hero"></div></div>
+      <button id="tap" aria-label="點珍母拆零食包（空白鍵也可以）"></button>
+      <div id="belt" hidden><div id="belt-track"></div><img id="belt-lamp" src="clicker-belt-lamp.png" alt="" onerror="this.style.visibility='hidden'" /><b id="belt-timer"></b></div>
+      <div id="bag"><img id="bag-image" src="clicker-bag-0.png" alt="零食包：完整" /><div id="shell-rings"></div></div>
+      <div id="triple" hidden><img class="sub-pack" data-sub="0" src="clicker-pack3-0.png" alt="第一包：完整" onerror="this.style.visibility='hidden'" /><img class="sub-pack" data-sub="1" src="clicker-pack3-0.png" alt="第二包：完整" onerror="this.style.visibility='hidden'" /><img class="sub-pack" data-sub="2" src="clicker-pack3-0.png" alt="第三包：完整" onerror="this.style.visibility='hidden'" /></div>
+      <div id="gift-clip" hidden><img id="gift-boss" src="clicker-gift-boss.png" alt="攤位老闆" onerror="this.style.visibility='hidden'" /></div>
+      <img id="gift-bag" src="clicker-gift-bag.png" alt="限時大禮包" hidden onerror="this.style.visibility='hidden'" />
+      <div id="gift-timer" hidden><i></i><b>15 秒</b></div>
+      <div id="targets"><button class="sub-hot" data-sub="0" aria-label="拆第一包" hidden></button><button class="sub-hot" data-sub="1" aria-label="拆第二包" hidden></button><button class="sub-hot" data-sub="2" aria-label="拆第三包" hidden></button><button id="gift-hot" aria-label="拆限時大禮包" hidden></button></div>
+      <button id="boss-challenge" hidden>挑戰大罐頭！</button>
+      <div id="boss-view" hidden><img id="boss-image" src="clicker-boss-can.png" alt="大罐頭" onerror="this.style.visibility='hidden'" /><div id="boss-cracks"></div><div id="boss-shells"></div><div id="boss-health"><i></i><b></b></div></div>
+      <div id="boss-timer" hidden><i></i><b>30 秒</b></div><div id="boss-flash" hidden></div><div id="boss-banner" hidden></div>
+      <div id="parasite-label" hidden></div>
+      <div class="package-meter"><span id="package-label">第 1 包</span><progress id="package-progress" max="1" value="0"></progress><span id="package-number">0 / 100</span></div>
+      <div id="effect-label" hidden></div>
+      <p id="package-result" role="status"></p>
+    </section></div><div id="slots" aria-label="必殺技槽"></div><div id="stage-gap" aria-hidden="true"></div>
+    <aside id="shop" aria-label="商店">
+      <article class="upgrade"><img src="clicker-icon-hand.png" alt="" /><div><h2>攻擊力 <small id="click-level">Lv.0</small></h2><p id="click-next"></p></div><div class="purchase"><span class="price-ticket" id="click-ticket"><img src="clicker-coin.png" alt="金幣" /><b id="click-price"></b></span><button id="click-max">最多</button><button id="click-one">升級！</button></div></article>
+      <article class="upgrade"><img src="clicker-icon-train.png" alt="" /><div><h2>全隊訓練 <small id="training-level">Lv.0</small></h2><p id="training-next"></p></div><div class="purchase"><span class="price-ticket" id="training-ticket"><img src="clicker-coin.png" alt="金幣" /><b id="training-price"></b></span><button id="training-max">最多</button><button id="training-one">升級！</button></div></article>
+      <article class="recruit"><img src="gacha-pack.png" alt="夥伴卡包" /><div><h2>招募夥伴</h2><small>所有夥伴都會幫忙拆包</small></div><div class="purchase"><span class="price-ticket" id="draw-ticket"><img src="clicker-coin.png" alt="金幣" /><b id="draw-price"></b></span><button id="draw-one"></button><button id="draw-five"></button></div><small id="single-note"></small><p id="pity"></p><button id="recruit-open" class="text-button">選擇演出方式</button></article>
+    </aside>
+    <section id="team" aria-label="角色與技能">
+      <img class="tape team-tape" src="clicker-ui-tape-2.png" alt="" />
+      <header class="buddy-header"><h2><img class="badge" src="clicker-ui-badge-heart.png" alt="" />我的夥伴</h2><span id="notice" role="status" hidden></span><nav><button id="buddy-prev" aria-label="上一頁">‹</button><span id="buddy-page"></span><button id="buddy-next" aria-label="下一頁">›</button></nav></header>
+      <div id="buddies"></div>
+    </section>
+    <canvas id="click-fx" width="960" height="640" aria-hidden="true"></canvas><div id="floaters" aria-hidden="true"></div><div id="join-flight" aria-hidden="true"></div>
+    <footer><span id="completed">已拆 0 包</span><span id="next-goal">下一目標：50 點迎接玥玥</span><button id="stats-open"><img class="badge" src="clicker-ui-badge-star.png" alt="" />統計</button><button id="scene-open" disabled title="更多場景後續開放">場景</button><button id="wardrobe-open"><img class="badge" src="clicker-ui-hanger.png" alt="" />商店</button><button id="prestige-open" title="換桌布（輪迴）與印記商店">換桌布</button><button id="roster-open"><img class="badge" src="clicker-ui-badge-paw.png" alt="" />名冊 <b id="owned-count">0 / 12</b></button><span class="save-plate"><img class="badge" src="clicker-ui-badge-heart.png" alt="" /><span id="save-status" role="status">尚未儲存</span></span><button id="retry-save" hidden>重試儲存</button></footer>
+  </div>
+  <div id="cutin" aria-hidden="true"></div>
+  <section id="recruit-layer" class="table skin-af" role="dialog" aria-modal="true" aria-label="招募夥伴" hidden>
+    <header id="recruit-topbar"><b>招募夥伴</b><label>演出 <select id="mode-select"><option value="wish">流星投遞</option><option value="hearthstone">拆包桌面</option><option value="summon">腳印召喚陣</option><option value="stage">拉幕登場</option><option value="rip">撕包</option></select></label><button id="recruit-mute">音效開</button><button id="recruit-close">返回</button><button id="recruit-window-close">關閉視窗</button></header>
+    <div id="recruit-entry"><img src="gacha-pack.png" alt="夥伴卡包" /><h2>邀一位夥伴，一起開工。</h2><p id="recruit-pity"></p><div><button id="recruit-one"></button><button id="recruit-five"></button></div><p id="recruit-note"></p></div>
+    <div id="dim" class="dim"></div><div id="flash" class="flash"></div>
+    <canvas id="fx-under" class="fx fx-under" width="960" height="640"></canvas><div id="cards" class="cards"></div><canvas id="fx" class="fx" width="960" height="640"></canvas><div id="mode-root" class="mode-root"></div>
+    <div class="reveal-controls"><button id="reveal-all" hidden>全部翻開</button><button id="skip" hidden>略過演出</button><button id="collect" hidden>收下夥伴</button><button id="collect-again" hidden>收下並繼續五連</button></div><p id="recruit-hint" role="status"></p>
+  </section>
+  <section id="roster" class="panel album" role="dialog" aria-modal="true" aria-label="夥伴卡冊" hidden><header><h2>夥伴卡冊</h2><span>點卡片看細節。重複卡變成該夥伴的粉塵，5★ 之後可以升階、超越。</span><button id="train-all" disabled>平均訓練</button><button id="dust-open" class="dust-jar" title="萬用粉塵：兌換成指定夥伴的粉塵"><img src="clicker-ui-dust-jar.png" alt="" /><b id="dust-count">0</b></button><button id="recommend-open">推薦組合</button><button id="roster-close">返回</button></header><div id="album-book"><div class="album-page" id="album-left"></div><div class="album-page" id="album-right"></div><button id="album-prev" class="page-corner prev" aria-label="上一頁">‹</button><button id="album-next" class="page-corner next" aria-label="下一頁">›</button><span id="album-page" class="album-pageno"></span></div><div id="album-detail" hidden></div><div id="dust-shop" hidden></div></section>
+  <section id="wardrobe" class="panel wardrobe" role="dialog" aria-modal="true" aria-label="商店" hidden><header><h2 id="shop-title">商店</h2><span id="wardrobe-price"></span><button id="shop-back" hidden>回到分類</button><button id="wardrobe-close">返回</button></header><div id="shop-cats"></div><div id="wardrobe-body" hidden><div class="wardrobe-col" data-cat="sounds"><div id="wardrobe-sounds"></div></div><div class="wardrobe-col" data-cat="fx"><div id="wardrobe-fx"></div></div><div class="wardrobe-col" data-cat="decor"><small id="wardrobe-decor-price"></small><div id="wardrobe-decor"></div></div></div><p class="wardrobe-hint" id="shop-hint">挑一個分類逛逛。買過的永久保留。</p></section>
+  <section id="scenes" class="small-panel" role="dialog" aria-modal="true" aria-label="場景票券" hidden><h2>下一站，在哪拆？</h2><div id="scene-tickets"></div><button id="scenes-close">回到桌邊</button></section>
+  <section id="prestige" class="panel prestige" role="dialog" aria-modal="true" aria-label="換桌布" hidden><header><h2>換一張新桌布</h2><span id="prestige-summary"></span><button id="prestige-close">返回</button></header><div id="prestige-body"></div></section>
+  <section id="stats" class="panel badge-wall" role="dialog" aria-modal="true" aria-label="里程碑徽章牆" hidden>
+    <header><h2><img class="badge" src="clicker-ui-badge-star.png" alt="" />里程碑徽章牆 <b id="badge-count">0 / 17</b></h2><span id="stats-body"></span><button id="stats-close">繼續開工</button></header>
+    <div id="badge-grid"></div>
+    <div id="stats-tools"><button id="pick100-open" hidden>第 100 包・12 選 1</button><button id="badge-share">分享卡</button><button id="io-export">匯出存檔</button><button id="io-import">匯入存檔</button></div>
+    <div id="save-io" hidden><textarea id="io-text" aria-label="存檔字串" spellcheck="false"></textarea><div class="io-row"><button id="io-copy">複製</button><button id="import-check">檢查</button><button id="import-confirm" hidden>確定覆蓋</button><span id="io-status" role="status"></span></div></div>
+  </section>
+  <section id="share" class="panel share-panel" role="dialog" aria-modal="true" aria-label="分享卡" hidden>
+    <header><h2>分享卡</h2><span id="share-status"></span><button id="share-close">返回</button></header>
+    <canvas id="share-canvas" width="960" height="540" aria-label="分享卡預覽"></canvas>
+    <div class="io-row"><button id="share-download">下載 PNG</button><button id="share-copy">複製到剪貼簿</button></div>
+  </section>
+  <section id="pick100" class="panel pick-panel" role="dialog" aria-modal="true" aria-label="第 100 包 12 選 1" hidden>
+    <header><h2>第 100 包・12 選 1</h2><span>選一位夥伴，送該角色粉塵 1 顆（等於一張卡）。只能選一次。</span><button id="pick100-close">稍後再選</button></header>
+    <div id="pick100-grid"></div>
+  </section>
+  <section id="daily-done" class="small-panel" role="dialog" aria-modal="true" aria-label="今日限定包" hidden><small>今日限定包拆開了</small><h2>今天的份，收下！</h2><p id="daily-done-text"></p><button id="daily-done-close">繼續開工</button></section>
+  <section id="receipt" class="small-panel" role="dialog" aria-modal="true" aria-label="離線收據" hidden><small>夥伴幫你收好了</small><h2>回來啦。</h2><p id="receipt-text"></p><button id="receipt-close">繼續開工</button></section>
+  <section id="save-error" class="small-panel" hidden><h2>存檔無法讀取</h2><p id="save-error-text"></p><button id="export-raw">匯出原始資料</button><textarea id="raw-save" aria-label="原始存檔" readonly hidden></textarea><button id="rescue-open">貼上存檔救回</button><div id="rescue" hidden><textarea id="rescue-text" aria-label="要貼上的存檔" spellcheck="false" placeholder="把存檔字串貼在這裡"></textarea><div class="io-row"><button id="rescue-load">讀進來</button><span id="rescue-status" role="status"></span></div></div><button id="error-close">關閉視窗</button></section>
+  <div id="fatal" role="alert" hidden></div>
+</main></div>
+<script src="character-config.js"></script><script src="gacha-pool.js"></script>
+<script src="gacha-audio.js"></script><script src="gacha-fx.js"></script><script src="gacha-card.js"></script><script src="gacha-mode-runtime.js"></script>
+<script src="gacha-mode-hearthstone.js"></script><script src="gacha-mode-wish.js"></script><script src="gacha-mode-summon.js"></script><script src="gacha-mode-stage.js"></script><script src="gacha-mode-rip.js"></script>
+<script src="clicker-scene.js"></script><script type="module" src="clicker-music.js"></script>
+<script src="clicker-balance.js"></script><script src="clicker-economy.js"></script><script src="clicker-extras.js"></script><script src="clicker-save.js"></script><script src="clicker-stage.js"></script><script src="clicker-gacha.js"></script><script src="clicker-album.js"></script><script src="clicker-prestige.js"></script><script src="clicker-prestige-ui.js"></script><script src="clicker-cutin.js"></script><script src="clicker.js"></script>
+</body>
+</html>

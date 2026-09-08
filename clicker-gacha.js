@@ -1,0 +1,206 @@
+window.ClickerGacha = (() => {
+  // 直式手機的演出座標系。橫式是 960×640（招募層本身就是那個大小），直式的招募層是整個畫面
+  // （390×844 之類），960 的座標會有四張卡直接掉在畫面外——跟切入演出踩過的是同一個坑。
+  // 改成一套 560×900 的直box，等比縮到畫面寬並置中；pad 是上下各留給頂欄與收下鍵的空間。
+  const PORTRAIT_BOX = { w: 560, h: 900, pad: 76 };
+  const portrait = () => matchMedia('(max-aspect-ratio: 3/4)').matches;
+  function create({ store, card, commit, changed, pauseStage, resumeStage, joined, notice, format, canOpen = () => true }) {
+    const $ = (id) => document.getElementById(id), E = window.ClickerEconomy;
+    let runtime = null, mode = null, state = 'idle', ready = false;
+    let currentId = null, summaryReady = false, busy = false, previousFocus = null;
+    let fastForwarding = false;   // 快轉中；再按一次略過鍵就是硬略過（每次重建 runtime 都要重置）
+    // 連抽時每一輪收下的夥伴先存著，等真的離開招募畫面再一次播入隊演出——
+    // 演出是在舞台上跑的，招募層蓋著的時候播等於白播。
+    let pendingJoins = [];
+    // 連抽好幾輪才一起播入隊演出時，同一個角色可能在不同輪都被抽到。
+    // stage.join() 是「一個角色一個目標圓鈕」的，同一個 id 出現兩次時第二次會查不到目標
+    //（它是照分頁分批的，第二次查的時候頁面已經翻到別批了）→ getBoundingClientRect of null。
+    const dedupe = (list) => { const seen = new Set(); return list.filter(e => !seen.has(e.id) && seen.add(e.id)); };
+    const layer = $('recruit-layer');
+    function priceButton(el, count, s, supported) {
+      const cost = E.drawCost(s, Math.max(0,count-(s.freeDraws || 0))), missing = Math.max(0, Math.ceil(cost - s.coins));
+      el.textContent = el.id === 'draw-one' ? '招募！' : el.id === 'draw-five' ? '五連' : `${count === 1 ? '單抽' : '五連'} · ${format(cost)}`; el.title = String(cost);
+        if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price'; price.textContent = s.freeDraws ? `免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}` : format(cost); el.append(price); }
+      if (s.freeDraws && el.id.startsWith('recruit-')) el.textContent=`${count===1?'單抽':'五連'} · 免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}`;
+      if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)}`; el.append(note); }
+      el.disabled = !ready || !canOpen() || store.blocked || !!s.boss || !!s.pending || !supported || missing > 0 || busy;
+    }
+    function render() {
+      const s = store.state; if (!s) return;
+      $('draw-price').textContent = s.freeDraws ? `免費 ×${s.freeDraws}` : format(E.drawCost(s, 1)); $('draw-ticket').title = String(E.drawCost(s, Math.max(0,1-s.freeDraws)));
+      const supported = window.GachaModes[s.settings.mode].counts.includes(1);
+      const note = supported ? '' : '此演出只支援五連；單抽請選流星或拆包桌面。';
+      for (const id of ['draw-one', 'recruit-one']) priceButton($(id), 1, s, supported);
+      for (const id of ['draw-five', 'recruit-five']) priceButton($(id), 5, s, true);
+      for (const id of ['pity', 'recruit-pity']) $(id).textContent = `最多再 ${40 - s.pity.sinceLegendary} 抽必得傳說`;
+      $('single-note').textContent = supported ? '' : '此模式限五連；單抽請切換演出。'; $('recruit-note').textContent = note;
+      $('mode-select').value = s.settings.mode; $('mode-select').disabled = !!s.pending || store.blocked;
+      $('recruit-close').disabled = !!s.pending;
+      $('collect').disabled = store.blocked || busy;
+      $('recruit-mute').textContent = s.settings.muted ? '音效關' : '音效開';
+    }
+    function open() {
+      if (!store.state || !ready || store.state.boss || !canOpen()) return;
+      previousFocus = document.activeElement; layer.hidden = false; $('game-content').inert = true;
+      pauseStage(); window.GachaFx.init($('fx'), $('fx-under')); $('mode-select').focus(); render();
+    }
+    function cleanup() {
+      mode?.dispose(); mode = null; runtime?.stop(); runtime = null;
+      fastForwarding = false; $('skip').textContent = '略過演出';
+      card.liveEnd(); $('cards').replaceChildren(); $('mode-root').replaceChildren();
+      $('flash').classList.remove('on'); layer.classList.remove('charging-mode');
+    }
+    function close() {
+      if (store.state?.pending) return;
+      cleanup(); layer.hidden = true; $('game-content').inert = false; $('recruit-entry').hidden = false;
+      $('collect').hidden = $('collect-again').hidden = $('skip').hidden = $('reveal-all').hidden = true;
+      resumeStage(); previousFocus?.focus();
+      if (pendingJoins.length) { const all = pendingJoins; pendingJoins = []; joined(dedupe(all)); }
+    }
+    function summary() {
+      summaryReady = true; $('collect').hidden = false; $('skip').hidden = $('reveal-all').hidden = true;
+      // 錢是抽的當下就扣掉的，所以現在的 state 拿來算「還抽不抽得起下一次」是準的
+      const s = store.state, again = $('collect-again');
+      const cost = E.drawCost(s, Math.max(0, 5 - (s.freeDraws || 0)));
+      const affordable = cost <= s.coins && window.GachaModes[s.settings.mode].counts.includes(5);
+      again.hidden = !affordable;
+      again.textContent = s.freeDraws ? `收下並繼續五連 · 免費 ×${Math.min(5, s.freeDraws)}` : `收下並繼續五連 · ${format(cost)}`;
+      $('recruit-hint').textContent = affordable
+        ? '結果已儲存。收下後夥伴就會開始幫忙，或直接再抽一次。'
+        : '結果已儲存，收下後夥伴就會開始幫忙。';
+      $('collect').focus(); render();
+    }
+    function makeRuntime(draw) {
+      cleanup(); currentId = draw.id; summaryReady = false;
+      const name = store.state.settings.mode;
+      // 演出的座標系跟著版面走：橫式 960×640；直式改一套 560×900 的直box（見 PORTRAIT_BOX），
+      // 五連在直式排成 2+3 兩排。⚠ 特效畫布的 width/height 是「屬性」，GachaFx.init 只在
+      // 這裡讀一次（gacha-fx.js 的 W=el.width），所以一定要在 init 之前改。
+      const P = portrait(), box = P ? { width: PORTRAIT_BOX.w, height: PORTRAIT_BOX.h } : { width: 960, height: 640 };
+      const mid = { x: box.width / 2, y: box.height / 2 };
+      for (const c of [$('fx'), $('fx-under')]) { c.width = box.width; c.height = box.height; }
+      window.GachaFx.init($('fx'), $('fx-under'));
+      $('mode-root').className = `mode-root mode-${name}`;
+      runtime = window.GachaModeRuntime.create({
+        root: $('mode-root'), size: box, center: mid,
+        cardsEl: $('cards'), dim: $('dim'), card, mode: name,
+        layout(i, count) {
+          if (count === 1) return { x: mid.x, y: mid.y, rot: 0 };
+          if (P) {
+            // 直式 2+3：上排兩張（i=0,1）、下排三張（i=2,3,4）。
+            // 卡片 150 寬、半寬 75：下排最外側中心 ±172 → 邊緣落在 33／527，560 的框裡放得下。
+            const top = i < 2, n = top ? i - .5 : i - 3;
+            return { x: mid.x + n * (top ? 176 : 172), y: top ? 330 : 580, rot: n * (top ? 8 : 5) };
+          }
+          const n = i - 2;
+          return { x: 480 + n * 168, y: 320 + Math.abs(n) ** 2 * 6.5, rot: n * 4 };
+        },
+        state(next) { layer.classList.remove(`state-${state}`); state = next; layer.classList.add(`state-${state}`); },
+        isFanned: () => state === 'fanned', isAuto: () => true,
+        onCards() {}, onReveal() {}, summary,
+        interactive() { $('reveal-all').hidden = false; },
+        error(err) { notice(`演出中斷，已保留結果：${err.message}`); skip(); },
+        shake(soft) {
+          // 沿用演示區的整桌震（gacha.css 的 shake / shake-soft keyframes，搬到 clicker.css）
+          const cls = soft ? 'shake-soft' : 'shake';
+          layer.classList.remove('shake', 'shake-soft'); void layer.offsetWidth;
+          layer.classList.add(cls); layer.addEventListener('animationend', () => layer.classList.remove(cls), { once: true });
+        },
+        flash() { $('flash').classList.remove('on'); void $('flash').offsetWidth; $('flash').classList.add('on'); },
+        charging(on) { layer.classList.toggle('charging-mode', on); },
+      }, draw);
+      return runtime;
+    }
+    function skip() {
+      if (!runtime || !store.state?.pending) return;
+      mode?.skip(); runtime.skip();
+    }
+    // 「快轉」：掃過去，但沒抽過的卡會停下來把翻牌演出播完。
+    // 作法是照 restore() 那條路重建一個乾淨的 runtime 再快轉——
+    // 這樣五種演出模式（含 rip／stage 那兩個自己跑時間軸的）行為一致，
+    // 也不必去拆各家模式的 skip 語意：按下快轉的當下，那一套劇場本來就結束了。
+    function fastForward() {
+      if (!runtime || !store.state?.pending || fastForwarding) return;
+      const run = makeRuntime(store.state.pending.draw);
+      // ⚠ 順序：makeRuntime() 內部會跑 cleanup()，而 cleanup() 會把旗標與按鈕字樣重置，
+      //   所以這兩行一定要排在它後面，不然按下去馬上又變回「略過演出」。
+      fastForwarding = true;
+      $('reveal-all').hidden = true;
+      $('skip').textContent = '全部略過';          // 逃生口：再按一次就是真的全部略過
+      run.run(run.fastForward((item) => {
+        // 停在這張是有原因的，要講出來，否則玩家以為快轉壞掉
+        $('recruit-hint').textContent = `新夥伴・${item.entry.name}`;
+      }));
+    }
+    async function start(count) {
+      const s = store.state;
+      if (!ready || !canOpen() || busy || store.blocked || s.boss || s.pending || !window.GachaModes[s.settings.mode].counts.includes(count)) return;
+      busy = true;
+      try {
+        const next = E.purchaseDraw(s, count, Date.now(), window.GachaPool);
+        // 唯一寫入包含扣款、抽數、保底及 pending。成功以前沒有演出。
+        if (!commit(next)) return;
+        const ticket = $('draw-ticket'); ticket.getAnimations().forEach(a=>a.cancel());
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ticket.animate([{transform:'scale(1)'},{transform:'scale(.96)',offset:.5},{transform:'scale(1)'}],{duration:140});
+        open(); $('recruit-entry').hidden = true; $('collect').hidden = true; $('skip').hidden = false;
+        $('recruit-hint').textContent = ''; const run = makeRuntime(store.state.pending.draw);
+        if (s.settings.mode === 'hearthstone') {
+          const pack = document.createElement('div'); pack.className = 'pack'; $('mode-root').append(pack);
+        }
+        mode = window.GachaModes[s.settings.mode].create(run.ctx);
+        run.run(mode.open(store.state.pending.draw));
+      } catch (err) { notice(err.message); }
+      finally { busy = false; changed(); render(); }
+    }
+    function collect(stay = false) {
+      if (!summaryReady || busy || store.blocked) return;
+      busy = true;
+      try {
+        // 起飛點要換算成 #join-flight 自己的座標系（入隊演出就畫在那一層）。
+        // ⚠ 不能寫死 /960：橫式時 #join-flight 確實是 960 寬，直式它蓋滿畫面、座標就是畫面像素。
+        // clicker-stage.js 的 join() 用同一套映射算落點，兩邊一致才不會飛歪。
+        const jf = $('join-flight'), jr = jf.getBoundingClientRect();
+        const zoom = jf.clientWidth ? jr.width / jf.clientWidth : 1, cards = [...$('cards').children];
+        const entries = store.state.pending.draw.entries.map((item,i) => {
+          const r = cards[i]?.getBoundingClientRect();
+          return {id:item.entry.id, origin:r ? {x:(r.left+r.width/2-jr.left)/zoom,y:(r.top+r.height/2-jr.top)/zoom}
+                                             : {x:jf.clientWidth/2,y:jf.clientHeight/2}};
+        });
+        const result = E.collect(store.state, currentId, Date.now());
+        if (!result.accepted || !commit(result.state)) return;
+        summaryReady = false; currentId = null; changed();
+        if (stay) { pendingJoins.push(...entries); $('collect').hidden = $('collect-again').hidden = true; busy = false; start(5); return; }
+        close(); joined(dedupe([...pendingJoins.splice(0), ...entries]));
+      } catch (err) { notice(err.message); }
+      finally { busy = false; render(); }
+    }
+    function restore() {
+      if (!store.state.pending || !ready) return;
+      open(); $('recruit-entry').hidden = true;
+      // pending 保留 veil；沿用重開直接總覽，由 runtime 將卡面還原真實色階。
+      makeRuntime(store.state.pending.draw).skip();
+    }
+    $('draw-one').onclick = $('recruit-one').onclick = () => start(1);
+    $('draw-five').onclick = $('recruit-five').onclick = () => start(5);
+    $('recruit-open').onclick = open; $('recruit-close').onclick = close;
+    // ⚠ 不能寫 onclick = collect：DOM 會把事件物件當成第一個參數傳進去，stay 就變成 truthy
+    $('collect').onclick = () => collect(false);
+    $('collect-again').onclick = () => collect(true);
+    // 第一下＝快轉（新卡會停），第二下＝真的全部略過
+    $('skip').onclick = () => (fastForwarding ? skip() : fastForward());
+    $('reveal-all').onclick = () => runtime?.all();
+    $('mode-select').onchange = () => {
+      if (store.blocked || store.state.pending) { render(); return; }
+      const s = E.settle(store.state, Date.now()).state; s.settings.mode = $('mode-select').value;
+      commit(s); render();
+    };
+    return { render, open, close, restore, start, collect, get active() { return !layer.hidden; },
+      setReady() { ready = true; render(); },
+      suspend() {
+        // 隱藏後不留 runtime 等待、卡面動畫或粒子；回來以 pending 重建靜態總覽。
+        cleanup(); $('collect').hidden = $('skip').hidden = $('reveal-all').hidden = true;
+      }, canHover: () => !document.hidden && !layer.hidden && summaryReady,
+    };
+  }
+  return { create, PORTRAIT_BOX, portrait };
+})();

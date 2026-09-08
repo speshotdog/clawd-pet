@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="clicker-coin.png" />
+  <meta property="og:title" content="珍母點點" />
+  <meta property="og:description" content="和十二位夥伴一起拆零食包、發動技能、招募新朋友。" />
+  <meta property="og:image" content="og.png" />
+  <title>珍母點點</title>
+  <link rel="stylesheet" href="gacha-card.css?v=0cb8b1a" />
+  <link rel="stylesheet" href="clicker.css?v=0cb8b1a" />
+</head>
+<body>
+<div id="zoomer"><main id="game">
+  <div id="game-content">
+    <header id="topbar" class="topbar">
+      <h1>珍母點點</h1>
+      <div class="wallet"><img src="clicker-coin.png" alt="錢幣" /><b id="coins">0</b></div>
+      <div class="rates"><span id="click-rate">每次 1.0</span><span id="passive-rate">每秒 0.0</span></div>
+      <div class="audio-controls"><button id="audio-toggle" aria-label="音量設定" aria-expanded="false" aria-controls="audio-panel">♪</button>
+        <div id="audio-panel" role="group" aria-label="音量設定" hidden>
+          <div class="audio-row"><button id="music" type="button" aria-label="音樂靜音" aria-pressed="false">♪</button><span>音樂</span><input id="music-volume" aria-label="音樂音量" type="range" min="0" max="1" step=".01" value=".6"><output id="music-percent" for="music-volume">60%</output></div>
+          <div class="audio-row"><button id="mute" type="button" aria-label="音效靜音" aria-pressed="false">♫</button><span>音效</span><input id="sfx-volume" aria-label="音效音量" type="range" min="0" max="1" step=".01" value=".8"><output id="sfx-percent" for="sfx-volume">80%</output></div>
+        </div>
+      </div><button id="close" aria-label="關閉視窗">×</button>
+    </header>
+    <div id="stage-fit"><section id="stage" aria-label="拆包舞台">
+      <p id="tutorial">教學獎勵 · 點擊 50 次，玥玥直接入隊 <b id="tutorial-progress">0 / 50</b></p>
+      <div class="desk-mat"></div><img class="stage-flag" src="clicker-ui-flag.png" alt="" /><img class="tape stage-tape" src="clicker-ui-tape-1.png" alt="" /><i class="contact hero-contact"></i><i class="contact bag-contact"></i>
+      <div id="hero-light" aria-hidden="true"></div><div id="hero-position"><div id="hero"></div></div>
+      <button id="tap" aria-label="點珍母拆零食包（空白鍵也可以）"></button>
+      <div id="belt" hidden><div id="belt-track"></div><img id="belt-lamp" src="clicker-belt-lamp.png" alt="" onerror="this.style.visibility='hidden'" /><b id="belt-timer"></b></div>
+      <div id="bag"><img id="bag-image" src="clicker-bag-0.png" alt="零食包：完整" /><div id="shell-rings"></div></div>
+      <div id="triple" hidden><img class="sub-pack" data-sub="0" src="clicker-pack3-0.png" alt="第一包：完整" onerror="this.style.visibility='hidden'" /><img class="sub-pack" data-sub="1" src="clicker-pack3-0.png" alt="第二包：完整" onerror="this.style.visibility='hidden'" /><img class="sub-pack" data-sub="2" src="clicker-pack3-0.png" alt="第三包：完整" onerror="this.style.visibility='hidden'" /></div>
+      <div id="gift-clip" hidden><img id="gift-boss" src="clicker-gift-boss.png" alt="攤位老闆" onerror="this.style.visibility='hidden'" /></div>
+      <img id="gift-bag" src="clicker-gift-bag.png" alt="限時大禮包" hidden onerror="this.style.visibility='hidden'" />
+      <div id="gift-timer" hidden><i></i><b>15 秒</b></div>
+      <div id="targets"><button class="sub-hot" data-sub="0" aria-label="拆第一包" hidden></button><button class="sub-hot" data-sub="1" aria-label="拆第二包" hidden></button><button class="sub-hot" data-sub="2" aria-label="拆第三包" hidden></button><button id="gift-hot" aria-label="拆限時大禮包" hidden></button></div>
+      <button id="boss-challenge" hidden>挑戰大罐頭！</button>
+      <div id="boss-view" hidden><img id="boss-image" src="clicker-boss-can.png" alt="大罐頭" onerror="this.style.visibility='hidden'" /><div id="boss-cracks"></div><div id="boss-shells"></div><div id="boss-health"><i></i><b></b></div></div>
+      <div id="boss-timer" hidden><i></i><b>30 秒</b></div><div id="boss-flash" hidden></div><div id="boss-banner" hidden></div>
+      <div id="parasite-label" hidden></div>
+      <div class="package-meter"><span id="package-label">第 1 包</span><progress id="package-progress" max="1" value="0"></progress><span id="package-number">0 / 100</span></div>
+      <div id="effect-label" hidden></div>
+      <p id="package-result" role="status"></p>
+    </section></div><div id="slots" aria-label="必殺技槽"></div><div id="stage-gap" aria-hidden="true"></div>
+    <aside id="shop" aria-label="商店">
+      <article class="upgrade"><img src="clicker-icon-hand.png" alt="" /><div><h2>攻擊力 <small id="click-level">Lv.0</small></h2><p id="click-next"></p></div><div class="purchase"><span class="price-ticket" id="click-ticket"><img src="clicker-coin.png" alt="金幣" /><b id="click-price"></b></span><button id="click-max">最多</button><button id="click-one">升級！</button></div></article>
+      <article class="upgrade"><img src="clicker-icon-train.png" alt="" /><div><h2>全隊訓練 <small id="training-level">Lv.0</small></h2><p id="training-next"></p></div><div class="purchase"><span class="price-ticket" id="training-ticket"><img src="clicker-coin.png" alt="金幣" /><b id="training-price"></b></span><button id="training-max">最多</button><button id="training-one">升級！</button></div></article>
+      <article class="recruit"><img src="gacha-pack.png" alt="夥伴卡包" /><div><h2>招募夥伴</h2><small>所有夥伴都會幫忙拆包</small></div><div class="purchase"><span class="price-ticket" id="draw-ticket"><img src="clicker-coin.png" alt="金幣" /><b id="draw-price"></b></span><button id="draw-one"></button><button id="draw-five"></button></div><small id="single-note"></small><p id="pity"></p><button id="recruit-open" class="text-button">選擇演出方式</button></article>
+    </aside>
+    <section id="team" aria-label="角色與技能">
+      <img class="tape team-tape" src="clicker-ui-tape-2.png" alt="" />
+      <header class="buddy-header"><h2><img class="badge" src="clicker-ui-badge-heart.png" alt="" />我的夥伴</h2><span id="notice" role="status" hidden></span><nav><button id="buddy-prev" aria-label="上一頁">‹</button><span id="buddy-page"></span><button id="buddy-next" aria-label="下一頁">›</button></nav></header>
+      <div id="buddies"></div>
+    </section>
+    <canvas id="click-fx" width="960" height="640" aria-hidden="true"></canvas><div id="floaters" aria-hidden="true"></div><div id="join-flight" aria-hidden="true"></div>
+    <footer><span id="completed">已拆 0 包</span><span id="next-goal">下一目標：50 點迎接玥玥</span><button id="stats-open"><img class="badge" src="clicker-ui-badge-star.png" alt="" />統計</button><button id="scene-open" disabled title="更多場景後續開放">場景</button><button id="wardrobe-open"><img class="badge" src="clicker-ui-hanger.png" alt="" />商店</button><button id="prestige-open" title="換桌布（輪迴）與印記商店">換桌布</button><button id="roster-open"><img class="badge" src="clicker-ui-badge-paw.png" alt="" />名冊 <b id="owned-count">0 / 12</b></button><span class="save-plate"><img class="badge" src="clicker-ui-badge-heart.png" alt="" /><span id="save-status" role="status">尚未儲存</span></span><button id="retry-save" hidden>重試儲存</button></footer>
+  </div>
+  <div id="cutin" aria-hidden="true"></div>
+  <section id="recruit-layer" class="table skin-af" role="dialog" aria-modal="true" aria-label="招募夥伴" hidden>
+    <header id="recruit-topbar"><b>招募夥伴</b><label>演出 <select id="mode-select"><option value="wish">流星投遞</option><option value="hearthstone">拆包桌面</option><option value="summon">腳印召喚陣</option><option value="stage">拉幕登場</option><option value="rip">撕包</option></select></label><button id="recruit-mute">音效開</button><button id="recruit-close">返回</button><button id="recruit-window-close">關閉視窗</button></header>
+    <div id="recruit-entry"><img src="gacha-pack.png" alt="夥伴卡包" /><h2>邀一位夥伴，一起開工。</h2><p id="recruit-pity"></p><div><button id="recruit-one"></button><button id="recruit-five"></button></div><p id="recruit-note"></p></div>
+    <div id="dim" class="dim"></div><div id="flash" class="flash"></div>
+    <canvas id="fx-under" class="fx fx-under" width="960" height="640"></canvas><div id="cards" class="cards"></div><canvas id="fx" class="fx" width="960" height="640"></canvas><div id="mode-root" class="mode-root"></div>
+    <div class="reveal-controls"><button id="reveal-all" hidden>全部翻開</button><button id="skip" hidden>略過演出</button><button id="collect" hidden>收下夥伴</button><button id="collect-again" hidden>收下並繼續五連</button></div><p id="recruit-hint" role="status"></p>
+  </section>
+  <section id="roster" class="panel album" role="dialog" aria-modal="true" aria-label="夥伴卡冊" hidden><header><h2>夥伴卡冊</h2><span>點卡片看細節。重複卡變成該夥伴的粉塵，5★ 之後可以升階、超越。</span><button id="train-all" disabled>平均訓練</button><button id="dust-open" class="dust-jar" title="萬用粉塵：兌換成指定夥伴的粉塵"><img src="clicker-ui-dust-jar.png" alt="" /><b id="dust-count">0</b></button><button id="recommend-open">推薦組合</button><button id="roster-close">返回</button></header><div id="album-book"><div class="album-page" id="album-left"></div><div class="album-page" id="album-right"></div><button id="album-prev" class="page-corner prev" aria-label="上一頁">‹</button><button id="album-next" class="page-corner next" aria-label="下一頁">›</button><span id="album-page" class="album-pageno"></span></div><div id="album-detail" hidden></div><div id="dust-shop" hidden></div></section>
+  <section id="wardrobe" class="panel wardrobe" role="dialog" aria-modal="true" aria-label="商店" hidden><header><h2 id="shop-title">商店</h2><span id="wardrobe-price"></span><button id="shop-back" hidden>回到分類</button><button id="wardrobe-close">返回</button></header><div id="shop-cats"></div><div id="wardrobe-body" hidden><div class="wardrobe-col" data-cat="sounds"><div id="wardrobe-sounds"></div></div><div class="wardrobe-col" data-cat="fx"><div id="wardrobe-fx"></div></div><div class="wardrobe-col" data-cat="decor"><small id="wardrobe-decor-price"></small><div id="wardrobe-decor"></div></div></div><p class="wardrobe-hint" id="shop-hint">挑一個分類逛逛。買過的永久保留。</p></section>
+  <section id="scenes" class="small-panel" role="dialog" aria-modal="true" aria-label="場景票券" hidden><h2>下一站，在哪拆？</h2><div id="scene-tickets"></div><button id="scenes-close">回到桌邊</button></section>
+  <section id="prestige" class="panel prestige" role="dialog" aria-modal="true" aria-label="換桌布" hidden><header><h2>換一張新桌布</h2><span id="prestige-summary"></span><button id="prestige-close">返回</button></header><div id="prestige-body"></div></section>
+  <section id="stats" class="panel badge-wall" role="dialog" aria-modal="true" aria-label="里程碑徽章牆" hidden>
+    <header><h2><img class="badge" src="clicker-ui-badge-star.png" alt="" />里程碑徽章牆 <b id="badge-count">0 / 17</b></h2><span id="stats-body"></span><button id="stats-close">繼續開工</button></header>
+    <div id="badge-grid"></div>
+    <div id="stats-tools"><button id="pick100-open" hidden>第 100 包・12 選 1</button><button id="badge-share">分享卡</button><button id="io-export">匯出存檔</button><button id="io-import">匯入存檔</button></div>
+    <div id="save-io" hidden><textarea id="io-text" aria-label="存檔字串" spellcheck="false"></textarea><div class="io-row"><button id="io-copy">複製</button><button id="import-check">檢查</button><button id="import-confirm" hidden>確定覆蓋</button><span id="io-status" role="status"></span></div></div>
+  </section>
+  <section id="share" class="panel share-panel" role="dialog" aria-modal="true" aria-label="分享卡" hidden>
+    <header><h2>分享卡</h2><span id="share-status"></span><button id="share-close">返回</button></header>
+    <canvas id="share-canvas" width="960" height="540" aria-label="分享卡預覽"></canvas>
+    <div class="io-row"><button id="share-download">下載 PNG</button><button id="share-copy">複製到剪貼簿</button></div>
+  </section>
+  <section id="pick100" class="panel pick-panel" role="dialog" aria-modal="true" aria-label="第 100 包 12 選 1" hidden>
+    <header><h2>第 100 包・12 選 1</h2><span>選一位夥伴，送該角色粉塵 1 顆（等於一張卡）。只能選一次。</span><button id="pick100-close">稍後再選</button></header>
+    <div id="pick100-grid"></div>
+  </section>
+  <section id="daily-done" class="small-panel" role="dialog" aria-modal="true" aria-label="今日限定包" hidden><small>今日限定包拆開了</small><h2>今天的份，收下！</h2><p id="daily-done-text"></p><button id="daily-done-close">繼續開工</button></section>
+  <section id="receipt" class="small-panel" role="dialog" aria-modal="true" aria-label="離線收據" hidden><small>夥伴幫你收好了</small><h2>回來啦。</h2><p id="receipt-text"></p><button id="receipt-close">繼續開工</button></section>
+  <section id="save-error" class="small-panel" hidden><h2>存檔無法讀取</h2><p id="save-error-text"></p><button id="export-raw">匯出原始資料</button><textarea id="raw-save" aria-label="原始存檔" readonly hidden></textarea><button id="rescue-open">貼上存檔救回</button><div id="rescue" hidden><textarea id="rescue-text" aria-label="要貼上的存檔" spellcheck="false" placeholder="把存檔字串貼在這裡"></textarea><div class="io-row"><button id="rescue-load">讀進來</button><span id="rescue-status" role="status"></span></div></div><button id="error-close">關閉視窗</button></section>
+  <div id="fatal" role="alert" hidden></div>
+</main></div>
+<script src="character-config.js?v=0cb8b1a"></script><script src="gacha-pool.js?v=0cb8b1a"></script>
+<script src="gacha-audio.js?v=0cb8b1a"></script><script src="gacha-fx.js?v=0cb8b1a"></script><script src="gacha-card.js?v=0cb8b1a"></script><script src="gacha-mode-runtime.js?v=0cb8b1a"></script>
+<script src="gacha-mode-hearthstone.js?v=0cb8b1a"></script><script src="gacha-mode-wish.js?v=0cb8b1a"></script><script src="gacha-mode-summon.js?v=0cb8b1a"></script><script src="gacha-mode-stage.js?v=0cb8b1a"></script><script src="gacha-mode-rip.js?v=0cb8b1a"></script>
+<script src="clicker-scene.js?v=0cb8b1a"></script><script type="module" src="clicker-music.js?v=0cb8b1a"></script>
+<script src="clicker-balance.js?v=0cb8b1a"></script><script src="clicker-economy.js?v=0cb8b1a"></script><script src="clicker-extras.js?v=0cb8b1a"></script><script src="clicker-save.js?v=0cb8b1a"></script><script src="clicker-stage.js?v=0cb8b1a"></script><script src="clicker-gacha.js?v=0cb8b1a"></script><script src="clicker-album.js?v=0cb8b1a"></script><script src="clicker-prestige.js?v=0cb8b1a"></script><script src="clicker-prestige-ui.js?v=0cb8b1a"></script><script src="clicker-cutin.js?v=0cb8b1a"></script><script src="clicker.js?v=0cb8b1a"></script>
+<template id="char-dog">
+    <svg id="pet" viewBox="0 0 311 346" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 腿的存根頂部是平切直邊，旋轉時直角會戳出身體輪廓（膝蓋刺刺感）；
+             用圓角裁切把直角修圓（裁切跟著腿一起旋轉，超界時只露圓肩不露尖角） -->
+        <clipPath id="clipLegL"><rect x="60" y="306" width="66" height="70" rx="14" /></clipPath>
+        <clipPath id="clipLegR"><rect x="138" y="306" width="62" height="70" rx="14" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="155" cy="338" rx="100" ry="9" />
+      <g id="root">
+        <g id="body">
+          <!-- 四肢（畫在身體後面，關節藏進輪廓裡，可獨立旋轉） -->
+          <g id="legL"><image href="legL.png" x="0" y="0" width="311" height="346" clip-path="url(#clipLegL)" /></g>
+          <g id="legR"><image href="legR.png" x="0" y="0" width="311" height="346" clip-path="url(#clipLegR)" /></g>
+          <g id="pawR"><image href="pawR.png" x="0" y="0" width="311" height="346" /></g>
+          <!-- 原圖本體（去背+去白邊，四肢已拆出） -->
+          <image href="body.png" x="0" y="0" width="311" height="346" />
+          <!-- 蓋住原圖畫死的眼睛（取樣自周圍底色；不隨視線移動） -->
+          <ellipse cx="95" cy="103" rx="15" ry="19" fill="#E6CD98" />
+          <ellipse cx="133" cy="107" rx="14.5" ry="19.5" fill="#E6CD98" />
+          <!-- 臉（可動圖層） -->
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><ellipse cx="95" cy="103" rx="10" ry="14" fill="#000" transform="rotate(10 95 103)" /></g>
+              <g class="eye"><ellipse cx="133" cy="107" rx="9.5" ry="14.5" fill="#000" transform="rotate(10 133 107)" /></g>
+            </g>
+            <g id="eyes-happy">
+              <path d="M84 107 Q95 94 106 107" />
+              <path d="M122 111 Q133 98 144 111" />
+            </g>
+            <g id="eyes-closed">
+              <path d="M85 104 Q95 112 105 104" />
+              <path d="M123 108 Q133 116 143 108" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-fox">
+    <svg id="pet" viewBox="61 94 495 467" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 切割邊是直邊，旋轉時直角會露出毛刺；圓角裁切跟著部件轉，只露圓肩 -->
+        <clipPath id="clipFoxLegL"><rect x="228" y="493" width="70" height="64" rx="13" /></clipPath>
+        <clipPath id="clipFoxLegR"><rect x="336" y="493" width="70" height="62" rx="13" /></clipPath>
+        <clipPath id="clipFoxArm"><rect x="66" y="248" width="192" height="220" rx="18" /></clipPath>
+        <clipPath id="clipFoxTail"><rect x="432" y="348" width="118" height="210" rx="18" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="308" cy="550" rx="150" ry="9" />
+      <g id="root">
+        <g id="body">
+          <!-- 部件（畫在身體後面，切割縫藏在輪廓／暗色交界裡） -->
+          <g id="tail"><image href="fox-tail.png" x="0" y="0" width="635" height="618" clip-path="url(#clipFoxTail)" /></g>
+          <g id="legL"><image href="fox-legL.png" x="0" y="0" width="635" height="618" clip-path="url(#clipFoxLegL)" /></g>
+          <g id="legR"><image href="fox-legR.png" x="0" y="0" width="635" height="618" clip-path="url(#clipFoxLegR)" /></g>
+          <g id="pawR"><image href="fox-arm.png" x="0" y="0" width="635" height="618" clip-path="url(#clipFoxArm)" /></g>
+          <!-- 原圖本體（去背＋去花，部件已拆出） -->
+          <image href="fox-body.png" x="0" y="0" width="635" height="618" />
+          <!-- 蓋住原圖畫死的眼睛（毛色純白；不隨視線移動的底） -->
+          <ellipse cx="295" cy="290" rx="14" ry="18" fill="#FFFFFF" />
+          <ellipse cx="337" cy="294" rx="14" ry="18" fill="#FFFFFF" />
+          <!-- 臉（可動圖層） -->
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><ellipse cx="295" cy="290" rx="9" ry="13.5" fill="#000" /></g>
+              <g class="eye"><ellipse cx="337" cy="294" rx="9" ry="13.5" fill="#000" /></g>
+            </g>
+            <g id="eyes-happy">
+              <path style="stroke-width:15" d="M276 296 Q291 280 306 296" />
+              <path style="stroke-width:15" d="M326 300 Q341 284 356 300" />
+            </g>
+            <g id="eyes-closed">
+              <path style="stroke-width:15" d="M277 289 Q291 301 305 289" />
+              <path style="stroke-width:15" d="M327 293 Q341 305 355 293" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-jiaobu">
+    <svg id="pet" viewBox="121 63 553 635" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 裁切矩形比挖除區外擴 8px：圓角只咬空白邊，不吃存根覆蓋區 -->
+        <clipPath id="clipJbLegL"><rect x="160" y="621" width="148" height="97" rx="14" /></clipPath>
+        <clipPath id="clipJbLegR"><rect x="470" y="621" width="148" height="97" rx="14" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="397" cy="688" rx="175" ry="12" />
+      <g id="root">
+        <g id="body">
+          <!-- 定案工法（用戶規則）：pawR 刀臂前置，body 在手臂覆蓋區底下一律補「該處毛色」、
+               不留任何手臂/刀殘留（烘靜態副本會在抬刀後露出變殘影）；被手臂切斷的描邊斷頭
+               已在 body 圖磨圓（否則旋轉時形成深-淺-深裂縫）。 -->
+          <g id="tail"><image href="jiaobu-tail.png" x="0" y="0" width="768" height="768" /></g>
+          <g id="legL"><image href="jiaobu-legL.png" x="0" y="0" width="768" height="768" clip-path="url(#clipJbLegL)" /></g>
+          <g id="legR"><image href="jiaobu-legR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipJbLegR)" /></g>
+          <!-- 原圖本體（手臂覆蓋區已補純毛色、斷頭已磨） -->
+          <image href="jiaobu-body.png" x="0" y="0" width="768" height="768" />
+          <!-- 刀臂前置：舉刀動作可見，移開後露出的是純毛色 -->
+          <g id="pawR"><image href="jiaobu-pawR.png" x="0" y="0" width="768" height="768" /></g>
+          <g id="face">
+            <!-- 原圖緊裁眼件；body 的眼區已烘回原圖底色。 -->
+            <g id="eyes-open">
+              <g class="eye"><image href="jiaobu-eyeL.png" x="294" y="303" width="28" height="42" /></g>
+              <g class="eye"><image href="jiaobu-eyeR.png" x="390" y="299" width="29" height="42" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="jiaobu-eyeL.png" x="294" y="303" width="28" height="42"
+                     transform="translate(0 -3) translate(308 324) scale(1 0.45) translate(-308 -324)" />
+              <image href="jiaobu-eyeR.png" x="390" y="299" width="29" height="42"
+                     transform="translate(0 -3) translate(404.5 320) scale(1 0.45) translate(-404.5 -320)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="jiaobu-eyeL.png" x="294" y="303" width="28" height="42"
+                     transform="translate(308 324) scale(1 0.12) translate(-308 -324)" />
+              <image href="jiaobu-eyeR.png" x="390" y="299" width="29" height="42"
+                     transform="translate(404.5 320) scale(1 0.12) translate(-404.5 -320)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-yueyue">
+    <svg id="pet" viewBox="40 21 688 726" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <clipPath id="clipYyLegL"><rect x="42" y="658" width="221" height="108" rx="14" /></clipPath>
+        <clipPath id="clipYyLegR"><rect x="447" y="658" width="176" height="108" rx="14" /></clipPath>
+        <clipPath id="clipYyArm"><rect x="30" y="392" width="130" height="162" rx="12" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="380" cy="738" rx="210" ry="12" />
+      <g id="root">
+        <g id="body">
+          <!-- 手臂根部與身體是灰對灰平色交界，切邊移動時隱形 -->
+          <g id="tail"><image href="yueyue-tail.png" x="0" y="0" width="768" height="768" /></g>
+          <g id="legL"><image href="yueyue-legL.png" x="0" y="0" width="768" height="768" clip-path="url(#clipYyLegL)" /></g>
+          <g id="legR"><image href="yueyue-legR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipYyLegR)" /></g>
+          <g id="pawR"><image href="yueyue-pawR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipYyArm)" /></g>
+          <image href="yueyue-body.png" x="0" y="0" width="768" height="768" />
+          <g id="face">
+            <!-- 原圖緊裁眼件；body 的眼區已烘回原圖底色。 -->
+            <g id="eyes-open">
+              <g class="eye"><image href="yueyue-eyeL.png" x="334" y="206" width="26" height="41" /></g>
+              <g class="eye"><image href="yueyue-eyeR.png" x="391" y="216" width="26" height="38" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="yueyue-eyeL.png" x="334" y="206" width="26" height="41"
+                     transform="translate(0 -3) translate(347 226.5) scale(1 0.45) translate(-347 -226.5)" />
+              <image href="yueyue-eyeR.png" x="391" y="216" width="26" height="38"
+                     transform="translate(0 -3) translate(404 235) scale(1 0.45) translate(-404 -235)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="yueyue-eyeL.png" x="334" y="206" width="26" height="41"
+                     transform="translate(347 226.5) scale(1 0.12) translate(-347 -226.5)" />
+              <image href="yueyue-eyeR.png" x="391" y="216" width="26" height="38"
+                     transform="translate(404 235) scale(1 0.12) translate(-404 -235)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-zhenzhen">
+    <svg id="pet" viewBox="150 139 848 844" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 腿樁切在底部黑輪廓帶；圓角裁切跟著腿旋轉，只露圓肩不露直角尖 -->
+        <clipPath id="clipZzLegL"><rect x="324" y="878" width="64" height="98" rx="16" /></clipPath>
+        <clipPath id="clipZzLegR"><rect x="570" y="910" width="54" height="72" rx="16" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="560" cy="960" rx="340" ry="14" />
+      <g id="root">
+        <g id="body">
+          <!-- 腿樁（畫在身體後面，存根藏進底部黑輪廓帶；黑對黑藏縫） -->
+          <g id="legL"><image href="zhenzhen-legL.png" x="0" y="0" width="1000" height="1000" clip-path="url(#clipZzLegL)" /></g>
+          <g id="legR"><image href="zhenzhen-legR.png" x="0" y="0" width="1000" height="1000" clip-path="url(#clipZzLegR)" /></g>
+          <!-- 條紋小角無法乾淨拆件 → pawR 留空（rig 需要此元素存在） -->
+          <g id="pawR"></g>
+          <!-- 原圖本體（去背＋去白邊，腿樁已拆出；眼睛已挖出、洞用白毛無縫補平） -->
+          <image href="zhenzhen-body.png" x="0" y="0" width="1000" height="1000" />
+          <!-- 臉（可動圖層）：用原圖拆出的眼睛部件本體來動，不重畫、不用底色橢圓蓋
+               eyeL bbox x297 y385 w87 h90 中心(340.5,430)；eyeR bbox x416 y415 w86 h88 中心(459,459) -->
+          <g id="face">
+            <!-- eyes-open：原眼部件（含閃亮高光）；.eye 的 fill-box=部件緊 bbox → 眨眼 scaleY 以眼中心擠壓 -->
+            <g id="eyes-open">
+              <g class="eye"><image href="zhenzhen-eyeL.png" x="297" y="385" width="87" height="90" /></g>
+              <g class="eye"><image href="zhenzhen-eyeR.png" x="416" y="415" width="86" height="88" /></g>
+            </g>
+            <!-- eyes-happy：同一原眼，以自身中心 scaleY(0.45) 並上移 3px（瞇瞇笑） -->
+            <g id="eyes-happy">
+              <image href="zhenzhen-eyeL.png" x="297" y="385" width="87" height="90"
+                     transform="translate(0 -3) translate(340.5 430) scale(1 0.45) translate(-340.5 -430)" />
+              <image href="zhenzhen-eyeR.png" x="416" y="415" width="86" height="88"
+                     transform="translate(0 -3) translate(459 459) scale(1 0.45) translate(-459 -459)" />
+            </g>
+            <!-- eyes-closed：同一原眼，以自身中心 scaleY(0.12) 壓扁（同眨眼視覺） -->
+            <g id="eyes-closed">
+              <image href="zhenzhen-eyeL.png" x="297" y="385" width="87" height="90"
+                     transform="translate(340.5 430) scale(1 0.12) translate(-340.5 -430)" />
+              <image href="zhenzhen-eyeR.png" x="416" y="415" width="86" height="88"
+                     transform="translate(459 459) scale(1 0.12) translate(-459 -459)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-zhenmu">
+    <svg id="pet" viewBox="62 128 650 543" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <defs>
+        <!-- 觸手存根平切頂在圓頂底粗黑輪廓帶內（body 蓋到 y514），圓角裁切防旋轉毛刺 -->
+        <clipPath id="clipZmLegL"><rect x="131" y="471" width="252" height="207" rx="16" /></clipPath>
+        <clipPath id="clipZmLegR"><rect x="368" y="471" width="264" height="196" rx="16" /></clipPath>
+      </defs>
+      <ellipse id="shadow" cx="387" cy="662" rx="210" ry="12" />
+      <g id="root">
+        <g id="body">
+          <!-- 觸手兩組（畫在身體後面，存根藏在圓頂底黑輪廓帶內，body 蓋住） -->
+          <g id="legL"><image href="zhenmu-legL.png" x="0" y="0" width="768" height="768" clip-path="url(#clipZmLegL)" /></g>
+          <g id="legR"><image href="zhenmu-legR.png" x="0" y="0" width="768" height="768" clip-path="url(#clipZmLegR)" /></g>
+          <!-- pawR 空：左側小角廣泛連身、背後白圓頂，擺動會破洞 → 烘進 body 不拆 -->
+          <g id="pawR"></g>
+          <!-- 原圖本體（圓頂＋臉＋小角＋捲角紋＋觸手根，去背去白邊；豆眼已挖出、洞用圓頂白無縫補平） -->
+          <image href="zhenmu-body.png" x="0" y="0" width="768" height="768" />
+          <!-- 臉（可動圖層）：用原圖拆出的豆眼部件本體來動，不重畫、不用底色橢圓蓋；嘴巴 ω 留在 body 不動
+               eyeL bbox x260 y304 w34 h48 中心(277,328)；eyeR bbox x351 y296 w34 h48 中心(368,320) -->
+          <g id="face">
+            <!-- eyes-open：原豆眼部件；.eye 的 fill-box=部件緊 bbox → 眨眼 scaleY 以眼中心擠壓 -->
+            <g id="eyes-open">
+              <g class="eye"><image href="zhenmu-eyeL.png" x="260" y="304" width="34" height="48" /></g>
+              <g class="eye"><image href="zhenmu-eyeR.png" x="351" y="296" width="34" height="48" /></g>
+            </g>
+            <!-- eyes-happy：同一原眼，以自身中心 scaleY(0.45) 並上移 2px（瞇瞇笑） -->
+            <g id="eyes-happy">
+              <image href="zhenmu-eyeL.png" x="260" y="304" width="34" height="48"
+                     transform="translate(0 -2) translate(277 328) scale(1 0.45) translate(-277 -328)" />
+              <image href="zhenmu-eyeR.png" x="351" y="296" width="34" height="48"
+                     transform="translate(0 -2) translate(368 320) scale(1 0.45) translate(-368 -320)" />
+            </g>
+            <!-- eyes-closed：同一原眼，以自身中心 scaleY(0.12) 壓扁（同眨眼視覺） -->
+            <g id="eyes-closed">
+              <image href="zhenmu-eyeL.png" x="260" y="304" width="34" height="48"
+                     transform="translate(277 328) scale(1 0.12) translate(-277 -328)" />
+              <image href="zhenmu-eyeR.png" x="351" y="296" width="34" height="48"
+                     transform="translate(368 320) scale(1 0.12) translate(-368 -320)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-caihua">
+    <svg id="pet" viewBox="0 0 559 466" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="200" cy="456" rx="165" ry="12" />
+      <g id="root">
+        <g id="body">
+          <g id="legL"><image href="caihua-legL.png" x="0" y="0" width="559" height="466" /></g>
+          <image href="caihua-body.png" x="0" y="0" width="559" height="466" />
+          <g id="legR"><image href="caihua-legR.png" x="0" y="0" width="559" height="466" /></g>
+          <g id="tail"><image href="caihua-tail.png" x="0" y="0" width="559" height="466" /></g>
+          <!-- 無手部件 → pawR 留空（rig 需要此元素存在） -->
+          <g id="pawR"></g>
+          <!-- 眼睛在雙角下方那兩顆（用戶指正：吻部尖端那顆圓點是鼻孔，不是眼睛）
+               ⚠ 這隻的眼睛在原畫是「吊在眉毛下面連成一體」的，所以擠壓軸要放在
+               眼睛的**頂端**（transform-origin 50% 0%）而不是中心——以中心壓扁會讓
+               眼睛往內縮、頂端脫離眉毛，看起來就像眉毛被切了一刀。
+               以頂端為軸＝眼皮從眉毛往下闔，頂端永遠黏著眉毛。 -->
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye" style="transform-origin: 50% 0%"><image href="caihua-eye0.png" x="172" y="143" width="25" height="37" /></g>
+              <g class="eye" style="transform-origin: 50% 0%"><image href="caihua-eye1.png" x="217" y="144" width="26" height="39" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="caihua-eye0.png" x="172" y="143" width="25" height="37"
+                     transform="translate(184.5 143) scale(1 0.45) translate(-184.5 -143)" />
+              <image href="caihua-eye1.png" x="217" y="144" width="26" height="39"
+                     transform="translate(230 144) scale(1 0.45) translate(-230 -144)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="caihua-eye0.png" x="172" y="143" width="25" height="37"
+                     transform="translate(184.5 143) scale(1 0.12) translate(-184.5 -143)" />
+              <image href="caihua-eye1.png" x="217" y="144" width="26" height="39"
+                     transform="translate(230 144) scale(1 0.12) translate(-230 -144)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-yueyue2">
+    <svg id="pet" viewBox="0 0 584 525" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="246" cy="517" rx="183" ry="14" />
+      <g id="root">
+        <g id="body">
+          <g id="tail"><image href="yueyue2-tail.png" x="0" y="0" width="584" height="525" /></g>
+          <g id="legL"><image href="yueyue2-legL.png" x="0" y="0" width="584" height="525" /></g>
+          <image href="yueyue2-body.png" x="0" y="0" width="584" height="525" />
+          <g id="legR"><image href="yueyue2-legR.png" x="0" y="0" width="584" height="525" /></g>
+          <g id="pawR"></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="yueyue2-eye0.png" x="195" y="163" width="25" height="42" /></g>
+              <g class="eye"><image href="yueyue2-eye1.png" x="250" y="166" width="24" height="42" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="yueyue2-eye0.png" x="195" y="163" width="25" height="42"
+                     transform="translate(0 -3) translate(207.5 184) scale(1 0.45) translate(-207.5 -184)" />
+              <image href="yueyue2-eye1.png" x="250" y="166" width="24" height="42"
+                     transform="translate(0 -3) translate(262 187) scale(1 0.45) translate(-262 -187)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="yueyue2-eye0.png" x="195" y="163" width="25" height="42"
+                     transform="translate(207.5 184) scale(1 0.12) translate(-207.5 -184)" />
+              <image href="yueyue2-eye1.png" x="250" y="166" width="24" height="42"
+                     transform="translate(262 187) scale(1 0.12) translate(-262 -187)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-zhenzhen2">
+    <svg id="pet" viewBox="0 0 587 570" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="252" cy="562" rx="158" ry="15" />
+      <g id="root">
+        <g id="body">
+          <image href="zhenzhen2-body.png" x="0" y="0" width="587" height="570" />
+          <g id="legL"><image href="zhenzhen2-legL.png" x="0" y="0" width="587" height="570" /></g>
+          <g id="legR"><image href="zhenzhen2-legR.png" x="0" y="0" width="587" height="570" /></g>
+          <g id="pawR"></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="zhenzhen2-eye0.png" x="130" y="232" width="33" height="51" /></g>
+              <g class="eye"><image href="zhenzhen2-eye1.png" x="195" y="233" width="30" height="49" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="zhenzhen2-eye0.png" x="130" y="232" width="33" height="51"
+                     transform="translate(0 -4) translate(146.5 257.5) scale(1 0.45) translate(-146.5 -257.5)" />
+              <image href="zhenzhen2-eye1.png" x="195" y="233" width="30" height="49"
+                     transform="translate(0 -3) translate(210 257.5) scale(1 0.45) translate(-210 -257.5)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="zhenzhen2-eye0.png" x="130" y="232" width="33" height="51"
+                     transform="translate(146.5 257.5) scale(1 0.12) translate(-146.5 -257.5)" />
+              <image href="zhenzhen2-eye1.png" x="195" y="233" width="30" height="49"
+                     transform="translate(210 257.5) scale(1 0.12) translate(-210 -257.5)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-jiaobu2">
+    <svg id="pet" viewBox="0 0 466 551" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="238" cy="543" rx="185" ry="14" />
+      <g id="root">
+        <g id="body">
+          <image href="jiaobu2-body.png" x="0" y="0" width="466" height="551" />
+          <g id="legL"><image href="jiaobu2-legL.png" x="0" y="0" width="466" height="551" /></g>
+          <image href="jiaobu2-body2.png" x="0" y="0" width="466" height="551" />
+          <g id="tail"><image href="jiaobu2-tail.png" x="0" y="0" width="466" height="551" /></g>
+          <g id="pawR"><image href="jiaobu2-pawR.png" x="0" y="0" width="466" height="551" /></g>
+          <g id="legR"></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="jiaobu2-eye0.png" x="136" y="214" width="29" height="51" /></g>
+              <g class="eye"><image href="jiaobu2-eye1.png" x="220" y="218" width="30" height="51" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="jiaobu2-eye0.png" x="136" y="214" width="29" height="51"
+                     transform="translate(0 -4) translate(150.5 239.5) scale(1 0.45) translate(-150.5 -239.5)" />
+              <image href="jiaobu2-eye1.png" x="220" y="218" width="30" height="51"
+                     transform="translate(0 -4) translate(235 243.5) scale(1 0.45) translate(-235 -243.5)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="jiaobu2-eye0.png" x="136" y="214" width="29" height="51"
+                     transform="translate(150.5 239.5) scale(1 0.12) translate(-150.5 -239.5)" />
+              <image href="jiaobu2-eye1.png" x="220" y="218" width="30" height="51"
+                     transform="translate(235 243.5) scale(1 0.12) translate(-235 -243.5)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-lk">
+    <svg id="pet" viewBox="0 0 586 587" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="210" cy="579" rx="162" ry="15" />
+      <g id="root">
+        <g id="body">
+          <image href="lk-body.png" x="0" y="0" width="586" height="587" />
+          <g id="legL"><image href="lk-legL.png" x="0" y="0" width="586" height="587" /></g>
+          <g id="legR"><image href="lk-legR.png" x="0" y="0" width="586" height="587" /></g>
+          <g id="pawR"></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="lk-eye0.png" x="240" y="169" width="31" height="52" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="lk-eye0.png" x="240" y="169" width="31" height="52"
+                     transform="translate(0 -4) translate(255.5 195) scale(1 0.45) translate(-255.5 -195)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="lk-eye0.png" x="240" y="169" width="31" height="52"
+                     transform="translate(255.5 195) scale(1 0.12) translate(-255.5 -195)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+<template id="char-yang">
+    <svg id="pet" viewBox="0 0 525 485" xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         stroke-linejoin="round" stroke-linecap="round">
+      <ellipse id="shadow" cx="258" cy="477" rx="141" ry="13" />
+      <g id="root">
+        <g id="body">
+          <image href="yang-bodyback.png" x="0" y="0" width="525" height="485" />
+          <g id="legL"><image href="yang-legL.png" x="0" y="0" width="525" height="485" /></g>
+          <g id="legR"><image href="yang-legR.png" x="0" y="0" width="525" height="485" /></g>
+          <image href="yang-body.png" x="0" y="0" width="525" height="485" />
+          <g id="pawR"><image href="yang-pawR.png" x="0" y="0" width="525" height="485" /></g>
+          <g id="face">
+            <g id="eyes-open">
+              <g class="eye"><image href="yang-eye0.png" x="157" y="164" width="28" height="38" /></g>
+              <g class="eye"><image href="yang-eye1.png" x="218" y="168" width="27" height="43" /></g>
+            </g>
+            <g id="eyes-happy">
+              <image href="yang-eye0.png" x="157" y="164" width="28" height="38"
+                     transform="translate(0 -3) translate(171 183) scale(1 0.45) translate(-171 -183)" />
+              <image href="yang-eye1.png" x="218" y="168" width="27" height="43"
+                     transform="translate(0 -3) translate(231.5 189.5) scale(1 0.45) translate(-231.5 -189.5)" />
+            </g>
+            <g id="eyes-closed">
+              <image href="yang-eye0.png" x="157" y="164" width="28" height="38"
+                     transform="translate(171 183) scale(1 0.12) translate(-171 -183)" />
+              <image href="yang-eye1.png" x="218" y="168" width="27" height="43"
+                     transform="translate(231.5 189.5) scale(1 0.12) translate(-231.5 -189.5)" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </template>
+</body>
+</html>
