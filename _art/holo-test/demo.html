@@ -49,6 +49,23 @@ body.font-system{--card-font:Arial,"Microsoft JhengHei",sans-serif}body.font-not
 .layout-status{font:10px monospace;color:var(--accent);margin:13px 0 0}.layout-status.bad{color:#ffb08c}.gem-picker{margin-top:4px}
 @media(max-width:850px){.face-plate{padding-left:30px;padding-right:30px}.face-gem{left:14px}}
 </style>
+<style id="round6-overrides">
+/* Round 6 decision lock: one type treatment, flat old-card gem, protected text layer. */
+.font-picker,.gem-picker,.name-picker{display:none !important}
+.hcard .face-art{z-index:4;transform:translate3d(var(--ax),var(--ay),20px) scale(var(--comp))}
+.hcard .face-frame{z-index:10;transform:translateZ(24px)}
+.hcard .face-plate{z-index:100;transform:translateZ(52px);overflow:visible;padding-left:58px;padding-right:16px;box-shadow:0 0 0 1px #0a0d15,0 10px 22px #0009,inset 0 1px 0 #ffffff18}
+.hcard .face-name{position:relative;z-index:120;font-family:"Holo Noto Sans",sans-serif !important;font-weight:800;letter-spacing:.055em;line-height:1.18;transform:translateZ(82px);text-shadow:0 2px 0 #1b1220,0 4px 0 #000b,0 0 12px #000;}
+.hcard .face-rarity{position:relative;z-index:115;transform:translateZ(70px)}
+.hcard .face-gem{left:calc(5% + 18px);top:auto;bottom:calc(3% + 9.5% - 10px);width:24px;height:24px;margin:0;z-index:110;transform:translateZ(58px) rotate(45deg);border:2px solid color-mix(in srgb,var(--accent-card) 62%,#fff);border-radius:3px;background:linear-gradient(135deg,#ffffff 0 9%,color-mix(in srgb,var(--accent-card) 76%,#fff) 10% 24%,var(--accent-card) 25% 70%,color-mix(in srgb,var(--accent-card) 48%,#151225) 71% 88%,var(--accent-card) 89%);box-shadow:0 0 0 2px #0d1420,0 1px 0 #fff6;clip-path:polygon(50% 0,88% 14%,100% 50%,85% 88%,50% 100%,14% 85%,0 50%,15% 14%);transition:none}
+.hcard .face-gem:hover,.hcard:hover .face-gem{filter:none;transform:translateZ(58px) rotate(45deg)}
+.r-legendary .face-name,.r-mythic .face-name{font-family:"Holo Noto Sans",sans-serif !important;font-weight:900;color:#fff0bb;background:linear-gradient(180deg,#fff9dc 0%,#f8d77c 42%,#b36a1f 78%,#ffe6a0 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 1px 0 #fff8,0 3px 0 #704019,0 5px 0 #25140b,0 0 12px #ffca5c}
+.ranks-grid .hcard .face-plate{padding-left:48px;padding-right:12px}
+.ranks-grid .hcard .face-gem{left:calc(3% + 13px);bottom:calc(3% + 9.5% - 11px);width:22px;height:22px}
+.legacy-grid .hcard .face-plate{left:1%;right:1%;padding-left:48px;padding-right:10px}
+.legacy-grid .hcard .face-gem{left:calc(1% + 14px);top:auto;bottom:calc(3% + 9.5% - 9px);width:21px;height:21px}
+.layout-status{white-space:pre-line}
+</style>
 </head>
 <body>
 <header class="topbar"><a class="brand" href="#compare"><i class="brand-mark" aria-hidden="true"></i>箔光實驗室</a><nav aria-label="展示區塊"><a href="#scenes">場景</a><a href="#rarities">五階</a><a href="#legacy">舊卡</a></nav><span class="edition">MATERIAL STUDY / 01</span></header>
@@ -604,6 +621,7 @@ function makeCard(data,host,{scene=false,rank=false,pair=false}={}){
  const record={data,card,hit,front,back,flip,scene,pair,pose:[0,0],flipped:false,updates:0};cards.push(record);flip.addEventListener('click',()=>{select(record);flipCard(record)});return record;
 }
 const comparison=makeCard(oldData[0],$('#comparison-new'),{pair:true});
+sceneData[0].name=String.fromCodePoint(0x706b,0x7bad,0x72d7);
 sceneData.forEach(d=>makeCard(d,$('#scenes-grid'),{scene:true}));
 Object.keys(presets).forEach(r=>makeCard({...oldData[1],rarity:r},$('#ranks-grid'),{rank:true}));
 const u=(...a)=>String.fromCodePoint(...a);const legacyData=[{id:'zhenpete',name:u(0x73cd,0x5f7c,0x7279),rarity:'epic'},{id:'zhenwang',name:u(0x73cd,0x6c6a),rarity:'rare'},{id:'zhencao',name:u(0x73cd,0x7684,0x662f,0x8349),rarity:'common'},{id:'zhenjpg',name:u(0x73cd,0x73cd)+'JPG',rarity:'rare'},{id:'mieshi',name:u(0x6ec5,0x4e16,0x73cd,0x7378),rarity:'mythic',bleed:true},{id:'wanwumythic',name:u(0x73a9,0x7269,0x5c31,0x73a9,0x7269),rarity:'mythic',bleed:true},{id:'foxfriend',name:u(0x72d0,0x72f8,0x670b,0x53cb),rarity:'legendary'},{id:'miepupu',name:u(0x7c73,0x5657,0x5657),rarity:'epic'},{id:'salamander',name:u(0x706b,0x8725,0x876a),rarity:'rare'},{id:'yangpu',name:u(0x7f8a,0x8216),rarity:'common'}];
@@ -660,7 +678,15 @@ $('#flip-selected').addEventListener('click',()=>flipCard(selected));
 $('#reset').addEventListener('click',()=>{stop(true);Object.assign(settings,{depth:1,foil:.85,grain:.75,glare:.45,mode:'both',hold:false,reduced:false,font:'system',gem:'faceted',inkChroma:true});['depth','foil','grain','glare'].forEach(k=>{$('#'+k).value=Math.round(settings[k]*100);$('#'+k+'-value').value=Math.round(settings[k]*100)+'%'});$('#hold').checked=$('#reduced').checked=false;$('#ink-chroma').checked=true;$('input[value=both]').checked=true;$('input[name=font][value=system]').checked=true;$('input[name=gem][value=faceted]').checked=true;for(const c of cards){c.pose=[0,0];if(c.flipped)flipCard(c)}applySettings()});
 window.addEventListener('blur',()=>stop(true));document.addEventListener('visibilitychange',()=>{if(document.hidden)stop(true)});window.addEventListener('pagehide',()=>stop(true));window.addEventListener('resize',()=>stop(true));window.addEventListener('scroll',()=>{if(live.active)stop(true)},{passive:true});
 window.holoDemo={snapshot:()=>({raf:live.raf?1:0,totalFrames:live.totalFrames,maxConcurrent:live.maxConcurrent,active:live.active?.card.dataset.id||null,input:live.active&&!live.leaving?1:0,reduced:reduced(),settings:{...settings},layout:validateLayout(),cards:cards.map(c=>({id:c.card.dataset.id,pose:[...c.pose],updates:c.updates,flipped:c.flipped}))})};
-select(comparison);applySettings();
+/* Round 6: sample the name box on every card and reject character-art hits. */
+function validateNameLayer(){const rows=[];for(const c of cards){const nameEl=c.card.querySelector('.face-name'),plateEl=c.card.querySelector('.face-plate'),name=nameEl.getBoundingClientRect();const points=[.22,.5,.78].map(r=>[name.left+name.width*r,name.top+name.height*.5]);const hits=points.map(([x,y])=>{const el=document.elementFromPoint(x,y);return !!(el&&(el===nameEl||el.closest('.face-plate')===plateEl));});rows.push({id:c.card.dataset.id,nameSamples:hits,nameProtected:hits.every(Boolean)});}return rows;}
+/* elementFromPoint only sees the viewport, so temporarily reveal each card
+   while sampling and restore the user's scroll position afterwards. */
+function validateNameLayer(){const saved=scrollY,root=document.documentElement,prev=root.style.scrollBehavior,rows=[];root.style.scrollBehavior='auto';for(const c of cards){c.card.scrollIntoView({block:'center',inline:'nearest'});void root.offsetHeight;const nameEl=c.card.querySelector('.face-name'),plateEl=c.card.querySelector('.face-plate'),name=nameEl.getBoundingClientRect();const points=[.22,.5,.78].map(r=>[name.left+name.width*r,name.top+name.height*.5]);const hits=points.map(([x,y])=>{const el=document.elementFromPoint(x,y);return !!(el&&(el===nameEl||el.closest('.face-plate')===plateEl));});rows.push({id:c.card.dataset.id,nameSamples:hits,nameProtected:hits.every(Boolean)});}root.style.scrollBehavior=prev;scrollTo(0,saved);return rows;}
+const round6Layout=validateLayout;
+validateLayout=function(){const rows=round6Layout();const layers=validateNameLayer(),bad=layers.filter(x=>!x.nameProtected);let el=$('#layout-status');if(!el){el=node('p','layout-status');el.id='layout-status';document.querySelector('.diagnostics').after(el);}el.textContent+=`\n名字疊層驗證：${bad.length?'未通過':'全卡通過'} · ${layers.length} 張 · elementFromPoint 取樣`;el.classList.toggle('bad',!!bad.length);return rows.map((row,i)=>({...row,...layers[i],ok:row.ok&&layers[i].nameProtected}));};
+settings.font='noto-sans';settings.gem='faceted';settings.nameStyle='relief';document.body.classList.remove('name-game','name-pixel','name-slant');document.body.classList.add('name-relief');
+select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 })();
 </script>
 </body>

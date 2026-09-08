@@ -60,3 +60,12 @@
 common–epic 維持乾淨可讀；legendary/mythic 可切換遊戲金屬、像素疊描、浮雕燙金、斜體分層四種方向。名字 Z 位移提高到 18–23px，五階靠加寬銘牌與最小卡寬撐開；中文一律 DOM，像素方案用系統等寬 fallback。Noto 子集沿用前輪已核對的 SIL OFL 1.1 與 Reserved Font Name 注意事項。
 
 `demo.html` 是開發版；`demo-standalone.html` 將素材依展示尺寸重採樣為 WebP（主體保留 alpha）並內嵌動態素材映射，實際 3,045,272 bytes（約 2.90 MiB），低於 15 MiB。`check_demo_round5.py` 已把 standalone 複製到暫存資料夾後以 `file://` 開啟，驗證圖片、無外部 request、Console、排版與離開後 rAF；結果在 `verification-round5.json`。仍待使用者視覺驗收，不宣稱品質已達標。
+## Round 6 決策與驗收
+
+- 卡名字體固定為內嵌的 Noto Sans TC（Noto 黑）；傳說與神話卡固定使用浮雕燙金。被否決的字體與字效方向不再作為展示頁選項。
+- 所有新卡型由銘牌／名字保護層壓住角色圖，名字使用明顯 Z 位移。頁面新增逐卡 `elementFromPoint` 名字矩形取樣，必須命中名字或銘牌。
+- 階級寶石依 `src/gacha-card.css` 舊版 `.face-gem` 的紫色菱形方向重做為平面標記，移除 3D 位移、球體陰影與 hover 旋轉；維持銘牌左側與間距驗證。
+- 本輪不修改 `src/`。standalone 由建置腳本重新生成，圖片內嵌、無外部請求，約 2.91 MiB；驗證腳本會複製到另一個資料夾後開啟。
+- 自動驗收：`python check_demo_round6.py`。`shots/` 內的截圖使用 `r6-` 前綴，包含火箭狗滿版卡與銘牌特寫。
+
+目前仍由使用者進行最終視覺品質驗收；本輪不宣稱視覺品質已達標。

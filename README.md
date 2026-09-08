@@ -97,6 +97,10 @@
 
 ## 開發
 
+### 華麗卡牌展示頁（Round 6）
+
+第六輪交付位於 [_art/holo-test/demo.html](_art/holo-test/demo.html)（開發版）與 [_art/holo-test/demo-standalone.html](_art/holo-test/demo-standalone.html)（可搬移單檔）。卡名字體固定 Noto Sans TC，傳說以上固定浮雕燙金；展示頁移除被否決的選項。角色圖由銘牌／名字保護層壓住，並以 `elementFromPoint` 逐卡驗證；階級寶石改回平面菱形。standalone 約 2.91 MiB，已複製到暫存資料夾驗證無外部請求、圖片載入、排版與 rAF；仍待使用者視覺驗收。驗證：`python _art/holo-test/check_demo_round6.py`。
+
 ## 華麗卡牌展示頁（Round 4）
 
 `_art/holo-test/demo.html` 是單一 `file://` 可直接開啟的材質展示頁。本輪路線已定案：四張本來就自帶背景的場景卡（rocketdog、astronaut、alienkitty、fluffdog）與兩張 bleed 卡走滿版景深；其他去背 PNG 只展示「卡框＋稀有度色調底」版型。第二輪 `compose_legacy.py` 產出的角色＋場景合成滿版已否決，相關檔案保留作紀錄，但展示頁不再引用。
