@@ -1,0 +1,44 @@
+{
+  "seed": 20260908,
+  "generator_version": 1,
+  "pillow": "12.3.0",
+  "opencv": "4.11.0",
+  "scenes": [
+    {
+      "scene": "rocketdog",
+      "source_sha256": "04d0968c67e4e8784ccdb3b2419f7ee1fab16e44428c5ee1f2c11a64451a72dd",
+      "size": [
+        600,
+        840
+      ],
+      "subject_pixels": 206244
+    },
+    {
+      "scene": "astronaut",
+      "source_sha256": "d7c123f097613abbda14a9a2c05adce3100a7f3e943e7126d764ce4af238070f",
+      "size": [
+        600,
+        840
+      ],
+      "subject_pixels": 39606
+    },
+    {
+      "scene": "alienkitty",
+      "source_sha256": "d907e750320da30826f082f3ac84cf60688c8770aa5ff04db947d345840c7853",
+      "size": [
+        600,
+        840
+      ],
+      "subject_pixels": 28296
+    },
+    {
+      "scene": "fluffdog",
+      "source_sha256": "d03b5d74610d807ca6f743a019ed7e86aed436d4539e4526b0366e61a731178f",
+      "size": [
+        600,
+        840
+      ],
+      "subject_pixels": 151481
+    }
+  ]
+}

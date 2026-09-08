@@ -232,18 +232,20 @@ window.ClickerAlbum = (() => {
 
     // ---------- 更衣室 ----------
     const SHOP_CATS = [
-      { id:'sounds', icon:'♪', name:'點擊音效', hint:'換一種拆包的聲音' },
-      { id:'fx',     icon:'✦', name:'點擊特效', hint:'換一種點下去的粒子' },
-      { id:'decor',  icon:'❀', name:'桌面裝飾', hint:'每件全隊 +1%；要不要擺出來自己決定' },
+      { id:'sounds', icon:'♪', name:'點擊音效', hint:'換拆包的聲音' },
+      { id:'fx',     icon:'✦', name:'點擊特效', hint:'換點下去的粒子' },
+      { id:'decor',  icon:'❀', name:'桌面裝飾', hint:'每件全隊 +1%' },
     ];
     function renderShopCats() {
       const s = store.state, host = $('shop-cats'); host.replaceChildren();
       for (const cat of SHOP_CATS) {
         const owned = cat.id === 'decor' ? s.deco.length : B.wardrobe[cat.id].filter(i => s.owned.wardrobe.includes(`${cat.id}:${i.id}`)).length;
         const total = cat.id === 'decor' ? B.decor.length : B.wardrobe[cat.id].length;
-        const extra = cat.id === 'decor' ? `・擺出來 ${(s.decoShown || []).length} 件` : '';
+        const extra = cat.id === 'decor' ? `擺出來 ${(s.decoShown || []).length} 件` : '';
         const t = document.createElement('button'); t.className = 'shop-cat'; t.dataset.cat = cat.id;
-        t.innerHTML = `<span class="shop-cat-icon">${cat.icon}</span><span><b>${cat.name}</b><small>${cat.hint}</small><small>已有 ${owned}/${total}${extra}</small></span>`;
+        t.innerHTML = `<span class="shop-cat-icon">${cat.icon}</span>`
+          + `<span class="shop-cat-text"><b>${cat.name}</b><small>${cat.hint}</small></span>`
+          + `<span class="shop-cat-count"><b>${owned}</b> / ${total}${extra ? `<br>${extra}` : ''}</span>`;
         t.onclick = () => { shopCategory = cat.id; pendingBuy = null; renderWardrobe(); };
         host.append(t);
       }
