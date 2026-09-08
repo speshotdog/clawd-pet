@@ -1,0 +1,86 @@
+[
+ {
+  "id": "zhenmu",
+  "name": "珍母",
+  "rarity": "legendary",
+  "kind": "char"
+ },
+ {
+  "id": "jiaobu",
+  "name": "膠布（原版）",
+  "rarity": "legendary",
+  "kind": "char"
+ },
+ {
+  "id": "yueyue",
+  "name": "玥玥（原版）",
+  "rarity": "legendary",
+  "kind": "char"
+ },
+ {
+  "id": "zhenzhen",
+  "name": "珍珍（原版）",
+  "rarity": "legendary",
+  "kind": "char"
+ },
+ {
+  "id": "dog",
+  "name": "熱狗狗狗",
+  "rarity": "epic",
+  "kind": "char"
+ },
+ {
+  "id": "fox",
+  "name": "女僕狐狐",
+  "rarity": "epic",
+  "kind": "char"
+ },
+ {
+  "id": "jiaobu2",
+  "name": "膠布",
+  "rarity": "epic",
+  "kind": "char"
+ },
+ {
+  "id": "zhenzhen2",
+  "name": "珍珍",
+  "rarity": "epic",
+  "kind": "char"
+ },
+ {
+  "id": "yueyue2",
+  "name": "玥玥",
+  "rarity": "rare",
+  "kind": "char"
+ },
+ {
+  "id": "caihua",
+  "name": "采華",
+  "rarity": "rare",
+  "kind": "char"
+ },
+ {
+  "id": "lk",
+  "name": "ㄌㄎ",
+  "rarity": "rare",
+  "kind": "char"
+ },
+ {
+  "id": "yang",
+  "name": "羊咩",
+  "rarity": "rare",
+  "kind": "char"
+ },
+ {
+  "id": "hotdog",
+  "name": "熱狗",
+  "rarity": "common",
+  "kind": "emoji"
+ },
+ {
+  "id": "heart",
+  "name": "愛心",
+  "rarity": "common",
+  "kind": "emoji"
+ }
+]

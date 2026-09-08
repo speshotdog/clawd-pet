@@ -149,6 +149,58 @@ PYTHONIOENCODING=utf-8 python _art/holo-test/check_demo_round8.py
 **不可以用「這次從精裝池抽的所以套 deluxe 樣式」當唯一依據**——
 pending、重開、匯入、跳過都要能還原。
 
+## 六之二、第九輪（2026-09-08 深夜，使用者定案）
+
+### 卡名字效改成依稀有度固定
+
+| 稀有度 | 字效 |
+|---|---|
+| common / rare / epic | 乾淨白色粗體（不變） |
+| legendary | **實心亮金 `#fff45c` ＋自體光暈** |
+| mythic | **conic 彩虹**，用卡框同一條漸層與同一個 `--phase`，傾斜時跟著框一起轉 |
+
+第六輪的「浮雕燙金漸層」對兩階都用，實測有兩個問題，都在 `round9-name-ink` 這個 block 裡蓋掉了：
+
+1. 展示頁後段有一行 `.r-legendary .face-name,.r-mythic .face-name{text-shadow:…var(--accent-card)}`
+   把字的外光接成稀有度主色。神話的 `--accent-card` 是**薄荷綠 `#93f0df`**，配暖金字混成橄欖色；
+   傳說因為主色本來就是暖金，所以同一個 bug 看不出來。
+2. 燙金漸層的 78% 是 `#b36a1f` 深棕。卡一縮小（字級掉到 15px 上下）那段就佔滿字身，
+   整個名字變暗塊。改成實心＋光暈之後任何尺寸都亮。
+
+⚠ 神話用 `background-clip:text`，所以**黑邊要用 `drop-shadow` 不能用 `text-shadow`**——
+`text-shadow` 會把陰影畫在漸層的外面而不是貼著字形。
+
+### 全卡池精裝版（展示頁 E 區）
+
+使用者定案：**有背景的才走滿版景深／平面，一般去背卡就套精裝卡框**
+（這條**取代**第三節「`framed` 維持舊版樣式不更新」的舊定案）。
+
+- 卡池 57 張裡**有美術素材的 43 張全部出卡**（40 張 `card-*.png` ＋ 3 張 `toy-*.png`），依稀有度排序。
+- 資料是**建置時直接從 `src/gacha-pool.js` 的 CATALOG 讀出來**寫進展示頁，不是手打，
+  也不是從檔名推——這條是第五節第 2 點那次事故的直接對策。
+- **還缺美術素材的 14 張**：珍母、膠布（原版）、玥玥（原版）、珍珍（原版）、熱狗狗狗、女僕狐狐、
+  膠布、珍珍、玥玥、采華、ㄌㄎ、羊咩、熱狗、愛心。
+  前 12 張在遊戲裡是**用身體零件即時組出來的角色**（沒有卡圖檔），後 2 張是 emoji。
+  要讓它們也有精裝卡面，得先決定：截圖合成，還是另外畫卡圖。
+
+### 一個技術改動：mask 的鍵改成裸檔名
+
+`embed_masks.py` 以前把鍵存成 `../../src/card-x.png`，`build_round5_standalone.py` 再想辦法改寫成裸檔名。
+43 張卡進來之後這條路開始打結，所以統一成**兩邊都用裸檔名**（`card-x.png`／`toy-x.png`／`layer-x-subject.png`）。
+`makeCard` 也跟著改：`srcKey` 是裸檔名，`src` 才組路徑，並支援 `data.file`（玩具是 `toy-*.png` 不是 `card-*.png`）。
+
+### 驗證
+
+`check_demo_round9.py`（新）——除了沿用的無外部請求／無 console error，另外釘死：
+
+- 65 張卡（22 張樣品 ＋ 43 張卡池）
+- **卡名與稀有度逐張比對 `src/gacha-pool.js`**，名字錯一個字就紅
+- 每張卡池卡的圖有載入、有 foil mask、名字置中偏差 < 2px
+- **傳說的 `-webkit-text-fill-color` 必須是 `rgb(255,244,92)` 且 `background-image:none`；
+  神話必須是透明填色＋`conic-gradient`；common/rare/epic 不准有任何 gradient**
+
+`check_demo_round8.py` 的卡片數斷言從 22 改成 65，其餘未動，仍然全綠。
+
 ## 七、下一步
 
 1. **等使用者確認**：`framed` 卡的「舊版樣式」是指遊戲現在線上的版本，

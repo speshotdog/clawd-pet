@@ -1,0 +1,305 @@
+[
+ {
+  "id": "yueyuexian",
+  "name": "玥來玥閒",
+  "rarity": "mythic",
+  "kind": "char",
+  "src": "card-yueyuexian.png"
+ },
+ {
+  "id": "zhenfang",
+  "name": "珍的很方",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-zhenfang.png"
+ },
+ {
+  "id": "lksphinx",
+  "name": "獅身ㄌㄎ",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-lksphinx.png"
+ },
+ {
+  "id": "zhenmoss",
+  "name": "苔蘚珍珍",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-zhenmoss.png"
+ },
+ {
+  "id": "yuetrumpet",
+  "name": "小號玥",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-yuetrumpet.png"
+ },
+ {
+  "id": "zhencao",
+  "name": "珍的是草",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-zhencao.png"
+ },
+ {
+  "id": "mianhua",
+  "name": "棉花糖",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-mianhua.png"
+ },
+ {
+  "id": "yangpu",
+  "name": "羊咩噗",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-yangpu.png"
+ },
+ {
+  "id": "alu",
+  "name": "阿漉",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-alu.png"
+ },
+ {
+  "id": "jiaotou",
+  "name": "膠頭燃額",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-jiaotou.png"
+ },
+ {
+  "id": "jinggou",
+  "name": "警狗",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-jinggou.png"
+ },
+ {
+  "id": "gebugou",
+  "name": "哥不狗",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-gebugou.png"
+ },
+ {
+  "id": "zhenjpg",
+  "name": "珍珍JPG",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-zhenjpg.png"
+ },
+ {
+  "id": "mieshi",
+  "name": "滅世珍獸",
+  "rarity": "mythic",
+  "kind": "char",
+  "src": "card-mieshi.png",
+  "bleed": true
+ },
+ {
+  "id": "qinghua",
+  "name": "青花膠",
+  "rarity": "mythic",
+  "kind": "char",
+  "src": "card-qinghua.png"
+ },
+ {
+  "id": "yuefeimo",
+  "name": "飛沫月月",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-yuefeimo.png"
+ },
+ {
+  "id": "yuesong",
+  "name": "玥之歌",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-yuesong.png"
+ },
+ {
+  "id": "zhenbush",
+  "name": "草叢珍珍",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-zhenbush.png"
+ },
+ {
+  "id": "bingyang",
+  "name": "冰羊咩",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-bingyang.png"
+ },
+ {
+  "id": "zhenbing",
+  "name": "珍冰",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-zhenbing.png"
+ },
+ {
+  "id": "zhenpete",
+  "name": "珍彼特",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-zhenpete.png"
+ },
+ {
+  "id": "guanjiu",
+  "name": "罐酒",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-guanjiu.png"
+ },
+ {
+  "id": "miepupu",
+  "name": "咩噗噗噗",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-miepupu.png"
+ },
+ {
+  "id": "manhua",
+  "name": "滿花",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-manhua.png"
+ },
+ {
+  "id": "yangtuo",
+  "name": "羊駝",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-yangtuo.png"
+ },
+ {
+  "id": "ababa",
+  "name": "阿巴阿巴",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-ababa.png"
+ },
+ {
+  "id": "foxfriend",
+  "name": "摯友之狐",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-foxfriend.png"
+ },
+ {
+  "id": "wanwu",
+  "name": "玩物",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-wanwu.png"
+ },
+ {
+  "id": "lkreal",
+  "name": "ㄌㄎ正卡",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-lkreal.png"
+ },
+ {
+  "id": "qipupu",
+  "name": "氣噗噗",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-qipupu.png"
+ },
+ {
+  "id": "foxmoney",
+  "name": "給狐錢好嗎",
+  "rarity": "epic",
+  "kind": "char",
+  "src": "card-foxmoney.png"
+ },
+ {
+  "id": "gebuyang",
+  "name": "哥布羊",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-gebuyang.png"
+ },
+ {
+  "id": "zhenwang",
+  "name": "珍汪",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-zhenwang.png"
+ },
+ {
+  "id": "salamander",
+  "name": "黃色蠑螈",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-salamander.png"
+ },
+ {
+  "id": "shiyi",
+  "name": "十一",
+  "rarity": "legendary",
+  "kind": "char",
+  "src": "card-shiyi.png"
+ },
+ {
+  "id": "shiwang",
+  "name": "失望卡哇",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-shiwang.png"
+ },
+ {
+  "id": "seal",
+  "name": "快樂海豹",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-seal.png"
+ },
+ {
+  "id": "chaichai",
+  "name": "柴柴",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-chaichai.png"
+ },
+ {
+  "id": "jiaolan",
+  "name": "膠頭爛額",
+  "rarity": "rare",
+  "kind": "char",
+  "src": "card-jiaolan.png"
+ },
+ {
+  "id": "wanwumythic",
+  "name": "玩物就玩物",
+  "rarity": "mythic",
+  "kind": "char",
+  "src": "card-wanwumythic.png",
+  "bleed": true
+ },
+ {
+  "id": "dino",
+  "name": "小恐龍",
+  "rarity": "common",
+  "kind": "toy",
+  "src": "toy-dino.png"
+ },
+ {
+  "id": "ballyellow",
+  "name": "黃色球",
+  "rarity": "common",
+  "kind": "toy",
+  "src": "toy-ballyellow.png"
+ },
+ {
+  "id": "beachball",
+  "name": "皮球",
+  "rarity": "common",
+  "kind": "toy",
+  "src": "toy-beachball.png"
+ }
+]

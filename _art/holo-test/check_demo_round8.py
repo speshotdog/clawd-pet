@@ -33,7 +33,7 @@ def check(page, uri, label):
     page.wait_for_timeout(250)
     assert not errors, errors
     assert not external, external
-    assert page.locator('.hcard').count() == 22
+    assert page.locator(".hcard").count() == 65
     layers = page.evaluate('window.holoRound8.validateLayers()')
     assert all(x['ok'] for x in layers), layers
     assert all(x['nameCenterDelta'] < 2 and x['rarityCenterDelta'] < 2 and (x['kind'] == 'framed' or x['gemNameGap'] >= 5) for x in layers), layers

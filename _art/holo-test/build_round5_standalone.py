@@ -45,14 +45,15 @@ for path in sorted(ROOT.glob('layer-*.png')):
     asset_map[path.name] = cached_uri(path)
 for path in sorted((ROOT / '../../src').resolve().glob('card-*.png')):
     asset_map[path.name] = cached_uri(path)
+for path in sorted((ROOT / '../../src').resolve().glob('toy-*.png')):
+    asset_map[path.name] = cached_uri(path)
 for name in ('texture-fiber.png', 'texture-engraving.png', 'gacha-cardback.jpg'):
     path = (ROOT / name) if (ROOT / name).exists() else (ROOT / '../../src' / name).resolve()
     if path.exists():
         asset_map[name] = cached_uri(path)
 html = html.replace("const masks=JSON.parse($('#mask-data').textContent);", "const assetMap=" + repr(asset_map).replace("'", '"') + ";const asset=name=>assetMap[name]||name;const masks=JSON.parse($('#mask-data').textContent);")
-html = html.replace("const srcKey=scene?`layer-${data.id}-subject.png`:`card-${data.id}.png`;const src=scene?`layer-${data.id}-subject.png`:`../../src/card-${data.id}.png`;", "const srcKey=scene?`layer-${data.id}-subject.png`:`card-${data.id}.png`;const src=asset(srcKey);")
+html = html.replace("const src=scene?srcKey:`../../src/${srcKey}`;", "const src=asset(srcKey);")
 html = html.replace("image.src=`layer-${data.id}-background.png`", "image.src=asset(`layer-${data.id}-background.png`)")
-html = html.replace("if(masks[src])", "if(masks[srcKey])").replace("if(masks[src]&&kind!=='flat')", "if(masks[srcKey]&&kind!=='flat')").replace("`url(\"${masks[src]}\")`", "`url(\"${masks[srcKey]}\")`")
 html = html.replace('../../src/card-zhenpete.png', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')
 
 html = html.replace('華麗卡牌第五輪', '華麗卡牌第五輪 · 單檔分享版')
