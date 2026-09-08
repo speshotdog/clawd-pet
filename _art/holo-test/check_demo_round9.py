@@ -93,6 +93,24 @@ def check(page, uri, label, expected):
         else:
             assert 'gradient' not in got['background'], (want['id'], got['background'])
 
+    # 卡面的元素不准浮出卡片。這條是踩了三次才長出來的：
+    # 卡面是 preserve-3d + perspective，把某一層 translateZ 推高就會被放大，
+    # 推到 70～106px 時文字框與寶石會整塊撐出卡緣浮在卡片外面
+    # （第十二輪的文字框、第十九輪的寶石各犯一次，使用者兩次都得回報）。
+    # .face-frame 本來就在 --zf 8px、設計上貼著卡緣，所以不在檢查範圍。
+    floating = page.evaluate("""() => {
+      const bad=[];
+      for(const c of document.querySelectorAll('.hcard')){
+        const cb=c.getBoundingClientRect();
+        for(const sel of ['.face-plate','.face-text','.face-gem','.face-name','.face-rarity']){
+          const el=c.querySelector(sel); if(!el) continue;
+          const r=el.getBoundingClientRect();
+          const out=Math.max(cb.left-r.left, r.right-cb.right, cb.top-r.top, r.bottom-cb.bottom);
+          if(out>1.5) bad.push({id:c.dataset.id, sel, outsidePx:+out.toFixed(1)});
+        }}
+      return bad;}""")
+    assert not floating, floating
+
     SHOTS.mkdir(exist_ok=True)
     page.locator('#pool-grid').screenshot(path=str(SHOTS / f'r9-{label}-pool.png'))
     return {'label': label, 'cards': page.locator('.hcard').count(), 'pool': len(rows),

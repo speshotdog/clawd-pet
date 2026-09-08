@@ -802,7 +802,7 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 .kind-depth .face-name,.kind-depth .face-rarity{z-index:50!important}
 /* flat keeps the background → plaque → name sequence; there is intentionally no subject layer. */
 .kind-flat .face-depth-bg{z-index:10!important}.kind-flat .face-plate{z-index:20!important;left:5%!important;right:5%!important;bottom:4%!important;height:16%!important;min-height:0!important;padding:0 34px!important;border:1px solid #b4b7c733!important;border-top:1px solid var(--accent-card)!important;border-radius:5px!important;background:linear-gradient(140deg,#161b26f7,#111821fc)!important;box-shadow:0 0 0 1px #0a0d15,0 7px 18px #0008,inset 0 1px 0 #ffffff18!important;transform:translateZ(calc(var(--zp) + 1px))!important}
-.kind-flat .face-art{z-index:1!important}.kind-flat .face-text{z-index:200!important;transform:translateZ(100px)!important}.kind-flat .face-gem{z-index:150!important;transform:translateZ(160px) rotate(45deg)!important}.kind-flat .face-name,.kind-flat .face-rarity{z-index:50!important}
+.kind-flat .face-art{z-index:1!important}.kind-flat .face-text{z-index:200!important;transform:translateZ(calc(var(--zp) + 28px))!important}.kind-flat .face-gem{z-index:150!important;transform:translateZ(160px) rotate(45deg)!important}.kind-flat .face-name,.kind-flat .face-rarity{z-index:50!important}
 /* Original face-gem geometry from src/gacha-card.css, then only restrained optical tuning. */
 .kind-depth .face-gem,.kind-flat .face-gem{left:calc(5% + 18px)!important;right:auto!important;top:auto!important;bottom:calc(4% + 8% - 8px)!important;width:22px!important;height:22px!important;margin:0!important;z-index:25!important;transform:translateZ(calc(var(--zp) + 2px)) rotate(45deg)!important;border:2px solid #fff3d0!important;border-radius:3px!important;background:radial-gradient(circle at 35% 35%,#fff,var(--accent-card) 55%)!important;box-shadow:0 0 10px color-mix(in srgb,var(--accent-card) 58%,transparent)!important;clip-path:none!important;filter:saturate(.98)!important}
 .kind-depth .face-gem::after,.kind-flat .face-gem::after{content:"";position:absolute;inset:2px;border-radius:2px;background:linear-gradient(135deg,#fff8,transparent 38%);opacity:.18;pointer-events:none}
@@ -922,10 +922,10 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
  width:var(--gem-fs,22px) !important;height:var(--gem-fs,22px) !important;margin:0 !important;
  /* 寶石要在圖之上（滿版卡的圖蓋滿整張，壓在 --za），但它只有 22px，
     透視放大的量可以忽略；文字框整塊推高才會撐出卡緣。 */
- /* 寶石要在圖之上，也要在 .face-text 的背板之上。
-    ⚠ 後面有一條 .face-text{transform:translateZ(100px)!important}，所以背板實際在 100px，
-    不是 --zp + 28；寶石得推到 106px 才蓋得過去。 */
- z-index:210 !important;transform:translateZ(106px) rotate(45deg) !important;
+ /* Z 只能小幅推。卡面有 perspective，推越高被放大越多，
+    推到 70～106px 就會整塊撐出卡緣浮在卡片外面（第十二、十九輪各犯一次）。
+    這裡跟文字同一層（--zp + 30 ≒ 42px），放大量看不出來。 */
+ z-index:210 !important;transform:translateZ(calc(var(--zp) + 30px)) rotate(45deg) !important;
  border:2px solid #fff3d0 !important;border-radius:3px !important;
  background:radial-gradient(circle at 35% 35%,#fff,var(--accent-card) 55%) !important;
  box-shadow:0 0 10px color-mix(in srgb,var(--accent-card) 58%,transparent) !important;
@@ -937,6 +937,7 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 /* flat 的圖層不要往 Z 推。卡面是 preserve-3d，圖在 --za（最高 36px）、
    卡框只在 --zf 8px，所以圖會蓋在框前面，整張卡看起來沒有框。
    而且 flat 的定義本來就是「不做圖內視差」，Z 推移對它沒有意義。 */
+.hcard.kind-framed .face-art,
 .hcard.kind-flat .face-art,.hcard.bleed .face-art{
  transform:translate3d(var(--ax),var(--ay),0) scale(var(--comp)) !important;z-index:1 !important}
 .kind-flat .art-media>img,.bleed .art-media>img{border-radius:6px}
