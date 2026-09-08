@@ -562,7 +562,16 @@ window.Clicker = (() => {
       if (!$('audio-panel').hidden) { $('audio-panel').hidden=true; $('audio-toggle').setAttribute('aria-expanded','false'); $('audio-toggle').focus(); e.preventDefault(); return; }
       if (cutin?.active) { e.preventDefault(); return; }
       if (closeTopPanel()) { e.preventDefault(); return; }
-      if (gacha?.active && !store.state.pending) gacha.close(); else closeWindow();
+      // 招募層開著就只處理招募層，不要往下掉到 closeWindow()：
+      // closeWindow() 會 suspend()（清掉卡面、藏起「收下」鍵），網頁版沒有視窗可關，
+      // 結果就是停在一個沒有卡、沒有收下鍵、返回鍵又因為 pending 而停用的死畫面。
+      // 有 pending 時 ESC 什麼都不做，跟「返回」鍵停用的規則一致。
+      // 招募層開著就只處理招募層，不要往下掉到 closeWindow()：
+      // closeWindow() 會 suspend()（清掉卡面、藏起「收下」鍵），網頁版沒有視窗可關，
+      // 結果就是停在一個沒有卡、沒有收下鍵、返回鍵又因為 pending 而停用的死畫面。
+      // 有 pending 時 ESC 什麼都不做，跟「返回」鍵停用的規則一致。
+      if (gacha?.active) { if (!store.state.pending) gacha.close(); e.preventDefault(); return; }
+      closeWindow();
     }
     if (e.key === 'Tab') {
       const panel = ['save-error', 'receipt', 'daily-done', 'prestige', 'wardrobe', 'roster', 'stats', 'scenes', 'share', 'pick100', 'recruit-layer'].map($).find((el) => !el.hidden);

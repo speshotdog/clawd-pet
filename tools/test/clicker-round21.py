@@ -99,6 +99,33 @@ def main():
         pg.locator('#stage').screenshot(path=str(OUT / 'r21-passive-stack.png'))
         print('截圖 _art/out/r21-passive-stack.png')
 
+        # ---- BUG 回報：抽完還沒收下時按 ESC 會卡在空的招募畫面 ----
+        pg.evaluate("""() => {
+          const E=ClickerEconomy, S=ClickerSave;
+          const s=S.fresh(Date.now()); s.collection={zhenmu:1}; s.skillSlots=[null,null,null];
+          s.lifetimeCoins=s.coins=1e9; s.freeDraws=5;
+          S.validate(s,GachaPool); sessionStorage.setItem('test-seed',JSON.stringify(s));
+        }""")
+        pg.reload(); pg.wait_for_function('!document.getElementById("tap").disabled')
+        pg.locator('#draw-five').click()   # start() 自己會開招募層；先開層的話這顆會被層擋住
+        pg.wait_for_selector('#skip:not([hidden])')
+        pg.locator('#skip').click()
+        pg.wait_for_selector('#collect:not([hidden])', timeout=20000)
+        check(pg.evaluate('!!Clicker.state.pending'), "抽完、還沒收下：pending 還在")
+        pg.keyboard.press('Escape')
+        pg.wait_for_timeout(300)
+        after = pg.evaluate("""() => ({
+          layer: !document.getElementById('recruit-layer').hidden,
+          collect: !document.getElementById('collect').hidden,
+          cards: document.getElementById('cards').children.length,
+          pending: !!Clicker.state.pending,
+        })""")
+        check(after['layer'] and after['collect'] and after['cards'] > 0,
+              f"按 ESC 後畫面沒有被清空：招募層 {after['layer']}／收下鍵 {after['collect']}／卡片 {after['cards']} 張")
+        pg.locator('#collect').click()
+        pg.wait_for_function('!Clicker.state.pending', timeout=10000)
+        check(pg.evaluate('document.getElementById("recruit-layer").hidden'), "ESC 之後照樣收得下，招募層正常關閉")
+
         check(not errors, f"沒有 JS 錯誤：{errors[:3]}")
         b.close()
     print(('\n全部通過' if not fails else f'\n{len(fails)} 項失敗'))
