@@ -46,16 +46,16 @@ def cached_uri(path: Path) -> str:
     return data_uri(path)
 for path in sorted(ROOT.glob('layer-*.png')):
     asset_map[path.name] = cached_uri(path)
-for path in sorted((ROOT / '../../src').resolve().glob('card-*.png')):
+for path in sorted((ROOT / 'art').glob('card-*.png')):
     asset_map[path.name] = cached_uri(path)
-for path in sorted((ROOT / '../../src').resolve().glob('toy-*.png')):
+for path in sorted((ROOT / 'art').glob('toy-*.png')):
     asset_map[path.name] = cached_uri(path)
 for name in ('texture-fiber.png', 'texture-engraving.png', 'gacha-cardback.jpg'):
     path = (ROOT / name) if (ROOT / name).exists() else (ROOT / '../../src' / name).resolve()
     if path.exists():
         asset_map[name] = cached_uri(path)
 html = html.replace("const masks=JSON.parse($('#mask-data').textContent);", "const assetMap=" + repr(asset_map).replace("'", '"') + ";const asset=name=>assetMap[name]||name;const masks=JSON.parse($('#mask-data').textContent);")
-html = html.replace("const src=scene?srcKey:`../../src/${srcKey}`;", "const src=asset(srcKey);")
+html = html.replace("const src=scene?srcKey:`art/${srcKey}`;", "const src=asset(srcKey);")
 html = html.replace("image.src=`layer-${data.id}-background.png`", "image.src=asset(`layer-${data.id}-background.png`)")
 html = html.replace('../../src/card-zhenpete.png', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')
 
