@@ -1,0 +1,32 @@
+[
+  {
+    "command": "python _art/holo-test/build_round5_standalone.py",
+    "exit": 0,
+    "tail": "embedded=15 size=3759759 bytes\n"
+  },
+  {
+    "command": "python _art/holo-test/build_cards_remade.py",
+    "exit": 0,
+    "tail": "wrote cards-remade.html : 43 cards, 1.01 MiB\n"
+  },
+  {
+    "command": "python _art/holo-test/build_deluxe_b.py",
+    "exit": 0,
+    "tail": "wrote deluxe-gacha-b.html  cards: 47  1.03 MiB\n"
+  },
+  {
+    "command": "python _art/holo-test/build_deluxe_b_standalone.py",
+    "exit": 0,
+    "tail": "wrote deluxe-gacha-b-standalone.html 4.47 MiB | assets: 51\n"
+  },
+  {
+    "command": "python _art/holo-test/check_demo_round8.py",
+    "exit": 0,
+    "tail": "        \"ok\": true\n        },\n        {\n          \"id\": \"pool-dino\",\n          \"kind\": \"framed\",\n          \"nameCenterDelta\": 0,\n          \"rarityCenterDelta\": 0.008148193359375,\n          \"gemNameGap\": 39.48150634765625,\n          \"nameProtected\": false,\n          \"plateVisible\": false,\n          \"subjectAbovePlate\": true,\n          \"ok\": true\n        },\n        {\n          \"id\": \"flat-compare-depth\",\n          \"kind\": \"depth\",\n          \"nameCenterDelta\": 0.008148193359375,\n          \"rarityCenterDelta\": 0,\n          \"gemNameGap\": 36.84722900390625,\n          \"nameProtected\": true,\n          \"plateVisible\": false,\n          \"subjectAbovePlate\": true,\n          \"ok\": true\n        },\n        {\n          \"id\": \"flat-compare-flat\",\n          \"kind\": \"flat\",\n          \"nameCenterDelta\": 0.008148193359375,\n          \"rarityCenterDelta\": 0,\n          \"gemNameGap\": 36.84722900390625,\n          \"nameProtected\": true,\n          \"plateVisible\": false,\n          \"subjectAbovePlate\": true,\n          \"ok\": true\n        }\n      ],\n      \"gem_contrast_failures\": [],\n      \"external_requests\": [],\n      \"console_errors\": []\n    }\n  ],\n  \"standalone_copied\": true,\n  \"gem_contrast_threshold\": 35\n}\n"
+  },
+  {
+    "command": "python _art/holo-test/check_demo_round9.py",
+    "exit": 0,
+    "tail": "{\n  \"expected_total\": 65,\n  \"pool_cards\": 43,\n  \"standalone_bytes\": 3759759,\n  \"results\": [\n    {\n      \"label\": \"dev\",\n      \"cards\": 65,\n      \"pool\": 43,\n      \"external_requests\": [],\n      \"console_errors\": []\n    },\n    {\n      \"label\": \"standalone-copy\",\n      \"cards\": 65,\n      \"pool\": 43,\n      \"external_requests\": [],\n      \"console_errors\": []\n    }\n  ]\n}\n"
+  }
+]

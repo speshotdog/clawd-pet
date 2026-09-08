@@ -270,18 +270,18 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
    移到共用 CSS，兩支建置腳本擷取 <style> 時就都會拿到。 */
 .kind-framed .face-depth-bg{
  background:
-  radial-gradient(2.2px 2.2px at 18% 22%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.6px 1.6px at 74% 14%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.9px 1.9px at 88% 38%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.5px 1.5px at 32% 9%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.7px 1.7px at 9% 52%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.4px 1.4px at 61% 30%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(120% 60% at 50% 108%,var(--pal-glow) 0%,transparent 62%),
-  radial-gradient(62% 46% at 50% 44%,var(--pal-glow) 0%,transparent 72%),
-  radial-gradient(140% 100% at 50% 50%,transparent 40%,var(--pal-ink) 100%),
-  linear-gradient(170deg,var(--pal-base),var(--pal-ink) 92%) !important}
+  radial-gradient(2.2px 2.2px at 18% 22%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.6px 1.6px at 74% 14%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.9px 1.9px at 88% 38%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.5px 1.5px at 32% 9%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.7px 1.7px at 9% 52%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.4px 1.4px at 61% 30%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(120% 60% at 50% 108%,var(--pal-glow,#2b3550) 0%,transparent 62%),
+  radial-gradient(62% 46% at 50% 44%,var(--pal-glow,#2b3550) 0%,transparent 72%),
+  radial-gradient(140% 100% at 50% 50%,transparent 40%,var(--pal-ink,#080c17) 100%),
+  linear-gradient(170deg,var(--pal-base,#141b2e),var(--pal-ink,#080c17) 92%) !important}
 .kind-framed .face-depth-bg:after{content:"";position:absolute;left:0;right:0;bottom:18%;height:34%;
- background:linear-gradient(to top,var(--pal-glow),transparent);opacity:.32;
+ background:linear-gradient(to top,var(--pal-glow,#2b3550),transparent);opacity:.32;
  mask:linear-gradient(to top,#000,transparent);-webkit-mask:linear-gradient(to top,#000,transparent)}
 </style>
 <style id="round18-geometry">
@@ -335,15 +335,16 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
    （plate 在 --zp+1，圖在 --za），所以那兩張卡看起來沒有文字框。
    使用者定案「不接受沒有文字框的」，所以把背板直接畫在 .face-text 上——
    它本來就在圖之上，不必再把 plate 往前推（推了會被透視放大撐出卡緣）。 */
-.kind-flat .face-text,.bleed .face-text{
- /* ⚠ HANDOFF 三節「已否決的路線」：不透明銘牌橫幅蓋在圖上，第七輪就拆掉了。
-    滅世珍獸這種滿版卡的圖是一路鋪到卡底的，文字框要讓下層的畫透出來，
-    不能是一條黑棒。所以背板改成由下往上收的半透明 scrim ——
-    仍然有框（上緣稀有度色的細線、圓角、外框線），但看得到底下的畫。 */
+/* flat／bleed 的文字框：scrim 只畫在 .face-plate 這一層，.face-text 保持透明。
+   之前兩層都有底（plate 是 alpha .97～.99 的深色 ＋ text 再畫一次 scrim），
+   疊起來就是被否決過的黑棒。HANDOFF 三節「已否決的路線」講的就是這件事。 */
+.hcard.kind-flat .face-plate,.hcard.bleed .face-plate{
  background:linear-gradient(to top,#070b12d9,#080d16a6 52%,#0a101c40) !important;
  border:1px solid #b4b7c72e !important;border-top:1px solid var(--accent-card) !important;
  border-radius:5px !important;
- box-shadow:0 0 0 1px #0a0d1566,0 7px 18px #00000059 !important;
+ box-shadow:0 0 0 1px #0a0d1566,0 7px 18px #00000059 !important}
+.kind-flat .face-text,.bleed .face-text{
+ background:none !important;border:0 !important;box-shadow:none !important;
  padding:0 calc(var(--gem-fs,22px)*1.7) !important}
 /* framed 的名字現在也走 .face-text，位置要跟場景卡一模一樣 */
 .kind-framed .face-text{position:absolute !important;left:4.4% !important;right:4.4% !important;
@@ -538,8 +539,11 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
   function unobserve(card) { if (observer) observer.unobserve(card); }
 
   function refit() {
+    // ⚠ 一定要用未變形的佈局寬（clientWidth），不能用 getBoundingClientRect()。
+    // 卡片外層有 hover scale 與 Z 投影，用 rect 會把 102px 的卡算成 115px，
+    // 字級就變成 9.54px 而不是 8.44px（Astra 驗收抓到）。
     document.querySelectorAll('.hcard').forEach(function (c) {
-      var w = c.getBoundingClientRect().width;
+      var w = c.clientWidth;
       if (w) fit(c, w);
     });
   }
@@ -556,7 +560,8 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
     if (d < 0.002) t = 0;
     var a = Math.floor(t), b = (a + 1) % 4, f = t - a;
     var q = function (i) { return (i % 2 * 100) + '% ' + (Math.floor(i / 2) * 100) + '%'; };
-    var shift = tiltOn ? 1 : 0;
+    // flat 的定義是「不做圖內視差」，所以就算整張卡可以傾斜，圖層也不位移
+    var shift = (tiltOn && card.dataset.artKind !== 'flat') ? 1 : 0;
     var v = {
       '--rx': (-y * tilt) + 'deg', '--ry': (x * tilt) + 'deg',
       '--za': z + 'px', '--zb': '2px', '--zf': '8px', '--zp': '12px',
@@ -987,6 +992,7 @@ function updateFinish(){
 }
 btn.all.addEventListener('click',skipAll);
 btn.fin.addEventListener('click',()=>{
+  for(const s of slots){const f=s.el.querySelector('.hcard'); if(f) HoloCardFace.unobserve(f);}
   fan.replaceChildren();slots=[];btn.fin.hidden=true;btn.all.hidden=true;skipped=false;cascading=false;
   stage.removeEventListener('click',skipAll);
   idlepack.style.opacity='';idlepack.getAnimations().forEach(a=>a.cancel());

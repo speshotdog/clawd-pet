@@ -1,0 +1,150 @@
+"""Read-only implementation audit. Fixtures use the shipped builder and captured options.
+Run from any cwd; writes only verify-gacha evidence. Exit 1 means measured failures.
+"""
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import json, shutil, sys
+from io import BytesIO
+from PIL import Image, ImageChops, ImageStat
+from playwright.sync_api import sync_playwright
+from pool_data import pool
+
+HERE = Path(__file__).resolve().parent
+OUT = HERE / 'verify-gacha'
+OUT.mkdir(exist_ok=True)
+WIDTHS = [80, 102, 150, 230, 290]
+MEASURE = r"""c => {
+ const cs=getComputedStyle(c), cr=c.getBoundingClientRect();
+ const sels=['.card-lift','.card-inner','.card-face','.face-stock','.face-depth-bg','.face-art','.art-media','.art-media img','.face-frame','.frame-material','.face-plate','.face-text','.face-gem','.face-name','.face-rarity'];
+ const props=['fontFamily','fontSize','lineHeight','letterSpacing','color','webkitTextFillColor','backgroundImage','backgroundColor','transform','zIndex','left','right','top','bottom','height','width','paddingLeft','paddingRight','gap','opacity','filter','mixBlendMode','borderRadius'];
+ let layers={};
+ for(const sel of sels){const e=c.querySelector(sel);if(!e){layers[sel]=null;continue;}const s=getComputedStyle(e),r=e.getBoundingClientRect();let styles={};for(const p of props)styles[p]=s[p];layers[sel]={rect:[r.x-cr.x,r.y-cr.y,r.width,r.height],styles};}
+ const n=c.querySelector('.face-name'),p=c.querySelector('.face-plate'),g=c.querySelector('.face-gem');
+ const range=document.createRange();range.selectNodeContents(n);const nr=range.getBoundingClientRect(),pr=p.getBoundingClientRect(),gr=g.getBoundingClientRect(),ps=getComputedStyle(p),scale=pr.width/p.offsetWidth,cx=cr.x+cr.width/2;
+ const room=2*Math.max(0,Math.min(cx-pr.left-parseFloat(ps.paddingLeft)*scale,pr.right-parseFloat(ps.paddingRight)*scale-cx,cx-gr.right-parseFloat(cs.width)*.02*scale));
+ return {id:c.dataset.id,kind:c.dataset.artKind,rarity:c.dataset.rarity,name:n.textContent,width:parseFloat(cs.width),cardRect:[cr.width,cr.height],outerTransform:getComputedStyle(c.parentElement).transform,outerScale:getComputedStyle(c.parentElement).scale,layers,
+ structure:c.querySelectorAll('.face-text').length===1&&c.querySelectorAll('.face-text .face-name').length===1&&c.querySelectorAll('.face-text .face-rarity').length===1&&!p.textContent&&(c.dataset.artKind!=='flat'||!c.querySelector('.subject-mask')),
+ nameFits:c.dataset.nameFits,rangeWidth:nr.width,room,gemGap:nr.left-gr.right,localName:n.style.getPropertyValue('--name-fs'),
+ broken:[...c.querySelectorAll('img')].filter(i=>!i.complete||!i.naturalWidth).length,
+ centers:['.face-name','.face-rarity'].map(s=>{const r=c.querySelector(s).getBoundingClientRect();return Math.abs(r.x+r.width/2-cx)}),
+ overflow:['.face-plate','.face-text','.face-gem','.face-name','.face-rarity'].map(s=>{const r=c.querySelector(s).getBoundingClientRect();return {selector:s,amount:Math.max(0,cr.left-r.left,r.right-cr.right,cr.top-r.top,r.bottom-cr.bottom)}}),
+ vars:Object.fromEntries(['--rx','--ry','--ax','--ay','--bx','--by','--phase','--foil','--grain','--glare','--pal-base'].map(k=>[k,cs.getPropertyValue(k)]))};
+}"""
+
+def settle(page):
+    page.evaluate("async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));}")
+    page.wait_for_timeout(80)
+
+def prepare(page, name):
+    page.goto((HERE/name).as_uri())
+    settle(page)
+    page.mouse.move(1,1)
+    page.evaluate("""()=>{window.__cards=[...document.querySelectorAll('.hcard')];for(const el of document.body.children)el.style.display='none';document.body.style.background='#07080d';document.body.style.padding='0';}""")
+
+def place(page, data, width, gacha=False):
+    page.evaluate("""({d,w,g})=>{
+      if(window.__host){if(g)HoloCardFace.unobserve(__host.querySelector('.hcard'));__host.remove();}
+      const c=g?HoloCardFace.create(d,window.__opts):__cards.find(c=>c.dataset.id===d.id);
+      if(!c)throw Error('missing '+d.id);
+      const h=document.createElement('div');h.className=g?'slot':'hit';h.style.cssText=`position:fixed;left:100px;top:100px;width:${w}px;height:${w*1.4}px;margin:0;transform:none;scale:1;`;
+      h.append(c);document.body.append(h);window.__host=h;c.style.opacity='1';
+      if(g)HoloCardFace.observe(c);
+    }""", {'d':data,'w':width,'g':gacha})
+    settle(page)
+    return page.locator('body > .hit .hcard, body > .slot .hcard').evaluate(MEASURE)
+
+def compare(a,b):
+    diffs=[];maxrect=0
+    for sel,x in a['layers'].items():
+        y=b['layers'][sel]
+        if x is None or y is None:
+            if x!=y:diffs.append([sel,'missing'])
+            continue
+        maxrect=max(maxrect,max(abs(i-j) for i,j in zip(x['rect'],y['rect'])))
+        for k,v in x['styles'].items():
+            if v!=y['styles'][k]:diffs.append([sel,k,v,y['styles'][k]])
+    return {'maxRectDelta':maxrect,'styleDifferences':diffs,'pass':maxrect<=1 and not diffs}
+
+def main():
+    result={'viewport':{'width':1512,'height':1000},'deviceScaleFactor':1,'widths':WIDTHS,'pairs':[],'flows':[],'errors':[], 'stress':[]}
+    with sync_playwright() as pw:
+        browser=pw.chromium.launch(headless=True)
+        result['browser']=browser.version
+        ctx=browser.new_context(viewport=result['viewport'],device_scale_factor=1)
+        g,r,d=[ctx.new_page() for _ in range(3)]
+        for label,p in [('gacha',g),('remade',r),('demo',d)]:
+            p.on('pageerror',lambda e,l=label:result['errors'].append([l,str(e)]))
+        # Capture the exact resolver/masks actually passed by makeFace on a real draw.
+        g.goto((HERE/'deluxe-gacha-b.html').as_uri())
+        g.evaluate("()=>{const f=HoloCardFace.create;HoloCardFace.create=function(d,o){window.__opts=o;return f(d,o)}}")
+        g.locator('#p1').click();g.wait_for_function('window.__opts!==undefined');g.wait_for_timeout(3500)
+        g.evaluate("()=>{for(const e of document.body.children)e.style.display='none';document.body.style.background='#07080d';document.body.style.padding='0'}")
+        prepare(r,'cards-remade.html');prepare(d,'demo.html')
+        for w in WIDTHS:
+            for card in pool():
+                ref=d if card.get('scene') else r
+                a=place(ref,card,w);b=place(g,card,w,True)
+                row={'id':card['id'],'width':w,'reference':'demo.html' if card.get('scene') else 'cards-remade.html','referenceMeasurement':a,'gachaMeasurement':b,**compare(a,b)}
+                if card['id'] in ['rocketdog','mieshi','wanwumythic','foxfriend','dino']:
+                    imgs=[]
+                    for label,p in [('reference',ref),('gacha',g)]:
+                        buf=p.screenshot(clip={'x':96,'y':96,'width':w+8,'height':int(w*1.4)+8})
+                        (OUT/f'{card["id"]}-{w}-{label}.png').write_bytes(buf);imgs.append(Image.open(BytesIO(buf)).convert('RGB'))
+                    delta=ImageChops.difference(*imgs);row['pixelMAE']=sum(ImageStat.Stat(delta).mean)/3
+                    row['differentPixels']=sum(1 for x in delta.get_flattened_data() if x!=(0,0,0))
+                result['pairs'].append(row)
+            print('measured width',w,flush=True)
+            (OUT/'measure-gacha-after.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+        # Same-width long-name stress and restore, no production pool mutations.
+        fixture=dict(next(c for c in pool() if c['id']=='dino'))
+        fixture['name']='這是一張用來驗證縮字下限與恢復能力的超長卡片名稱'
+        for w in [290,80,290]:
+            result['stress'].append(place(g,fixture,w,True))
+        # Refit must use content width even under whole-card scale.
+        place(g,next(c for c in pool() if c['id']=='dino'),102,True)
+        g.evaluate("()=>{__host.style.scale='1.13';HoloCardFace.refit()}")
+        result['scaledRefit']=g.locator('body > .slot .hcard').evaluate(MEASURE)
+        # Real controls, untouched pages and randomness; normal and skip paths.
+        for portable in [False,True]:
+            with TemporaryDirectory(prefix='gacha-verify-') as tmp:
+                source=HERE/'deluxe-gacha-b.html'
+                if portable:
+                    source=Path(tmp)/'portable.html';shutil.copy2(HERE/'deluxe-gacha-b-standalone.html',source)
+                p=ctx.new_page();errs=[];failed=[]
+                p.on('pageerror',lambda e:errs.append(str(e)))
+                p.on('console',lambda m:errs.append(m.text) if m.type=='error' else None)
+                p.on('requestfailed',lambda q:failed.append(q.url))
+                p.goto(source.as_uri())
+                for n in [1,5,10]:
+                    for skip in [False,True]:
+                        p.locator('#reset').click();p.locator(f'#p{n}').click()
+                        p.wait_for_function(f'document.querySelectorAll(".slot").length==={n}')
+                        if skip:
+                            p.wait_for_timeout(1200);p.locator('#stage').click(position={'x':15,'y':100})
+                        p.wait_for_function(f'document.querySelectorAll(".slot .hcard").length==={n}',timeout=30000)
+                        p.wait_for_timeout(4200);p.mouse.move(1,1);settle(p)
+                        cards=p.locator('.slot .hcard').evaluate_all('(cs)=>cs.map('+MEASURE+')')
+                        first=p.locator('.slot .hcard').first
+                        before=first.evaluate(MEASURE);first.hover(position={'x':20,'y':20});p.wait_for_timeout(250);hover=first.evaluate(MEASURE)
+                        p.mouse.move(1,1);p.wait_for_timeout(250)
+                        if n==10 and not skip:p.screenshot(path=str(OUT/f'ten-pull-{portable}.png'))
+                        p.set_viewport_size({'width':1100,'height':800});p.wait_for_timeout(250)
+                        resized=p.locator('.slot .hcard').evaluate_all('(cs)=>cs.map('+MEASURE+')')
+                        finish_visible=p.locator('#finish').is_visible()
+                        if finish_visible:
+                            p.locator('#finish').click();p.wait_for_timeout(150)
+                        else:
+                            p.screenshot(path=str(OUT/f'finish-hidden-{portable}-{n}-{skip}.png'))
+                        result['flows'].append({'portable':portable,'n':n,'skip':skip,'cards':cards,'hoverBefore':before['vars'],'hoverAfter':hover['vars'],'resized':resized,'finishVisible':finish_visible,'collected':p.locator('.slot').count()==0,'errors':list(errs),'failedRequests':list(failed)})
+                        (OUT/'measure-gacha-after.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+                        p.set_viewport_size(result['viewport'])
+                        print('flow',portable,n,skip,flush=True)
+                p.close()
+        browser.close()
+    result['summary']={'pairs':len(result['pairs']),'pairFailures':sum(not x['pass'] for x in result['pairs']),'gachaStructureFailures':sum(not x['gachaMeasurement']['structure'] for x in result['pairs']),'gachaNameFitFailures':sum(x['gachaMeasurement']['nameFits']=='false' for x in result['pairs']),'flowCount':len(result['flows'])}
+    (OUT/'measure-gacha-after.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+    print(json.dumps(result['summary'],ensure_ascii=False))
+    return 1 if result['summary']['pairFailures'] or result['errors'] or any(not f['collected'] or f['errors'] or f['failedRequests'] for f in result['flows']) else 0
+
+if __name__=='__main__':
+    sys.exit(main())

@@ -438,6 +438,7 @@ function updateFinish(){
 }
 btn.all.addEventListener('click',skipAll);
 btn.fin.addEventListener('click',()=>{
+  for(const s of slots){const f=s.el.querySelector('.hcard'); if(f) HoloCardFace.unobserve(f);}
   fan.replaceChildren();slots=[];btn.fin.hidden=true;btn.all.hidden=true;skipped=false;cascading=false;
   stage.removeEventListener('click',skipAll);
   idlepack.style.opacity='';idlepack.getAnimations().forEach(a=>a.cancel());

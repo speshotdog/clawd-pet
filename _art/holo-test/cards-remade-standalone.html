@@ -264,6 +264,26 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
 /* 文字框左邊留出寶石的位置，名字才不會被推歪 */
 
 </style>
+<style id="round25-palette-bg">
+/* 每張卡自己的同色背景（顏色來自 art/palette.json）。
+   本來只寫在 build_cards_remade.py 裡，所以抽卡頁沒有，兩邊長不一樣。
+   移到共用 CSS，兩支建置腳本擷取 <style> 時就都會拿到。 */
+.kind-framed .face-depth-bg{
+ background:
+  radial-gradient(2.2px 2.2px at 18% 22%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.6px 1.6px at 74% 14%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.9px 1.9px at 88% 38%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.5px 1.5px at 32% 9%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.7px 1.7px at 9% 52%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(1.4px 1.4px at 61% 30%,var(--pal-accent,#9fb0c8) 0 45%,transparent 46%),
+  radial-gradient(120% 60% at 50% 108%,var(--pal-glow,#2b3550) 0%,transparent 62%),
+  radial-gradient(62% 46% at 50% 44%,var(--pal-glow,#2b3550) 0%,transparent 72%),
+  radial-gradient(140% 100% at 50% 50%,transparent 40%,var(--pal-ink,#080c17) 100%),
+  linear-gradient(170deg,var(--pal-base,#141b2e),var(--pal-ink,#080c17) 92%) !important}
+.kind-framed .face-depth-bg:after{content:"";position:absolute;left:0;right:0;bottom:18%;height:34%;
+ background:linear-gradient(to top,var(--pal-glow,#2b3550),transparent);opacity:.32;
+ mask:linear-gradient(to top,#000,transparent);-webkit-mask:linear-gradient(to top,#000,transparent)}
+</style>
 <style id="round18-geometry">
 /* Round 18：卡池卡的版面照場景卡（天外膠膠那張）的實測數字對齊。
    量到的差距（佔卡片比例）：
@@ -315,15 +335,16 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
    （plate 在 --zp+1，圖在 --za），所以那兩張卡看起來沒有文字框。
    使用者定案「不接受沒有文字框的」，所以把背板直接畫在 .face-text 上——
    它本來就在圖之上，不必再把 plate 往前推（推了會被透視放大撐出卡緣）。 */
-.kind-flat .face-text,.bleed .face-text{
- /* ⚠ HANDOFF 三節「已否決的路線」：不透明銘牌橫幅蓋在圖上，第七輪就拆掉了。
-    滅世珍獸這種滿版卡的圖是一路鋪到卡底的，文字框要讓下層的畫透出來，
-    不能是一條黑棒。所以背板改成由下往上收的半透明 scrim ——
-    仍然有框（上緣稀有度色的細線、圓角、外框線），但看得到底下的畫。 */
+/* flat／bleed 的文字框：scrim 只畫在 .face-plate 這一層，.face-text 保持透明。
+   之前兩層都有底（plate 是 alpha .97～.99 的深色 ＋ text 再畫一次 scrim），
+   疊起來就是被否決過的黑棒。HANDOFF 三節「已否決的路線」講的就是這件事。 */
+.hcard.kind-flat .face-plate,.hcard.bleed .face-plate{
  background:linear-gradient(to top,#070b12d9,#080d16a6 52%,#0a101c40) !important;
  border:1px solid #b4b7c72e !important;border-top:1px solid var(--accent-card) !important;
  border-radius:5px !important;
- box-shadow:0 0 0 1px #0a0d1566,0 7px 18px #00000059 !important;
+ box-shadow:0 0 0 1px #0a0d1566,0 7px 18px #00000059 !important}
+.kind-flat .face-text,.bleed .face-text{
+ background:none !important;border:0 !important;box-shadow:none !important;
  padding:0 calc(var(--gem-fs,22px)*1.7) !important}
 /* framed 的名字現在也走 .face-text，位置要跟場景卡一模一樣 */
 .kind-framed .face-text{position:absolute !important;left:4.4% !important;right:4.4% !important;
@@ -351,6 +372,220 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
  text-shadow:none !important;
  filter:drop-shadow(0 1px 0 rgba(30,12,40,.9)) drop-shadow(0 2px 6px rgba(0,0,0,.85)) drop-shadow(0 0 12px rgba(255,255,255,.35)) !important}
 </style>
+<script>/* 卡面建立器：唯一一份。
+ *
+ * 以前卡面 DOM 與尺寸計算在 demo.html、build_cards_remade.py、build_deluxe_b.py
+ * 各寫一次，結果就是「抽卡接入之後全部跑掉」——三份會各自漂移。
+ * 規格在 docs/clicker/HANDOFF-holo-cards.md 第六之四、六之五節（凍結）。
+ *
+ * 用法：
+ *   const face = HoloCardFace.create(data, {masks, resolve});
+ *   HoloCardFace.observe(face);      // 字級與縮字
+ *   HoloCardFace.paint(face, rarity, x, y, {tilt:false});
+ *
+ * data: {id, name, rarity, kind:'depth'|'flat'|'framed', file, scene?, bleed?, pal?}
+ * resolve(name): 把素材檔名換成實際可用的 URL（相對路徑或 data URI），各頁自己決定。
+ */
+(function (root) {
+  'use strict';
+
+  var LABEL = {common:'普通', rare:'精良', epic:'史詩', legendary:'傳說', mythic:'神話'};
+  var ZLIFT = {common:24, rare:32, epic:40, legendary:48, mythic:56};
+  var TILT  = {common:6, rare:8, epic:10, legendary:12, mythic:14};
+
+  // 凍結的換算基準：290px 卡寬（HANDOFF 六之五）
+  var NAME_SHARE = 24 / 290;
+  var RARITY_SHARE = 13.5 / 290;
+  var GEM_SHARE = 22 / 290;
+  var MIN_NAME_RATIO = 0.55;      // 縮字下限
+  var GEM_GAP_SHARE = 0.02;       // 名字與寶石之間留白
+
+  function node(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+
+  function material(parent) {
+    var stack = node('div', 'foil-stack');
+    ['spectrum', 'relief', 'etch'].forEach(function (x) { stack.append(node('div', 'foil-' + x)); });
+    parent.append(stack, node('div', 'foil-fiber'), node('div', 'foil-grain'), node('div', 'foil-glare'));
+  }
+
+  function create(data, opts) {
+    opts = opts || {};
+    var masks = opts.masks || {};
+    var resolve = opts.resolve || function (n) { return n; };
+    var kind = data.kind || (data.scene ? 'depth' : (data.bleed ? 'flat' : 'framed'));
+
+    var card = node('div', 'hcard r-' + data.rarity + ' kind-' + kind + ' gem-faceted' +
+                           (data.scene ? ' scene' : '') + (data.bleed ? ' bleed' : ''));
+    card.dataset.id = data.id;
+    card.dataset.rarity = data.rarity;
+    card.dataset.artKind = kind;
+
+    var pal = data.pal || {};
+    card.style.setProperty('--pal-base', pal.base || '#141b2e');
+    card.style.setProperty('--pal-glow', pal.glow || '#2b3550');
+    card.style.setProperty('--pal-accent', pal.accent || '#9fb0c8');
+    card.style.setProperty('--pal-ink', pal.ink || '#080c17');
+
+    var lift = node('div', 'card-lift'), inner = node('div', 'card-inner'), front = node('div', 'card-face');
+    var stock = node('div', 'leaf face-stock'),
+        bg = node('div', 'leaf face-depth-bg'),
+        art = node('div', 'leaf face-art'),
+        frame = node('div', 'leaf face-frame'),
+        plate = node('div', 'leaf face-plate'),
+        gem = node('div', 'face-gem'),
+        text = node('div', 'face-text');
+
+    // 背景：場景卡有自己的背景圖層，其他卡靠 CSS 的同色背景
+    if (data.scene) {
+      var bgImg = node('img');
+      bgImg.src = resolve('layer-' + data.id + '-background.png');
+      bgImg.alt = ''; bgImg.draggable = false;
+      bg.append(bgImg);
+    } else {
+      bg.append(node('div', 'floor'));
+    }
+    material(bg);
+
+    // 圖層
+    var key = data.scene ? ('layer-' + data.id + '-subject.png') : data.file;
+    var media = node('div', 'art-media'), img = node('img');
+    img.src = resolve(key); img.alt = ''; img.draggable = false;
+    media.append(img);
+    // flat 不做圖內視差，所以不掛 subject-mask（HANDOFF 三節）
+    if (masks[key] && kind !== 'flat') {
+      var mask = node('div', 'subject-mask');
+      mask.style.setProperty('--subject', 'url("' + masks[key] + '")');
+      material(mask);
+      media.append(mask);
+    }
+    art.append(media);
+    frame.append(node('div', 'frame-material'));
+
+    // 名字一律在 .face-text，.face-plate 只是背板
+    text.append(node('b', 'face-name', data.name),
+                node('span', 'face-rarity', LABEL[data.rarity] + ' / ' + data.rarity.toUpperCase()));
+
+    front.append(stock, bg, art, frame, plate, gem, text);
+    inner.append(front); lift.append(inner); card.append(lift);
+    paint(card, data.rarity, 0, 0, {tilt: false});
+    return card;
+  }
+
+  /* ── 字級與縮字：三個頁面共用同一份 ───────────────────────── */
+
+  function textWidth(el) {
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    return r.getBoundingClientRect().width;
+  }
+
+  function fit(card, w) {
+    var name = card.querySelector('.face-name');
+    var plate = card.querySelector('.face-plate');
+    var gem = card.querySelector('.face-gem');
+    if (!name || !plate) return;
+
+    name.style.removeProperty('--name-fs');     // 局部值會遮住卡片上的變數
+    var base = w * NAME_SHARE;
+    card.style.setProperty('--name-fs', base.toFixed(2) + 'px');
+
+    var pcs = getComputedStyle(plate);
+    var cr = card.getBoundingClientRect(), pr = plate.getBoundingClientRect();
+    var cx = cr.left + cr.width / 2;
+    var scale = cr.width ? pr.width / plate.offsetWidth : 1;   // 投影比例，量到同一個座標空間
+    var padL = parseFloat(pcs.paddingLeft) * scale;
+    var padR = parseFloat(pcs.paddingRight) * scale;
+    var half = Math.min(cx - (pr.left + padL), (pr.right - padR) - cx);
+    if (gem) half = Math.min(half, cx - (gem.getBoundingClientRect().right + w * GEM_GAP_SHARE * scale));
+    var room = Math.max(0, 2 * half);
+
+    var fs = base, floor = base * MIN_NAME_RATIO, guard = 0;
+    while (textWidth(name) > room && fs > floor && guard++ < 24) {
+      fs = Math.max(floor, fs * 0.93);
+      card.style.setProperty('--name-fs', fs.toFixed(2) + 'px');
+    }
+    card.dataset.nameFits = String(textWidth(name) <= room);
+
+    // 稀有度跟著名字走：名字被縮過就照同一個比例縮，
+    // 否則長名時 4.75px 的稀有度會比縮到 4.64px 的名字還大。
+    var rarity = Math.min(w * RARITY_SHARE, fs * RARITY_SHARE / NAME_SHARE);
+    card.style.setProperty('--rarity-fs', rarity.toFixed(2) + 'px');
+  }
+
+  var observer = null;
+  function observe(card) {
+    if (!observer) {
+      observer = new ResizeObserver(function (list) {
+        for (var i = 0; i < list.length; i++) {
+          var w = list[i].contentRect.width;
+          if (!w) continue;
+          var c = list[i].target;
+          c.style.setProperty('--gem-fs', (w * GEM_SHARE).toFixed(2) + 'px');
+          fit(c, w);
+        }
+      });
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { refit(); });
+      }
+    }
+    observer.observe(card);
+  }
+
+  function unobserve(card) { if (observer) observer.unobserve(card); }
+
+  function refit() {
+    // ⚠ 一定要用未變形的佈局寬（clientWidth），不能用 getBoundingClientRect()。
+    // 卡片外層有 hover scale 與 Z 投影，用 rect 會把 102px 的卡算成 115px，
+    // 字級就變成 9.54px 而不是 8.44px（Astra 驗收抓到）。
+    document.querySelectorAll('.hcard').forEach(function (c) {
+      var w = c.clientWidth;
+      if (w) fit(c, w);
+    });
+  }
+
+  /* ── 姿態：tilt=false 時卡片不轉，只有材質跟著游標 ──────────── */
+
+  function paint(card, rarity, x, y, opts) {
+    opts = opts || {};
+    var tiltOn = opts.tilt !== false;
+    x = x || 0; y = y || 0;
+    var z = ZLIFT[rarity] * 0.65, tilt = tiltOn ? TILT[rarity] : 0;
+    var d = Math.min(1, Math.hypot(x, y));
+    var t = ((Math.atan2(y, x) + Math.PI) / (Math.PI * 2) * 4) % 4;
+    if (d < 0.002) t = 0;
+    var a = Math.floor(t), b = (a + 1) % 4, f = t - a;
+    var q = function (i) { return (i % 2 * 100) + '% ' + (Math.floor(i / 2) * 100) + '%'; };
+    // flat 的定義是「不做圖內視差」，所以就算整張卡可以傾斜，圖層也不位移
+    var shift = (tiltOn && card.dataset.artKind !== 'flat') ? 1 : 0;
+    var v = {
+      '--rx': (-y * tilt) + 'deg', '--ry': (x * tilt) + 'deg',
+      '--za': z + 'px', '--zb': '2px', '--zf': '8px', '--zp': '12px',
+      '--comp': (1000 - z) / 1000,
+      '--ax': (x * 1.5 * shift) + 'px', '--ay': (y * 1.5 * shift) + 'px',
+      '--bx': (-x * 0.5 * shift) + 'px', '--by': (-y * 0.5 * shift) + 'px',
+      '--fx': (50 - 26 * x + 10 * y) + '%', '--fy': (50 + 16 * y) + '%',
+      '--cx': (50 + 20 * x + 8 * y) + '%', '--cy': (50 - 24 * y) + '%',
+      '--gx': (50 + 42 * x) + '%', '--gy': (50 + 42 * y) + '%',
+      '--phase': (120 + x * 70 - y * 40) + 'deg',
+      '--ga': (0.18 + 0.82 * d) * (1 - f), '--gb': (0.18 + 0.82 * d) * f,
+      '--apos': q(a), '--bpos': q(b),
+      '--foil': 0.85, '--grain': 0.75, '--glare': 0.45 * (0.3 + 0.5 * d)
+    };
+    for (var k in v) card.style.setProperty(k, String(v[k]));
+  }
+
+  root.HoloCardFace = {
+    create: create, observe: observe, unobserve: unobserve, refit: refit,
+    paint: paint, fit: fit, LABEL: LABEL, ZLIFT: ZLIFT, TILT: TILT,
+    NAME_SHARE: NAME_SHARE, RARITY_SHARE: RARITY_SHARE, GEM_SHARE: GEM_SHARE
+  };
+})(window);
+</script>
 <style id="remade">
 *{box-sizing:border-box}
 body{margin:0;background:#07080d;color:#dbe7ff;padding:28px 22px 70px;
@@ -365,22 +600,6 @@ h2{font-size:16px;letter-spacing:.05em;margin:34px 0 4px}
 .compare{display:grid;grid-template-columns:repeat(2,minmax(0,260px));gap:26px;margin:10px 0 6px}
 .compare .cap b{color:#c9d4e6;display:block;font-size:13px;margin-bottom:2px}
 
-/* ── 滿版背景：底色 + 角色背後光暈 + 地平線 + 星點 + 暗角 ───────── */
-.kind-framed .face-depth-bg{
- background:
-  radial-gradient(2.2px 2.2px at 18% 22%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.6px 1.6px at 74% 14%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.9px 1.9px at 88% 38%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.5px 1.5px at 32% 9%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.7px 1.7px at 9% 52%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.4px 1.4px at 61% 30%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(120% 60% at 50% 108%,var(--pal-glow) 0%,transparent 62%),
-  radial-gradient(62% 46% at 50% 44%,var(--pal-glow) 0%,transparent 72%),
-  radial-gradient(140% 100% at 50% 50%,transparent 40%,var(--pal-ink) 100%),
-  linear-gradient(170deg,var(--pal-base),var(--pal-ink) 92%) !important}
-.kind-framed .face-depth-bg:after{content:"";position:absolute;left:0;right:0;bottom:18%;height:34%;
- background:linear-gradient(to top,var(--pal-glow),transparent);opacity:.32;
- mask:linear-gradient(to top,#000,transparent);-webkit-mask:linear-gradient(to top,#000,transparent)}
 </style>
 
 <h1>卡池重製 · 全部照場景卡規格</h1>
@@ -409,83 +628,23 @@ document.documentElement.style.setProperty('--frame-mask',`url("${masks.frame}")
 document.documentElement.style.setProperty('--glitter-mask',`url("${masks.glitter}")`);
 document.body.classList.add('font-system','gem-faceted','ink-chroma');
 
-const LABEL={common:'普通',rare:'精良',epic:'史詩',legendary:'傳說',mythic:'神話'};
-const ZL={common:24,rare:32,epic:40,legendary:48,mythic:56};
-const TL={common:6,rare:8,epic:10,legendary:12,mythic:14};
+const LABEL=HoloCardFace.LABEL;
 
 function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x!==undefined)n.textContent=x;return n;}
-function material(p){const s=node('div','foil-stack');['spectrum','relief','etch'].forEach(x=>s.append(node('div','foil-'+x)));
- p.append(s,node('div','foil-fiber'),node('div','foil-grain'),node('div','foil-glare'));}
-
-const NAME_SHARE=24/290, RARITY_SHARE=13.5/290, GEM_SHARE=22/290;
-const obs=new ResizeObserver(list=>{for(const e of list){const w=e.contentRect.width;if(!w)continue;
- e.target.style.setProperty('--name-fs',(w*NAME_SHARE).toFixed(2)+'px');
- e.target.style.setProperty('--rarity-fs',Math.max(10.5,w*RARITY_SHARE).toFixed(2)+'px');
- e.target.style.setProperty('--gem-fs',Math.max(7,w*GEM_SHARE).toFixed(2)+'px');
- fit(e.target,w);}});
-
-function fit(card,w){
- const n=card.querySelector('.face-name'),p=card.querySelector('.face-plate'),g=card.querySelector('.face-gem');
- if(!n||!p)return;
- const pcs=getComputedStyle(p),cr=card.getBoundingClientRect(),pr=p.getBoundingClientRect();
- const cx=cr.left+cr.width/2;
- const toPlate=(pr.right-parseFloat(pcs.paddingRight))-cx;
- const toGem=g?cx-(g.getBoundingClientRect().right+w*.02):toPlate;
- const room=Math.max(24,2*Math.min(toPlate,toGem));
- const textW=()=>{const r=document.createRange();r.selectNodeContents(n);return r.getBoundingClientRect().width;};
- let fs=w*NAME_SHARE;
- for(let i=0;i<14&&textW()>room&&fs>w*NAME_SHARE*.55;i++){fs*=.93;card.style.setProperty('--name-fs',fs.toFixed(2)+'px');}
-}
-
-function paint(card,rarity,x,y){
- x=x||0; y=y||0;
- const z=ZL[rarity]*.65, tilt=TL[rarity];
- const d=Math.min(1,Math.hypot(x,y));
- let t=((Math.atan2(y,x)+Math.PI)/(Math.PI*2)*4)%4; if(d<.002)t=0;
- const qa=Math.floor(t), qb=(qa+1)%4, f=t-qa, q=i=>`${i%2*100}% ${Math.floor(i/2)*100}%`;
- const v={'--rx':`${-y*tilt}deg`,'--ry':`${x*tilt}deg`,'--za':z+'px','--zb':'2px','--zf':'8px','--zp':'12px',
-  '--comp':(1000-z)/1000,'--ax':`${x*1.5}px`,'--ay':`${y*1.5}px`,'--bx':`${-x*.5}px`,'--by':`${-y*.5}px`,
-  '--fx':`${50-26*x+10*y}%`,'--fy':`${50+16*y}%`,'--cx':`${50+20*x+8*y}%`,'--cy':`${50-24*y}%`,
-  '--gx':`${50+42*x}%`,'--gy':`${50+42*y}%`,'--phase':`${120+x*70-y*40}deg`,
-  '--ga':(.18+.82*d)*(1-f),'--gb':(.18+.82*d)*f,'--apos':q(qa),'--bpos':q(qb),
-  '--foil':.85,'--grain':.75,'--glare':.45*(.3+.35*d)};
- for(const [k,val] of Object.entries(v))card.style.setProperty(k,String(val));
-}
 
 function build(d,host,capHtml){
  const cell=node('div','cell'),hit=node('div','hit');
- const card=node('div',`hcard r-${d.rarity} kind-${d.kind||'framed'} gem-faceted${d.bleed?' bleed':''}`);
- card.dataset.id=d.id;card.dataset.rarity=d.rarity;
- const p=d.pal||{};
- card.style.setProperty('--pal-base',p.base||'#141b2e');
- card.style.setProperty('--pal-glow',p.glow||'#2b3550');
- card.style.setProperty('--pal-accent',p.accent||'#9fb0c8');
- card.style.setProperty('--pal-ink',p.ink||'#080c17');
- const lift=node('div','card-lift'),inner=node('div','card-inner'),front=node('div','card-face');
- const stock=node('div','leaf face-stock'),bg=node('div','leaf face-depth-bg'),art=node('div','leaf face-art'),
-       frame=node('div','leaf face-frame'),plate=node('div','leaf face-plate'),gem=node('div','face-gem');
- material(bg);
- const media=node('div','art-media'),img=node('img');
- img.src=(__A[d.file]||('art/'+d.file));img.alt='';img.draggable=false;media.append(img);
- if(masks[d.file]&&d.kind!=='flat'){const m=node('div','subject-mask');m.style.setProperty('--subject',`url("${masks[d.file]}")`);material(m);media.append(m);}
- art.append(media);
- frame.append(node('div','frame-material'));
- // 名字一律放獨立的 .face-text（第十八輪統一），文字框只當背板。
- // 之前塞在 .face-plate 裡，depth／flat 的 CSS 預期的是 .face-text，
- // 所以對照組那兩張的文字框與名字整個沒畫出來。
- const text=node('div','face-text');
- text.append(node('b','face-name',d.name),node('span','face-rarity',`${LABEL[d.rarity]} / ${d.rarity.toUpperCase()}`));
- front.append(stock,bg,art,frame,plate,gem,text);
- inner.append(front);lift.append(inner);card.append(lift);hit.append(card);
+ const card=HoloCardFace.create(d,{masks,resolve:n=>(typeof __A!=='undefined'&&__A[n])||('art/'+n)});
+ hit.append(card);
  const cap=node('p','cap');
  cap.innerHTML=capHtml!==undefined?capHtml:`${LABEL[d.rarity]}・${d.file}`;
  cell.append(hit,cap);
  host.append(cell);
- paint(card,d.rarity,0,0);obs.observe(card);
- // 不是鎖定版：滑過去可以傾斜看箔面，離開回正
+ HoloCardFace.observe(card);
+ // 卡面展示頁：整張卡可以傾斜（抽卡頁不轉，只有材質跟著游標）
  hit.addEventListener('pointermove',e=>{const r=hit.getBoundingClientRect();
-  paint(card,d.rarity,(e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1);});
- hit.addEventListener('pointerleave',()=>paint(card,d.rarity,0,0));
+  HoloCardFace.paint(card,d.rarity,(e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1,{tilt:true});});
+ hit.addEventListener('pointerleave',()=>HoloCardFace.paint(card,d.rarity,0,0,{tilt:true}));
  return card;
 }
 

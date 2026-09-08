@@ -1,0 +1,74 @@
+{
+  "demo.html": {
+    "shared": false,
+    "cards": 65,
+    "broken": 0,
+    "rows": [
+      {
+        "id": "pool-mieshi",
+        "kind": "framed",
+        "pal": "",
+        "bg": "none",
+        "plate": "linear-gradient(140deg, rgba(22, 27, 38, 0.97), rgba(17, 24, 33, 0.99))",
+        "text": "linear-gradient(to top, rgba(7, 11, 18, 0.85), rgba(8, 13, 22, 0.65) 52%, rgba(10, 16, 28, 0.25))"
+      },
+      {
+        "id": "pool-foxfriend",
+        "kind": "framed",
+        "pal": "",
+        "bg": "none",
+        "plate": "linear-gradient(140deg, rgba(22, 27, 38, 0.97), rgba(17, 24, 33, 0.99))",
+        "text": "none"
+      }
+    ],
+    "errors": []
+  },
+  "cards-remade.html": {
+    "shared": true,
+    "cards": 45,
+    "broken": 0,
+    "rows": [
+      {
+        "id": "mieshi",
+        "kind": "flat",
+        "pal": "#181a1e",
+        "bg": "radial-gradient(at 50% 60%, rgba(75, 79, 115, 0.333), rgba(0, 0, 0, 0) 65%), linear-gradient(155deg, rgb(43, 53, 71), rgb(17, 28, 45) 72%)",
+        "plate": "linear-gradient(140deg, rgba(22, 27, 38, 0.97), rgba(17, 24, 33, 0.99))",
+        "text": "linear-gradient(to top, rgba(7, 11, 18, 0.85), rgba(8, 13, 22, 0.65) 52%, rgba(10, 16, 28, 0.25))"
+      },
+      {
+        "id": "foxfriend",
+        "kind": "framed",
+        "pal": "#1b1e21",
+        "bg": "radial-gradient(2.2px 2.2px at 18% 22%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.6px 1.6px at 74% 14%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.9px 1.9px at 88% 38%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.5px 1.5px at 32% 9%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.7px 1.7px at 9% 52%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.4px 1.4px at 61% 30%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(120% 60% at 50% 108%, rgb(89, 71, 62) 0%, rgba(0, 0, 0, 0) 62%), radial-gradient(62% 46% at 50% 44%, rgb(89, 71, 62) 0%, rgba(0, 0, 0, 0) 72%), radial-gradient(140% 100%, rgba(0, 0, 0, 0) 40%, rgb(14, 16, 17) 100%), linear-gradient(170deg, rgb(27, 30, 33), rgb(14, 16, 17) 92%)",
+        "plate": "linear-gradient(140deg, rgba(22, 27, 38, 0.97), rgba(17, 24, 33, 0.99))",
+        "text": "none"
+      }
+    ],
+    "errors": []
+  },
+  "cards-remade-standalone.html": {
+    "shared": false,
+    "cards": 45,
+    "broken": 0,
+    "rows": [
+      {
+        "id": "mieshi",
+        "kind": null,
+        "pal": "#181a1e",
+        "bg": "radial-gradient(at 50% 60%, rgba(75, 79, 115, 0.333), rgba(0, 0, 0, 0) 65%), linear-gradient(155deg, rgb(43, 53, 71), rgb(17, 28, 45) 72%)",
+        "plate": "linear-gradient(140deg, rgba(22, 27, 38, 0.97), rgba(17, 24, 33, 0.99))",
+        "text": "linear-gradient(to top, rgba(7, 11, 18, 0.85), rgba(8, 13, 22, 0.65) 52%, rgba(10, 16, 28, 0.25))"
+      },
+      {
+        "id": "foxfriend",
+        "kind": null,
+        "pal": "#1b1e21",
+        "bg": "radial-gradient(2.2px 2.2px at 18% 22%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.6px 1.6px at 74% 14%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.9px 1.9px at 88% 38%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.5px 1.5px at 32% 9%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.7px 1.7px at 9% 52%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(1.4px 1.4px at 61% 30%, rgb(176, 165, 114) 0px, rgb(176, 165, 114) 45%, rgba(0, 0, 0, 0) 46%), radial-gradient(120% 60% at 50% 108%, rgb(89, 71, 62) 0%, rgba(0, 0, 0, 0) 62%), radial-gradient(62% 46% at 50% 44%, rgb(89, 71, 62) 0%, rgba(0, 0, 0, 0) 72%), radial-gradient(140% 100%, rgba(0, 0, 0, 0) 40%, rgb(14, 16, 17) 100%), linear-gradient(170deg, rgb(27, 30, 33), rgb(14, 16, 17) 92%)",
+        "plate": "linear-gradient(140deg, rgba(22, 27, 38, 0.97), rgba(17, 24, 33, 0.99))",
+        "text": "none"
+      }
+    ],
+    "errors": []
+  }
+}

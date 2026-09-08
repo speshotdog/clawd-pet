@@ -165,8 +165,11 @@
   function unobserve(card) { if (observer) observer.unobserve(card); }
 
   function refit() {
+    // ⚠ 一定要用未變形的佈局寬（clientWidth），不能用 getBoundingClientRect()。
+    // 卡片外層有 hover scale 與 Z 投影，用 rect 會把 102px 的卡算成 115px，
+    // 字級就變成 9.54px 而不是 8.44px（Astra 驗收抓到）。
     document.querySelectorAll('.hcard').forEach(function (c) {
-      var w = c.getBoundingClientRect().width;
+      var w = c.clientWidth;
       if (w) fit(c, w);
     });
   }
@@ -183,7 +186,8 @@
     if (d < 0.002) t = 0;
     var a = Math.floor(t), b = (a + 1) % 4, f = t - a;
     var q = function (i) { return (i % 2 * 100) + '% ' + (Math.floor(i / 2) * 100) + '%'; };
-    var shift = tiltOn ? 1 : 0;
+    // flat 的定義是「不做圖內視差」，所以就算整張卡可以傾斜，圖層也不位移
+    var shift = (tiltOn && card.dataset.artKind !== 'flat') ? 1 : 0;
     var v = {
       '--rx': (-y * tilt) + 'deg', '--ry': (x * tilt) + 'deg',
       '--za': z + 'px', '--zb': '2px', '--zf': '8px', '--zp': '12px',
