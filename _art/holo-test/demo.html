@@ -916,6 +916,15 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
  background:linear-gradient(to top,var(--pal-glow,#2b3550),transparent);opacity:.32;
  mask:linear-gradient(to top,#000,transparent);-webkit-mask:linear-gradient(to top,#000,transparent)}
 </style>
+<style id="round26-frame-crown-fix">
+/* 傳說卡左上角那條黃色橫塊：有兩條 .r-legendary .face-frame:before 互相蓋一半。
+   舊的是「頂端中央的皇冠」（top:2px;left:calc(50% - 18px);width:36px;height:12px;
+   background:var(--accent-card)），新的缺口邊框只蓋掉 inset / border / clip-path，
+   width、height、background 沒被蓋到，於是變成貼在左上角 4px 的 36x12 金色方塊，
+   再被缺口 clip-path 切成那個怪形狀。這裡把殘留的幾何與底色收乾淨。 */
+.r-legendary .face-frame:before,.r-mythic .face-frame:before{
+ width:auto !important;height:auto !important;background:none !important}
+</style>
 <style id="round18-geometry">
 /* Round 18：卡池卡的版面照場景卡（天外膠膠那張）的實測數字對齊。
    量到的差距（佔卡片比例）：
