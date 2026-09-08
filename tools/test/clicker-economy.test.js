@@ -196,11 +196,25 @@ test('原子寫入與失敗防護：不變更記憶體、重啟 pending、同 id
   assert.equal(E.collect(reopened.state, opts.id, 1000000).accepted, false); assert.equal(writes, 3);
 });
 
-test('壞 JSON、未來版本、未知 ID、異常數值或 pending 都保留原文，不偷偷重置', () => {
-  for (const alter of [() => '{invalid', (s) => { s.version = 3; }, (s) => { s.coins = -1; }, (s) => { s.collection.intruder = 1; }, (s) => { s.clickLevel = 1.5; }, (s) => { s.pending = {}; }, (s) => { s.effects = [{ source: 'dog', kind: 'passive' }]; }]) {
+// 2026-09-08（第二十五輪）：這條本來是「一律保留原文並擋住」。加了自動修復之後拆成兩半——
+// 「壞的是這一場的暫時狀態」改成自己修好（見 clicker-round25.test.js），
+// 「壞的是身分或養成資料」仍然一律擋住。兩邊共同的鐵律沒變：**永遠不覆蓋 clicker_save 本身**。
+test('壞 JSON、未來版本、未知 ID、異常數值都保留原文並阻擋，不偷偷重置', () => {
+  for (const alter of [() => '{invalid', (s) => { s.version = 3; }, (s) => { s.coins = -1; }, (s) => { s.collection.intruder = 1; }, (s) => { s.clickLevel = 1.5; }]) {
     const s = fresh(), modified = alter(s), raw = typeof modified === 'string' ? modified : JSON.stringify(s);
-    const store = S.create({ getItem: () => raw, setItem() { assert.fail('不可清空壞檔'); } }, { pool: Pool });
+    const store = S.create({ getItem: () => raw, setItem(key) { assert.notEqual(key, S.KEY, '不可清空壞檔'); } }, { pool: Pool });
     assert.equal(store.state, null); assert.equal(store.blocked, true); assert.equal(store.raw, raw); assert.ok(store.error);
   }
   const s = fresh(); s.coins = Infinity; assert.throws(() => S.validate(s, Pool), /coins/);
+});
+
+test('暫時狀態壞掉改成自動修復，但原始存檔不准被蓋掉', () => {
+  for (const alter of [(s) => { s.pending = {}; }, (s) => { s.effects = [{ source: 'dog', kind: 'passive' }]; }]) {
+    const s = fresh(); alter(s); const raw = JSON.stringify(s);
+    const written = {};
+    const store = S.create({ getItem: () => raw, setItem(key, value) { written[key] = value; } }, { pool: Pool });
+    assert.equal(store.blocked, false); assert.ok(store.state); assert.ok(store.repaired);
+    assert.equal(written[S.KEY], undefined, '自動修復不可以覆蓋 clicker_save，要等玩家下一次正常存檔');
+    assert.equal(written[S.BROKEN_KEY], raw, '壞掉的原檔要原封不動備份起來');
+  }
 });

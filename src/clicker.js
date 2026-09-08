@@ -442,6 +442,26 @@ window.Clicker = (() => {
     if (!store.state) {
       $('game-content').inert = true; $('save-error').hidden = false; $('save-error-text').textContent = store.error.message;
       $('export-raw').onclick = () => { $('raw-save').value = store.raw ?? '(無法讀取原始資料)'; $('raw-save').hidden = false; $('raw-save').select(); };
+      // 2026-09-08：這個畫面本來是死路——匯入鍵在 #stats 裡，而 #game-content 已經 inert 掉了，
+      // 玩家拿到修好的存檔也貼不進去。所以救援入口一定要長在錯誤畫面自己身上。
+      $('rescue-open').onclick = () => { $('rescue').hidden = false; $('rescue-text').focus(); };
+      $('rescue-load').onclick = () => {
+        const status = $('rescue-status');
+        let parsed;
+        try { parsed = JSON.parse($('rescue-text').value); }
+        catch { status.textContent = '這段不是完整的存檔字串（JSON 解不開）'; return; }
+        let next = null, note = '';
+        try { next = window.ClickerSave.validate(parsed, Pool); }
+        catch (err) {
+          const fixed = window.ClickerSave.repair(parsed, Pool);          // 貼進來的那份也壞的話，一樣試著修
+          if (!fixed) { status.textContent = `這份也讀不進來：${err.message}`; return; }
+          next = fixed.state; note = `（自動修復，重置了：${fixed.applied.join('、')}）`;
+        }
+        try { localStorage.setItem(window.ClickerSave.KEY, JSON.stringify(next)); }
+        catch (err) { status.textContent = `寫不進去：${err.message}`; return; }
+        status.textContent = `讀進來了${note}，重新載入中…`;
+        location.reload();
+      };
       return;
     }
     await card.ready;
@@ -464,6 +484,12 @@ window.Clicker = (() => {
     ready = true; gacha.setReady(); stage.setPartners(store.state);
     offline(); stage.render(store.state, { instant: true }); changed(); status();
     if (store.state.pending) gacha.restore(); startTimers();
+    // 自動修復過就要講出來——不能默默把玩家的東西重置掉還裝作沒事。
+    // 原本那份沒被覆蓋，留在 clicker_save_broken 底下。
+    if (store.repaired) {
+      notice(`存檔有一小塊壞掉，已自動修好（重置了：${store.repaired.applied.join('、')}）`);
+      jlog(`save repaired: ${store.repaired.reason} → reset ${store.repaired.applied.join(',')}`);
+    }
     let pointer = null;
     $('tap').onpointerup = e => {
       const box = $('game').getBoundingClientRect();
@@ -584,5 +610,7 @@ window.Clicker = (() => {
   });
   document.addEventListener('click', e => { if (cutin?.active && e.target.closest('#draw-one,#draw-five,#recruit-open')) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
   main().catch((err) => { $('fatal').hidden = false; $('fatal').textContent = `珍母點點初始化失敗：${err.message}`; });
-  return { get state() { return store.state; }, get extras() { return extras; } };
+  // repaired：這次載入有沒有自動修復過（{applied:[重置了哪些], reason:原本的錯誤}）。
+  // 浮動訊息 1.4 秒就消失，驗收與客服要問「到底修了什麼」得看這裡。
+  return { get state() { return store.state; }, get extras() { return extras; }, get repaired() { return store.repaired; } };
 })();

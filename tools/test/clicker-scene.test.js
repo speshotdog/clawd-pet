@@ -25,9 +25,14 @@ test('場景倍率貫穿需求、多包結算與存檔驗證，未解鎖不掛�
 test('舊存檔補場景／音樂預設，錯誤設定保留原文並阻擋', () => {
   const s = Save.fresh(0); delete s.settings.music; delete s.settings.scene;
   assert.deepEqual(Save.validate(s).settings,{clickSound:'soft',clickFx:'shard',muted:false,mode:'wish',music:true,scene:'backyard',musicVolume:.6,sfxVolume:.8});
+  // 第二十五輪：場景名不認得屬於「這一場的設定壞了」，自動修復會把 settings 重置成預設，
+  // 不再擋住整個畫面（養成進度不受影響）。validate 本身照樣要拒絕它。
   s.settings.scene='missing'; const raw=JSON.stringify(s);
+  assert.throws(()=>Save.validate(JSON.parse(raw)));
   const store=Save.create({getItem:()=>raw});
-  assert.equal(store.blocked,true); assert.equal(store.raw,raw);
+  assert.equal(store.blocked,false); assert.equal(store.raw,raw);
+  assert.deepEqual(store.repaired.applied,['場景與音量設定']);
+  assert.equal(store.state.settings.scene,'backyard');
   s.settings.scene='backyard'; s.settings.music='yes';
   assert.throws(()=>Save.validate(s));
 });

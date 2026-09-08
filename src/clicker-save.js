@@ -189,12 +189,64 @@
     }
     return s;
   }
+  // ---------- 自動修復 ----------
+  // 2026-09-08：使用者朋友的存檔驗證失敗，遊戲只丟「存檔無法讀取」擋住整個畫面，
+  // 而匯入鍵在被 inert 掉的 #stats 裡——**修好的存檔匯不進去，變成死循環**。
+  // 這裡的原則：驗證失敗不等於整份存檔沒救。真正值錢的東西（卡片、粉塵、幣、等級、
+  // 印記、徽章、升階／超越／夥伴等級）幾乎不會是壞掉的那一塊；壞的通常是「這一場的暫時狀態」。
+  // 所以照「損失由小到大」的順序把暫時狀態逐項重置，每丟一項就重驗一次，過了就收工。
+  // ⚠ 這張表**只准放丟掉了玩家不會心痛的東西**。任何會清掉養成進度的步驟都不準加進來。
+  // 槽位陣列的長度是「印記商店有沒有買第四槽」決定的，不是固定 3。
+  // 長度寫死 3 的話，買過 slot4 的存檔會從「每日一包」壞掉一路修到「技能槽」還是過不了。
+  const slotArray = (s, fill) => Array(s?.markShop?.slot4 ? 4 : 3).fill(fill);
+  const REPAIRS = [
+    ['王包結算牌',   (s, n) => { s.bossResult = null; }],
+    ['進行中的王包', (s, n) => { s.boss = null; s.bossCooldownUntil = 0; }],
+    ['還沒收下的招募', (s, n) => { s.pending = null; s.pity = { sinceLegendary: 0 }; }],
+    ['技能效果與冷卻', (s, n) => { s.effects = []; s.cooldownUntil = {}; s.slotReadyAt = slotArray(s, 0); s.chain = {count:1,expiresAt:0}; }],
+    ['今日限定包',   (s, n) => { s.daily = null; }],
+    ['零食小偷與禮包', (s, n) => { s.gift = null; s.giftResult = null; s.nextGiftAt = 0; delete s.thief; }],
+    ['連點與漏包紀錄', (s, n) => { s.sweep = {last:null,count:0,at:0}; s.missed = 0; }],
+    ['技能槽',       (s, n) => { s.skillSlots = slotArray(s, null); s.slotReadyAt = slotArray(s, 0); }],
+    ['拆包進度',     (s, n) => { s.package = E.newPackage(s.settings?.scene || 'backyard'); }],
+    ['場景與音量設定', (s, n) => { s.settings = fresh(n).settings; s.package = E.newPackage('backyard'); }],
+  ];
+  /** 回傳 { state, applied:[步驟名] }；救不回來就回 null。
+   *  兩輪：先單獨試每一步（大多數情況只壞一塊，這樣只賠那一塊），
+   *  都不行才照順序累加。不先試單步的話，「今日限定包壞掉」會連還沒收下的招募一起賠進去。
+   *  每次都從原始資料重新複製一份——validate 會就地改寫傳進去的物件（補預設、改名），
+   *  拿同一份接力試會越試越髒。 */
+  function repair(parsed, pool, now = Date.now()) {
+    const copy = () => { try { return JSON.parse(JSON.stringify(parsed)); } catch { return null; } };
+    if (!object(copy())) return null;
+    const attempt = (steps) => {
+      const s = copy(); if (!s) return null;
+      try { for (const [, fix] of steps) fix(s, now); } catch { return null; }
+      try { return { state: validate(s, pool), applied: steps.map(([name]) => name) }; }
+      catch { return null; }
+    };
+    for (const step of REPAIRS) { const r = attempt([step]); if (r) return r; }
+    for (let i = 1; i <= REPAIRS.length; i++) { const r = attempt(REPAIRS.slice(0, i)); if (r) return r; }
+    return null;
+  }
+  const BROKEN_KEY = KEY + '_broken';
   function create(storage, { now = Date.now, pool } = {}) {
-    let state = null, raw = null, error = null, blocked = false;
+    let state = null, raw = null, error = null, blocked = false, repaired = null;
     try { raw = storage.getItem(KEY); state = raw === null ? fresh(now()) : validate(JSON.parse(raw), pool); if (state.boss) state=E.abandonBoss(state,now()); }
-    catch (err) { error = err; blocked = true; }
+    catch (err) {
+      // 先原封不動備份壞掉的那份，再試修復；修不好才擋畫面。
+      let fixed = null;
+      try { fixed = raw === null ? null : repair(JSON.parse(raw), pool, now()); } catch { fixed = null; }
+      if (fixed) {
+        try { storage.setItem(BROKEN_KEY, raw); } catch { /* 備份寫不進去也不能因此不讓人玩 */ }
+        state = fixed.state; if (state.boss) state = E.abandonBoss(state, now());
+        repaired = { applied: fixed.applied, reason: err.message };
+      } else { error = err; blocked = true; }
+    }
     return {
       get state() { return state; }, get raw() { return raw; }, get error() { return error; }, get blocked() { return blocked; },
+      /** 這次載入有沒有自動修復過：{ applied:[步驟名], reason:原本的錯誤訊息 }，沒有就是 null。 */
+      get repaired() { return repaired; },
       // 點擊與 1Hz 結算只更新工作副本；消費提交成功才替換它。
       stage(next) { if (blocked) return false; state = next; return true; },
       commit(next = state) {
@@ -210,6 +262,6 @@
       },
     };
   }
-  const api = { KEY, fresh, validate, create };
+  const api = { KEY, BROKEN_KEY, fresh, validate, repair, REPAIRS, create };
   if (node) module.exports = api; else root.ClickerSave = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
