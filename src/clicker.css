@@ -729,5 +729,5 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #game #prestige-go { padding:3px 15px 6px; }
 
 /* 第二十輪：被動浮字與每秒收益關卡票券。 */
-#game .floater.passive { font-size:18px; font-style:italic; font-weight:normal; color:#E9B94E; -webkit-text-stroke:.5px #30251F; paint-order:stroke fill; text-shadow:none; opacity:.85; white-space:nowrap; }
+#game .floater.passive { font-size:18px; font-weight:bold; color:#E9B94E; -webkit-text-stroke:.6px #30251F; paint-order:stroke fill; text-shadow:none; opacity:.9; white-space:nowrap; }
 .rate-stamp { position:absolute; left:50%; top:42%; z-index:27; padding:16px 24px; border:3px solid #30251F; border-radius:10px; background:#FBEED0; color:#A34C50; box-shadow:4px 4px 0 #30251F; outline:1px dashed #A34C50; outline-offset:-8px; font-size:26px; font-weight:bold; transform:translate(-50%,-50%) rotate(-4deg); pointer-events:none; }

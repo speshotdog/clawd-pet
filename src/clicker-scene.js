@@ -110,7 +110,10 @@
     bossPackages: 100,
     name: '深夜冰箱', unlockPackages: 0, requirementMul: 12000, rewardMul: 3.5, bagSkin: 1, bagPrefix: 'clicker-can-',
     unlock: { packages: 90, boss: 'nightmarket' }, enemy: { shell: null, timer: null, regen: .01 }, affinity: ['zhenmu','zhenzhen'],
-    boss: { ...scenes.backyard.boss, name: '大冰磚', mul: .95, reward: { freeDraws: 5 } },   // 王也吃 1%/s 回升，30 秒約掉 30%，係數補回
+    // 王也吃 1%/s 回升，30 秒約掉 30%，係數 .95 補回。
+    // floorMul：終點站的下限包需求（requirement(101) = 1.0e11）遠高於玩家到得了的 30 秒容量，
+    // 下限一綁死，血量就跟玩家強度脫鉤、再加 30% 回升＝永遠打不贏。收成 0.3 讓血量回到「跟著玩家走」。
+    boss: { ...scenes.backyard.boss, name: '大冰磚', mul: .95, floorMul: .3, reward: { freeDraws: 5 } },
     palette: { mat: '#AEC6D6', sky: '#DCE9F2' },
     tint: { color: '#7FB5E6', opacity: .12, blend: 'multiply' },
     frost: { layer: 'clicker-frozen-frost.png', ice: 'clicker-frozen-ice.png', shards: { sprite: 9, count: 16, color: '#DFF3FF' } },

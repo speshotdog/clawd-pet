@@ -40,12 +40,15 @@ function fight() {
   while(E.canBoss(s,now)&&tries<3) {
     tries++; const r0=E.rates(s); s=E.startBoss(s,now); const need=s.boss.need, dealt0=s.boss.dealt;
     if(tries===1) {   // 三種打法的 30 秒容量（技能冷卻全清、需求無限大）
-      const cap=(ids,clicks)=>{let f=E.clone(s);f.boss.need=1e100;f.boss.dealt=0;f.effects=[];f.cooldownUntil={};f.slotReadyAt=[0,0,0,0];f.skillSlots=ids;f.chain={count:1,expiresAt:0};
-        for(let i=0;i<180;i++){const t=now+i*1000/6;for(let k=0;k<ids.length;k++) if(ids[k]) {try{f=E.activate(f,k,t).state;}catch{}} f=clicks?E.click(f,t).state:E.settle(f,t).state;} f=E.settle(f,now+29999).state; return f.boss.dealt;};
+      // regen 場景（冰箱 1%/s）：need 灌成 1e100 時回升量也跟著變 1e100 級，dealt 每 tick 被歸零 → 量到的容量全是 0。
+      // 量容量時先把回升關掉，改在下面的 ratio 用 rate×30 秒把它扣回來。
+      const regenRate=scenes[scene].enemy?.regen||0, enemy=scenes[scene].enemy;
+      const cap=(ids,clicks)=>{if(enemy) enemy.regen=null; let f=E.clone(s);f.boss.need=1e100;f.boss.dealt=0;f.effects=[];f.cooldownUntil={};f.slotReadyAt=[0,0,0,0];f.skillSlots=ids;f.chain={count:1,expiresAt:0};
+        for(let i=0;i<180;i++){const t=now+i*1000/6;for(let k=0;k<ids.length;k++) if(ids[k]) {try{f=E.activate(f,k,t).state;}catch{}} f=clicks?E.click(f,t).state:E.settle(f,t).state;} f=E.settle(f,now+29999).state; if(enemy) enemy.regen=regenRate||null; return f.boss.dealt;};
       const slots=s.skillSlots.map(id=>id&&s.collection[id]?id:null);
       const caps=[cap([],false),cap([],true),cap(slots,true)];
-      bossLog.push({at:now,active,scene,try:0,won:false,ratio:caps.map(v=>(v/need).toFixed(2)).join('/'),need,P:r0.P,note:`P0=${r0.P.toExponential(2)} D0=${r0.D.toExponential(2)} slots=${slots}`});
-      if(caps[2]<need*.95) { s=E.abandonBoss(s,now); skipUntil=now+SESSION; return; }
+      bossLog.push({at:now,active,scene,try:0,won:false,ratio:caps.map(v=>(v/need-regenRate*30).toFixed(2)).join('/'),need,P:r0.P,note:`P0=${r0.P.toExponential(2)} D0=${r0.D.toExponential(2)} slots=${slots}`});
+      if(caps[2]<need*(.95+regenRate*30)) { s=E.abandonBoss(s,now); skipUntil=now+SESSION; return; }
     }
     for(let i=0;i<180&&s.boss;i++){ const t=now+i*1000/6; for(let k=0;k<3&&s.boss;k++) { try{ s=E.activate(s,k,t).state; }catch{} } s=E.click(s,t).state; }
     if(s.boss) s=E.settle(s,now+30000).state; now+=30000;

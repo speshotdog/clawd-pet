@@ -122,14 +122,18 @@ window.ClickerStage = (() => {
       list.append(el);
     }
     let passiveAt = -Infinity;
+    const PASSIVE_RISE = 42, PASSIVE_LIFE = 2600;   // 42px 疊三層還看得清楚；2600ms ÷ 每秒一個 ≈ 同時 3 個
     function floatPassive(amount) {
       const now = Math.floor(performance.now() / 1000);
       if (!running || frozen || reduced.matches || amount <= 0 || !latestState || E.rates(latestState).P <= 0 || now === passiveAt) return;
       passiveAt = now;
+      // 第二十一輪：改成「同一欄疊起來」。斜斜飄走的單一數字沒有爽感（使用者回饋），
+      // 改成固定 x、只往正上方走一點點、活久一點，讓相鄰幾秒的數字在畫面上疊成一小疊。
+      // PASSIVE_RISE 小於字高，PASSIVE_LIFE / 1000 秒就是同時看得到幾個——不要再往上加，會變成一整條數字瀑布。
       const el = document.createElement('span'); el.className = 'floater passive'; el.textContent = `+${format(amount)}`;
-      el.style.left = `${IMPACT.x + 70 + Math.random() * 32 - 16}px`; el.style.top = `${IMPACT.y + 30 + Math.random() * 32 - 16}px`;
+      el.style.left = `${IMPACT.x + 78}px`; el.style.top = `${IMPACT.y + 34}px`;
       appendFloater(el);
-      motion(el, [{transform:'translate(-100%,0)',opacity:.85},{transform:'translate(calc(-100% + 24px),-30px)',opacity:.85,offset:.7},{transform:'translate(calc(-100% + 36px),-44px)',opacity:0}],1400,()=>el.remove(),'linear');
+      motion(el, [{transform:'translate(-100%,0)',opacity:0},{transform:'translate(-100%,-4px)',opacity:.9,offset:.12},{transform:`translate(-100%,${-PASSIVE_RISE * .72}px)`,opacity:.9,offset:.62},{transform:`translate(-100%,${-PASSIVE_RISE}px)`,opacity:0}],PASSIVE_LIFE,()=>el.remove(),'linear');
     }
     function rateStamp(s) {
       if (!running || frozen) return false;

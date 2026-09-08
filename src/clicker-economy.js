@@ -464,7 +464,7 @@
     // 王包血量＝玩家「現在的 30 秒容量」（被動 30 秒＋每秒 6 下點擊）× mul，下限門檻包需求：
     // 純放置約 60%、連點不用技約 80%、連點＋技能 110%↑；離線衝過門檻不會讓王變得打不動
     // 下限用「門檻那一包」而不是現在這一包：離線衝過門檻幾十包，王不能跟著變成不可能
-    const floor=requirement(bossPackages(scene)+1,scene);
+    const floor=requirement(bossPackages(scene)+1,scene)*(cfg.floorMul ?? 1);
     const need=Math.max(floor, cfg.mul*(30*r.P+180*r.D));
     s.boss={scene,need,dealt:crack*need,startedAt:now,endsAt:now+(cfg.seconds+(s.markShop?.bossTime ? 10 : 0))*1000,crack,shells:shellsFor(scene).filter(v=>1-v>crack),shellHp:3,blocked:0};
     if (s.gift) endGift(s, now, false);
