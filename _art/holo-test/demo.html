@@ -66,6 +66,31 @@ body.font-system{--card-font:Arial,"Microsoft JhengHei",sans-serif}body.font-not
 .legacy-grid .hcard .face-gem{left:calc(1% + 14px);top:auto;bottom:calc(3% + 9.5% - 9px);width:21px;height:21px}
 .layout-status{white-space:pre-line}
 </style>
+<style>
+/* Round 7: text floats over the art; the former plaque is layout-only. */
+.face-plate{left:0;right:0;bottom:3%;height:19%;padding:0;gap:6px;border:0;border-radius:0;background:transparent;box-shadow:none;transform:translateZ(22px);z-index:28;overflow:visible;align-items:center;justify-content:center}
+.face-plate::before{content:"";position:absolute;z-index:-1;inset:-18% -12% -22%;pointer-events:none;background:radial-gradient(ellipse at 50% 100%,rgba(5,10,20,.46) 0%,rgba(5,10,20,.18) 42%,transparent 75%);filter:blur(12px);opacity:.9}
+.face-name,.face-rarity{position:relative;left:auto;right:auto;margin:0;width:max-content;max-width:100%;text-align:center;align-self:center}
+.face-name{font-weight:800;line-height:1.12;letter-spacing:.045em;color:#fff;text-shadow:none;transform:none}
+.face-rarity{color:var(--accent-card);text-shadow:none;transform:none}
+.r-common .face-name,.r-rare .face-name,.r-epic .face-name{color:#fff!important;text-shadow:none!important;filter:none!important}
+.r-common .face-rarity,.r-rare .face-rarity,.r-epic .face-rarity{color:var(--accent-card);text-shadow:none;filter:none}
+.r-legendary .face-name,.r-mythic .face-name{ text-shadow:0 2px 8px #000,0 0 12px var(--accent-card)}
+.r-legendary .face-rarity,.r-mythic .face-rarity{ text-shadow:0 0 8px var(--accent-card)}
+.face-gem{z-index:36;width:22px;height:22px;left:auto;right:17px;top:17px;bottom:auto;margin:0;border:2px solid #fff;background:var(--accent-card);box-shadow:0 0 0 3px #0b1420,0 0 16px 5px color-mix(in srgb,var(--accent-card) 82%,transparent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);transform:translateZ(34px);}
+.gem-corner .face-gem{left:auto;right:17px;top:17px}
+.gem-frame .face-gem{left:14px;right:auto;top:-9px;transform:translateZ(34px);box-shadow:0 0 0 3px #0b1420,0 0 0 5px var(--accent-card),0 0 15px 4px color-mix(in srgb,var(--accent-card) 80%,transparent)}
+.ranks-grid .face-gem{width:20px;height:20px;right:13px;top:13px;left:auto}
+.ranks-grid .gem-frame .face-gem{left:10px;right:auto;top:-8px}
+.bleed .art-media,.kind-flat .art-media{inset:0}
+.bleed .art-media>img,.kind-flat .art-media>img{object-fit:cover}
+.kind-flat .face-depth-bg,.kind-flat .subject-mask{display:none}
+.kind-flat .face-art{inset:0;transform:translateZ(var(--za))}
+.kind-flat .face-art .foil-stack,.kind-flat .face-art .foil-fiber,.kind-flat .face-art .foil-grain,.kind-flat .face-art .foil-glare{z-index:2}
+.flat-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;padding:12px 16%;}
+.flat-compare-grid .specimen{min-width:0}.flat-compare-grid .hit{max-width:260px}.flat-compare-grid .under{max-width:260px;display:block;text-align:center}
+@media(max-width:850px){.flat-compare-grid{padding:12px 0;gap:18px}.flat-compare-grid .hit{max-width:220px}}
+</style>
 </head>
 <body>
 <header class="topbar"><a class="brand" href="#compare"><i class="brand-mark" aria-hidden="true"></i>箔光實驗室</a><nav aria-label="展示區塊"><a href="#scenes">場景</a><a href="#rarities">五階</a><a href="#legacy">舊卡</a></nav><span class="edition">MATERIAL STUDY / 01</span></header>
@@ -74,10 +99,11 @@ body.font-system{--card-font:Arial,"Microsoft JhengHei",sans-serif}body.font-not
 <div class="intro"><div><p class="eyebrow">HOLOGRAPHIC CARD EXPLORATIONS</p><h1>轉個角度，看見不同。</h1></div><p>移動滑鼠，或按住卡片拖曳。<br>調整右側強度，找到你喜歡的那一道光。</p></div>
 <section class="section" id="compare" aria-labelledby="compare-title"><div class="section-head"><h2 id="compare-title"><small>A /</small>同一張卡，兩種表情</h2><p>珍彼特 · 史詩 · 左右共享觀看角度</p></div><div class="pair-input" id="pair-input"><div class="specimen"><div class="spec-label">現在遊戲裡的樣子</div><div class="hit baseline-hit" id="baseline" tabindex="0" aria-label="原版珍彼特，方向鍵調整角度"></div><div class="under"><p>既有卡框與畫窗鍍膜</p></div></div><div class="specimen"><div class="spec-label"><i class="dot"></i>新版</div><div id="comparison-new"></div></div></div><p class="pair-note">在這個對照區左右移動，兩張卡會一起轉。</p></section>
 <section class="section" id="scenes" aria-labelledby="scenes-title"><div class="section-head"><h2 id="scenes-title"><small>B /</small>把場景拿在手上</h2><p>四張滿版卡 · 前景與背景分層</p></div><div class="scenes-grid" id="scenes-grid"></div></section>
-<section class="section" id="edge-repair" aria-labelledby="edge-title"><div class="section-head"><h2 id="edge-title"><small>B·1 /</small>邊緣修復證據</h2><p>四張 GrabCut 場景卡 · 同比例並排</p></div><div class="edge-grid"><div class="edge-pair"><p class="edge-title">火箭狗 / ROCKETDOG</p><div class="edge-images"><figure><img src="edge-before-rocketdog.png" alt="火箭狗修復前"><figcaption>BEFORE</figcaption></figure><figure><img src="layer-rocketdog-subject.png" alt="火箭狗修復後"><figcaption>AFTER</figcaption></figure></div></div><div class="edge-pair"><p class="edge-title">太空人狗 / ASTRONAUT</p><div class="edge-images"><figure><img src="edge-before-astronaut.png" alt="太空人狗修復前"><figcaption>BEFORE</figcaption></figure><figure><img src="layer-astronaut-subject.png" alt="太空人狗修復後"><figcaption>AFTER</figcaption></figure></div></div><div class="edge-pair"><p class="edge-title">粉紅外星貓 / ALIENKITTY</p><div class="edge-images"><figure><img src="edge-before-alienkitty.png" alt="粉紅外星貓修復前"><figcaption>BEFORE</figcaption></figure><figure><img src="layer-alienkitty-subject.png" alt="粉紅外星貓修復後"><figcaption>AFTER</figcaption></figure></div></div><div class="edge-pair"><p class="edge-title">白色捲毛狗 / FLUFFDOG</p><div class="edge-images"><figure><img src="edge-before-fluffdog.png" alt="白色捲毛狗修復前"><figcaption>BEFORE</figcaption></figure><figure><img src="layer-fluffdog-subject.png" alt="白色捲毛狗修復後"><figcaption>AFTER</figcaption></figure></div></div></div><p class="edge-callout">修法：固定 seed 的 GrabCut 輪廓先向內收 2px，再以窄環形 NS inpaint 去除背景色溢，最後以 0.8px 羽化。珍珍JPG 的透明格子素材不在此批次，保留原樣。</p></section>
+<section class="section" id="edge-repair" aria-labelledby="edge-title"><div class="section-head"><h2 id="edge-title"><small>B·1 /</small>邊緣修復證據</h2><p>四張 GrabCut 場景卡 · 同比例並排</p></div><div class="edge-grid"><div class="edge-pair"><p class="edge-title">宇宙冒險羊 / ROCKETDOG</p><div class="edge-images"><figure><img src="edge-before-rocketdog.png" alt="宇宙冒險羊修復前"><figcaption>BEFORE</figcaption></figure><figure><img src="layer-rocketdog-subject.png" alt="宇宙冒險羊修復後"><figcaption>AFTER</figcaption></figure></div></div><div class="edge-pair"><p class="edge-title">太空人狗 / ASTRONAUT</p><div class="edge-images"><figure><img src="edge-before-astronaut.png" alt="太空人狗修復前"><figcaption>BEFORE</figcaption></figure><figure><img src="layer-astronaut-subject.png" alt="太空人狗修復後"><figcaption>AFTER</figcaption></figure></div></div><div class="edge-pair"><p class="edge-title">粉紅外星貓 / ALIENKITTY</p><div class="edge-images"><figure><img src="edge-before-alienkitty.png" alt="粉紅外星貓修復前"><figcaption>BEFORE</figcaption></figure><figure><img src="layer-alienkitty-subject.png" alt="粉紅外星貓修復後"><figcaption>AFTER</figcaption></figure></div></div><div class="edge-pair"><p class="edge-title">白色捲毛狗 / FLUFFDOG</p><div class="edge-images"><figure><img src="edge-before-fluffdog.png" alt="白色捲毛狗修復前"><figcaption>BEFORE</figcaption></figure><figure><img src="layer-fluffdog-subject.png" alt="白色捲毛狗修復後"><figcaption>AFTER</figcaption></figure></div></div></div><p class="edge-callout">修法：固定 seed 的 GrabCut 輪廓先向內收 2px，再以窄環形 NS inpaint 去除背景色溢，最後以 0.8px 羽化。珍珍JPG 的透明格子素材不在此批次，保留原樣。</p></section>
 <section class="section" id="rarities" aria-labelledby="rarities-title"><div class="section-head"><h2 id="rarities-title"><small>C /</small>五種稀有度，五種閃法</h2><p>同一主體比較材質 · 一次操作一張</p></div><div class="ranks-grid" id="ranks-grid"></div></section>
 <section class="section" id="legacy" aria-labelledby="legacy-title"><div class="section-head"><h2 id="legacy-title"><small>D /</small>舊卡版型</h2><p>去背 PNG · 稀有度色調底 · 不展示合成滿版舊卡</p></div><div class="legacy-grid" id="legacy-grid"></div><p class="section-foot">去背舊卡維持「卡框＋稀有度色調底」；四張自帶背景場景卡與兩張 bleed 另走滿版景深。</p></section>
 <footer><span>箔光實驗室 / ROUND 01</span><span>ANGLE DRIVEN · MADE TO BE PLAYED</span></footer>
+<section class="section" id="flat-compare" aria-labelledby="flat-compare-title"><div class="section-head"><h2 id="flat-compare-title"><small>C / 1</small>平面滿版：滅世珍獸</h2><p>舊版假景深 × 新版平面滿版 · 景深只留在卡片傾斜</p></div><div class="flat-compare-grid" id="flat-compare-grid"></div></section>
 </main>
 <aside class="inspector" aria-label="E 控制面板"><details open id="controls"><summary>材質調校 <span>E / LIVE</span></summary><div class="inspector-body"><p class="hint">控制全體新版卡。點卡選取後可翻面；鎖定角度後，更容易比較滑桿差異。</p><div class="selected"><span>目前選取</span><span id="selected-name">珍彼特 · 對照</span></div><div class="sliders">
 <div class="slider-row"><label for="depth">景深強度 <output id="depth-value" for="depth">100%</output></label><input type="range" id="depth" min="0" max="180" value="100" step="5"><div class="limits"><span>0</span><span>180%</span></div></div>
@@ -594,26 +620,29 @@ const presets = {
  common:{label:'普通',title:'細緞面',z:24,tilt:6},rare:{label:'精良',title:'拉絲柱光',z:32,tilt:8},epic:{label:'史詩',title:'交叉光柵',z:40,tilt:10},legendary:{label:'傳說',title:'壓花金箔',z:48,tilt:12},mythic:{label:'神話',title:'區域虹箔',z:56,tilt:14}
 };
 const sceneData=[
- {id:'rocketdog',name:'火箭狗',rarity:'legendary',note:'火箭與尾焰 / 遠景'},
+ {id:'rocketdog',name:'宇宙冒險羊',rarity:'legendary',note:'火箭與尾焰 / 遠景'},
  {id:'astronaut',name:'太空人狗',rarity:'rare',note:'太空人 / 地球與星空'},
  {id:'alienkitty',name:'粉紅外星貓',rarity:'mythic',note:'外星貓 / 土星與星空'},
  {id:'fluffdog',name:'白色捲毛狗',rarity:'epic',note:'捲毛狗 / 室內與家具'}
 ];
 const oldData=[{id:'zhenpete',name:'珍彼特',rarity:'epic'},{id:'zhenwang',name:'珍汪',rarity:'rare'},{id:'zhencao',name:'珍的是草',rarity:'epic'},{id:'zhenjpg',name:'珍珍JPG',rarity:'rare'},{id:'mieshi',name:'滅世珍獸',rarity:'mythic',bleed:true,note:'整幅畫片 · 角色尚未拆層'},{id:'wanwumythic',name:'玩物就玩物',rarity:'mythic',bleed:true,note:'既有 alpha · 角色與手同層'}];
+sceneData.forEach(d=>{d.art={kind:'depth'};});
+oldData.forEach(d=>{d.art={kind:(d.id==='mieshi'||d.id==='wanwumythic')?'flat':'framed'};});
 const cards=[];
 function node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
 function material(parent){const stack=node('div','foil-stack');['spectrum','relief','etch'].forEach(x=>stack.append(node('div','foil-'+x)));parent.append(stack,node('div','foil-fiber'),node('div','foil-grain'),node('div','foil-glare'));}
 function makeCard(data,host,{scene=false,rank=false,pair=false}={}){
  const item=node('div','specimen');const hit=node('div','hit');hit.tabIndex=0;hit.setAttribute('aria-label',data.name+'，'+presets[data.rarity].label+'，方向鍵轉動，Enter 翻面');
- const card=node('div',`hcard r-${data.rarity}${scene?' scene':''}${data.bleed?' bleed':''}`);card.dataset.id=pair?'comparison-new':(rank?'rank-'+data.rarity+'-':'')+data.id;card.dataset.rarity=data.rarity;
+ const kind=data.art?.kind||(scene?'depth':'framed');
+ const card=node('div',`hcard r-${data.rarity} kind-${kind}${scene?' scene':''}${data.bleed?' bleed':''}`);card.dataset.id=pair?'comparison-new':(rank?'rank-'+data.rarity+'-':'')+data.id;card.dataset.rarity=data.rarity;card.dataset.artKind=kind;
  const lift=node('div','card-lift'),inner=node('div','card-inner'),front=node('div','card-face'),back=node('div','card-back');
  back.append(node('div','back-emblem','✧'),node('div','back-title','HOLO LAB'),node('div','back-edition','MATERIAL STUDY · 01'));back.setAttribute('aria-hidden','true');
  const stock=node('div','leaf face-stock'),bg=node('div','leaf face-depth-bg'),art=node('div','leaf face-art'),frame=node('div','leaf face-frame'),plate=node('div','leaf face-plate'),gem=node('div','face-gem');
- const src=scene?`layer-${data.id}-subject.png`:`../../src/card-${data.id}.png`;
- if(scene){const image=node('img');image.src=`layer-${data.id}-background.png`;image.alt='';image.draggable=false;bg.append(image);}else{bg.append(node('div','floor'));}
+ const srcKey=scene?`layer-${data.id}-subject.png`:`card-${data.id}.png`;const src=scene?`layer-${data.id}-subject.png`:`../../src/card-${data.id}.png`;
+ if(scene&&kind==='depth'){const image=node('img');image.src=`layer-${data.id}-background.png`;image.alt='';image.draggable=false;bg.append(image);}else{bg.append(node('div','floor'));}
  material(bg);
  const media=node('div','art-media'),image=node('img');image.src=src;image.alt='';image.draggable=false;media.append(image);
- if(masks[src]){const mask=node('div','subject-mask');mask.style.setProperty('--subject',`url("${masks[src]}")`);material(mask);media.append(mask);}art.append(media);
+ if(masks[src]&&kind!=='flat'){const mask=node('div','subject-mask');mask.style.setProperty('--subject',`url("${masks[src]}")`);material(mask);media.append(mask);}art.append(media);
  frame.append(node('div','frame-material'));plate.append(node('b','face-name',data.name),node('span','face-rarity',`${presets[data.rarity].label} / ${data.rarity.toUpperCase()}`));
  front.append(stock,bg,art,frame,plate,gem);inner.append(back,front);lift.append(inner);card.append(lift);hit.append(card);item.append(hit);
  const under=node('div','under');if(rank){const info=node('div');info.append(node('strong','',data.rarity),node('p','',presets[data.rarity].title));under.append(info);}else{under.append(node('p','',data.note||(pair?'獨立景深 × 多層箔面':'原 PNG · 獨立背景')));}
@@ -627,6 +656,16 @@ Object.keys(presets).forEach(r=>makeCard({...oldData[1],rarity:r},$('#ranks-grid
 const u=(...a)=>String.fromCodePoint(...a);const legacyData=[{id:'zhenpete',name:u(0x73cd,0x5f7c,0x7279),rarity:'epic'},{id:'zhenwang',name:u(0x73cd,0x6c6a),rarity:'rare'},{id:'zhencao',name:u(0x73cd,0x7684,0x662f,0x8349),rarity:'common'},{id:'zhenjpg',name:u(0x73cd,0x73cd)+'JPG',rarity:'rare'},{id:'mieshi',name:u(0x6ec5,0x4e16,0x73cd,0x7378),rarity:'mythic',bleed:true},{id:'wanwumythic',name:u(0x73a9,0x7269,0x5c31,0x73a9,0x7269),rarity:'mythic',bleed:true},{id:'foxfriend',name:u(0x72d0,0x72f8,0x670b,0x53cb),rarity:'legendary'},{id:'miepupu',name:u(0x7c73,0x5657,0x5657),rarity:'epic'},{id:'salamander',name:u(0x706b,0x8725,0x876a),rarity:'rare'},{id:'yangpu',name:u(0x7f8a,0x8216),rarity:'common'}];
 function makeLegacyPair(data){const host=document.querySelector('#legacy-grid');const rec=makeCard(data,host,{scene:false});rec.card.dataset.id='legacy-'+data.id+'-original';}
 legacyData.forEach(makeLegacyPair);document.querySelector('#legacy-title').lastChild.textContent=u(0x820a,0x5361,0x5347,0x7d1a);
+
+// Round 7 comparison: the same art is intentionally rendered once with depth
+// layers and once as a flat full-bleed surface. The choice is data, not an id rule.
+const flatHost=document.querySelector('#flat-compare-grid');
+const flatOld=makeCard({id:'mieshi',name:u(0x6ec5,0x4e16,0x73cd,0x7378),rarity:'mythic',art:{kind:'depth'},note:'既有假景深'},flatHost,{scene:true});
+flatOld.card.dataset.id='flat-compare-depth';
+const flatNew=makeCard({id:'mieshi',name:u(0x6ec5,0x4e16,0x73cd,0x7378),rarity:'mythic',art:{kind:'flat'},note:'新的平面滿版'},flatHost,{scene:false});
+flatNew.card.dataset.id='flat-compare-flat';
+flatHost.firstElementChild.insertAdjacentHTML('afterbegin','<p class="spec-label">舊版假景深</p>');
+flatHost.lastElementChild.insertAdjacentHTML('afterbegin','<p class="spec-label"><i class="dot"></i>新版平面滿版</p>');
 
 // Frozen copy of project CSS lives in a shadow root, so it cannot affect new cards.
 const shadow=$('#baseline').attachShadow({mode:'open'});shadow.append($('#baseline-css').content.cloneNode(true));
@@ -686,8 +725,37 @@ function validateNameLayer(){const saved=scrollY,root=document.documentElement,p
 const round6Layout=validateLayout;
 validateLayout=function(){const rows=round6Layout();const layers=validateNameLayer(),bad=layers.filter(x=>!x.nameProtected);let el=$('#layout-status');if(!el){el=node('p','layout-status');el.id='layout-status';document.querySelector('.diagnostics').after(el);}el.textContent+=`\n名字疊層驗證：${bad.length?'未通過':'全卡通過'} · ${layers.length} 張 · elementFromPoint 取樣`;el.classList.toggle('bad',!!bad.length);return rows.map((row,i)=>({...row,...layers[i],ok:row.ok&&layers[i].nameProtected}));};
 settings.font='noto-sans';settings.gem='faceted';settings.nameStyle='relief';document.body.classList.remove('name-game','name-pixel','name-slant');document.body.classList.add('name-relief');
+/* Round 7 layout gate: the text is centered against the card, independently of the gem. */
+const round7Layout=validateLayout;
+validateLayout=function(){const rows=round7Layout();for(const row of rows){const c=cards.find(x=>x.card.dataset.id===row.id);if(!c)continue;const cr=c.card.getBoundingClientRect(),nr=c.card.querySelector('.face-name').getBoundingClientRect(),rr=c.card.querySelector('.face-rarity').getBoundingClientRect(),gr=c.card.querySelector('.face-gem').getBoundingClientRect(),plate=getComputedStyle(c.card.querySelector('.face-plate'));row.nameCenterDelta=Math.abs((nr.left+nr.width/2)-(cr.left+cr.width/2));row.rarityCenterDelta=Math.abs((rr.left+rr.width/2)-(cr.left+cr.width/2));row.gemWidth=gr.width;row.gemHeight=gr.height;row.plaqueOpaque=plate.backgroundColor!=='rgba(0, 0, 0, 0)'||plate.borderTopWidth!=='0px'||plate.borderRightWidth!=='0px';row.ok=row.ok&&row.nameCenterDelta<2&&row.rarityCenterDelta<2&&row.gemWidth>=14&&row.gemHeight>=14&&!row.plaqueOpaque;}const bad=rows.filter(x=>!x.ok);const el=$('#layout-status');el.textContent=`排版驗證：${bad.length?'未通過':'全卡通過'} · ${rows.length} 張 · 置中 < 2px / 寶石尺寸 / 無實心銘牌`;el.classList.toggle('bad',!!bad.length);return rows;};
+const gemPicker=document.querySelector('.gem-picker');
+gemPicker.innerHTML='<legend>寶石版位</legend><div class="mode-buttons"><label><input type="radio" name="gem" value="corner" checked><span>卡面角落</span></label><label><input type="radio" name="gem" value="frame"><span>鑲進卡框</span></label></div><input type="radio" name="gem" value="faceted" hidden>';
+document.querySelectorAll('input[name=gem]').forEach(el=>el.addEventListener('change',()=>{settings.gem=el.value;applySettings();}));
+settings.gem='corner';
+$('#reset').addEventListener('click',()=>{settings.gem='corner';document.querySelector('input[name=gem][value=corner]').checked=true;applySettings();});
+const round7Strict=validateLayout;validateLayout=function(){const rows=round7Strict();rows.forEach(row=>{row.ok=row.nameCenterDelta<2&&row.rarityCenterDelta<2&&row.gemWidth>=14&&row.gemHeight>=14&&!row.plaqueOpaque;});const bad=rows.filter(x=>!x.ok),el=$('#layout-status');el.textContent=`排版驗證：${bad.length?'未通過':'全卡通過'} · ${rows.length} 張 · 置中 < 2px / 寶石尺寸 / 無實心銘牌`;el.classList.toggle('bad',!!bad.length);return rows;};
 select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 })();
 </script>
+<style>
+/* Round 7 final cascade: this deliberately comes after all prior round overrides. */
+.gem-picker{display:block!important}
+.face-plate{left:0!important;right:0!important;bottom:3%!important;height:19%!important;padding:0!important;gap:6px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;transform:translateZ(22px)!important;z-index:28!important;overflow:visible!important;align-items:center!important;justify-content:center!important}
+.face-plate::before{content:"";position:absolute;z-index:-1;inset:-18% -12% -22%;pointer-events:none;background:radial-gradient(ellipse at 50% 100%,rgba(5,10,20,.46) 0%,rgba(5,10,20,.18) 42%,transparent 75%);filter:blur(12px);opacity:.9}
+.face-name,.face-rarity{position:relative!important;left:auto!important;right:auto!important;margin:0!important;width:max-content!important;max-width:100%;text-align:center!important;align-self:center!important;transform:none!important}
+.face-name{font-weight:800;line-height:1.12;letter-spacing:.045em;color:#fff;text-shadow:none;filter:none}
+.r-common .face-name,.r-rare .face-name,.r-epic .face-name{color:#fff!important;text-shadow:none!important;filter:none!important}
+.r-common .face-rarity,.r-rare .face-rarity,.r-epic .face-rarity{color:var(--accent-card);text-shadow:none;filter:none}
+.r-legendary .face-name,.r-mythic .face-name{text-shadow:0 2px 8px #000,0 0 12px var(--accent-card)}
+.r-legendary .face-rarity,.r-mythic .face-rarity{text-shadow:0 0 8px var(--accent-card)}
+.face-gem{z-index:36!important;width:22px!important;height:22px!important;left:auto!important;right:17px!important;top:17px!important;bottom:auto!important;margin:0!important;border:2px solid #fff!important;background:var(--accent-card)!important;box-shadow:0 0 0 3px #0b1420,0 0 16px 5px color-mix(in srgb,var(--accent-card) 82%,transparent)!important;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);transform:translateZ(34px)!important}
+.gem-corner .face-gem{right:17px!important;top:17px!important;left:auto!important}.gem-frame .face-gem{left:14px!important;right:auto!important;top:-9px!important;box-shadow:0 0 0 3px #0b1420,0 0 0 5px var(--accent-card),0 0 15px 4px color-mix(in srgb,var(--accent-card) 80%,transparent)!important}
+.hcard .face-gem{background:linear-gradient(135deg,#fff 0 24%,var(--accent-card) 25% 72%,#fff 73%)!important}
+.kind-flat .face-gem{transform:translateZ(100px)!important}.kind-flat .face-plate{transform:translateZ(100px)!important}
+.ranks-grid .face-gem{width:20px!important;height:20px!important;right:13px!important;top:13px!important;left:auto!important}.ranks-grid .gem-frame .face-gem{left:10px!important;right:auto!important;top:-8px!important}
+.bleed .art-media,.kind-flat .art-media{inset:0!important}.bleed .art-media>img,.kind-flat .art-media>img{object-fit:cover!important}.kind-flat .face-depth-bg,.kind-flat .subject-mask{display:none}.kind-flat .face-art{inset:0!important;transform:translateZ(var(--za))!important}
+.flat-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;padding:12px 16%}.flat-compare-grid .hit{max-width:260px}.flat-compare-grid .under{max-width:260px;display:block;text-align:center}
+@media(max-width:850px){.flat-compare-grid{padding:12px 0;gap:18px}.flat-compare-grid .hit{max-width:220px}}
+</style>
 </body>
 </html>

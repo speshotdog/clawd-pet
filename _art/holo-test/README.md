@@ -69,3 +69,14 @@ common–epic 維持乾淨可讀；legendary/mythic 可切換遊戲金屬、像�
 - 自動驗收：`python check_demo_round6.py`。`shots/` 內的截圖使用 `r6-` 前綴，包含火箭狗滿版卡與銘牌特寫。
 
 目前仍由使用者進行最終視覺品質驗收；本輪不宣稱視覺品質已達標。
+
+## Round 7 決策與驗收
+
+- 移除新卡的實心 `.face-plate` 視覺：名字與稀有度是透明佈局上的 DOM 文字，直接浮在滿版圖上；只有無硬邊的低強度 radial scrim 輔助可讀性。
+- 名字與稀有度各自以卡片矩形為水平基準，Playwright/DOM 排版閘門要求中心偏差 `< 2px`；寶石不參與文字排版。
+- 寶石改為兩個可切換版位：`卡面角落` 與 `鑲進卡框`。五階並排維持至少 20px；Playwright 逐卡截圖取寶石內部與周圍背景，平均 RGB 色差門檻為 `35`（低於即失敗），結果寫入 `verification-round7.json`。
+- `art.kind` 使用資料欄位 `depth | flat | framed`。滅世珍獸新增「舊版假景深／新版平面滿版」並排；平面卡取消圖內視差，但保留卡面傾斜與箔面材質。
+- `common` / `rare` / `epic` 卡名回到乾淨白色粗體，無燙金、描邊層或發光；誇張字效只保留給 `legendary` / `mythic`。
+- 自動驗收：`python check_demo_round7.py`。dev 與複製到暫存資料夾的 standalone 都通過 22 張卡、無外部 request、無 Console error；standalone 3,059,935 bytes（約 2.92 MiB），低於 15 MiB。`shots/` 內本輪截圖使用 `r7-` 前綴。
+
+目前仍由使用者進行最終視覺品質驗收；本輪不宣稱視覺品質已達標。

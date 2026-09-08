@@ -50,9 +50,9 @@ for name in ('texture-fiber.png', 'texture-engraving.png', 'gacha-cardback.jpg')
     if path.exists():
         asset_map[name] = cached_uri(path)
 html = html.replace("const masks=JSON.parse($('#mask-data').textContent);", "const assetMap=" + repr(asset_map).replace("'", '"') + ";const asset=name=>assetMap[name]||name;const masks=JSON.parse($('#mask-data').textContent);")
-html = html.replace("const src=scene?`layer-${data.id}-subject.png`:`../../src/card-${data.id}.png`;", "const srcKey=scene?`layer-${data.id}-subject.png`:`card-${data.id}.png`;const src=asset(srcKey);")
+html = html.replace("const srcKey=scene?`layer-${data.id}-subject.png`:`card-${data.id}.png`;const src=scene?`layer-${data.id}-subject.png`:`../../src/card-${data.id}.png`;", "const srcKey=scene?`layer-${data.id}-subject.png`:`card-${data.id}.png`;const src=asset(srcKey);")
 html = html.replace("image.src=`layer-${data.id}-background.png`", "image.src=asset(`layer-${data.id}-background.png`)")
-html = html.replace("if(masks[src])", "if(masks[srcKey])").replace("`url(\"${masks[src]}\")`", "`url(\"${masks[srcKey]}\")`")
+html = html.replace("if(masks[src])", "if(masks[srcKey])").replace("if(masks[src]&&kind!=='flat')", "if(masks[srcKey]&&kind!=='flat')").replace("`url(\"${masks[src]}\")`", "`url(\"${masks[srcKey]}\")`")
 html = html.replace('../../src/card-zhenpete.png', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')
 
 html = html.replace('華麗卡牌第五輪', '華麗卡牌第五輪 · 單檔分享版')

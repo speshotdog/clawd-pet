@@ -1,0 +1,23 @@
+{
+  "bytes": 3060721,
+  "results": [
+    {
+      "label": "dev",
+      "cards": 22,
+      "layout_failures": [],
+      "gem_contrast_failures": [],
+      "external_requests": [],
+      "console_errors": []
+    },
+    {
+      "label": "standalone-copy",
+      "cards": 22,
+      "layout_failures": [],
+      "gem_contrast_failures": [],
+      "external_requests": [],
+      "console_errors": []
+    }
+  ],
+  "standalone_copied": true,
+  "gem_contrast_threshold": 35
+}
