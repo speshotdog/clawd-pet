@@ -307,7 +307,9 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
    而且 flat 的定義本來就是「不做圖內視差」，Z 推移對它沒有意義。 */
 .hcard.kind-framed .face-art,
 .hcard.kind-flat .face-art,.hcard.bleed .face-art{
- transform:translate3d(var(--ax),var(--ay),0) scale(var(--comp)) !important;z-index:1 !important}
+ /* Z 要在背景層（--zb 2px）之上、卡框（--zf 8px）之下，圖才會蓋住背景又不蓋住框。
+    z-index 也不能壓低：背景層是 10，壓到 1 會讓整張圖被背景蓋掉。 */
+ transform:translate3d(var(--ax),var(--ay),6px) scale(var(--comp)) !important;z-index:30 !important}
 .kind-flat .art-media>img,.bleed .art-media>img{border-radius:6px}
 /* flat／bleed 的圖是一整張不透明的畫，會把 .face-plate 整個蓋住
    （plate 在 --zp+1，圖在 --za），所以那兩張卡看起來沒有文字框。
@@ -554,10 +556,10 @@ function makeFace(d){
 }
 // 名字與稀有度是卡片寬度的固定比例（跟展示頁同一個基準：24px / 290px 卡寬）。
 // 少了這一段，--name-fs 會退回 20px，小卡上的字就會撐爆文字框。
-const NAME_SHARE=24/290, RARITY_SHARE=9/290, GEM_SHARE=22/290;
+const NAME_SHARE=24/290, RARITY_SHARE=13.5/290, GEM_SHARE=22/290;
 const sizeObserver=new ResizeObserver(list=>{for(const e of list){const w=e.contentRect.width;if(!w)continue;
  e.target.style.setProperty('--name-fs',(w*NAME_SHARE).toFixed(2)+'px');
- e.target.style.setProperty('--rarity-fs',Math.max(6,w*RARITY_SHARE).toFixed(2)+'px');
+ e.target.style.setProperty('--rarity-fs',Math.max(9,w*RARITY_SHARE).toFixed(2)+'px');
  e.target.style.setProperty('--gem-fs',Math.max(6,w*GEM_SHARE).toFixed(2)+'px');}});
 function paintCard(card,rarity,x,y){
   const z=ZLIFT[rarity]*.65,tilt=TILT[rarity],d=Math.min(1,Math.hypot(x,y));

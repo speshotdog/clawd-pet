@@ -239,10 +239,10 @@ function makeFace(d){
 }
 // 名字與稀有度是卡片寬度的固定比例（跟展示頁同一個基準：24px / 290px 卡寬）。
 // 少了這一段，--name-fs 會退回 20px，小卡上的字就會撐爆文字框。
-const NAME_SHARE=24/290, RARITY_SHARE=9/290, GEM_SHARE=22/290;
+const NAME_SHARE=24/290, RARITY_SHARE=13.5/290, GEM_SHARE=22/290;
 const sizeObserver=new ResizeObserver(list=>{for(const e of list){const w=e.contentRect.width;if(!w)continue;
  e.target.style.setProperty('--name-fs',(w*NAME_SHARE).toFixed(2)+'px');
- e.target.style.setProperty('--rarity-fs',Math.max(6,w*RARITY_SHARE).toFixed(2)+'px');
+ e.target.style.setProperty('--rarity-fs',Math.max(9,w*RARITY_SHARE).toFixed(2)+'px');
  e.target.style.setProperty('--gem-fs',Math.max(6,w*GEM_SHARE).toFixed(2)+'px');}});
 function paintCard(card,rarity,x,y){
   const z=ZLIFT[rarity]*.65,tilt=TILT[rarity],d=Math.min(1,Math.hypot(x,y));

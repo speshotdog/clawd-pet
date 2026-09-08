@@ -95,10 +95,10 @@ function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x!=
 function material(p){const s=node('div','foil-stack');['spectrum','relief','etch'].forEach(x=>s.append(node('div','foil-'+x)));
  p.append(s,node('div','foil-fiber'),node('div','foil-grain'),node('div','foil-glare'));}
 
-const NAME_SHARE=24/290, RARITY_SHARE=9/290, GEM_SHARE=22/290;
+const NAME_SHARE=24/290, RARITY_SHARE=13.5/290, GEM_SHARE=22/290;
 const obs=new ResizeObserver(list=>{for(const e of list){const w=e.contentRect.width;if(!w)continue;
  e.target.style.setProperty('--name-fs',(w*NAME_SHARE).toFixed(2)+'px');
- e.target.style.setProperty('--rarity-fs',Math.max(7,w*RARITY_SHARE).toFixed(2)+'px');
+ e.target.style.setProperty('--rarity-fs',Math.max(10.5,w*RARITY_SHARE).toFixed(2)+'px');
  e.target.style.setProperty('--gem-fs',Math.max(7,w*GEM_SHARE).toFixed(2)+'px');
  fit(e.target,w);}});
 
