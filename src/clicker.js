@@ -396,8 +396,11 @@ window.Clicker = (() => {
   const isPortrait = () => matchMedia('(max-aspect-ratio: 3/4)').matches;
   function fitStage() {
     const fit = $('stage-fit'); if (!fit) return;
-    if (!isPortrait()) { fit.style.removeProperty('--stage-fit'); return; }
-    fit.style.setProperty('--stage-fit', fit.clientWidth / 608);
+    // ⚠ 變數要設在 #game 上不是 #stage-fit 上：粒子畫布與浮字層是 #stage 的兄弟，
+    // 設在 #stage-fit 上它們讀不到，var(--stage-fit,1) 會退回 1、608px 寬直接撐出畫面。
+    const host = $('game');
+    if (!isPortrait()) { host.style.removeProperty('--stage-fit'); return; }
+    host.style.setProperty('--stage-fit', fit.clientWidth / 608);
   }
   function fitWindow() {
     fitStage();

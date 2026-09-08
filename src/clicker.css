@@ -859,7 +859,11 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
     transform:scale(var(--stage-fit,1)); transform-origin:0 0; }
   .wallet { flex:none; }
 
-  /* 面板改成整頁推上來 */
-  #game .panel, #game .small-panel { position:fixed; inset:auto 0 0 0; width:100%; height:88%;
-    border-radius:18px 18px 0 0; margin:0; }
+  /* 面板改成整頁推上來（手機用底部推上來比置中視窗好按）。
+     ⚠ 一定要把置中那條的 transform 歸零，否則 translate(-50%,-50%) 還在，面板會整個偏掉。 */
+  #game .panel, #game .small-panel, #game #wardrobe { position:fixed; inset:auto 0 0 0;
+    width:100%; height:88%; max-height:none; transform:none; border-radius:18px 18px 0 0; margin:0;
+    box-shadow:0 -4px 0 #30251F, 0 0 0 9999px rgba(48,37,31,.42); }
+  #game #wardrobe:not([hidden]) { animation:sheet-up 160ms ease-out; }
+  @keyframes sheet-up { from { transform:translateY(14px); opacity:0; } to { transform:translateY(0); opacity:1; } }
 }
