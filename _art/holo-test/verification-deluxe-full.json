@@ -1,0 +1,52 @@
+{
+  "pull_button": "十連",
+  "cards": {
+    "total": 10,
+    "onScreen": 10,
+    "rarities": [
+      "common",
+      "epic",
+      "rare",
+      "rare",
+      "rare",
+      "epic",
+      "common",
+      "rare",
+      "rare",
+      "rare"
+    ],
+    "minCardW": 184
+  },
+  "names": {
+    "min": 15.2,
+    "max": 15.2,
+    "overflowing": 0,
+    "n": 10,
+    "minGapToGem": 26.7
+  },
+  "centring": {
+    "worstOffsetPx": 0.01,
+    "n": 9
+  },
+  "leftovers": {
+    "animations": 0,
+    "particles": 0
+  },
+  "touch_targets": {
+    "tooSmall": 0,
+    "labels": []
+  },
+  "pity": {
+    "available": true,
+    "counts": {
+      "common": 830,
+      "rare": 794,
+      "epic": 289,
+      "legendary": 81,
+      "mythic": 6
+    },
+    "packsWithNoHighRarity": 127
+  },
+  "console_errors": [],
+  "failed_requests": []
+}
