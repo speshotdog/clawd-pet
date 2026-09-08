@@ -30,6 +30,24 @@
     zhenjpg: { base: 5, skill: '壓縮失真', kind: 'self', multiplier: 4.5, duration: 20, cd: 110 },
     alu: { base: 5, skill: '一鳴驚人', kind: 'burst', factor: 20, basis: 'individual', cd: 45 },
   });
+  // 第二十二輪十三張新卡（桌面「新卡」資料夾，稀有度照檔名）。
+  // bossDamage 是新的技能種類：傷害是「王包血量的百分比」，跟 P／D 完全脫鉤，
+  // 所以王包越硬它越值錢；不在王關時退化成一般的爆發，免得平常是張廢牌。
+  Object.assign(characters, {
+    guanjiu: { base: 5, skill: '乾杯助興', kind: 'team', ratio: .22, duration: 30, cd: 120 },
+    miepupu: { base: 4, skill: '噗噗號角', kind: 'click', multiplier: 2.5, charges: 10, duration: 15, cd: 65 },
+    manhua: { base: 5, skill: '滿載而歸', kind: 'burst', factor: 21, basis: 'individual', cd: 45 },
+    yangtuo: { base: 4, skill: '聖誕小禮', kind: 'clickTime', multiplier: 2.6, duration: 12, cd: 80 },
+    ababa: { base: 5, skill: '阿巴阿巴', kind: 'self', multiplier: 4.5, duration: 20, cd: 110 },
+    bingyang: { base: 9, skill: '冰鎮保存', kind: 'self', multiplier: 4.2, duration: 30, cd: 115 },
+    zhenbing: { base: 9, skill: '碎冰一擊', kind: 'burst', factor: 17, basis: 'team', cd: 110 },
+    zhenpete: { base: 10, skill: '天使加班', kind: 'clickAdd', ratio: .55, charges: 20, duration: 20, cd: 90 },
+    yuesong: { base: 19, skill: '合唱一曲', kind: 'team', ratio: .45, duration: 25, cd: 120 },
+    zhenbush: { base: 18, skill: '草叢埋伏', kind: 'click', multiplier: 9, charges: 3, duration: 15, cd: 60 },
+    yuefeimo: { base: 18, skill: '飛沫直擊', kind: 'bossDamage', share: .08, fallback: 14, cd: 90 },
+    qinghua: { base: 30, skill: '青花綻放', kind: 'team', ratio: .9, duration: 22, cd: 125 },
+    mieshi: { base: 32, skill: '滅世光線', kind: 'bossDamage', share: .22, fallback: 32, cd: 150 },
+  });
   const fmt = n => Number(n.toFixed(4));
   function describe(p) {
     const tail = `・冷卻 ${fmt(p.cd)} 秒`;
@@ -37,6 +55,7 @@
     if (p.kind === 'clickTime') return `所有點擊 ×${fmt(p.multiplier)}，持續 ${p.duration} 秒${tail}`;
     if (p.kind === 'clickAdd') return `接下來 ${p.charges} 次點擊各追加 ${fmt(p.ratio*100)}% 每秒收益（${p.duration} 秒內用完）${tail}`;
     if (p.kind === 'burst') return `立即獲得${p.basis === 'individual' ? '自身' : '含全隊加成的'}每秒收益 ×${fmt(p.factor)} 的拆包力${tail}`;
+    if (p.kind === 'bossDamage') return `王關中：立即對王包造成血量 ${fmt(p.share*100)}% 的傷害；不在王關時改為立即獲得每秒收益 ×${fmt(p.fallback)} 的拆包力${tail}`;
     if (p.kind === 'self') return `自身收益 ×${fmt(p.multiplier)}，持續 ${p.duration} 秒${tail}`;
     if (p.kind === 'team') return `全隊每秒額外 +${fmt(p.ratio*100)}% 常態收益，持續 ${p.duration} 秒${tail}`;
     return `複製含自身技能後最高夥伴收益的 ${fmt(p.copy*100)}%，持續 ${p.duration} 秒${tail}`;
@@ -47,6 +66,9 @@
     if (['click','clickTime'].includes(p.kind)) { p.multiplier = 1+(p.multiplier-1)*(1+.08*k)*t; p.duration += k; }
     if (p.kind === 'clickAdd') { p.ratio = (p.ratio+.05*k)*t; p.charges += 2*k; }
     if (p.kind === 'burst') p.factor *= (1+.1*k)*t;
+    // bossDamage：share 是「王包血量的百分比」，升星漲得比 burst 慢一點（8%／星），
+    // 免得五星＋超越之後一發把王打掉一半；fallback 照 burst 的 10%／星走。
+    if (p.kind === 'bossDamage') { p.share *= (1+.08*k)*t; p.fallback *= (1+.1*k)*t; }
     if (p.kind === 'self') { p.duration += 2*k; p.multiplier = 1+(p.multiplier-1)*t; }
     if (p.kind === 'team') { p.ratio = (p.ratio+.02*k)*t; p.duration += 2*k; }
     if (p.kind === 'passive') { p.duration += 2*k; p.copy = (k === 4 ? 1.1 : 1)*t; }

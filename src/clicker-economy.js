@@ -402,6 +402,10 @@
     else if (def.kind === 'self') effect.value = individual(s, id) * (def.multiplier - 1) * (Scenes(s.settings.scene).rewardMul || 1);
     else if (def.kind === 'team') effect.value = rates(s).P * def.ratio;
     else if (def.kind === 'clickAdd') Object.assign(effect, { value: rates(s).P * def.ratio, remaining: def.charges });
+    // bossDamage：王關中直接砍血量的百分比（不吃 P／D，王越硬越值錢）；平常退化成含全隊加成的爆發。
+    else if (def.kind === 'bossDamage') effect.value = s.boss
+      ? s.boss.need * def.share
+      : def.fallback * (rates(s).P + s.effects.filter(e=>e.kind==='team').reduce((sum,e)=>sum+e.value,0));
     else if (def.kind === 'burst') effect.value = def.factor * (def.basis === 'individual' ? individual(s, id) * (Scenes(s.settings.scene).rewardMul || 1) : rates(s).P + s.effects.filter(e=>e.kind==='team').reduce((sum,e)=>sum+e.value,0));
     else {
       const copied = target => individual(s,target)*(Scenes(s.settings.scene).rewardMul || 1) + s.effects.filter(e=>e.kind==='self' && e.source===target).reduce((sum,e)=>sum+e.value,0);
@@ -411,8 +415,10 @@
     }
     if (effect.multiplier !== undefined) effect.multiplier = 1+(effect.multiplier-1)*chainMul;
     if (effect.value !== undefined) effect.value *= chainMul;
-    const completed = def.kind === 'burst' ? grant(s, effect.value) : 0;
-    if (def.kind !== 'burst') s.effects.push(effect); s.cooldownUntil[id] = t + def.cd * 1000;
+    const instant = def.kind === 'burst' || def.kind === 'bossDamage';
+    const completed = instant ? grant(s, effect.value, 'skill') : 0;
+    if (!instant) s.effects.push(effect);
+    s.cooldownUntil[id] = t + def.cd * 1000;
     return { state: s, effect, completed };
   }
   function purchaseDraw(state, count, now, pool, options = {}) {
