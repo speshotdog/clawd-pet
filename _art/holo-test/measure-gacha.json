@@ -1,0 +1,158 @@
+[
+ {
+  "id": null,
+  "cardW": 102,
+  "cardH": 143,
+  "nameFs": 8.4,
+  "rarityFs": 9,
+  "gemFs": "7.74px",
+  "nameTextW": 18,
+  "rarityTextW": 38.1,
+  "plateInner": 68,
+  "platePad": "13.158px",
+  "artMedia": {
+   "x": 0.064,
+   "y": 0.005,
+   "w": 0.872,
+   "h": 0.792
+  },
+  "img": {
+   "x": 0.064,
+   "y": -0.008,
+   "w": 0.872,
+   "h": 0.654
+  },
+  "plate": {
+   "x": 0.038,
+   "y": 0.808,
+   "w": 0.924,
+   "h": 0.164
+  },
+  "text": null,
+  "gem": {
+   "x": 0.063,
+   "y": 0.857,
+   "w": 0.112,
+   "h": 0.08
+  },
+  "rarityOverflow": false,
+  "nameOverflow": false
+ },
+ {
+  "id": null,
+  "cardW": 102,
+  "cardH": 143,
+  "nameFs": 8.4,
+  "rarityFs": 9,
+  "gemFs": "7.74px",
+  "nameTextW": 18,
+  "rarityTextW": 35.5,
+  "plateInner": 68,
+  "platePad": "13.158px",
+  "artMedia": {
+   "x": 0.066,
+   "y": 0.007,
+   "w": 0.867,
+   "h": 0.788
+  },
+  "img": {
+   "x": 0.066,
+   "y": -0.005,
+   "w": 0.867,
+   "h": 0.65
+  },
+  "plate": {
+   "x": 0.038,
+   "y": 0.808,
+   "w": 0.924,
+   "h": 0.164
+  },
+  "text": null,
+  "gem": {
+   "x": 0.063,
+   "y": 0.857,
+   "w": 0.112,
+   "h": 0.08
+  },
+  "rarityOverflow": false,
+  "nameOverflow": false
+ },
+ {
+  "id": null,
+  "cardW": 102,
+  "cardH": 143,
+  "nameFs": 8.4,
+  "rarityFs": 9,
+  "gemFs": "7.74px",
+  "nameTextW": 18,
+  "rarityTextW": 38.1,
+  "plateInner": 68,
+  "platePad": "13.158px",
+  "artMedia": {
+   "x": 0.064,
+   "y": 0.005,
+   "w": 0.872,
+   "h": 0.792
+  },
+  "img": {
+   "x": 0.064,
+   "y": -0.008,
+   "w": 0.872,
+   "h": 0.654
+  },
+  "plate": {
+   "x": 0.038,
+   "y": 0.808,
+   "w": 0.924,
+   "h": 0.164
+  },
+  "text": null,
+  "gem": {
+   "x": 0.063,
+   "y": 0.857,
+   "w": 0.112,
+   "h": 0.08
+  },
+  "rarityOverflow": false,
+  "nameOverflow": false
+ },
+ {
+  "id": null,
+  "cardW": 102,
+  "cardH": 143,
+  "nameFs": 8.4,
+  "rarityFs": 9,
+  "gemFs": "7.74px",
+  "nameTextW": 18,
+  "rarityTextW": 38.1,
+  "plateInner": 68,
+  "platePad": "13.158px",
+  "artMedia": {
+   "x": 0.064,
+   "y": 0.005,
+   "w": 0.872,
+   "h": 0.792
+  },
+  "img": {
+   "x": 0.064,
+   "y": -0.008,
+   "w": 0.872,
+   "h": 0.654
+  },
+  "plate": {
+   "x": 0.038,
+   "y": 0.808,
+   "w": 0.924,
+   "h": 0.164
+  },
+  "text": null,
+  "gem": {
+   "x": 0.063,
+   "y": 0.857,
+   "w": 0.112,
+   "h": 0.08
+  },
+  "rarityOverflow": false,
+  "nameOverflow": false
+ }
+]
