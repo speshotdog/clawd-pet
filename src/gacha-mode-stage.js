@@ -10,7 +10,13 @@ window.GachaModes.stage = {
     const RC2 = { common: '#9d9d9d', rare: '#0070dd', epic: '#a335ee', legendary: '#ff8000', mythic: '#FF4FD8' };
     const LABEL = { common: '普通', rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' };
     const holds = { common: 600, rare: 800, epic: 1000, legendary: 1250, mythic: 1600 };
-    const CX = ctx.center.x, FLOOR = 452;            // 角色腳底的 y
+    // 劇場的尺寸原本是照 960×640 畫死的（簷幕 1000 寬、布幕 500 寬），直式的演出框只有 560 寬，
+    // 布幕與簷幕會整片穿出去。橫向一律照 W/960 縮；縱向只有布幕高度與「下一位」跟著框高走。
+    // FLOOR 是角色腳底：橫式維持 452（= 640 的 .706），直式把角色擺在框的正中央。
+    const W = ctx.size.width, H = ctx.size.height, sx = W / 960;
+    const CX = ctx.center.x, FLOOR = H > W ? Math.round(H * .5) : 452;   // 角色腳底的 y
+    const px = (n) => Math.round(n * sx);                                 // 照框寬縮的橫向尺寸
+    const SPREAD = px(700);                                               // 彩帶雨的水平散佈
     const style = document.createElement('style');
     style.textContent = `
       .mode-stage { z-index: 11; pointer-events: none; }
@@ -18,9 +24,13 @@ window.GachaModes.stage = {
         radial-gradient(ellipse 60% 50% at 50% 70%, rgba(80,40,50,.45), transparent 70%),
         linear-gradient(180deg, #120b12, #1d1017 55%, #0d0a0e); opacity:0; transition:opacity .35s; }
       .mode-stage .st-back.on { opacity:1; }
-      .mode-stage .st-stage { position:absolute; left:50%; top:388px; width:720px; margin-left:-360px; }
-      .mode-stage .st-valance { position:absolute; left:50%; top:44px; width:1000px; margin-left:-500px; filter:drop-shadow(0 6px 6px rgba(0,0,0,.5)); }
-      .mode-stage .st-curtain { position:absolute; top:70px; height:560px; width:500px; background:url("gacha-set-curtain.png") right top / 100% 100% no-repeat;
+      /* 直式的演出框只佔畫面中間一段，劇場的暗場景只鋪到框邊、上下會露出招募層的海軍藍。
+         用一圈超大的實色陰影把框外一起壓黑（跟切入演出壓暗畫面同一招）。
+         橫式時框就是整個招募層、又有 overflow:hidden，這圈陰影看不到也不影響。 */
+      .mode-stage .st-back { box-shadow:0 0 0 9999px #0d0a0e; }
+      .mode-stage .st-stage { position:absolute; left:50%; top:${FLOOR - 64}px; width:${px(720)}px; margin-left:${-px(360)}px; }
+      .mode-stage .st-valance { position:absolute; left:50%; top:44px; width:${px(1000)}px; margin-left:${-px(500)}px; filter:drop-shadow(0 6px 6px rgba(0,0,0,.5)); }
+      .mode-stage .st-curtain { position:absolute; top:70px; height:${H - 70}px; width:${Math.max(px(500), Math.ceil(W / 2) + 20)}px; background:url("gacha-set-curtain.png") right top / 100% 100% no-repeat;
         filter:drop-shadow(0 8px 10px rgba(0,0,0,.55)); transform-origin:50% 0; }
       .mode-stage .st-curtain.l { left:-8px; }
       .mode-stage .st-curtain.r { right:-8px; transform:scaleX(-1); }
@@ -38,7 +48,7 @@ window.GachaModes.stage = {
       .mode-stage .st-ribbon small { display:block; font-family:"Microsoft JhengHei",sans-serif; font-size:11px; letter-spacing:.4em; text-indent:.4em; opacity:.85; margin-top:2px; }
       .mode-stage .st-ribbon::before, .mode-stage .st-ribbon::after { content:""; position:absolute; top:0; bottom:0; width:2px; background:rgba(255,255,255,.35); }
       .mode-stage .st-ribbon::before { left:12%; } .mode-stage .st-ribbon::after { right:12%; }
-      .mode-stage .st-next { position:absolute; top:548px; left:calc(50% - 110px); width:220px; pointer-events:auto; }`;
+      .mode-stage .st-next { position:absolute; top:${H - 92}px; left:calc(50% - 110px); width:220px; pointer-events:auto; }`;
     const scene = document.createElement('div');
     scene.innerHTML = `
       <div class="st-back"></div>
@@ -122,7 +132,7 @@ window.GachaModes.stage = {
         ctx.fx.spawn({ sprite: i % 2 ? 2 : 1, x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, g: 260, drag: .975, r: 12 + ctx.rng() * 12, life: .9 + ctx.rng() * .7, color: i % 2 ? '#ffd27a' : '#fff3d0', rot: ctx.rng() * 6, vr: (ctx.rng() - .5) * 8, shrink: true }); }
       ctx.fx.layer(ctx.fx.ring(x, y, '#ffd27a', .6, 320, 10));
       let t = 0; ctx.fx.layer({ dead: false, update(dt) { t += dt; if (t > 1.4) { this.dead = true; return; }
-        for (let i = 0; i < 2; i++) ctx.fx.spawn({ sprite: ctx.rng() < .5 ? 8 : 9, x: CX + (ctx.rng() - .5) * 700, y: 60, vx: (ctx.rng() - .5) * 40, vy: 60 + ctx.rng() * 80, g: 120, drag: .99,
+        for (let i = 0; i < 2; i++) ctx.fx.spawn({ sprite: ctx.rng() < .5 ? 8 : 9, x: CX + (ctx.rng() - .5) * SPREAD, y: 60, vx: (ctx.rng() - .5) * 40, vy: 60 + ctx.rng() * 80, g: 120, drag: .99,
           r: 8 + ctx.rng() * 8, life: 2.2 + ctx.rng(), color: rarity === 'mythic' ? window.GachaFx.rainbow[Math.floor(ctx.rng()*7)] : ['#ffd27a', '#ff8000', '#fff3d0', '#ffb04d'][Math.floor(ctx.rng() * 4)], rot: ctx.rng() * 6, vr: (ctx.rng() - .5) * 6, blend: 'source-over', fadeK: 1.2 }); }, draw() {} });
     }
     const dispose = () => { ctx.cancel(); style.remove(); scene.remove(); };
@@ -132,7 +142,7 @@ window.GachaModes.stage = {
         // ---- 開場：拉環扣、布幕向兩側拉開（帶布料的晃）、燈亮、塵開始飄
         back.classList.add('on');
         if (draw.entries.some(it => window.GachaPool.shownRarity(it) === 'mythic') && !ctx.motion.reduced) {
-          for (let i=0;i<32;i++) ctx.fx.spawn({sprite:9,x:CX+(ctx.rng()-.5)*700,y:60,vy:90,g:120,r:9,life:2.2,color:window.GachaFx.rainbow[i%7],vr:4});
+          for (let i=0;i<32;i++) ctx.fx.spawn({sprite:9,x:CX+(ctx.rng()-.5)*SPREAD,y:60,vy:90,g:120,r:9,life:2.2,color:window.GachaFx.rainbow[i%7],vr:4});
         }
         ctx.audio.tone(240, { type: 'triangle', slide: 170, slideT: .065, d: .065, r: .025, gain: .09 });
         await ctx.wait(420);   // 先讓觀眾看到閉著的幕

@@ -1,4 +1,9 @@
 window.ClickerGacha = (() => {
+  // 直式手機的演出座標系。橫式是 960×640（招募層本身就是那個大小），直式的招募層是整個畫面
+  // （390×844 之類），960 的座標會有四張卡直接掉在畫面外——跟切入演出踩過的是同一個坑。
+  // 改成一套 560×900 的直box，等比縮到畫面寬並置中；pad 是上下各留給頂欄與收下鍵的空間。
+  const PORTRAIT_BOX = { w: 560, h: 900, pad: 76 };
+  const portrait = () => matchMedia('(max-aspect-ratio: 3/4)').matches;
   function create({ store, card, commit, changed, pauseStage, resumeStage, joined, notice, format, canOpen = () => true }) {
     const $ = (id) => document.getElementById(id), E = window.ClickerEconomy;
     let runtime = null, mode = null, state = 'idle', ready = false;
@@ -66,12 +71,28 @@ window.ClickerGacha = (() => {
     function makeRuntime(draw) {
       cleanup(); currentId = draw.id; summaryReady = false;
       const name = store.state.settings.mode;
+      // 演出的座標系跟著版面走：橫式 960×640；直式改一套 560×900 的直box（見 PORTRAIT_BOX），
+      // 五連在直式排成 2+3 兩排。⚠ 特效畫布的 width/height 是「屬性」，GachaFx.init 只在
+      // 這裡讀一次（gacha-fx.js 的 W=el.width），所以一定要在 init 之前改。
+      const P = portrait(), box = P ? { width: PORTRAIT_BOX.w, height: PORTRAIT_BOX.h } : { width: 960, height: 640 };
+      const mid = { x: box.width / 2, y: box.height / 2 };
+      for (const c of [$('fx'), $('fx-under')]) { c.width = box.width; c.height = box.height; }
       window.GachaFx.init($('fx'), $('fx-under'));
       $('mode-root').className = `mode-root mode-${name}`;
       runtime = window.GachaModeRuntime.create({
-        root: $('mode-root'), size: { width: 960, height: 640 }, center: { x: 480, y: 320 },
+        root: $('mode-root'), size: box, center: mid,
         cardsEl: $('cards'), dim: $('dim'), card, mode: name,
-        layout(i, count) { const n = i - 2; return count === 1 ? { x: 480, y: 320, rot: 0 } : { x: 480 + n * 168, y: 320 + Math.abs(n) ** 2 * 6.5, rot: n * 4 }; },
+        layout(i, count) {
+          if (count === 1) return { x: mid.x, y: mid.y, rot: 0 };
+          if (P) {
+            // 直式 2+3：上排兩張（i=0,1）、下排三張（i=2,3,4）。
+            // 卡片 150 寬、半寬 75：下排最外側中心 ±172 → 邊緣落在 33／527，560 的框裡放得下。
+            const top = i < 2, n = top ? i - .5 : i - 3;
+            return { x: mid.x + n * (top ? 176 : 172), y: top ? 330 : 580, rot: n * (top ? 8 : 5) };
+          }
+          const n = i - 2;
+          return { x: 480 + n * 168, y: 320 + Math.abs(n) ** 2 * 6.5, rot: n * 4 };
+        },
         state(next) { layer.classList.remove(`state-${state}`); state = next; layer.classList.add(`state-${state}`); },
         isFanned: () => state === 'fanned', isAuto: () => true,
         onCards() {}, onReveal() {}, summary,
@@ -116,10 +137,15 @@ window.ClickerGacha = (() => {
       if (!summaryReady || busy || store.blocked) return;
       busy = true;
       try {
-        const box = $('game').getBoundingClientRect(), zoom = box.width / 960, cards = [...$('cards').children];
+        // 起飛點要換算成 #join-flight 自己的座標系（入隊演出就畫在那一層）。
+        // ⚠ 不能寫死 /960：橫式時 #join-flight 確實是 960 寬，直式它蓋滿畫面、座標就是畫面像素。
+        // clicker-stage.js 的 join() 用同一套映射算落點，兩邊一致才不會飛歪。
+        const jf = $('join-flight'), jr = jf.getBoundingClientRect();
+        const zoom = jf.clientWidth ? jr.width / jf.clientWidth : 1, cards = [...$('cards').children];
         const entries = store.state.pending.draw.entries.map((item,i) => {
           const r = cards[i]?.getBoundingClientRect();
-          return {id:item.entry.id, origin:r ? {x:(r.left+r.width/2-box.left)/zoom,y:(r.top+r.height/2-box.top)/zoom} : {x:480,y:320}};
+          return {id:item.entry.id, origin:r ? {x:(r.left+r.width/2-jr.left)/zoom,y:(r.top+r.height/2-jr.top)/zoom}
+                                             : {x:jf.clientWidth/2,y:jf.clientHeight/2}};
         });
         const result = E.collect(store.state, currentId, Date.now());
         if (!result.accepted || !commit(result.state)) return;
@@ -155,5 +181,5 @@ window.ClickerGacha = (() => {
       }, canHover: () => !document.hidden && !layer.hidden && summaryReady,
     };
   }
-  return { create };
+  return { create, PORTRAIT_BOX, portrait };
 })();

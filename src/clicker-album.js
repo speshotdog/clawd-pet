@@ -4,10 +4,17 @@ window.ClickerAlbum = (() => {
   function create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations }) {
     const $ = id => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
     const IDS = Pool.CHARACTER_IDS.filter(id => B.characters[id]).sort((a,b) => E.origin(a)-E.origin(b)), PER_PAGE = 4, PAGES = Math.ceil(IDS.length / PER_PAGE);
+    // 橫式一次看跨頁（兩頁），直式一次一頁。sheet 是「目前這一翻」的索引，sheets 是總翻數。
+    const wide = () => !matchMedia('(max-aspect-ratio: 3/4)').matches;
+    const sheets = () => wide() ? Math.ceil(PAGES / 2) : PAGES;
+    const sheet = () => wide() ? Math.floor(page / 2) : page;
     const RAR = { rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' }, ORIGIN = ['精良', '史詩', '傳說', '神話'];
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let shopCategory = null;   // 商店：null = 分類頁，否則是 'sounds'／'fx'／'decor'
-    let spread = 0, targetSlot = null, detailId = null, blinkTimer = 0, flipping = false, pendingBuy = null, refreshKey = '';
+    // page 是「單頁」索引（0..PAGES-1），才是真正的位置。橫式一次翻兩頁（跨頁），
+    // 直式一次一頁——390 寬塞不下兩頁，硬塞的話一張卡只剩不到 90px。
+    // 用單頁當基準，直橫切換時只要重畫就會落在同一批角色上，不會跳頁。
+    let page = 0, targetSlot = null, detailId = null, blinkTimer = 0, flipping = false, pendingBuy = null, refreshKey = '';
     const timers = new Set();
     const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); };
 
@@ -48,12 +55,15 @@ window.ClickerAlbum = (() => {
       const s = store.state; if (!s) return;
       refreshTrainAll();
       $('dust-count').textContent = s.universalDust || 0;
-      $('album-page').textContent = `${spread + 1} / ${Math.ceil(PAGES / 2)}`;
-      $('album-prev').disabled = spread === 0; $('album-next').disabled = (spread + 1) * 2 >= PAGES;
-      [['album-left', spread * 2], ['album-right', spread * 2 + 1]].forEach(([pageId, page]) => {
+      const sh = sheet(), n = sheets();
+      $('album-page').textContent = `${sh + 1} / ${n}`;
+      $('album-prev').disabled = sh === 0; $('album-next').disabled = sh + 1 >= n;
+      const faces = wide() ? [['album-left', sh * 2], ['album-right', sh * 2 + 1]] : [['album-left', sh]];
+      if (!wide()) $('album-right').replaceChildren();
+      faces.forEach(([pageId, face]) => {
         const el = $(pageId); el.replaceChildren();
-        el.dataset.canFlip = String(pageId === 'album-left' ? spread > 0 : (spread + 1) * 2 < PAGES);
-        IDS.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE).forEach(id => {
+        el.dataset.canFlip = String(pageId === 'album-left' ? sh > 0 : sh + 1 < n);
+        IDS.slice(face * PER_PAGE, face * PER_PAGE + PER_PAGE).forEach(id => {
           const slot = document.createElement('button'); slot.className = 'album-slot'; slot.dataset.id = id; slot.type = 'button';
           const hint = `${Pool.byId[id].name}・${s.collection[id] ? `粉塵 ${format(E.dust(s, id))} 顆・` : ''}${nextStep(s, id)}`;
           slot.setAttribute('aria-label', hint); slot.title = hint;
@@ -68,15 +78,16 @@ window.ClickerAlbum = (() => {
       });
     }
     function flip(dir) {
-      if (flipping) return; const next = spread + dir; if (next < 0 || next * 2 >= PAGES) return;
-      spread = next;
+      if (flipping) return; const next = sheet() + dir; if (next < 0 || next >= sheets()) return;
+      page = wide() ? next * 2 : next;
       if (reduced.matches) { renderBook(); return; }
       flipping = true;
-      const page = $(dir > 0 ? 'album-right' : 'album-left');
-      page.animate([{ transform: 'rotateY(0)' }, { transform: `rotateY(${dir > 0 ? -90 : 90}deg)` }], { duration: 120, easing: 'ease-in', fill: 'forwards' }).finished.then(() => {
+      // 直式只有左頁，出去與進來都是同一片
+      const outEl = $(wide() && dir > 0 ? 'album-right' : 'album-left');
+      outEl.animate([{ transform: 'rotateY(0)' }, { transform: `rotateY(${dir > 0 ? -90 : 90}deg)` }], { duration: 120, easing: 'ease-in', fill: 'forwards' }).finished.then(() => {
         renderBook(); sound('page');
-        const incoming = $(dir > 0 ? 'album-left' : 'album-right');
-        incoming.animate([{ transform: `rotateY(${dir > 0 ? 90 : -90}deg)` }, { transform: 'rotateY(0)' }], { duration: 120, easing: 'ease-out' }).finished.then(() => { page.getAnimations().forEach(a => a.cancel()); flipping = false; }).catch(() => { flipping = false; });
+        const incoming = $(wide() && dir < 0 ? 'album-right' : 'album-left');
+        incoming.animate([{ transform: `rotateY(${dir > 0 ? 90 : -90}deg)` }, { transform: 'rotateY(0)' }], { duration: 120, easing: 'ease-out' }).finished.then(() => { outEl.getAnimations().forEach(a => a.cancel()); flipping = false; }).catch(() => { flipping = false; });
       }).catch(() => { flipping = false; });
     }
     function open(selected = null, slot = null) {
@@ -347,7 +358,9 @@ window.ClickerAlbum = (() => {
       if (detailId) { closeDetail(); return true; }   // 淡出中也算已關，連按兩下 Esc 才關得掉卡冊
       return false;
     }
-    return { open, close, openDetail, openWardrobe, closeWardrobe, renderBook, escape, starRow,
+    // 直橫切換：跨頁 ↔ 單頁的排版不同，卡冊開著的時候要重畫（page 是單頁索引，不會跳掉）
+    function relayout() { if (!$('roster').hidden) renderBook(); }
+    return { open, close, openDetail, openWardrobe, closeWardrobe, renderBook, escape, starRow, relayout,
       get isOpen() { return !$('roster').hidden; }, get detailId() { return detailId; },
       // 每秒結算都會呼叫；只有卡冊真正關心的欄位變了才重建，否則每秒重建卡片會閃爍
       refresh() {

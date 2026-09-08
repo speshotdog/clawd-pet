@@ -399,10 +399,20 @@ window.Clicker = (() => {
     // ⚠ 變數要設在 #game 上不是 #stage-fit 上：粒子畫布與浮字層是 #stage 的兄弟，
     // 設在 #stage-fit 上它們讀不到，var(--stage-fit,1) 會退回 1、608px 寬直接撐出畫面。
     const host = $('game');
-    if (!isPortrait()) { host.style.removeProperty('--stage-fit'); host.style.removeProperty('--cutin-fit'); return; }
+    if (!isPortrait()) {
+      for (const v of ['--stage-fit', '--cutin-fit', '--gacha-fit', '--gacha-top']) host.style.removeProperty(v);
+      return;
+    }
     host.style.setProperty('--stage-fit', fit.clientWidth / 608);
     // 切入演出是 960×640 的座標系，直式縮到畫面寬當成中央的一條橫幅
     host.style.setProperty('--cutin-fit', host.clientWidth / 960);
+    // 招募演出：直式換成 560×900 的直box，等比縮進「頂欄與收下鍵之間」那段，再水平置中。
+    // ⚠ 不能只照畫面寬縮：320×640 這種矮螢幕是高度先卡住的，只看寬會把下排卡片頂到收下鍵上。
+    const G = window.ClickerGacha.PORTRAIT_BOX;
+    const room = Math.max(160, host.clientHeight - G.pad * 2);
+    const gf = Math.min(host.clientWidth / G.w, room / G.h);
+    host.style.setProperty('--gacha-fit', gf);
+    host.style.setProperty('--gacha-top', `${G.pad + (room - G.h * gf) / 2}px`);
   }
   function fitWindow() {
     fitStage();
@@ -585,7 +595,14 @@ window.Clicker = (() => {
   window.addEventListener('focus', () => { visible = true; resume(); });
   window.addEventListener('pagehide', suspend);
   if (!TAURI) window.addEventListener('beforeunload', suspend);
-  window.addEventListener('resize', fitWindow);
+  // 直橫切換時招募演出的座標系整個換掉（960×640 ↔ 560×900），已經擺好的卡片會停在舊座標上。
+  // 有 pending（結果已存、還沒收下）就照新版面把靜態總覽重建一次；演出進行中不動它。
+  let wasPortrait = isPortrait();
+  window.addEventListener('resize', () => {
+    fitWindow();
+    const now = isPortrait();
+    if (now !== wasPortrait) { wasPortrait = now; if (gacha.active && store.state?.pending) gacha.restore(); album?.relayout?.(); }
+  });
   function closeTopPanel() {
     if (album?.escape()) return true;
     if (!$('prestige').hidden) { $('prestige-close').click(); return true; }

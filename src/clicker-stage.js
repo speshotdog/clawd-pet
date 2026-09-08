@@ -727,8 +727,14 @@ window.ClickerStage = (() => {
         items.forEach((e,i) => later(()=>{
           const target = document.querySelector(`.buddy[data-id="${e.id}"] .buddy-portrait`);
           if (!target) return;   // 這一批的分頁上找不到這個角色就跳過，不要整段演出被例外打斷
-          const box = $('game').getBoundingClientRect(), rect = target.getBoundingClientRect(), zoom = box.width/960;
-          const from = e.origin || {x:320,y:98}, to = {x:(rect.left+rect.width/2-box.left)/zoom,y:(rect.top+rect.height/2-box.top)/zoom};
+          // 直式的夥伴列是一條左右滑的，目標常常滑在畫面外——頭貼就會飛去畫面外面降落。
+          // 先把它捲進來再量位置。橫式的夥伴列是固定的十宮格，這行是 no-op。
+          target.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
+          // 落點與 clicker-gacha.js collect() 的起飛點用同一套映射：換算到 #join-flight 自己的
+          // 座標系。橫式它是 #game 的 960×640（zoom 就是整體縮放），直式它蓋滿畫面、座標＝畫面像素。
+          const jf = $('join-flight'), jr = jf.getBoundingClientRect(), rect = target.getBoundingClientRect();
+          const zoom = jf.clientWidth ? jr.width / jf.clientWidth : 1;
+          const from = e.origin || {x:jf.clientWidth/2,y:jf.clientHeight*.15}, to = {x:(rect.left+rect.width/2-jr.left)/zoom,y:(rect.top+rect.height/2-jr.top)/zoom};
           const el = document.createElement('div'); el.className = 'joining-portrait'; el.append(card.art.create(window.GachaPool.byId[e.id])); $('join-flight').append(el);
           motion(el,[{transform:`translate(${from.x-32}px,${from.y-32}px) scale(1)`},{transform:`translate(${(from.x+to.x)/2-32}px,${(from.y+to.y)/2-68}px) scale(.8)`,offset:.5},{transform:`translate(${to.x-32}px,${to.y-32}px) scale(.625)`}],380,()=>{el.remove(); motion(target,[{transform:'scale(1)'},{transform:'scale(1.08)',offset:.5},{transform:'scale(1)'}],140); notice(`${window.GachaPool.byId[e.id].name} 已入隊・★${E.stars(s.collection[e.id])}`);});
         },i*70));

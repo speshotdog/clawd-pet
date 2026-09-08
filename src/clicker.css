@@ -852,7 +852,15 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
     grid-template-rows:auto; align-items:center; column-gap:9px; }
   .upgrade img, .recruit img { width:30px; height:30px; align-self:center; }
   .upgrade h2, .recruit h2 { font-size:12.5px; line-height:1.3; }
-  .upgrade p, .recruit small, #single-note, #pity, #recruit-open { display:none; }
+  .upgrade p, .recruit small, #single-note, #pity { display:none; }
+  /* 「選擇演出方式」在直式不能藏：演出下拉只長在招募層的頂欄裡，而招募層只有從這顆鍵
+     或「抽下去」才打得開——藏掉它等於直式玩家永遠換不了演出方式（下拉在 pending 時還會拒絕變更）。
+     招募這一列改成兩行：標題在上、這顆當小字連結在下，圖與價格各自跨兩行。 */
+  .recruit { grid-template-rows:auto auto; row-gap:1px; }
+  .recruit img { grid-row:1 / span 2; }
+  .recruit .purchase { grid-row:1 / span 2; }
+  #game #recruit-open { display:block; grid-column:2; grid-row:2; justify-self:start;
+    padding:0; font-size:11px; line-height:1.2; white-space:nowrap; }
   .purchase { grid-column:3; grid-row:1; display:flex; align-items:center; gap:6px; }
   .price-ticket { font-size:11px; } .price-ticket img { height:16px; }
   #click-max, #training-max { display:none; }
@@ -887,7 +895,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
   footer #next-goal { top:98px; }
 
   /* 粒子畫布與浮字層是照 960×640 畫死的，直式要跟著舞台縮，否則會撐出畫面 */
-  #click-fx, #floaters, #join-flight { position:absolute; left:0; top:0; width:608px; height:360px;
+  #click-fx, #floaters { position:absolute; left:0; top:0; width:608px; height:360px;
     transform:scale(var(--stage-fit,1)); transform-origin:0 0; }
   .wallet { flex:none; }
 
@@ -909,4 +917,90 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
     box-shadow:0 -4px 0 #30251F, 0 0 0 9999px rgba(48,37,31,.42); }
   #game #wardrobe:not([hidden]) { animation:sheet-up 160ms ease-out; }
   @keyframes sheet-up { from { transform:translateY(14px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
+  /* ───────── 招募演出（直式） ─────────
+     招募層的內容是一套寫死的座標系（卡片用 translate(x,y)、特效畫布是固定寬高的 canvas），
+     橫式時招募層剛好就是 960×640 所以看不出來；直式招募層變成整個畫面（390×844），
+     960 的座標直接讓五張卡有四張掉在畫面外——就是使用者截到的「抽卡也是剩一半」。
+     解法跟切入演出同一套：換一個 560×900 的直box（clicker-gacha.js 的 PORTRAIT_BOX），
+     等比縮到畫面寬、水平置中，垂直放在頂欄與收下鍵之間（--gacha-top 由 clicker.js 算）。
+     ⚠ 卡片座標與 canvas 的 width/height 也要跟著換，只縮 CSS 會讓特效跟卡片對不準。
+     ⚠ #dim／#flash 不進這個框——它們是整面壓暗／閃白，要蓋滿畫面才對。 */
+  #fx-under, #cards, #fx, #mode-root { left:50%; top:var(--gacha-top,0px); right:auto; bottom:auto;
+    width:560px; height:900px; transform:translateX(-50%) scale(var(--gacha-fit,1));
+    transform-origin:50% 0; }
+
+  /* 頂欄：350px 要塞 標題膠帶＋「演出」下拉＋音效＋返回，橫式的尺寸一定擠爆（實機會疊在一起）。
+     膠帶縮小、「演出」兩個字用 font-size:0 收掉（下拉自己把字級加回來），按鈕改小。
+     關閉視窗鍵在網頁版本來就是 hidden（只有 exe 用得到），這裡不必再處理。 */
+  #recruit-topbar { left:8px; right:8px; top:calc(8px + env(safe-area-inset-top)); gap:6px; height:46px; padding:2px 7px; }
+  #recruit-topbar > b { padding:5px 12px; font-size:14px; white-space:nowrap; }
+  #recruit-topbar label { font-size:0; }
+  #recruit-topbar button, #mode-select { height:30px; padding:1px 7px 3px; font-size:13px; white-space:nowrap; }
+  #mode-select { max-width:104px; }
+
+  /* 收下鍵那一排：兩顆鍵（收下夥伴／收下並繼續五連）在 390 寬排不進一列，改成可換行、置中 */
+  .reveal-controls { bottom:calc(30px + env(safe-area-inset-bottom)); left:10px; right:10px;
+    flex-wrap:wrap; gap:8px; }
+  #game #collect { font-size:17px; padding:9px 26px; }
+  #recruit-hint { bottom:calc(10px + env(safe-area-inset-bottom)); left:14px; right:14px; font-size:11px; }
+
+  /* 入口畫面（單抽／五連）在直式要收窄，兩顆鍵並排 390 塞得下 */
+  #recruit-entry { padding:0 16px; }
+  #recruit-entry img { max-width:120px; }
+  #recruit-entry h2 { font-size:17px; }
+
+  /* ───────── 面板抬頭（直式） ─────────
+     .panel header 是一排 flex：標題膠帶（26px 字、width:fit-content）＋說明文字（flex:1）＋一排按鈕。
+     390／320 寬時每個 flex 項目都被壓到剩一個字寬，實機上標題與說明整個變成直書
+     （使用者截到的卡冊就是這樣），書框還被擠出畫面底部。
+     直式一律允許換行：膠帶縮小且不換行、說明自己占一整行、按鈕不被壓縮。 */
+  #game .panel header, #game .small-panel header { flex-wrap:wrap; gap:7px; margin-bottom:10px; }
+  #game .panel h2, #game .small-panel h2 { font-size:17px; padding:5px 13px; white-space:nowrap; flex:none; }
+  #game .panel header span { flex:1 0 100%; order:9; font-size:11px; line-height:1.4; }
+  #game .panel header button { flex:none; font-size:12px; padding:4px 9px; }
+  #game #train-all { max-width:170px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* ───────── 卡冊（直式）：跨頁改單頁 ─────────
+     右頁由 clicker-album.js 在直式時不再填內容，這裡把它收掉並讓左頁吃滿整個書框。
+     書框的紙邊 border-image 是畫死的，內距要跟著縮，否則四張卡被擠成一小塊。 */
+  /* 書框的 border-image（clicker-ui-album.png）畫的是「攤開的跨頁」——中間有書脊、四角有繫帶。
+     直式只剩一頁，書脊會從單頁正中央穿過去，四張卡看起來像被切成兩半。
+     直式改用跟其他面板一樣的牛皮紙框，反而乾淨。 */
+  #album-book { padding:14px 16px 26px; border-image:none; border:3px solid #30251F; border-radius:14px;
+    background:#FFF6E0; outline:2px dashed #30251F55; outline-offset:-7px; }
+  #album-right { display:none; }
+  #album-left { padding:0 6px; }
+  #game #album-prev { left:2px; } #game #album-next { right:2px; }
+  /* 詳細頁與粉塵罐在直式改成直排（橫式是左右兩欄，390 寬會把右欄擠成一條） */
+  #album-detail, #dust-shop { inset:44px 10px 10px; flex-direction:column; gap:10px; padding:11px 13px;
+    overflow-y:auto; }
+  /* 直排時卡片在資訊的正上方。⚠ 卡片是 scale(1.15) 放大的，版面高度卻還是原本的 210——
+     橫式左右分欄看不出來，直排會直接壓在名字上（實機看到「阿漉」被卡片蓋掉半個字）。
+     直式取消放大，並讓卡片自己置中。 */
+  .detail-left { align-self:center; flex:none; }
+  #game .detail-card.card { transform:scale(1); }
+
+  /* ───────── 夥伴列：暗示可以左右滑 ─────────
+     它是一條橫向捲動的列，最後一顆常常剛好被切一半，看起來像壞掉。
+     兩側加漸層遮罩，被切的那顆會淡出去，就讀得出「還有、可以滑」。 */
+  #buddies { mask-image:linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 20px), transparent 100%);
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 20px), transparent 100%);
+    scroll-snap-type:x proximity; }
+  #buddies .buddy { scroll-snap-align:center; }
+
+  /* 入隊演出：橫式時 #join-flight 是 #game 的 960×640；直式如果跟著舞台縮成 608×360，
+     夥伴列在舞台外面，飛過去的頭貼就飛到畫面外了。直式讓它蓋滿畫面、座標直接用畫面像素
+     （clicker-gacha.js 的 collect() 與 clicker-stage.js 的 join() 都改成照 #join-flight 自己的
+     座標系換算，兩邊用同一套映射，所以橫式行為完全不變）。 */
+  #join-flight { left:0; top:0; width:100%; height:100%; transform:none; }
+}
+
+/* 320 這種窄螢幕：招募頂欄放不下「標題膠帶＋演出下拉＋音效＋返回」，按鈕會折行掉出欄外。
+   膠帶是純裝飾（畫面上有返回鍵就知道自己在招募層），窄的時候先犧牲它。 */
+@media (max-aspect-ratio: 3/4) and (max-width: 359px) {
+  #recruit-topbar > b { display:none; }
+  /* 面板抬頭的說明文字在 320 寬要吃掉兩三行，直接收掉——卡片本身點下去就有詳細頁 */
+  #game .panel header span { display:none; }
+  #game .panel h2, #game .small-panel h2 { font-size:15px; padding:4px 10px; }
 }
