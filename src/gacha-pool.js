@@ -37,7 +37,9 @@
     { id: 'jinggou', name: '警狗', rarity: 'legendary', kind: 'char', src: 'card-jinggou.png' },
     { id: 'gebugou', name: '哥不狗', rarity: 'epic', kind: 'char', src: 'card-gebugou.png' },
     { id: 'zhenjpg', name: '珍珍JPG', rarity: 'rare', kind: 'char', src: 'card-zhenjpg.png' },
-    { id: 'mieshi', name: '滅世珍獸', rarity: 'mythic', kind: 'char', src: 'card-mieshi.png' },
+    // bleed：這張是不透明的場景畫（不是去背角色），圖已裁成卡面圖窗的比例，
+    // 讓它鋪滿整個圖窗而不是縮在 84% 裡留一圈深藍底。
+    { id: 'mieshi', name: '滅世珍獸', rarity: 'mythic', kind: 'char', src: 'card-mieshi.png', bleed: true },
     { id: 'qinghua', name: '青花膠', rarity: 'mythic', kind: 'char', src: 'card-qinghua.png' },
     { id: 'yuefeimo', name: '飛沫月月', rarity: 'legendary', kind: 'char', src: 'card-yuefeimo.png' },
     { id: 'yuesong', name: '玥之歌', rarity: 'legendary', kind: 'char', src: 'card-yuesong.png' },
@@ -45,7 +47,7 @@
     { id: 'bingyang', name: '冰羊咩', rarity: 'epic', kind: 'char', src: 'card-bingyang.png' },
     { id: 'zhenbing', name: '珍冰', rarity: 'epic', kind: 'char', src: 'card-zhenbing.png' },
     { id: 'zhenpete', name: '珍彼特', rarity: 'epic', kind: 'char', src: 'card-zhenpete.png' },
-    { id: 'guanjiu', name: '冠酒', rarity: 'rare', kind: 'char', src: 'card-guanjiu.png' },
+    { id: 'guanjiu', name: '罐酒', rarity: 'rare', kind: 'char', src: 'card-guanjiu.png' },   // 使用者打錯字，2026-09-08 更正（id 是存檔鍵，不能改）
     { id: 'miepupu', name: '咩噗噗噗', rarity: 'rare', kind: 'char', src: 'card-miepupu.png' },
     { id: 'manhua', name: '滿花', rarity: 'rare', kind: 'char', src: 'card-manhua.png' },
     { id: 'yangtuo', name: '羊駝', rarity: 'rare', kind: 'char', src: 'card-yangtuo.png' },
@@ -63,7 +65,7 @@
     { id: 'seal', name: '快樂海豹', rarity: 'rare', kind: 'char', src: 'card-seal.png' },
     { id: 'chaichai', name: '柴柴', rarity: 'rare', kind: 'char', src: 'card-chaichai.png' },
     { id: 'jiaolan', name: '膠頭爛額', rarity: 'rare', kind: 'char', src: 'card-jiaolan.png' },
-    { id: 'wanwumythic', name: '玩物就玩物', rarity: 'mythic', kind: 'char', src: 'card-wanwumythic.png' },
+    { id: 'wanwumythic', name: '玩物就玩物', rarity: 'mythic', kind: 'char', src: 'card-wanwumythic.png', bleed: true },
     { id: 'dino',       name: '小恐龍',      rarity: 'common', kind: 'toy', src: 'toy-dino.png', w: 120 },
     { id: 'ballyellow', name: '黃色球',      rarity: 'common', kind: 'toy', src: 'toy-ballyellow.png', w: 109.4 },
     { id: 'beachball',  name: '皮球',        rarity: 'common', kind: 'toy', src: 'toy-beachball.png', w: 94.7 },

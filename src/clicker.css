@@ -460,7 +460,9 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .bond-row small { width:100%; font-size:10px; }
 .bond-row.inactive { filter:grayscale(1); opacity:.55; }
 .bond-chain, .bond-chain img { width:24px; height:24px; }
-#recommendations { flex:none; display:flex; gap:6px; justify-content:center; margin:0 0 14px; }
+/* 四張 280px 的票券排一列 = 1120px，比卡冊紙面還寬，第四張會穿出去看不到
+   （2026-09-08 使用者回報）。改成可換行，並給高度上限＋自己捲，才不會把下面的書擠出版面。 */
+#recommendations { flex:none; display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; max-height:140px; overflow-y:auto; }
 #roster .recommend-ticket { box-sizing:border-box; width:280px; height:64px; padding:3px 8px; border:10px solid transparent; border-image:url('clicker-ui-ticket.png') 24 fill / 10px; border-radius:0; box-shadow:none; background:transparent; text-align:left; }
 .recommend-ticket b { font-size:13px; }
 .recommend-ticket small { display:block; font-size:9px; white-space:nowrap; }
@@ -632,6 +634,12 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .mythic-beam { position:absolute; left:430px; top:120px; width:560px; height:60px; transform-origin:0 50%; opacity:0; border-radius:40% 12% 12% 40%; background:linear-gradient(0deg,transparent 0%,#edb62680 18%,#ffe58c 36%,#fffef5 47%,#fff 50%,#fffef5 53%,#ffe58c 64%,#edb62680 82%,transparent 100%); box-shadow:0 0 24px 8px #ffd45499; }
 .mythic-bloom { width:176px; height:176px; opacity:0; border:2px solid #a6dcff; border-radius:50%; background:radial-gradient(circle,transparent 34%,#e8f8ff55 48%,#428bd255 61%,transparent 71%); box-shadow:0 0 18px #9edbff88,inset 0 0 16px #dff5ff88; }
 .mythic-petal { position:absolute; left:calc(50% - 13px); top:calc(50% - 25px); width:26px; height:50px; border:1px solid #679acb; border-radius:70% 30% 65% 35%; background:radial-gradient(ellipse at 50% 28%,#fff 8%,#edfaff 38%,#8cc5ef 66%,#2864a5 100%); box-shadow:0 0 7px #e0f6ff99; }
+/* 玥來玥閒「躺著也會贏」：懶洋洋的暖橘金漣漪＋打瞌睡的 Z */
+.mythic-ripple { width:150px; height:150px; opacity:0; border:3px solid #F5C26B; border-radius:50%; background:radial-gradient(circle,transparent 58%,#F5C26B44 70%,transparent 80%); box-shadow:0 0 16px #F5C26B66; }
+.mythic-zzz { width:0; height:0; opacity:0; font:800 26px/1 system-ui,sans-serif; font-style:normal; color:#F7D89A; text-shadow:0 2px 0 #9A6B23,0 0 10px #F5C26B99; display:grid; place-items:center; }
+/* 玩物就玩物「捧在手心」：往上托起的粉色柔光＋六顆愛心 */
+.mythic-cradle { width:132px; height:132px; opacity:0; border:2px solid #F2A0B4; border-radius:50%; background:radial-gradient(circle,#FFF0F4 20%,#F7C2D0aa 55%,transparent 74%); box-shadow:0 0 18px #F7C2D099,inset 0 0 14px #FFF0F4aa; }
+.mythic-heart { width:18px; height:18px; opacity:0; background:#F27D9B; border:1px solid #C2496B; transform-origin:50% 50%; clip-path:path('M9 17S1 11.2 1 6.1A4.6 4.6 0 0 1 9 3a4.6 4.6 0 0 1 8 3.1C17 11.2 9 17 9 17Z'); box-shadow:0 0 8px #F7C2D0aa; }
 #boss-image { width:100%; height:100%; }
 #boss-health { width:calc(var(--boss-w,260px) + 40px); }
 #stage > #boss-challenge.long { font-size:13px; line-height:15px; white-space:normal; padding:2px 8px; }

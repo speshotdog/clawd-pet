@@ -183,8 +183,13 @@ window.ClickerAlbum = (() => {
     }
 
     // ---------- 粉塵罐：萬用粉塵 → 指定角色 ----------
-    function openDustShop() {
-      const s = store.state, root = $('dust-shop'); root.replaceChildren(); root.hidden = false;
+    // keep：兌換後重畫時要留住捲動位置與焦點。整份 replaceChildren 會把 .dust-list 的
+    // scrollTop 歸零、back.focus() 又把焦點搶走，於是每按一次「+1」畫面就跳回最上面、
+    // 還要重新找那一列（2026-09-08 使用者回報「不方便兌換」）。
+    function openDustShop(keep = null) {
+      const s = store.state, root = $('dust-shop');
+      const scrollTop = keep ? (root.querySelector('.dust-list')?.scrollTop || 0) : 0;
+      root.replaceChildren(); root.hidden = false;
       const h = document.createElement('h3'); h.textContent = `萬用粉塵 ${s.universalDust || 0} 顆`; root.append(h);
       const hint = document.createElement('p'); hint.textContent = '兌換成指定夥伴的粉塵：精良 1:1、史詩 2:1、傳說 3:1。萬用粉塵來自每隻王首勝、每日一包與滿養夥伴的重複卡。'; root.append(hint);
       const list = document.createElement('div'); list.className = 'dust-list';
@@ -196,13 +201,22 @@ window.ClickerAlbum = (() => {
         for (const n of [1, 5]) {
           const btn = document.createElement('button'); btn.textContent = `+${n}（${rate * n}）`;
           btn.disabled = !s.collection[id] || (s.universalDust || 0) < rate * n || s.transcend?.[id] === 5 || store.blocked;
-          btn.onclick = () => action(() => { if (commit(E.exchange(store.state, id, rate * n, Date.now()))) { changed(); sound('upgrade'); openDustShop(); renderBook(); } });
+          btn.dataset.dust = `${id}:${n}`;
+          btn.onclick = () => action(() => { if (commit(E.exchange(store.state, id, rate * n, Date.now()))) { changed(); sound('upgrade'); openDustShop({ id, n }); renderBook(); } });
           row.append(btn);
         }
         list.append(row);
       }
       root.append(list);
-      const back = document.createElement('button'); back.textContent = '關上罐子'; back.onclick = closeDustShop; root.append(back); back.focus();
+      const back = document.createElement('button'); back.textContent = '關上罐子'; back.onclick = closeDustShop; root.append(back);
+      if (keep) {
+        list.scrollTop = scrollTop;
+        // 焦點回到剛才按的那顆；它按到買不起變成 disabled 時，退回同一列的另一顆，都不行才收在「關上罐子」
+        const same = root.querySelector(`[data-dust="${keep.id}:${keep.n}"]`);
+        const other = root.querySelector(`[data-dust^="${keep.id}:"]:not([disabled])`);
+        (same && !same.disabled ? same : other || back).focus({ preventScroll: true });
+        list.scrollTop = scrollTop;
+      } else back.focus();
     }
     function closeDustShop() { const root = $('dust-shop'); root.hidden = true; root.replaceChildren(); }
 

@@ -36,7 +36,7 @@ const assetsReady = fetch('index.html').then((r) => r.text())
 
 function buildArt(entry) {
   if (entry.kind === 'char' && entry.src) {
-    const img = document.createElement('img'); img.className = 'character-png';
+    const img = document.createElement('img'); img.className = 'character-png' + (entry.bleed ? ' bleed' : '');
     img.src = entry.src; img.alt = ''; img.draggable = false; return img;
   }
   if (entry.kind === 'char') {

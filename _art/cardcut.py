@@ -28,6 +28,10 @@ NEAR_WHITE = 232          # RGB 三通道都 >= 這個值才算背景白
 NEAR_BLACK = 30           # RGB 三通道都 <= 這個值才算背景黑
 PANEL_TOL  = 40           # 貼紙底板顏色的容差；24/40/60 實測差不多，取中間值
 SPECK_RATIO = .005        # 連通面積不到最大元件這個比例的，當碎屑砍掉
+FRINGE_DEPTH = 3          # 去白邊只往內吃這麼多層，鑽不進角色身體
+FRINGE_LIGHT = 150        # 這麼亮才算是背景殘留的白暈（白暈亮度中位數 170，門檻設 200 會漏掉大半）
+STICKER_WHITE = 235       # 這麼白才算「畫上去的」白色貼紙外框，不是反鋸齒殘留
+STICKER_SHARE = .30       # 邊界有這麼高比例是純白，就當它是貼紙外框，整張跳過去白邊
 TARGET_H = 580
 
 def flood(im, hit):
@@ -105,6 +109,46 @@ def despeckle(im, ratio=SPECK_RATIO):
             x, y = i % w, i // w; r, g, b, _ = px[x, y]; px[x, y] = (r, g, b, 0)
     return im, len(doomed)
 
+def defringe(im, depth=FRINGE_DEPTH, light=FRINGE_LIGHT):
+    """吃掉黑描邊外圍那一圈殘留的白暈，回傳 (im, 吃掉幾個像素)。
+    flood fill 的門檻是 NEAR_WHITE=232，但原圖背景與描邊之間的反鋸齒落在 170~231，
+    對 fill 來說「不夠白」所以留了下來——在白色預覽底上看不見，一放到卡面的深藍底
+    就是繞著角色一圈的白邊（2026-09-08 使用者回報的滿花）。
+    只往內吃 FRINGE_DEPTH 層是關鍵：角色自己的白（肚子、手套、白身體）離邊界更深，
+    不設深度上限的話會從描邊的缺口鑽進去把整隻挖空。
+    滿花實測：距邊界 1px 有 38% 是 >=200 的亮像素、2px 23%、3px 只剩 4%（已經是黑描邊）。
+
+    ⚠ 有一批卡（棉花糖、氣噗噗、ㄌㄎ正卡、玥之歌、珍汪、珍彼特）的白邊是**刻意畫的
+    白色貼紙外框**，是設計的一部分，去掉就毀了。所以先量邊界第一圈有多少是純白：
+    切圖當下（縮放前）量：珍彼特 39.6%、滿花 0%、已去背那批 100%，門檻取 30% 分得開。
+    ⚠ 門檻要用「切圖當下」的數字，不能用成品 PNG 量出來的（縮放會把反鋸齒變亮，兩者差很多）。"""
+    px = im.load(); w, h = im.size
+    q = deque(); seen = bytearray(w * h)
+    for y in range(h):
+        for x in range(w):
+            if px[x, y][3] <= 8: q.append((x, y, 0)); seen[y * w + x] = 1
+    edge = []
+    for x, y, _ in list(q):
+        for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < w and 0 <= ny < h and px[nx, ny][3] > 8: edge.append(px[nx, ny][:3])
+    if edge and sum(1 for c in edge if min(c) >= STICKER_WHITE) / len(edge) >= STICKER_SHARE:
+        return im, 0        # 白色貼紙外框，不是髒白暈
+    killed = 0
+    while q:
+        x, y, d = q.popleft()
+        if d >= depth: continue
+        for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+            nx, ny = x + dx, y + dy
+            if not (0 <= nx < w and 0 <= ny < h): continue
+            i = ny * w + nx
+            if seen[i]: continue
+            r, g, b, a = px[nx, ny]
+            if a <= 8 or min(r, g, b) < light: continue
+            seen[i] = 1; px[nx, ny] = (r, g, b, 0); killed += 1
+            q.append((nx, ny, d + 1))
+    return im, killed
+
 def main(src, card_id, target_h=TARGET_H, panel=True):
     im = Image.open(src).convert('RGBA')
     corners = [im.getpixel(p) for p in [(0,0),(im.width-1,0),(0,im.height-1),(im.width-1,im.height-1)]]
@@ -125,6 +169,8 @@ def main(src, card_id, target_h=TARGET_H, panel=True):
             raise SystemExit(f'{src}：四角不是白、不是黑、也不是透明（{corners[0]}），這張要另外處理，不要硬切')
     a = im.getchannel('A')
     im.putalpha(a.point(lambda v: 0 if v < 8 else v))
+    im, fringe = defringe(im)
+    if fringe: how += f'（去白邊 {fringe} px）'
     im, killed = despeckle(im)
     if killed: how += f'（去掉 {killed} 塊碎屑）'
     box = im.getchannel('A').getbbox()

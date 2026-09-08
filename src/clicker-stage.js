@@ -548,7 +548,13 @@ window.ClickerStage = (() => {
             shake(8,160);sound('boss-win');$('boss-view').hidden=true;
           });
           later(()=>{
-            const banner=$('boss-banner');banner.textContent=r.scene === 'fridge' ? '六站全破！珍母的零食櫃清空了' : `${window.ClickerScenes[r.next].name} 解鎖！`;banner.classList.toggle('final-win',r.scene === 'fridge');banner.hidden=false;
+            // ⚠ 終點站沒有下一站，r.next 是 undefined。這裡本來寫死特判 'fridge'，
+            // 第二十二輪把終點搬到第七站 city 之後，打贏 city 會在 ClickerScenes[undefined].name 丟例外，
+            // 而這段是在 later() 裡跑的——例外一丟，後面的 bossBusy=false 就永遠不會執行，
+            // 於是「換桌布／場景」鍵一直是 disabled，要重整才會好（2026-09-08 使用者回報）。
+            // 改成看 r.next 有沒有解得開，不要再認場景名字。
+            const nextScene = r.next && window.ClickerScenes[r.next];
+            const banner=$('boss-banner');banner.textContent=nextScene ? `${nextScene.name} 解鎖！` : '全站破關！珍母的零食櫃清空了';banner.classList.toggle('final-win',!nextScene);banner.hidden=false;
             motion(banner,[{transform:'scale(.8)'},{transform:'scale(1)'}],200);
             later(()=>motion(banner,[{transform:'translateX(0)',opacity:1},{transform:'translateX(-600px)',opacity:0}],220,()=>{
               banner.hidden=true;
@@ -616,6 +622,58 @@ window.ClickerStage = (() => {
           {transform:'translate(-50%,-50%) scale(1) rotate(0deg)',opacity:.85,offset:.58},
           {transform:'translate(-50%,-50%) scale(1.3) rotate(8deg)',opacity:0}
         ], 680, () => bloom.remove(), 'linear');
+      } else if (effect.source === 'yueyuexian' || effect.source === 'wanwumythic') {
+        // 這兩張是增益技，比照青花從技能鈕長出來；不用滅世那種鋪滿全版的做法（那是打王專用）
+        const slot = latestState?.skillSlots.indexOf(effect.source) ?? -1;
+        const head = $('slots').children[slot]?.querySelector('.skill-use');
+        if (!head) return;
+        const rect = head.getBoundingClientRect(), box = stage.getBoundingClientRect();
+        const at = (el) => {
+          el.style.left = `${(rect.left + rect.width / 2 - box.left) * stage.offsetWidth / box.width}px`;
+          el.style.top = `${(rect.top + rect.height / 2 - box.top) * stage.offsetHeight / box.height}px`;
+        };
+        if (effect.source === 'yueyuexian') {
+          // 躺著也會贏：往外擴散的懶漣漪＋飄走的 Z，暖橘金（跟青花的藍、滅世的白金分開）
+          for (let i = 0; i < 3; i++) {
+            const ring = document.createElement('div'); ring.className = 'mythic-fx mythic-ripple';
+            ring.setAttribute('aria-hidden', 'true'); at(ring); stage.append(ring);
+            motion(ring, [
+              {transform:'translate(-50%,-50%) scale(.25)',opacity:0},
+              {transform:'translate(-50%,-50%) scale(.9)',opacity:.85,offset:.35},
+              {transform:'translate(-50%,-50%) scale(1.6)',opacity:.5,offset:.7},
+              {transform:'translate(-50%,-50%) scale(2.4)',opacity:0}
+            ], 900 + i * 140, () => ring.remove(), 'linear');
+          }
+          for (let i = 0; i < 4; i++) {
+            const z = document.createElement('i'); z.className = 'mythic-fx mythic-zzz';
+            z.textContent = 'Z'; z.setAttribute('aria-hidden', 'true'); at(z); stage.append(z);
+            const tilt = i % 2 ? 12 : -12;
+            motion(z, [
+              {transform:`translate(-50%,-50%) translate(0,0) scale(.6) rotate(0deg)`,opacity:0},
+              {transform:`translate(-50%,-50%) translate(24px,-26px) scale(1) rotate(${tilt}deg)`,opacity:1,offset:.35},
+              {transform:`translate(-50%,-50%) translate(60px,-64px) scale(1.1) rotate(${tilt}deg)`,opacity:0}
+            ], 1000 + i * 160, () => z.remove(), 'linear');
+          }
+        } else {
+          // 捧在手心：往上托起的柔光＋六顆愛心
+          const cradle = document.createElement('div'); cradle.className = 'mythic-fx mythic-cradle';
+          cradle.setAttribute('aria-hidden', 'true'); at(cradle); stage.append(cradle);
+          motion(cradle, [
+            {transform:'translate(-50%,-50%) translateY(0) scale(.4)',opacity:0},
+            {transform:'translate(-50%,-50%) translateY(-18px) scale(.95)',opacity:1,offset:.4},
+            {transform:'translate(-50%,-50%) translateY(-38px) scale(1.15)',opacity:0}
+          ], 700, () => cradle.remove(), 'linear');
+          for (let i = 0; i < 6; i++) {
+            const heart = document.createElement('i'); heart.className = 'mythic-fx mythic-heart';
+            heart.setAttribute('aria-hidden', 'true'); at(heart); stage.append(heart);
+            const a = i * 60 * Math.PI / 180, r0 = 42, r1 = 62;
+            motion(heart, [
+              {transform:`translate(-50%,-50%) translate(${Math.sin(a)*r0*.4}px,${-Math.cos(a)*r0*.4}px) scale(.5)`,opacity:0},
+              {transform:`translate(-50%,-50%) translate(${Math.sin(a)*r0}px,${-Math.cos(a)*r0}px) scale(1)`,opacity:1,offset:.45},
+              {transform:`translate(-50%,-50%) translate(${Math.sin(a)*r1}px,${-Math.cos(a)*r1}px) scale(.7)`,opacity:0}
+            ], 900 + i * 60, () => heart.remove(), 'linear');
+          }
+        }
       }
     }
     function skill(effect) {
@@ -646,7 +704,9 @@ window.ClickerStage = (() => {
         if (index >= batches.length) { joining = false; teamKey = ''; setPartners(s); return; }
         const [p, items] = batches[index]; page = p; teamKey = ''; setPartners(s);
         items.forEach((e,i) => later(()=>{
-          const target = document.querySelector(`.buddy[data-id="${e.id}"] .buddy-portrait`), box = $('game').getBoundingClientRect(), rect = target.getBoundingClientRect(), zoom = box.width/960;
+          const target = document.querySelector(`.buddy[data-id="${e.id}"] .buddy-portrait`);
+          if (!target) return;   // 這一批的分頁上找不到這個角色就跳過，不要整段演出被例外打斷
+          const box = $('game').getBoundingClientRect(), rect = target.getBoundingClientRect(), zoom = box.width/960;
           const from = e.origin || {x:320,y:98}, to = {x:(rect.left+rect.width/2-box.left)/zoom,y:(rect.top+rect.height/2-box.top)/zoom};
           const el = document.createElement('div'); el.className = 'joining-portrait'; el.append(card.art.create(window.GachaPool.byId[e.id])); $('join-flight').append(el);
           motion(el,[{transform:`translate(${from.x-32}px,${from.y-32}px) scale(1)`},{transform:`translate(${(from.x+to.x)/2-32}px,${(from.y+to.y)/2-68}px) scale(.8)`,offset:.5},{transform:`translate(${to.x-32}px,${to.y-32}px) scale(.625)`}],380,()=>{el.remove(); motion(target,[{transform:'scale(1)'},{transform:'scale(1.08)',offset:.5},{transform:'scale(1)'}],140); notice(`${window.GachaPool.byId[e.id].name} 已入隊・★${E.stars(s.collection[e.id])}`);});

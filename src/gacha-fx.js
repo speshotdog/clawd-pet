@@ -154,7 +154,9 @@ window.GachaFx = (() => {
         ctx.globalAlpha = (1 - k) * 0.9;
         ctx.strokeStyle = color; ctx.lineWidth = width * (1 - k * 0.6);
         ctx.shadowColor = color; ctx.shadowBlur = 20;
-        ctx.beginPath(); ctx.arc(x, y, 10 + e * maxR, 0, TAU); ctx.stroke();
+        // 第一幀的 t 有機會是很小的負數（dt 從還沒校正的 last 算出來），k<0 會讓 e<0、半徑變負，
+        // arc() 收到負半徑會直接丟例外把整條演出打斷。照第 115 行既有的做法夾住。
+        ctx.beginPath(); ctx.arc(x, y, Math.max(0.2, 10 + e * maxR), 0, TAU); ctx.stroke();
         ctx.restore();
       },
     };

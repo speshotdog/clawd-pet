@@ -3,6 +3,13 @@ window.ClickerGacha = (() => {
     const $ = (id) => document.getElementById(id), E = window.ClickerEconomy;
     let runtime = null, mode = null, state = 'idle', ready = false;
     let currentId = null, summaryReady = false, busy = false, previousFocus = null;
+    // 連抽時每一輪收下的夥伴先存著，等真的離開招募畫面再一次播入隊演出——
+    // 演出是在舞台上跑的，招募層蓋著的時候播等於白播。
+    let pendingJoins = [];
+    // 連抽好幾輪才一起播入隊演出時，同一個角色可能在不同輪都被抽到。
+    // stage.join() 是「一個角色一個目標圓鈕」的，同一個 id 出現兩次時第二次會查不到目標
+    //（它是照分頁分批的，第二次查的時候頁面已經翻到別批了）→ getBoundingClientRect of null。
+    const dedupe = (list) => { const seen = new Set(); return list.filter(e => !seen.has(e.id) && seen.add(e.id)); };
     const layer = $('recruit-layer');
     function priceButton(el, count, s, supported) {
       const cost = E.drawCost(s, Math.max(0,count-(s.freeDraws || 0))), missing = Math.max(0, Math.ceil(cost - s.coins));
@@ -39,12 +46,21 @@ window.ClickerGacha = (() => {
     function close() {
       if (store.state?.pending) return;
       cleanup(); layer.hidden = true; $('game-content').inert = false; $('recruit-entry').hidden = false;
-      $('collect').hidden = $('skip').hidden = $('reveal-all').hidden = true;
+      $('collect').hidden = $('collect-again').hidden = $('skip').hidden = $('reveal-all').hidden = true;
       resumeStage(); previousFocus?.focus();
+      if (pendingJoins.length) { const all = pendingJoins; pendingJoins = []; joined(dedupe(all)); }
     }
     function summary() {
       summaryReady = true; $('collect').hidden = false; $('skip').hidden = $('reveal-all').hidden = true;
-      $('recruit-hint').textContent = '結果已儲存，收下後夥伴就會開始幫忙。';
+      // 錢是抽的當下就扣掉的，所以現在的 state 拿來算「還抽不抽得起下一次」是準的
+      const s = store.state, again = $('collect-again');
+      const cost = E.drawCost(s, Math.max(0, 5 - (s.freeDraws || 0)));
+      const affordable = cost <= s.coins && window.GachaModes[s.settings.mode].counts.includes(5);
+      again.hidden = !affordable;
+      again.textContent = s.freeDraws ? `收下並繼續五連 · 免費 ×${Math.min(5, s.freeDraws)}` : `收下並繼續五連 · ${format(cost)}`;
+      $('recruit-hint').textContent = affordable
+        ? '結果已儲存。收下後夥伴就會開始幫忙，或直接再抽一次。'
+        : '結果已儲存，收下後夥伴就會開始幫忙。';
       $('collect').focus(); render();
     }
     function makeRuntime(draw) {
@@ -96,7 +112,7 @@ window.ClickerGacha = (() => {
       } catch (err) { notice(err.message); }
       finally { busy = false; changed(); render(); }
     }
-    function collect() {
+    function collect(stay = false) {
       if (!summaryReady || busy || store.blocked) return;
       busy = true;
       try {
@@ -107,7 +123,9 @@ window.ClickerGacha = (() => {
         });
         const result = E.collect(store.state, currentId, Date.now());
         if (!result.accepted || !commit(result.state)) return;
-        summaryReady = false; currentId = null; close(); changed(); joined(entries);
+        summaryReady = false; currentId = null; changed();
+        if (stay) { pendingJoins.push(...entries); $('collect').hidden = $('collect-again').hidden = true; busy = false; start(5); return; }
+        close(); joined(dedupe([...pendingJoins.splice(0), ...entries]));
       } catch (err) { notice(err.message); }
       finally { busy = false; render(); }
     }
@@ -120,7 +138,10 @@ window.ClickerGacha = (() => {
     $('draw-one').onclick = $('recruit-one').onclick = () => start(1);
     $('draw-five').onclick = $('recruit-five').onclick = () => start(5);
     $('recruit-open').onclick = open; $('recruit-close').onclick = close;
-    $('collect').onclick = collect; $('skip').onclick = skip; $('reveal-all').onclick = () => runtime?.all();
+    // ⚠ 不能寫 onclick = collect：DOM 會把事件物件當成第一個參數傳進去，stay 就變成 truthy
+    $('collect').onclick = () => collect(false);
+    $('collect-again').onclick = () => collect(true);
+    $('skip').onclick = skip; $('reveal-all').onclick = () => runtime?.all();
     $('mode-select').onchange = () => {
       if (store.blocked || store.state.pending) { render(); return; }
       const s = E.settle(store.state, Date.now()).state; s.settings.mode = $('mode-select').value;

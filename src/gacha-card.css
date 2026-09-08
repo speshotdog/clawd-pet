@@ -375,6 +375,9 @@
 :root { --c-mythic:#FF4FD8; --mythic-rainbow:linear-gradient(115deg,#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff7ab8); }
 .character-png { width:128px; height:128px; object-fit:contain; object-position:center; }
 .face-art > .character-png { width:84%; height:84%; margin:auto; object-fit:contain; align-self:center; }
+/* 場景畫型的卡面（目前只有滅世珍獸）：鋪滿整個圖窗。84% + contain 是給去背角色用的，
+   套在不透明的橫幅畫上會縮成中間一小塊、四周露出深藍底（使用者回報「還不是滿版圖」）。 */
+.face-art > .character-png.bleed { width:100%; height:100%; margin:0; object-fit:cover; object-position:center; border-radius:8px 8px 0 0; }
 .card.r-mythic, .skin-af .card.r-mythic { --rc:var(--c-mythic); --rc-a:#ff4fd880; --rc-b:#5ad7ff55; --rim-hi:#fff275; --ink-rarity:#a91686; --gem:16px; --leak:1; --spin:0deg; animation:mythic-spin 6s linear infinite; }
 .r-mythic .card-face, .skin-af .r-mythic .card-face,
 .r-mythic .face-art, .skin-af .r-mythic .face-art { background:linear-gradient(115deg,#f5b7e7,#f8d7ac,#fff3ac,#b9efc4,#b4e8f8,#d5c4f5,#f4b8d9); }
