@@ -52,7 +52,7 @@
     const s = E.clone(state); return { state: s, done: dailyHit(s, value) };
   }
   // ---------- 里程碑徽章 ----------
-  const bossScenes = ['backyard', 'kitchen', 'market', 'factory', 'nightmarket', 'fridge'];
+  const bossScenes = ['backyard', 'kitchen', 'market', 'factory', 'nightmarket', 'fridge', 'city'];
   const BADGES = [
     ...[[10, 'toy-dino.png'], [25, 'toy-ballyellow.png'], [50, 'toy-beachball.png'], [100], [300], [1000]].map(([n, toy]) => ({
       id: `pack${n}`, name: `第 ${n} 包`, desc: `累計拆滿 ${n} 包`, icon: 'star', label: String(n), toy, test: s => totalPackages(s) >= n })),

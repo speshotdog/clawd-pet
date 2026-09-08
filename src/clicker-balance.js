@@ -66,6 +66,14 @@
     foxfriend: { base: 19, skill: '摯友同行', kind: 'burst', factor: 38, basis: 'team', cd: 145 },
     wanwu: { base: 18, skill: '玩到忘我', kind: 'self', multiplier: 5.2, duration: 30, cd: 120 },
   });
+  // 第二十四輪五張新卡（桌面「新卡\2.0」補完，稀有度照檔名）
+  Object.assign(characters, {
+    shiwang: { base: 5, skill: '垂頭喪企', kind: 'burst', factor: 22, basis: 'individual', cd: 48 },
+    seal: { base: 5, skill: '快樂拍拍', kind: 'clickAdd', ratio: .42, charges: 18, duration: 20, cd: 95 },
+    chaichai: { base: 4, skill: '柴柴打滾', kind: 'self', multiplier: 4.8, duration: 20, cd: 105 },
+    jiaolan: { base: 5, skill: '爛額狂點', kind: 'clickTime', multiplier: 2.8, duration: 12, cd: 82, trait: { clickMul: 1.15 } },
+    shiyi: { base: 19, skill: '十一連發', kind: 'click', multiplier: 4.5, charges: 11, duration: 15, cd: 85 },
+  });
   const fmt = n => Number(n.toFixed(4));
   function describe(p) {
     const tail = `・冷卻 ${fmt(p.cd)} 秒`;

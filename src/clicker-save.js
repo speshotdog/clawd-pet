@@ -27,6 +27,11 @@
       s.owned={wardrobe:['sounds:soft','fx:shard']};
       s.settings={...s.settings,clickSound:'soft',clickFx:'shard'}; s.version=2;
     }
+    // 第二十二輪把第七站 city 接在 fridge 後面時，finishBoss 開始在 bossResult 裡多寫一個 next；
+    // 在那之前打贏王、結算牌還掛著就沒再開過遊戲的存檔沒有這個欄位，換新版一讀就卡「王包結算」讀不進來
+    //（2026-09-08 使用者朋友回報：掛機一個多小時後重整就中）。這裡照場景表補回去。
+    // 終點站 city 的 next 本來就是 undefined，JSON 也存不下 undefined，所以這行對新存檔是無作用的。
+    if (object(s) && object(s.bossResult) && s.bossResult.next === undefined) s.bossResult.next = E.nextScene(s.bossResult.scene);
     check(object(s) && s.version === 2 && s.balanceVersion === 1, '版本（本版不降級或重置）');
     // 移除誤植角色，也清理它可能留下的養成與技能快照。
     for (const key of ['collection','dust','promotions','transcend','partnerLevels','overflow','awakened','cooldownUntil']) {

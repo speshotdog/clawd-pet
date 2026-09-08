@@ -790,7 +790,7 @@ def round12(browser):
     assert page.locator('#clicker-scene img[data-toy="toy-dino.png"]').count()==1
     advance(2400)
     page.locator('#stats-open').click();advance(300)
-    assert page.locator('#badge-grid .badge-cell').count()==17 and page.locator('#badge-grid .badge-cell.earned').count()==1
+    assert page.locator('#badge-grid .badge-cell').count()==18 and page.locator('#badge-grid .badge-cell.earned').count()==1
     assert '連續 1 天' in page.locator('#stats-body').inner_text()
     shot('badge-wall')
     checks.append('badge pop, toy in scene, wall')

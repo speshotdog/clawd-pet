@@ -26,7 +26,7 @@ test('round22: 滅世珍獸是可重複挑戰的終點王，冷卻照舊、獎�
  assert.equal(s.freeDraws,5); assert.equal(s.universalDust,3);
 });
 test('round17: four PNG cards, skill snapshots, old save fields and equipped trait scaling', () => {
- assert.equal(Object.keys(B.characters).length,46);
+ assert.equal(Object.keys(B.characters).length,51);
  for (const id of ['jiaotou','jinggou','gebugou','zhenjpg']) { const s=seed(); s.collection[id]=1; s.skillSlots[0]=id; assert.equal(Pool.byId[id].src,`card-${id}.png`); S.validate(E.activate(s,0,0).state,Pool); assert.equal(S.validate(seed(),Pool).dust[id],0); }
  const s=seed(); s.collection.jiaotou=16; s.dust.jiaotou=16; const base=E.rates(s); s.skillSlots[0]='jiaotou'; near(E.rates(s).D/base.D,1.9); assert.equal(E.rates(s).P,base.P);
  s.transcend.jiaotou=3; assert.equal(E.skillAt(s,'jiaotou').trait.clickMul,2.05); assert.equal(B.characters.jiaotou.trait.clickMul,1.5);
