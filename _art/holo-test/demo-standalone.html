@@ -646,7 +646,7 @@ function makeCard(data,host,{scene=false,rank=false,pair=false}={}){
  const lift=node('div','card-lift'),inner=node('div','card-inner'),front=node('div','card-face'),back=node('div','card-back');
  back.append(node('div','back-ring'),node('div','back-medallion'),node('div','back-emblem','🌭'),node('div','back-title','珍母點點'),node('div','back-edition','DELUXE EDITION'));[['tl','🐾'],['tr','🦴'],['bl','⭐'],['br','❤️']].forEach(([pos,glyph])=>back.append(node('div','back-pip '+pos,glyph)));back.setAttribute('aria-hidden','true');
  const stock=node('div','leaf face-stock'),bg=node('div','leaf face-depth-bg'),art=node('div','leaf face-art'),frame=node('div','leaf face-frame'),plate=node('div','leaf face-plate'),gem=node('div','face-gem');
- const srcKey=scene?`layer-${data.id}-subject.png`:(data.file||`card-${data.id}.png`);const src=asset(srcKey);
+ const srcKey=scene?`layer-${data.id}-subject.png`:(data.file||`card-${data.id}.png`);const src=scene?srcKey:`art/${srcKey}`;
  if(scene&&kind==='depth'){const image=node('img');image.src=asset(`layer-${data.id}-background.png`);image.alt='';image.draggable=false;bg.append(image);}else{bg.append(node('div','floor'));}
  material(bg);
  const media=node('div','art-media'),image=node('img');image.src=src;image.alt='';image.draggable=false;media.append(image);
@@ -677,7 +677,15 @@ const NAME_SHARE=24/290, RARITY_SHARE=9/290, GEM_SHARE=22/290;
 const sizeObserver=new ResizeObserver(list=>{for(const e of list){const w=e.contentRect.width;if(!w)continue;
  e.target.style.setProperty('--name-fs',(w*NAME_SHARE).toFixed(2)+'px');
  e.target.style.setProperty('--rarity-fs',Math.max(7,w*RARITY_SHARE).toFixed(2)+'px');
- e.target.style.setProperty('--gem-fs',Math.max(7,w*GEM_SHARE).toFixed(2)+'px');}});
+ e.target.style.setProperty('--gem-fs',Math.max(7,w*GEM_SHARE).toFixed(2)+'px');
+ fitName(e.target,w*NAME_SHARE);}});
+// 長名字（玥來玥閒、咩噗噗噗…）在小卡上會頂到文字框左右邊，逐步縮到放得下為止
+function fitName(card,base){const n=card.querySelector('.face-name'),p=card.querySelector('.face-plate');
+ if(!n||!p)return;const cs=getComputedStyle(p);
+ const room=p.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+ let fs=base;n.style.setProperty('--name-fs',fs.toFixed(2)+'px');
+ for(let i=0;i<12&&n.scrollWidth>room&&fs>base*.55;i++){fs*=.93;
+  card.style.setProperty('--name-fs',fs.toFixed(2)+'px');}}
 for(const c of cards){c.card.style.containerType='inline-size';sizeObserver.observe(c.card);}
 document.querySelector('#legacy-title').lastChild.textContent=u(0x820a,0x5361,0x5347,0x7d1a);
 
@@ -844,7 +852,8 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 .kind-framed .face-art{z-index:30 !important;inset:0 !important}
 .kind-framed .art-media{inset:0 !important;display:grid !important;
  place-items:end center !important;padding:0 4% 10% !important}
-.kind-framed .art-media img{max-width:94% !important;max-height:84% !important;
+/* 主體填滿圖窗：留白太多會讓人物看起來浮在上面而不是置中 */
+.kind-framed .art-media img{max-width:100% !important;max-height:100% !important;
  object-fit:contain;margin:0 auto;filter:drop-shadow(0 10px 18px #0009)}
 .kind-framed .subject-mask{inset:0 !important}
 /* 文字框：第七輪把它做成透明，第八輪只幫 kind-depth 補回來，

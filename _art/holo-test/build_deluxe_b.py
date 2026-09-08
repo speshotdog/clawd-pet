@@ -243,7 +243,7 @@ function makeFace(d){
   const stock=node('div','leaf face-stock'),bg=node('div','leaf face-depth-bg'),art=node('div','leaf face-art'),
         frame=node('div','leaf face-frame'),plate=node('div','leaf face-plate'),gem=node('div','face-gem');
   const key=d.scene?`layer-${d.id}-subject.png`:d.file;
-  const srcPath=d.scene?`layer-${d.id}-subject.png`:`../../src/${d.file}`;
+  const srcPath=d.scene?`layer-${d.id}-subject.png`:`art/${d.file}`;
   if(d.scene){const i=node('img');i.src=`layer-${d.id}-background.png`;i.alt='';i.draggable=false;bg.append(i);}
   else bg.append(node('div','floor'));
   material(bg);
@@ -341,7 +341,7 @@ async function pull(n){
   // 先把這一抽會用到的圖解碼好，不然揭曉的那一瞬間卡面可能還是空的
   for(const c of result){
     const im=new Image();
-    const path = n => (typeof asset==='function' ? asset(n) : (n.startsWith('layer-') ? n : `../../src/${n}`));
+    const path = n => (typeof asset==='function' ? asset(n) : (n.startsWith('layer-') ? n : `art/${n}`));
     im.src = path(c.scene ? `layer-${c.id}-subject.png` : c.file);
     if(c.scene){const bgIm=new Image();bgIm.src=path(`layer-${c.id}-background.png`);}
   }
@@ -391,7 +391,6 @@ async function revealOne(s){
   const face=makeFace(s.data);face.style.opacity='0';s.el.append(face);
 
   // (2) 撞擊：白閃一格 + 卡片衝出來 + 傳說以上震一下畫面
-  flash('radial-gradient(circle,#fff,#fff 30%,transparent 72%)', big?260:170);
   A(s.el.querySelector('.veilback'),[{transform:'rotateY(0deg)'},{transform:'rotateY(90deg)'}],
     {duration:big?200:230,easing:'ease-in'});
   if(big){
@@ -414,8 +413,7 @@ async function revealOne(s){
 
   // (3) 回報：份量隨稀有度階梯
   if(r==='mythic'){
-    rayBurst('#ffffff',1500,140);
-    flash('linear-gradient(120deg,#ff7ad0,#ffc25e,#fff87d,#7dffab,#6fd8ff,#c39dff)',900);
+    flash('linear-gradient(120deg,#ff7ad0aa,#ffc25eaa,#7dffab99,#6fd8ffaa,#c39dffaa)',760,'soft-light');
     shock('#ff7ad0',13,760);
     setTimeout(()=>shock('#6fd8ff',17,900),120);
     setTimeout(()=>shock('#fff87d',21,1000),250);
@@ -426,13 +424,11 @@ async function revealOne(s){
     for(const el of document.querySelectorAll('.ring'))
       A(el,[{filter:'hue-rotate(0deg) brightness(1)'},{filter:'hue-rotate(360deg) brightness(1.6)'}],{duration:1600});
   } else if(r==='legendary'){
-    rayBurst('#ffe6a0',1100,110);
-    flash('radial-gradient(circle,#fff3c9,#ffd45c 42%,transparent 74%)',700);
+    flash('radial-gradient(circle,#ffd45c88,#ffb43a55 45%,transparent 74%)',600,'soft-light');
     shock('#ffd45c',11,660);
     setTimeout(()=>shock('#fff3c9',15,780),110);
     burst('#ffd45c',30,150);
   } else if(r==='epic'){
-    rayBurst('#d9c2ff',760,70);
     shock('#c39dff',8,520);burst('#c39dff',14,105);
   } else {
     shock(SURGE[r],6,420);burst(SURGE[r],7,80);

@@ -39,7 +39,7 @@ for c in cards:
             name = 'layer-{}-{}.png'.format(c['id'], layer)
             assets[name] = uri(OUT / name)
     else:
-        assets[c['file']] = uri(ROOT / 'src' / c['file'])
+        assets[c['file']] = uri(OUT / 'art' / c['file'])
 
 back = uri(OUT / 'cardback' / 'deluxe-back.webp')
 
@@ -57,7 +57,7 @@ old_bg = "i.src=`layer-${d.id}-background.png`"
 assert old_bg in page
 page = page.replace(old_bg, "i.src=asset(`layer-${d.id}-background.png`)", 1)
 
-old_src = "const srcPath=d.scene?`layer-${d.id}-subject.png`:`../../src/${d.file}`;"
+old_src = "const srcPath=d.scene?`layer-${d.id}-subject.png`:`art/${d.file}`;"
 assert old_src in page
 page = page.replace(old_src, "const srcPath=asset(d.scene?`layer-${d.id}-subject.png`:d.file);", 1)
 

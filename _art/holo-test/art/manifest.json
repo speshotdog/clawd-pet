@@ -1,0 +1,733 @@
+{
+ "card-ababa.png": {
+  "source": [
+   929,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   929,
+   580
+  ],
+  "size": [
+   929,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-alu.png": {
+  "source": [
+   586,
+   594
+  ],
+  "bbox": [
+   16,
+   16,
+   570,
+   578
+  ],
+  "size": [
+   554,
+   562
+  ],
+  "trimmed": true
+ },
+ "card-bingyang.png": {
+  "source": [
+   669,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   669,
+   580
+  ],
+  "size": [
+   669,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-chaichai.png": {
+  "source": [
+   714,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   714,
+   580
+  ],
+  "size": [
+   714,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-foxfriend.png": {
+  "source": [
+   566,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   566,
+   580
+  ],
+  "size": [
+   566,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-foxmoney.png": {
+  "source": [
+   975,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   975,
+   580
+  ],
+  "size": [
+   975,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-gebugou.png": {
+  "source": [
+   640,
+   588
+  ],
+  "bbox": [
+   16,
+   16,
+   624,
+   571
+  ],
+  "size": [
+   608,
+   555
+  ],
+  "trimmed": true
+ },
+ "card-gebuyang.png": {
+  "source": [
+   968,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   968,
+   580
+  ],
+  "size": [
+   968,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-guanjiu.png": {
+  "source": [
+   630,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   630,
+   580
+  ],
+  "size": [
+   630,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-jiaolan.png": {
+  "source": [
+   497,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   497,
+   580
+  ],
+  "size": [
+   497,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-jiaotou.png": {
+  "source": [
+   616,
+   549
+  ],
+  "bbox": [
+   17,
+   17,
+   599,
+   532
+  ],
+  "size": [
+   582,
+   515
+  ],
+  "trimmed": true
+ },
+ "card-jinggou.png": {
+  "source": [
+   567,
+   547
+  ],
+  "bbox": [
+   16,
+   16,
+   551,
+   531
+  ],
+  "size": [
+   535,
+   515
+  ],
+  "trimmed": true
+ },
+ "card-lkreal.png": {
+  "source": [
+   703,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   703,
+   580
+  ],
+  "size": [
+   703,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-lksphinx.png": {
+  "source": [
+   640,
+   530
+  ],
+  "bbox": [
+   15,
+   15,
+   625,
+   515
+  ],
+  "size": [
+   610,
+   500
+  ],
+  "trimmed": true
+ },
+ "card-manhua.png": {
+  "source": [
+   779,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   779,
+   580
+  ],
+  "size": [
+   779,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-mianhua.png": {
+  "source": [
+   640,
+   577
+  ],
+  "bbox": [
+   16,
+   16,
+   624,
+   561
+  ],
+  "size": [
+   608,
+   545
+  ],
+  "trimmed": true
+ },
+ "card-miepupu.png": {
+  "source": [
+   641,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   641,
+   580
+  ],
+  "size": [
+   641,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-mieshi.png": {
+  "source": [
+   509,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   509,
+   580
+  ],
+  "size": [
+   509,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-qinghua.png": {
+  "source": [
+   605,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   605,
+   580
+  ],
+  "size": [
+   605,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-qipupu.png": {
+  "source": [
+   707,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   707,
+   580
+  ],
+  "size": [
+   707,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-salamander.png": {
+  "source": [
+   860,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   860,
+   580
+  ],
+  "size": [
+   860,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-seal.png": {
+  "source": [
+   807,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   807,
+   580
+  ],
+  "size": [
+   807,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-shiwang.png": {
+  "source": [
+   447,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   447,
+   580
+  ],
+  "size": [
+   447,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-shiyi.png": {
+  "source": [
+   661,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   661,
+   580
+  ],
+  "size": [
+   661,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-wanwu.png": {
+  "source": [
+   720,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   720,
+   580
+  ],
+  "size": [
+   720,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-wanwumythic.png": {
+  "source": [
+   509,
+   580
+  ],
+  "bbox": [
+   0,
+   90,
+   509,
+   580
+  ],
+  "size": [
+   509,
+   490
+  ],
+  "trimmed": true
+ },
+ "card-yangpu.png": {
+  "source": [
+   325,
+   354
+  ],
+  "bbox": [
+   10,
+   10,
+   315,
+   344
+  ],
+  "size": [
+   305,
+   334
+  ],
+  "trimmed": true
+ },
+ "card-yangtuo.png": {
+  "source": [
+   534,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   534,
+   580
+  ],
+  "size": [
+   534,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-yuefeimo.png": {
+  "source": [
+   830,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   830,
+   580
+  ],
+  "size": [
+   830,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-yuesong.png": {
+  "source": [
+   591,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   591,
+   580
+  ],
+  "size": [
+   591,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-yuetrumpet.png": {
+  "source": [
+   617,
+   456
+  ],
+  "bbox": [
+   17,
+   17,
+   600,
+   439
+  ],
+  "size": [
+   583,
+   422
+  ],
+  "trimmed": true
+ },
+ "card-yueyuexian.png": {
+  "source": [
+   595,
+   603
+  ],
+  "bbox": [
+   17,
+   17,
+   578,
+   586
+  ],
+  "size": [
+   561,
+   569
+  ],
+  "trimmed": true
+ },
+ "card-zhenbing.png": {
+  "source": [
+   669,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   669,
+   580
+  ],
+  "size": [
+   669,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-zhenbush.png": {
+  "source": [
+   579,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   579,
+   580
+  ],
+  "size": [
+   579,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-zhencao.png": {
+  "source": [
+   530,
+   402
+  ],
+  "bbox": [
+   15,
+   15,
+   515,
+   387
+  ],
+  "size": [
+   500,
+   372
+  ],
+  "trimmed": true
+ },
+ "card-zhenfang.png": {
+  "source": [
+   640,
+   584
+  ],
+  "bbox": [
+   16,
+   16,
+   624,
+   568
+  ],
+  "size": [
+   608,
+   552
+  ],
+  "trimmed": true
+ },
+ "card-zhenjpg.png": {
+  "source": [
+   602,
+   580
+  ],
+  "bbox": [
+   17,
+   17,
+   585,
+   563
+  ],
+  "size": [
+   568,
+   546
+  ],
+  "trimmed": true
+ },
+ "card-zhenmoss.png": {
+  "source": [
+   640,
+   546
+  ],
+  "bbox": [
+   17,
+   16,
+   624,
+   529
+  ],
+  "size": [
+   607,
+   513
+  ],
+  "trimmed": true
+ },
+ "card-zhenpete.png": {
+  "source": [
+   754,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   754,
+   580
+  ],
+  "size": [
+   754,
+   580
+  ],
+  "trimmed": false
+ },
+ "card-zhenwang.png": {
+  "source": [
+   703,
+   580
+  ],
+  "bbox": [
+   0,
+   0,
+   703,
+   580
+  ],
+  "size": [
+   703,
+   580
+  ],
+  "trimmed": false
+ },
+ "toy-ballyellow.png": {
+  "source": [
+   328,
+   269
+  ],
+  "bbox": [
+   0,
+   0,
+   328,
+   269
+  ],
+  "size": [
+   328,
+   269
+  ],
+  "trimmed": false
+ },
+ "toy-beachball.png": {
+  "source": [
+   284,
+   284
+  ],
+  "bbox": [
+   0,
+   0,
+   284,
+   284
+  ],
+  "size": [
+   284,
+   284
+  ],
+  "trimmed": false
+ },
+ "toy-dino.png": {
+  "source": [
+   944,
+   560
+  ],
+  "bbox": [
+   0,
+   0,
+   944,
+   560
+  ],
+  "size": [
+   944,
+   560
+  ],
+  "trimmed": false
+ }
+}
