@@ -79,6 +79,62 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
 
+## 十五、2026-09-08 下午：第二十一～二十三輪（已出貨，main `cd6973b`）
+
+**接手第一步**：`git fetch && git pull --ff-only`，`npm test`（158 例），
+`PYTHONIOENCODING=utf-8 python tools/test/clicker-round21.py`、`...round22.py`。
+
+已出貨：main 已 push；gh-pages 已 force push 並確認線上 200（`clicker-boss7-mieshi.png`／
+`card-salamander.png` 都拿得到）；exe 與 NSIS 於 2026-09-08 12:11 重 build（`grep -c "^error" build.log` = 0）。
+
+### 第二十一輪
+- **冰箱王本來永遠打不贏**。血量下限是 `requirement(101,'fridge')`＝1.0e11，比玩家走到終點站時的
+  30 秒容量（約 3.3e10）高三倍，血量跟玩家強度脫鉤，再被 1%/s 回升吃掉 30%。
+  冰箱王加 `boss.floorMul: .3` 收下限，淨比例回到 純放置 .51／連點 .75／連點＋技能 1.13。
+- ⚠ **模擬器量王的容量時，把 need 灌成 1e100 會讓「按血量比例」的機制一起爆掉**：
+  冰箱回升 1%×1e100 每個 tick 把 dealt 歸零，量出來三種打法全是 0.00，看起來像差 100 倍的
+  災難級失衡，真實差距只有 1.5 倍。已修（量容量時關回升，ratio 再用 `rate×30` 扣回來）。
+  **看到模擬結果是乾淨的 0.00 或 100%，先懷疑量測壞了。**
+- 被動收益浮字改「同一欄疊起來」（`PASSIVE_RISE` 42／`PASSIVE_LIFE` 2600，同時看得到三個），
+  拿掉斜體與斜向漂移。使用者回饋：斜斜飄走沒有爽感。
+- **BUG 修正**：抽完還沒收下時按 ESC 會卡在空的招募畫面。pending 存在時 ESC 掉進 `closeWindow()`，
+  它先 `suspend()`（清卡面、藏收下鍵）再關 Tauri 視窗——網頁版沒有視窗可關，於是三條路同時斷掉。
+  改成招募層開著時 ESC 只管招募層。
+
+### 第二十二輪
+- **十三張新卡**（桌面「新卡」）＋**新技能種類 `bossDamage`**：傷害＝王包血量的百分比，
+  完全不吃 P／D，王越硬越值錢；不在王關時退化成一般爆發。飛沫月月 8%、滅世珍獸 22%。
+- `_art/cardcut.py`：三種來源（已去背／白底 flood fill／黑底 flood fill）統一切成高 580 的 `src/card-<id>.png`。
+  白底那條只吃「跟邊界連通」的近白，角色身上封閉的白袋不會被挖掉。
+- **第七站「滅世都市」**（使用者定案）：打贏大冰磚解鎖、拆滿 110 包挑戰滅世珍獸。
+  戰鬥時整張畫鋪滿版面當王本體（`#boss-view.full-board`）。
+  ⚠ 王的圖鋪滿會蓋住技能鍵與夥伴圓鈕，`.full-board` 的 z-index 要壓在 `#slots`（9）底下。
+  ⚠ 終點站的「可重複挑戰＋冷卻＋獎勵只發一次」規則已從 `fridge` 搬到 `city`，
+  改動點有三處：`economy.canBoss`、`economy.finishBoss`、`save.validate`。
+- 站內背景是「同一張畫壓暗去飽和」。**從原圖裁層試過三次都失敗**（鐵塔跟天空同一組暖色分不開，
+  放寬門檻會把塔本身吃掉；鏡射拼寬又整片對稱很假）。不要再試了。
+- 神話專屬演出由 Astra 實作（滅世光線、青花綻放），只動 `clicker-stage.js` 與 `clicker.css`。
+  ⚠ 寫這類演出的測試時要先等 `testStage.frozen` 退掉——切入期間 stage 是 frozen，
+  特效會（正確地）整段跳過，直接放會驗出「0 個元素」的假失敗。
+  技能剛放完按鍵是 disabled，「點得到」要用 `elementFromPoint` 驗，不要真的按。
+
+### 第二十三輪
+- **印記永久倍率改形狀**：`1 + .05×累積印記` → `1 + .5×√累積印記`（使用者定案）。
+  線性那版模擬三天七次輪迴衝到 ×5.4 億——輪迴後訓練與夥伴等級是用被倍率放大的錢重買的，
+  生涯收入的成長快過「印記 ∝ √生涯收入」壓得住的速度。**把 5% 調成 1% 只是把爆炸延一天，
+  形狀不改沒有用。** 改開根號後同一套策略跑三天：×301，每輪印記倍數從 ×9.4 收斂到 ×2.4。
+  100 枚仍是 ×6.0，跟舊值接得上。係數在 `B.MARK_MUL_COEF`，模擬器用 `MARKMUL=` 覆寫 A/B。
+- 再八張新卡（桌面「新卡.0」），角色總數 **46**。`cardcut.py` 補黑底 flood fill。
+- 模擬器補了**輪迴策略**與**換場景**：換桌布會清場景進度但保留 bossWins，
+  沒有 `maybeSwitchScene()` 的話第一次輪迴後永遠卡在後院，印記量測整個失真。
+
+### 待收／待做
+- 使用者實玩：被動浮字疊三個會不會太吵、第七站的難度、滅世光線 22% 是不是太強、
+  開根號後的輪迴節奏、祝福定價（現在 markMul ×301 對 blessMul ×86，量級相當）。
+- 徽章 17 張無字底圖仍缺（走合成 fallback）；冷凍包五狀態圖仍缺。
+- `boss-city` 徽章沒做（`clicker-extras.js` 的 `bossScenes` 要不要加第七站）。
+- 屋頂星空專屬素材（換圖要拆 hue-rotate）。
+
 ## 十四、2026-09-08：第二十輪（五連 80 秒＋訓練通膨、卡面去特質字、寄生標籤、數字爽感、印記祝福）
 
 - 簡報 `BRIEF-astra-impl-round20.md`、報告 `REPORT-astra-impl-round20.md`；驗收 `PYTHONIOENCODING=utf-8 python tools/test/clicker-round20.py`。`npm test` 154 例。
