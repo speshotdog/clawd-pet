@@ -95,6 +95,30 @@ def main():
         check(not base['wide'], f"沒有元素撐出畫面寬：{base['wide'] or '沒有'}")
         check(abs(base['stageAspect'] - 608/360) < .02,
               f"舞台維持 608:360 的比例（實測 {base['stageAspect']}），內部座標系不用改")
+        # 版面決策（2026-09-08 與 Astra 討論後定案）
+        lay = pg.evaluate("""() => { const W=document.documentElement.clientWidth, H=document.documentElement.clientHeight;
+          const Y=id=>{const e=document.getElementById(id); const r=e.getBoundingClientRect(); return {y:r.y, h:r.height, b:r.bottom};};
+          const slot=document.querySelector('.skill-use').getBoundingClientRect();
+          const tap=document.getElementById('tap').getBoundingClientRect();
+          const foot=[...document.querySelectorAll('footer button')].filter(b=>b.getBoundingClientRect().width>0);
+          return { order:['stage-gap','shop','stage-fit','team'].map(id=>+Y(id).y.toFixed(0)),
+            team: +Y('team').h.toFixed(0),
+            skillCenter: (slot.top+slot.bottom)/2, tapCenter: (tap.top+tap.bottom)/2, H,
+            coinsInside: document.getElementById('coins').getBoundingClientRect().right<=W,
+            coinsText: document.getElementById('coins').textContent,
+            footRows: new Set(foot.map(b=>Math.round(b.getBoundingClientRect().y))).size,
+            footIcons: foot.filter(b=>{const i=b.querySelector('img'); return i && getComputedStyle(i).display!=='none';}).length,
+            statusShown: getComputedStyle(document.getElementById('completed')).display!=='none' }; }""")
+        check(lay['order'] == sorted(lay['order']),
+              f"版面順序是 留白 → 升級／招募 → 舞台 → 夥伴（y 座標遞增）：{lay['order']}")
+        check(lay['skillCenter'] > lay['H'] * .5 and lay['tapCenter'] > lay['H'] * .45,
+              f"拆包鍵與技能槽都落在拇指區（拆包 y={lay['tapCenter']:.0f}、技能 y={lay['skillCenter']:.0f}，畫面高 {lay['H']}）")
+        check(lay['team'] == 100,
+              f"夥伴列釘死 100px、不再吸收剩餘空間（實測 {lay['team']}；曾經漲到 299 讓中間一大片空白）")
+        check(lay['coinsInside'], f"錢包在畫面內（{lay['coinsText']}）——它在橫式是絕對定位的，直式一定要整組解除")
+        check(lay['footRows'] == 1 and lay['footIcons'] == 0,
+              f"底部五個入口同一條基線、統一成單行文字（{lay['footRows']} 排、{lay['footIcons']} 個圖示）")
+        check(lay['statusShown'], '「已拆幾包／下一目標」擺進上方留白，那段不再是空的')
         pg.screenshot(path=str(OUT / 'r31-portrait.png'))
 
         # 直式的面板是底部推上來
@@ -109,6 +133,39 @@ def main():
               '直式的商店是從底部推上來、貼齊畫面底緣（手機上比置中視窗好按）')
         check(sheet['cats'] == 3, f"分類卡片照樣是三張：{sheet['cats']}")
         pg.screenshot(path=str(OUT / 'r31-portrait-shop.png'))
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+        pg.keyboard.press('Escape')
+        pg.wait_for_function("document.getElementById('wardrobe').hidden && !document.getElementById('game-content').inert", timeout=15000)
+        pg.wait_for_timeout(400)
+
+        # 技能切入演出：內部是 960×640 的座標系，直式要整塊縮成畫面中央的橫幅才不會被切掉。
+        # 這裡驗的是版面規則本身（幾何＋暗底），所以直接套上 data-phase，
+        # 不靠真的按技能鍵——「演出跑得起來」由 round22 與舊套件在橫式顧。
+        cut = pg.evaluate("""() => { const doc=document.documentElement, c=document.getElementById('cutin');
+          c.dataset.phase='hit-stop';
+          const r=c.getBoundingClientRect(), cs=getComputedStyle(c);
+          const probe=document.createElement('div');
+          probe.style.cssText='position:absolute;left:0;top:376px;width:960px;height:60px';
+          c.append(probe);
+          const p=probe.getBoundingClientRect();
+          const out={ inViewport: r.left>=-1 && r.right<=doc.clientWidth+1 && r.top>=-1 && r.bottom<=doc.clientHeight+1,
+            w:+r.width.toFixed(0), h:+r.height.toFixed(0),
+            fitsWidth: Math.abs(r.width-doc.clientWidth)<2,
+            dim: cs.boxShadow.includes('9999px'),
+            // 960 座標系裡最靠下的字幕帶（top 376）縮完之後仍要在框內
+            barInside: p.bottom<=r.bottom+1 && p.right<=r.right+1 };
+          probe.remove(); return out; }""")
+        check(cut['inViewport'] and cut['fitsWidth'],
+              f"切入演出整塊在畫面內、寬度貼齊螢幕（{cut['w']}×{cut['h']}），不會被切掉")
+        check(cut['barInside'],
+              '960 座標系裡最靠下的字幕帶（top 376）縮完之後仍在框內——這就是原本被切掉的那一塊')
+        check(cut['dim'], '演出中橫幅以外的畫面也壓暗了')
+        pg.screenshot(path=str(OUT / 'r31-portrait-cutin.png'))
+        pg.evaluate("() => document.getElementById('cutin').removeAttribute('data-phase')")
+        pg.wait_for_timeout(200)
+        check(not pg.evaluate("getComputedStyle(document.getElementById('cutin')).boxShadow.includes('9999px')"),
+              '演出結束後暗底就收掉，不會一直暗著')
+
         check(not errors, f"直式沒有 JS 錯誤：{errors}")
         b.close()
 

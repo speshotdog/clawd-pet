@@ -399,8 +399,10 @@ window.Clicker = (() => {
     // ⚠ 變數要設在 #game 上不是 #stage-fit 上：粒子畫布與浮字層是 #stage 的兄弟，
     // 設在 #stage-fit 上它們讀不到，var(--stage-fit,1) 會退回 1、608px 寬直接撐出畫面。
     const host = $('game');
-    if (!isPortrait()) { host.style.removeProperty('--stage-fit'); return; }
+    if (!isPortrait()) { host.style.removeProperty('--stage-fit'); host.style.removeProperty('--cutin-fit'); return; }
     host.style.setProperty('--stage-fit', fit.clientWidth / 608);
+    // 切入演出是 960×640 的座標系，直式縮到畫面寬當成中央的一條橫幅
+    host.style.setProperty('--cutin-fit', host.clientWidth / 960);
   }
   function fitWindow() {
     fitStage();
