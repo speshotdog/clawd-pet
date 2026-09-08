@@ -9,3 +9,4 @@ dist-web/
 _art/out/
 _art/*.json
 _art/*-source.png
+build.log
