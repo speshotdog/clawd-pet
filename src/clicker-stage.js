@@ -126,7 +126,10 @@ window.ClickerStage = (() => {
     const PASSIVE_RISE = 42, PASSIVE_LIFE = 2600;   // 42px 疊三層還看得清楚；2600ms ÷ 每秒一個 ≈ 同時 3 個
     function floatPassive(amount) {
       const now = Math.floor(performance.now() / 1000);
-      if (!running || frozen || reduced.matches || amount <= 0 || !latestState || E.rates(latestState).P <= 0 || now === passiveAt) return;
+      // ⚠ 這裡本來也擋 reduced.matches，結果是「系統開了減少動畫的玩家一個浮字都看不到」
+      //（2026-09-08 使用者回報「部分玩家看不到被動傷害的顯示」，實測 reduce 下被動 0 個、點擊 0 個）。
+      // 數字是資訊不是裝飾——減少動畫該減的是位移，不是把讀數整個拿掉。改成原地淡入淡出。
+      if (!running || frozen || amount <= 0 || !latestState || E.rates(latestState).P <= 0 || now === passiveAt) return;
       passiveAt = now;
       // 第二十一輪：改成「同一欄疊起來」。斜斜飄走的單一數字沒有爽感（使用者回饋），
       // 改成固定 x、只往正上方走一點點、活久一點，讓相鄰幾秒的數字在畫面上疊成一小疊。
@@ -134,7 +137,10 @@ window.ClickerStage = (() => {
       const el = document.createElement('span'); el.className = 'floater passive'; el.textContent = `+${format(amount)}`;
       el.style.left = `${IMPACT.x + 78}px`; el.style.top = `${IMPACT.y + 34}px`;
       appendFloater(el);
-      motion(el, [{transform:'translate(-100%,0)',opacity:0},{transform:'translate(-100%,-4px)',opacity:.9,offset:.12},{transform:`translate(-100%,${-PASSIVE_RISE * .72}px)`,opacity:.9,offset:.62},{transform:`translate(-100%,${-PASSIVE_RISE}px)`,opacity:0}],PASSIVE_LIFE,()=>el.remove(),'linear');
+      motion(el, reduced.matches
+        ? [{transform:'translate(-100%,0)',opacity:0},{transform:'translate(-100%,0)',opacity:.9,offset:.12},{transform:'translate(-100%,0)',opacity:.9,offset:.72},{transform:'translate(-100%,0)',opacity:0}]
+        : [{transform:'translate(-100%,0)',opacity:0},{transform:'translate(-100%,-4px)',opacity:.9,offset:.12},{transform:`translate(-100%,${-PASSIVE_RISE * .72}px)`,opacity:.9,offset:.62},{transform:`translate(-100%,${-PASSIVE_RISE}px)`,opacity:0}],
+        PASSIVE_LIFE,()=>el.remove(),'linear');
     }
     function rateStamp(s) {
       if (!running || frozen) return false;
@@ -150,7 +156,7 @@ window.ClickerStage = (() => {
       return true;
     }
     function float(amount, heavy, point, { sweep = false, text = null } = {}) {
-      if (!running || frozen || reduced.matches) return;
+      if (!running || frozen) return;   // 同上：reduced 也要看得到數字，只是不飄
       const P = latestState ? E.rates(latestState).P : 0, ratio = P > 0 ? amount / P : amount > 0 ? Infinity : 0;
       const size = ratio >= 200 ? 42 : ratio >= 30 ? 36 : ratio >= 5 ? 30 : 26, tilt = ratio >= 30 ? -4 : 0;
       const el = document.createElement('span'); el.className = 'floater';
@@ -162,7 +168,10 @@ window.ClickerStage = (() => {
       el.style.left = `${point.x + Math.random() * 20 - 10}px`; el.style.top = `${point.y - 12}px`; el.style.fontSize = `${size}px`; el.style.color = text ? '#9A9A9A' : ratio >= 200 ? '#EF8E8E' : clickChain >= 3 ? '#E9B94E' : '#FFF6E6';
       if (ratio >= 200) el.querySelector('b').style.webkitTextStroke = '2px #30251F';
       appendFloater(el);
-      motion(el, [{ transform: `translateY(0) scale(.6) rotate(${tilt}deg)`, opacity: 1 }, { transform:`translateY(-2px) scale(1.15) rotate(${tilt}deg)`, opacity:1, offset:30/720 }, { transform:`translateY(-4px) scale(1) rotate(${tilt}deg)`, opacity:1, offset:60/720 }, { transform: `translateY(-40px) rotate(${tilt}deg)`, opacity: 1, offset:520/720 }, { transform: `translateY(-56px) rotate(${tilt}deg)`, opacity: 0 }], 720, () => { el.remove(); }, 'linear');
+      motion(el, reduced.matches
+        ? [{ opacity: 0 }, { opacity: 1, offset: .08 }, { opacity: 1, offset: .72 }, { opacity: 0 }]
+        : [{ transform: `translateY(0) scale(.6) rotate(${tilt}deg)`, opacity: 1 }, { transform:`translateY(-2px) scale(1.15) rotate(${tilt}deg)`, opacity:1, offset:30/720 }, { transform:`translateY(-4px) scale(1) rotate(${tilt}deg)`, opacity:1, offset:60/720 }, { transform: `translateY(-40px) rotate(${tilt}deg)`, opacity: 1, offset:520/720 }, { transform: `translateY(-56px) rotate(${tilt}deg)`, opacity: 0 }],
+        720, () => { el.remove(); }, 'linear');
     }
     function click(amount, heavy = false, s, completed = 0, point = IMPACT, result = {}) {
       if (frozen) { heldAmount += amount; latestState = s; return; }

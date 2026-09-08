@@ -23,6 +23,7 @@ SEED = """() => {
   s.partnerLevels=Object.fromEntries(ids.map(id=>[id,60]));
   s.skillSlots=['yueyuexian','wanwumythic','qinghua'];
   s.clickLevel=60; s.trainingLevel=20; s.coins=1e14; s.lifetimeCoins=5e14;
+  s.manualClicks=50; s.claimedMilestones=['tutorial50'];   // 過了教學，#tap 才點得出浮字
   s.universalDust=500;
   S.validate(s,GachaPool); sessionStorage.setItem('test-seed',JSON.stringify(s));
 }"""

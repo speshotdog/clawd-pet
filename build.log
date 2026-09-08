@@ -4,7 +4,7 @@
 
         Info Looking up installed tauri packages to check mismatched versions...
    Compiling clawd-pet v0.5.3 (D:\claude\clawd-pet\src-tauri)
-    Finished `release` profile [optimized] target(s) in 1m 33s
+    Finished `release` profile [optimized] target(s) in 2m 11s
        Built application at: D:\claude\clawd-pet\src-tauri\target\release\clawd-pet.exe
         Info Patching D:\claude\clawd-pet\src-tauri\target\release\clawd-pet.exe with bundle type information: nsis
         Info Target: x64
