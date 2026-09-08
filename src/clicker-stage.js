@@ -102,6 +102,7 @@ window.ClickerStage = (() => {
       clearTimeout(blinkTimer); clearTimeout(openTimer); eyes(false);
       timers.forEach(clearTimeout); timers.clear(); animations.forEach((a) => a.cancel()); animations.clear();
       $('floaters').replaceChildren();
+      $('stage').querySelectorAll('.mythic-fx').forEach(el => el.remove());
       document.querySelectorAll('.rate-stamp').forEach(el => el.remove()); passiveAt = -Infinity;
       hero.style.transform = ''; limb(hero, 'legL', 0, cfg); limb(hero, 'legR', 0, cfg);
       bagBusy = false; if (latestState) showBag(stateOf(latestState)); pressAt = -Infinity; combo = 0; clickChain = 0; fxClickAt = -Infinity;
@@ -578,10 +579,50 @@ window.ClickerStage = (() => {
         heldAmount = 0;
       }
     }
+    function mythicSkill(effect) {
+      if (!running || frozen || reduced.matches || window.GachaPool.byId[effect.source]?.rarity !== 'mythic') return;
+      const stage = $('stage');
+      if (effect.source === 'mieshi') {
+        // 舞台座標 (430,150) 朝 (120,330)，同層後插入可蓋住整版王圖，仍低於技能槽。
+        const layer = document.createElement('div'); layer.className = 'mythic-fx mythic-beam-layer'; layer.setAttribute('aria-hidden', 'true');
+        const beam = document.createElement('div'); beam.className = 'mythic-beam';
+        const flash = document.createElement('div'); flash.className = 'mythic-flash';
+        layer.append(flash, beam); stage.append(layer);
+        motion(flash, [{opacity:0},{opacity:.72,offset:.24},{opacity:0}], 320, () => flash.remove());
+        motion(beam, [
+          {transform:'rotate(150deg) scale(.04,.12)',opacity:0},
+          {transform:'rotate(150deg) scale(.72,.45)',opacity:1,offset:.16},
+          {transform:'rotate(150deg) scale(1,1)',opacity:1,offset:.38},
+          {transform:'rotate(150deg) scale(1,1.35)',opacity:.9,offset:.62},
+          {transform:'rotate(150deg) scale(1.05,0)',opacity:0}
+        ], 840, () => layer.remove(), 'linear');
+        shake(5, 240);
+      } else if (effect.source === 'qinghua') {
+        const slot = latestState?.skillSlots.indexOf(effect.source) ?? -1;
+        const head = $('slots').children[slot]?.querySelector('.skill-use');
+        if (!head) return;
+        const rect = head.getBoundingClientRect(), box = stage.getBoundingClientRect();
+        const bloom = document.createElement('div'); bloom.className = 'mythic-fx mythic-bloom'; bloom.setAttribute('aria-hidden', 'true');
+        bloom.style.left = `${(rect.left + rect.width / 2 - box.left) * stage.offsetWidth / box.width}px`;
+        bloom.style.top = `${(rect.top + rect.height / 2 - box.top) * stage.offsetHeight / box.height}px`;
+        for (let i = 0; i < 12; i++) {
+          const petal = document.createElement('i'); petal.className = 'mythic-petal';
+          petal.style.transform = `rotate(${i * 30}deg) translateY(-48px)`; bloom.append(petal);
+        }
+        stage.append(bloom);
+        motion(bloom, [
+          {transform:'translate(-50%,-50%) scale(.2) rotate(-15deg)',opacity:0},
+          {transform:'translate(-50%,-50%) scale(.65) rotate(-6deg)',opacity:1,offset:.24},
+          {transform:'translate(-50%,-50%) scale(1) rotate(0deg)',opacity:.85,offset:.58},
+          {transform:'translate(-50%,-50%) scale(1.3) rotate(8deg)',opacity:0}
+        ], 680, () => bloom.remove(), 'linear');
+      }
+    }
     function skill(effect) {
       // bossDamage 跟 burst 一樣是瞬發傷害，先共用同一組浮字／衝擊／粒子當底；
       // 神話的專屬演出（滅世光線）疊在這之上，見 mythicSkill()。
       if (effect.kind === 'burst' || effect.kind === 'bossDamage') { float(effect.value, true, IMPACT); impact(); burst(12, false, false, IMPACT, true); }
+      mythicSkill(effect);
       const label = $('effect-label'); label.hidden = false;
       label.textContent = window.ClickerBalance.characters[effect.source].skill;
       motion(label,[{transform:'translateY(8px) scale(.8)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],180);

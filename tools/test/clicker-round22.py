@@ -37,7 +37,10 @@ def main():
             path = (SRC / unquote(urlparse(r.request.url).path).lstrip('/')).resolve()
             if not path.is_relative_to(SRC) or not path.is_file():
                 r.fulfill(status=404, body='missing'); return
-            r.fulfill(body=path.read_bytes(),
+            body = path.read_bytes()
+            if path.name == 'clicker-stage.js':   # 借 round20 的做法，把 stage 實例掛出來直接放技能演出
+                body += (chr(10) + 'const createStage=ClickerStage.create; ClickerStage.create=(opts)=>(window.testStage=createStage(opts));').encode()
+            r.fulfill(body=body,
                       content_type=mimetypes.guess_type(path)[0] or 'application/octet-stream')
         ctx.route('**/*', route)
         ctx.add_init_script("const s=sessionStorage.getItem('test-seed'); if(s){localStorage.setItem('clicker_save',s);sessionStorage.removeItem('test-seed');}")
@@ -94,6 +97,33 @@ def main():
             check(gain >= hit['share'] * .99, f"滅世光線砍掉血量的 {gain:.1%}（skillAt share {hit['share']:.1%}）")
         pg.locator('#stage').screenshot(path=str(OUT / 'r22-city-skill.png'))
         print('截圖 _art/out/r22-city-idle.png ／ r22-city-boss.png ／ r22-city-skill.png')
+
+        # ---- 神話專屬演出（Astra 第二十二輪）：連放三次不留殘骸、技能鍵仍點得到 ----
+        # 切入演出期間 stage 是 frozen，神話特效（正確地）會整段跳過，所以要等它解凍再驗
+        pg.wait_for_function('window.testStage?.running && !window.testStage.frozen', timeout=20000)
+        diag = pg.evaluate("""() => {
+          testStage.skill({source:'mieshi', kind:'bossDamage', value:1e12, chain:1});
+          return {n:document.querySelectorAll('.mythic-fx').length, running:testStage.running, frozen:testStage.frozen};
+        }""")
+        for _ in range(2):
+            pg.evaluate("() => testStage.skill({source:'mieshi', kind:'bossDamage', value:1e12, chain:1})")
+            pg.wait_for_timeout(120)
+        peak = max(diag['n'], pg.evaluate("document.querySelectorAll('.mythic-fx').length"))
+        check(peak > 0, f"滅世光線演出中畫面上有 {peak} 個 .mythic-fx 元素")
+        pg.locator('#stage').screenshot(path=str(OUT / 'r22-mythic-beam.png'))
+        pg.evaluate("() => testStage.skill({source:'qinghua', kind:'team', value:1e12, chain:1})")
+        pg.wait_for_timeout(260)
+        pg.locator('#stage').screenshot(path=str(OUT / 'r22-mythic-bloom.png'))
+        pg.wait_for_timeout(1800)
+        left = pg.evaluate("document.querySelectorAll('.mythic-fx').length")
+        check(left == 0, f"1.8 秒後演出殘骸歸零（剩 {left} 個）")
+        # 用 elementFromPoint 驗「點得到」而不是真的按下去：技能剛放完都在冷卻，按鍵是 disabled 的
+        top = pg.evaluate("""() => [...document.querySelectorAll('.skill-use')].map(b => {
+          const r=b.getBoundingClientRect(), el=document.elementFromPoint(r.left+r.width/2, r.top+r.height/2);
+          return el===b || b.contains(el);
+        })""")
+        check(top and all(top), f"演出之後三顆技能鍵都還在最上層、沒被特效蓋住：{top}")
+        print('截圖 _art/out/r22-mythic-beam.png ／ r22-mythic-bloom.png')
 
         check(not errors, f"沒有 JS 錯誤：{errors[:3]}")
         b.close()
