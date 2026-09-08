@@ -245,6 +245,62 @@ pending、重開、匯入、跳過都要能還原。
 會讓整個 pseudo-element 消失（不是變淡，是完全不畫）。燙金環改成純幾何：
 一個 conic 圓盤 `.back-ring`，上面疊一個不透明的 `.back-medallion`，中間被蓋掉就成環。
 
+## 六之五、卡片製作工法（**凍結，禁止隨意更動**）
+
+使用者 2026-09-09 定案：以下數字與結構固定，不要再「順手調整」。
+要改必須是使用者明講，改完要跑 `check_demo_round8.py` 與 `check_demo_round9.py`。
+
+### 幾何（佔卡片比例，基準是場景卡）
+
+| 元素 | 值 |
+|---|---|
+| 圖窗 `.art-media` | `inset: 1.7% 2.4% 3.3%`（滿版，延伸到文字框後面） |
+| 文字框 `.face-plate` | `left/right 4.4%`、`bottom 3.4%`、`height 16.2%` |
+| 文字層 `.face-text` | 同上位置，名字放這裡，**不要塞進 `.face-plate`** |
+| 寶石 `.face-gem` | 文字框左側，`left: calc(5% + var(--gem-fs)*.62)`、`bottom: calc(12% - var(--gem-fs)/2)` |
+| framed 人物 | 在「卡頂到文字框上緣」之間置中，最大 100%×100% 圖窗 |
+
+### 字級與寶石大小：綁卡片寬度，不吃 vw
+
+`ResizeObserver` 換算，基準是 290px 卡寬：
+
+- 名字 `--name-fs` = 卡寬 × **24/290**，超出文字框安全寬度就每次縮 7%，最多縮到 55%
+- 稀有度 `--rarity-fs` = 卡寬 × **13.5/290**（2026-09-09 使用者要求 ×1.5）
+- 寶石 `--gem-fs` = 卡寬 × **22/290**
+- 安全寬度＝「到文字框內緣」與「到寶石右緣」取小值再乘二；量文字要用 `Range`，
+  量 `.face-name` 的 rect 等於量文字框，會一路縮到下限
+
+### Z（配合六之四）
+
+| 層 | translateZ |
+|---|---|
+| 背景 `.face-depth-bg` | `--zb` 2px |
+| 圖層 `.face-art`（framed／flat） | **6px**（低於 2px 會被背景蓋掉，高於 8px 會蓋掉卡框） |
+| 卡框 `.face-frame` | `--zf` 8px |
+| 文字框 `.face-plate` | `--zp + 1px` |
+| 文字層 `.face-text` | `--zp + 28px` |
+| 寶石 `.face-gem` | `--zp + 30px` |
+
+`z-index`：背景 10、圖層 30、文字框 20、文字 200、寶石 210。
+**上下界都要看**：壓太低被背景蓋、推太高被透視放大浮出卡外。
+
+### 卡型（資料驅動，來源 `_art/holo-test/pool_data.py`）
+
+`scene → depth`／CATALOG 的 `bleed → flat`／其餘 `framed`。
+`flat` 不掛 `subject-mask`、圖層不推 Z。
+
+### 字效
+
+`common`/`rare`/`epic` 乾淨白字；`legendary` 實心亮金 `#fff45c` ＋自體光暈；
+`mythic` conic 彩虹跟著 `--phase`，黑邊用 `drop-shadow`。
+
+### 互動
+
+- 卡面展示頁（`cards-remade.html`）：滑鼠可傾斜整張卡。
+- **抽卡揭曉後的卡：卡片本身不轉**（`--rx`/`--ry` 固定 0、圖層不位移），
+  **只有材質光影跟著游標**（`--fx`/`--fy`/`--cx`/`--cy`/`--gx`/`--gy`/`--phase`/`--glare`）。
+  這是使用者 2026-09-09 指定的行為，見 `paintFoil()`。
+
 ## 六之四、硬規則：Z 只能小幅推（踩過三次）
 
 卡面是 `preserve-3d` ＋ `perspective`。**`z-index` 不決定前後，`translateZ` 才決定**——

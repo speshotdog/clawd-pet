@@ -577,6 +577,24 @@ function paintCard(card,rarity,x,y){
   for(const [k,val] of Object.entries(v))card.style.setProperty(k,String(val));
 }
 
+// 揭曉後的卡：卡片本身固定不動（不轉角度、不做圖層位移），
+// 但箔面、鍍膜、反光與彩虹相位跟著游標跑，指上去才看得到材質。
+function paintFoil(card,rarity,x,y){
+  const z=ZLIFT[rarity]*.65, d=Math.min(1,Math.hypot(x,y));
+  let t=((Math.atan2(y,x)+Math.PI)/(Math.PI*2)*4)%4; if(d<.002)t=0;
+  const a=Math.floor(t), b=(a+1)%4, f=t-a, q=i=>`${i%2*100}% ${Math.floor(i/2)*100}%`;
+  const v={
+   // 卡片幾何固定：角度 0、圖層不位移
+   '--rx':'0deg','--ry':'0deg','--ax':'0px','--ay':'0px','--bx':'0px','--by':'0px',
+   '--za':`${z}px`,'--zb':'2px','--zf':'8px','--zp':'12px','--comp':(1000-z)/1000,
+   // 只有材質跟著游標
+   '--fx':`${50-26*x+10*y}%`,'--fy':`${50+16*y}%`,'--cx':`${50+20*x+8*y}%`,'--cy':`${50-24*y}%`,
+   '--gx':`${50+42*x}%`,'--gy':`${50+42*y}%`,'--phase':`${120+x*70-y*40}deg`,
+   '--ga':(.18+.82*d)*(1-f),'--gb':(.18+.82*d)*f,'--apos':q(a),'--bpos':q(b),
+   '--foil':.85,'--grain':.75,'--glare':.45*(.3+.5*d)};
+  for(const [k,val] of Object.entries(v)) card.style.setProperty(k,String(val));
+}
+
 /* ── 演出 ─────────────────────────────────────────── */
 const stage=$('#stage'),fan=$('#fan'),charge=$('#charge'),core=$('#core'),rays=$('#rays'),win=$('#win'),
       starfield=$('#starfield'),flashwrap=$('#flashwrap'),idlepack=$('#idlepack'),hint=$('#hint');
@@ -768,7 +786,13 @@ async function revealOne(s,fast){
       {duration:460,easing:'cubic-bezier(.3,.8,.3,1)'});
     s.el.style.zIndex='3';
   }
-  // 揭曉後不做角度追蹤：卡固定正面，指上去放大就好（.slot.done:hover）
+  // 揭曉後：卡片不轉，只有材質光影跟著游標
+  paintFoil(face,r,0,0);
+  s.el.addEventListener('pointermove',e=>{
+    const b=s.el.getBoundingClientRect();
+    paintFoil(face,r,(e.clientX-b.left)/b.width*2-1,(e.clientY-b.top)/b.height*2-1);
+  });
+  s.el.addEventListener('pointerleave',()=>paintFoil(face,r,0,0));
   updateFinish();
 }
 
