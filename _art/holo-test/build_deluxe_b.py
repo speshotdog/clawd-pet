@@ -23,13 +23,14 @@ masks = json.loads(re.search(r'<script type="application/json" id="mask-data">(.
 
 # 卡池與卡型只有一個來源：pool_data.py（HANDOFF 三節的定案寫在那裡）
 from pool_data import pool
-cards = pool(with_palette=False)
+cards = pool()          # 帶 palette，抽卡頁才有跟卡面頁一樣的背景
 
 HTML = r'''<!doctype html>
 <meta charset="utf-8">
 <title>星軌展廳 · 精裝抽卡試抽</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 __CARD_CSS__
+<script>__CARD_FACE_JS__</script>
 <style id="orbit-ui">
 :root{--rc-mythic:#ff7ad0;--rc-legend:#ffd45c;--rc-epic:#c39dff;--rc-rare:#6fd8ff;--rc-common:#9fb0c8}
 *{box-sizing:border-box}
@@ -116,9 +117,6 @@ body{margin:0;font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-s
 /* 揭曉後：指上去放大就好，不做角度追蹤 */
 .slot.done{transition:scale .18s ease-out}
 .slot.done:hover{scale:1.13;z-index:7}
-/* 只有人物的卡：中心點是「卡片頂端到文字框上緣」的中間，不是整張卡的中間 */
-.slot .kind-framed .art-media{inset:0 6% 20% 6% !important;display:grid !important;
- place-items:center !important;padding:0 !important}
 /* 動作鍵移到舞台右上角，不要跟抽卡鍵擠在下面 */
 .stageacts{position:absolute;top:10px;right:14px;display:flex;gap:8px;z-index:12}
 .stageacts button{background:#ffffff12;color:#dbe7ff;border:1px solid #ffffff2e;border-radius:8px;
@@ -210,31 +208,13 @@ function draw(n){
 function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x!==undefined)n.textContent=x;return n;}
 function material(p){const s=node('div','foil-stack');['spectrum','relief','etch'].forEach(x=>s.append(node('div','foil-'+x)));
   p.append(s,node('div','foil-fiber'),node('div','foil-grain'),node('div','foil-glare'));}
+function path(n){
+  return (typeof asset==='function') ? asset(n) : (n.startsWith('layer-') ? n : 'art/'+n);
+}
 function makeFace(d){
-  // 卡型照 HANDOFF 三節的資料欄位：depth／flat／framed，不要寫死
-  const kind=d.scene?'depth':(d.bleed?'flat':'framed');
-  const card=node('div',`hcard r-${d.rarity} kind-${kind} gem-faceted${d.scene?' scene':''}${d.bleed?' bleed':''}`);
-  card.dataset.rarity=d.rarity;
-  const lift=node('div','card-lift'),inner=node('div','card-inner'),front=node('div','card-face');
-  const stock=node('div','leaf face-stock'),bg=node('div','leaf face-depth-bg'),art=node('div','leaf face-art'),
-        frame=node('div','leaf face-frame'),plate=node('div','leaf face-plate'),gem=node('div','face-gem');
-  const key=d.scene?`layer-${d.id}-subject.png`:d.file;
-  const srcPath=d.scene?`layer-${d.id}-subject.png`:`art/${d.file}`;
-  if(d.scene){const i=node('img');i.src=`layer-${d.id}-background.png`;i.alt='';i.draggable=false;bg.append(i);}
-  else bg.append(node('div','floor'));
-  material(bg);
-  const media=node('div','art-media'),img=node('img');img.src=srcPath;img.alt='';img.draggable=false;media.append(img);
-  if(masks[key]&&kind!=='flat'){const m=node('div','subject-mask');m.style.setProperty('--subject',`url("${masks[key]}")`);material(m);media.append(m);}
-  art.append(media);
-  frame.append(node('div','frame-material'));
-  const text=node('div','face-text');
-  text.append(node('b','face-name',d.name),node('span','face-rarity',`${LABEL[d.rarity]} / ${d.rarity.toUpperCase()}`));
-  if(d.scene||d.bleed) front.append(stock,bg,art,frame,plate,gem,text);
-  else { plate.append(node('b','face-name',d.name),node('span','face-rarity',`${LABEL[d.rarity]} / ${d.rarity.toUpperCase()}`));
-         front.append(stock,bg,art,frame,plate,gem); }
-  inner.append(front);lift.append(inner);card.append(lift);
-  paintCard(card,d.rarity,0,0);
-  sizeObserver.observe(card);
+  // 卡面完全交給共用建立器，抽卡頁不再自己拼一套 DOM
+  const card=HoloCardFace.create(d,{masks,resolve:path});
+  HoloCardFace.observe(card);
   return card;
 }
 // 名字與稀有度是卡片寬度的固定比例（跟展示頁同一個基準：24px / 290px 卡寬）。
@@ -244,36 +224,12 @@ const sizeObserver=new ResizeObserver(list=>{for(const e of list){const w=e.cont
  e.target.style.setProperty('--name-fs',(w*NAME_SHARE).toFixed(2)+'px');
  e.target.style.setProperty('--rarity-fs',Math.max(9,w*RARITY_SHARE).toFixed(2)+'px');
  e.target.style.setProperty('--gem-fs',Math.max(6,w*GEM_SHARE).toFixed(2)+'px');}});
-function paintCard(card,rarity,x,y){
-  const z=ZLIFT[rarity]*.65,tilt=TILT[rarity],d=Math.min(1,Math.hypot(x,y));
-  let t=((Math.atan2(y,x)+Math.PI)/(Math.PI*2)*4)%4;if(d<.002)t=0;
-  const a=Math.floor(t),b=(a+1)%4,f=t-a,q=i=>`${i%2*100}% ${Math.floor(i/2)*100}%`;
-  const v={'--rx':`${-y*tilt}deg`,'--ry':`${x*tilt}deg`,'--za':`${z}px`,'--zb':'2px','--zf':'8px','--zp':'12px',
-   '--comp':(1000-z)/1000,'--ax':`${x*1.5}px`,'--ay':`${y*1.5}px`,'--bx':`${-x*.5}px`,'--by':`${-y*.5}px`,
-   '--fx':`${50-26*x+10*y}%`,'--fy':`${50+16*y}%`,'--cx':`${50+20*x+8*y}%`,'--cy':`${50-24*y}%`,
-   '--gx':`${50+42*x}%`,'--gy':`${50+42*y}%`,'--phase':`${120+x*70-y*40}deg`,
-   '--ga':(.18+.82*d)*(1-f),'--gb':(.18+.82*d)*f,'--apos':q(a),'--bpos':q(b),
-   '--foil':.85,'--grain':.75,'--glare':.45*(.3+.35*d)};
-  for(const [k,val] of Object.entries(v))card.style.setProperty(k,String(val));
-}
+function paintCard(card,rarity,x,y){HoloCardFace.paint(card,rarity,x,y,{tilt:true});}
 
 // 揭曉後的卡：卡片本身固定不動（不轉角度、不做圖層位移），
 // 但箔面、鍍膜、反光與彩虹相位跟著游標跑，指上去才看得到材質。
-function paintFoil(card,rarity,x,y){
-  const z=ZLIFT[rarity]*.65, d=Math.min(1,Math.hypot(x,y));
-  let t=((Math.atan2(y,x)+Math.PI)/(Math.PI*2)*4)%4; if(d<.002)t=0;
-  const a=Math.floor(t), b=(a+1)%4, f=t-a, q=i=>`${i%2*100}% ${Math.floor(i/2)*100}%`;
-  const v={
-   // 卡片幾何固定：角度 0、圖層不位移
-   '--rx':'0deg','--ry':'0deg','--ax':'0px','--ay':'0px','--bx':'0px','--by':'0px',
-   '--za':`${z}px`,'--zb':'2px','--zf':'8px','--zp':'12px','--comp':(1000-z)/1000,
-   // 只有材質跟著游標
-   '--fx':`${50-26*x+10*y}%`,'--fy':`${50+16*y}%`,'--cx':`${50+20*x+8*y}%`,'--cy':`${50-24*y}%`,
-   '--gx':`${50+42*x}%`,'--gy':`${50+42*y}%`,'--phase':`${120+x*70-y*40}deg`,
-   '--ga':(.18+.82*d)*(1-f),'--gb':(.18+.82*d)*f,'--apos':q(a),'--bpos':q(b),
-   '--foil':.85,'--grain':.75,'--glare':.45*(.3+.5*d)};
-  for(const [k,val] of Object.entries(v)) card.style.setProperty(k,String(val));
-}
+// 抽卡揭曉後：卡片不轉，只有材質光影跟著游標（HANDOFF 六之五）
+function paintFoil(card,rarity,x,y){HoloCardFace.paint(card,rarity,x,y,{tilt:false});}
 
 /* ── 演出 ─────────────────────────────────────────── */
 const stage=$('#stage'),fan=$('#fan'),charge=$('#charge'),core=$('#core'),rays=$('#rays'),win=$('#win'),
@@ -335,7 +291,6 @@ async function pull(n){
   // 先把這一抽會用到的圖解碼好，不然揭曉的那一瞬間卡面可能還是空的
   for(const c of result){
     const im=new Image();
-    const path = n => (typeof asset==='function' ? asset(n) : (n.startsWith('layer-') ? n : `art/${n}`));
     im.src = path(c.scene ? `layer-${c.id}-subject.png` : c.file);
     if(c.scene){const bgIm=new Image();bgIm.src=path(`layer-${c.id}-background.png`);}
   }
@@ -513,7 +468,8 @@ addEventListener('resize',()=>{if(!slots.length)return;const spots=layout(slots.
 </script>
 '''
 
-page = HTML.replace('__CARD_CSS__', '\n'.join(styles)) \
+page = HTML.replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))\
+           .replace('__CARD_CSS__', '\n'.join(styles)) \
            .replace('__MASKS__', json.dumps(masks, separators=(',', ':'))) \
            .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':')))
 (OUT / 'deluxe-gacha-b.html').write_text(page, encoding='utf-8', newline='\n')

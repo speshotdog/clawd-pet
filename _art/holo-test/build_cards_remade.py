@@ -30,6 +30,7 @@ HTML = r'''<!doctype html>
 <title>卡池重製 · 場景卡規格</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 __CARD_CSS__
+<script>__CARD_FACE_JS__</script>
 <style id="remade">
 *{box-sizing:border-box}
 body{margin:0;background:#07080d;color:#dbe7ff;padding:28px 22px 70px;
@@ -44,22 +45,6 @@ h2{font-size:16px;letter-spacing:.05em;margin:34px 0 4px}
 .compare{display:grid;grid-template-columns:repeat(2,minmax(0,260px));gap:26px;margin:10px 0 6px}
 .compare .cap b{color:#c9d4e6;display:block;font-size:13px;margin-bottom:2px}
 
-/* ── 滿版背景：底色 + 角色背後光暈 + 地平線 + 星點 + 暗角 ───────── */
-.kind-framed .face-depth-bg{
- background:
-  radial-gradient(2.2px 2.2px at 18% 22%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.6px 1.6px at 74% 14%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.9px 1.9px at 88% 38%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.5px 1.5px at 32% 9%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.7px 1.7px at 9% 52%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(1.4px 1.4px at 61% 30%,var(--pal-accent) 0 45%,transparent 46%),
-  radial-gradient(120% 60% at 50% 108%,var(--pal-glow) 0%,transparent 62%),
-  radial-gradient(62% 46% at 50% 44%,var(--pal-glow) 0%,transparent 72%),
-  radial-gradient(140% 100% at 50% 50%,transparent 40%,var(--pal-ink) 100%),
-  linear-gradient(170deg,var(--pal-base),var(--pal-ink) 92%) !important}
-.kind-framed .face-depth-bg:after{content:"";position:absolute;left:0;right:0;bottom:18%;height:34%;
- background:linear-gradient(to top,var(--pal-glow),transparent);opacity:.32;
- mask:linear-gradient(to top,#000,transparent);-webkit-mask:linear-gradient(to top,#000,transparent)}
 </style>
 
 <h1>卡池重製 · 全部照場景卡規格</h1>
@@ -87,83 +72,23 @@ document.documentElement.style.setProperty('--frame-mask',`url("${masks.frame}")
 document.documentElement.style.setProperty('--glitter-mask',`url("${masks.glitter}")`);
 document.body.classList.add('font-system','gem-faceted','ink-chroma');
 
-const LABEL={common:'普通',rare:'精良',epic:'史詩',legendary:'傳說',mythic:'神話'};
-const ZL={common:24,rare:32,epic:40,legendary:48,mythic:56};
-const TL={common:6,rare:8,epic:10,legendary:12,mythic:14};
+const LABEL=HoloCardFace.LABEL;
 
 function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x!==undefined)n.textContent=x;return n;}
-function material(p){const s=node('div','foil-stack');['spectrum','relief','etch'].forEach(x=>s.append(node('div','foil-'+x)));
- p.append(s,node('div','foil-fiber'),node('div','foil-grain'),node('div','foil-glare'));}
-
-const NAME_SHARE=24/290, RARITY_SHARE=13.5/290, GEM_SHARE=22/290;
-const obs=new ResizeObserver(list=>{for(const e of list){const w=e.contentRect.width;if(!w)continue;
- e.target.style.setProperty('--name-fs',(w*NAME_SHARE).toFixed(2)+'px');
- e.target.style.setProperty('--rarity-fs',Math.max(10.5,w*RARITY_SHARE).toFixed(2)+'px');
- e.target.style.setProperty('--gem-fs',Math.max(7,w*GEM_SHARE).toFixed(2)+'px');
- fit(e.target,w);}});
-
-function fit(card,w){
- const n=card.querySelector('.face-name'),p=card.querySelector('.face-plate'),g=card.querySelector('.face-gem');
- if(!n||!p)return;
- const pcs=getComputedStyle(p),cr=card.getBoundingClientRect(),pr=p.getBoundingClientRect();
- const cx=cr.left+cr.width/2;
- const toPlate=(pr.right-parseFloat(pcs.paddingRight))-cx;
- const toGem=g?cx-(g.getBoundingClientRect().right+w*.02):toPlate;
- const room=Math.max(24,2*Math.min(toPlate,toGem));
- const textW=()=>{const r=document.createRange();r.selectNodeContents(n);return r.getBoundingClientRect().width;};
- let fs=w*NAME_SHARE;
- for(let i=0;i<14&&textW()>room&&fs>w*NAME_SHARE*.55;i++){fs*=.93;card.style.setProperty('--name-fs',fs.toFixed(2)+'px');}
-}
-
-function paint(card,rarity,x,y){
- x=x||0; y=y||0;
- const z=ZL[rarity]*.65, tilt=TL[rarity];
- const d=Math.min(1,Math.hypot(x,y));
- let t=((Math.atan2(y,x)+Math.PI)/(Math.PI*2)*4)%4; if(d<.002)t=0;
- const qa=Math.floor(t), qb=(qa+1)%4, f=t-qa, q=i=>`${i%2*100}% ${Math.floor(i/2)*100}%`;
- const v={'--rx':`${-y*tilt}deg`,'--ry':`${x*tilt}deg`,'--za':z+'px','--zb':'2px','--zf':'8px','--zp':'12px',
-  '--comp':(1000-z)/1000,'--ax':`${x*1.5}px`,'--ay':`${y*1.5}px`,'--bx':`${-x*.5}px`,'--by':`${-y*.5}px`,
-  '--fx':`${50-26*x+10*y}%`,'--fy':`${50+16*y}%`,'--cx':`${50+20*x+8*y}%`,'--cy':`${50-24*y}%`,
-  '--gx':`${50+42*x}%`,'--gy':`${50+42*y}%`,'--phase':`${120+x*70-y*40}deg`,
-  '--ga':(.18+.82*d)*(1-f),'--gb':(.18+.82*d)*f,'--apos':q(qa),'--bpos':q(qb),
-  '--foil':.85,'--grain':.75,'--glare':.45*(.3+.35*d)};
- for(const [k,val] of Object.entries(v))card.style.setProperty(k,String(val));
-}
 
 function build(d,host,capHtml){
  const cell=node('div','cell'),hit=node('div','hit');
- const card=node('div',`hcard r-${d.rarity} kind-${d.kind||'framed'} gem-faceted${d.bleed?' bleed':''}`);
- card.dataset.id=d.id;card.dataset.rarity=d.rarity;
- const p=d.pal||{};
- card.style.setProperty('--pal-base',p.base||'#141b2e');
- card.style.setProperty('--pal-glow',p.glow||'#2b3550');
- card.style.setProperty('--pal-accent',p.accent||'#9fb0c8');
- card.style.setProperty('--pal-ink',p.ink||'#080c17');
- const lift=node('div','card-lift'),inner=node('div','card-inner'),front=node('div','card-face');
- const stock=node('div','leaf face-stock'),bg=node('div','leaf face-depth-bg'),art=node('div','leaf face-art'),
-       frame=node('div','leaf face-frame'),plate=node('div','leaf face-plate'),gem=node('div','face-gem');
- material(bg);
- const media=node('div','art-media'),img=node('img');
- img.src='art/'+d.file;img.alt='';img.draggable=false;media.append(img);
- if(masks[d.file]&&d.kind!=='flat'){const m=node('div','subject-mask');m.style.setProperty('--subject',`url("${masks[d.file]}")`);material(m);media.append(m);}
- art.append(media);
- frame.append(node('div','frame-material'));
- // 名字一律放獨立的 .face-text（第十八輪統一），文字框只當背板。
- // 之前塞在 .face-plate 裡，depth／flat 的 CSS 預期的是 .face-text，
- // 所以對照組那兩張的文字框與名字整個沒畫出來。
- const text=node('div','face-text');
- text.append(node('b','face-name',d.name),node('span','face-rarity',`${LABEL[d.rarity]} / ${d.rarity.toUpperCase()}`));
- front.append(stock,bg,art,frame,plate,gem,text);
- inner.append(front);lift.append(inner);card.append(lift);hit.append(card);
+ const card=HoloCardFace.create(d,{masks,resolve:n=>(typeof __A!=='undefined'&&__A[n])||('art/'+n)});
+ hit.append(card);
  const cap=node('p','cap');
  cap.innerHTML=capHtml!==undefined?capHtml:`${LABEL[d.rarity]}・${d.file}`;
  cell.append(hit,cap);
  host.append(cell);
- paint(card,d.rarity,0,0);obs.observe(card);
- // 不是鎖定版：滑過去可以傾斜看箔面，離開回正
+ HoloCardFace.observe(card);
+ // 卡面展示頁：整張卡可以傾斜（抽卡頁不轉，只有材質跟著游標）
  hit.addEventListener('pointermove',e=>{const r=hit.getBoundingClientRect();
-  paint(card,d.rarity,(e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1);});
- hit.addEventListener('pointerleave',()=>paint(card,d.rarity,0,0));
+  HoloCardFace.paint(card,d.rarity,(e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1,{tilt:true});});
+ hit.addEventListener('pointerleave',()=>HoloCardFace.paint(card,d.rarity,0,0,{tilt:true}));
  return card;
 }
 
@@ -184,7 +109,8 @@ if(mieshi){
 </script>
 '''
 
-page = (HTML.replace('__CARD_CSS__', '\n'.join(styles))
+page = (HTML.replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))
+            .replace('__CARD_CSS__', '\n'.join(styles))
             .replace('__MASKS__', json.dumps(masks, separators=(',', ':')))
             .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':'))))
 (OUT / 'cards-remade.html').write_text(page, encoding='utf-8', newline='\n')

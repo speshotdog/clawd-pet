@@ -48,18 +48,14 @@ for tex in ('texture-fiber.png', 'texture-engraving.png'):
     assert tex in page, tex
     page = page.replace(tex, 'data:image/png;base64,' + b64encode((OUT / tex).read_bytes()).decode('ascii'))
 
-hook = "const POOL  = JSON.parse($('#pool-data').textContent);"
-assert hook in page
-page = page.replace(hook, hook + "\nconst ASSETS = JSON.parse($('#asset-data').textContent);"
-                                 "\nconst asset = n => ASSETS[n] || n;", 1)
-
-old_bg = "i.src=`layer-${d.id}-background.png`"
-assert old_bg in page
-page = page.replace(old_bg, "i.src=asset(`layer-${d.id}-background.png`)", 1)
-
-old_src = "const srcPath=d.scene?`layer-${d.id}-subject.png`:`art/${d.file}`;"
-assert old_src in page
-page = page.replace(old_src, "const srcPath=asset(d.scene?`layer-${d.id}-subject.png`:d.file);", 1)
+# 卡面現在由共用的 card_face.js 產生，素材一律經過 path()，
+# 所以單檔版只要把 path() 的實作換成查表即可，不必再逐條字面替換 DOM 程式碼。
+hook = "function path(n){"
+assert hook in page, 'path()'
+i = page.index(hook)
+end_i = page.index("}", page.index("return", i)) + 1
+page = page[:i] + ("const __ASSETS=" + json.dumps(assets, separators=(',', ':')) +
+                   ";function path(n){ return __ASSETS[n] || n; }") + page[end_i:]
 
 assert 'url("cardback/deluxe-back.webp")' in page
 page = page.replace('url("cardback/deluxe-back.webp")', 'url("' + back + '")')
