@@ -82,7 +82,7 @@ body{margin:0;font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-s
  padding:9px 6px;font-size:12px;cursor:pointer;font-family:inherit}
 .rail button[aria-pressed=true]{background:linear-gradient(120deg,#ff7ad055,#6fd8ff55);color:#fff;border-color:#ffffff45}
 .stage{flex:1;position:relative;display:grid;place-items:center;padding:14px;min-width:0}
-.rate{position:absolute;top:12px;right:16px;font-size:11px;opacity:.6;z-index:9}
+.rate{position:absolute;top:14px;left:16px;font-size:11px;opacity:.6;z-index:9}
 .foot{height:14%;flex:0 0 14%;display:flex;align-items:center;gap:10px;padding:0 18px;
  background:#ffffff08;border-top:1px solid #ffffff14}
 .foot button{flex:1;height:70%;border-radius:10px;font:700 14px/1.25 inherit;letter-spacing:.08em;cursor:pointer;
@@ -137,6 +137,18 @@ body{margin:0;font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-s
  transform-style:preserve-3d;transition:none}
 .slot .hcard{position:absolute;inset:0}
 .slot.done{cursor:default}
+/* 揭曉後：指上去放大就好，不做角度追蹤 */
+.slot.done{transition:scale .18s ease-out}
+.slot.done:hover{scale:1.13;z-index:7}
+/* 只有人物的卡：中心點是「卡片頂端到文字框上緣」的中間，不是整張卡的中間 */
+.slot .kind-framed .art-media{inset:0 6% 20% 6% !important;display:grid !important;
+ place-items:center !important;padding:0 !important}
+/* 動作鍵移到舞台右上角，不要跟抽卡鍵擠在下面 */
+.stageacts{position:absolute;top:10px;right:14px;display:flex;gap:8px;z-index:12}
+.stageacts button{background:#ffffff12;color:#dbe7ff;border:1px solid #ffffff2e;border-radius:8px;
+ padding:7px 14px;font:600 12px/1 inherit;letter-spacing:.06em;cursor:pointer}
+.stageacts button.go{background:linear-gradient(120deg,#ff7ad0,#c39dff 45%,#6fd8ff);color:#10142a;border-color:#ffffff5c}
+.stageacts button[hidden]{display:none}
 .veilback{position:absolute;inset:0;border-radius:12px;overflow:hidden;backface-visibility:hidden;
  background:#26324f url("cardback/deluxe-back.webp") center/cover no-repeat;
  box-shadow:0 10px 20px #0009,inset 0 0 0 1px #0b1120}
@@ -164,6 +176,10 @@ body{margin:0;font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-s
   </div>
   <div class="stage" id="stage">
    <span class="rate">神話 0.5% ／ 傳說 4% ／ 史詩 15%</span>
+   <div class="stageacts">
+    <button id="revealall" hidden>全部揭曉</button>
+    <button id="finish" class="go" hidden>收下</button>
+   </div>
    <div class="orbit" id="orbit">
     <div class="ring r3 spin"></div><div class="ring r1 spin"></div><div class="ring r2 spin"></div>
     <div class="charge" id="charge"></div><div class="core" id="core"></div>
@@ -179,8 +195,6 @@ body{margin:0;font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-s
   <button id="p1">單抽<small>1 券</small></button>
   <button id="p5">五連<small>5 券</small></button>
   <button id="p10" class="go">十連<small>10 券 · 必出傳說</small></button>
-  <button id="revealall" hidden>全部揭曉<small>逐張點也可以</small></button>
-  <button id="finish" hidden>收下<small>回到入口</small></button>
  </div>
 </div>
 
@@ -244,8 +258,16 @@ function makeFace(d){
          front.append(stock,bg,art,frame,plate,gem); }
   inner.append(front);lift.append(inner);card.append(lift);
   paintCard(card,d.rarity,0,0);
+  sizeObserver.observe(card);
   return card;
 }
+// 名字與稀有度是卡片寬度的固定比例（跟展示頁同一個基準：24px / 290px 卡寬）。
+// 少了這一段，--name-fs 會退回 20px，小卡上的字就會撐爆文字框。
+const NAME_SHARE=24/290, RARITY_SHARE=9/290, GEM_SHARE=22/290;
+const sizeObserver=new ResizeObserver(list=>{for(const e of list){const w=e.contentRect.width;if(!w)continue;
+ e.target.style.setProperty('--name-fs',(w*NAME_SHARE).toFixed(2)+'px');
+ e.target.style.setProperty('--rarity-fs',Math.max(6,w*RARITY_SHARE).toFixed(2)+'px');
+ e.target.style.setProperty('--gem-fs',Math.max(6,w*GEM_SHARE).toFixed(2)+'px');}});
 function paintCard(card,rarity,x,y){
   const z=ZLIFT[rarity]*.65,tilt=TILT[rarity],d=Math.min(1,Math.hypot(x,y));
   let t=((Math.atan2(y,x)+Math.PI)/(Math.PI*2)*4)%4;if(d<.002)t=0;
@@ -424,12 +446,7 @@ async function revealOne(s){
       {duration:460,easing:'cubic-bezier(.3,.8,.3,1)'});
     s.el.style.zIndex='3';
   }
-  // 揭曉後給一點傾斜的呼吸感
-  let t=0;const id=setInterval(()=>{t+=1;if(t>26||reduced.matches){clearInterval(id);paintCard(face,r,0,0);return;}
-    paintCard(face,r,Math.sin(t/5)*.5,Math.cos(t/7)*.35);},46);
-  s.el.addEventListener('pointermove',e=>{const b=s.el.getBoundingClientRect();
-    paintCard(face,r,(e.clientX-b.left)/b.width*2-1,(e.clientY-b.top)/b.height*2-1);});
-  s.el.addEventListener('pointerleave',()=>paintCard(face,r,0,0));
+  // 揭曉後不做角度追蹤：卡固定正面，指上去放大就好（.slot.done:hover）
   updateFinish();
 }
 

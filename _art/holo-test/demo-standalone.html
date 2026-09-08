@@ -673,10 +673,11 @@ $('#pool-foot').textContent=`已出卡 ${poolData.length} 張；還缺美術素�
 
 /* Round 10: name / rarity size is a fixed share of the card width, so the template
    reads the same in every grid. 24px and 9px on a 290px card is the agreed baseline. */
-const NAME_SHARE=24/290, RARITY_SHARE=9/290;
+const NAME_SHARE=24/290, RARITY_SHARE=9/290, GEM_SHARE=22/290;
 const sizeObserver=new ResizeObserver(list=>{for(const e of list){const w=e.contentRect.width;if(!w)continue;
  e.target.style.setProperty('--name-fs',(w*NAME_SHARE).toFixed(2)+'px');
- e.target.style.setProperty('--rarity-fs',Math.max(7,w*RARITY_SHARE).toFixed(2)+'px');}});
+ e.target.style.setProperty('--rarity-fs',Math.max(7,w*RARITY_SHARE).toFixed(2)+'px');
+ e.target.style.setProperty('--gem-fs',Math.max(7,w*GEM_SHARE).toFixed(2)+'px');}});
 for(const c of cards){c.card.style.containerType='inline-size';sizeObserver.observe(c.card);}
 document.querySelector('#legacy-title').lastChild.textContent=u(0x820a,0x5361,0x5347,0x7d1a);
 
@@ -863,7 +864,8 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
    framed/flat 的文字框推到 70px，確保它蓋在人物之上（圖二就是文字框壓著行星）。 */
 .kind-framed .face-plate,.kind-flat .face-plate,.bleed .face-plate{
  z-index:40 !important;transform:translateZ(70px) !important}
-.kind-framed .art-media{padding:2% 4% 9% !important}
+/* 中心點＝卡片頂端到文字框上緣（文字框上緣在 80% 高），不是整張卡的中間 */
+.kind-framed .art-media{inset:0 6% 20% 6% !important;padding:0 !important;place-items:center !important}
 /* 寶石一律用圖一那顆：在文字框左側，不是浮在卡片上方。 */
 .kind-framed .face-gem{
  left:calc(5% + 14px) !important;right:auto !important;top:auto !important;
@@ -874,8 +876,14 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
  box-shadow:0 0 10px color-mix(in srgb,var(--accent-card) 58%,transparent) !important;
  clip-path:none !important;filter:saturate(.98) !important}
 .kind-depth .face-gem,.kind-flat .face-gem{transform:translateZ(72px) rotate(45deg) !important;z-index:45 !important}
+/* 寶石與文字框內距同樣綁卡片寬度：固定 22px 在小卡上會蓋到名字。
+   基準一樣是 290px 卡寬的 22px。 */
+.hcard .face-gem{width:var(--gem-fs,22px) !important;height:var(--gem-fs,22px) !important;
+ left:calc(5% + var(--gem-fs,22px)*.62) !important;
+ bottom:calc(12% - var(--gem-fs,22px)/2) !important}
+.hcard .face-plate{padding:0 calc(var(--gem-fs,22px)*1.7) !important}
 /* 文字框左邊留出寶石的位置，名字才不會被推歪 */
-.kind-framed .face-plate,.kind-flat .face-plate,.bleed .face-plate{padding:0 34px !important}
+
 </style>
 <style id="round9-name-ink">
 /* Round 9 (使用者定案)：傳說＝亮金字，神話＝彩虹字（跟卡框同一條 conic 漸層，隨 --phase 轉）。
