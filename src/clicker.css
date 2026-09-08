@@ -286,6 +286,9 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #effect-label { position:absolute; left:138px; top:48px; padding:4px 12px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 8px 12px; z-index:10; pointer-events:none; }
 .panel, .small-panel { border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; }
 .panel:not([hidden]), .small-panel:not([hidden]) { animation:paper-panel-in 140ms ease-out; }
+/* 置中的面板不能吃那個進場動畫——它動的是 transform，會把 translate(-50%,-50%) 蓋掉、面板瞬間跳到右下 */
+#wardrobe:not([hidden]) { animation:panel-pop-center 140ms ease-out; }
+@keyframes panel-pop-center { from { transform:translate(-50%,-50%) scale(.94); opacity:0; } to { transform:translate(-50%,-50%) scale(1); opacity:1; } }
 .panel h2, .small-panel h2 { border-image:url('clicker-ui-title-tape.png') 100 160 fill / 12px 20px; padding:8px 22px; width:fit-content; font-size:26px; }
 #game .panel button, #game .small-panel button { font-size:16px; --button-bg:#FBEED0; padding:3px 11px 6px; }
 .roster-character small { font-size:12px; }
@@ -537,7 +540,14 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .dust-row svg { width:28px!important; height:28px!important; margin:0!important; filter:none!important; }
 #game .dust-row button { font-size:11px; padding:1px 6px 3px; }
 #game #dust-shop > button:last-child { align-self:flex-end; }
-#wardrobe { left:592px; right:16px; top:72px; bottom:56px; inset:auto; width:352px; height:auto; position:absolute; padding:9px 11px; display:flex; flex-direction:column; }
+/* 商店：置中的懸浮視窗（2026-09-08 使用者要求，「不要做在左上角」）。
+   ⚠ 舊寫法是 left:592px; right:16px; top:72px; bottom:56px; inset:auto; ——
+   inset:auto 寫在後面，把前面那四個全部重設成 auto，於是面板整個掉回靜態位置（左上角）。
+   box-shadow 的第二段是撐滿全畫面的暗底，不用多加一層 DOM 就有「浮在上面」的分離感。 */
+#wardrobe { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(600px, calc(100% - 48px)); height:min(470px, calc(100% - 72px));
+  padding:14px 16px; display:flex; flex-direction:column;
+  box-shadow:0 6px 0 #30251F, 0 0 0 9999px rgba(48,37,31,.42); }
 #wardrobe header { margin-bottom:6px; gap:8px; } #wardrobe header span { font-size:12px; }
 /* 2026-09-08：更衣室改成商店，改「先選分類、再看該分類」的兩層 UI（比照場景票券）。
    分類頁是一排大票券；進去之後 #wardrobe-body 只顯示被選中的那一欄，所以撐滿整個面板。 */
@@ -603,7 +613,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #deco-layer .deco { position:absolute; height:44px; width:auto; max-width:88px; object-fit:contain; object-position:bottom center; transform:translate(-50%,-100%); }
 #deco-layer .deco-fallback { font-size:11px; background:#FFF6E6; border:1px solid #30251F; border-radius:4px; padding:1px 4px; height:auto; }
 #game .grow-btn.train { --button-bg:#8D9C5B; }
-#wardrobe { width:352px; }
+#wardrobe { width:min(600px, calc(100% - 48px)); }
 #wardrobe-body { grid-template-columns:1fr; }
 #wardrobe-decor-price { font-size:10px; color:#735E4E; }
 #game #prestige-open { font-size:13px; }

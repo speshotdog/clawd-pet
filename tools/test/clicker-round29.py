@@ -55,14 +55,20 @@ def measure(reduced):
         pg.reload(); pg.wait_for_function('!document.getElementById("tap").disabled')
         pg.wait_for_timeout(1200)
         click_seen = passive_seen = 0; moving = False
-        for _ in range(8):
+        # 點擊浮字：點下去馬上量（它只活 720ms）
+        for _ in range(6):
             pg.locator('#tap').click(position={'x': 60, 'y': 60}, force=True)
             pg.wait_for_timeout(90)
             r = pg.evaluate(PROBE)
             click_seen = max(click_seen, r['visible']); moving = moving or r['moving']
-            pg.wait_for_timeout(350)
+            pg.wait_for_timeout(260)
+        # 被動浮字：另外開一段「不點擊」的安靜視窗慢慢量。
+        # 它靠 1Hz 結算、每秒最多一個，跟點擊混在同一個迴圈裡取樣會偶爾撲空（以前就是這樣抖的）。
+        for _ in range(14):
+            pg.wait_for_timeout(400)
             r = pg.evaluate(PROBE)
             passive_seen = max(passive_seen, r['passive']); moving = moving or r['moving']
+            if passive_seen: break
         b.close()
         return click_seen, passive_seen, moving, errors
 
