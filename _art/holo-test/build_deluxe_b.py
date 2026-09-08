@@ -21,33 +21,9 @@ styles = [m.group(0) for m in re.finditer(r'<style[^>]*>.*?</style>', demo, re.S
           if not (tpl.start() <= m.start() < tpl.end())]
 masks = json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>', demo, re.S).group(1))
 
-# pool straight out of the game source - names are never retyped (HANDOFF 5.2)
-src = (ROOT / 'src' / 'gacha-pool.js').read_text(encoding='utf-8')
-body = src[src.index('const CATALOG = ['):src.index('\n  ];', src.index('const CATALOG = ['))]
-pool = []
-for line in body.splitlines():
-    line = line.strip()
-    if not line.startswith('{ id:'):
-        continue
-    art = re.search(r"\bsrc:\s*'([^']*)'", line)
-    if not art:
-        continue
-    pool.append({
-        'id': re.search(r"\bid:\s*'([^']*)'", line).group(1),
-        'name': re.search(r"\bname:\s*'([^']*)'", line).group(1),
-        'rarity': re.search(r"\brarity:\s*'([^']*)'", line).group(1),
-        'file': art.group(1),
-        **({'bleed': True} if 'bleed: true' in line else {}),
-    })
-
-# the four layered scene cards live only in the研究 branch, but they are the showcase
-scene = [
-    {'id': 'rocketdog', 'name': '宇宙冒險羊', 'rarity': 'mythic', 'scene': True},
-    {'id': 'alienkitty', 'name': '天外膠膠', 'rarity': 'legendary', 'scene': True},
-    {'id': 'astronaut', 'name': '玥面探索者', 'rarity': 'epic', 'scene': True},
-    {'id': 'fluffdog', 'name': '居家珍獸', 'rarity': 'epic', 'scene': True},
-]
-cards = scene + pool
+# 卡池與卡型只有一個來源：pool_data.py（HANDOFF 三節的定案寫在那裡）
+from pool_data import pool
+cards = pool(with_palette=False)
 
 HTML = r'''<!doctype html>
 <meta charset="utf-8">

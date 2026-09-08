@@ -19,33 +19,11 @@ tpl = re.search(r'<template id="baseline-css">.*?</template>', demo, re.S)
 styles = [m.group(0) for m in re.finditer(r'<style[^>]*>.*?</style>', demo, re.S)
           if not (tpl.start() <= m.start() < tpl.end())]
 masks = json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>', demo, re.S).group(1))
-palette = json.loads((OUT / 'art' / 'palette.json').read_text(encoding='utf-8'))
 manifest = json.loads((OUT / 'art' / 'manifest.json').read_text(encoding='utf-8'))
 
-src = (ROOT / 'src' / 'gacha-pool.js').read_text(encoding='utf-8')
-body = src[src.index('const CATALOG = ['):src.index('\n  ];', src.index('const CATALOG = ['))]
-cards = []
-for line in body.splitlines():
-    line = line.strip()
-    if not line.startswith('{ id:'):
-        continue
-    art = re.search(r"\bsrc:\s*'([^']*)'", line)
-    if not art:
-        continue
-    f = art.group(1)
-    cards.append({
-        'id': re.search(r"\bid:\s*'([^']*)'", line).group(1),
-        'name': re.search(r"\bname:\s*'([^']*)'", line).group(1),
-        'rarity': re.search(r"\brarity:\s*'([^']*)'", line).group(1),
-        'file': f,
-        'pal': palette.get(f, {}),
-        # 卡型是資料欄位（HANDOFF 三節）：有背景但拆不出前後關係的走 flat，
-        # 不是每張都當去背卡框卡。CATALOG 的 bleed 就是在標這件事。
-        'kind': 'flat' if 'bleed: true' in line else 'framed',
-        **({'bleed': True} if 'bleed: true' in line else {}),
-    })
-RANK = {'mythic': 0, 'legendary': 1, 'epic': 2, 'rare': 3, 'common': 4}
-cards.sort(key=lambda c: (RANK[c['rarity']], c['id']))
+# 卡池與卡型只有一個來源：pool_data.py（HANDOFF 三節的定案寫在那裡）
+from pool_data import pool
+cards = pool(with_scenes=False)
 
 HTML = r'''<!doctype html>
 <meta charset="utf-8">
