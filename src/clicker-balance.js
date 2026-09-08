@@ -14,6 +14,9 @@
     yueyue: { base: 18, skill: '玥來越快', kind: 'clickTime', multiplier: 3, duration: 12, cd: 90 },
     zhenzhen: { base: 20, skill: '大團圓', kind: 'team', ratio: .5, duration: 20, cd: 120 },
   };
+  // 印記永久倍率：每枚累積印記 +MARK_MUL_PER 的常態收益。抽成常數是為了讓模擬器能 A/B
+  // （tools/sim/clicker-curve.js 的 MARKMUL 環境變數會直接覆寫這個欄位，economy／prestige 都是呼叫時才讀）。
+  const MARK_MUL_PER = .05;
   const originalIds = Object.freeze(Object.keys(characters));
   Object.assign(characters, {
     yueyuexian: { base: 30, skill: '躺著也會贏', kind: 'team', ratio: 1.0, duration: 20, cd: 120 },
@@ -121,7 +124,7 @@
   const autoClickMax = 10;
   const autoClickCap = s => s.markShop?.finger14 ? 14 : autoClickMax;
   const decor = ['花盆','燈串','小鼓','風鈴','貓抓板','相框','香氛蠟燭','小旗串','多肉','留聲機'].map((name,i)=>({ id:`deco${i}`, name, file:`clicker-deco-${i}.png` }));
-  const api = { originalIds, marks, blessings, autoClickMax, autoClickCap, decor, wardrobe, characters, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const api = { originalIds, marks, blessings, autoClickMax, autoClickCap, decor, wardrobe, characters, MARK_MUL_PER, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;

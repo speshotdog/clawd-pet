@@ -578,7 +578,9 @@ window.ClickerStage = (() => {
       }
     }
     function skill(effect) {
-      if (effect.kind === 'burst') { float(effect.value, true, IMPACT); impact(); burst(12, false, false, IMPACT, true); }
+      // bossDamage 跟 burst 一樣是瞬發傷害，先共用同一組浮字／衝擊／粒子當底；
+      // 神話的專屬演出（滅世光線）疊在這之上，見 mythicSkill()。
+      if (effect.kind === 'burst' || effect.kind === 'bossDamage') { float(effect.value, true, IMPACT); impact(); burst(12, false, false, IMPACT, true); }
       const label = $('effect-label'); label.hidden = false;
       label.textContent = window.ClickerBalance.characters[effect.source].skill;
       motion(label,[{transform:'translateY(8px) scale(.8)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],180);
