@@ -267,7 +267,13 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #buddies { width:900px; gap:10px; }
 #team::after { display:none; }
 #notice { left:170px; max-width:480px; }
-#slots { left:28px; top:auto; bottom:20px; gap:16px; z-index:9; }
+/* ⚠ #slots 已經不是 #stage 的子元素（第三十三輪搬出去的）。
+   橫式維持一模一樣的畫面位置：舞台原點是 (16,72)、原本槽在舞台內 (28,224)，所以是 (44,296)。
+   它跟 #stage 同一個定位祖先（#game），所以這組座標可以直接對得上。 */
+#slots { position:absolute; left:44px; top:296px; bottom:auto; width:auto; gap:16px; z-index:9; }
+/* 容器與槽間空隙不吃點擊：實測拆包鍵上有 3.1% 的面積被它們靜默吞掉——
+   點下去既沒拆包也沒放技能，什麼都不會發生，比誤放技能更難察覺。只有按鈕本身可點。 */
+#slots, .skill-slot { pointer-events:none; } #game .skill-use { pointer-events:auto; }
 .skill-slot { position:relative; width:64px; height:64px; padding:0; }
 #game .skill-use { position:relative; display:flex; align-items:center; justify-content:center; width:64px; height:64px; padding:0; border-image:none; border:0; box-shadow:none; outline:none; border-radius:50%; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; font-size:30px; }
 #game .skill-use svg { width:40px!important; height:40px!important; margin:0!important; filter:none; }
@@ -378,7 +384,7 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #package-progress { grid-column:2; grid-row:1; width:100%; height:14px; border-radius:7px; overflow:hidden; }
 #package-number { grid-column:3; grid-row:1; width:150px; font-size:16px; line-height:22px; text-align:right; }
 #package-progress::-webkit-progress-value { background:linear-gradient(90deg,#EF8E8E,#E9B94E); }
-#slots { bottom:72px; }
+#slots { top:296px; bottom:auto; }
 .topbar { z-index:30; }
 .audio-controls { position:relative; }
 #game #audio-toggle { width:38px; height:38px; font-size:22px; }
@@ -843,8 +849,29 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
   #stage-gap { display:block; flex:1; min-height:0; order:1; }
   #shop { order:2; }
   #stage-fit { order:3; }
-  #team { order:4; }
-  footer { order:5; }
+  #slots { order:4; }
+  #team { order:5; }
+  footer { order:6; }
+
+  /* 必殺技槽自成一列，離開拆包面。
+     ⚠ 為什麼一定要搬：把 #tap 的矩形打成 2px 網格逐點問 elementFromPoint，
+     珍母身上只有 85.6% 真的在拆包——7.0% 會放掉一個「已就緒」的技能、
+     4.3% 是今日限定包、3.1% 被技能槽的容器靜默吃掉。連點時拇指往左下飄一點就中。
+     ⚠ 代價（實機推算）：固定高度多了 64+7=71，伸縮留白從 151.5 縮到 80.5，
+     所以舞台與拆包鍵一起上移 71px（拆包中心 533 → 462）。
+     如果實玩覺得拆包鍵太高，把 #team 改 order:3、#stage-fit 改 order:4 就變成
+     「夥伴 → 舞台 → 技能」（Astra 推薦的 D 案），拆包中心會回到 561，代價是夥伴列上移 307。 */
+  #slots { position:static; left:auto; top:auto; width:auto; height:64px; flex:none;
+    display:flex; justify-content:center; align-items:center; gap:14px;
+    background:var(--paper); border:2px solid var(--paper-edge); border-radius:11px; padding:0 8px; }
+  #slots .skill-slot { position:relative; width:auto; min-width:0; flex:0 0 auto; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+    border:0; background:none; padding:0; }
+  #game #slots .skill-use { width:40px; height:40px; font-size:22px; }
+  #slots .skill-name { position:static; left:auto; right:auto; top:auto; bottom:auto;
+    transform:none; width:auto; max-width:66px; padding:0 2px; border:0; background:none;
+    font-size:10px; line-height:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #slots .skill-slot small { right:-2px; top:-2px; font-size:10px; line-height:12px; }
 
   /* 3 商店三張卡：攤成三條窄列（64 高，比 56 好按） */
   #shop { position:static; width:auto; height:auto; flex:none; gap:8px; }
@@ -998,6 +1025,29 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 
 /* 320 這種窄螢幕：招募頂欄放不下「標題膠帶＋演出下拉＋音效＋返回」，按鈕會折行掉出欄外。
    膠帶是純裝飾（畫面上有返回鍵就知道自己在招募層），窄的時候先犧牲它。 */
+/* ───────── 矮螢幕（390×667、320×640 這類）─────────
+   直式的固定高度加起來原本就已經超過 667（實測第三十二輪就把底部分頁擠出畫面外了，
+   而 #game-content 是 overflow:hidden，被擠出去的分頁是「按不到」不是「捲得到」），
+   第三十三輪多一條技能列之後又多 71px。舞台的高度被寬度綁死不能縮，
+   所以把其餘每一塊都壓一點：錢包、商店三列、技能列、夥伴列、分頁、列距。 */
+@media (max-aspect-ratio: 3/4) and (max-height: 700px) {
+  #game-content { gap:5px; }
+  .topbar { height:48px; }
+  #game .wallet b { font-size:19px; }
+  #game .wallet img { height:20px; }
+  #shop { gap:6px; }
+  .upgrade, .recruit { height:48px; }
+  .upgrade img, .recruit img { width:26px; height:26px; }
+  #slots { height:56px; }
+  #game #slots .skill-use { width:34px; height:34px; font-size:18px; }
+  #slots .skill-name { font-size:9px; line-height:11px; }
+  #team { height:88px; }
+  #buddies .buddy { transform:scale(.88); transform-origin:center; }
+  footer { height:48px; }
+  #game footer button { font-size:13px; }
+  footer #completed { top:62px; } footer #next-goal { top:80px; }
+}
+
 @media (max-aspect-ratio: 3/4) and (max-width: 359px) {
   #recruit-topbar > b { display:none; }
   /* 面板抬頭的說明文字在 320 寬要吃掉兩三行，直接收掉——卡片本身點下去就有詳細頁 */

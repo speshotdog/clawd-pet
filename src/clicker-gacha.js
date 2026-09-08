@@ -8,6 +8,7 @@ window.ClickerGacha = (() => {
     const $ = (id) => document.getElementById(id), E = window.ClickerEconomy;
     let runtime = null, mode = null, state = 'idle', ready = false;
     let currentId = null, summaryReady = false, busy = false, previousFocus = null;
+    let fastForwarding = false;   // 快轉中；再按一次略過鍵就是硬略過（每次重建 runtime 都要重置）
     // 連抽時每一輪收下的夥伴先存著，等真的離開招募畫面再一次播入隊演出——
     // 演出是在舞台上跑的，招募層蓋著的時候播等於白播。
     let pendingJoins = [];
@@ -45,6 +46,7 @@ window.ClickerGacha = (() => {
     }
     function cleanup() {
       mode?.dispose(); mode = null; runtime?.stop(); runtime = null;
+      fastForwarding = false; $('skip').textContent = '略過演出';
       card.liveEnd(); $('cards').replaceChildren(); $('mode-root').replaceChildren();
       $('flash').classList.remove('on'); layer.classList.remove('charging-mode');
     }
@@ -113,6 +115,23 @@ window.ClickerGacha = (() => {
       if (!runtime || !store.state?.pending) return;
       mode?.skip(); runtime.skip();
     }
+    // 「快轉」：掃過去，但沒抽過的卡會停下來把翻牌演出播完。
+    // 作法是照 restore() 那條路重建一個乾淨的 runtime 再快轉——
+    // 這樣五種演出模式（含 rip／stage 那兩個自己跑時間軸的）行為一致，
+    // 也不必去拆各家模式的 skip 語意：按下快轉的當下，那一套劇場本來就結束了。
+    function fastForward() {
+      if (!runtime || !store.state?.pending || fastForwarding) return;
+      const run = makeRuntime(store.state.pending.draw);
+      // ⚠ 順序：makeRuntime() 內部會跑 cleanup()，而 cleanup() 會把旗標與按鈕字樣重置，
+      //   所以這兩行一定要排在它後面，不然按下去馬上又變回「略過演出」。
+      fastForwarding = true;
+      $('reveal-all').hidden = true;
+      $('skip').textContent = '全部略過';          // 逃生口：再按一次就是真的全部略過
+      run.run(run.fastForward((item) => {
+        // 停在這張是有原因的，要講出來，否則玩家以為快轉壞掉
+        $('recruit-hint').textContent = `新夥伴・${item.entry.name}`;
+      }));
+    }
     async function start(count) {
       const s = store.state;
       if (!ready || !canOpen() || busy || store.blocked || s.boss || s.pending || !window.GachaModes[s.settings.mode].counts.includes(count)) return;
@@ -167,7 +186,9 @@ window.ClickerGacha = (() => {
     // ⚠ 不能寫 onclick = collect：DOM 會把事件物件當成第一個參數傳進去，stay 就變成 truthy
     $('collect').onclick = () => collect(false);
     $('collect-again').onclick = () => collect(true);
-    $('skip').onclick = skip; $('reveal-all').onclick = () => runtime?.all();
+    // 第一下＝快轉（新卡會停），第二下＝真的全部略過
+    $('skip').onclick = () => (fastForwarding ? skip() : fastForward());
+    $('reveal-all').onclick = () => runtime?.all();
     $('mode-select').onchange = () => {
       if (store.blocked || store.state.pending) { render(); return; }
       const s = E.settle(store.state, Date.now()).state; s.settings.mode = $('mode-select').value;

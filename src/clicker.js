@@ -516,23 +516,30 @@ window.Clicker = (() => {
       notice(`存檔有一小塊壞掉，已自動修好（重置了：${store.repaired.applied.join('、')}）`);
       jlog(`save repaired: ${store.repaired.reason} → reset ${store.repaired.applied.join(',')}`);
     }
-    let pointer = null;
-    $('tap').onpointerup = e => {
-      const box = $('game').getBoundingClientRect();
-      pointer = { x:(e.clientX-box.left)/(box.width/960), y:(e.clientY-box.top)/(box.height/640) };
+    // 落點一律換算成「遊戲座標」（960×640，舞台原點在 (16,72)）。
+    // ⚠ 以前是拿 #game 的寬除以 960 換算——那只有橫式成立。直式 #game 是整個畫面（390 寬）、
+    //   舞台是另外縮的 608 框，換算會整整放大 1.5 倍：實測三連包點第一、二包都會開到第三包。
+    //   改成從 #stage 自己的盒子換算，橫式的數字一分不差（stage.left = game.left + 16×zoom，
+    //   k = zoom，代回去就是原本的式子），直式也對。
+    const pointOf = (e) => {
+      const sb = $('stage').getBoundingClientRect(), k = sb.width / 608;
+      if (!k) return null;
+      return { x: 16 + (e.clientX - sb.left) / k, y: 72 + (e.clientY - sb.top) / k };
     };
+    let pointer = null;
+    $('tap').onpointerup = e => { pointer = pointOf(e); };
     $('tap').onpointercancel = () => { pointer = null; };
     $('tap').onclick = e => { const point = e.detail ? pointer : undefined; pointer = null; tap(point); };
     $('tap').onkeydown = (e) => { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); if (!e.repeat) tap(); } };
     // 三連包的三個子包熱區與禮包熱區：熱區互相重疊，落點以 point.x 最近的子包中心（380／442／504）為準
     // 王包本體：點罐頭等於點珍母（傷害全進王）
     { let hit = null; const bv = $('boss-view');
-      bv.onpointerup = e => { const box = $('game').getBoundingClientRect(); hit = { x:(e.clientX-box.left)/(box.width/960), y:(e.clientY-box.top)/(box.height/640) }; };
+      bv.onpointerup = e => { hit = pointOf(e); };
       bv.onclick = e => { const point = e.detail ? hit : undefined; hit = null; if (store.state?.boss) tap(point); }; }
     const hotspots = [...document.querySelectorAll('.sub-hot'), $('gift-hot')];
     for (const hot of hotspots) {
       let hit = null;
-      hot.onpointerup = e => { const box = $('game').getBoundingClientRect(); hit = { x:(e.clientX-box.left)/(box.width/960), y:(e.clientY-box.top)/(box.height/640) }; };
+      hot.onpointerup = e => { hit = pointOf(e); };
       hot.onpointercancel = () => { hit = null; };
       hot.onclick = e => {
         const point = e.detail ? hit : undefined; hit = null;

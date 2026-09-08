@@ -142,19 +142,56 @@ window.GachaModeRuntime = (() => {
       busy = false; host.state('fanned');
       if (!deferSummary) await finish();
     }
+    // 一張卡直接翻正，不播演出（總覽與快轉的重複卡都走這條）
+    function slam(item) {
+      const c = createCard(item);
+      if (c.el.classList.contains('veiled')) host.card.unveil(c.el, { reduced: true });
+      c.el.getAnimations({ subtree: true }).forEach((a) => a.cancel());
+      c.el.classList.remove('charging', 'reveal-pop');
+      c.el.classList.add('dealt', 'flipped'); c.flipped = true;
+      c.el.style.transition = 'none'; c.el.style.transform = transform(c);
+      void c.el.offsetWidth; c.el.style.transition = '';
+      c.el.querySelector('.card-inner').style.transition = 'none';
+      notify(item.key);
+      return c;
+    }
+    // 快轉：照抽卡順序掃過去，重複卡直接翻正，**沒抽過的卡停下來把它的翻牌演出播完**再繼續。
+    // ⚠ 順序一定要照 draw.entries（扇形由左到右）。先全部翻正再回頭補播新卡，
+    //   新卡會在一個已經全開的扇形裡孤零零翻一次，讀起來像 bug 不像強調。
+    // ⚠ 重複卡也不要「瞬間全部」：一張一張掃、每張間隔 50ms，快轉才是一個看得見的動作。
+    //   維持瞬間感的話，玩家會覺得快轉鍵時靈時不靈。
+    // 判定新卡用的是 draw 裡凍結的 item.dup（同一包抽到兩張同角色時只有第一張算新），
+    // 不需要任何存檔欄位，重開視窗還原時拿到的也是同一份判定。
+    async function fastForwardRun(onNew) {
+      if (complete || signal.aborted || automatic) return;
+      automatic = true;
+      try {
+        host.card.liveEnd(); host.state('fanned');
+        // ⚠ 一定要先把五張卡（背面朝上）擺到位。reveal(key) 的第一行是 cards.get(key)，
+        //   查不到就直接 return——快轉跑在「重建的乾淨 runtime」上，不先建卡整段會變成空轉
+        //   （實測：四張新卡 600ms 就跑完、提示字閃過去，但一張演出都沒播）。
+        for (const item of draw.entries) {
+          const c = createCard(item);
+          c.el.classList.add('dealt'); c.el.style.transition = 'none';
+          c.el.style.transform = transform(c);
+          void c.el.offsetWidth; c.el.style.transition = '';
+        }
+        for (const item of draw.entries) {
+          check();
+          if (cards.get(item.key)?.flipped) continue;
+          if (item.dup) { slam(item); await wait(motion.reduced ? 0 : 50); continue; }
+          // 煞車：從 50ms/張直接切進 900ms 的傳說演出，體感是卡頓不是強調
+          onNew?.(item);
+          await wait(motion.reduced ? 60 : 180);
+          await reveal(item.key, { deferSummary: true });
+        }
+        check();
+        showSummary(draw.entries);
+      } finally { automatic = false; }
+    }
     function showSummary(items) {
       host.card.liveEnd();
-      for (const item of items) {
-        const c = createCard(item);
-        if (c.el.classList.contains('veiled')) host.card.unveil(c.el, { reduced: true });
-        c.el.getAnimations({ subtree: true }).forEach((a) => a.cancel());
-        c.el.classList.remove('charging', 'reveal-pop');
-        c.el.classList.add('dealt', 'flipped'); c.flipped = true;
-        c.el.style.transition = 'none'; c.el.style.transform = transform(c);
-        void c.el.offsetWidth; c.el.style.transition = '';
-        c.el.querySelector('.card-inner').style.transition = 'none';
-        notify(item.key);
-      }
+      for (const item of items) slam(item);
       host.dim.classList.remove('on', 'mythic-dim'); host.charging?.(false); host.state('fanned');
       complete = true; host.summary(); resolveDone();
     }
@@ -224,7 +261,12 @@ window.GachaModeRuntime = (() => {
       },
     };
     return { ctx, all: () => run(all(true)), stop, summary: () => showSummary(draw.entries), run,
-      skip() { stop(); showSummary(draw.entries); } };
+      // ⚠ skip() 是「硬略過」：abort 整個 runtime 再擺出總覽。
+      //   restore()（重開視窗還原還沒收下的結果）走的就是這條，**它絕對不能改成快轉**——
+      //   還原是把看過的結果擺回來，重播新卡演出會讓玩家以為自己又抽了一次。
+      skip() { stop(); showSummary(draw.entries); },
+      fastForward: (onNew) => fastForwardRun(onNew),
+      get fastForwarding() { return automatic; } };
   }
   return { create };
 })();

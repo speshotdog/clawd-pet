@@ -113,7 +113,9 @@
     const $ = id => document.getElementById(id), Pool = root.GachaPool, S = root.ClickerSave;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const RIBBON = ['#EF8E8E', '#E9B94E', '#94BED0', '#B8A2CF', '#9BAF6B'];
-    const DAILY = { left: 300, top: 214, w: 80, h: 92 };
+    // ⚠ left 原本是 300 → x=300..380 跟拆包鍵（x=184..424、y=20..260）疊了 3680px²，
+    //   實測珍母身上有 4.3% 的面積點下去是開今日限定包、不是拆包。搬到左側空地（x=30..110）。
+    const DAILY = { left: 30, top: 214, w: 80, h: 92 };
     const DAILY_POINT = { x: 16 + DAILY.left + DAILY.w / 2, y: 72 + DAILY.top + DAILY.h / 2 };
     const BAG_POINT = { x: 485, y: 262 };
     let dailyShown = false, lastBoss = null, lastAwakened = -1, offerTimer = 0, share = null, popTimer = 0;
@@ -135,7 +137,7 @@
     $('boss-challenge').before(dailyEl);
     const regenTag = document.createElement('div'); regenTag.id = 'regen-tag'; regenTag.hidden = true;
     regenTag.append(img(ASSETS.frost.ice, ASSETS.frost.iceFallback)); const regenText = document.createElement('b'); regenTag.append(regenText);
-    $('slots').before(regenTag);
+    stageEl.append(regenTag);   // ⚠ CSS 是 `#stage > #regen-tag`，一定要留在舞台裡（#slots 已搬出舞台，不能再當插入點）
     const frost = document.createElement('div'); frost.id = 'frost'; frost.hidden = true; $('bag').append(frost);
     const frostImg = img(ASSETS.frost.layer); frostImg.className = 'frost-image'; frost.append(frostImg);
     const pop = document.createElement('div'); pop.id = 'badge-pop'; pop.hidden = true; stageEl.append(pop);
