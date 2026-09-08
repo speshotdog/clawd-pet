@@ -144,6 +144,24 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - **Codex 會用完額度**：訊息是 usage limit、幾小時後才重置。額度沒了它會安靜地什麼都不做、exit 0，
   要自己檢查 `git status`。
 
+### 直式版面的四個關鍵決定（2026-09-08 傍晚，與 Astra 討論後重做）
+
+討論紀錄在 `docs/clicker/DISCUSS-portrait-layout.md`（我出的題）與 `-astra.md`（它的分析）。
+**Astra 糾正了我三件事，三件都查證屬實**：
+
+1. 錢包溢出不是 `margin-left:auto`，是它在橫式有 `position:absolute; left:340px; width:260px`；
+   直式只改 margin／min-width 從來沒解除定位。**看到版面跑掉先查 position，不要只修看到的那個屬性。**
+2. **省下來的垂直空間不能變成舞台變大**：舞台被寬度綁死（374/608 → 高 221），
+   要更高就得寬 711。空出來的只能當留白。
+3. `#slots` 的 bottom 早就被覆蓋成 72px（我引用了過期的 20px）；夥伴列需要 100px 不是 92。
+
+而我原本堅持「舞台放最上面」也是錯的：實機量下來技能槽中心在 y=230、只有畫面高的 27%，
+拆包鍵與技能槽都在舞台裡，而這是一個要一直點的遊戲。改成
+**錢包 → 伸縮留白 → 升級／招募 → 舞台 → 夥伴 → 分頁**（flex order，DOM 不動）之後
+拆包 y=533、技能 y=604，都進拇指區。
+
+**教訓：版面爭議要用實機座標判，不要用直覺。** 我兩次都是量了才知道自己錯。
+
 ## 十五、2026-09-08 下午：第二十一～二十三輪（已出貨，main `cd6973b`）
 
 **接手第一步**：`git fetch && git pull --ff-only`，`npm test`（158 例），
