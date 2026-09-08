@@ -98,6 +98,6 @@ test('round12 存檔：rainynight 遷移成 fridge；新欄位缺省補齊、壞
   const ok = S.fresh(0); ok.daily = { date: '2026-09-06', done: true, need: 10, dealt: 10, streak: 2 }; S.validate(ok, Pool);
 });
 test('round12 分享卡文案', () => {
-  assert.equal(X.shareTitle('packs', { packages: 42 }), '我拆了 42 包'); assert.equal(X.shareTitle('boss', { scene: 'backyard' }), '打贏了大罐頭');
+  assert.equal(X.shareTitle('packs', { packages: 42 }), '我拆了 42 包'); assert.equal(X.shareTitle('boss', { scene: 'backyard' }), '打贏了啄包怪鳥');   // 前兩站 2026-09-08 換成會動的怪
   assert.equal(X.shareTitle('boss', { scene: 'fridge' }), '打贏了大冰磚'); assert.equal(X.shareTitle('badge', { id: 'pack10' }), '拿到「第 10 包」徽章');
 });

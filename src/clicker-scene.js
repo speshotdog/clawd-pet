@@ -2,13 +2,20 @@
   // 2026-09-06 數值重整：rewardMul 從「與需求同倍率」改成 1.5／2／2.5／3／3.5。同倍率時新場景只需再長 ×3 就到王，
   // 一個場景五分鐘就過；需求倍率改 1／8／64／500／2000／12000，每個場景約需 ×20 的養成成長（≈4.4 次翻倍）；一夜離線約 ×10～20，所以大約「一個場景＝一段遊玩或一夜」。
   const sprites = (kind, n) => Array.from({ length: n }, (_, i) => `clicker-scene1-${kind}-${i}.png`);
+  // 王的共同基準值。所有場景（含用展開繼承的）都從這裡長出來，這裡不放 sprite／image，
+  // 各站要動畫就自己加 sprite+frames，要靜態圖就自己加 image。
+  const BOSS_BASE = { name: '大罐頭', mul: 1.25, seconds: 30, crackKeep: .5, crackMax: .75, cooldown: 30, reward: { freeDraws: 5 } };
   const scenes = {
     backyard: {
       thief: { sprite:'monster-0.png', everyMs:[60000,120000], hits:5, reward:20 },
       name: '後院草地', unlockPackages: 0, requirementMul: 1, rewardMul: 1, bagSkin: 0,
       unlock: null, enemy: { shell: null, timer: null, regen: null }, affinity: ['yueyue2','caihua'],
       // mul 是「玩家 30 秒容量（被動＋每秒 6 點）」的倍數（見 economy.startBoss），不再是包需求的倍數
-      boss: { name: '大罐頭', mul: 1.25, seconds: 30, crackKeep: .5, crackMax: .75, cooldown: 30, reward: { freeDraws: 5 } },
+      // 2026-09-08 使用者定案：前兩站的罐子換成會動的怪。sprite 是橫向 4 幀的 strip，
+      // frames 交給 CSS 用 steps() 播；罐子仍留給中後期的站。
+      // ⚠ 別的場景是用 { ...scenes.backyard.boss } 繼承基準值的，所以**基底一定要不帶 sprite**——
+      // 直接把 sprite 寫在 backyard 上的話，冰箱那種展開繼承的站會沿用到鳥的動畫（實測中過一次）。
+      boss: { ...BOSS_BASE, name: '啄包怪鳥', sprite: 'clicker-monster-bird.png', frames: 4, size: [291, 300], center: 440 },
       palette: { mat: '#8FA56E', sky: '#CFE7F5' },
       music: { theme: 'picnic', seed: 'zhenmu-backyard-1', gen: { density: 45, rhythm: 40, speed: 35, drama: 30, mood: 70, hook: 60, smooth: 65 } },
       layers: [
@@ -29,7 +36,8 @@
   scenes.kitchen = {
     name: '廚房流理台', unlockPackages: 0, requirementMul: 8, rewardMul: 1.5, bagSkin: 1,
     unlock: { packages: 50, boss: 'backyard' }, enemy: { shell: [.75,.5,.25], timer: null, regen: null }, affinity: ['zhenzhen2','fox'],
-    boss: { ...scenes.backyard.boss, mul:1.25, reward: { freeDraws: 5 } },
+    // 狼比較寬（391），用預設中心 460 右緣會跑到 655、超出 608 的舞台，所以中心左移到 400
+    boss: { ...BOSS_BASE, name: '偷嘴灰狼', sprite: 'clicker-monster-wolf.png', frames: 4, size: [391, 300], center: 400 },
     palette: { mat: '#B9A58A', sky: '#F3E7D3' },
     music: { theme: 'shop', seed: 'zhenmu-kitchen-1', gen: { density:50, rhythm:55, speed:45, drama:35, mood:65, hook:60, smooth:55 } },
     layers: [
@@ -47,7 +55,7 @@
   // 第十一輪：三個場景的敵人只靠 enemy 參數（triple／timer／gift）做差異，經濟層不認場景名。
   // far／mid 素材都是有邊界的物件（貨架、機台、攤位），照廚房用 x,y,h,w 固定尺寸擺放；sky 與 ground 才拉滿 632。
   const sceneSprites = (n, kind, count) => Array.from({ length: count }, (_, i) => `clicker-scene${n}-${kind}-${i}.png`);
-  const boss = (name, image, size, center) => ({ ...scenes.backyard.boss, name, mul: 1.25, image, size, ...(center ? { center } : {}), reward: { freeDraws: 5 } });
+  const boss = (name, image, size, center) => ({ ...BOSS_BASE, name, image, size, ...(center ? { center } : {}) });
   scenes.market = {
     thief: { sprite:'monster-1.png', everyMs:[60000,120000], hits:5, reward:20 },
     name: '便利商店貨架', unlockPackages: 0, requirementMul: 64, rewardMul: 2, bagSkin: 0,
@@ -113,7 +121,7 @@
     // 王也吃 1%/s 回升，30 秒約掉 30%，係數 .95 補回。
     // floorMul：終點站的下限包需求（requirement(101) = 1.0e11）遠高於玩家到得了的 30 秒容量，
     // 下限一綁死，血量就跟玩家強度脫鉤、再加 30% 回升＝永遠打不贏。收成 0.3 讓血量回到「跟著玩家走」。
-    boss: { ...scenes.backyard.boss, name: '大冰磚', mul: .95, floorMul: .3, reward: { freeDraws: 5 } },
+    boss: { ...BOSS_BASE, name: '大冰磚', mul: .95, floorMul: .3 },
     palette: { mat: '#AEC6D6', sky: '#DCE9F2' },
     tint: { color: '#7FB5E6', opacity: .12, blend: 'multiply' },
     frost: { layer: 'clicker-frozen-frost.png', ice: 'clicker-frozen-ice.png', shards: { sprite: 9, count: 16, color: '#DFF3FF' } },

@@ -43,9 +43,9 @@ window.ClickerPrestigeUI = (() => {
       const repeat = document.createElement('div'); repeat.className = 'mark-list';
       for (const item of B.blessings) {
         for (const n of item.id === 'dustTrade' ? [1,10] : [1]) {
-          const cost = item.id === 'blessing' ? (s.blessing || 0) + 1 : item.cost * n;
+          const cost = item.id === 'blessing' ? (s.blessing || 0) + 1 : item.id === 'dustTrade' ? P.dustTradeCost(s, n) : item.cost * n;
           const t = document.createElement('button'); t.className = 'mark-ticket'; t.dataset.item = item.id; t.dataset.quantity = n;
-          const title = item.id === 'blessing' ? `${item.name} Lv.${s.blessing || 0}（×${E.blessMul(s).toFixed(2)}）` : `${item.name}${n > 1 ? ' ×10' : ''}`;
+          const title = item.id === 'blessing' ? `${item.name} Lv.${s.blessing || 0}（×${E.blessMul(s).toFixed(2)}）` : item.id === 'dustTrade' ? `${item.name}${n > 1 ? ' ×10' : ''}（已換 ${s.dustTrades || 0} 次 → +${P.DUST_PER_TRADE * n} 粉塵）` : `${item.name}${n > 1 ? ' ×10' : ''}`;
           t.innerHTML = `<img src="clicker-ui-stamp-transcend.png" alt="" /><span><b>${title}</b><small>${item.desc}</small></span><i>${item.id === 'blessing' ? '下一級 ' : ''}${cost} 印記</i>`;
           t.disabled = s.marks < cost || store.blocked;
           t.onclick = () => action(() => {

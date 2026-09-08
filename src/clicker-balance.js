@@ -146,7 +146,7 @@
   ];
   const blessings = [
     { id:'blessing', name:'收益祝福', desc:'全隊每秒收益與攻擊力，每級 +10%' },
-    { id:'dustTrade', name:'粉塵兌換', cost:1, desc:'1 印記 → 5 萬用粉塵' },
+    { id:'dustTrade', name:'粉塵兌換', cost:1, desc:'換 5 萬用粉塵；每換一次下一次就貴 1 印記' },
     { id:'drawTicket', name:'招募券', cost:2, desc:'2 印記 → 5 次免費單抽' },
   ];
   const autoClickMax = 10;

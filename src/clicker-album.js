@@ -6,6 +6,7 @@ window.ClickerAlbum = (() => {
     const IDS = Pool.CHARACTER_IDS.filter(id => B.characters[id]).sort((a,b) => E.origin(a)-E.origin(b)), PER_PAGE = 4, PAGES = Math.ceil(IDS.length / PER_PAGE);
     const RAR = { rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' }, ORIGIN = ['精良', '史詩', '傳說', '神話'];
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    let shopCategory = null;   // 商店：null = 分類頁，否則是 'sounds'／'fx'／'decor'
     let spread = 0, targetSlot = null, detailId = null, blinkTimer = 0, flipping = false, pendingBuy = null, refreshKey = '';
     const timers = new Set();
     const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); };
@@ -230,10 +231,36 @@ window.ClickerAlbum = (() => {
     function closeDustShop() { const root = $('dust-shop'); root.hidden = true; root.replaceChildren(); }
 
     // ---------- 更衣室 ----------
+    const SHOP_CATS = [
+      { id:'sounds', icon:'♪', name:'點擊音效', hint:'換一種拆包的聲音' },
+      { id:'fx',     icon:'✦', name:'點擊特效', hint:'換一種點下去的粒子' },
+      { id:'decor',  icon:'❀', name:'桌面裝飾', hint:'每件全隊 +1%；要不要擺出來自己決定' },
+    ];
+    function renderShopCats() {
+      const s = store.state, host = $('shop-cats'); host.replaceChildren();
+      for (const cat of SHOP_CATS) {
+        const owned = cat.id === 'decor' ? s.deco.length : B.wardrobe[cat.id].filter(i => s.owned.wardrobe.includes(`${cat.id}:${i.id}`)).length;
+        const total = cat.id === 'decor' ? B.decor.length : B.wardrobe[cat.id].length;
+        const extra = cat.id === 'decor' ? `・擺出來 ${(s.decoShown || []).length} 件` : '';
+        const t = document.createElement('button'); t.className = 'shop-cat'; t.dataset.cat = cat.id;
+        t.innerHTML = `<span class="shop-cat-icon">${cat.icon}</span><span><b>${cat.name}</b><small>${cat.hint}</small><small>已有 ${owned}/${total}${extra}</small></span>`;
+        t.onclick = () => { shopCategory = cat.id; pendingBuy = null; renderWardrobe(); };
+        host.append(t);
+      }
+    }
     function renderWardrobe() {
-      const scrolls = [...document.querySelectorAll('.wardrobe-col')].map(el => [el,el.scrollTop]);
       const s = store.state, price = E.wardrobePrice(s);
-      $('wardrobe-price').textContent = `每件 ${format(price)} 幣`;
+      // 分類頁／分類內容兩態切換
+      const inCat = !!shopCategory;
+      $('shop-cats').hidden = inCat; $('wardrobe-body').hidden = !inCat; $('shop-back').hidden = !inCat;
+      $('shop-title').textContent = inCat ? SHOP_CATS.find(c => c.id === shopCategory).name : '商店';
+      $('wardrobe-price').textContent = inCat && shopCategory !== 'decor' ? `每件 ${format(price)} 幣` : '';
+      $('shop-hint').textContent = !inCat ? '挑一個分類逛逛。買過的永久保留。'
+        : shopCategory === 'decor' ? '按兩次購買。買了就算 +1%，要不要擺在桌上另外用「擺出來」切換。'
+        : '點一下試用；已擁有的再點就穿上，未擁有的按兩次購買。';
+      for (const col of document.querySelectorAll('.wardrobe-col')) col.hidden = col.dataset.cat !== shopCategory;
+      if (!inCat) { renderShopCats(); return; }
+      const scrolls = [...document.querySelectorAll('.wardrobe-col')].map(el => [el,el.scrollTop]);
       renderDecor();
       for (const kind of ['sounds', 'fx']) {
         const col = $(`wardrobe-${kind}`); col.replaceChildren();
@@ -268,9 +295,19 @@ window.ClickerAlbum = (() => {
         const owned = s.deco.includes(item.id), btn = document.createElement('button'); btn.className = 'wardrobe-item'; btn.dataset.key = `deco:${item.id}`; btn.classList.toggle('owned', owned); btn.classList.toggle('wearing', owned);
         const icon = document.createElement('span'); icon.className = 'wardrobe-icon'; icon.textContent = '❀';
         const name = document.createElement('b'); name.textContent = item.name;
-        const status = document.createElement('small'); status.textContent = owned ? '已放上桌' : pendingBuy === `deco:${item.id}` ? `確定 ${format(price)}？` : format(price);
-        btn.append(icon, name, status); btn.disabled = owned || store.blocked || s.coins < price;
-        btn.onclick = () => action(() => { const key = `deco:${item.id}`; if (pendingBuy !== key) { pendingBuy = key; renderWardrobe(); return; } pendingBuy = null; if (commit(P.buyDeco(store.state, item.id, Date.now()))) { sound('upgrade'); changed(); notice(`「${item.name}」放上桌了，全隊 +1%`); stage?.render?.(store.state); } renderWardrobe(); });
+        // 2026-09-08：買了就算 +1%，但預設不擺出來（全部擺出來畫面太亂）——擺不擺另外切換
+        const shown = (s.decoShown || []).includes(item.id);
+        btn.classList.toggle('wearing', shown);
+        const status = document.createElement('small'); status.textContent = owned ? (shown ? '擺在桌上' : '已擁有・收起來') : pendingBuy === `deco:${item.id}` ? `確定 ${format(price)}？` : format(price);
+        btn.append(icon, name, status); btn.disabled = store.blocked || (!owned && s.coins < price);
+        btn.onclick = () => action(() => {
+          const key = `deco:${item.id}`;
+          if (owned) { if (commit(P.toggleDeco(store.state, item.id))) { sound('upgrade'); changed(); stage?.render?.(store.state); notice(`「${item.name}」${shown ? '收起來了' : '擺上桌了'}`); } renderWardrobe(); return; }
+          if (pendingBuy !== key) { pendingBuy = key; renderWardrobe(); return; }
+          pendingBuy = null;
+          if (commit(P.buyDeco(store.state, item.id, Date.now()))) { sound('upgrade'); changed(); notice(`買下「${item.name}」，全隊 +1%（要擺出來再點一次）`); stage?.render?.(store.state); }
+          renderWardrobe();
+        });
         col.append(btn);
       }
     }
@@ -278,7 +315,7 @@ window.ClickerAlbum = (() => {
       if (kind === 'sounds') [0, 120, 240].forEach(ms => later(() => sound('click', item.id), ms));
       else stage?.preview?.(item.id);
     }
-    function openWardrobe() { pendingBuy = null; $('wardrobe').hidden = false; $('game-content').inert = true; renderWardrobe(); $('wardrobe-close').focus(); }
+    function openWardrobe() { pendingBuy = null; shopCategory = null; $('wardrobe').hidden = false; $('game-content').inert = true; renderWardrobe(); $('wardrobe-close').focus(); }
     function closeWardrobe() { $('wardrobe').hidden = true; }
 
     for (const [id, dir] of [['album-left', -1], ['album-right', 1]]) $(id).onclick = e => {
@@ -293,11 +330,16 @@ window.ClickerAlbum = (() => {
         renderBook(); if (detailId) openDetail(detailId);
       }
     });
+    $('shop-back').onclick = () => { shopCategory = null; pendingBuy = null; renderWardrobe(); $('shop-cats').querySelector('button')?.focus(); };
     $('dust-open').onclick = () => $('dust-shop').hidden ? openDustShop() : closeDustShop();
     $('recommend-open').onclick = () => showRecommendations();
     // Esc：先關展示頁／粉塵罐，再關卡冊
     function escape() {
-      if (!$('wardrobe').hidden) { $('wardrobe-close').click(); return true; }
+      // 商店在分類內時，Esc 先退回分類頁，再按一次才關掉整個商店
+      if (!$('wardrobe').hidden) {
+        if (shopCategory) { shopCategory = null; pendingBuy = null; renderWardrobe(); return true; }
+        $('wardrobe-close').click(); return true;
+      }
       if ($('roster').hidden) return false;
       if (!$('dust-shop').hidden) { closeDustShop(); return true; }
       if (detailId) { closeDetail(); return true; }   // 淡出中也算已關，連按兩下 Esc 才關得掉卡冊

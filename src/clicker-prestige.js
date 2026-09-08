@@ -47,11 +47,25 @@
     if ((s.marks || 0) < level) throw new Error('印記不足');
     s.marks -= level; s.blessing = level; return s;
   }
+  // 粉塵兌換改成遞增價（2026-09-08 使用者定案）。原本是固定 1 印記換 5 粉塵，
+  // 但印記的產出是 √生涯收入，會爆炸性成長（生涯 1e18 就有 10 萬枚），
+  // 固定比例遲早會被追過、整個卡池直接買下來，卡片就沒價值了。
+  // 這跟第二十三輪「印記倍率線性改開根號」是同一個教訓：形狀不改，係數只是延後。
+  // 改成第 n 次兌換要 n 印記（比照祝福的形狀），每輪能買的量就自然封頂，
+  // 跟你手上有幾萬枚印記無關，同時也讓印記真的有回收去處。
+  const DUST_PER_TRADE = 5;
+  /** 接下來 n 次兌換的總價：第 (dustTrades+1) 次到第 (dustTrades+n) 次的等差和 */
+  function dustTradeCost(s, n = 1) {
+    const done = s.dustTrades || 0;
+    return n * done + n * (n + 1) / 2;
+  }
   function tradeDust(state, n = 1, now = state.settledAt) {
     if (!Number.isSafeInteger(n) || n < 1) throw new Error('兌換數量無效');
     const s = E.settle(state, now).state;
-    if ((s.marks || 0) < n) throw new Error('印記不足');
-    s.marks -= n; s.universalDust = (s.universalDust || 0) + 5 * n; return s;
+    const cost = dustTradeCost(s, n);
+    if ((s.marks || 0) < cost) throw new Error('印記不足');
+    s.marks -= cost; s.dustTrades = (s.dustTrades || 0) + n;
+    s.universalDust = (s.universalDust || 0) + DUST_PER_TRADE * n; return s;
   }
   function buyDrawTicket(state, n = 1, now = state.settledAt) {
     if (!Number.isSafeInteger(n) || n < 1) throw new Error('兌換數量無效');
@@ -122,6 +136,13 @@
     if (!canPrestige(s) && (currentP < (s.peakRate || 0) * .15 || stalled) && s.prestigeHintDate !== today) { s.prestigeHintDate = today; return true; }
     return false;
   }
-  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, buyMark, buyBlessing, tradeDust, buyDrawTicket, autoClickCost, buyAutoClick, autoClicks, trainCost, train, trainAll, nextMilestone, decoPrice, buyDeco, hint };
+  /** 切換某件裝飾要不要擺在桌上（買了才切得動）。買到的仍然算 decoMul，擺不擺只影響畫面。 */
+  function toggleDeco(state, id) {
+    if (!(state.deco || []).includes(id)) throw new Error('還沒買這件裝飾');
+    const s = E.clone(state); s.decoShown ||= [];
+    s.decoShown = s.decoShown.includes(id) ? s.decoShown.filter(x => x !== id) : [...s.decoShown, id];
+    return s;
+  }
+  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, buyMark, buyBlessing, tradeDust, dustTradeCost, DUST_PER_TRADE, buyDrawTicket, autoClickCost, buyAutoClick, autoClicks, trainCost, train, trainAll, nextMilestone, decoPrice, buyDeco, toggleDeco, hint };
   if (node) module.exports = api; else root.ClickerPrestige = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

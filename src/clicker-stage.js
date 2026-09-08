@@ -531,7 +531,19 @@ window.ClickerStage = (() => {
         bossKey=key;bossBusy=true;bossEntering=true;heartbeat=-1;cracks(s.boss.crack);
         // 王包本體依場景換圖與尺寸；三連包場景滑出的是整組子包
         const cfg=window.ClickerScene.resolve(s.boss.scene).boss, pk=packEl(s);
-        $('boss-image').src=cfg.image || 'clicker-boss-can.png'; $('boss-image').alt=cfg.name || '大罐頭';
+        const bossImg=$('boss-image');
+        if (cfg.sprite) {
+          // 會動的怪：img 本身放一張透明像素，真正的圖交給 CSS 背景 + steps() 逐幀播
+          bossImg.src='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+          bossImg.classList.add('sprite');
+          bossImg.style.setProperty('--boss-sprite',`url('${cfg.sprite}')`);
+          bossImg.style.setProperty('--boss-frames',cfg.frames || 4);
+        } else {
+          bossImg.classList.remove('sprite');
+          bossImg.style.removeProperty('--boss-sprite'); bossImg.style.removeProperty('--boss-frames');
+          bossImg.src=cfg.image || 'clicker-boss-can.png';
+        }
+        bossImg.alt=cfg.name || '大罐頭';
         $('boss-view').style.setProperty('--boss-w',`${cfg.size?.[0] || 260}px`); $('boss-view').style.setProperty('--boss-h',`${cfg.size?.[1] || 300}px`); $('boss-view').style.setProperty('--boss-cx',`${cfg.center || 460}px`);
         $('boss-view').classList.toggle('full-board', (cfg.size?.[0] || 260) >= 600);
         $('boss-timer').hidden=false;$('boss-view').hidden=false;
@@ -737,9 +749,10 @@ window.ClickerStage = (() => {
     }
     function renderDeco(s) {
       let layer = $('deco-layer'); if (!layer) { layer = document.createElement('div'); layer.id = 'deco-layer'; $('hero-light').before(layer); }
-      const key = JSON.stringify([s.deco || [], s.settings.scene]); if (layer.dataset.key === key) return; layer.dataset.key = key; layer.replaceChildren();
+      const key = JSON.stringify([s.decoShown || [], s.settings.scene]); if (layer.dataset.key === key) return; layer.dataset.key = key; layer.replaceChildren();
       const slots = window.ClickerScene.current?.decoSlots || [[352, 310], [150, 54], [42, 310], [452, 56], [578, 302], [106, 310], [170, 310], [470, 112], [234, 310], [298, 310]];
-      (s.deco || []).forEach((id, i) => { const at = window.ClickerBalance.decor.findIndex(d => d.id === id); const item = at < 0 ? null : window.ClickerBalance.decor[at]; if (!item) return; const [x, y] = slots[at % slots.length]; const img = document.createElement('img'); img.src = item.file; img.alt = ''; img.className = 'deco'; img.style.left = `${x}px`; img.style.top = `${y}px`; img.onerror = () => { img.replaceWith(Object.assign(document.createElement('span'), { className: 'deco deco-fallback', textContent: item.name, style: `left:${x}px;top:${y}px` })); }; layer.append(img); });
+      // 只畫玩家選擇要擺出來的（s.decoShown），位置仍照它在 B.decor 的編號固定，換順序不會跑位
+      (s.decoShown || []).forEach((id, i) => { const at = window.ClickerBalance.decor.findIndex(d => d.id === id); const item = at < 0 ? null : window.ClickerBalance.decor[at]; if (!item) return; const [x, y] = slots[at % slots.length]; const img = document.createElement('img'); img.src = item.file; img.alt = ''; img.className = 'deco'; img.style.left = `${x}px`; img.style.top = `${y}px`; img.onerror = () => { img.replaceWith(Object.assign(document.createElement('span'), { className: 'deco deco-fallback', textContent: item.name, style: `left:${x}px;top:${y}px` })); }; layer.append(img); });
     }
     // 更衣室試用：在珍母旁噴一次該特效；覺醒：整個舞台撒金粒子
     function preview(fxId) { if (!running) return; burst(10, false, true, IMPACT, false, fxId); }
