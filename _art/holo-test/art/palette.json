@@ -1,0 +1,389 @@
+{
+ "card-ababa.png": {
+  "base": "#1c201a",
+  "glow": "#4b3c56",
+  "accent": "#aa6fa7",
+  "ink": "#0f100d",
+  "hue": 0.762,
+  "sat": 0.339,
+  "val": 0.702
+ },
+ "card-alu.png": {
+  "base": "#191b21",
+  "glow": "#655a41",
+  "accent": "#b9c879",
+  "ink": "#0f1013",
+  "hue": 0.1172,
+  "sat": 0.439,
+  "val": 0.824
+ },
+ "card-bingyang.png": {
+  "base": "#21201b",
+  "glow": "#495469",
+  "accent": "#9087cf",
+  "ink": "#141311",
+  "hue": 0.6091,
+  "sat": 0.221,
+  "val": 0.854
+ },
+ "card-chaichai.png": {
+  "base": "#141618",
+  "glow": "#41362d",
+  "accent": "#8c885b",
+  "ink": "#0a0b0c",
+  "hue": 0.0722,
+  "sat": 0.233,
+  "val": 0.53
+ },
+ "card-foxfriend.png": {
+  "base": "#1b1e21",
+  "glow": "#59473e",
+  "accent": "#b0a572",
+  "ink": "#0e1011",
+  "hue": 0.0569,
+  "sat": 0.18,
+  "val": 0.726
+ },
+ "card-foxmoney.png": {
+  "base": "#1a1d20",
+  "glow": "#56483c",
+  "accent": "#aaa66e",
+  "ink": "#0d0f10",
+  "hue": 0.0773,
+  "sat": 0.352,
+  "val": 0.7
+ },
+ "card-gebugou.png": {
+  "base": "#191821",
+  "glow": "#5e5c38",
+  "accent": "#94b966",
+  "ink": "#0d0d12",
+  "hue": 0.1611,
+  "sat": 0.499,
+  "val": 0.766
+ },
+ "card-gebuyang.png": {
+  "base": "#19191e",
+  "glow": "#504e38",
+  "accent": "#879e67",
+  "ink": "#0d0d0f",
+  "hue": 0.1568,
+  "sat": 0.284,
+  "val": 0.653
+ },
+ "card-guanjiu.png": {
+  "base": "#191a21",
+  "glow": "#60583f",
+  "accent": "#acbe74",
+  "ink": "#0e0f12",
+  "hue": 0.127,
+  "sat": 0.433,
+  "val": 0.783
+ },
+ "card-jiaolan.png": {
+  "base": "#1a1b21",
+  "glow": "#5a503d",
+  "accent": "#a8b272",
+  "ink": "#0d0f11",
+  "hue": 0.1124,
+  "sat": 0.4,
+  "val": 0.733
+ },
+ "card-jiaotou.png": {
+  "base": "#171b21",
+  "glow": "#66523b",
+  "accent": "#c7ca6a",
+  "ink": "#0e1013",
+  "hue": 0.091,
+  "sat": 0.53,
+  "val": 0.833
+ },
+ "card-jinggou.png": {
+  "base": "#191c21",
+  "glow": "#5a4c3b",
+  "accent": "#afb16d",
+  "ink": "#0d0f11",
+  "hue": 0.0928,
+  "sat": 0.431,
+  "val": 0.732
+ },
+ "card-lkreal.png": {
+  "base": "#1c201a",
+  "glow": "#4c3c56",
+  "accent": "#aa6fa4",
+  "ink": "#0e100d",
+  "hue": 0.7714,
+  "sat": 0.346,
+  "val": 0.702
+ },
+ "card-lksphinx.png": {
+  "base": "#191b21",
+  "glow": "#685d43",
+  "accent": "#c1cf7c",
+  "ink": "#0f1114",
+  "hue": 0.1142,
+  "sat": 0.444,
+  "val": 0.853
+ },
+ "card-manhua.png": {
+  "base": "#171c1c",
+  "glow": "#4b3435",
+  "accent": "#947860",
+  "ink": "#0c0e0e",
+  "hue": 0.9965,
+  "sat": 0.221,
+  "val": 0.612
+ },
+ "card-mianhua.png": {
+  "base": "#1b2021",
+  "glow": "#634845",
+  "accent": "#c4a77f",
+  "ink": "#101213",
+  "hue": 0.0175,
+  "sat": 0.076,
+  "val": 0.808
+ },
+ "card-miepupu.png": {
+  "base": "#1b1f21",
+  "glow": "#5c4640",
+  "accent": "#b6a276",
+  "ink": "#0e1111",
+  "hue": 0.0348,
+  "sat": 0.324,
+  "val": 0.751
+ },
+ "card-mieshi.png": {
+  "base": "#181a1e",
+  "glow": "#514738",
+  "accent": "#9da068",
+  "ink": "#0c0d0f",
+  "hue": 0.0976,
+  "sat": 0.39,
+  "val": 0.662
+ },
+ "card-qinghua.png": {
+  "base": "#1c1a20",
+  "glow": "#50563c",
+  "accent": "#7faa6f",
+  "ink": "#0e0d10",
+  "hue": 0.207,
+  "sat": 0.331,
+  "val": 0.702
+ },
+ "card-qipupu.png": {
+  "base": "#1b2021",
+  "glow": "#5b4240",
+  "accent": "#b49875",
+  "ink": "#0f1111",
+  "hue": 0.013,
+  "sat": 0.222,
+  "val": 0.744
+ },
+ "card-salamander.png": {
+  "base": "#131621",
+  "glow": "#6b562a",
+  "accent": "#c3da45",
+  "ink": "#0d0f14",
+  "hue": 0.1123,
+  "sat": 0.761,
+  "val": 0.899
+ },
+ "card-seal.png": {
+  "base": "#16191b",
+  "glow": "#473732",
+  "accent": "#8c805b",
+  "ink": "#0b0d0d",
+  "hue": 0.0456,
+  "sat": 0.138,
+  "val": 0.579
+ },
+ "card-shiwang.png": {
+  "base": "#181b1e",
+  "glow": "#4f3e37",
+  "accent": "#9c9066",
+  "ink": "#0d0e0f",
+  "hue": 0.0478,
+  "sat": 0.202,
+  "val": 0.646
+ },
+ "card-shiyi.png": {
+  "base": "#191c1e",
+  "glow": "#514138",
+  "accent": "#a09568",
+  "ink": "#0d0e0f",
+  "hue": 0.0559,
+  "sat": 0.275,
+  "val": 0.659
+ },
+ "card-wanwu.png": {
+  "base": "#1b1f21",
+  "glow": "#624945",
+  "accent": "#c2aa7e",
+  "ink": "#101212",
+  "hue": 0.0271,
+  "sat": 0.302,
+  "val": 0.8
+ },
+ "card-wanwumythic.png": {
+  "base": "#1b1f21",
+  "glow": "#644d46",
+  "accent": "#c6b281",
+  "ink": "#101213",
+  "hue": 0.0401,
+  "sat": 0.335,
+  "val": 0.816
+ },
+ "card-yangpu.png": {
+  "base": "#1b2021",
+  "glow": "#604543",
+  "accent": "#be9f7c",
+  "ink": "#0f1212",
+  "hue": 0.0095,
+  "sat": 0.259,
+  "val": 0.785
+ },
+ "card-yangtuo.png": {
+  "base": "#1b171d",
+  "glow": "#404c35",
+  "accent": "#629764",
+  "ink": "#0d0c0e",
+  "hue": 0.2596,
+  "sat": 0.319,
+  "val": 0.624
+ },
+ "card-yuefeimo.png": {
+  "base": "#18171e",
+  "glow": "#4f5133",
+  "accent": "#7ca05e",
+  "ink": "#0c0c0f",
+  "hue": 0.1775,
+  "sat": 0.459,
+  "val": 0.659
+ },
+ "card-yuesong.png": {
+  "base": "#181920",
+  "glow": "#564e37",
+  "accent": "#9aaa65",
+  "ink": "#0c0d10",
+  "hue": 0.1257,
+  "sat": 0.449,
+  "val": 0.702
+ },
+ "card-yuetrumpet.png": {
+  "base": "#141518",
+  "glow": "#413a2d",
+  "accent": "#848c5b",
+  "ink": "#0a0b0c",
+  "hue": 0.1133,
+  "sat": 0.196,
+  "val": 0.527
+ },
+ "card-yueyuexian.png": {
+  "base": "#191a1e",
+  "glow": "#514939",
+  "accent": "#98a068",
+  "ink": "#0d0e0f",
+  "hue": 0.1108,
+  "sat": 0.167,
+  "val": 0.66
+ },
+ "card-zhenbing.png": {
+  "base": "#211f1b",
+  "glow": "#4b5b6b",
+  "accent": "#8a8cd4",
+  "ink": "#141311",
+  "hue": 0.5822,
+  "sat": 0.23,
+  "val": 0.874
+ },
+ "card-zhenbush.png": {
+  "base": "#19161f",
+  "glow": "#4d542f",
+  "accent": "#6fa654",
+  "ink": "#0c0b10",
+  "hue": 0.1977,
+  "sat": 0.548,
+  "val": 0.684
+ },
+ "card-zhencao.png": {
+  "base": "#1a1a1f",
+  "glow": "#534e3a",
+  "accent": "#96a56b",
+  "ink": "#0d0e10",
+  "hue": 0.1298,
+  "sat": 0.33,
+  "val": 0.68
+ },
+ "card-zhenfang.png": {
+  "base": "#141721",
+  "glow": "#6b542c",
+  "accent": "#c7d748",
+  "ink": "#0d1014",
+  "hue": 0.1059,
+  "sat": 0.74,
+  "val": 0.888
+ },
+ "card-zhenjpg.png": {
+  "base": "#171c1b",
+  "glow": "#4a3437",
+  "accent": "#926e5f",
+  "ink": "#0c0e0d",
+  "hue": 0.9714,
+  "sat": 0.084,
+  "val": 0.601
+ },
+ "card-zhenmoss.png": {
+  "base": "#191620",
+  "glow": "#4c552e",
+  "accent": "#6aa951",
+  "ink": "#0c0b10",
+  "hue": 0.2064,
+  "sat": 0.58,
+  "val": 0.698
+ },
+ "card-zhenpete.png": {
+  "base": "#1b1f21",
+  "glow": "#5c4841",
+  "accent": "#b7a777",
+  "ink": "#0f1111",
+  "hue": 0.0458,
+  "sat": 0.197,
+  "val": 0.755
+ },
+ "card-zhenwang.png": {
+  "base": "#181c1d",
+  "glow": "#4d3a36",
+  "accent": "#998563",
+  "ink": "#0c0e0e",
+  "hue": 0.0255,
+  "sat": 0.093,
+  "val": 0.631
+ },
+ "toy-ballyellow.png": {
+  "base": "#141721",
+  "glow": "#6b582e",
+  "accent": "#c4da4e",
+  "ink": "#0d0f14",
+  "hue": 0.1133,
+  "sat": 0.715,
+  "val": 0.901
+ },
+ "toy-beachball.png": {
+  "base": "#201b21",
+  "glow": "#4c6043",
+  "accent": "#7bbd87",
+  "ink": "#110f12",
+  "hue": 0.2835,
+  "sat": 0.23,
+  "val": 0.782
+ },
+ "toy-dino.png": {
+  "base": "#19181d",
+  "glow": "#4d4e36",
+  "accent": "#7f9a64",
+  "ink": "#0c0c0f",
+  "hue": 0.171,
+  "sat": 0.269,
+  "val": 0.636
+ }
+}
