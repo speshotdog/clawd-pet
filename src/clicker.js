@@ -390,7 +390,18 @@ window.Clicker = (() => {
     z = Math.max(.75, Math.floor((Number.isFinite(z) && z > 0 ? z : 1) / .25) * .25);
     $('zoomer').style.transform = `scale(${z})`; return z;
   }
+  // 直式手機：螢幕比舞台還瘦的時候換一套版面（CSS 那邊是 max-aspect-ratio: 3/4）。
+  // 這裡只負責算舞台的縮放比——舞台內部仍然是 608×360 的座標系，整塊等比縮到畫面寬，
+  // 場景圖層、王的座標、粒子、技能槽全部跟著走，一行都不用改。
+  const isPortrait = () => matchMedia('(max-aspect-ratio: 3/4)').matches;
+  function fitStage() {
+    const fit = $('stage-fit'); if (!fit) return;
+    if (!isPortrait()) { fit.style.removeProperty('--stage-fit'); return; }
+    fit.style.setProperty('--stage-fit', fit.clientWidth / 608);
+  }
   function fitWindow() {
+    fitStage();
+    if (isPortrait()) return;   // 直式由 CSS 撐滿，不縮放整個 #game
     if (TAURI) { TAURI.core.invoke('fit_window', { dpr: window.devicePixelRatio || 1 }).catch(() => {}); return; }
     const z = applyZoom(Math.min(innerWidth / 960, innerHeight / 640));
     $('zoomer').style.left = `${(innerWidth - 960 * z) / 2}px`;

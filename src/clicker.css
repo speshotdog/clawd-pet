@@ -785,3 +785,71 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 /* 第二十輪：被動浮字與每秒收益關卡票券。 */
 #game .floater.passive { font-size:18px; font-weight:bold; color:#E9B94E; -webkit-text-stroke:.6px #30251F; paint-order:stroke fill; text-shadow:none; opacity:.9; white-space:nowrap; }
 .rate-stamp { position:absolute; left:50%; top:42%; z-index:27; padding:16px 24px; border:3px solid #30251F; border-radius:10px; background:#FBEED0; color:#A34C50; box-shadow:4px 4px 0 #30251F; outline:1px dashed #A34C50; outline-offset:-8px; font-size:26px; font-weight:bold; transform:translate(-50%,-50%) rotate(-4deg); pointer-events:none; }
+
+/* ============================================================
+   直式手機版面（2026-09-08 使用者要求）
+   橫式那套 960×640 原封不動留給桌機與 exe；這裡只在「螢幕比舞台還瘦」時接手。
+   關鍵：舞台內部仍然是 608×360 的座標系（場景圖層、王的 --boss-cx、粒子、
+   技能槽的 left/bottom 全都吃這個座標），所以**只縮放 #stage 本身**，
+   內容一行都不用改。技能槽最多 4 格（印記商店的 slot4），
+   4×64+3×16=304，在 608 寬的舞台裡放得下，縮放後自然跟著等比。
+   ============================================================ */
+@media (max-aspect-ratio: 3/4) {
+  html, body { width:100%; height:100%; overflow:hidden; }
+  #zoomer { position:fixed !important; inset:0 !important; transform:none !important; width:100%; height:100%; }
+  #game { width:100%; height:100%; border-radius:0; }
+  #game-content { position:absolute; inset:0; display:flex; flex-direction:column;
+    gap:7px; padding:calc(6px + env(safe-area-inset-top)) 8px calc(6px + env(safe-area-inset-bottom)); }
+
+  /* 1 錢包列：拿掉標題，只留幣、每次／每秒、音量 */
+  .topbar { position:static; width:auto; height:46px; flex:none; gap:8px; padding:0 10px;
+    background:var(--paper); border:2px solid var(--paper-edge); border-radius:11px; cursor:default; }
+  #game #topbar h1 { display:none; }
+  .wallet { margin-left:0; min-width:0; } .wallet b { font-size:19px; }
+  .rates { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end;
+    gap:0; font-size:10.5px; line-height:1.35; }
+  #close, #retry-save { display:none; }
+
+  /* 2 舞台：維持 608×360，整塊等比縮到畫面寬 */
+  #stage-fit { flex:none; width:100%; aspect-ratio:608/360; position:relative; }
+  #stage { position:absolute; left:0; top:0; width:608px; height:360px;
+    transform:scale(var(--stage-fit,1)); transform-origin:0 0; }
+
+  /* 3 商店三張卡：攤成三條窄列 */
+  #shop { position:static; width:auto; height:auto; flex:none; gap:7px; }
+  .upgrade, .recruit { height:56px; padding:6px 10px; grid-template-columns:30px 1fr auto;
+    grid-template-rows:auto; align-items:center; column-gap:9px; }
+  .upgrade img, .recruit img { width:30px; height:30px; align-self:center; }
+  .upgrade h2, .recruit h2 { font-size:12.5px; line-height:1.3; }
+  .upgrade p, .recruit small, #single-note, #pity, #recruit-open { display:none; }
+  .purchase { grid-column:3; grid-row:1; display:flex; align-items:center; gap:6px; }
+  .price-ticket { font-size:11px; } .price-ticket img { height:16px; }
+  #click-max, #training-max { display:none; }
+
+  /* 4 夥伴列：一條左右滑。它同時吸收畫面剩下的空間，免得中間空一大塊 */
+  #team { position:static; width:auto; flex:1; min-height:56px; gap:0;
+    background:var(--paper); border:2px solid var(--paper-edge); border-radius:11px; padding:4px 6px; }
+  #team::after, .team-tape, .buddy-header h2, .buddy-header nav, #notice { display:none; }
+  .buddy-header { position:static; display:block; height:0; }
+  #buddies { position:static; left:auto; top:auto; width:100%; height:100%;
+    display:flex; gap:7px; overflow-x:auto; overflow-y:hidden; align-items:center; }
+  #buddies .buddy { flex:none; }
+
+  /* 5 底部分頁 */
+  footer { position:static; width:auto; left:auto; top:auto; margin-top:0; height:56px; flex:none;
+    display:grid; grid-template-columns:repeat(5,1fr); gap:5px; align-items:stretch; padding:0; }
+  footer #completed, footer #next-goal, footer .save-plate { display:none; }
+  #game footer button { height:100%; min-width:0; flex-direction:column; gap:2px; font-size:10px;
+    padding:0 2px; white-space:nowrap; }
+  #game footer button .badge { height:18px; width:auto; }
+  #game footer button b { font-size:9px; font-weight:400; }
+
+  /* 粒子畫布與浮字層是照 960×640 畫死的，直式要跟著舞台縮，否則會撐出畫面 */
+  #click-fx, #floaters, #join-flight { position:absolute; left:0; top:0; width:608px; height:360px;
+    transform:scale(var(--stage-fit,1)); transform-origin:0 0; }
+  .wallet { flex:none; }
+
+  /* 面板改成整頁推上來 */
+  #game .panel, #game .small-panel { position:fixed; inset:auto 0 0 0; width:100%; height:88%;
+    border-radius:18px 18px 0 0; margin:0; }
+}
