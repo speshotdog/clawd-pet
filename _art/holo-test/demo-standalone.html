@@ -652,7 +652,10 @@ function makeCard(data,host,{scene=false,rank=false,pair=false}={}){
  const media=node('div','art-media'),image=node('img');image.src=src;image.alt='';image.draggable=false;media.append(image);
  if(masks[srcKey]&&kind!=='flat'){const mask=node('div','subject-mask');mask.style.setProperty('--subject',`url("${masks[srcKey]}")`);material(mask);media.append(mask);}art.append(media);
  frame.append(node('div','frame-material'));const name=node('b','face-name',data.name),rarity=node('span','face-rarity',`${presets[data.rarity].label} / ${data.rarity.toUpperCase()}`);const text=node('div','face-text');
- if(kind==='depth'||kind==='flat'){text.append(name,rarity);front.append(stock,bg,art,frame,plate,gem,text);}else{plate.append(name,rarity);front.append(stock,bg,art,frame,plate,gem);}
+ /* 三種卡型都把名字放進 .face-text——場景卡本來就是這樣，framed 之前把名字塞在
+   .face-plate 裡，才被迫把整個文字框推到 translateZ(70px) 去蓋住人物，
+   結果透視把它放大成撐出卡緣。名字獨立一層就不用推框了。 */
+text.append(name,rarity);front.append(stock,bg,art,frame,plate,gem,text);
  inner.append(back,front);lift.append(inner);card.append(lift);hit.append(card);item.append(hit);
  const under=node('div','under');if(rank){const info=node('div');info.append(node('strong','',data.rarity),node('p','',presets[data.rarity].title));under.append(info);}else{under.append(node('p','',data.note||(pair?'獨立景深 × 多層箔面':'原 PNG · 獨立背景')));}
  const flip=node('button','','翻面 ↻');flip.type='button';flip.setAttribute('aria-label','翻面：'+data.name+(rank?' '+data.rarity:''));under.append(flip);item.append(under);host.append(item);
@@ -872,19 +875,19 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
    圖層 .face-art 在 var(--za)（最高 56px），文字框原本只有 13px，所以人物會壓在名字上。
    framed/flat 的文字框推到 70px，確保它蓋在人物之上（圖二就是文字框壓著行星）。 */
 .kind-framed .face-plate,.kind-flat .face-plate,.bleed .face-plate{
- z-index:40 !important;transform:translateZ(70px) !important}
+ z-index:20 !important;transform:translateZ(calc(var(--zp) + 1px)) !important}
 /* 中心點＝卡片頂端到文字框上緣（文字框上緣在 80% 高），不是整張卡的中間 */
 .kind-framed .art-media{inset:0 6% 20% 6% !important;padding:0 !important;place-items:center !important}
 /* 寶石一律用圖一那顆：在文字框左側，不是浮在卡片上方。 */
 .kind-framed .face-gem{
  left:calc(5% + 14px) !important;right:auto !important;top:auto !important;
  bottom:calc(4% + 8% - 8px) !important;width:22px !important;height:22px !important;margin:0 !important;
- z-index:45 !important;transform:translateZ(72px) rotate(45deg) !important;
+ z-index:25 !important;transform:translateZ(calc(var(--zp) + 2px)) rotate(45deg) !important;
  border:2px solid #fff3d0 !important;border-radius:3px !important;
  background:radial-gradient(circle at 35% 35%,#fff,var(--accent-card) 55%) !important;
  box-shadow:0 0 10px color-mix(in srgb,var(--accent-card) 58%,transparent) !important;
  clip-path:none !important;filter:saturate(.98) !important}
-.kind-depth .face-gem,.kind-flat .face-gem{transform:translateZ(72px) rotate(45deg) !important;z-index:45 !important}
+
 /* 寶石與文字框內距同樣綁卡片寬度：固定 22px 在小卡上會蓋到名字。
    基準一樣是 290px 卡寬的 22px。 */
 .hcard .face-gem{width:var(--gem-fs,22px) !important;height:var(--gem-fs,22px) !important;
@@ -893,6 +896,47 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 .hcard .face-plate{padding:0 calc(var(--gem-fs,22px)*1.7) !important}
 /* 文字框左邊留出寶石的位置，名字才不會被推歪 */
 
+</style>
+<style id="round18-geometry">
+/* Round 18：卡池卡的版面照場景卡（天外膠膠那張）的實測數字對齊。
+   量到的差距（佔卡片比例）：
+     圖窗   場景 x.024 w.952 y.017 h.966  ／ 卡池 x.07 w.86 h.78
+     文字框 場景 x.044 w.912 y.804 h.162 ／ 卡池 x.016 w.968 y.823 h.172
+   也就是卡池的文字框太寬太貼邊、圖窗又縮太多，所以看起來不是同一套卡。 */
+.kind-framed .face-art{inset:0 !important}
+.kind-framed .art-media{
+ inset:1.7% 2.4% 3.3% !important;      /* 場景卡的圖窗：滿版，延伸到文字框後面 */
+ padding:0 !important;display:grid !important;place-items:center !important}
+/* 人物置中在「卡頂到文字框上緣」＝ 0 ~ 80.4% */
+.kind-framed .art-media img{
+ max-width:100% !important;max-height:82.5% !important;
+ align-self:start !important;margin-top:0 !important;
+ transform:translateY(calc((80.4% - 1.7%) / 2 - 41.25%)) !important}
+.kind-framed .face-plate,.kind-flat .face-plate,.bleed .face-plate{
+ left:4.4% !important;right:4.4% !important;bottom:3.4% !important;height:16.2% !important}
+/* 寶石：三種卡型都放在文字框左側同一個位置。
+   ranks 區還留著一條「framed 的寶石放卡片上方」的舊規則，這裡一併蓋掉；
+   flat 也要指定，不然它會掉到卡片左緣（round8 的寶石對比度取樣會直接爆掉）。 */
+.hcard .face-gem,.ranks-grid .kind-framed .face-gem{
+ left:calc(5% + var(--gem-fs,22px)*.62) !important;right:auto !important;top:auto !important;
+ bottom:calc(12% - var(--gem-fs,22px)/2) !important;
+ width:var(--gem-fs,22px) !important;height:var(--gem-fs,22px) !important;margin:0 !important;
+ /* 寶石要在圖之上（滿版卡的圖蓋滿整張，壓在 --za），但它只有 22px，
+    透視放大的量可以忽略；文字框整塊推高才會撐出卡緣。 */
+ z-index:120 !important;transform:translateZ(calc(var(--za) + 6px)) rotate(45deg) !important;
+ border:2px solid #fff3d0 !important;border-radius:3px !important;
+ background:radial-gradient(circle at 35% 35%,#fff,var(--accent-card) 55%) !important;
+ box-shadow:0 0 10px color-mix(in srgb,var(--accent-card) 58%,transparent) !important;
+ clip-path:none !important}
+/* framed 的名字現在也走 .face-text，位置要跟場景卡一模一樣 */
+.kind-framed .face-text{position:absolute !important;left:4.4% !important;right:4.4% !important;
+ top:auto !important;bottom:3.4% !important;height:16.2% !important;z-index:200 !important;
+ transform:translateZ(calc(var(--zp) + 28px)) !important;
+ display:flex !important;flex-direction:column !important;justify-content:center !important;
+ align-items:center !important;gap:5px !important;pointer-events:none}
+.kind-framed .face-text .face-name,.kind-framed .face-text .face-rarity{
+ position:relative !important;left:auto !important;right:auto !important;margin:0 !important;
+ width:max-content !important;max-width:100% !important;text-align:center !important}
 </style>
 <style id="round9-name-ink">
 /* Round 9 (使用者定案)：傳說＝亮金字，神話＝彩虹字（跟卡框同一條 conic 漸層，隨 --phase 轉）。
