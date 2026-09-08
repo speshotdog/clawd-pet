@@ -781,6 +781,22 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 .gem-proof-stage .face-gem{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:64px!important;height:64px!important;margin:0!important;transform:rotate(45deg)!important;border:2px solid #fff3d0!important;border-radius:3px!important;background:radial-gradient(circle at 35% 35%,#fff,#b991e6 55%)!important;box-shadow:0 0 10px #b991e688!important;clip-path:none!important}
 @media(max-width:850px){.gem-proof-grid{gap:20px}.kind-depth .face-plate,.kind-flat .face-plate{padding-left:30px!important;padding-right:30px!important}.kind-depth .face-gem,.kind-flat .face-gem{left:calc(5% + 14px)!important}}
 </style>
+<style id="round9-name-ink">
+/* Round 9 (使用者定案)：傳說＝亮金字，神話＝彩虹字（跟卡框同一條 conic 漸層，隨 --phase 轉）。
+   蓋掉第六輪的燙金漸層：它的 78% 暗棕段在小卡上吞掉字身，
+   而後面那行 text-shadow 把外光接成 var(--accent-card)，神話是薄荷綠 #93f0df，
+   配暖金字混成橄欖色。common/rare/epic 維持乾淨白字，不動。 */
+.r-legendary .face-name{
+ background:none !important;color:#fff45c !important;-webkit-text-fill-color:#fff45c !important;
+ text-shadow:0 1px 0 rgba(60,30,0,.75),0 2px 5px rgba(0,0,0,.8),0 0 10px rgba(255,244,120,.85),0 0 26px rgba(255,226,90,.6) !important;
+ filter:none !important}
+.r-mythic .face-name{
+ background:conic-gradient(from var(--phase),#ff7ad0,#ffc25e,#fff87d,#7dffab,#6fd8ff,#c39dff,#ff7ad0) !important;
+ -webkit-background-clip:text !important;background-clip:text !important;
+ -webkit-text-fill-color:transparent !important;color:transparent !important;
+ text-shadow:none !important;
+ filter:drop-shadow(0 1px 0 rgba(30,12,40,.9)) drop-shadow(0 2px 6px rgba(0,0,0,.85)) drop-shadow(0 0 12px rgba(255,255,255,.35)) !important}
+</style>
 <script>
 /* Round 8 verification API: samples the actual viewport stack, including subject-over-name cases. */
 (function(){
