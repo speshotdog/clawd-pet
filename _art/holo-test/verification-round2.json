@@ -1,0 +1,15 @@
+{
+  "cards": 30,
+  "legacy_pairs": 10,
+  "rare_relief": "repeating-linear-gradient(112deg, rgb(12, 28, 59) 0%, rgb(48, 77, 112) 10%, rgb(233, 246, 251) 16%, rgb(69, 104, 135) 23%, rgb(16, 39, 73) 31%, rgb(154, 191, 209) 40%, rgb(18, 43, 76) 51%, rgb(12, 28, 59) 64%, rgb(184, 218, 230) 76%, rgb(23, 52, 83) 88%, rgb(12, 28, 59) 100%)",
+  "rare_etch": "repeating-linear-gradient(28deg, rgba(255, 255, 255, 0.2) 0px, rgba(255, 255, 255, 0.2) 1px, rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) 8px), repeating-linear-gradient(-34deg, rgba(255, 255, 255, 0.133) 0px, rgba(255, 255, 255, 0.133) 1px, rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) 13px)",
+  "composite_changed_after_pointer": true,
+  "idle_raf": 0,
+  "console_errors": [],
+  "screenshots": [
+    "r2-five-rarities.png",
+    "r2-idle.png",
+    "r2-legacy-comparison.png",
+    "r2-legacy-tilted.png"
+  ]
+}

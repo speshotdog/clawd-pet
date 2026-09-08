@@ -1,0 +1,115 @@
+{
+  "seed": 20260908,
+  "pairings": [
+    {
+      "id": "zhenpete",
+      "scene": 1,
+      "reason": "草地野餐；暖色角色放在開闊前景",
+      "background_sha256": "77e45911bb86d09f5d1491bea44b0fa1b25e9d5ad3c3c87cf885d6bff822004f",
+      "subject_sha256": "3edab545128cd09466913a0d27cb815944b96c61df9db4763673c00123ae4fce",
+      "size": [
+        600,
+        840
+      ]
+    },
+    {
+      "id": "zhenwang",
+      "scene": 2,
+      "reason": "布幕舞台；藍色稀有度呼應冷色背景",
+      "background_sha256": "072e2a3805f56fae7481ed9dc257c18fcf6f66618e035c10d58d94817d1f755f",
+      "subject_sha256": "82e0d9714dda8aaa3acc1d5b197c063dc015c68ff6177906bb016aeac0cf555d",
+      "size": [
+        600,
+        840
+      ]
+    },
+    {
+      "id": "zhencao",
+      "scene": 3,
+      "reason": "標籤棚景；小體型角色留出天空層次",
+      "background_sha256": "45ec8d4ef128f3a0da4a67c68461e41cecd0f81f3432b03a7ba7a2a7f553edf7",
+      "subject_sha256": "428f0c2ed430229a14ddea1fc2984c7d418d2579ee6737264b62868118be3902",
+      "size": [
+        600,
+        840
+      ]
+    },
+    {
+      "id": "zhenjpg",
+      "scene": 4,
+      "reason": "戶外移動景；橙色角色在中景前",
+      "background_sha256": "885dea3a40ccfd922d836d4cb7043d235049d55bb4fec304adbd8dcd0b3abe57",
+      "subject_sha256": "fea89bae007597574e6bc480a0e261a0726979e3f2977c9f477df8f513e69db7",
+      "size": [
+        600,
+        840
+      ]
+    },
+    {
+      "id": "mieshi",
+      "scene": 5,
+      "reason": "夜色燈景；作為 bleed 滿版對照",
+      "background_sha256": "18e96eb15e5f34ea72997f8a52938d46358676ff3f8e616a607cb48a4e72901a",
+      "subject_sha256": "98f659fa023340bbac56e0eed50a6cc8156775af74e7a6b46faad0a1a89e0e34",
+      "size": [
+        600,
+        840
+      ]
+    },
+    {
+      "id": "wanwumythic",
+      "scene": 6,
+      "reason": "冷色庭院；作為 bleed 滿版對照",
+      "background_sha256": "0ad6c2ac0a0fcf7a0c14c1b7af03f6696af00aaebff09357d374ca4b2c6f42c2",
+      "subject_sha256": "d66e23b42ab2f17ad6e7b6fb4b409b0fb9c4dc91d168cf1b202d435b93f23292",
+      "size": [
+        600,
+        840
+      ]
+    },
+    {
+      "id": "foxfriend",
+      "scene": 6,
+      "reason": "暖橙庭院；狐狸色調與夕光相配",
+      "background_sha256": "c739409a51956cf668c8da3d93bc3b7e92c3185f601a4809c11f8235847cccb8",
+      "subject_sha256": "d8047d93a30e5b7168cb5cd5001b45d4cee0d5e1c5ee9fab3ca898de24074437",
+      "size": [
+        600,
+        840
+      ]
+    },
+    {
+      "id": "miepupu",
+      "scene": 1,
+      "reason": "草地花叢；粉色主體與綠地反差",
+      "background_sha256": "a545fa99953b77f49bd148f3ab0045d13ecd013d49977e576302b6c67212331b",
+      "subject_sha256": "47b07d0efdc8eddb51b4f3584eb1f42fe236cf29665d6e1e8838a2bba120df03",
+      "size": [
+        600,
+        840
+      ]
+    },
+    {
+      "id": "salamander",
+      "scene": 2,
+      "reason": "布幕舞台；長形主體放在地面線上",
+      "background_sha256": "2b5f9fd6d61e76f9e540989792c793d2bdc81f1ce738959d6040380e4a728c9e",
+      "subject_sha256": "6f1f0e4bc75023d8b7854fd7b45d020c3e23632a3fe3ef0bf7dbfa50add710ea",
+      "size": [
+        600,
+        840
+      ]
+    },
+    {
+      "id": "yangpu",
+      "scene": 5,
+      "reason": "燈籠夜景；小角色保留大量環境空間",
+      "background_sha256": "1c71ed59e05a2a62dcb21309c8bb42392ab2223966c4baeb28eca90bb9c80bb8",
+      "subject_sha256": "7cfaa8ff827efa2f2a0d4ad54a18ab8ca23d27c16f50c9043e81b986d2f6f56e",
+      "size": [
+        600,
+        840
+      ]
+    }
+  ]
+}
