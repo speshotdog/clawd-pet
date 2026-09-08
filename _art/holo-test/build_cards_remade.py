@@ -63,6 +63,7 @@ h2{font-size:16px;letter-spacing:.05em;margin:34px 0 4px}
 </style>
 
 <h1>卡池重製 · 全部照場景卡規格</h1>
+<p class="lede"><b style="color:#ffd76a">滑鼠移到卡片上可以傾斜</b>，看箔面與景深；移開回正。</p>
 <p class="lede">43 張都補上滿版背景，顏色取自每張角色圖的實際像素（<code>art/palette.json</code>），
 所以背景跟角色同調而不是所有卡共用一層深色。版型維持已定案的：滿版圖窗、人物置中、
 文字框帶階級寶石與名字。背景是 CSS 圖層，不是一張一張畫出來的圖。</p>
@@ -114,12 +115,18 @@ function fit(card,w){
  for(let i=0;i<14&&textW()>room&&fs>w*NAME_SHARE*.55;i++){fs*=.93;card.style.setProperty('--name-fs',fs.toFixed(2)+'px');}
 }
 
-function paint(card,rarity){
- const z=ZL[rarity]*.65;
- const v={'--rx':'0deg','--ry':'0deg','--za':z+'px','--zb':'2px','--zf':'8px','--zp':'12px',
-  '--comp':(1000-z)/1000,'--ax':'0px','--ay':'0px','--bx':'0px','--by':'0px',
-  '--fx':'50%','--fy':'50%','--cx':'50%','--cy':'50%','--gx':'50%','--gy':'50%','--phase':'120deg',
-  '--ga':.5,'--gb':.5,'--apos':'0% 0%','--bpos':'100% 0%','--foil':.85,'--grain':.75,'--glare':.2};
+function paint(card,rarity,x,y){
+ x=x||0; y=y||0;
+ const z=ZL[rarity]*.65, tilt=TL[rarity];
+ const d=Math.min(1,Math.hypot(x,y));
+ let t=((Math.atan2(y,x)+Math.PI)/(Math.PI*2)*4)%4; if(d<.002)t=0;
+ const qa=Math.floor(t), qb=(qa+1)%4, f=t-qa, q=i=>`${i%2*100}% ${Math.floor(i/2)*100}%`;
+ const v={'--rx':`${-y*tilt}deg`,'--ry':`${x*tilt}deg`,'--za':z+'px','--zb':'2px','--zf':'8px','--zp':'12px',
+  '--comp':(1000-z)/1000,'--ax':`${x*1.5}px`,'--ay':`${y*1.5}px`,'--bx':`${-x*.5}px`,'--by':`${-y*.5}px`,
+  '--fx':`${50-26*x+10*y}%`,'--fy':`${50+16*y}%`,'--cx':`${50+20*x+8*y}%`,'--cy':`${50-24*y}%`,
+  '--gx':`${50+42*x}%`,'--gy':`${50+42*y}%`,'--phase':`${120+x*70-y*40}deg`,
+  '--ga':(.18+.82*d)*(1-f),'--gb':(.18+.82*d)*f,'--apos':q(qa),'--bpos':q(qb),
+  '--foil':.85,'--grain':.75,'--glare':.45*(.3+.35*d)};
  for(const [k,val] of Object.entries(v))card.style.setProperty(k,String(val));
 }
 
@@ -152,7 +159,11 @@ function build(d,host,capHtml){
  cap.innerHTML=capHtml!==undefined?capHtml:`${LABEL[d.rarity]}・${d.file}`;
  cell.append(hit,cap);
  host.append(cell);
- paint(card,d.rarity);obs.observe(card);
+ paint(card,d.rarity,0,0);obs.observe(card);
+ // 不是鎖定版：滑過去可以傾斜看箔面，離開回正
+ hit.addEventListener('pointermove',e=>{const r=hit.getBoundingClientRect();
+  paint(card,d.rarity,(e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1);});
+ hit.addEventListener('pointerleave',()=>paint(card,d.rarity,0,0));
  return card;
 }
 
