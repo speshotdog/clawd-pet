@@ -1,0 +1,129 @@
+{
+  "browser": "136.0.7103.25",
+  "url": "file:///D:/claude/clawd-pet/_art/holo-test/demo.html",
+  "viewport": [
+    1512,
+    1000
+  ],
+  "checks": {
+    "all_four_sections": true,
+    "image_count": 21,
+    "cards": 16,
+    "depth_and_foil_changed": {
+      "before": {
+        "art": "matrix3d(0.96, 0, 0, 0, 0, 0.96, 0, 0, 0, 0, 1, 0, 1.14, -0.9, 40, 1)",
+        "bg": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.38, 0.3, 2, 1)",
+        "foil": "24.24% 40.4%",
+        "glare": "radial-gradient(65% 55% at 81.92% 24.8%, rgba(238, 248, 255, 0.6), rgba(0, 0, 0, 0) 78%), radial-gradient(19% 15% at 81.92% 24.8%, rgba(255, 252, 229, 0.7), rgba(0, 0, 0, 0) 90%)"
+      },
+      "after": {
+        "art": "matrix3d(0.96, 0, 0, 0, 0, 0.96, 0, 0, 0, 0, 1, 0, -1.14, 0.9, 40, 1)",
+        "bg": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.38, -0.3, 2, 1)",
+        "foil": "75.76% 59.6%",
+        "glare": "radial-gradient(65% 55% at 18.08% 75.2%, rgba(238, 248, 255, 0.6), rgba(0, 0, 0, 0) 78%), radial-gradient(19% 15% at 18.08% 75.2%, rgba(255, 252, 229, 0.7), rgba(0, 0, 0, 0) 90%)"
+      }
+    },
+    "sliders": {
+      "depth": {
+        "high": 1.8,
+        "low": 0
+      },
+      "foil": {
+        "high": 1.5,
+        "low": 0
+      },
+      "grain": {
+        "high": 1.5,
+        "low": 0
+      },
+      "glare": {
+        "high": 1.2,
+        "low": 0
+      }
+    },
+    "scenes": [
+      {
+        "id": "rocketdog",
+        "pose": [
+          0.6399999158135776,
+          0.4000000601331588
+        ]
+      },
+      {
+        "id": "astronaut",
+        "pose": [
+          0.6399999158135776,
+          0.4000000601331588
+        ]
+      },
+      {
+        "id": "alienkitty",
+        "pose": [
+          0.6399999158135776,
+          0.4000000601331588
+        ]
+      },
+      {
+        "id": "fluffdog",
+        "pose": [
+          0.6399999158135776,
+          0.4000000601331588
+        ]
+      }
+    ],
+    "five_rank_updated_indices": [
+      7
+    ],
+    "flips": [
+      {
+        "selector": "[data-id=\"comparison-new\"]",
+        "matrix": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+      },
+      {
+        "selector": "[data-id=\"alienkitty\"]",
+        "matrix": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+      },
+      {
+        "selector": "[data-id=\"mieshi\"]",
+        "matrix": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+      },
+      {
+        "selector": "[data-id=\"wanwumythic\"]",
+        "matrix": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+      }
+    ],
+    "reduced_motion_simulated_and_media": true,
+    "keyboard": true,
+    "mobile_no_horizontal_overflow": true,
+    "touch_drag_pose": [
+      0.6000000000000001,
+      0.3000000305940633
+    ],
+    "idle_raf": 0,
+    "idle_frames_stable": true,
+    "max_concurrent_raf": 1,
+    "console_errors": [],
+    "external_requests": [],
+    "referenced_original_files_unchanged": 13,
+    "independent_pending_raf_after_leave": 0
+  },
+  "screenshots": [
+    "01-comparison-rest.png",
+    "02-comparison-tilted.png",
+    "03-controls-max.png",
+    "04-scene-alienkitty.png",
+    "04-scene-astronaut.png",
+    "04-scene-fluffdog.png",
+    "04-scene-rocketdog.png",
+    "05-five-rarities.png",
+    "06-card-back.png",
+    "07-legacy.png",
+    "08-reduced-motion.png",
+    "09-mobile-first-screen.png",
+    "09-mobile.png",
+    "10-section-legacy.png",
+    "10-section-rarities.png",
+    "10-section-scenes.png",
+    "11-desktop-full.png"
+  ]
+}

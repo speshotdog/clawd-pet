@@ -1,0 +1,6 @@
+{
+  "source": "src/gacha-card.css",
+  "sha256": "6104597801783f75ea470f5fd406cbfe4a9e4f76873b3656b7a1a48c4a6544f6",
+  "scope": "skin-af epic face; shadow-root; source size 150x210, uniformly scaled by ResizeObserver",
+  "changes": "host positioning, no stage entrance, no glow, shared demo pointer controller, finite flip transition"
+}
