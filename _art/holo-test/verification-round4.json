@@ -1,0 +1,15 @@
+{
+  "browser": "136.0.7103.25",
+  "cards": 20,
+  "legacy_cards": 10,
+  "layout_failures": [],
+  "external_requests": [],
+  "console_errors": [],
+  "raf_after_leave": 0,
+  "screenshots": [
+    "r4-bleed-cards.png",
+    "r4-five-rarities.png",
+    "r4-legacy-cards.png",
+    "r4-scenes-cards.png"
+  ]
+}

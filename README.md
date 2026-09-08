@@ -97,6 +97,16 @@
 
 ## 開發
 
+## 華麗卡牌展示頁（Round 4）
+
+`_art/holo-test/demo.html` 是單一 `file://` 可直接開啟的材質展示頁。本輪路線已定案：四張本來就自帶背景的場景卡（rocketdog、astronaut、alienkitty、fluffdog）與兩張 bleed 卡走滿版景深；其他去背 PNG 只展示「卡框＋稀有度色調底」版型。第二輪 `compose_legacy.py` 產出的角色＋場景合成滿版已否決，相關檔案保留作紀錄，但展示頁不再引用。
+
+銘牌內左側提供三種階級寶石方案（切面、軌道、棱鏡），寶石有 CSS 光暈、內部反光與隨角度變化；名字使用最上層 Z 深度，且頁面會對每張卡驗證寶石↔名字、名字↔銘牌邊、名字↔卡框的最小間距。史詩改為更明確的紫色；傳說與神話使用雙層奢華框、角落刻紋與外圈光暈，三者與寶石、底色一同分階。
+
+字體比較提供系統字、內嵌 Noto Sans TC、內嵌 Noto Serif TC。兩款 Noto 由 Windows 的 NotoSansTC-VF.ttf / NotoSerifTC-VF.ttf 以卡名與標籤字元子集化為 woff2，再以 data URL 放入 HTML；因此不依賴 `fetch`、XHR 或外部資源。授權原文已實際讀取 Noto CJK 的 `Sans/LICENSE`（SIL Open Font License 1.1）：允許使用、修改、嵌入與再散佈，但衍生字型不可使用 Reserved Font Name。上游 metadata 標示 Noto Sans TC 的 RFN 為 `Source`，本輪沒有用 Source 作為衍生字型名稱，CSS 內部名稱改用 `Holo Noto Sans`／`Holo Noto Serif`；README 也保留授權原文來源：[Noto CJK Sans LICENSE](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE)、[Google Fonts Noto Sans TC metadata](https://github.com/google/fonts/blob/main/ofl/notosanstc/METADATA.pb)。Noto CJK Serif 同樣採 SIL OFL 1.1；上游說明見 [Noto CJK Serif README](https://github.com/googlefonts/noto-cjk/blob/main/Serif/README.md)。
+
+本輪仍有待使用者實際挑選的項目：寶石三方案與三種字體尚未指定最終單一選項；截圖只作比較，不宣稱視覺品質已達標。
+
 <details>
 <summary>自己 build（點開）</summary>
 
