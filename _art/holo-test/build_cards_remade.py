@@ -40,6 +40,9 @@ p.lede{color:#8f9bb3;max-width:76ch;margin:0 0 22px}
 .cell{min-width:0}
 .hit{position:relative;width:100%;aspect-ratio:5/7}
 .cap{margin-top:9px;font-size:12px;color:#7b879c;text-align:center}
+h2{font-size:16px;letter-spacing:.05em;margin:34px 0 4px}
+.compare{display:grid;grid-template-columns:repeat(2,minmax(0,260px));gap:26px;margin:10px 0 6px}
+.compare .cap b{color:#c9d4e6;display:block;font-size:13px;margin-bottom:2px}
 
 /* ── 滿版背景：底色 + 角色背後光暈 + 地平線 + 星點 + 暗角 ───────── */
 .kind-framed .face-depth-bg{
@@ -63,6 +66,12 @@ p.lede{color:#8f9bb3;max-width:76ch;margin:0 0 22px}
 <p class="lede">43 張都補上滿版背景，顏色取自每張角色圖的實際像素（<code>art/palette.json</code>），
 所以背景跟角色同調而不是所有卡共用一層深色。版型維持已定案的：滿版圖窗、人物置中、
 文字框帶階級寶石與名字。背景是 CSS 圖層，不是一張一張畫出來的圖。</p>
+<h2>平面滿版：滅世珍獸</h2>
+<p class="lede">同一張圖，左邊用舊版的假景深（當成拆得開的兩層去推 Z），
+右邊是定案的平面滿版：整張平鋪、不做圖內視差，景深只發生在卡片本身傾斜。
+滑鼠移上去傾斜看差別。</p>
+<div class="compare" id="compare"></div>
+<h2>全卡池</h2>
 <div class="grid" id="grid"></div>
 
 <script type="application/json" id="mask-data">__MASKS__</script>
@@ -114,8 +123,7 @@ function paint(card,rarity){
  for(const [k,val] of Object.entries(v))card.style.setProperty(k,String(val));
 }
 
-const grid=$('#grid');
-for(const d of POOL){
+function build(d,host,capHtml){
  const cell=node('div','cell'),hit=node('div','hit');
  const card=node('div',`hcard r-${d.rarity} kind-${d.kind||'framed'} gem-faceted${d.bleed?' bleed':''}`);
  card.dataset.id=d.id;card.dataset.rarity=d.rarity;
@@ -133,12 +141,33 @@ for(const d of POOL){
  if(masks[d.file]&&d.kind!=='flat'){const m=node('div','subject-mask');m.style.setProperty('--subject',`url("${masks[d.file]}")`);material(m);media.append(m);}
  art.append(media);
  frame.append(node('div','frame-material'));
- plate.append(node('b','face-name',d.name),node('span','face-rarity',`${LABEL[d.rarity]} / ${d.rarity.toUpperCase()}`));
- front.append(stock,bg,art,frame,plate,gem);
+ // 名字一律放獨立的 .face-text（第十八輪統一），文字框只當背板。
+ // 之前塞在 .face-plate 裡，depth／flat 的 CSS 預期的是 .face-text，
+ // 所以對照組那兩張的文字框與名字整個沒畫出來。
+ const text=node('div','face-text');
+ text.append(node('b','face-name',d.name),node('span','face-rarity',`${LABEL[d.rarity]} / ${d.rarity.toUpperCase()}`));
+ front.append(stock,bg,art,frame,plate,gem,text);
  inner.append(front);lift.append(inner);card.append(lift);hit.append(card);
- cell.append(hit,node('p','cap',`${LABEL[d.rarity]}・${d.file}`));
- grid.append(cell);
+ const cap=node('p','cap');
+ cap.innerHTML=capHtml!==undefined?capHtml:`${LABEL[d.rarity]}・${d.file}`;
+ cell.append(hit,cap);
+ host.append(cell);
  paint(card,d.rarity);obs.observe(card);
+ return card;
+}
+
+const grid=$('#grid');
+for(const d of POOL) build(d,grid);
+
+// Round 7 的對照組搬過來：同一張圖，一邊當拆得開的兩層推 Z（舊版假景深），
+// 一邊照定案做平面滿版。卡型是資料欄位，不是靠 id 判斷。
+const mieshi=POOL.find(c=>c.id==='mieshi');
+if(mieshi){
+ const cmp=$('#compare');
+ const a=build({...mieshi,kind:'depth'},cmp,'<b>舊版假景深</b>兩層沿 Z 推開');
+ a.dataset.id='compare-depth';
+ const b=build({...mieshi,kind:'flat'},cmp,'<b>平面滿版（定案）</b>不做圖內視差');
+ b.dataset.id='compare-flat';
 }
 })();
 </script>

@@ -917,17 +917,30 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 /* 寶石：三種卡型都放在文字框左側同一個位置。
    ranks 區還留著一條「framed 的寶石放卡片上方」的舊規則，這裡一併蓋掉；
    flat 也要指定，不然它會掉到卡片左緣（round8 的寶石對比度取樣會直接爆掉）。 */
-.hcard .face-gem,.ranks-grid .kind-framed .face-gem{
+.hcard .face-gem,.hcard.gem-corner .face-gem,.ranks-grid .kind-framed .face-gem{
  left:calc(5% + var(--gem-fs,22px)*.62) !important;right:auto !important;top:auto !important;
  bottom:calc(12% - var(--gem-fs,22px)/2) !important;
  width:var(--gem-fs,22px) !important;height:var(--gem-fs,22px) !important;margin:0 !important;
  /* 寶石要在圖之上（滿版卡的圖蓋滿整張，壓在 --za），但它只有 22px，
     透視放大的量可以忽略；文字框整塊推高才會撐出卡緣。 */
- z-index:120 !important;transform:translateZ(calc(var(--za) + 6px)) rotate(45deg) !important;
+ /* 寶石要在圖之上，也要在 .face-text 的背板之上。
+    ⚠ 後面有一條 .face-text{transform:translateZ(100px)!important}，所以背板實際在 100px，
+    不是 --zp + 28；寶石得推到 106px 才蓋得過去。 */
+ z-index:210 !important;transform:translateZ(106px) rotate(45deg) !important;
  border:2px solid #fff3d0 !important;border-radius:3px !important;
  background:radial-gradient(circle at 35% 35%,#fff,var(--accent-card) 55%) !important;
  box-shadow:0 0 10px color-mix(in srgb,var(--accent-card) 58%,transparent) !important;
  clip-path:none !important}
+/* flat／bleed 的圖是一整張不透明的畫，會把 .face-plate 整個蓋住
+   （plate 在 --zp+1，圖在 --za），所以那兩張卡看起來沒有文字框。
+   使用者定案「不接受沒有文字框的」，所以把背板直接畫在 .face-text 上——
+   它本來就在圖之上，不必再把 plate 往前推（推了會被透視放大撐出卡緣）。 */
+.kind-flat .face-text,.bleed .face-text{
+ background:linear-gradient(140deg,#161b26f7,#111821fc) !important;
+ border:1px solid #b4b7c733 !important;border-top:1px solid var(--accent-card) !important;
+ border-radius:5px !important;
+ box-shadow:0 0 0 1px #0a0d15,0 7px 18px #0008,inset 0 1px 0 #ffffff18 !important;
+ padding:0 calc(var(--gem-fs,22px)*1.7) !important}
 /* framed 的名字現在也走 .face-text，位置要跟場景卡一模一樣 */
 .kind-framed .face-text{position:absolute !important;left:4.4% !important;right:4.4% !important;
  top:auto !important;bottom:3.4% !important;height:16.2% !important;z-index:200 !important;
