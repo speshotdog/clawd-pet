@@ -316,10 +316,14 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
    使用者定案「不接受沒有文字框的」，所以把背板直接畫在 .face-text 上——
    它本來就在圖之上，不必再把 plate 往前推（推了會被透視放大撐出卡緣）。 */
 .kind-flat .face-text,.bleed .face-text{
- background:linear-gradient(140deg,#161b26f7,#111821fc) !important;
- border:1px solid #b4b7c733 !important;border-top:1px solid var(--accent-card) !important;
+ /* ⚠ HANDOFF 三節「已否決的路線」：不透明銘牌橫幅蓋在圖上，第七輪就拆掉了。
+    滅世珍獸這種滿版卡的圖是一路鋪到卡底的，文字框要讓下層的畫透出來，
+    不能是一條黑棒。所以背板改成由下往上收的半透明 scrim ——
+    仍然有框（上緣稀有度色的細線、圓角、外框線），但看得到底下的畫。 */
+ background:linear-gradient(to top,#070b12d9,#080d16a6 52%,#0a101c40) !important;
+ border:1px solid #b4b7c72e !important;border-top:1px solid var(--accent-card) !important;
  border-radius:5px !important;
- box-shadow:0 0 0 1px #0a0d15,0 7px 18px #0008,inset 0 1px 0 #ffffff18 !important;
+ box-shadow:0 0 0 1px #0a0d1566,0 7px 18px #00000059 !important;
  padding:0 calc(var(--gem-fs,22px)*1.7) !important}
 /* framed 的名字現在也走 .face-text，位置要跟場景卡一模一樣 */
 .kind-framed .face-text{position:absolute !important;left:4.4% !important;right:4.4% !important;
