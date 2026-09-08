@@ -166,6 +166,30 @@ def main():
           return hit===b || b.contains(hit); })""")
         check(all(top), f"技能鍵沒被特效蓋住：{top}")
 
+        # ---- 四之後、卡冊詳細頁不可以重播進場動畫（使用者回報的「卡片抽動／閃一下」） ----
+        pg.locator('#roster-open').click(); pg.wait_for_timeout(600)
+        pg.evaluate("""() => { window.__log=[]; window.__rec=false;
+          const step=()=>{ if(window.__rec){ const c=document.querySelector('.detail-card');
+            if(c){ const r=c.getBoundingClientRect();
+              window.__log.push({t:performance.now(), w:+r.width.toFixed(1), op:+getComputedStyle(c).opacity}); } }
+            requestAnimationFrame(step); }; requestAnimationFrame(step); }""")
+        pg.evaluate("window.__rec=true")
+        pg.locator('#roster .album-slot').first.click()
+        pg.wait_for_timeout(4000)
+        pg.evaluate("window.__rec=false")
+        log = pg.evaluate("window.__log")
+        check(len(log) > 60, f"取到 {len(log)} 個動畫幀")
+        t0 = log[0]['t']
+        # 進場動畫跑完之後又出現 opacity≈0 的幀 = 整個從頭重播了一次
+        restarts = [e for i, e in enumerate(log) if i > 4 and e['op'] < .2]
+        check(len(restarts) == 0,
+              f"進場動畫沒有被重播（修好前 refresh() 會在 +222ms 把它整個歸零重來）：重播 {len(restarts)} 次")
+        tail = [e['w'] for e in log if e['t'] - t0 > 500]
+        check(tail and max(tail) - min(tail) < 1,
+              f"0.5 秒之後卡片寬度穩定不抖：{min(tail)} ~ {max(tail)}")
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(350)
+
         # ---- 五、收下並繼續五連 ----
         pg.locator('#recruit-open').click(); pg.wait_for_timeout(400)
         pg.locator('#recruit-five').click()

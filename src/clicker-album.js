@@ -90,7 +90,15 @@ window.ClickerAlbum = (() => {
     }
 
     // ---------- 展示頁 ----------
-    function openDetail(id) {
+    // stateKey 裡有 detailId，所以「打開詳細頁」這件事本身一定會讓 key 變掉，
+    // 下一個 tick 就會重建一次、把剛播完的進場動畫從頭重播——這就是使用者看到的
+    // 「剛點開卡面會閃一下」與「卡片抽動」（實測：+0ms 開始、+145ms 完成、+222ms 整個歸零重來）。
+    // 所以開完之後要自己把 refreshKey 對齊，讓那一次多餘的重建不要發生。
+    function stateKey() {
+      const s = store.state;
+      return JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
+    }
+    function openDetail(id, animate = true) {
       const s = store.state; detailId = id; closeDustShop();
       const root = $('album-detail'); root.replaceChildren(); root.hidden = false;
       const left = document.createElement('div'); left.className = 'detail-left';
@@ -151,13 +159,14 @@ window.ClickerAlbum = (() => {
       for (const [dir,label] of [[-1,'上一位'],[1,'下一位']]) { const nav = document.createElement('button'), index = IDS.indexOf(id)+dir; nav.textContent = label; nav.disabled = index < 0 || index >= IDS.length; nav.onclick = () => openDetail(IDS[index]); buttons.append(nav); }
       const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); right.append(back);
       root.append(left, right);
-      if (!reduced.matches) big.animate([{ transform: 'scale(.6)', opacity: 0 }, { transform: 'scale(1.15)', opacity: 1 }], { duration: 220, easing: 'cubic-bezier(.17,.89,.32,1.28)', fill: 'forwards' });
+      if (animate && !reduced.matches) big.animate([{ transform: 'scale(.6)', opacity: 0 }, { transform: 'scale(1.15)', opacity: 1 }], { duration: 220, easing: 'cubic-bezier(.17,.89,.32,1.28)', fill: 'forwards' });
       else big.style.transform = 'scale(1.15)';
       startBlink(big);
-      back.focus();
+      if (animate) back.focus();
+      refreshKey = stateKey();   // 對齊，免得下一個 tick 又重建一次
     }
     function closeDetail(instant = false) {
-      stopBlink(); detailId = null; const root = $('album-detail'); if (root.hidden) return;
+      stopBlink(); detailId = null; refreshKey = stateKey(); const root = $('album-detail'); if (root.hidden) return;
       if (instant || reduced.matches) { root.hidden = true; root.replaceChildren(); return; }
       root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160 }).finished.then(() => { root.hidden = true; root.replaceChildren(); }).catch(() => { root.hidden = true; });
       $('roster-close').focus();
@@ -300,9 +309,10 @@ window.ClickerAlbum = (() => {
       refresh() {
         const s = store.state; if (!s) return;
         if (!$('roster').hidden) refreshTrainAll();
-        const key = JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
+        const key = stateKey();
         if (key === refreshKey) return; refreshKey = key;
-        if (!$('roster').hidden) { renderBook(); if (detailId) openDetail(detailId); }
+        // 重建不是「打開」，不要重播進場動畫、也不要把焦點搶回「回到卡冊」
+        if (!$('roster').hidden) { renderBook(); if (detailId) openDetail(detailId, false); }
         if (!$('wardrobe').hidden) renderWardrobe();
       } };
   }
