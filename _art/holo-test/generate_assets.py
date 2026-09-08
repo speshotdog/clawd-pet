@@ -75,11 +75,18 @@ for name,points in GUIDES.items():
     # Keep the main connected subject, excluding isolated flecks from the contour band.
     count, lab, stats, _=cv2.connectedComponentsWithStats(mask)
     if count>1: mask=np.uint8(lab==(1+np.argmax(stats[1:,cv2.CC_STAT_AREA])))*255
-    alpha=Image.fromarray(mask).filter(ImageFilter.GaussianBlur(.45))
-    fg=Image.fromarray(rgb).convert('RGBA'); fg.putalpha(alpha); fg.save(OUT/f'layer-{name}-subject.png')
+    # Round 3 edge repair: shrink the hard GrabCut contour by two pixels and
+    # feather it back in.  Before writing RGBA, decontaminate the fringe by
+    # inpainting a narrow ring from the subject interior; this removes the
+    # scene-coloured glow that was baked into semi-transparent edge pixels.
+    core=cv2.erode(mask,np.ones((5,5),np.uint8),iterations=1)
+    fringe=cv2.dilate(core,np.ones((7,7),np.uint8))-core
+    clean=cv2.inpaint(rgb,fringe,3,cv2.INPAINT_NS)
+    alpha=Image.fromarray(core).filter(ImageFilter.GaussianBlur(.8))
+    fg=Image.fromarray(clean).convert('RGBA'); fg.putalpha(alpha); fg.save(OUT/f'layer-{name}-subject.png')
     fillmask=cv2.dilate(mask,np.ones((7,7),np.uint8))
     bg=cv2.inpaint(rgb,fillmask,5,cv2.INPAINT_TELEA)
     Image.fromarray(bg).save(OUT/f'layer-{name}-background.png')
     records.append({'scene':name,'source_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'size':[600,840],'subject_pixels':int((mask>0).sum())})
-(OUT/'asset-manifest.json').write_text(json.dumps({'seed':SEED,'generator_version':1,'pillow':Image.__version__,'opencv':cv2.__version__,'scenes':records},ensure_ascii=False,indent=2),encoding='utf-8')
+(OUT/'asset-manifest.json').write_text(json.dumps({'seed':SEED,'generator_version':2,'edge_repair':'2px core erosion + NS inpaint decontamination + 0.8px feather','pillow':Image.__version__,'opencv':cv2.__version__,'scenes':records},ensure_ascii=False,indent=2),encoding='utf-8')
 print('Generated 3 textures, frame mask, and 4 subject/background pairs. Seed:',SEED)

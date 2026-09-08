@@ -1,0 +1,21 @@
+{
+  "browser": "136.0.7103.25",
+  "url": "file:///D:/claude/clawd-pet-holo/_art/holo-test/demo.html",
+  "cards": 30,
+  "legacy_pairs": 10,
+  "gem_name_overlaps": [],
+  "font_directions": [
+    "sans",
+    "serif",
+    "round"
+  ],
+  "text_transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 5, 1)",
+  "plate_transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 12, 1)",
+  "external_requests": [],
+  "console_errors": [],
+  "screenshots": [
+    "r3-composite-cards.png",
+    "r3-edge-before-after.png",
+    "r3-scenes-cards.png"
+  ]
+}
