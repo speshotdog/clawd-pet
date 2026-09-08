@@ -77,7 +77,7 @@
   }
   const individual = (s, id, partnerLevel = s.partnerLevels?.[id] || 0) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2,5.5][tier(s,id)]/[1,1.8,3.2,5.5][origin(id)]) * (1+[.06,.09,.14,.20][origin(id)]*(s.transcend?.[id] || 0)) * 1.25 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * partnerMul(partnerLevel);
   // 第十三輪：印記永久倍率、桌面裝飾
-  const markMul = (s) => 1 + B.MARK_MUL_PER * (s.marksClaimed || 0);
+  const markMul = (s) => 1 + B.MARK_MUL_COEF * Math.sqrt(s.marksClaimed || 0);
   const blessMul = (s) => 1 + .1 * (s.blessing || 0);
   const decoMul = (s) => 1 + .01 * (s.deco?.length || 0);
   const affinity = (s,id) => (Scenes(s.settings?.scene).affinity || []).includes(id);

@@ -18,7 +18,8 @@ test('round19: default rates retain the original formula and all multipliers', (
   s.trainingLevel=2; s.clickLevel=3; s.partnerLevels={yueyue2:10,caihua:2,lk:0}; s.marksClaimed=4; s.deco=['a','b'];
   // Backyard affinity: yueyue2/caihua ×1.5; 5 stars ×2; rare promotion ×1.8; transcend ×1.12.
   const raw=(4*2*1.8*1.12*1.25**2*1.5*22)+(4*1.25**2*1.5*3)+(5*1.25**2);
-  assert.deepEqual(E.rates(s),{P:1.2*raw*1.02,D:(1.2*1.15**3+.05*1.2*raw)*1.02});
+  const M=2;   // marksClaimed 4 → 1 + .5×√4 = ×2（第二十三輪改成開根號）
+  assert.deepEqual(E.rates(s),{P:M*raw*1.02,D:(M*1.15**3+.05*M*raw)*1.02});
   assert.deepEqual(E.rates(s,{}),E.rates(s));
   const uniform=E.clone(s); uniform.partnerLevels={yueyue2:20,caihua:20,lk:20};
   assert.deepEqual(E.rates(s,{partnerLevel:20}),E.rates(uniform));

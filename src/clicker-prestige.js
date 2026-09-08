@@ -7,7 +7,7 @@
   const THRESHOLD = 1e8;
   const marksTotal = (s) => Math.floor(Math.sqrt((s.lifetimeCoins || 0) / THRESHOLD));
   const marksAvailable = (s) => Math.max(0, marksTotal(s) - (s.marksClaimed || 0));
-  const markMul = (s) => 1 + B.MARK_MUL_PER * (s.marksClaimed || 0);
+  const markMul = (s) => 1 + B.MARK_MUL_COEF * Math.sqrt(s.marksClaimed || 0);
   function canPrestige(s) {
     if ((s.lifetimeCoins || 0) < THRESHOLD) return '生涯收入到 1 億才能換桌布';
     if (marksAvailable(s) < 1) return '目前沒有可領的印記，再賺一點';

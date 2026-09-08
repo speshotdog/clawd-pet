@@ -14,9 +14,13 @@
     yueyue: { base: 18, skill: '玥來越快', kind: 'clickTime', multiplier: 3, duration: 12, cd: 90 },
     zhenzhen: { base: 20, skill: '大團圓', kind: 'team', ratio: .5, duration: 20, cd: 120 },
   };
-  // 印記永久倍率：每枚累積印記 +MARK_MUL_PER 的常態收益。抽成常數是為了讓模擬器能 A/B
-  // （tools/sim/clicker-curve.js 的 MARKMUL 環境變數會直接覆寫這個欄位，economy／prestige 都是呼叫時才讀）。
-  const MARK_MUL_PER = .05;
+  // 印記永久倍率：×(1 + MARK_MUL_COEF × √累積印記)。
+  // 本來是線性的 +5%／枚，2026-09-08 模擬實測發現那是會爆的：輪迴後訓練與夥伴等級是用被倍率
+  // 放大的錢重買的，所以生涯收入的成長快過「印記 ∝ √生涯收入」能壓住的速度，
+  // 三天七次輪迴就衝到 ×5.4 億（把 5% 調成 1% 只是把爆炸延一天，形狀不改沒有用）。
+  // 改成開根號之後 100 枚仍是 ×6.0（跟舊值接得上），1000 枚 ×16.8、4472 枚 ×34.4。
+  // 抽成常數是為了讓模擬器 A/B（MARKMUL 環境變數覆寫，economy／prestige 都是呼叫時才讀）。
+  const MARK_MUL_COEF = .5;
   const originalIds = Object.freeze(Object.keys(characters));
   Object.assign(characters, {
     yueyuexian: { base: 30, skill: '躺著也會贏', kind: 'team', ratio: 1.0, duration: 20, cd: 120 },
@@ -50,6 +54,17 @@
     yuefeimo: { base: 18, skill: '飛沫直擊', kind: 'bossDamage', share: .08, fallback: 14, cd: 90 },
     qinghua: { base: 30, skill: '青花綻放', kind: 'team', ratio: .9, duration: 22, cd: 125 },
     mieshi: { base: 32, skill: '滅世光線', kind: 'bossDamage', share: .22, fallback: 32, cd: 150 },
+  });
+  // 第二十三輪八張新卡（桌面「新卡.0」資料夾，稀有度照檔名）。
+  Object.assign(characters, {
+    gebuyang: { base: 5, skill: '營火慢燉', kind: 'team', ratio: .24, duration: 30, cd: 118 },
+    zhenwang: { base: 4, skill: '汪汪叼骨', kind: 'click', multiplier: 2.6, charges: 10, duration: 15, cd: 62 },
+    salamander: { base: 5, skill: '軟趴趴', kind: 'self', multiplier: 4.6, duration: 20, cd: 108 },
+    lkreal: { base: 10, skill: '正版鴿鴿', kind: 'clickTime', multiplier: 3.2, duration: 14, cd: 85 },
+    qipupu: { base: 9, skill: '氣到爆發', kind: 'burst', factor: 19, basis: 'individual', cd: 50 },
+    foxmoney: { base: 10, skill: '給狐錢好嗎', kind: 'clickAdd', ratio: .58, charges: 20, duration: 20, cd: 88 },
+    foxfriend: { base: 19, skill: '摯友同行', kind: 'burst', factor: 38, basis: 'team', cd: 145 },
+    wanwu: { base: 18, skill: '玩到忘我', kind: 'self', multiplier: 5.2, duration: 30, cd: 120 },
   });
   const fmt = n => Number(n.toFixed(4));
   function describe(p) {
@@ -124,7 +139,7 @@
   const autoClickMax = 10;
   const autoClickCap = s => s.markShop?.finger14 ? 14 : autoClickMax;
   const decor = ['花盆','燈串','小鼓','風鈴','貓抓板','相框','香氛蠟燭','小旗串','多肉','留聲機'].map((name,i)=>({ id:`deco${i}`, name, file:`clicker-deco-${i}.png` }));
-  const api = { originalIds, marks, blessings, autoClickMax, autoClickCap, decor, wardrobe, characters, MARK_MUL_PER, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const api = { originalIds, marks, blessings, autoClickMax, autoClickCap, decor, wardrobe, characters, MARK_MUL_COEF, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;

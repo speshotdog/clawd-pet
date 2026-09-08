@@ -2,8 +2,8 @@
 // 用法：node tools/sim/clicker-curve.js [clicksPerSec] [sessionMin] [days]
 const E=require('../../src/clicker-economy.js'), S=require('../../src/clicker-save.js'), B=require('../../src/clicker-balance.js'), P=require('../../src/clicker-prestige.js'), Pool=require('../../src/gacha-pool.js'), {scenes}=require('../../src/clicker-scene.js');
 const CPS=+process.argv[2]||4, SESSION=(+process.argv[3]||20)*60000, DAYS=+process.argv[4]||14;
-// 印記永久倍率 A/B：MARKMUL=0.02 node tools/sim/clicker-curve.js ...（不給就用 balance 的預設 .05）
-if (process.env.MARKMUL !== undefined) B.MARK_MUL_PER = +process.env.MARKMUL;
+// 印記永久倍率係數 A/B：MARKMUL=0.25 node tools/sim/clicker-curve.js ...（不給就用 balance 的預設 .5）
+if (process.env.MARKMUL !== undefined) B.MARK_MUL_COEF = +process.env.MARKMUL;
 let prestiges=0, prestigeLog=[];
 let seed=0x8a57a; const rng=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
 let skipUntil=0; let s=S.fresh(0), now=0, draws=0, drawLog=[], bossLog=[], packLog=[], active=0, lastDrawAt=0, buys={click:0,training:0,partner:0,auto:0};
@@ -113,7 +113,7 @@ while(now<DAYS*86400000) {
   daily.push(`${fmt(now)} ${s.settings.scene}#${s.package.index} P=${E.rates(s).P.toExponential(2)} 醒來幣=${pre.toExponential(1)} 剩=${s.coins.toExponential(1)} 訓練Lv${s.trainingLevel} 夥伴Lv中位${[...Object.values(s.partnerLevels||{})].sort((a,b)=>a-b)[Object.keys(s.partnerLevels||{}).length>>1]||0}`);
 }
 console.log('=== 輪迴 ===','次數',prestiges,'累積印記',s.marksClaimed||0,'永久倍率 ×'+E.markMul(s).toFixed(1),
-  '祝福 Lv'+(s.blessing||0),'×'+E.blessMul(s).toFixed(2),'剩餘印記',s.marks||0,'（每枚 +'+(B.MARK_MUL_PER*100).toFixed(1)+'%）');
+  '祝福 Lv'+(s.blessing||0),'×'+E.blessMul(s).toFixed(2),'剩餘印記',s.marks||0,'（係數 '+B.MARK_MUL_COEF+' × √印記）');
 for(const g of prestigeLog) console.log(' 換桌布 第',g.n,'次',fmt(g.at),'累積印記',g.claimed,'永久 ×'+g.markMul.toFixed(1),'祝福 Lv'+g.bless,'×'+g.blessMul.toFixed(2));
 const won=order.filter(id=>s.bossWins.includes(id));
 console.log('=== 曲線模擬 CPS',CPS,'session',SESSION/60000,'min，天數',DAYS,'===');

@@ -8,9 +8,11 @@ const Pool = require('../../src/gacha-pool.js');
 
 const near = (a, b, tol = 1e-6) => assert.ok(Math.abs(a - b) <= Math.abs(b) * tol + 1e-9, `${a} != ${b}`);
 const NEW_IDS = ['mieshi','qinghua','yuefeimo','yuesong','zhenbush','bingyang','zhenbing','zhenpete','guanjiu','miepupu','manhua','yangtuo','ababa'];
+// 第二十三輪（桌面「新卡\2.0」）
+const NEW_IDS_23 = ['foxfriend','wanwu','lkreal','qipupu','foxmoney','gebuyang','zhenwang','salamander'];
 
 test('round22: 十三張新卡都有卡面、技能與稀有度', () => {
-  for (const id of NEW_IDS) {
+  for (const id of [...NEW_IDS, ...NEW_IDS_23]) {
     const entry = Pool.byId[id];
     assert.ok(entry, `${id} 不在卡池`);
     assert.equal(entry.kind, 'char');
@@ -19,7 +21,7 @@ test('round22: 十三張新卡都有卡面、技能與稀有度', () => {
     assert.ok(B.characters[id].base > 0);
   }
   assert.deepEqual(NEW_IDS.filter(id => Pool.byId[id].rarity === 'mythic'), ['mieshi','qinghua']);
-  assert.equal(Pool.CHARACTER_IDS.length, 38);
+  assert.equal(Pool.CHARACTER_IDS.length, 46);
 });
 
 test('round22: bossDamage 王關中砍血量百分比，平常退化成爆發', () => {
