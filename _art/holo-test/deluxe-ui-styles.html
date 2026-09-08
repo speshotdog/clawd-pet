@@ -1,0 +1,247 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>精裝抽卡介面 · 風格提案</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{ --ink:#e9ecf2; --muted:#8f9bb3; --line:#1e2434; }
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(120% 80% at 50% -10%,#141a2b,#0b0d14 60%);color:var(--ink);
+  font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;padding:30px 24px 70px}
+h1{font-size:22px;letter-spacing:.06em;margin:0 0 6px}
+.lede{color:var(--muted);max-width:74ch;margin:0}
+.lede b{color:#ffd76a;font-weight:600}
+.shared{border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0 32px;max-width:78ch;background:#10141f}
+.shared h2{font-size:12px;letter-spacing:.16em;color:var(--muted);margin:0 0 8px;font-weight:600}
+.shared ul{margin:0;padding-left:1.2em;color:#c6cddb}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(520px,1fr));gap:40px 30px;max-width:1200px}
+.case{min-width:0}
+.case h3{margin:0;font-size:17px;letter-spacing:.05em}
+.case h3 span{color:var(--muted);font-size:12px;letter-spacing:.12em;margin-left:8px}
+.case p{margin:6px 0 0;font-size:13px}
+.why{color:#a9b8a2} .risk{color:#c9a08e}
+.wrap{position:relative;width:100%;aspect-ratio:3/2;margin-top:12px;border-radius:16px;overflow:hidden;
+  box-shadow:0 26px 54px #000a,0 0 0 1px #ffffff12}
+
+/* 內部一律用固定的 720x480 座標畫，再整塊縮放到欄寬，比例才不會跑掉 */
+.win{position:absolute;left:0;top:0;width:720px;height:480px;transform-origin:0 0;
+  display:flex;flex-direction:column;overflow:hidden}
+.bar{display:flex;align-items:center;gap:10px;padding:0 16px;height:50px;flex:0 0 50px;font-size:12px}
+.bar .dot{width:10px;height:10px;border-radius:50%;background:#ffffff2e;flex:0 0 10px}
+.bar .title{font-weight:700;letter-spacing:.24em;font-size:13px}
+.bar .spacer{flex:1}
+.chip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:11px;white-space:nowrap}
+.body{flex:1;display:flex;min-height:0}
+.rail{width:150px;flex:0 0 150px;display:flex;flex-direction:column;gap:8px;padding:14px 12px}
+.rail i{font-style:normal;font-size:12px;letter-spacing:.06em;padding:9px 10px;border-radius:7px;text-align:center}
+.stage{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px}
+.cards{display:flex;gap:10px;align-items:flex-end;position:relative;z-index:2}
+.rate{position:absolute;top:12px;right:16px;font-size:11px;letter-spacing:.06em;opacity:.6;z-index:3}
+.foot{height:86px;flex:0 0 86px;display:flex;align-items:center;gap:10px;padding:0 16px}
+.btn{flex:1;height:56px;border-radius:10px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;font-size:14px;letter-spacing:.08em;font-weight:700;line-height:1.25}
+.btn small{font-weight:400;font-size:10.5px;letter-spacing:.04em;opacity:.75}
+
+/* 迷你卡：量版面比例用的假卡，不是最終卡面 */
+.mini{width:74px;height:104px;border-radius:6px;position:relative;overflow:hidden;flex:0 0 auto}
+.mini.hero{width:104px;height:146px}
+.plate{position:absolute;left:8%;right:8%;bottom:7%;height:24%;border-radius:3px;display:grid;place-items:center;
+  background:#0f1522d9;border-top:1px solid currentColor}
+.plate b{font-size:7px;letter-spacing:.14em;font-weight:700}
+.mini.hero .plate b{font-size:9px}
+.gem{position:absolute;left:13%;bottom:13%;width:8px;height:8px;transform:rotate(45deg);background:currentColor;
+  box-shadow:0 0 0 1px #0009}
+.mini.hero .gem{width:11px;height:11px}
+
+/* ── A 典藏書房 ─────────────────────────────────────────── */
+.s-archive{background:linear-gradient(160deg,#2b2116,#1a140e 60%,#120e09)}
+.s-archive .bar{background:linear-gradient(#3a2c1c,#2a2015);color:#e8d6ae;border-bottom:1px solid #6b5330}
+.s-archive .chip{background:#4a3821;color:#f0dcae;border:1px solid #7b5f34}
+.s-archive .rail{background:#1e1710;border-right:1px solid #4a3821}
+.s-archive .rail i{background:#2a2015;color:#c7ab77;border:1px solid #4a3821}
+.s-archive .rail i:first-child{background:linear-gradient(#5b4526,#40301a);color:#ffe6ac;border-color:#8a6c3c}
+.s-archive .stage{background:repeating-linear-gradient(90deg,#00000012 0 1px,transparent 1px 8px),
+  radial-gradient(80% 70% at 50% 34%,#4a3a24,#241b12 72%)}
+.s-archive .stage:before{content:"";position:absolute;left:7%;right:7%;top:16%;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,#8a6c3c,#e3c98d 45%,#8a6c3c);box-shadow:0 2px 6px #0008}
+.s-archive .mini{background:#151b26;color:#e8c98a;box-shadow:0 0 0 2px #8a6c3c,0 8px 12px #0009}
+.s-archive .foot{background:#1a140e;border-top:1px solid #4a3821}
+.s-archive .btn{background:linear-gradient(#3a2c1c,#291f13);color:#e8d6ae;border:1px solid #7b5f34}
+.s-archive .btn.go{background:linear-gradient(#c9a559,#8a6c3c);color:#241b12;border-color:#f0dcae}
+
+/* ── B 星軌展廳 ─────────────────────────────────────────── */
+.s-orbit{background:radial-gradient(90% 80% at 50% 0%,#1d2444,#0d1122 65%,#080b16)}
+.s-orbit .bar{background:#ffffff0d;color:#cfe0ff;border-bottom:1px solid #ffffff1a}
+.s-orbit .chip{background:#ffffff12;color:#dbe7ff;border:1px solid #ffffff26}
+.s-orbit .rail{background:#ffffff08;border-right:1px solid #ffffff14}
+.s-orbit .rail i{background:#ffffff0d;color:#b9c8e8;border:1px solid #ffffff14}
+.s-orbit .rail i:first-child{background:linear-gradient(120deg,#ff7ad055,#6fd8ff55);color:#fff;border-color:#ffffff45}
+.s-orbit .stage:before{content:"";position:absolute;left:50%;top:48%;width:300px;height:300px;translate:-50% -50%;
+  border-radius:50%;border:1px solid #ffffff24;box-shadow:inset 0 0 60px #4d6cff2e}
+.s-orbit .stage:after{content:"";position:absolute;left:50%;top:48%;width:200px;height:200px;translate:-50% -50%;
+  border-radius:50%;border:1px dashed #ffffff1f;rotate:16deg}
+.s-orbit .mini{background:#111a33;color:#9fd8ff;border:2px solid transparent;box-shadow:0 8px 14px #0009;
+  background-image:linear-gradient(#111a33,#111a33),
+    conic-gradient(from 140deg,#ff7ad0,#ffc25e,#fff87d,#7dffab,#6fd8ff,#c39dff,#ff7ad0);
+  background-origin:border-box;background-clip:padding-box,border-box}
+.s-orbit .foot{background:#ffffff08;border-top:1px solid #ffffff14}
+.s-orbit .btn{background:#ffffff10;color:#dbe7ff;border:1px solid #ffffff24}
+.s-orbit .btn.go{background:linear-gradient(120deg,#ff7ad0,#c39dff 45%,#6fd8ff);color:#10142a;border:1px solid #ffffff5c}
+
+/* ── C 貼紙販賣機 ───────────────────────────────────────── */
+.s-vend{background:linear-gradient(170deg,#2b3760,#1d2749)}
+.s-vend .bar{background:#f4e7c4;color:#26324f;border-bottom:4px solid #26324f}
+.s-vend .bar .dot{background:#26324f4d}
+.s-vend .chip{background:#26324f;color:#f4e7c4}
+.s-vend .rail{background:#26324f;border-right:4px solid #f4e7c4}
+.s-vend .rail i{background:#f4e7c41f;color:#f4e7c4;border:2px solid #f4e7c44d;border-radius:9px}
+.s-vend .rail i:first-child{background:#f4e7c4;color:#26324f}
+.s-vend .stage{background:repeating-linear-gradient(45deg,#ffffff0a 0 2px,transparent 2px 11px)}
+.s-vend .stage:before{content:"";position:absolute;left:50%;top:46%;width:250px;height:250px;translate:-50% -50%;
+  border-radius:50%;background:#f7edcf;box-shadow:0 8px 0 #0000002e}
+.s-vend .mini{background:#1d2749;color:#ffd76a;box-shadow:0 0 0 3px #f4e7c4,0 8px 0 #00000038}
+.s-vend .foot{background:#f4e7c4;border-top:4px solid #26324f}
+.s-vend .btn{background:#26324f;color:#f4e7c4;border:2px solid #26324f;border-radius:13px}
+.s-vend .btn.go{background:#ffd76a;color:#26324f;border-color:#26324f;box-shadow:0 4px 0 #26324f}
+
+/* ── D 極簡箔面 ─────────────────────────────────────────── */
+.s-quiet{background:#07080c}
+.s-quiet .bar{background:#0b0d12;color:#8b9099;border-bottom:1px solid #1b1f28}
+.s-quiet .chip{background:transparent;color:#c3a86a;border:1px solid #3a3222}
+.s-quiet .rail{background:#0a0c11;border-right:1px solid #1b1f28}
+.s-quiet .rail i{background:transparent;color:#6f7581;border:1px solid #1b1f28}
+.s-quiet .rail i:first-child{color:#e6d3a3;border-color:#5a4a2a}
+.s-quiet .stage{background:radial-gradient(56% 58% at 50% 46%,#12141b,transparent 74%)}
+.s-quiet .stage:before{content:"";position:absolute;left:14%;right:14%;bottom:16%;height:1px;
+  background:linear-gradient(90deg,transparent,#c3a86a8c,transparent)}
+.s-quiet .mini{background:#101219;color:#c3a86a;box-shadow:0 0 0 1px #3a3222,0 14px 24px #000c}
+.s-quiet .foot{background:#0b0d12;border-top:1px solid #1b1f28}
+.s-quiet .btn{background:transparent;color:#9aa0ab;border:1px solid #262b36}
+.s-quiet .btn.go{background:transparent;color:#e6d3a3;border:1px solid #c3a86a}
+</style>
+
+<h1>精裝抽卡介面 · 四款風格提案</h1>
+<p class="lede">獨立的<b>懸浮視窗</b>，版面照手遊抽卡的慣例排。四款只有「皮」不同，骨架完全一樣——
+先挑皮，挑完再做演出動畫。裡面的迷你卡只是量版面比例用的假卡，不是最終卡面。</p>
+
+<div class="shared">
+  <h2>四款共用的骨架</h2>
+  <ul>
+    <li><b>標題列</b>：視窗名稱、末世金幣與抽獎券、關閉鍵。</li>
+    <li><b>左側卡池軌</b>：精裝池／一般池／機率一覽／典藏冊，之後可以掛活動池。</li>
+    <li><b>中央舞台</b>：卡背預覽與演出發生的地方；右上角固定放機率標示。</li>
+    <li><b>底部三顆</b>：單抽 / 五連 / 十連，最右邊是主要行動（手遊的慣例）。</li>
+    <li>整個視窗<b>可拖曳、可關閉</b>，關掉不影響遊戲主畫面。</li>
+  </ul>
+</div>
+
+<div class="grid" id="grid">
+
+  <section class="case">
+    <h3>A. 典藏書房 <span>ARCHIVE</span></h3>
+    <p class="why">承接已經做好的「裝幀典藏」演出：木紋、皮革、燙金索帶、封蠟。抽卡＝把卡裝進典藏冊。</p>
+    <p class="risk">風險：偏暗偏沉，跟遊戲本體的貼紙可愛風差最遠。</p>
+    <div class="wrap"><div class="win s-archive">
+      <div class="bar"><span class="dot"></span><span class="title">典 藏 書 房</span><span class="spacer"></span>
+        <span class="chip">◆ 12,400</span><span class="chip">券 8</span></div>
+      <div class="body">
+        <div class="rail"><i>精裝卡池</i><i>一般卡池</i><i>機率一覽</i><i>典藏冊</i></div>
+        <div class="stage"><span class="rate">神話 0.5% ／ 傳說 4%</span>
+          <div class="cards">
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini hero"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="btn">單抽<small>1 券</small></span><span class="btn">五連<small>5 券</small></span>
+        <span class="btn go">十連<small>10 券 · 必出傳說</small></span></div>
+    </div></div>
+  </section>
+
+  <section class="case">
+    <h3>B. 星軌展廳 <span>ORBIT</span></h3>
+    <p class="why">跟神話彩虹箔同一套語言：深空底、玻璃面板、行星軌道環。卡從軌道上被「取下來」。</p>
+    <p class="risk">風險：大面積漸層與發光層，在 WebView2 上是四款裡最貴的。</p>
+    <div class="wrap"><div class="win s-orbit">
+      <div class="bar"><span class="dot"></span><span class="title">星 軌 展 廳</span><span class="spacer"></span>
+        <span class="chip">◆ 12,400</span><span class="chip">券 8</span></div>
+      <div class="body">
+        <div class="rail"><i>精裝卡池</i><i>一般卡池</i><i>機率一覽</i><i>典藏冊</i></div>
+        <div class="stage"><span class="rate">神話 0.5% ／ 傳說 4%</span>
+          <div class="cards">
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini hero"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="btn">單抽<small>1 券</small></span><span class="btn">五連<small>5 券</small></span>
+        <span class="btn go">十連<small>10 券 · 必出傳說</small></span></div>
+    </div></div>
+  </section>
+
+  <section class="case">
+    <h3>C. 貼紙販賣機 <span>VENDING</span></h3>
+    <p class="why">把卡背那張熱狗卡的配色放大成介面：深藍＋奶油＋粗描邊。跟遊戲本體最連貫。</p>
+    <p class="risk">風險：可愛度高但「貴重感」最低，精裝的檔次要全靠卡面自己撐。</p>
+    <div class="wrap"><div class="win s-vend">
+      <div class="bar"><span class="dot"></span><span class="title">珍 母 販 賣 機</span><span class="spacer"></span>
+        <span class="chip">◆ 12,400</span><span class="chip">券 8</span></div>
+      <div class="body">
+        <div class="rail"><i>精裝卡池</i><i>一般卡池</i><i>機率一覽</i><i>典藏冊</i></div>
+        <div class="stage"><span class="rate">神話 0.5% ／ 傳說 4%</span>
+          <div class="cards">
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini hero"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="btn">單抽<small>1 券</small></span><span class="btn">五連<small>5 券</small></span>
+        <span class="btn go">十連<small>10 券 · 必出傳說</small></span></div>
+    </div></div>
+  </section>
+
+  <section class="case">
+    <h3>D. 極簡箔面 <span>QUIET</span></h3>
+    <p class="why">介面幾乎不搶戲：近黑底、細金線、大卡。所有華麗都留給卡面與演出。</p>
+    <p class="risk">風險：靜止時看起來會像「還沒做完」，全靠演出撐場。</p>
+    <div class="wrap"><div class="win s-quiet">
+      <div class="bar"><span class="dot"></span><span class="title">D E L U X E</span><span class="spacer"></span>
+        <span class="chip">◆ 12,400</span><span class="chip">券 8</span></div>
+      <div class="body">
+        <div class="rail"><i>精裝卡池</i><i>一般卡池</i><i>機率一覽</i><i>典藏冊</i></div>
+        <div class="stage"><span class="rate">神話 0.5% ／ 傳說 4%</span>
+          <div class="cards">
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini hero"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+            <div class="mini"><div class="gem"></div><div class="plate"><b>DELUXE</b></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="btn">單抽<small>1 券</small></span><span class="btn">五連<small>5 券</small></span>
+        <span class="btn go">十連<small>10 券 · 必出傳說</small></span></div>
+    </div></div>
+  </section>
+
+</div>
+
+<script>
+// 內部固定 720x480，整塊等比縮到欄寬
+const fit = () => {
+  for (const wrap of document.querySelectorAll('.wrap')) {
+    const win = wrap.querySelector('.win');
+    win.style.transform = 'scale(' + (wrap.clientWidth / 720) + ')';
+  }
+};
+addEventListener('resize', fit);
+fit();
+</script>
