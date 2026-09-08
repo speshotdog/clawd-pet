@@ -523,6 +523,7 @@ window.ClickerStage = (() => {
         const cfg=window.ClickerScene.resolve(s.boss.scene).boss, pk=packEl(s);
         $('boss-image').src=cfg.image || 'clicker-boss-can.png'; $('boss-image').alt=cfg.name || '大罐頭';
         $('boss-view').style.setProperty('--boss-w',`${cfg.size?.[0] || 260}px`); $('boss-view').style.setProperty('--boss-h',`${cfg.size?.[1] || 300}px`); $('boss-view').style.setProperty('--boss-cx',`${cfg.center || 460}px`);
+        $('boss-view').classList.toggle('full-board', (cfg.size?.[0] || 260) >= 600);
         $('boss-timer').hidden=false;$('boss-view').hidden=false;
         $('boss-view').style.visibility='hidden'; layout(s);
         motion(pk,[{transform:'translateX(0)'},{transform:'translateX(200px)'}],220,()=>{

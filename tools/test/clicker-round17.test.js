@@ -3,12 +3,26 @@ const B = require('../../src/clicker-balance.js'), E = require('../../src/clicke
 const near = (a,b) => assert.ok(Math.abs(a-b) < 1e-8 * Math.max(1,a,b), `${a} != ${b}`);
 const seed = () => { const s=S.fresh(0); s.collection.yueyue2=1; s.dust.yueyue2=1; return s; };
 const marked = id => { const s=seed(); s.marks=20; s.marksClaimed=20; return P.buyMark(s,id,0); };
-test('round17: fridge unlocks at 100, final win stays and grants badge; rematch has cooldown and no reward', () => {
+// 第二十二輪：終點站從冰箱移到滅世都市。打贏大冰磚會解鎖並自動切到第七站，
+// 可重複挑戰＋冷卻＋獎勵只發一次的規則也跟著搬到滅世珍獸身上。
+test('round17/22: fridge unlocks at 100, winning it opens 滅世都市 and switches there', () => {
  let s=seed(); s.settings.scene='fridge'; s.bossWins=['backyard','kitchen','market','factory','nightmarket']; s.package=E.newPackage('fridge',100);
  assert.equal(E.canBoss(s,0),false); s.package.index=101; assert.equal(E.canBoss(s,0),true);
  s=E.startBoss(s,0); S.validate(s,Pool); s.boss.dealt=s.boss.need-1; s.clickLevel=10;
- s=E.click(s,0).state; assert.equal(s.settings.scene,'fridge'); assert.ok(s.bossWins.includes('fridge')); assert.equal(s.freeDraws,5); assert.equal(s.universalDust,3); assert.ok(X.BADGES.find(b=>b.id==='boss-fridge').test(s)); S.validate(s,Pool);
- assert.equal(E.canBoss(s,29999),false); s=E.startBoss(s,30000); S.validate(s,Pool); s.boss.dealt=s.boss.need-1; s=E.click(s,30000).state;
+ s=E.click(s,0).state; assert.ok(s.bossWins.includes('fridge')); assert.equal(s.freeDraws,5); assert.equal(s.universalDust,3);
+ assert.ok(X.BADGES.find(b=>b.id==='boss-fridge').test(s)); S.validate(s,Pool);
+ assert.equal(s.settings.scene,'city','打贏大冰磚要自動進滅世都市');
+ assert.equal(E.canBoss(s,0),false,'第七站要先拆滿 110 包才能挑戰滅世珍獸');
+});
+test('round22: 滅世珍獸是可重複挑戰的終點王，冷卻照舊、獎勵只發一次', () => {
+ let s=seed(); s.settings.scene='city'; s.bossWins=['backyard','kitchen','market','factory','nightmarket','fridge'];
+ s.package=E.newPackage('city',110); assert.equal(E.canBoss(s,0),false);
+ s.package.index=111; assert.equal(E.canBoss(s,0),true);
+ s=E.startBoss(s,0); S.validate(s,Pool); s.boss.dealt=s.boss.need-1; s.clickLevel=10;
+ s=E.click(s,0).state; assert.ok(s.bossWins.includes('city')); assert.equal(s.freeDraws,5); assert.equal(s.universalDust,3);
+ assert.equal(s.settings.scene,'city','終點站打贏不切場景');
+ assert.equal(E.canBoss(s,29999),false,'冷卻 30 秒內不能重打');
+ s=E.startBoss(s,30000); S.validate(s,Pool); s.boss.dealt=s.boss.need-1; s=E.click(s,30000).state;
  assert.equal(s.freeDraws,5); assert.equal(s.universalDust,3);
 });
 test('round17: four PNG cards, skill snapshots, old save fields and equipped trait scaling', () => {

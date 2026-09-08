@@ -445,7 +445,7 @@
   const nextScene = id => Object.keys(sceneMap()).find(key=>sceneMap()[key].unlock?.boss===id);
   const unlocked = (s,id) => Object.hasOwn(sceneMap(),id) && sceneMap()[id].available!==false && (!sceneMap()[id].requiresMark || !!s.markShop?.[sceneMap()[id].requiresMark]) && (!sceneMap()[id].unlock || (s.bossWins || []).includes(sceneMap()[id].unlock.boss));
   const bossPackages = id => Scenes(id).bossPackages ?? sceneMap()[nextScene(id)]?.unlock?.packages;
-  const canBoss = (s,now) => !s.boss && !s.pending && bossPackages(s.settings.scene) != null && (s.settings.scene === 'fridge' || !(s.bossWins || []).includes(s.settings.scene)) && s.package.index-1 >= bossPackages(s.settings.scene) && now >= (s.bossCooldownUntil || 0);
+  const canBoss = (s,now) => !s.boss && !s.pending && bossPackages(s.settings.scene) != null && (s.settings.scene === 'city' || !(s.bossWins || []).includes(s.settings.scene)) && s.package.index-1 >= bossPackages(s.settings.scene) && now >= (s.bossCooldownUntil || 0);
   function switchScene(state,id,now) {
     if (state.boss || !unlocked(state,id)) throw new Error('王包中或場景尚未解鎖');
     const s=settle(state,now).state; changeScene(s,id); return s;
@@ -484,7 +484,7 @@
     s.bossResult={scene:b.scene,won,crack,at:now,next:nextScene(b.scene)};
     if (won) {
       s.bossWins ||= []; if (!s.bossWins.includes(b.scene)) { s.bossWins.push(b.scene); s.universalDust=(s.universalDust || 0)+3; s.freeDraws=(s.freeDraws || 0)+cfg.reward.freeDraws; }
-      s.bossCooldownUntil=b.scene === 'fridge' ? now+cfg.cooldown*1000 : 0;
+      s.bossCooldownUntil=b.scene === 'city' ? now+cfg.cooldown*1000 : 0;   // 終點站可重複挑戰，要有冷卻
       if (unlocked(s,s.bossResult.next)) changeScene(s,s.bossResult.next);
     } else s.bossCooldownUntil=now+cfg.cooldown*1000;
     stampDeadline(s, now, true);

@@ -129,6 +129,25 @@
     ],
     particles: { sprites:['clicker-fx-snow.png','clicker-fx-spark.png'], everyMs:[900,2000], max:8, size:[8,14], life:[5,9] },
   };
+  // 第七站：滅世都市。背景直接用滅世珍獸那張畫（壓暗去飽和），挑戰王時同一張全亮版本壓上來當王本體
+  //（使用者定案：整張圖就是王，點畫面哪裡都算打到它）。從原圖裁層試過三次都失敗——
+  // 鐵塔跟天空同一組暖色分不開、鏡射拼寬又整片對稱，最後只留三棟暗色大樓當前景視差。
+  scenes.city = {
+    bossPackages: 110,
+    name: '滅世都市', unlockPackages: 0, requirementMul: 80000, rewardMul: 4, bagSkin: 0,
+    unlock: { packages: 100, boss: 'fridge' },
+    enemy: { shell: null, timer: null, regen: null },
+    affinity: ['mieshi', 'yuefeimo'],
+    boss: { name: '滅世珍獸', mul: 1.6, seconds: 30, crackKeep: .5, crackMax: .75, cooldown: 30, floorMul: .3,
+      reward: { freeDraws: 5 }, image: 'clicker-boss7-mieshi.png', size: [632, 360], center: 316 },
+    palette: { mat: '#4A3A2A', sky: '#8A6B44' },
+    music: { theme: 'factory', seed: 'zhenmu-city-1', gen: { density: 70, rhythm: 70, speed: 55, drama: 80, mood: 35, hook: 70, smooth: 30 } },
+    layers: [
+      { id: 'sky', src: 'clicker-city-sky.png', y: 0, h: 360, parallax: 0 },
+      { id: 'props', sprites: [0,1,2].map(i=>`clicker-city-prop-${i}.png`), slots: [[20,214],[268,254],[540,214]], h: 150, parallax: .75 },
+    ],
+    particles: { sprites: ['clicker-fx-spark.png'], everyMs: [1200, 2600], max: 7, size: [8, 15], life: [4, 8], rise: true },
+  };
   const resolve = (id, index = Infinity) => Object.hasOwn(scenes, id) && index >= scenes[id].unlockPackages ? scenes[id] : scenes.backyard;
   root.ClickerScenes = scenes;
   if (typeof module !== 'undefined' && module.exports) { module.exports = { scenes, resolve }; return; }
