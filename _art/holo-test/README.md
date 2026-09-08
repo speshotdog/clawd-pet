@@ -50,3 +50,13 @@
 ### 驗證與待驗收
 
 第三輪驗證會保留 `file://`、無外部 request、圖片完整載入、Console 無錯誤、文字／寶石矩形不相交、三個字體方向可切換，以及滑鼠角度造成文字與角色不同 transform 的檢查。截圖存於 `shots/` 且以 `r3-` 開頭。這些證據不代表視覺品質已達標，仍請逐張驗收暈邊、箔面強度與字體取向。
+
+## 第五輪：寶石回到舊版邏輯、字效提案、單檔分享
+
+舊版 `src/gacha-card.css` 的 `.face-gem` 是固定實心色、位於卡面上方；`.skin-af .face-gem` 依稀有度放大到 10/12/14/16px，並有明確描邊；`.r-common` 使用不透明灰色，`.r-mythic` 用高亮 conic-gradient。關鍵是尺寸夠大、實心亮面、描邊對比清楚、位置不被深色銘牌吃掉。第四輪的深色銘牌與暗部外圈使寶石變成模糊暗塊，五階又縮到 8px；本輪恢復大尺寸實心切面與亮色 keyline，五階保持 20–22px。
+
+開源調查實際讀過 [Pokémon Cards CSS GPL-3.0 原文](https://raw.githubusercontent.com/simeydotme/pokemon-cards-css/acb1197633e749a1fba4412231db2f6581586d00/LICENSE) 與 [Holo Card Studio MIT 原文](https://raw.githubusercontent.com/EverettFish/holo-card-studio/b470957e0dea681eadc05e467a57bdc84b702333/LICENSE)。前者第 4–6 節有保留通知、同授權散布與 Corresponding Source 要求，本案只學原理；後者允許軟體複製修改但第 7 行排除生成 artwork。本輪沒有找到同時涵蓋寶石素材再散布權的可直接納入來源，故寶石為固定 seed 下自製 CSS 幾何，不硬稱為第三方設計。
+
+common–epic 維持乾淨可讀；legendary/mythic 可切換遊戲金屬、像素疊描、浮雕燙金、斜體分層四種方向。名字 Z 位移提高到 18–23px，五階靠加寬銘牌與最小卡寬撐開；中文一律 DOM，像素方案用系統等寬 fallback。Noto 子集沿用前輪已核對的 SIL OFL 1.1 與 Reserved Font Name 注意事項。
+
+`demo.html` 是開發版；`demo-standalone.html` 將素材依展示尺寸重採樣為 WebP（主體保留 alpha）並內嵌動態素材映射，實際 3,045,272 bytes（約 2.90 MiB），低於 15 MiB。`check_demo_round5.py` 已把 standalone 複製到暫存資料夾後以 `file://` 開啟，驗證圖片、無外部 request、Console、排版與離開後 rAF；結果在 `verification-round5.json`。仍待使用者視覺驗收，不宣稱品質已達標。

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>箔光實驗室 — 華麗卡牌第四輪</title>
+<title>箔光實驗室 — 華麗卡牌第五輪</title>
 <style>
 :root{color-scheme:dark;--page:#101115;--ink:#ecece6;--muted:#949690;--line:#303239;--accent:#d9edb4;font-family:Arial,"Microsoft JhengHei",sans-serif}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--page);color:var(--ink)}button,input,select{font:inherit}button,a,input,summary{touch-action:manipulation}button{color:inherit;cursor:pointer}a{color:inherit;text-decoration:none}button:focus-visible,a:focus-visible,summary:focus-visible,.hit:focus-visible{outline:2px solid var(--accent);outline-offset:6px}button:disabled{cursor:default;opacity:.45}input{accent-color:var(--accent)}
@@ -544,6 +544,28 @@ body.ink-chroma .face-name,body.ink-chroma .face-rarity{color:var(--name-ink)}
 .r-epic{--accent-card:#b875ff;--accent-soft:#55119a;--palette:linear-gradient(115deg,#2c0a5c,#a02be8 32%,#efb5ff 50%,#5a19a7 72%,#210642)}.r-legendary .face-frame,.r-mythic .face-frame{box-shadow:inset 0 0 0 2px #fff8,inset 0 0 0 4px var(--accent-card),inset 0 0 0 7px #18101c,inset 0 0 0 9px #fff5,0 0 14px var(--accent-card)}.r-legendary .face-frame:after,.r-mythic .face-frame:after{inset:12px;background:linear-gradient(45deg,transparent 42%,var(--accent-card) 43% 48%,transparent 49%) left top/18px 18px no-repeat,linear-gradient(-45deg,transparent 42%,var(--accent-card) 43% 48%,transparent 49%) right top/18px 18px no-repeat,linear-gradient(-45deg,transparent 42%,var(--accent-card) 43% 48%,transparent 49%) left bottom/18px 18px no-repeat,linear-gradient(45deg,transparent 42%,var(--accent-card) 43% 48%,transparent 49%) right bottom/18px 18px no-repeat;opacity:.95}.r-legendary .face-frame:before,.r-mythic .face-frame:before{content:"";position:absolute;inset:4px;border:1px solid #fff8;clip-path:polygon(0 0,32% 0,38% 3%,62% 3%,68% 0,100% 0,100% 32%,97% 38%,97% 62%,100% 68%,100% 100%,68% 100%,62% 97%,38% 97%,32% 100%,0 100%,0 68%,3% 62%,3% 38%,0 32%);pointer-events:none}.r-legendary{--accent-card:#f6c866;--accent-soft:#9a4f16}.r-mythic{--accent-card:#93f0df;--accent-soft:#7e2ad2}.r-mythic .frame-material{filter:saturate(1.35) brightness(1.08)}
 body.font-system{--card-font:Arial,"Microsoft JhengHei",sans-serif}body.font-noto-sans{--card-font:"Holo Noto Sans",sans-serif}body.font-noto-serif{--card-font:"Holo Noto Serif",serif}.layout-status{font:10px monospace;color:var(--accent);margin:13px 0 0}.layout-status.bad{color:#ffb08c}
 </style>
+<style>
+/* Round 5: old-card gem logic restored — readable mass, bright core, clear keyline. */
+.hcard .face-gem{left:calc(5% + 18px);top:auto;bottom:calc(3% + 8% - 10px);width:22px;height:22px;margin:0;z-index:35;transform:translateZ(16px) rotate(45deg);border:2px solid #fff9;border-radius:4px;background:linear-gradient(135deg,#fff 0%,#fff9 12%,var(--accent-card) 30%,#fff8 48%,var(--accent-card) 68%,#6b4b20 100%);box-shadow:0 0 0 3px #0c1420,0 0 0 4px #fff5,0 0 18px 5px color-mix(in srgb,var(--accent-card) 80%,transparent),inset 3px 3px 4px #fff,inset -4px -4px 5px #0009;clip-path:polygon(50% 0,87% 16%,100% 50%,84% 87%,50% 100%,14% 84%,0 50%,16% 14%);transition:transform .22s ease,filter .22s ease}
+.hcard:hover .face-gem{filter:saturate(1.25) brightness(1.18);transform:translateZ(25px) rotate(53deg)}
+.ranks-grid{grid-template-columns:repeat(5,minmax(120px,1fr));gap:24px;padding:18px 4px 0}
+.ranks-grid .hit{min-width:120px}.ranks-grid .face-plate{left:3%;right:3%;height:19%;padding:0 34px 0 42px;gap:6px}.ranks-grid .face-gem{left:calc(3% + 13px);bottom:calc(3% + 9.5% - 11px);width:22px;height:22px}.ranks-grid .face-name{font-size:clamp(14px,1.25vw,19px);line-height:1.12}.ranks-grid .face-rarity{font-size:8px}
+.face-name{font-size:clamp(16px,1.8vw,26px);font-weight:700;transform:translateZ(18px);text-shadow:0 2px 0 #000,0 0 10px #000,0 7px 0 #0007}.face-rarity{transform:translateZ(10px);font-size:10px}
+.r-legendary .face-name,.r-mythic .face-name{font-size:clamp(18px,2.05vw,30px);font-weight:900;letter-spacing:.04em}
+/* Four selectable high-rarity name directions; common–epic stay clean. */
+body.name-game .r-legendary .face-name,body.name-game .r-mythic .face-name{color:#fff3b0;background:linear-gradient(180deg,#fffce0 0%,#ffd15c 45%,#a75a17 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:2px 2px 0 #3a1705,4px 4px 0 #1c0d08,0 0 12px #ffb72e}
+body.name-pixel .r-legendary .face-name,body.name-pixel .r-mythic .face-name{font-family:ui-monospace,monospace;letter-spacing:-.04em;text-shadow:2px 0 0 #111,0 2px 0 #111,3px 3px 0 #ff4fd8,0 0 10px #5ad7ff}
+body.name-relief .r-legendary .face-name,body.name-relief .r-mythic .face-name{color:#fff5c9;text-shadow:0 1px 0 #fff,0 2px 0 #bc8b35,0 4px 0 #5f3b14,0 0 10px #ffc85c}
+body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{font-style:italic;transform:translateZ(23px) skewX(-10deg) scaleX(1.06);text-shadow:3px 0 0 #1a0d12,6px 0 0 var(--accent-card),0 0 14px var(--accent-card)}
+.name-picker .mode-buttons{display:grid;grid-template-columns:1fr 1fr}.name-picker .mode-buttons span{min-height:33px}
+.r-mythic .face-name{font-size:clamp(15px,1.75vw,24px)}
+.ranks-grid .face-plate{left:1%;right:1%;padding-left:46px;padding-right:28px}
+.ranks-grid .r-legendary .face-name,.ranks-grid .r-mythic .face-name{font-size:15px}
+.legacy-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:44px 30px}.legacy-grid .face-plate{left:1%;right:1%;padding-left:8px;padding-right:8px}.legacy-grid .face-name{font-size:14px}.legacy-grid .face-gem{left:50%;top:14px;bottom:auto;margin-left:-11px}
+@media(max-width:1150px){.ranks-grid{gap:18px}.ranks-grid .face-name{font-size:14px}.ranks-grid .face-gem{width:20px;height:20px;left:calc(3% + 10px)}}
+@media(max-width:850px){.ranks-grid{grid-template-columns:repeat(5,165px);gap:24px}.ranks-grid .face-name{font-size:16px}.ranks-grid .face-gem{width:22px;height:22px;left:calc(3% + 12px)}.face-name{font-size:19px}}
+@media(max-width:480px){.pair-input .face-name{font-size:15px}.ranks-grid .face-name{font-size:16px}.legacy-grid .face-name{font-size:16px}}
+</style>
 <script>
 'use strict';
 (() => {
@@ -595,8 +617,9 @@ shadow.append(baseWrap);const baseCard=shadow.querySelector('.card'),baseLift=sh
 const overrides=node('style');overrides.textContent=':host{display:block;--c-common:#9d9d9d;--c-rare:#0070dd;--c-epic:#a335ee;--c-legendary:#ff8000}*{box-sizing:border-box}.skin-af{position:absolute;inset:0}.skin-af .card{position:absolute;left:0;top:0;margin:0;opacity:1;transform:scale(var(--base-scale,1.8667));transform-origin:top left;transition:none;pointer-events:none}.skin-af .card-lift{transition:none;transform:perspective(500px)}.skin-af .card.flipped .card-lift{transform:perspective(500px)}.skin-af .card .card-glow{display:none}.skin-af .card .card-inner{transition:transform .62s cubic-bezier(.25,.7,.25,1)}';shadow.append(overrides);
 new ResizeObserver(entries=>{for(const e of entries)$('#baseline').style.setProperty('--base-scale',e.contentRect.width/150)}).observe($('#baseline'));
 
-const settings={depth:1,foil:.85,grain:.75,glare:.45,mode:'both',hold:false,reduced:false,font:'system',gem:'faceted',inkChroma:true};
-const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');let selected=comparison;
+const settings={depth:1,foil:.85,grain:.75,glare:.45,mode:'both',hold:false,reduced:false,font:'system',gem:'faceted',nameStyle:'game',inkChroma:true};
+const namePicker=node('fieldset','modes name-picker');namePicker.innerHTML='<legend>傳說以上字效</legend><div class="mode-buttons"><label><input type="radio" name="name-style" value="game" checked><span>遊戲金屬</span></label><label><input type="radio" name="name-style" value="pixel"><span>像素疊描</span></label><label><input type="radio" name="name-style" value="relief"><span>浮雕燙金</span></label><label><input type="radio" name="name-style" value="slant"><span>斜體分層</span></label></div>';document.querySelector('.gem-picker').after(namePicker);
+const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');let selected=comparison;document.body.classList.add('name-game');document.querySelectorAll('input[name="name-style"]').forEach(el=>el.addEventListener('change',()=>{settings.nameStyle=el.value;document.body.classList.remove('name-game','name-pixel','name-relief','name-slant');document.body.classList.add('name-'+settings.nameStyle);}));
 const live={active:null,raf:0,sx:0,sy:0,tx:0,ty:0,last:0,leaving:false,rect:null,pointer:null,totalFrames:0,maxConcurrent:0};
 function reduced(){return settings.reduced||motionQuery.matches}
 function select(c){selected=c;$('#selected-name').textContent=c.data.name+(c.pair?' · 對照':'');$('#flip-selected').textContent=c.flipped?'翻到正面':'翻到背面';}

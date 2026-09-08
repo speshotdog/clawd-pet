@@ -1,0 +1,22 @@
+{
+  "bytes": 3045272,
+  "results": [
+    {
+      "label": "dev",
+      "cards": 20,
+      "external_requests": [],
+      "console_errors": [],
+      "layout_failures": [],
+      "raf_after_leave": 0
+    },
+    {
+      "label": "standalone-copy",
+      "cards": 20,
+      "external_requests": [],
+      "console_errors": [],
+      "layout_failures": [],
+      "raf_after_leave": 0
+    }
+  ],
+  "standalone_copied": true
+}
