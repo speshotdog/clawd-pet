@@ -105,6 +105,7 @@ body.font-system{--card-font:Arial,"Microsoft JhengHei",sans-serif}body.font-not
 <section class="section" id="legacy" aria-labelledby="legacy-title"><div class="section-head"><h2 id="legacy-title"><small>D /</small>舊卡版型</h2><p>去背 PNG · 稀有度色調底 · 不展示合成滿版舊卡</p></div><div class="legacy-grid" id="legacy-grid"></div><p class="section-foot">去背舊卡維持「卡框＋稀有度色調底」；四張自帶背景場景卡與兩張 bleed 另走滿版景深。</p></section>
 <footer><span>箔光實驗室 / ROUND 01</span><span>ANGLE DRIVEN · MADE TO BE PLAYED</span></footer>
 <section class="section" id="flat-compare" aria-labelledby="flat-compare-title"><div class="section-head"><h2 id="flat-compare-title"><small>C / 1</small>平面滿版：滅世珍獸</h2><p>舊版假景深 × 新版平面滿版 · 景深只留在卡片傾斜</p></div><div class="flat-compare-grid" id="flat-compare-grid"></div></section>
+<section class="section" id="gem-proof" aria-labelledby="gem-proof-title"><div class="section-head"><h2 id="gem-proof-title"><small>C / 2</small>寶石微加工對照</h2><p>原版樣式 → 只加稀有度配色、邊光與極輕反光</p></div><div class="gem-proof-grid"><figure><div class="gem-proof-stage"><span class="face-gem gem-proof-original"></span></div><figcaption>原版 · src/gacha-card.css</figcaption></figure><figure><div class="gem-proof-stage"><span class="face-gem gem-proof-tuned"></span></div><figcaption>微加工 · 展示頁</figcaption></figure></div></section>
 </main>
 <aside class="inspector" aria-label="E 控制面板"><details open id="controls"><summary>材質調校 <span>E / LIVE</span></summary><div class="inspector-body"><p class="hint">控制全體新版卡。點卡選取後可翻面；鎖定角度後，更容易比較滑桿差異。</p><div class="selected"><span>目前選取</span><span id="selected-name">珍彼特 · 對照</span></div><div class="sliders">
 <div class="slider-row"><label for="depth">景深強度 <output id="depth-value" for="depth">100%</output></label><input type="range" id="depth" min="0" max="180" value="100" step="5"><div class="limits"><span>0</span><span>180%</span></div></div>
@@ -644,26 +645,26 @@ function makeCard(data,host,{scene=false,rank=false,pair=false}={}){
  material(bg);
  const media=node('div','art-media'),image=node('img');image.src=src;image.alt='';image.draggable=false;media.append(image);
  if(masks[srcKey]&&kind!=='flat'){const mask=node('div','subject-mask');mask.style.setProperty('--subject',`url("${masks[srcKey]}")`);material(mask);media.append(mask);}art.append(media);
- frame.append(node('div','frame-material'));plate.append(node('b','face-name',data.name),node('span','face-rarity',`${presets[data.rarity].label} / ${data.rarity.toUpperCase()}`));
- front.append(stock,bg,art,frame,plate,gem);inner.append(back,front);lift.append(inner);card.append(lift);hit.append(card);item.append(hit);
+ frame.append(node('div','frame-material'));const name=node('b','face-name',data.name),rarity=node('span','face-rarity',`${presets[data.rarity].label} / ${data.rarity.toUpperCase()}`);const text=node('div','face-text');
+ if(kind==='depth'||kind==='flat'){text.append(name,rarity);front.append(stock,bg,art,frame,plate,gem,text);}else{plate.append(name,rarity);front.append(stock,bg,art,frame,plate,gem);}
+ inner.append(back,front);lift.append(inner);card.append(lift);hit.append(card);item.append(hit);
  const under=node('div','under');if(rank){const info=node('div');info.append(node('strong','',data.rarity),node('p','',presets[data.rarity].title));under.append(info);}else{under.append(node('p','',data.note||(pair?'獨立景深 × 多層箔面':'原 PNG · 獨立背景')));}
  const flip=node('button','','翻面 ↻');flip.type='button';flip.setAttribute('aria-label','翻面：'+data.name+(rank?' '+data.rarity:''));under.append(flip);item.append(under);host.append(item);
  const record={data,card,hit,front,back,flip,scene,pair,pose:[0,0],flipped:false,updates:0};cards.push(record);flip.addEventListener('click',()=>{select(record);flipCard(record)});return record;
 }
 const comparison=makeCard(oldData[0],$('#comparison-new'),{pair:true});
-sceneData[0].name=String.fromCodePoint(0x706b,0x7bad,0x72d7);
 sceneData.forEach(d=>makeCard(d,$('#scenes-grid'),{scene:true}));
 Object.keys(presets).forEach(r=>makeCard({...oldData[1],rarity:r},$('#ranks-grid'),{rank:true}));
-const u=(...a)=>String.fromCodePoint(...a);const legacyData=[{id:'zhenpete',name:u(0x73cd,0x5f7c,0x7279),rarity:'epic'},{id:'zhenwang',name:u(0x73cd,0x6c6a),rarity:'rare'},{id:'zhencao',name:u(0x73cd,0x7684,0x662f,0x8349),rarity:'common'},{id:'zhenjpg',name:u(0x73cd,0x73cd)+'JPG',rarity:'rare'},{id:'mieshi',name:u(0x6ec5,0x4e16,0x73cd,0x7378),rarity:'mythic',bleed:true},{id:'wanwumythic',name:u(0x73a9,0x7269,0x5c31,0x73a9,0x7269),rarity:'mythic',bleed:true},{id:'foxfriend',name:u(0x72d0,0x72f8,0x670b,0x53cb),rarity:'legendary'},{id:'miepupu',name:u(0x7c73,0x5657,0x5657),rarity:'epic'},{id:'salamander',name:u(0x706b,0x8725,0x876a),rarity:'rare'},{id:'yangpu',name:u(0x7f8a,0x8216),rarity:'common'}];
+const u=(...a)=>String.fromCodePoint(...a);const legacyData=[{id:'zhenpete',name:'珍彼特',rarity:'epic'},{id:'zhenwang',name:'珍汪',rarity:'rare'},{id:'zhencao',name:'珍的是草',rarity:'common'},{id:'zhenjpg',name:'珍珍'+'JPG',rarity:'rare'},{id:'mieshi',name:'滅世珍獸',rarity:'mythic',bleed:true},{id:'wanwumythic',name:'玩物就玩物',rarity:'mythic',bleed:true},{id:'foxfriend',name:'摯友之狐',rarity:'legendary'},{id:'miepupu',name:'咩噗噗噗',rarity:'epic'},{id:'salamander',name:'黃色蠑螈',rarity:'rare'},{id:'yangpu',name:'羊咩噗',rarity:'common'}];
 function makeLegacyPair(data){const host=document.querySelector('#legacy-grid');const rec=makeCard(data,host,{scene:false});rec.card.dataset.id='legacy-'+data.id+'-original';}
 legacyData.forEach(makeLegacyPair);document.querySelector('#legacy-title').lastChild.textContent=u(0x820a,0x5361,0x5347,0x7d1a);
 
 // Round 7 comparison: the same art is intentionally rendered once with depth
 // layers and once as a flat full-bleed surface. The choice is data, not an id rule.
 const flatHost=document.querySelector('#flat-compare-grid');
-const flatOld=makeCard({id:'mieshi',name:u(0x6ec5,0x4e16,0x73cd,0x7378),rarity:'mythic',art:{kind:'depth'},note:'既有假景深'},flatHost,{scene:true});
+const flatOld=makeCard({id:'mieshi',name:'滅世珍獸',rarity:'mythic',art:{kind:'depth'},note:'既有假景深'},flatHost,{scene:true});
 flatOld.card.dataset.id='flat-compare-depth';
-const flatNew=makeCard({id:'mieshi',name:u(0x6ec5,0x4e16,0x73cd,0x7378),rarity:'mythic',art:{kind:'flat'},note:'新的平面滿版'},flatHost,{scene:false});
+const flatNew=makeCard({id:'mieshi',name:'滅世珍獸',rarity:'mythic',art:{kind:'flat'},note:'新的平面滿版'},flatHost,{scene:false});
 flatNew.card.dataset.id='flat-compare-flat';
 flatHost.firstElementChild.insertAdjacentHTML('afterbegin','<p class="spec-label">舊版假景深</p>');
 flatHost.lastElementChild.insertAdjacentHTML('afterbegin','<p class="spec-label"><i class="dot"></i>新版平面滿版</p>');
@@ -758,5 +759,52 @@ select(comparison);applySettings();setTimeout(()=>validateLayout(),0);
 .flat-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;padding:12px 16%}.flat-compare-grid .hit{max-width:260px}.flat-compare-grid .under{max-width:260px;display:block;text-align:center}
 @media(max-width:850px){.flat-compare-grid{padding:12px 0;gap:18px}.flat-compare-grid .hit{max-width:220px}}
 </style>
+<style>
+/* Round 8: depth cards restore the plaque, with the subject visibly crossing its top edge. */
+.kind-depth .face-depth-bg{z-index:10!important}
+.kind-depth .face-plate{z-index:20!important;left:5%!important;right:5%!important;bottom:4%!important;height:16%!important;min-height:0!important;padding:0 34px!important;border:1px solid #b4b7c733!important;border-top:1px solid var(--accent-card)!important;border-radius:5px!important;background:linear-gradient(140deg,#161b26f7,#111821fc)!important;box-shadow:0 0 0 1px #0a0d15,0 7px 18px #0008,inset 0 1px 0 #ffffff18!important;transform:translateZ(calc(var(--zp) + 1px))!important}
+.kind-depth .face-art{z-index:30!important;transform:translate3d(var(--ax),var(--ay),var(--za)) scale(var(--comp))!important}
+.kind-depth .face-text,.kind-flat .face-text{position:absolute;left:5%;right:5%;bottom:4%;height:16%;z-index:60!important;transform:translateZ(calc(var(--zp) + 28px))!important;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;pointer-events:auto}
+.kind-depth .face-text .face-name,.kind-depth .face-text .face-rarity,.kind-flat .face-text .face-name,.kind-flat .face-text .face-rarity{position:relative!important;z-index:1!important;left:auto!important;right:auto!important;margin:0!important;width:max-content!important;max-width:100%;text-align:center!important}
+.kind-depth .face-gem{z-index:35!important}
+.kind-depth .face-name,.kind-depth .face-rarity{z-index:50!important}
+/* flat keeps the background → plaque → name sequence; there is intentionally no subject layer. */
+.kind-flat .face-depth-bg{z-index:10!important}.kind-flat .face-plate{z-index:20!important;left:5%!important;right:5%!important;bottom:4%!important;height:16%!important;min-height:0!important;padding:0 34px!important;border:1px solid #b4b7c733!important;border-top:1px solid var(--accent-card)!important;border-radius:5px!important;background:linear-gradient(140deg,#161b26f7,#111821fc)!important;box-shadow:0 0 0 1px #0a0d15,0 7px 18px #0008,inset 0 1px 0 #ffffff18!important;transform:translateZ(calc(var(--zp) + 1px))!important}
+.kind-flat .face-art{z-index:1!important}.kind-flat .face-text{z-index:200!important;transform:translateZ(100px)!important}.kind-flat .face-gem{z-index:150!important;transform:translateZ(160px) rotate(45deg)!important}.kind-flat .face-name,.kind-flat .face-rarity{z-index:50!important}
+/* Original face-gem geometry from src/gacha-card.css, then only restrained optical tuning. */
+.kind-depth .face-gem,.kind-flat .face-gem{left:calc(5% + 18px)!important;right:auto!important;top:auto!important;bottom:calc(4% + 8% - 8px)!important;width:22px!important;height:22px!important;margin:0!important;z-index:25!important;transform:translateZ(calc(var(--zp) + 2px)) rotate(45deg)!important;border:2px solid #fff3d0!important;border-radius:3px!important;background:radial-gradient(circle at 35% 35%,#fff,var(--accent-card) 55%)!important;box-shadow:0 0 10px color-mix(in srgb,var(--accent-card) 58%,transparent)!important;clip-path:none!important;filter:saturate(.98)!important}
+.kind-depth .face-gem::after,.kind-flat .face-gem::after{content:"";position:absolute;inset:2px;border-radius:2px;background:linear-gradient(135deg,#fff8,transparent 38%);opacity:.18;pointer-events:none}
+.kind-flat .face-gem{z-index:150!important;transform:translateZ(160px) rotate(45deg)!important}
+.r-common .face-gem{background:#9d9d9d!important;border-color:#b8babd!important}.r-mythic .face-gem{background:conic-gradient(from var(--phase),#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8)!important}
+.ranks-grid .kind-framed .face-gem{left:50%!important;right:auto!important;top:13px!important;bottom:auto!important;width:16px!important;height:16px!important;margin-left:-8px!important;z-index:36!important;transform:translateZ(34px) rotate(45deg)!important;clip-path:none!important}
+.ranks-grid .kind-framed .face-plate{z-index:8!important}
+.gem-proof-grid{display:grid;grid-template-columns:repeat(2,minmax(0,220px));justify-content:center;gap:60px;padding:15px 0}.gem-proof-grid figure{margin:0;text-align:center}.gem-proof-stage{height:150px;display:grid;place-items:center;border:1px solid var(--line);background:radial-gradient(circle,#1d2635,#0d1119 72%)}.gem-proof-stage .face-gem{position:relative;display:block;left:auto;top:auto;bottom:auto;width:64px;height:64px;transform:rotate(45deg);border:2px solid #fff3d0;border-radius:3px;background:radial-gradient(circle at 35% 35%,#fff,#b991e6 55%);box-shadow:0 0 10px #b991e688;clip-path:none}.gem-proof-tuned{filter:saturate(1.05) brightness(1.03)}.gem-proof-tuned::after{content:"";position:absolute;inset:5px;border-radius:2px;background:linear-gradient(135deg,#fff8,transparent 38%);opacity:.18}.gem-proof-grid figcaption{margin-top:14px;font:11px monospace;color:var(--muted)}
+.gem-proof-stage .face-gem{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:64px!important;height:64px!important;margin:0!important;transform:rotate(45deg)!important;border:2px solid #fff3d0!important;border-radius:3px!important;background:radial-gradient(circle at 35% 35%,#fff,#b991e6 55%)!important;box-shadow:0 0 10px #b991e688!important;clip-path:none!important}
+@media(max-width:850px){.gem-proof-grid{gap:20px}.kind-depth .face-plate,.kind-flat .face-plate{padding-left:30px!important;padding-right:30px!important}.kind-depth .face-gem,.kind-flat .face-gem{left:calc(5% + 14px)!important}}
+</style>
+<script>
+/* Round 8 verification API: samples the actual viewport stack, including subject-over-name cases. */
+(function(){
+  function layerRows(){
+    const rows=[],saved=scrollY,root=document.documentElement,behavior=root.style.scrollBehavior;root.style.scrollBehavior='auto';
+    for(const el of document.querySelectorAll('.hcard')){
+      const c={id:el.dataset.id};
+      el.scrollIntoView({block:'center',inline:'nearest'});void root.offsetHeight;
+      const card=el, name=card.querySelector('.face-name'), plate=card.querySelector('.face-plate'), gem=card.querySelector('.face-gem');
+      const nr=name.getBoundingClientRect(), cr=card.getBoundingClientRect(), gr=gem.getBoundingClientRect();
+      const points=[.2,.5,.8].map(r=>[nr.left+nr.width*r,nr.top+nr.height*.5]);
+      const hits=points.map(([x,y])=>{const hit=document.elementFromPoint(x,y);return !!(hit&&(hit===name||hit.closest('.face-name')===name||(card.dataset.artKind==='framed'&&hit.closest('.face-plate')===plate)));});
+      const plateRect=plate.getBoundingClientRect();
+      const gap=Math.max(nr.left-gr.right,gr.left-nr.right,nr.top-gr.bottom,gr.top-nr.bottom);
+      rows.push({id:c.id,kind:card.dataset.artKind,nameCenterDelta:Math.abs(nr.left+nr.width/2-(cr.left+cr.width/2)),rarityCenterDelta:(()=>{const r=card.querySelector('.face-rarity').getBoundingClientRect();return Math.abs(r.left+r.width/2-(cr.left+cr.width/2))})(),gemNameGap:gap,nameProtected:hits.every(Boolean),plateVisible:getComputedStyle(plate).backgroundColor!=='rgba(0, 0, 0, 0)',subjectAbovePlate:card.dataset.artKind==='depth'?getComputedStyle(card.querySelector('.face-art')).zIndex>getComputedStyle(plate).zIndex:true,ok:card.dataset.artKind==='framed'||(hits.every(Boolean)&&gap>=5)});
+    }
+    root.style.scrollBehavior=behavior;scrollTo(0,saved);return rows;
+  }
+  window.holoRound8={validateLayers:layerRows};
+  const old=window.holoDemo?.snapshot;
+  if(old) window.holoDemo.snapshot=function(){const s=old();s.round8Layers=layerRows();return s;};
+  setTimeout(layerRows,0);
+})();
+</script>
 </body>
 </html>
