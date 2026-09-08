@@ -79,6 +79,78 @@ cd "$REPO" && git worktree remove --force "$T"; git worktree prune; git branch -
 - `tools/sim/clicker-boss.js` 補三～六場景的王與「滿養」情境；`REPORT-astra-impl-round10~13.md` 未寫（commit 訊息有摘要）。
 - 使用者實玩回饋待收：王的手感、開包節奏、換桌布時機、印記是否太大方。
 
+## 十七、2026-09-08 晚：第三十二輪 直式手機收尾（已出貨，main `4034a7f`／gh-pages `e729aaf`）
+
+**接手第一步**：`git fetch && git pull --ff-only`，`npm test`（170 例），
+以及 `NEXT-SESSION-KICKOFF.md` 列的**十支** Playwright 套件（新增 `clicker-round32.py`）。
+
+### 起點：使用者截圖「抽卡也是剩一半」
+
+實機量出來的數字（390×844，五連翻牌後）：卡片橫跨 x=55～905，只有第一張完整在畫面內，
+其餘四張出界。根因不是版面沒調，是**招募層的內容是一套寫死的 960×640 座標系**
+（`clicker-gacha.js` 的 `size/center/layout`、`#fx`/`#fx-under` 兩張 canvas 的 width/height 屬性），
+橫式時招募層剛好就是 960×640 所以完全看不出來，直式它變成整個畫面就整組錯位。
+**跟切入演出（`#cutin`）踩過的是同一個坑，只是這次連 canvas 的座標一起錯。**
+
+⚠ 這裡有一個誘人的錯解：照 `#cutin` 那樣「整塊 960 等比縮到畫面寬」。算一下就知道不行——
+scale 只有 0.406，卡片剩 61px 寬，字讀不到。**卡片是要看的，不能只縮。** 所以改重排。
+
+### 這一輪做了什麼
+
+- **招募演出換座標系**：新增 `ClickerGacha.PORTRAIT_BOX = {w:560, h:900, pad:76}`。直式時
+  `makeRuntime()` 用這組當 `size/center`，`layout()` 把五連排成 **2+3**（上排兩張 y=330、
+  下排三張 y=580，下排最外側中心 ±172、卡片半寬 75 → 邊緣 33／527 落在 560 框內）。
+  CSS 那邊 `#fx-under/#cards/#fx/#mode-root` 變成 560×900 的框、等比縮到畫面寬並置中，
+  縮放比 `--gacha-fit` 與位置 `--gacha-top` 由 `clicker.js` 的 `fitStage()` 算
+  （縮放取 `min(寬/560, 可用高/900)`——**只看寬的話 320×640 這種矮螢幕會把下排頂到收下鍵上**）。
+  ⚠ `#dim`／`#flash` 故意**不**進這個框：它們是整面壓暗／閃白，要蓋滿畫面才對。
+  ⚠ canvas 的 width/height 是屬性、`GachaFx.init()` 只在建 runtime 時讀一次（`W=el.width`），
+  一定要在 `init` 之前改，否則特效跟卡片對不準。
+- **拉幕登場（stage 模式）的劇場是照 960 畫死的**（簷幕 1000 寬、布幕 500 寬、`FLOOR=452`），
+  直式整片穿出去。橫向尺寸改成照 `ctx.size.width/960` 縮，`FLOOR` 直式擺在框正中央，
+  布幕高度與「下一位」跟著框高走。另外**直式的演出框只佔畫面中間一段，劇場的暗場景只鋪到框邊、
+  上下會露出招募層的海軍藍**——給 `.st-back` 加一圈 `box-shadow:0 0 0 9999px` 的實色把框外壓黑
+  （橫式框就是整個招募層、又有 `overflow:hidden`，那圈陰影看不到）。其餘四個模式都吃 `ctx.center`，不用改。
+- **卡冊在直式改單頁**。內部從「跨頁索引 `spread`」改成「**單頁索引 `page`**」當基準，
+  `wide()/sheet()/sheets()` 三個小函式決定一次翻幾頁——直橫切換時 `page` 不變，
+  所以會落在同一批角色上、不會跳頁。書框的 border-image 畫的是攤開的跨頁（中間有書脊），
+  單頁時書脊會從正中央穿過去、四張卡看起來像被切兩半，**直式改用跟其他面板一樣的牛皮紙框**。
+- **面板抬頭在 390／320 被壓成直書**（使用者截的卡冊：標題膠帶與說明整個變成一行一個字，
+  書框被擠出畫面底部）。`.panel header` 是一排 flex，每個項目都被壓到剩一個字寬。
+  直式一律 `flex-wrap:wrap`、膠帶縮小且 `nowrap`、說明自己占一整行；320 以下收掉說明。
+- **「選擇演出方式」原本在直式是 `display:none`**。演出下拉只長在招募層的頂欄裡，
+  而招募層只有這顆鍵或「抽下去」才打得開，而且 `mode-select.onchange` 在 `pending` 時會拒絕變更
+  → **直式玩家永遠換不了演出方式**。改成招募那一列的第二行（圖與價格各跨兩行）。
+  ⚠ 字級要寫 `#game #recruit-open`：`#game button`（1,0,1）比 `#recruit-open`（1,0,0）強，
+  只寫 id 會被吃掉，實機上還是 14px、然後折行掉出那一列。
+- **入隊演出會飛到畫面外**。`collect()` 的起飛點與 `join()` 的落點都寫死 `/960`，
+  但直式 `#join-flight` 是跟著舞台縮的 608 框、而夥伴列根本在舞台外面。
+  兩邊都改成**照 `#join-flight` 自己的座標系換算**（`zoom = rect.width / clientWidth`），
+  橫式時它就是 `#game` 的 960×640、zoom 剛好等於整體縮放，**行為一模一樣**；
+  直式讓 `#join-flight` 蓋滿畫面、座標就是畫面像素。另外夥伴列是左右滑的，
+  目標常常滑在畫面外 → 落點先 `scrollIntoView({inline:'center'})` 再量。
+- **夥伴列兩側加漸層遮罩**：被切一半的那顆會淡出去，讀得出來「還有、可以滑」。
+- **卡冊詳細頁在直式改直排**；⚠ 卡片是 `scale(1.15)` 但版面高度還是 210，
+  直排會直接壓在名字上（實機看到「阿漉」被卡片蓋掉半個字），直式取消放大並置中。
+
+### 這一輪學到的坑
+
+- **「只看得到一半」要先查座標系，不要先調版面。** 這已經是第三次同一個形狀的 bug
+  （切入演出、粒子畫布、現在的招募層）：一段內容有自己的固定座標系，
+  在橫式剛好等於容器大小，換到直式就整組錯位。以後看到直式錯位，
+  先問「這塊有沒有自己的座標系」，再決定是縮還是重排。
+- **縮放不是萬用解**。切入演出可以整塊縮（它是一條橫幅，看得懂就好），
+  招募不行（卡片是要讀的）。判準是**內容有沒有要讀的字**。
+- **CSS 特異性要連著 `#game` 一起算**。`#game button` 會蓋掉單獨的 `#recruit-open`。
+  改完覺得「沒生效」的時候先量 `getComputedStyle`，不要重寫規則。
+- **驗收要量座標不要看截圖**。卡片「看起來在畫面上」跟「bounding box 在畫面內」是兩回事；
+  round32 的斷言全部是量 `getBoundingClientRect` 比 viewport。
+- ⚠ **gh-pages 的發佈流程會被上一次留下的 worktree 卡住**。這次 `git checkout --orphan gh-pages`
+  直接 fatal：`a branch named 'gh-pages' already exists`——因為**前一個 session 留了一個
+  `%TEMP%	mp.xxxx` 的 worktree 還占著 gh-pages 分支**，所以第二節那行 `git branch -D gh-pages`
+  刪不掉（分支被 worktree checkout 中）而且它的錯誤被 `2>/dev/null` 吞掉。
+  發佈前先 `git worktree list`，看到 `%TEMP%` 底下的殘留就 `git worktree remove --force` 掉。
+
 ## 十六、2026-09-08 傍晚：第二十四～三十一輪（已出貨）
 
 **接手第一步**：`git fetch && git pull --ff-only`，`npm test`（170 例），

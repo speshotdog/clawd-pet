@@ -1,14 +1,18 @@
-# 珍母點點：新 session 開工提示（2026-09-08 傍晚之後）
+# 珍母點點：新 session 開工提示（2026-09-08 晚，第三十二輪之後）
 
 貼給新視窗的第一句：
 
-> 幫我讀 D:\claude\clawd-pet\docs\clicker\NEXT-SESSION-KICKOFF.md 與 HANDOFF-next-session.md 第十六節，
+> 幫我讀 D:\claude\clawd-pet\docs\clicker\NEXT-SESSION-KICKOFF.md 與 HANDOFF-next-session.md 第十七節，
 > 照舊分工（我寫簡報 → Astra 用本機 codex.exe 實作 → 我用 Playwright 驗收 → commit／export-web／gh-pages／exe），先收我實玩的回饋。
 
 ## 先 `git fetch && git pull --ff-only`
 
-`npm test` 應為 **170 例**。main 最新是第三十一輪（商店置中懸浮視窗＋直式手機版面，版面已與 Astra 討論後重做）。
-gh-pages 與 exe 都與 main 同步。
+`npm test` 應為 **170 例**。main 最新是**第三十二輪**（`4034a7f` 直式手機收尾：招募演出 2+3、
+卡冊單頁、面板抬頭、入隊演出座標）。gh-pages 已同步（`e729aaf`），**exe 還停在第三十一輪、需要重 build**。
+
+⚠ 發佈 gh-pages 前先 `git worktree list`：上一個 session 在 `%TEMP%` 留了一個占著 gh-pages 分支的
+worktree，害 `git checkout --orphan gh-pages` 直接 fatal（而 `git branch -D` 的錯誤被 `2>/dev/null` 吞掉）。
+看到 `%TEMP%` 底下的殘留就 `git worktree remove --force` 再走第二節的流程。
 
 驗收套件（Playwright，全部要綠）：
 ```
@@ -21,6 +25,7 @@ PYTHONIOENCODING=utf-8 python tools/test/clicker-round27.py    # 打完終點王
 PYTHONIOENCODING=utf-8 python tools/test/clicker-round29.py    # 減少動畫時浮字仍看得到
 PYTHONIOENCODING=utf-8 python tools/test/clicker-round30.py    # 遞增價、商店兩層、裝飾預設不擺、會動的怪
 PYTHONIOENCODING=utf-8 python tools/test/clicker-round31.py    # 商店置中懸浮視窗、直式手機版面
+PYTHONIOENCODING=utf-8 python tools/test/clicker-round32.py    # 直式招募 2+3、卡冊單頁、入隊演出座標（含 320 寬與橫式回歸）
 python tools/test/clicker-browser.py                            # 舊套件，另有 --round8/9/11/12
 ```
 ⚠ `clicker-browser.py` 預設流程的 **round5 場景凍結斷言是紅的，而且在很久以前就紅了**
@@ -37,15 +42,14 @@ python tools/test/clicker-browser.py                            # 舊套件，�
 
 ## 可以直接開工的待辦
 
-1. **直式手機版面的收尾**。版面本身已經跟 Astra 討論後重做過一輪
-   （`docs/clicker/DISCUSS-portrait-layout.md` 與 `-astra.md` 有完整推導），
-   錢包溢出、夥伴列吃掉 300px、底部文字對不齊、切入被切掉都修好了。剩下的：
-   - 招募演出的五連卡片在直式還沒排成 2+3
-   - 卡冊的兩頁跨頁在直式還沒改成單頁
-   - 夥伴列被切一半的那顆看起來像壞掉（它是左右滑的，可考慮加漸層遮罩暗示可滑）
-   - 只在 390×844 驗過；320 寬的短螢幕、瀏覽器工具列收合、橫直切換都還沒試
+1. **直式手機版面**：第三十二輪已收尾（招募 2+3、卡冊單頁、面板抬頭、入隊演出座標、
+   夥伴列漸層、320 寬、「選擇演出方式」不再被藏）。剩下沒試的只有
+   **瀏覽器工具列收合（動態 viewport）與實機橫直旋轉**——程式有掛 resize 重排
+   （`gacha.restore()` ＋ `album.relayout()`），但只在 headless 改 viewport 驗過。
    ⚠ 舞台是**被寬度綁死**的（374/608 = 0.615 → 高 221），要它更高就得更寬，
    所以多出來的垂直空間只能當留白，不能拿來放大舞台。
+   ⚠ 招募演出直式是 **560×900 的座標系**（`ClickerGacha.PORTRAIT_BOX`），不是 960×640。
+   要改招募的版面先看第十七節，別直接改 960 的數字。
 2. **徽章 17 張無字底圖**仍缺（走 `badgeNode()` 的合成 fallback）。
    ⚠ 不要叫 imagegen 把字畫進去（gpt-image-2 畫中文會出錯字），要生「無字底圖」讓程式疊字。
 3. **冷凍包五狀態圖**仍缺（現在用 `clicker-can-*` ＋ 霜層）。五個狀態要彼此一致，
@@ -61,6 +65,9 @@ python tools/test/clicker-browser.py                            # 舊套件，�
 - **不要動的旗標**：`WISH_TELEGRAPH=false`、切入的 `T`／`EASE`、點空白關面板、卡冊箭頭、轉彩 30%、
   `B.MARK_MUL_COEF=.5`、`bossDamage` 的 share（mieshi .22／yuefeimo .08）、
   `clicker-save.js` 的 `REPAIRS` 表與 `repair()`。
+  第三十二輪新增：`ClickerGacha.PORTRAIT_BOX`（560×900／pad 76）與直式 2+3 的 `layout()`、
+  `#join-flight` 的座標換算（`rect.width / clientWidth`，橫直共用同一套，改一邊就會飛歪）、
+  卡冊的單頁索引 `page` 與 `wide()/sheet()/sheets()`。
 - 明確寫「只准改哪幾個檔」。Astra 會照做，但**要求它把驗收寫進測試檔時它只跑臨時腳本、不會留下來**，
   這段要自己補。
 - 跑完先 `grep "??"`（找亂碼；JS 的 `??` 運算子會誤中，看到要自己判斷）、`npm test`、再跑該輪的 `clicker-roundNN.py`。
