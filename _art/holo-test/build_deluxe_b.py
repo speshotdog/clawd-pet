@@ -125,14 +125,9 @@ body{margin:0;font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-s
  transform-style:preserve-3d;transition:none}
 .slot .hcard{position:absolute;inset:0}
 .slot.done{cursor:default}
-.slot .veilback{position:absolute;inset:0;border-radius:12px;overflow:hidden;backface-visibility:hidden;
- background:linear-gradient(160deg,#26324f,#1b2440 55%,#141b31);border:3px solid #f4e7c4;
- box-shadow:inset 0 0 0 2px #131a2e,0 10px 20px #0009}
-.slot .veilback:before{content:"";position:absolute;left:50%;top:46%;width:56%;aspect-ratio:1;translate:-50% -50%;
- border-radius:50%;background:radial-gradient(circle at 38% 32%,#fdf6e2,#f3e6c6 62%,#e6d5ae)}
-.slot .veilback:after{content:"";position:absolute;left:50%;top:46%;width:62%;aspect-ratio:1;translate:-50% -50%;
- border-radius:50%;background:conic-gradient(from 120deg,#e9c98a,#f3e2b4,#b7e3c6,#a9c2e8,#d2b3e2,#efc4b7,#e9c98a);
- z-index:-1}
+.veilback{position:absolute;inset:0;border-radius:12px;overflow:hidden;backface-visibility:hidden;
+ background:#26324f url("cardback/deluxe-back.webp") center/cover no-repeat;
+ box-shadow:0 10px 20px #0009,inset 0 0 0 1px #0b1120}
 .hint{position:absolute;bottom:6%;left:0;right:0;text-align:center;font-size:12px;opacity:.75;z-index:8}
 .tag{position:absolute;left:50%;bottom:-22px;translate:-50% 0;font-size:10px;letter-spacing:.12em;opacity:0}
 .idlepack{width:26%;max-width:150px;aspect-ratio:5/7;position:relative}

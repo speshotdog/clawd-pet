@@ -13,6 +13,9 @@ def data_uri(path: Path) -> str:
     key = str(path.resolve())
     if key in URI_CACHE:
         return URI_CACHE[key]
+    if path.suffix.lower() == '.webp':
+        URI_CACHE[key] = 'data:image/webp;base64,' + b64encode(path.read_bytes()).decode('ascii')
+        return URI_CACHE[key]
     with Image.open(path) as im:
         im.load()
         # 360x504 is the largest useful size in the review page; preserve alpha.
@@ -25,7 +28,7 @@ def data_uri(path: Path) -> str:
     return URI_CACHE[key]
 
 html = SOURCE.read_text(encoding='utf-8')
-refs = set(re.findall(r'(?:(?:src|href)=["\']|url\(["\']?)([^"\')]+\.(?:png|jpg|jpeg))', html))
+refs = set(re.findall(r'(?:(?:src|href)=["\']|url\(["\']?)([^"\')]+\.(?:png|jpg|jpeg|webp))', html))
 replacements = {}
 for ref in sorted(refs):
     if ref.startswith('data:'):
