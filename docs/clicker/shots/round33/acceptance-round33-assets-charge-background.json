@@ -1,0 +1,555 @@
+[
+  {
+    "check": "H pack highlight and full-image RMS",
+    "pass_": true,
+    "data": {
+      "before": {
+        "top5": 255.0,
+        "rms": 82.72690977322382
+      },
+      "after": {
+        "top5": 196.63338192419826,
+        "rms": 74.65886418742504
+      },
+      "ratios": {
+        "top5": 0.7711113016635226,
+        "rms": 0.9024737463551411
+      }
+    }
+  },
+  {
+    "check": "F back printed-edge clearance",
+    "pass_": true,
+    "data": {
+      "size": [
+        500,
+        700
+      ],
+      "pixels": [
+        5,
+        5,
+        8,
+        10
+      ]
+    }
+  },
+  {
+    "check": "E exact variant diff ",
+    "pass_": true,
+    "data": [
+      {
+        "line": 819,
+        "production": "const RATE=[['mythic',.005],['legendary',.04],['epic',.15],['rare',.40],['common',.405]];",
+        "test": "const RATE=[['mythic',.25],['legendary',.35],['epic',.25],['rare',.10],['common',.05]];"
+      },
+      {
+        "line": 1547,
+        "production": "const ticketPolicy={unlimited:false,label:''};",
+        "test": "const ticketPolicy={unlimited:true,label:'\u6e2c\u8a66\u7248 \u00b7 \u9ad8\u6a5f\u7387 \u00b7 \u7121\u9650\u62bd'};"
+      }
+    ]
+  },
+  {
+    "check": "E exact variant diff -standalone",
+    "pass_": true,
+    "data": [
+      {
+        "line": 820,
+        "production": "const RATE=[['mythic',.005],['legendary',.04],['epic',.15],['rare',.40],['common',.405]];",
+        "test": "const RATE=[['mythic',.25],['legendary',.35],['epic',.25],['rare',.10],['common',.05]];"
+      },
+      {
+        "line": 1546,
+        "production": "const ticketPolicy={unlimited:false,label:''};",
+        "test": "const ticketPolicy={unlimited:true,label:'\u6e2c\u8a66\u7248 \u00b7 \u9ad8\u6a5f\u7387 \u00b7 \u7121\u9650\u62bd'};"
+      }
+    ]
+  },
+  {
+    "check": "frozen sources",
+    "pass_": true,
+    "data": []
+  },
+  {
+    "check": "dev C idle rAF",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "dev C seamless independent animations",
+    "pass_": true,
+    "data": {
+      "elements": [
+        {
+          "name": "sigil-breathe",
+          "duration": 28000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            256,
+            13,
+            1157,
+            887
+          ]
+        },
+        {
+          "name": "axis-flow",
+          "duration": 5000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            390,
+            118,
+            1050,
+            737
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 24000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            544
+          ]
+        },
+        {
+          "name": "orbit-dash",
+          "duration": 6000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            542,
+            278,
+            898,
+            512
+          ]
+        },
+        {
+          "name": "orbit-sway",
+          "duration": 12000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 18000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            564,
+            321,
+            875,
+            468
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 32000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -2000,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -4000,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 8000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 10000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "star-pulse",
+          "duration": 4000,
+          "delay": 0,
+          "seam": null,
+          "motion": null
+        }
+      ],
+      "moving": 12
+    }
+  },
+  {
+    "check": "dev C paused",
+    "pass_": true,
+    "data": true
+  },
+  {
+    "check": "dev C reduced animation count",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "dev B legendary",
+    "pass_": true,
+    "data": {
+      "mean_start": 111.85591603053435,
+      "mean_peak": 164.21422010858473,
+      "std_start": 95.55647356439455,
+      "std_peak": 60.93260761189494
+    }
+  },
+  {
+    "check": "dev B cleanup legendary",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "alienkitty"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "dev B mythic",
+    "pass_": true,
+    "data": {
+      "mean_start": 111.85591603053435,
+      "mean_peak": 189.5955678246316,
+      "std_start": 95.55647356439455,
+      "std_peak": 46.08457868982418
+    }
+  },
+  {
+    "check": "dev B cleanup mythic",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "rocketdog"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "portable C idle rAF",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "portable C seamless independent animations",
+    "pass_": true,
+    "data": {
+      "elements": [
+        {
+          "name": "sigil-breathe",
+          "duration": 28000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            256,
+            13,
+            1157,
+            887
+          ]
+        },
+        {
+          "name": "axis-flow",
+          "duration": 5000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            390,
+            118,
+            1050,
+            737
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 24000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            544
+          ]
+        },
+        {
+          "name": "orbit-dash",
+          "duration": 6000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            542,
+            278,
+            898,
+            512
+          ]
+        },
+        {
+          "name": "orbit-sway",
+          "duration": 12000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 18000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            564,
+            321,
+            875,
+            468
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 32000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -2000,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -4000,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 8000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 10000,
+          "delay": 0,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "star-pulse",
+          "duration": 4000,
+          "delay": 0,
+          "seam": null,
+          "motion": null
+        }
+      ],
+      "moving": 12
+    }
+  },
+  {
+    "check": "portable C paused",
+    "pass_": true,
+    "data": true
+  },
+  {
+    "check": "portable C reduced animation count",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "portable B legendary",
+    "pass_": true,
+    "data": {
+      "mean_start": 111.85591603053435,
+      "mean_peak": 164.21422010858473,
+      "std_start": 95.55647356439455,
+      "std_peak": 60.93260761189494
+    }
+  },
+  {
+    "check": "portable B cleanup legendary",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "alienkitty"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "portable B mythic",
+    "pass_": true,
+    "data": {
+      "mean_start": 111.85591603053435,
+      "mean_peak": 189.5955678246316,
+      "std_start": 95.55647356439455,
+      "std_peak": 46.08457868982418
+    }
+  },
+  {
+    "check": "portable B cleanup mythic",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "rocketdog"
+      ],
+      "collectable": true
+    }
+  }
+]

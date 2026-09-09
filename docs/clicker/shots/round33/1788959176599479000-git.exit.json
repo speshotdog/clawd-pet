@@ -1,0 +1,12 @@
+{
+  "command": [
+    "git",
+    "-c",
+    "safe.directory=D:/claude/clawd-pet-holo",
+    "diff",
+    "--check"
+  ],
+  "exit_code": 0,
+  "seconds": 0.2,
+  "log": "1788959176599479000-git.log"
+}

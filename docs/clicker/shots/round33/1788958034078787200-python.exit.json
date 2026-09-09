@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/probe_label_contrast_round33.py",
+    "--final"
+  ],
+  "exit_code": 0,
+  "seconds": 105.33,
+  "log": "1788958034078787200-python.log"
+}

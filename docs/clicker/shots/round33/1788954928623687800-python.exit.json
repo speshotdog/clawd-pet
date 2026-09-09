@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/prepare_round33_assets.py"
+  ],
+  "exit_code": 0,
+  "seconds": 6.14,
+  "log": "1788954928623687800-python.log"
+}

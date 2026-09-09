@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/build_deluxe_b.py",
+    "--test"
+  ],
+  "exit_code": 0,
+  "seconds": 0.23,
+  "log": "1788957930900518800-python.log"
+}

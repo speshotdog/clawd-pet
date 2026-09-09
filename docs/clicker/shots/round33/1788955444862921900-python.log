@@ -1,0 +1,4 @@
+A-pass dev {'rarity': 'legendary', 'peak': 232, 'duration': 2200, 'samples': 83}
+A-pass dev {'rarity': 'mythic', 'peak': 255, 'duration': 3350, 'samples': 83}
+A-pass portable {'rarity': 'legendary', 'peak': 232, 'duration': 2200, 'samples': 83}
+A-pass portable {'rarity': 'mythic', 'peak': 255, 'duration': 3350, 'samples': 83}

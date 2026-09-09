@@ -1,0 +1,10 @@
+{
+  "command": [
+    "node",
+    "--check",
+    "_art/holo-test/ceremony.js"
+  ],
+  "exit_code": 0,
+  "seconds": 0.09,
+  "log": "1788955141635323700-node.log"
+}

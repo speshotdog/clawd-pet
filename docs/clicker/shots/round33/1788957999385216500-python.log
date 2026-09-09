@@ -1,0 +1,50 @@
+layout-pass dev 1440 5
+layout-pass dev 1440 10
+layout-pass dev 1024 5
+layout-pass dev 1024 10
+layout-pass dev 390 5
+layout-pass dev 390 10
+A5-pass dev controls
+A5-pass dev tension
+A5-pass dev tear
+A5-pass dev deal
+A5-pass dev pre-face
+A5-pass dev post-face
+A5-pass dev return
+A5-pass dev last-before
+A5-pass dev last-after
+measuring dev common
+pixel-pass dev common 49 350
+measuring dev rare
+pixel-pass dev rare 49 350
+measuring dev epic
+pixel-pass dev epic 42 0
+measuring dev legendary
+pixel-pass dev legendary 231 2200
+measuring dev mythic
+pixel-pass dev mythic 255 3350
+layout-pass portable 1440 5
+layout-pass portable 1440 10
+layout-pass portable 1024 5
+layout-pass portable 1024 10
+layout-pass portable 390 5
+layout-pass portable 390 10
+A5-pass portable controls
+A5-pass portable tension
+A5-pass portable tear
+A5-pass portable deal
+A5-pass portable pre-face
+A5-pass portable post-face
+A5-pass portable return
+A5-pass portable last-before
+A5-pass portable last-after
+measuring portable common
+pixel-pass portable common 49 350
+measuring portable rare
+pixel-pass portable rare 49 350
+measuring portable epic
+pixel-pass portable epic 42 0
+measuring portable legendary
+pixel-pass portable legendary 231 2200
+measuring portable mythic
+pixel-pass portable mythic 255 3350

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_gacha_layers_round31.py",
+    "--a"
+  ],
+  "exit_code": 0,
+  "seconds": 587.11,
+  "log": "1788955444862921900-python.log"
+}

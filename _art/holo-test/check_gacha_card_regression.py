@@ -10,7 +10,7 @@ from playwright.sync_api import sync_playwright
 from pool_data import pool, EXTRA_CARDS
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE.parent.parent / 'docs/clicker/shots/round32/retained/retained30/regression'
+OUT = HERE.parent.parent / 'docs/clicker/shots/round33/retained/retained30/regression'
 OUT.mkdir(parents=True,exist_ok=True)
 WIDTHS = [80, 102, 150, 230, 290, 380, 420]
 MEASURE = r"""c => {
@@ -181,6 +181,8 @@ def main():
                     for skip in [False,True]:
                         p.evaluate('__ceremony.reset()');p.locator(f'#p{n}').click()
                         p.wait_for_function(f'document.querySelectorAll(".slot").length==={n}')
+                        p.wait_for_function('__ceremony.state().entryPhase==="waiting"')
+                        if not skip:p.evaluate('__ceremony.openPack()')
                         if skip:
                             p.wait_for_timeout(1200);p.locator('#stage').click(position={'x':15,'y':100})
                         p.wait_for_function(f'document.querySelectorAll(".slot .hcard").length==={n}',timeout=30000)
@@ -189,7 +191,7 @@ def main():
                         p.mouse.move(1,1);settle(p)
                         cards=p.locator('.slot .hcard').evaluate_all('(cs)=>cs.map('+MEASURE+')')
                         first=p.locator('.slot:not(.page-away) .hcard').last
-                        before=first.evaluate(MEASURE);first.hover();p.wait_for_timeout(250);hover=first.evaluate(MEASURE)
+                        before=first.evaluate(MEASURE);bounds=first.bounding_box();first.hover(position={'x':bounds['width']*.7,'y':bounds['height']*.4});p.wait_for_timeout(250);hover=first.evaluate(MEASURE)
                         p.mouse.move(1,1);p.wait_for_timeout(250)
                         if n==10 and not skip:p.screenshot(path=str(OUT/f'ten-pull-{portable}.png'))
                         p.set_viewport_size({'width':1100,'height':800});p.wait_for_timeout(250)

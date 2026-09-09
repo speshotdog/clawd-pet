@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/probe_preface_round33.py"
+  ],
+  "exit_code": 0,
+  "seconds": 12.02,
+  "log": "1788956581570213700-python.log"
+}

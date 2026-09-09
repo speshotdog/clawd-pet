@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_card_regression.py", line 222, in <module>
+    sys.exit(main())
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_card_regression.py", line 205, in main
+    assert before['vars']['--phase']!=hover['vars']['--phase'],(portable,n,skip,'foil did not respond')
+AssertionError: (False, 1, False, 'foil did not respond')

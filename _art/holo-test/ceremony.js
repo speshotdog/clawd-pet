@@ -2,6 +2,9 @@
 const stage=$('#stage'),fan=$('#fan'),win=$('#win'),idlepack=$('#entry-pack'),hint=$('#hint');
 const btn={p1:$('#p1'),p5:$('#p5'),p10:$('#p10'),all:$('#revealall'),fin:$('#finish')};
 let busy=false,slots=[],pending=0,tickets=30,cascading=false,skipped=false,generation=0;
+const ticketPolicy={unlimited:false,label:''};
+if(ticketPolicy.unlimited){$('#ticket').textContent='∞';const label=node('p','test-label',ticketPolicy.label);win.append(label);}
+let entryPhase='idle',packResolve=null;
 const anims=new Set(),timers=new Map(),rafs=new Map(),voices=new Set();
 const fxPainters=new Set();
 const testing=new URLSearchParams(location.search).has('ceremony-test');
@@ -56,6 +59,7 @@ function sweep(s,duration=450,reverse=false,strength=1,dual=false){const run=gen
   timers.set(endTimer,()=>resolve(false));
   id=requestAnimationFrame(step);rafs.set(id,cancel);});}
 function cancelWork(){
+  packResolve?.(false);packResolve=null;entryPhase="idle";win.dataset.entryPhase="idle";idlepack.removeAttribute("role");idlepack.removeAttribute("tabindex");idlepack.getAnimations().forEach(a=>a.cancel());
   for(const [id,cancel] of timers){clearTimeout(timerDetails.get(id)?.id);cancel();}timers.clear();timerDetails.clear();pausedRafs.clear();
   for(const [id,cancel] of rafs){cancelAnimationFrame(id);cancel();}rafs.clear();
   for(const a of anims)a.cancel();anims.clear();stopAudio();
@@ -71,7 +75,7 @@ function clearRun(){generation++;cancelWork();
   $('.entry-actions').classList.remove('press-feedback');win.querySelectorAll('.control-sheen').forEach(e=>e.remove());
   fan.replaceChildren();slots=[];busy=false;skipped=false;cascading=false;pending=0;collectMarked=false;
   setScreen('entry');pageIndex=0;selectedIndex=0;collecting=false;btn.fin.hidden=true;btn.all.hidden=true;idlepack.style.opacity='';
-  for(const [b,n] of [[btn.p1,1],[btn.p5,5],[btn.p10,10]])b.disabled=tickets<n;
+  for(const [b,n] of [[btn.p1,1],[btn.p5,5],[btn.p10,10]])b.disabled=!ticketPolicy.unlimited&&tickets<n;
 }
 function setScreen(next){
   if(!['entry','ceremony','results'].includes(next))throw new Error('Invalid screen');
@@ -119,7 +123,7 @@ async function prelude(run,n){
  root=node('div','ceremony-root');const pack=node('div','summon-pack'),body=node('div','summon-pack-body'),top=node('div','summon-pack-top'),tear=node('div','summon-tear');
  pack.append(body,top,tear);root.append(pack);stage.prepend(root);idlepack.style.opacity='0';
  mark('phase-start',null,{phase:'entry'});hint.textContent='點空白處跳過';
- A(pack,[{transform:`translateY(${innerHeight<=700&&!mobile()?-28:-40}px) rotate(-4deg)`},{transform:'translateY(0) rotate(0deg)'}],{duration:240});
+ A(pack,[{transform:`translateY(0) rotate(0deg) scale(1.08)`},{transform:'translateY(0) rotate(0deg)'}],{duration:240});
  if(!await wait(240,run))return false;
  mark('phase-start',null,{phase:'tension'});A(pack,[{transform:'translateY(0) scale(1)'},{transform:'translateY(5px) scale(.985)'}],{duration:200});
  if(!await wait(200,run))return false;
@@ -139,24 +143,41 @@ async function prelude(run,n){
  for(const s of slots){s.el.style.opacity='1';s.el.getAnimations().forEach(a=>a.cancel());position(s);}
  root.remove();root=null;mark('phase-start',null,{phase:'cards',prelude:1300+stagger*(n-1)});return true;
 }
-async function pull(n){if(busy||slots.length||tickets<n)return;const run=++generation;
+async function pull(n){if(busy||slots.length||(!ticketPolicy.unlimited&&tickets<n))return;const run=++generation;
   stopCollectionAudio();
   if(!muted){try{audio=window.CeremonyAudio.ensure();audio.resume().catch(()=>{});}catch{muted=true;audioLabel();}}
-  busy=true;skipped=false;cascading=false;collectMarked=false;tickets-=n;$('#ticket').textContent=tickets;
-  for(const b of [btn.p1,btn.p5,btn.p10])b.disabled=true;
+  busy=true;skipped=false;cascading=false;collectMarked=false;if(!ticketPolicy.unlimited)tickets-=n;$('#ticket').textContent=ticketPolicy.unlimited?'∞':tickets;
+  for(const b of [btn.p1,btn.p5,btn.p10])b.disabled=!ticketPolicy.unlimited;
   setScreen('ceremony');idlepack.style.opacity='1';
-  if(!reduced.matches){const controls=$('.entry-actions'),pressed=btn['p'+n],sheen=node('span','control-sheen');controls.classList.add('press-feedback');pressed.append(sheen);
-    A(pressed,[{transform:'translateY(0)'},{transform:'translateY(2px)'}],{duration:80});A(sheen,[{transform:'translateX(-120%)'},{transform:'translateX(120%)'}],{duration:160});
-    const exiting=A(controls,[{opacity:1},{opacity:0}],{duration:240});later(()=>{controls.classList.remove('press-feedback');sheen.remove();exiting.cancel();pressed.getAnimations().forEach(a=>a.cancel());},240,run);
-  }
+  entryPhase='controls';win.dataset.entryPhase=entryPhase;mark('transition',null,{phase:entryPhase});
+  const controls=$('.entry-actions');controls.classList.add('press-feedback');
+  const exiting=A(controls,[{opacity:1},{opacity:0}],{duration:reduced.matches?0:220});
+  const transition=(async()=>{
+    if(!reduced.matches&&!await wait(220,run))return false;
+    exiting.cancel();controls.classList.remove('press-feedback');
+    entryPhase='push';win.dataset.entryPhase=entryPhase;mark('transition',null,{phase:entryPhase});
+    const push=A(idlepack,[{transform:'translateY(0) rotate(-4deg) scale(1)'},{transform:`translateY(${innerHeight<=700&&!mobile()?28:40}px) rotate(0deg) scale(1.08)`}],{duration:reduced.matches?0:380});
+    if(!reduced.matches&&!await wait(380,run))return false;
+    return run===generation;
+  })();
   btn.all.hidden=false;hint.textContent='準備卡片…';
   const result=testing&&window.__ceremonyFixture?window.__ceremonyFixture.slice(0,n):draw(n);createSlots(result,run);
   ready=prepare(result,run).catch(error=>{if(run===generation){hint.textContent='素材載入失敗，請重新載入再試。';mark('asset-error',null,{message:String(error)});}return false;});
-  if(!await ready||run!==generation)return;
+  if(!await ready||!await transition||run!==generation)return;
+  entryPhase='waiting';win.dataset.entryPhase=entryPhase;mark('phase-start',null,{phase:'waiting'});
+  hint.textContent='點擊卡包開封';idlepack.setAttribute('role','button');idlepack.setAttribute('tabindex','0');idlepack.setAttribute('aria-label','點擊開封');
+  if(!await new Promise(resolve=>{packResolve=resolve;})||run!==generation)return;
   if(reduced.matches){skipAll();return;}
   if(!await prelude(run,n)||run!==generation)return;
   busy=false;cascade();
 }
+function openPack(){
+ if(entryPhase!=='waiting'||!packResolve)return false;
+ const resolve=packResolve;packResolve=null;entryPhase='opening';win.dataset.entryPhase=entryPhase;
+ idlepack.removeAttribute('role');idlepack.removeAttribute('tabindex');mark('pack-open');resolve(true);return true;
+}
+idlepack.addEventListener('click',e=>{e.stopPropagation();openPack();});
+idlepack.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPack();}});
 async function cascade(){const run=generation;cascading=true;
   // Serial scheduling is deliberately rarity-independent before first sight.
   // This stricter form of the high-tier mutex also avoids leaking the next rank by its start time.
@@ -182,9 +203,11 @@ async function chargeHigh(s){
   frames.push({offset:p,transform:`translate(${wave*amp}px,${Math.cos(t/1000*Math.PI*2*19)*amp*.35}px) rotate(${wave*(mythic?1.2:.8)*Math.min(1,envelope)}deg)`});
  }
  const shake=A(s.shell,frames,{duration,easing:'linear'});
+ const backlight=node('div','rarity-fx charge-surface');s.back.append(backlight);backlight.style.setProperty('--charge-color',mythic?'218,241,255':'255,194,104');
+ const surface=A(backlight,[{opacity:0},{opacity:mythic?.65:.52,offset:1-contraction/duration},{opacity:.08}],{duration,easing:'ease-in'});
  const light=A(glow,[{opacity:0},{opacity:mythic?.7:.6,offset:1-contraction/duration},{opacity:mythic?.3:.25}],{duration,easing:'ease-in'});
  sound('charge',s,duration/1000);
- const ok=await wait(duration,s.run);shake.cancel();light.cancel();glow.remove();return ok;
+ const ok=await wait(duration,s.run);shake.cancel();light.cancel();surface.cancel();glow.remove();backlight.remove();return ok;
 }
 async function beginReveal(s){const run=s.run;s.revealed=true;s.el.classList.add('is-revealing');mark('phase-start',s,{phase:'charge'});
  const start=slotTransform(s);s.el.style.setProperty('--cw',focusWidth()+'px');HoloCardFace.refit(s.face);
@@ -202,11 +225,11 @@ function commitFaceVisible(s){s.back.hidden=true;s.flip.style.transform='rotateY
 }
 function fx(s,name,delay,duration,options={}){const run=s.run;
  const launch=()=>{if(run!==generation)return;mark('fx-start',s,{effect:name,duration});
- const e=node('div','rarity-fx '+name);e.style.setProperty('--light',options.color||SURGE[s.data.rarity]);s.anchor.append(e);
+ const e=node('div','rarity-fx '+name);e.style.setProperty('--light',options.color||SURGE[s.data.rarity]);stage.append(e);e.dataset.owner=slots.indexOf(s);e.classList.add("shockwave");const box=s.shell.getBoundingClientRect();e.style.left=(box.x+box.width/2)+"px";e.style.top=(box.y+box.height/2)+"px";
  const cw=focusWidth();e.style.width=(options.width||cw)+'px';
  if(options.band)e.style.setProperty('--band',options.band+'px');
  if(options.height)e.style.height=options.height+'px';
- const frames=options.frames||[{opacity:0,scale:options.from??.9,'--band':(options.band||24)+'px',borderWidth:(options.line||4)+'px'},{opacity:options.peak??.65,offset:Math.min(24/duration,.2)},{opacity:0,scale:options.to??1.8,'--band':'6px',borderWidth:'1px'}];
+ const frames=options.frames||[{opacity:0,scale:options.from??.9,'--band':(options.band||24)+'px',borderWidth:(options.line||4)+'px'},{opacity:options.peak??.65,offset:Math.min(24/duration,.2)},{opacity:0,scale:options.to??1.8,'--band':'14px',borderWidth:'1px'}];
  const a=A(e,frames,{duration,easing:'cubic-bezier(.215,.61,.355,1)'});
  later(()=>{a.cancel();e.remove();mark('fx-end',s,{effect:name});},duration,run);
  };if(delay)later(launch,delay,run);else launch();
@@ -222,15 +245,15 @@ function runRarityFx(s){const r=s.data.rarity,u=unit();
  mark('fx-start',s,{effect:'foil-sweep',duration:sweepDuration});if(r==='mythic'){sweep(s,920,false,1,true);later(()=>mark('fx-end',s,{effect:'foil-sweep'}),560,s.run);}else sweep(s,sweepDuration).then(ok=>{if(ok)mark('fx-end',s,{effect:'foil-sweep'});});
  sound('reveal',s);runCanvasFx(s);
  if(r==='legendary'){
-  fx(s,'fx-substrate-wave',40,900,{width:mobile()?560:1100*u,from:.3,to:1,band:32,peak:.65});
+  fx(s,'fx-substrate-wave',40,900,{width:mobile()?560:1100*u,from:.3,to:1,band:70,peak:.42});
   later(()=>stageImpact(s,3,160),80,s.run);
  }
  if(r==='mythic'){
   // Original runtime's white flash, moved to F to preserve the neutral pre-F contract.
   const flash=node('div','rarity-fx ceremony-flash');stage.append(flash);
   const a=A(flash,[{opacity:1},{opacity:0}],{duration:156});later(()=>{a.cancel();flash.remove();},156,s.run);
-  fx(s,'fx-spectrum-wave',60,1100,{width:mobile()?680:1320*u,from:.28,to:1,band:32,peak:.7});
-  fx(s,'fx-counter-wave',180,1200,{width:mobile()?505:980*u,from:360/980,to:1,band:24,peak:.45});
+  fx(s,'fx-spectrum-wave',60,1100,{width:mobile()?680:1320*u,from:.28,to:1,band:70,peak:.45});
+  fx(s,'fx-counter-wave',180,1200,{width:mobile()?505:980*u,from:360/980,to:1,band:56,peak:.32});
   fx(s,'mythic-ripple',0,1040,{width:focusWidth()+30,frames:[{opacity:1,scale:.9},{opacity:0,scale:1.8}]});
   // Single material writer: second pass blends in from +480, never races the first sweep.
   later(()=>{mark('fx-start',s,{effect:'foil-afterglow',duration:440});},480,s.run);
@@ -239,23 +262,24 @@ function runRarityFx(s){const r=s.data.rarity,u=unit();
  }
 }
 function runCanvasFx(s){
- const run=s.run,upper=node('canvas','rarity-fx ceremony-canvas'),lower=node('canvas','rarity-fx ceremony-canvas under');
- for(const c of [lower,upper]){c.width=innerWidth;c.height=innerHeight;stage.append(c);}
- const engine=CeremonyFx(),box=s.shell.getBoundingClientRect();engine.init(upper,lower);
+ const run=s.run,upper=node('canvas','rarity-fx ceremony-canvas'),lower=node('canvas','rarity-fx ceremony-canvas under'),over=node('canvas','rarity-fx ceremony-canvas over');
+ for(const c of [lower,upper,over]){c.width=innerWidth;c.height=innerHeight;stage.append(c);}
+ over.classList.toggle('high-impact',['legendary','mythic'].includes(s.data.rarity));
+ const engine=CeremonyFx(),box=s.shell.getBoundingClientRect();engine.init(upper,lower,over);s.el.classList.add("light-owner");
  engine.strengthen(box.x+box.width/2,box.y+box.height/2,s.data.rarity);
  mark('fx-start',s,{effect:'original-particles',particles:engine.particles});
  let id,ended=false,ticks=0;const start=activeNow();
- const cancel=()=>{if(ended)return;ended=true;fxPainters.delete(paint);cancelAnimationFrame(id);rafs.delete(id);engine.stop();upper.remove();lower.remove();mark('fx-end',s,{effect:'original-particles'});};
+ const cancel=()=>{if(ended)return;ended=true;fxPainters.delete(paint);cancelAnimationFrame(id);rafs.delete(id);engine.stop();upper.remove();lower.remove();over.remove();s.el.classList.remove("light-owner");mark('fx-end',s,{effect:'original-particles'});};
  const paint=(force=false)=>{if(ended||run!==generation)return;const targetTicks=Math.floor(((activeNow()-start)*60+1e-6)/1000);
   // The rectangular contract also covers transparent rounded corners and the
-  // edge-on flip. Exclude those footprints without changing off-card photons.
-  const faces=slots.filter(s=>s.face&&s.face.style.visibility==='visible').map(s=>s.face.getBoundingClientRect());
-  for(const c of stage.querySelectorAll('.ceremony-canvas,.ceremony-flash')){
+  // edge-on flip. Protect this effect owner and the current performer; neighboring cards receive backlight.
+  const faces=slots.filter(q=>q===s||q.el.classList.contains('is-revealing')).map(q=>q.face.getBoundingClientRect());
+  for(const c of [upper,lower,...stage.querySelectorAll('.ceremony-flash')]){
     const box=c.getBoundingClientRect();
-    const holes=faces.map(r=>`M${r.left-box.left} ${r.top-box.top}H${r.right-box.left}V${r.bottom-box.top}H${r.left-box.left}Z`).join('');
+    const holes=faces.map(r=>`M${Math.floor(r.left-box.left)-1} ${Math.floor(r.top-box.top)-1}H${Math.ceil(r.right-box.left)+1}V${Math.ceil(r.bottom-box.top)+1}H${Math.floor(r.left-box.left)-1}Z`).join('');
     c.style.clipPath=`path(evenodd, "M0 0H${box.width}V${box.height}H0Z${holes}")`;
   }
-  const target=s.shell.getBoundingClientRect();engine.move((target.x+target.width/2)*upper.width/innerWidth-box.x-box.width/2,(target.y+target.height/2)*upper.height/innerHeight-box.y-box.height/2);
+  const target=s.shell.getBoundingClientRect();if(target.width)for(const e of stage.querySelectorAll(`.shockwave[data-owner="${slots.indexOf(s)}"]`)){e.style.left=(target.x+target.width/2)+"px";e.style.top=(target.y+target.height/2)+"px";}if(target.width)engine.move((target.x+target.width/2)*upper.width/innerWidth-box.x-box.width/2,(target.y+target.height/2)*upper.height/innerHeight-box.y-box.height/2);
   // Integrate elapsed active time, including delayed frames, without truncating tails.
   while(ticks<targetTicks&&engine.active){ticks++;engine.step(1/60,ticks===targetTicks);}
   if(force&&engine.active)engine.step(0);
@@ -296,7 +320,7 @@ async function skipAll(){if(!slots.length||skipped)return;skipped=true;const pre
   }
   if(run!==generation)return;
   mark('phase-start',null,{phase:reduced.matches?'reduced':'skip',fromRun:old});
-  for(const s of slots){s.shell.getAnimations({subtree:true}).forEach(a=>a.cancel());s.flip.style.transform='';s.el.classList.remove('is-revealing');s.back.hidden=true;s.face.style.visibility='visible';s.el.style.opacity='1';position(s);}
+  for(const s of slots){s.shell.getAnimations({subtree:true}).forEach(a=>a.cancel());s.flip.style.transform='';s.el.classList.remove('is-revealing','light-owner');s.back.hidden=true;s.face.style.visibility='visible';s.el.style.opacity='1';position(s);}
   const fade=A(fan,[{opacity:0},{opacity:1}],{duration:180});if(!await wait(180,run)||run!==generation)return;fade.cancel();
   for(const s of slots)completeSlot(s);busy=false;finishReveal();
 }
@@ -314,7 +338,8 @@ function bindInteraction(s){let drag=null,rebound=null,lightX=0,lightY=0;const f
     cancel.resume=()=>{id=requestAnimationFrame(step);rafs.set(id,cancel);};rebound=cancel;cancel.resume();
   };
   el.addEventListener('pointerdown',e=>{if(!s.complete||e.button>0)return;e.preventDefault();getSelection()?.removeAllRanges();stop();if(e.pointerType!=='touch'){slots.forEach(x=>x.el.classList.remove('selected'));s.el.classList.add('selected');}drag={x:e.clientX,y:e.clientY,rx:s.rx,ry:s.ry};el.setPointerCapture(e.pointerId);});
-  el.addEventListener('pointermove',e=>{if(!s.complete)return;const b=el.getBoundingClientRect();
+  el.addEventListener('pointerenter',()=>{if(s.complete)stop();});
+  el.addEventListener('pointermove',e=>{if(!s.complete)return;stop();const b=el.getBoundingClientRect();
     if(drag){s.rx=Math.max(-18,Math.min(18,drag.rx-(e.clientY-drag.y)*.2));s.ry=Math.max(-18,Math.min(18,drag.ry+(e.clientX-drag.x)*.2));}
     if(!rebound)paint((e.clientX-b.left)/b.width*2-1,(e.clientY-b.top)/b.height*2-1);});
   el.addEventListener('pointerup',e=>{if(drag&&e.pointerType==='touch'&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6){const selected=s.el.classList.contains('selected');slots.forEach(x=>x.el.classList.remove('selected'));s.el.classList.toggle('selected',!selected);}release();if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);});
@@ -349,4 +374,4 @@ win.style.setProperty('--pack',`url("${path('fx/foil-pack.webp')}")`);win.style.
 __SUBSTRATE_INIT__
 backgroundVisibility();
 addEventListener('resize',()=>{if(slots.length)relayout();});
-if(testing)window.__ceremony={events,pull,skipAll,syncFx:()=>fxPainters.forEach(paint=>paint(true)),reset:()=>{tickets=30;$('#ticket').textContent=tickets;clearRun();},layout,ready:()=>ready,setScreen,state:()=>({screen,pageIndex,selectedIndex,generation,busy,cascading,skipped,anims:anims.size,timers:timers.size,rafs:rafs.size,voices:voices.size,complete:slots.filter(s=>s.complete).length,ids:slots.map(s=>s.data.id),collectable:!btn.fin.hidden}),pause:()=>win.getAnimations({subtree:true}).forEach(a=>a.pause())};
+if(testing)window.__ceremony={events,pull,skipAll,openPack,syncFx:()=>fxPainters.forEach(paint=>paint(true)),reset:()=>{tickets=30;$('#ticket').textContent=ticketPolicy.unlimited?'∞':tickets;clearRun();},layout,ready:()=>ready,setScreen,state:()=>({screen,entryPhase,pageIndex,selectedIndex,generation,busy,cascading,skipped,anims:anims.size,timers:timers.size,rafs:rafs.size,voices:voices.size,complete:slots.filter(s=>s.complete).length,ids:slots.map(s=>s.data.id),collectable:!btn.fin.hidden}),pause:()=>win.getAnimations({subtree:true}).forEach(a=>a.pause())};

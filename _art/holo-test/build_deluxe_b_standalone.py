@@ -10,12 +10,13 @@ Run build_deluxe_b.py first.
 from base64 import b64encode
 from io import BytesIO
 from pathlib import Path
-import json, re
+import json, re, argparse
+parser=argparse.ArgumentParser();parser.add_argument("--test",action="store_true");TEST=parser.parse_args().test
 from PIL import Image
 
 OUT = Path(__file__).parent
 ROOT = (OUT / '../..').resolve()
-page = (OUT / 'deluxe-gacha-b.html').read_text(encoding='utf-8')
+page = (OUT / ('deluxe-gacha-b-test.html' if TEST else 'deluxe-gacha-b.html')).read_text(encoding='utf-8')
 cards = json.loads(re.search(r'<script type="application/json" id="pool-data">(.*?)</script>', page, re.S).group(1))
 
 
@@ -71,6 +72,6 @@ tag = '<script type="application/json" id="pool-data">'
 page = page.replace(tag, '<script type="application/json" id="asset-data">'
                     + json.dumps(assets, separators=(',', ':')) + '</script>\n' + tag, 1)
 
-target = OUT / 'deluxe-gacha-b-standalone.html'
+target = OUT / ('deluxe-gacha-b-test-standalone.html' if TEST else 'deluxe-gacha-b-standalone.html')
 target.write_text(page, encoding='utf-8', newline='\n')
 print('wrote', target.name, '%.2f MiB' % (target.stat().st_size / 1048576), '| assets:', len(assets))

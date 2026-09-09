@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_new_cards_round32.py"
+  ],
+  "exit_code": 1,
+  "seconds": 195.78,
+  "log": "1788955076468255400-python.log"
+}

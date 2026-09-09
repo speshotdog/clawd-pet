@@ -73,7 +73,7 @@ button:disabled{opacity:.4;cursor:default}
 .fx-local-reflection{width:210%;height:150%;background:radial-gradient(ellipse,currentColor,transparent 65%);opacity:.16;mix-blend-mode:screen}
 .fx-flake,.fx-afterglow{width:6px;height:24px;background:linear-gradient(110deg,transparent,currentColor 45%,#eee8d6 52%,transparent);clip-path:polygon(35% 0,100% 18%,65% 100%,0 72%)}
 @media(max-width:600px){
- .summoning-geometry{width:780px;height:780px;max-width:none}
+ .summoning-geometry{width:740px;height:740px;max-width:none}
  .summon-axes{transform:translateX(200px) scaleX(.5)}
  .entry-pack,.summon-pack{width:min(76vw,300px)}
  .entry-pack{top:calc(50% - 40px)}
@@ -93,9 +93,49 @@ button:disabled{opacity:.4;cursor:default}
 
 .slot.mobile-current:not(.is-revealing){z-index:6}
 
-/* Round 30: separate tabletop slots; original canvas impact lives behind cards. */
+/* Base canvas rules; the round 33 four-plane rules below define final ordering. */
 .ceremony-canvas{position:absolute;inset:0;left:0;top:0;translate:none;width:100%;height:100%;z-index:1}
 .ceremony-canvas.under{z-index:1}
 .ceremony-flash{inset:0;left:0;top:0;translate:none;background:white;z-index:1}
 .mythic-ripple{aspect-ratio:5/7;border:6px solid #ff4fd8;border-image:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8) 1}
 .charge-glow{width:230%;height:180%;z-index:-1;background:radial-gradient(ellipse,rgba(var(--charge-color),.9),rgba(var(--charge-color),.35) 35%,transparent 68%);opacity:0}
+/* Four planes: neighbors (2–7), backlight (8), performer (10), waves (20). */
+.ceremony-canvas,.ceremony-canvas.under,.ceremony-flash{z-index:8}
+.slot.light-owner{z-index:9}
+.slot.is-revealing{z-index:10}
+.ceremony-canvas.over,.shockwave{z-index:20}
+.shockwave{filter:opacity(.4)}
+.ceremony-canvas.over.high-impact{opacity:.25}
+.charge-surface{inset:0;left:0;top:0;translate:none;border-radius:inherit;background:rgb(var(--charge-color));mix-blend-mode:screen;opacity:0}
+.pull-actions button,#p10{border:0;border-radius:0;background:#c7c7c7;color:#eee;box-shadow:none;clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%);height:64px;padding:9px 18px;isolation:isolate}
+.pull-actions button::before{content:'';position:absolute;inset:1px;background:#070808;clip-path:inherit;z-index:-1;transition:background 160ms}
+.pull-actions button:hover::before{background:#1b1e20}
+.pull-actions button:active::before{background:#303335}
+.pull-actions button:focus-visible{outline:0;background:#fff;filter:drop-shadow(0 0 5px #fff)}
+.pull-actions button:focus-visible::before{inset:3px}
+.pull-actions button small{display:block;font:12px/1.3 inherit;margin-top:6px;color:#bfc3c9}
+.test-label{position:absolute;left:24px;top:16px;z-index:31;color:#fff;border-bottom:1px solid #777;padding:5px 0;font-size:12px}
+.win[data-entry-phase=waiting] .entry-pack{pointer-events:auto;cursor:pointer}
+.win[data-entry-phase=waiting] .entry-pack:after{content:'點擊開封';position:absolute;top:105%;width:100%;text-align:center;color:#eee;font-size:13px;letter-spacing:.2em;animation:pack-prompt 2s ease-in-out infinite}
+.win[data-entry-phase=push] .summoning-geometry,.win[data-entry-phase=waiting] .summoning-geometry{scale:.92;transition:scale 380ms ease-out}
+@keyframes pack-prompt{0%,100%{opacity:.5}50%{opacity:1}}
+.background-paused .stage-background *,.focus-held .stage-background *{animation-play-state:paused!important}
+.orbit-outer{transform-origin:400px 352px;animation:orbit-turn 24s linear infinite}
+.orbit-inner{transform-origin:400px 352px;animation:orbit-turn 18s linear infinite reverse}
+.orbit-dots{animation:orbit-dash 6s linear infinite}
+.orbit-arcs{transform-origin:400px 352px;animation:orbit-sway 12s ease-in-out infinite}
+.orbit-ticks{transform-origin:400px 352px;animation:orbit-turn 32s linear infinite}
+.orbit-star{transform-origin:400px 352px;animation:star-pulse 4s ease-in-out infinite}
+.axis-points{animation:axis-flow 5s linear infinite}
+.floor-ripple{transform-origin:400px 576px;animation:floor-wave 6s linear infinite}
+.floor-ripple.two{animation-delay:-2s}.floor-ripple.three{animation-delay:-4s}
+.water-line{animation:water-flow 8s ease-in-out infinite}
+.water-line.second{animation-duration:10s;animation-direction:reverse}
+@keyframes orbit-turn{from{rotate:0deg}to{rotate:360deg}}
+@keyframes orbit-dash{from{stroke-dashoffset:0}to{stroke-dashoffset:-9}}
+@keyframes orbit-sway{0%,100%{rotate:-12deg}50%{rotate:12deg}}
+@keyframes star-pulse{0%,100%{opacity:.35;scale:.92}50%{opacity:.65;scale:1.05}}
+@keyframes axis-flow{0%{translate:0 -30px;opacity:0}15%,75%{opacity:.55}100%{translate:0 100px;opacity:0}}
+@keyframes floor-wave{0%{scale:.35;opacity:0}20%{opacity:.22}100%{scale:1.6;opacity:0}}
+@keyframes water-flow{0%,100%{translate:-12px 0;opacity:.13}50%{translate:12px 3px;opacity:.2}}
+@media(prefers-reduced-motion:reduce){.stage-background *,.entry-pack:after{animation:none!important;transition:none!important}}

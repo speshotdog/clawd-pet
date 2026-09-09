@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_background_samples_round33.py"
+  ],
+  "exit_code": 0,
+  "seconds": 4.78,
+  "log": "1788956317657248700-python.log"
+}

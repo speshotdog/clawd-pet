@@ -75,11 +75,12 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
             p.clock.install(time=datetime(2026,9,9,tzinfo=timezone.utc))
             p.clock.pause_at(datetime(2026,9,9,0,0,1,tzinfo=timezone.utc))
             p.add_init_script(ANIMATION_CLOCK)
-            p.goto(copied.as_uri())
+            p.goto(copied.as_uri()+'?ceremony-test')
             for phase,fixture in fixtures.items():
                 for repeat in range(repeats):
                     p.evaluate("""f=>{__testReset();window.__fixture=f;window.__early=[];window.__finishVisibleAt=0;window.__lastAnimationEnd=0;document.querySelector('#p10').click()}""",fixture)
                     p.evaluate('async()=>await __prepared()')
+                    advance(p,600);p.evaluate('__ceremony.openPack()')
                     advance(p,1750+offsets[phase])
                     before=p.evaluate('__state()')
                     if phase=='last-before':assert before['started']==9,before
@@ -104,9 +105,11 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
                 # Cancel while callbacks/animations are live, then immediately draw again.
                 p.evaluate("__testReset();document.querySelector('#p10').click()")
                 p.evaluate('async()=>await __prepared()')
+                advance(p,600);p.evaluate('__ceremony.openPack()')
                 advance(p,1750+offsets[phase])
                 p.evaluate("document.querySelector('#revealall').click();__testReset();document.querySelector('#p1').click()")
                 p.evaluate('async()=>await __prepared()')
+                advance(p,600);p.evaluate('__ceremony.openPack()')
                 advance(p,9000)
                 clean=p.evaluate('__state()')
                 assert clean['slots']==1 and clean['faces']==1 and clean['completed']==1 and clean['tickets']==29 and clean['detached']==0 and not clean['hidden'] and not clean['anims'] and not clean['sparks'], clean
@@ -115,9 +118,11 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
             # Reset during the initial charge, before slots exist.
             p.evaluate("__testReset();document.querySelector('#p10').click()")
             p.evaluate('async()=>await __prepared()')
+            advance(p,600);p.evaluate('__ceremony.openPack()')
             advance(p,100)
             p.evaluate("__testReset();document.querySelector('#p1').click()")
             p.evaluate('async()=>await __prepared()')
+            advance(p,600);p.evaluate('__ceremony.openPack()')
             advance(p,9000)
             clean=p.evaluate('__state()')
             assert clean['slots']==1 and clean['faces']==1 and clean['detached']==0 and not clean['hidden'],clean

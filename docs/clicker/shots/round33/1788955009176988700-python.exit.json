@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_gacha_card_regression.py",
+    "--flows-only"
+  ],
+  "exit_code": 0,
+  "seconds": 103.47,
+  "log": "1788955009176988700-python.log"
+}

@@ -1,0 +1,388 @@
+[
+  {
+    "check": "dev C idle rAF",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "dev C seamless independent animations",
+    "pass_": true,
+    "data": {
+      "elements": [
+        {
+          "name": "sigil-breathe",
+          "duration": 28000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            13,
+            1157,
+            887
+          ]
+        },
+        {
+          "name": "axis-flow",
+          "duration": 5000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            390,
+            118,
+            1050,
+            737
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 24000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            544
+          ]
+        },
+        {
+          "name": "orbit-dash",
+          "duration": 6000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            542,
+            278,
+            898,
+            512
+          ]
+        },
+        {
+          "name": "orbit-sway",
+          "duration": 12000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 18000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            564,
+            321,
+            875,
+            468
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 32000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -2000,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -4000,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 8000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 10000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "star-pulse",
+          "duration": 4000,
+          "delay": 0,
+          "packHiddenForIsolation": true,
+          "seam": null,
+          "motion": [
+            695,
+            358,
+            745,
+            434
+          ]
+        }
+      ],
+      "moving": 13
+    }
+  },
+  {
+    "check": "dev C paused",
+    "pass_": true,
+    "data": true
+  },
+  {
+    "check": "dev C reduced animation count",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "portable C idle rAF",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "portable C seamless independent animations",
+    "pass_": true,
+    "data": {
+      "elements": [
+        {
+          "name": "sigil-breathe",
+          "duration": 28000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            13,
+            1157,
+            887
+          ]
+        },
+        {
+          "name": "axis-flow",
+          "duration": 5000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            390,
+            118,
+            1050,
+            737
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 24000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            544
+          ]
+        },
+        {
+          "name": "orbit-dash",
+          "duration": 6000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            542,
+            278,
+            898,
+            512
+          ]
+        },
+        {
+          "name": "orbit-sway",
+          "duration": 12000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 18000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            564,
+            321,
+            875,
+            468
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 32000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -2000,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -4000,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 8000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 10000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "star-pulse",
+          "duration": 4000,
+          "delay": 0,
+          "packHiddenForIsolation": true,
+          "seam": null,
+          "motion": [
+            695,
+            358,
+            745,
+            434
+          ]
+        }
+      ],
+      "moving": 13
+    }
+  },
+  {
+    "check": "portable C paused",
+    "pass_": true,
+    "data": true
+  },
+  {
+    "check": "portable C reduced animation count",
+    "pass_": true,
+    "data": 0
+  }
+]

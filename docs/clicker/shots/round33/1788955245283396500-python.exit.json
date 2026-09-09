@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_hover_round33.py"
+  ],
+  "exit_code": 0,
+  "seconds": 7.73,
+  "log": "1788955245283396500-python.log"
+}

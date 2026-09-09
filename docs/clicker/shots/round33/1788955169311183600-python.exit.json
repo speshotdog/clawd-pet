@@ -1,0 +1,9 @@
+{
+  "command": [
+    "C:\\Users\\ASUS User VII\\AppData\\Local\\Programs\\Python\\Python310\\python.exe",
+    "D:\\claude\\clawd-pet-holo\\_art\\holo-test\\check_gacha_card_regression.py"
+  ],
+  "exit_code": 0,
+  "seconds": 1237.67,
+  "log": "1788955169311183600-python.log"
+}

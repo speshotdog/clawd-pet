@@ -1,0 +1,34 @@
+[
+  {
+    "label": "dev",
+    "complete": 1,
+    "running": 1,
+    "afterMove": 0,
+    "phase": "152.22857142857143deg",
+    "phase300": "152.22857142857143deg",
+    "neutral": "120deg",
+    "center": "120deg",
+    "pixel_bbox": [
+      529,
+      158,
+      913,
+      695
+    ]
+  },
+  {
+    "label": "portable",
+    "complete": 1,
+    "running": 1,
+    "afterMove": 0,
+    "phase": "152.22857142857143deg",
+    "phase300": "152.22857142857143deg",
+    "neutral": "120deg",
+    "center": "120deg",
+    "pixel_bbox": [
+      529,
+      158,
+      913,
+      695
+    ]
+  }
+]

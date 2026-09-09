@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "py_compile",
+    "_art/holo-test/check_reveal_timing.py",
+    "_art/holo-test/check_gacha_layers_round33.py",
+    "_art/holo-test/check_gacha_ceremony_round30.py"
+  ],
+  "exit_code": 0,
+  "seconds": 0.12,
+  "log": "1788955140533464300-python.log"
+}

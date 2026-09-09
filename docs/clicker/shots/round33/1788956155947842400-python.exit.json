@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_gacha_ceremony_round30.py"
+  ],
+  "exit_code": 1,
+  "seconds": 30.94,
+  "log": "1788956155947842400-python.log"
+}

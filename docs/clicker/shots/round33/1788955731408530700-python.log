@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "D:\claude\clawd-pet-holo\_art\holo-test\probe_occlusion_round33.py", line 22, in <module>
+    assert row['original_bbox'] is None and row['unclipped_bbox'] is not None and max(row['css_mean'])>0,row
+AssertionError: {'rarity': 'legendary', 'neighbor': (359, 92, 574, 396), 'original_bbox': None, 'original_max': 0, 'css_mean': [4.089427784577723, 4.163264993880049, 4.362928396572827], 'unclipped_canvas_mean': [0.0, 0.0, 0.0], 'unclipped_bbox': None}

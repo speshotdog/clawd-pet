@@ -7,7 +7,7 @@ from playwright.sync_api import sync_playwright
 from check_gacha_ceremony_round28 import HERE, BY, CARDS, open_page, start, advance, state
 from check_gacha_ceremony_round30 import shot, p95, nonoverlap
 
-OUT=HERE.parent.parent/'docs/clicker/shots/round32/retained'
+OUT=HERE.parent.parent/'docs/clicker/shots/round33/retained'
 OUT.mkdir(parents=True,exist_ok=True)
 
 def save(name,data):
@@ -70,7 +70,7 @@ def layers(browser,file,label):
             if t==3000:
                 p.locator('.slot').evaluate("e=>e.classList.remove('selected')")
                 p.mouse.move(1,1)
-            a,b=pair(p,'.ceremony-canvas,.ceremony-flash');box=rect(p)
+            a,b=pair(p,'.ceremony-canvas:not(.over),.ceremony-flash');box=rect(p)
             diff=ImageChops.difference(a,b).crop(box)
             # Include every whole pixel in the card rect, including curved corners.
             peak=max(v[1] for v in diff.getextrema())
@@ -123,7 +123,7 @@ def waves(browser,file,label):
                 assert not z,z
             assert not errors,errors;p.close()
         assert abs(geometry[0]['diameter']-geometry[1]['diameter'])<=2,geometry
-        assert abs(geometry[0]['line']-geometry[1]['line'])<=2,geometry
+        assert 24<=geometry[1]['line']<=28,geometry
         rows.append({'rarity':rarity,'geometry':geometry});print('B-pass',label,rows[-1],flush=True)
     save(f'{label}-B.json',rows)
 

@@ -1,0 +1,12 @@
+[
+  {
+    "check": "low-tier-no-preview",
+    "frames": 39,
+    "max_difference": 0
+  },
+  {
+    "check": "high-tier-charge-preview",
+    "variants": 2,
+    "difference": "nonempty"
+  }
+]

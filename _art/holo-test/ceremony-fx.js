@@ -2,13 +2,13 @@
 // ClawdPet 抽卡 ─ Canvas 特效層（粒子／射線／塵）
 // 只有在有活動特效時才跑 rAF；桌上沒事的時候這層完全靜止，不吃 CPU。
 window.CeremonyFx = ({ rng = Math.random } = {}) => {
-  let canvas, ctx, W, H;
+  let canvas, ctx, over, W, H;
   let under = null;      // 卡底下那層（射線用）
   const parts = [];      // 粒子
   const layers = [];     // 長效層（射線等），每個有 update(dt)/draw() 與 dead
   let running = false;
   let last = 0;
-  let offsetX=0,offsetY=0;
+  let offsetX=0,offsetY=0,ringOpacity=.9;
 
   const RC = {
     common: '#9d9d9d', rare: '#0070dd', epic: '#a335ee', legendary: '#ff8000', mythic: '#FF4FD8',
@@ -17,15 +17,15 @@ window.CeremonyFx = ({ rng = Math.random } = {}) => {
   const rand = (a, b) => a + rng() * (b - a);
   const TAU = Math.PI * 2;
 
-  function init(el, underEl) {
-    canvas = el; ctx = el.getContext('2d');
+  function init(el, underEl, overEl) {
+    canvas = el; ctx = el.getContext('2d');over=overEl?overEl.getContext('2d'):ctx;
     W = el.width; H = el.height;
     under = underEl ? underEl.getContext('2d') : ctx;
   }
 
   function kick() {}
   function step(dt,paint=true) {
-    if(paint){ctx.resetTransform();under.resetTransform();
+    if(paint){if(over!==ctx){over.resetTransform();over.clearRect(0,0,W,H);over.save();over.translate(offsetX,offsetY);}ctx.resetTransform();under.resetTransform();
     ctx.clearRect(0, 0, W, H);
     if (under !== ctx) under.clearRect(0, 0, W, H);
     ctx.save();ctx.translate(offsetX,offsetY);
@@ -34,7 +34,7 @@ window.CeremonyFx = ({ rng = Math.random } = {}) => {
       const l = layers[i];
       if(dt>0)l.update(dt);
       if (l.dead) { layers.splice(i, 1); continue; }
-      if(paint)l.draw(l.under ? under : ctx);
+      if(paint)l.draw(l.over ? over : l.under ? under : ctx);
     }
     for (let i = parts.length - 1; i >= 0; i--) {
       const p = parts[i];
@@ -48,7 +48,7 @@ window.CeremonyFx = ({ rng = Math.random } = {}) => {
       }
       if(paint)drawPart(p);
     }
-    if(paint){ctx.restore();if(under!==ctx)under.restore();}
+    if(paint){if(over!==ctx)over.restore();ctx.restore();if(under!==ctx)under.restore();}
     if (!parts.length && !layers.length) { running = false; ctx.clearRect(0, 0, W, H); if (under !== ctx) under.clearRect(0, 0, W, H); }
   }
 
@@ -118,13 +118,13 @@ window.CeremonyFx = ({ rng = Math.random } = {}) => {
   function ring(x, y, color, dur, maxR, width) {
     let t = 0;
     return {
-      dead: false,
+      dead: false, over:true,
       update(dt) { t += dt; if (t >= dur) this.dead = true; },
       draw(ctx) {
         const k = t / dur, e = 1 - Math.pow(1 - k, 3);
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        ctx.globalAlpha = (1 - k) * 0.9;
+        ctx.globalAlpha = (1 - k) * ringOpacity;
         ctx.strokeStyle = color; ctx.lineWidth = width * (1 - k * 0.6);
         ctx.shadowColor = color; ctx.shadowBlur = 20;
         // 第一幀的 t 有機會是很小的負數（dt 從還沒校正的 last 算出來），k<0 會讓 e<0、半徑變負，
@@ -293,8 +293,8 @@ window.CeremonyFx = ({ rng = Math.random } = {}) => {
       },
       rainbowRing(x, y, dur = .8, maxR = 220) {
         let age = 0;
-        return this.layer({dead:false, update(dt) { age += dt; this.dead = age >= dur; }, draw(c) {
-          c.save(); c.globalAlpha = Math.max(0,1-age/dur); c.lineWidth = 7;
+        return this.layer({dead:false, over:true, update(dt) { age += dt; this.dead = age >= dur; }, draw(c) {
+          c.save(); c.globalAlpha = Math.max(0,1-age/dur)*ringOpacity; c.lineWidth = 7;
           for (let i=0;i<7;i++) { c.strokeStyle=rainbow[i]; c.beginPath(); c.arc(x,y,20+maxR*Math.min(1,age/dur),i*TAU/7,(i+1)*TAU/7); c.stroke(); }
           c.restore();
         }});
@@ -349,13 +349,14 @@ window.CeremonyFx = ({ rng = Math.random } = {}) => {
     }});
   }
   function strengthen(x,y,rarity) {
+    ringOpacity=["legendary","mythic"].includes(rarity)?.38:.9;
     const high=['legendary','mythic'].includes(rarity),mythic=rarity==='mythic';
     // Original particles and rings remain intact; add exposure and extend the impact.
     reveal(x,y,rarity);
-    flash(x,y,{duration:high?(mythic?2.85:2.25):.7,radius:high?760:620,strength:high?.92:.25,color:mythic?'218,241,255':rarity==='epic'?'225,185,255':'255,238,208'});
+    flash(x,y,{duration:high?(mythic?2.85:2.25):.7,radius:high?760:620,strength:high?1.02:.25,color:mythic?'218,241,255':rarity==='epic'?'225,185,255':'255,238,208'});
     if(high){
       rays(x,y,{fadeIn:.08,hold:mythic?2.8:2.2,tail:mythic?1.2:1,mythic});
-      layers.push(ring(x,y,mythic?'#e7faff':'#fff0b8',1.04,410,14));
+      layers.push(ring(x,y,mythic?'#e7faff':'#fff0b8',1.04,410,28));
       if(mythic)createScope({rng}).rainbowRing(x,y,1.2,420);
     }
   }

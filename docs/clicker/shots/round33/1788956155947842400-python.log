@@ -1,0 +1,12 @@
+layout-pass dev 1440 5
+layout-pass dev 1440 10
+layout-pass dev 1024 5
+layout-pass dev 1024 10
+layout-pass dev 390 5
+layout-pass dev 390 10
+Traceback (most recent call last):
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_ceremony_round30.py", line 187, in <module>
+    else:layouts(browser,file,label);core(browser,file,label);pixels(browser,file,label)
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_ceremony_round30.py", line 109, in core
+    for a,b in zip(captures[0],frames):assert ImageChops.difference(a,b).getbbox() is None
+AssertionError

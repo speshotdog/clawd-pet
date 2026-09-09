@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/probe_occlusion_round33.py"
+  ],
+  "exit_code": 0,
+  "seconds": 26.3,
+  "log": "1788955783848995900-python.log"
+}

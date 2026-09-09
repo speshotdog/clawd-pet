@@ -1,0 +1,22 @@
+{
+  "checked": 382,
+  "changed": [],
+  "artifacts": {
+    "deluxe-gacha-b-standalone.html": {
+      "bytes": 5966447,
+      "sha256": "510cf1c802095884ae39f5dc2114536cc3cca8d4f591c9059aa6da7ce9df74ab"
+    },
+    "deluxe-gacha-b-test-standalone.html": {
+      "bytes": 5966479,
+      "sha256": "d169864bd626ffbf8228acbb5f76a5cebc2a6e2980800ed801578550bcc67b52"
+    },
+    "deluxe-gacha-b-test.html": {
+      "bytes": 1288402,
+      "sha256": "cb1e552e60a032435650b3f4cc3fb125c45e987d32f44bc271cc1784c5973b75"
+    },
+    "deluxe-gacha-b.html": {
+      "bytes": 1288370,
+      "sha256": "1a3c95870775f7584083d2b47e82e7b7bb2dacba0d85801d6dc32b4432cb8dba"
+    }
+  }
+}

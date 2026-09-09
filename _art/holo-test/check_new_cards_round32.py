@@ -10,7 +10,7 @@ from check_gacha_ceremony_round28 import open_page,start,advance,state
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[1]
-OUT=ROOT/'docs/clicker/shots/round32'
+OUT=ROOT/'docs/clicker/shots/round33'
 SIZES=[(1440,900),(1024,640),(390,844)]
 failures=[];records=[]
 

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_ui_round33.py"
+  ],
+  "exit_code": 0,
+  "seconds": 9.33,
+  "log": "1788956375177362800-python.log"
+}

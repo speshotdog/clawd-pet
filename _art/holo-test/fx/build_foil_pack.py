@@ -32,6 +32,27 @@ sc.render.image_settings.file_format = 'PNG'
 sc.render.image_settings.color_mode = 'RGBA'
 sc.view_settings.view_transform = 'Standard'
 sc.view_settings.look = 'None'
+# Round 33: render-time highlight shoulder; retain the print's dark ink.
+# Applied before PNG/WebP output, consistently to the pack and torn foil.
+sc.use_nodes = True
+nt = sc.node_tree
+nt.nodes.clear()
+rl = nt.nodes.new('CompositorNodeRLayers')
+curve = nt.nodes.new('CompositorNodeCurveRGB')
+curve.mapping.initialize()
+master = curve.mapping.curves[3]
+master.points[1].location = (1.0, .52)
+master.points.new(.18, .025)
+master.points.new(.5, .25)
+curve.mapping.update()
+out = nt.nodes.new('CompositorNodeComposite')
+nt.links.new(rl.outputs['Image'], curve.inputs['Image'])
+shoulder = nt.nodes.new('CompositorNodeMixRGB')
+shoulder.blend_type = 'DARKEN'
+shoulder.inputs[0].default_value = 1
+shoulder.inputs[2].default_value = (.55, .55, .55, 1)
+nt.links.new(curve.outputs['Image'], shoulder.inputs[1])
+nt.links.new(shoulder.outputs['Image'], out.inputs['Image'])
 
 
 # ---------- 材質：銀白鋁箔 ----------

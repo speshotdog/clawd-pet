@@ -1,0 +1,8 @@
+dev C idle rAF PASS 0
+dev C seamless independent animations PASS {'elements': [{'name': 'sigil-breathe', 'duration': 28000, 'delay': 0, 'packHiddenForIsolation': False, 'seam': None, 'motion': (256, 13, 1157, 887)}, {'name': 'axis-flow', 'duration': 5000, 'delay': 0, 'packHiddenForIsolation': False, 'seam': None, 'motion': (390, 118, 1050, 737)}, {'name': 'orbit-turn', 'duration': 24000, 'delay': 0, 'packHiddenForIsolation': False, 'seam': None, 'motion': (510, 186, 930, 544)}, {'name': 'orbit-dash', 'duration': 6000, 'delay': 0, 'packHiddenForIsolation': False, 'seam': None, 'motion': (542, 278, 898, 512)}, {'name': 'orbit-sway', 'duration': 12000, 'delay'
+dev C paused PASS True
+dev C reduced animation count PASS 0
+portable C idle rAF PASS 0
+portable C seamless independent animations PASS {'elements': [{'name': 'sigil-breathe', 'duration': 28000, 'delay': 0, 'packHiddenForIsolation': False, 'seam': None, 'motion': (256, 13, 1157, 887)}, {'name': 'axis-flow', 'duration': 5000, 'delay': 0, 'packHiddenForIsolation': False, 'seam': None, 'motion': (390, 118, 1050, 737)}, {'name': 'orbit-turn', 'duration': 24000, 'delay': 0, 'packHiddenForIsolation': False, 'seam': None, 'motion': (510, 186, 930, 544)}, {'name': 'orbit-dash', 'duration': 6000, 'delay': 0, 'packHiddenForIsolation': False, 'seam': None, 'motion': (542, 278, 898, 512)}, {'name': 'orbit-sway', 'duration': 12000, 'delay'
+portable C paused PASS True
+portable C reduced animation count PASS 0

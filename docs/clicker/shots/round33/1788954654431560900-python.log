@@ -1,0 +1,9 @@
+B-pass dev {'rarity': 'legendary', 'geometry': [{'tag': 'before', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 12}, {'tag': 'after', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 26}]}
+B-pass dev {'rarity': 'mythic', 'geometry': [{'tag': 'before', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 12}, {'tag': 'after', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 24}]}
+C-pass dev {'bbox': None, 'selection_ranges': 0, 'blue_ratio': 0.0, 'interrupt_angles': [[-0.00757212666176327, 0.00757212666176327], [-0.00757212666176327, 0.00757212666176327], [-2.0075721266617634, 2.0075721266617634]]}
+Traceback (most recent call last):
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_layers_round31.py", line 229, in <module>
+    if len(sys.argv)==1 or option in sys.argv:fn(browser,file,label)
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_layers_round31.py", line 168, in charge_background
+    assert orbit['x']>=0 and orbit['x']+orbit['width']<=w and orbit['y']>=0 and orbit['y']+orbit['height']<=h,orbit
+AssertionError: {'x': -2.410308837890625, 'y': 170.4642333984375, 'width': 394.8205871582031, 'height': 409.4715576171875}

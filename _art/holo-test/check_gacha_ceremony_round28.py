@@ -54,8 +54,13 @@ def open_page(browser,url,reduced=False,init_script=None):
     p.evaluate("document.querySelectorAll('.stage-background *').forEach(e=>e.getAnimations().forEach(a=>{a.pause();a.currentTime=0}))")
     return p,errors
 
-def start(p,fixture):
+def start(p,fixture,open_pack=True):
     p.evaluate('f=>{__ceremony.reset();__ceremony.events.length=0;window.__ceremonyFixture=f;__ceremony.pull(f.length)}',fixture)
+    if p.evaluate('!!__ceremony.openPack'):
+        p.evaluate('async()=>await __ceremony.ready()')
+        if p.evaluate('!!window.__nextDeadline'):advance(p,600)
+        p.wait_for_function('__ceremony.state().entryPhase==="waiting"',polling=10)
+        if open_pack:p.evaluate('__ceremony.openPack()')
     # decode() is real asynchronous work, excluded from ceremony time.
     p.wait_for_function('__ceremony.events.some(e=>e.type==="phase-start")',polling=10)
 

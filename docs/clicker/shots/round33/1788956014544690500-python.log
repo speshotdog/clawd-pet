@@ -1,0 +1,40 @@
+[
+  {
+    "label": "dev",
+    "ticket": "0",
+    "disabled": [
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      },
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      },
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "label": "portable",
+    "ticket": "0",
+    "disabled": [
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      },
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      },
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      }
+    ],
+    "errors": []
+  }
+]

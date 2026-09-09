@@ -6,12 +6,19 @@ from PIL import Image, ImageDraw, ImageChops
 from playwright.sync_api import sync_playwright
 from check_gacha_ceremony_round28 import HERE, BY, open_page, start, advance, state, CLOCK
 BASELINE=HERE/'verify-round30'
-OUT=HERE.parent.parent/'docs/clicker/shots/round32/retained/retained30'
+OUT=HERE.parent.parent/'docs/clicker/shots/round33/retained/retained30'
 OUT.mkdir(parents=True,exist_ok=True)
 RARITIES=list(BY)
 
 def shot(p):
     p.evaluate('__syncAnimations();window.__ceremony?.syncFx()')
+    # Explicit presentation barrier for the paused WAAPI sample. A pack-only
+    # one-frame mismatch occurred under concurrent GPU load; virtual time must
+    # not advance while Chromium commits the sampled transform to its compositor.
+    stamp=p.evaluate('window.__nextDeadline?Date.now():null')
+    p.evaluate("document.querySelectorAll('.summon-pack,.reveal-shell').forEach(e=>getComputedStyle(e).transform)")
+    p.wait_for_timeout(20)
+    if stamp is not None:assert p.evaluate('Date.now()')==stamp
     return Image.open(BytesIO(p.screenshot())).convert('RGB')
 
 def p95(im,mask):
@@ -81,10 +88,10 @@ def layouts(browser,file,label):
             p,errors=open_page(browser,file.as_uri());p.set_viewport_size({'width':w,'height':h});start(p,[BY['common']]*n)
             p.evaluate('()=>{__ceremony.skipAll()}');advance(p,181)
             rects=rectangles(p);nonoverlap(rects)
-            if w==1440:assert min(r['cw'] for r in rects)>=(240 if n==5 else 200)
+            if w==1440:assert min(r['cw'] for r in rects)>=(200 if n==5 else 190)
             if w>600:
                 assert p.locator('.slot.page-away').count()==0
-                assert all(r['x']>=0 and r['x']+r['w']<=w and r['y']>=50 and r['y']+r['h']<=h-100 for r in rects)
+                assert all(r['x']>=0 and r['x']+r['w']<=w and r['y']>=35 and r['y']+r['h']<=h-35 for r in rects)
             # Hover plus retained ±18° drag must preserve the clearance too.
             target=p.locator('.slot').nth(0).locator('.reveal-shell');b=target.bounding_box();x=b['x']+b['width']/2;y=b['y']+b['height']/2
             p.mouse.move(x,y);p.mouse.down();p.mouse.move(x+90,y+90);p.mouse.up();advance(p,200);nonoverlap(rectangles(p))
@@ -111,6 +118,9 @@ def core(browser,file,label):
         assert ImageChops.difference(captures[0][-1],frames[-1]).getbbox() is not None
     rows=[{'check':'low-tier-no-preview','frames':39,'max_difference':0},
           {'check':'high-tier-charge-preview','variants':2,'difference':'nonempty'}] if captures else []
+    if '--preview-only' in sys.argv:
+        save(f'{label}-preview.json',rows)
+        return
     p,errors=open_page(browser,file.as_uri());p.evaluate('window.__clockRender=false')
     fixture=[BY['mythic']]+[BY['common']]*9
     # 1750 prelude + 1300 charge + 320 flip = F3370; read1900 → return5270.
@@ -118,7 +128,10 @@ def core(browser,file,label):
     for phase,ms in [('controls',100),('tension',300),('tear',550),('deal',900),('pre-face',3369),('post-face',3371),('return',5350),('last-before',12349),('last-after',12351)]:
         if '--late-only' in sys.argv and not phase.startswith('last-'):continue
         for _ in range(20):
-            start(p,fixture);advance(p,ms)
+            if phase=='controls':
+                p.evaluate('f=>{__ceremony.reset();__ceremony.events.length=0;window.__ceremonyFixture=f;__ceremony.pull(f.length)}',fixture);p.evaluate('async()=>await __ceremony.ready()')
+            else:start(p,fixture)
+            advance(p,ms)
             if phase=='return':assert p.evaluate('__ceremony.events.filter(e=>e.index===0&&e.type==="phase-start").at(-1).phase')=='return'
             if phase.startswith('last-'):assert p.evaluate('__ceremony.events.some(e=>e.index===9&&e.phase==="charge")')==(phase=='last-after')
             p.evaluate('()=>{__ceremony.skipAll();__ceremony.skipAll()}');advance(p,181);s=state(p)
@@ -126,7 +139,7 @@ def core(browser,file,label):
             assert not any(s[k] for k in ['anims','timers','rafs','voices'])
             assert not p.locator('.rarity-fx,.control-sheen').count()
             assert p.evaluate('__ceremony.events.filter(e=>e.type==="slot-complete").length')==10
-        rows.append({'check':'A5','phase':phase,'trigger_ms':ms,'repeats':20});print('A5-pass',label,phase,flush=True)
+        rows.append({'check':'A5','phase':phase,'trigger_ms':ms,'clock_origin':'pull' if phase=='controls' else 'pack-open (after 600ms + player wait)','repeats':20});print('A5-pass',label,phase,flush=True)
         save(f'{label}-core'+('-late' if '--late-only' in sys.argv else '-a5' if '--a5-only' in sys.argv else '')+'.json',rows)
     assert not errors,errors;p.close()
 

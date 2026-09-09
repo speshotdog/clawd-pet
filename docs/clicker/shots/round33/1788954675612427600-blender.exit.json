@@ -1,0 +1,13 @@
+{
+  "command": [
+    "D:/claude/holo-pack/tools/blender-4.5.13-windows-x64/blender.exe",
+    "-b",
+    "-P",
+    "_art/holo-test/fx/build_foil_pack.py",
+    "--",
+    "D:/claude/clawd-pet-holo/_art/holo-test/fx"
+  ],
+  "exit_code": 0,
+  "seconds": 10.24,
+  "log": "1788954675612427600-blender.log"
+}

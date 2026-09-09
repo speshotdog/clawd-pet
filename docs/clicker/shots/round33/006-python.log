@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_layers_round31.py", line 229, in <module>
+    if len(sys.argv)==1 or option in sys.argv:fn(browser,file,label)
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_layers_round31.py", line 121, in waves
+    assert bins and seen==bins,(rarity,bins-seen)
+AssertionError: ('legendary', set())

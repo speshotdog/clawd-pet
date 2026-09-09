@@ -1,0 +1,3360 @@
+[
+  {
+    "check": "H pack highlight and full-image RMS",
+    "pass_": true,
+    "data": {
+      "before": {
+        "top5": 255.0,
+        "rms": 82.72690977322382
+      },
+      "after": {
+        "top5": 196.63338192419826,
+        "rms": 74.65886418742504
+      },
+      "ratios": {
+        "top5": 0.7711113016635226,
+        "rms": 0.9024737463551411
+      }
+    }
+  },
+  {
+    "check": "F back printed-edge clearance",
+    "pass_": true,
+    "data": {
+      "size": [
+        500,
+        700
+      ],
+      "pixels": [
+        5,
+        5,
+        8,
+        10
+      ]
+    }
+  },
+  {
+    "check": "E exact variant diff ",
+    "pass_": true,
+    "data": [
+      {
+        "line": 821,
+        "production": "const RATE=[['mythic',.005],['legendary',.04],['epic',.15],['rare',.40],['common',.405]];",
+        "test": "const RATE=[['mythic',.25],['legendary',.35],['epic',.25],['rare',.10],['common',.05]];"
+      },
+      {
+        "line": 1549,
+        "production": "const ticketPolicy={unlimited:false,label:''};",
+        "test": "const ticketPolicy={unlimited:true,label:'\u6e2c\u8a66\u7248 \u00b7 \u9ad8\u6a5f\u7387 \u00b7 \u7121\u9650\u62bd'};"
+      }
+    ]
+  },
+  {
+    "check": "E exact variant diff -standalone",
+    "pass_": true,
+    "data": [
+      {
+        "line": 822,
+        "production": "const RATE=[['mythic',.005],['legendary',.04],['epic',.15],['rare',.40],['common',.405]];",
+        "test": "const RATE=[['mythic',.25],['legendary',.35],['epic',.25],['rare',.10],['common',.05]];"
+      },
+      {
+        "line": 1548,
+        "production": "const ticketPolicy={unlimited:false,label:''};",
+        "test": "const ticketPolicy={unlimited:true,label:'\u6e2c\u8a66\u7248 \u00b7 \u9ad8\u6a5f\u7387 \u00b7 \u7121\u9650\u62bd'};"
+      }
+    ]
+  },
+  {
+    "check": "frozen sources",
+    "pass_": true,
+    "data": []
+  },
+  {
+    "check": "dev C idle rAF",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "dev C seamless independent animations",
+    "pass_": true,
+    "data": {
+      "elements": [
+        {
+          "name": "sigil-breathe",
+          "duration": 28000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            13,
+            1157,
+            887
+          ]
+        },
+        {
+          "name": "axis-flow",
+          "duration": 5000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            390,
+            118,
+            1050,
+            737
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 24000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            544
+          ]
+        },
+        {
+          "name": "orbit-dash",
+          "duration": 6000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            542,
+            278,
+            898,
+            512
+          ]
+        },
+        {
+          "name": "orbit-sway",
+          "duration": 12000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 18000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            564,
+            321,
+            875,
+            468
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 32000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -2000,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -4000,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 8000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 10000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "star-pulse",
+          "duration": 4000,
+          "delay": 0,
+          "packHiddenForIsolation": true,
+          "seam": null,
+          "motion": [
+            695,
+            358,
+            745,
+            434
+          ]
+        }
+      ],
+      "moving": 13
+    }
+  },
+  {
+    "check": "dev C paused",
+    "pass_": true,
+    "data": true
+  },
+  {
+    "check": "dev C reduced animation count",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "dev G transition durations",
+    "pass_": true,
+    "data": [
+      "controls",
+      "push",
+      "push",
+      "waiting"
+    ]
+  },
+  {
+    "check": "dev G indefinite wait False",
+    "pass_": true,
+    "data": {
+      "before": {
+        "screen": "ceremony",
+        "entryPhase": "waiting",
+        "pageIndex": 0,
+        "selectedIndex": 0,
+        "generation": 1,
+        "busy": true,
+        "cascading": false,
+        "skipped": false,
+        "anims": 0,
+        "timers": 0,
+        "rafs": 0,
+        "voices": 0,
+        "complete": 0,
+        "ids": [
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow"
+        ],
+        "collectable": false
+      },
+      "after": {
+        "screen": "ceremony",
+        "entryPhase": "waiting",
+        "pageIndex": 0,
+        "selectedIndex": 0,
+        "generation": 1,
+        "busy": true,
+        "cascading": false,
+        "skipped": false,
+        "anims": 0,
+        "timers": 0,
+        "rafs": 0,
+        "voices": 0,
+        "complete": 0,
+        "ids": [
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow"
+        ],
+        "collectable": false
+      }
+    }
+  },
+  {
+    "check": "dev G one open False",
+    "pass_": true,
+    "data": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "transition",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "phase": "controls"
+      },
+      {
+        "type": "transition",
+        "time": 1788912001220,
+        "run": 1,
+        "index": null,
+        "phase": "push"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001600,
+        "run": 1,
+        "index": null,
+        "phase": "waiting"
+      },
+      {
+        "type": "pack-open",
+        "time": 1788912006600,
+        "run": 1,
+        "index": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912006600,
+        "run": 1,
+        "index": null,
+        "phase": "entry"
+      }
+    ]
+  },
+  {
+    "check": "dev G indefinite wait True",
+    "pass_": true,
+    "data": {
+      "before": {
+        "screen": "ceremony",
+        "entryPhase": "waiting",
+        "pageIndex": 0,
+        "selectedIndex": 0,
+        "generation": 1,
+        "busy": true,
+        "cascading": false,
+        "skipped": false,
+        "anims": 0,
+        "timers": 0,
+        "rafs": 0,
+        "voices": 0,
+        "complete": 0,
+        "ids": [
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow"
+        ],
+        "collectable": false
+      },
+      "after": {
+        "screen": "ceremony",
+        "entryPhase": "waiting",
+        "pageIndex": 0,
+        "selectedIndex": 0,
+        "generation": 1,
+        "busy": true,
+        "cascading": false,
+        "skipped": false,
+        "anims": 0,
+        "timers": 0,
+        "rafs": 0,
+        "voices": 0,
+        "complete": 0,
+        "ids": [
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow"
+        ],
+        "collectable": false
+      }
+    }
+  },
+  {
+    "check": "dev G one open True",
+    "pass_": true,
+    "data": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "transition",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "phase": "controls"
+      },
+      {
+        "type": "transition",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "phase": "push"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "phase": "waiting"
+      },
+      {
+        "type": "pack-open",
+        "time": 1788912006001,
+        "run": 1,
+        "index": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912006001,
+        "run": 2,
+        "index": null,
+        "phase": "reduced",
+        "fromRun": 1
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 1
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 2
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 3
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 4
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 5
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 6
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 7
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 8
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 9
+      },
+      {
+        "type": "screen",
+        "time": 1788912006181,
+        "run": 2,
+        "index": null,
+        "screen": "results"
+      },
+      {
+        "type": "collectable",
+        "time": 1788912006181,
+        "run": 2,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "dev G wait cancel Escape",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 10,
+      "ids": [
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "dev G wait cancel skip",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 10,
+      "ids": [
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "dev B legendary",
+    "pass_": true,
+    "data": {
+      "mean_start": 111.85591603053435,
+      "mean_peak": 164.21422010858473,
+      "std_start": 95.55647356439455,
+      "std_peak": 60.93260761189494
+    }
+  },
+  {
+    "check": "dev B cleanup legendary",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "alienkitty"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "dev B mythic",
+    "pass_": true,
+    "data": {
+      "mean_start": 111.85591603053435,
+      "mean_peak": 189.5955678246316,
+      "std_start": 95.55647356439455,
+      "std_peak": 46.08457868982418
+    }
+  },
+  {
+    "check": "dev B cleanup mythic",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "rocketdog"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "dev A four planes 1440 legendary",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 189.02264441591785,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.999541053359908,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 191.80850092711452,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.8567542488990194,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 188.51257737840535,
+        "bins": 1,
+        "missing": [],
+        "contrast": 0.895356444101917,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 187.99954927970333,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9983767076813894,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 189.78295820852946,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 190.2840108401084,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.8364289178935339,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 190.35144772500357,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.976722943978162,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 190.88911710169734,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9893612020398007,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 192.38060191128227,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9763415647367627,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 193.00006275852232,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9802651614915353,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "dev A four planes 1440 mythic",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 220.46970760233918,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9993083530034144,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 209.1400085579803,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.8784761638814882,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 197.29109114249036,
+        "bins": 5,
+        "missing": [],
+        "contrast": 0.9155563813590076,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 195.1060162601626,
+        "bins": 3,
+        "missing": [],
+        "contrast": 0.9998486867829203,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 196.99566966195977,
+        "bins": 10,
+        "missing": [],
+        "contrast": 0.9861779075759483,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 197.7553102267865,
+        "bins": 15,
+        "missing": [],
+        "contrast": 0.7370800793005791,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 198.01656824989303,
+        "bins": 13,
+        "missing": [],
+        "contrast": 0.9552100343777752,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 199.5290372272144,
+        "bins": 12,
+        "missing": [],
+        "contrast": 0.9139286166293517,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 202.03669091427756,
+        "bins": 8,
+        "missing": [],
+        "contrast": 0.990229481260956,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 203.16856939095706,
+        "bins": 9,
+        "missing": [],
+        "contrast": 0.9864821054544864,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "dev A four planes 1024 legendary",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 194.47831832721974,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9313254254376611,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 193.37807995850162,
+        "bins": 4,
+        "missing": [],
+        "contrast": 0.8342082781701505,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 188.29526844269887,
+        "bins": 1,
+        "missing": [],
+        "contrast": 0.999746123922991,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 187.93074338928204,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.937778055217525,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 189.9739647016686,
+        "bins": 13,
+        "missing": [],
+        "contrast": 0.9177894885133493,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 190.99899341707115,
+        "bins": 12,
+        "missing": [],
+        "contrast": 0.9779805172433694,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 193.19196709770648,
+        "bins": 11,
+        "missing": [],
+        "contrast": 0.9878079895552094,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 195.34974742796447,
+        "bins": 11,
+        "missing": [],
+        "contrast": 0.9922676519899616,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 195.82221769362826,
+        "bins": 10,
+        "missing": [],
+        "contrast": 0.9976326064911382,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 196.15857695110353,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9997539654120203,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "dev A four planes 1024 mythic",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 219.92709375424556,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9987090292724842,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 209.6862116664814,
+        "bins": 5,
+        "missing": [],
+        "contrast": 0.8324812613438671,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 197.71566811169984,
+        "bins": 5,
+        "missing": [],
+        "contrast": 0.9984585611298744,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 195.68723060012104,
+        "bins": 5,
+        "missing": [],
+        "contrast": 0.940935966379979,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 197.26187829609594,
+        "bins": 10,
+        "missing": [],
+        "contrast": 0.906715598395493,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 198.33671742808798,
+        "bins": 14,
+        "missing": [],
+        "contrast": 0.9795211912654173,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 200.44869514740574,
+        "bins": 13,
+        "missing": [],
+        "contrast": 0.9712741658061703,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 202.28047846653575,
+        "bins": 13,
+        "missing": [],
+        "contrast": 0.9500305809383518,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 203.01620413254784,
+        "bins": 9,
+        "missing": [],
+        "contrast": 0.9168689364074981,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 203.80096212037003,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9439078488911414,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "dev A four planes 390 legendary",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9963499310783166,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.8690428675501306,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9556006524031593,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9624395584947673,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9931991005032568,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "dev A four planes 390 mythic",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9970346840079866,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.8590529790014978,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.931355573999339,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.943438826952282,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9997010854228118,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9785189003158786,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9605473340293419,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.972823081644021,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9633246704428698,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "dev D buttons",
+    "pass_": true,
+    "data": [
+      {
+        "clip": "polygon(8% 0px, 92% 0px, 100% 50%, 92% 100%, 8% 100%, 0px 50%)",
+        "radius": "0px",
+        "lines": 2
+      },
+      {
+        "clip": "polygon(8% 0px, 92% 0px, 100% 50%, 92% 100%, 8% 100%, 0px 50%)",
+        "radius": "0px",
+        "lines": 2
+      },
+      {
+        "clip": "polygon(8% 0px, 92% 0px, 100% 50%, 92% 100%, 8% 100%, 0px 50%)",
+        "radius": "0px",
+        "lines": 2
+      }
+    ]
+  },
+  {
+    "check": "dev I 1440 1",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 532.5,
+          "y": 163.5,
+          "w": 375,
+          "h": 525
+        }
+      ],
+      "margins": [
+        532.5,
+        532.5,
+        163.5,
+        211.5
+      ]
+    }
+  },
+  {
+    "check": "dev I 1440 5",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 141.760009765625,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        },
+        {
+          "x": 378.8800048828125,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        },
+        {
+          "x": 616,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        },
+        {
+          "x": 853.1199951171875,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        },
+        {
+          "x": 1090.239990234375,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        }
+      ],
+      "margins": [
+        141.760009765625,
+        141.760009765625,
+        280.40625,
+        328.40625
+      ]
+    }
+  },
+  {
+    "check": "dev I 1440 10",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 169.55999755859375,
+          "y": 154.9862518310547,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 395.2799987792969,
+          "y": 154.9862518310547,
+          "w": 198.00003051757812,
+          "h": 277.1875
+        },
+        {
+          "x": 621,
+          "y": 154.9862518310547,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 846.719970703125,
+          "y": 154.9862518310547,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 1072.43994140625,
+          "y": 154.9862518310547,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 169.55999755859375,
+          "y": 467.82623291015625,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 395.2799987792969,
+          "y": 467.82623291015625,
+          "w": 198.00003051757812,
+          "h": 277.1875
+        },
+        {
+          "x": 621,
+          "y": 467.82623291015625,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 846.719970703125,
+          "y": 467.82623291015625,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 1072.43994140625,
+          "y": 467.82623291015625,
+          "w": 198,
+          "h": 277.1875
+        }
+      ],
+      "margins": [
+        169.55999755859375,
+        169.56005859375,
+        154.9862518310547,
+        154.98626708984375
+      ]
+    }
+  },
+  {
+    "check": "dev I 1024 1",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 378.671875,
+          "y": 109.34375,
+          "w": 266.65625,
+          "h": 373.3125
+        }
+      ],
+      "margins": [
+        378.671875,
+        378.671875,
+        109.34375,
+        157.34375
+      ]
+    }
+  },
+  {
+    "check": "dev I 1024 5",
+    "pass_": false,
+    "data": {
+      "rects": [
+        {
+          "x": 17.401885986328125,
+          "y": 162,
+          "w": 191.4375,
+          "h": 268
+        },
+        {
+          "x": 216.84156799316406,
+          "y": 162,
+          "w": 191.43748474121094,
+          "h": 268
+        },
+        {
+          "x": 416.28125,
+          "y": 162,
+          "w": 191.4375,
+          "h": 268
+        },
+        {
+          "x": 615.720947265625,
+          "y": 162,
+          "w": 191.4375,
+          "h": 268
+        },
+        {
+          "x": 815.16064453125,
+          "y": 162,
+          "w": 191.4375,
+          "h": 268
+        }
+      ],
+      "margins": [
+        17.401885986328125,
+        17.40185546875,
+        162,
+        210
+      ]
+    }
+  },
+  {
+    "check": "dev I 1024 10",
+    "pass_": false,
+    "data": {
+      "rects": [
+        {
+          "x": 20,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 218.5,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 417,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 615.5,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 814,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 20,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 218.5,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 417,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 615.5,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 814,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        }
+      ],
+      "margins": [
+        20,
+        20,
+        50,
+        50
+      ]
+    }
+  },
+  {
+    "check": "dev I 390 1",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 43,
+          "y": 185.203125,
+          "w": 304,
+          "h": 425.59375
+        }
+      ],
+      "margins": [
+        43,
+        43,
+        185.203125,
+        233.203125
+      ]
+    }
+  },
+  {
+    "check": "dev I 390 5",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 51,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 403,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 755,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1107,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1459,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        }
+      ],
+      "margins": [
+        51,
+        -1357,
+        196.40625,
+        244.40625
+      ]
+    }
+  },
+  {
+    "check": "dev I 390 10",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 51,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 403,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 755,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1107,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1459,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1811,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 2163,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 2515,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 2867,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 3219,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        }
+      ],
+      "margins": [
+        51,
+        -3117,
+        196.40625,
+        244.40625
+      ]
+    }
+  },
+  {
+    "check": "portable C idle rAF",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "portable C seamless independent animations",
+    "pass_": true,
+    "data": {
+      "elements": [
+        {
+          "name": "sigil-breathe",
+          "duration": 28000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            13,
+            1157,
+            887
+          ]
+        },
+        {
+          "name": "axis-flow",
+          "duration": 5000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            390,
+            118,
+            1050,
+            737
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 24000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            544
+          ]
+        },
+        {
+          "name": "orbit-dash",
+          "duration": 6000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            542,
+            278,
+            898,
+            512
+          ]
+        },
+        {
+          "name": "orbit-sway",
+          "duration": 12000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 18000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            564,
+            321,
+            875,
+            468
+          ]
+        },
+        {
+          "name": "orbit-turn",
+          "duration": 32000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            510,
+            186,
+            930,
+            545
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -2000,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "floor-wave",
+          "duration": 6000,
+          "delay": -4000,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            518,
+            605,
+            922,
+            690
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 8000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "water-flow",
+          "duration": 10000,
+          "delay": 0,
+          "packHiddenForIsolation": false,
+          "seam": null,
+          "motion": [
+            256,
+            593,
+            1182,
+            860
+          ]
+        },
+        {
+          "name": "star-pulse",
+          "duration": 4000,
+          "delay": 0,
+          "packHiddenForIsolation": true,
+          "seam": null,
+          "motion": [
+            695,
+            358,
+            745,
+            434
+          ]
+        }
+      ],
+      "moving": 13
+    }
+  },
+  {
+    "check": "portable C paused",
+    "pass_": true,
+    "data": true
+  },
+  {
+    "check": "portable C reduced animation count",
+    "pass_": true,
+    "data": 0
+  },
+  {
+    "check": "portable G transition durations",
+    "pass_": true,
+    "data": [
+      "controls",
+      "push",
+      "push",
+      "waiting"
+    ]
+  },
+  {
+    "check": "portable G indefinite wait False",
+    "pass_": true,
+    "data": {
+      "before": {
+        "screen": "ceremony",
+        "entryPhase": "waiting",
+        "pageIndex": 0,
+        "selectedIndex": 0,
+        "generation": 1,
+        "busy": true,
+        "cascading": false,
+        "skipped": false,
+        "anims": 0,
+        "timers": 0,
+        "rafs": 0,
+        "voices": 0,
+        "complete": 0,
+        "ids": [
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow"
+        ],
+        "collectable": false
+      },
+      "after": {
+        "screen": "ceremony",
+        "entryPhase": "waiting",
+        "pageIndex": 0,
+        "selectedIndex": 0,
+        "generation": 1,
+        "busy": true,
+        "cascading": false,
+        "skipped": false,
+        "anims": 0,
+        "timers": 0,
+        "rafs": 0,
+        "voices": 0,
+        "complete": 0,
+        "ids": [
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow"
+        ],
+        "collectable": false
+      }
+    }
+  },
+  {
+    "check": "portable G one open False",
+    "pass_": true,
+    "data": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "transition",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "phase": "controls"
+      },
+      {
+        "type": "transition",
+        "time": 1788912001220,
+        "run": 1,
+        "index": null,
+        "phase": "push"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001600,
+        "run": 1,
+        "index": null,
+        "phase": "waiting"
+      },
+      {
+        "type": "pack-open",
+        "time": 1788912006600,
+        "run": 1,
+        "index": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912006600,
+        "run": 1,
+        "index": null,
+        "phase": "entry"
+      }
+    ]
+  },
+  {
+    "check": "portable G indefinite wait True",
+    "pass_": true,
+    "data": {
+      "before": {
+        "screen": "ceremony",
+        "entryPhase": "waiting",
+        "pageIndex": 0,
+        "selectedIndex": 0,
+        "generation": 1,
+        "busy": true,
+        "cascading": false,
+        "skipped": false,
+        "anims": 0,
+        "timers": 0,
+        "rafs": 0,
+        "voices": 0,
+        "complete": 0,
+        "ids": [
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow"
+        ],
+        "collectable": false
+      },
+      "after": {
+        "screen": "ceremony",
+        "entryPhase": "waiting",
+        "pageIndex": 0,
+        "selectedIndex": 0,
+        "generation": 1,
+        "busy": true,
+        "cascading": false,
+        "skipped": false,
+        "anims": 0,
+        "timers": 0,
+        "rafs": 0,
+        "voices": 0,
+        "complete": 0,
+        "ids": [
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow",
+          "ballyellow"
+        ],
+        "collectable": false
+      }
+    }
+  },
+  {
+    "check": "portable G one open True",
+    "pass_": true,
+    "data": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "transition",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "phase": "controls"
+      },
+      {
+        "type": "transition",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "phase": "push"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 1,
+        "index": null,
+        "phase": "waiting"
+      },
+      {
+        "type": "pack-open",
+        "time": 1788912006001,
+        "run": 1,
+        "index": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912006001,
+        "run": 2,
+        "index": null,
+        "phase": "reduced",
+        "fromRun": 1
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 1
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 2
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 3
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 4
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 5
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 6
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 7
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 8
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912006181,
+        "run": 2,
+        "index": 9
+      },
+      {
+        "type": "screen",
+        "time": 1788912006181,
+        "run": 2,
+        "index": null,
+        "screen": "results"
+      },
+      {
+        "type": "collectable",
+        "time": 1788912006181,
+        "run": 2,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "portable G wait cancel Escape",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 10,
+      "ids": [
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "portable G wait cancel skip",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 10,
+      "ids": [
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow",
+        "ballyellow"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "portable B legendary",
+    "pass_": true,
+    "data": {
+      "mean_start": 111.85591603053435,
+      "mean_peak": 164.21422010858473,
+      "std_start": 95.55647356439455,
+      "std_peak": 60.93260761189494
+    }
+  },
+  {
+    "check": "portable B cleanup legendary",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "alienkitty"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "portable B mythic",
+    "pass_": true,
+    "data": {
+      "mean_start": 111.85591603053435,
+      "mean_peak": 189.5955678246316,
+      "std_start": 95.55647356439455,
+      "std_peak": 46.08457868982418
+    }
+  },
+  {
+    "check": "portable B cleanup mythic",
+    "pass_": true,
+    "data": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "rocketdog"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "check": "portable A four planes 1440 legendary",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 189.00536870631865,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9994558618736047,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 192.17182142347738,
+        "bins": 1,
+        "missing": [],
+        "contrast": 0.8567399578265,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 188.84371416345743,
+        "bins": 3,
+        "missing": [],
+        "contrast": 0.943584196386171,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 188.4345057766367,
+        "bins": 1,
+        "missing": [],
+        "contrast": 0.9993032131908733,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 190.14351162458993,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9578748497291708,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 190.8003594351733,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9438458375529221,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 191.1372243617173,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9987920987334145,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 191.73235201825702,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.996955765418398,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 193.09276850663244,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9764619906586223,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 193.56305234631293,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9802651614915353,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "portable A four planes 1440 mythic",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 221.07988018827558,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9992941584274538,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 210.17057195835116,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.8785157630240282,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 198.52184281842818,
+        "bins": 5,
+        "missing": [],
+        "contrast": 0.9535386903889921,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 197.05693339038655,
+        "bins": 6,
+        "missing": [],
+        "contrast": 0.9999962968093815,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 199.55657110255314,
+        "bins": 11,
+        "missing": [],
+        "contrast": 0.9678422184469139,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 200.5066780773071,
+        "bins": 15,
+        "missing": [],
+        "contrast": 0.9170244908253153,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 201.43815718157182,
+        "bins": 12,
+        "missing": [],
+        "contrast": 0.9841984997462707,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 203.17153615746685,
+        "bins": 11,
+        "missing": [],
+        "contrast": 0.9758917678051776,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 205.72518043075166,
+        "bins": 10,
+        "missing": [],
+        "contrast": 0.9986529745990482,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 206.27677078876053,
+        "bins": 10,
+        "missing": [],
+        "contrast": 0.996820588013101,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "portable A four planes 1024 legendary",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 194.01830375338102,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9313275900848054,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 192.98879790531944,
+        "bins": 6,
+        "missing": [],
+        "contrast": 0.8340049837419823,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 188.25276347153778,
+        "bins": 3,
+        "missing": [],
+        "contrast": 0.9997461528721145,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 188.23849222522756,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9445641468172746,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 190.72885249546113,
+        "bins": 13,
+        "missing": [],
+        "contrast": 0.9119453651901406,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 191.85678733311101,
+        "bins": 13,
+        "missing": [],
+        "contrast": 0.9734384989240585,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 194.18834216409155,
+        "bins": 13,
+        "missing": [],
+        "contrast": 0.9891302725692701,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 196.43968530388923,
+        "bins": 13,
+        "missing": [],
+        "contrast": 0.9911120418911823,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 196.91350179702843,
+        "bins": 12,
+        "missing": [],
+        "contrast": 0.9969735603964088,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 197.03940494275446,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9994977700374229,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "portable A four planes 1024 mythic",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 220.33159805846827,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9983911379984709,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 210.34806155594254,
+        "bins": 2,
+        "missing": [],
+        "contrast": 0.832544699150603,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 199.11048328331296,
+        "bins": 2,
+        "missing": [],
+        "contrast": 0.9979183015248151,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 197.3239097410056,
+        "bins": 5,
+        "missing": [],
+        "contrast": 0.9359939532248998,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 199.34654241851618,
+        "bins": 13,
+        "missing": [],
+        "contrast": 0.9158644208515425,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 201.22812997888028,
+        "bins": 15,
+        "missing": [],
+        "contrast": 0.9894095908512949,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 204.4710314078575,
+        "bins": 15,
+        "missing": [],
+        "contrast": 0.9712916971231366,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 207.4644978818531,
+        "bins": 11,
+        "missing": [],
+        "contrast": 0.976020767148836,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 208.20538614497264,
+        "bins": 8,
+        "missing": [],
+        "contrast": 0.9355994414943609,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 208.41122926624428,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9180011236369344,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "portable A four planes 390 legendary",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9963396677676878,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.8690365721701772,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.955633354071824,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9624428876934047,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9932096053325278,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "portable A four planes 390 mythic",
+    "pass_": true,
+    "data": [
+      {
+        "t": 50,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 1.0,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 100,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9971099748304793,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 150,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.8588429293915285,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 200,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9313319510243279,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 250,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9434129633528681,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 300,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9996986888045108,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 350,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9784949951551125,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 400,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9605337868653834,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 450,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9728813706827055,
+        "ownerAboveNeighbors": true
+      },
+      {
+        "t": 500,
+        "activeMax": 0,
+        "neighborLight": 0.0,
+        "bins": 0,
+        "missing": [],
+        "contrast": 0.9632891878611881,
+        "ownerAboveNeighbors": true
+      }
+    ]
+  },
+  {
+    "check": "portable D buttons",
+    "pass_": true,
+    "data": [
+      {
+        "clip": "polygon(8% 0px, 92% 0px, 100% 50%, 92% 100%, 8% 100%, 0px 50%)",
+        "radius": "0px",
+        "lines": 2
+      },
+      {
+        "clip": "polygon(8% 0px, 92% 0px, 100% 50%, 92% 100%, 8% 100%, 0px 50%)",
+        "radius": "0px",
+        "lines": 2
+      },
+      {
+        "clip": "polygon(8% 0px, 92% 0px, 100% 50%, 92% 100%, 8% 100%, 0px 50%)",
+        "radius": "0px",
+        "lines": 2
+      }
+    ]
+  },
+  {
+    "check": "portable I 1440 1",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 532.5,
+          "y": 163.5,
+          "w": 375,
+          "h": 525
+        }
+      ],
+      "margins": [
+        532.5,
+        532.5,
+        163.5,
+        211.5
+      ]
+    }
+  },
+  {
+    "check": "portable I 1440 5",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 141.760009765625,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        },
+        {
+          "x": 378.8800048828125,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        },
+        {
+          "x": 616,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        },
+        {
+          "x": 853.1199951171875,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        },
+        {
+          "x": 1090.239990234375,
+          "y": 280.40625,
+          "w": 208,
+          "h": 291.1875
+        }
+      ],
+      "margins": [
+        141.760009765625,
+        141.760009765625,
+        280.40625,
+        328.40625
+      ]
+    }
+  },
+  {
+    "check": "portable I 1440 10",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 169.55999755859375,
+          "y": 154.9862518310547,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 395.2799987792969,
+          "y": 154.9862518310547,
+          "w": 198.00003051757812,
+          "h": 277.1875
+        },
+        {
+          "x": 621,
+          "y": 154.9862518310547,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 846.719970703125,
+          "y": 154.9862518310547,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 1072.43994140625,
+          "y": 154.9862518310547,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 169.55999755859375,
+          "y": 467.82623291015625,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 395.2799987792969,
+          "y": 467.82623291015625,
+          "w": 198.00003051757812,
+          "h": 277.1875
+        },
+        {
+          "x": 621,
+          "y": 467.82623291015625,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 846.719970703125,
+          "y": 467.82623291015625,
+          "w": 198,
+          "h": 277.1875
+        },
+        {
+          "x": 1072.43994140625,
+          "y": 467.82623291015625,
+          "w": 198,
+          "h": 277.1875
+        }
+      ],
+      "margins": [
+        169.55999755859375,
+        169.56005859375,
+        154.9862518310547,
+        154.98626708984375
+      ]
+    }
+  },
+  {
+    "check": "portable I 1024 1",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 378.671875,
+          "y": 109.34375,
+          "w": 266.65625,
+          "h": 373.3125
+        }
+      ],
+      "margins": [
+        378.671875,
+        378.671875,
+        109.34375,
+        157.34375
+      ]
+    }
+  },
+  {
+    "check": "portable I 1024 5",
+    "pass_": false,
+    "data": {
+      "rects": [
+        {
+          "x": 17.401885986328125,
+          "y": 162,
+          "w": 191.4375,
+          "h": 268
+        },
+        {
+          "x": 216.84156799316406,
+          "y": 162,
+          "w": 191.43748474121094,
+          "h": 268
+        },
+        {
+          "x": 416.28125,
+          "y": 162,
+          "w": 191.4375,
+          "h": 268
+        },
+        {
+          "x": 615.720947265625,
+          "y": 162,
+          "w": 191.4375,
+          "h": 268
+        },
+        {
+          "x": 815.16064453125,
+          "y": 162,
+          "w": 191.4375,
+          "h": 268
+        }
+      ],
+      "margins": [
+        17.401885986328125,
+        17.40185546875,
+        162,
+        210
+      ]
+    }
+  },
+  {
+    "check": "portable I 1024 10",
+    "pass_": false,
+    "data": {
+      "rects": [
+        {
+          "x": 20,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 218.5,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 417,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 615.5,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 814,
+          "y": 50,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 20,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 218.5,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 417,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 615.5,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        },
+        {
+          "x": 814,
+          "y": 324,
+          "w": 190,
+          "h": 266
+        }
+      ],
+      "margins": [
+        20,
+        20,
+        50,
+        50
+      ]
+    }
+  },
+  {
+    "check": "portable I 390 1",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 43,
+          "y": 185.203125,
+          "w": 304,
+          "h": 425.59375
+        }
+      ],
+      "margins": [
+        43,
+        43,
+        185.203125,
+        233.203125
+      ]
+    }
+  },
+  {
+    "check": "portable I 390 5",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 51,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 403,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 755,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1107,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1459,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        }
+      ],
+      "margins": [
+        51,
+        -1357,
+        196.40625,
+        244.40625
+      ]
+    }
+  },
+  {
+    "check": "portable I 390 10",
+    "pass_": true,
+    "data": {
+      "rects": [
+        {
+          "x": 51,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 403,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 755,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1107,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1459,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 1811,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 2163,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 2515,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 2867,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        },
+        {
+          "x": 3219,
+          "y": 196.40625,
+          "w": 288,
+          "h": 403.1875
+        }
+      ],
+      "margins": [
+        51,
+        -3117,
+        196.40625,
+        244.40625
+      ]
+    }
+  },
+  {
+    "check": "E 200 ten-pulls",
+    "pass_": true,
+    "data": {
+      "rarities": [
+        "common",
+        "epic",
+        "legendary",
+        "mythic",
+        "rare"
+      ],
+      "errors": [],
+      "ticket": "\u221e"
+    }
+  }
+]

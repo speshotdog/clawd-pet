@@ -4,7 +4,8 @@ UI and choreography live in ceremony.css / ceremony.js; resources use one resolv
 Output: deluxe-gacha-b.html
 """
 from pathlib import Path
-import json, re
+import json, re, argparse
+parser=argparse.ArgumentParser();parser.add_argument("--test",action="store_true");TEST=parser.parse_args().test
 
 OUT = Path(__file__).parent
 ROOT = (OUT / '../..').resolve()
@@ -38,7 +39,7 @@ __CARD_CSS__
   <div class="entry-pack" id="entry-pack" aria-label="精裝卡包"></div>
   <div class="fan" id="fan"></div>
   <div class="entry-actions">
-   <div class="pull-actions"><button id="p1">單抽</button><button id="p5">五連</button><button id="p10">十連</button></div>
+   <div class="pull-actions"><button id="p1"><span>單抽</span><small>◇ 1</small></button><button id="p5"><span>五連</span><small>◇ 5</small></button><button id="p10"><span>十連</span><small>◇ 10</small></button></div>
    <p class="ticket-count">試抽券 <span id="ticket">30</span></p>
   </div>
   <div class="result-actions"><nav class="pages" aria-label="卡片分頁" hidden><button id="prev" aria-label="上一張或上一組">←</button><span id="page-count"></span><button id="next" aria-label="下一張或下一組">→</button></nav><button id="finish" hidden>收下</button></div>
@@ -116,5 +117,11 @@ page = HTML.replace('__CEREMONY_JS__', '\n'.join((OUT / name).read_text(encoding
            .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':')))
 page = page.replace('__SUBSTRATE_INIT__', "win.style.setProperty('--substrate', 'url(' + path('fx/summon-substrate.webp') + ')');" if (OUT / 'fx/summon-substrate.webp').exists() else '// Optional substrate pending: CSS material fallback remains active.')
 page = page.replace('__BACKGROUND_GEOMETRY__', (OUT / 'ceremony-background.svg').read_text(encoding='utf-8'))
-(OUT / 'deluxe-gacha-b.html').write_text(page, encoding='utf-8', newline='\n')
-print('wrote deluxe-gacha-b.html  cards:', len(cards), ' %.2f MiB' % ((OUT / 'deluxe-gacha-b.html').stat().st_size / 1048576))
+if TEST:
+    assert page.count("const RATE=[['mythic',.005],['legendary',.04],['epic',.15],['rare',.40],['common',.405]];")==1
+    assert page.count("const ticketPolicy={unlimited:false,label:''};")==1
+    page=page.replace("const RATE=[['mythic',.005],['legendary',.04],['epic',.15],['rare',.40],['common',.405]];", "const RATE=[['mythic',.25],['legendary',.35],['epic',.25],['rare',.10],['common',.05]];")
+    page=page.replace("const ticketPolicy={unlimited:false,label:''};", "const ticketPolicy={unlimited:true,label:'測試版 · 高機率 · 無限抽'};")
+target=OUT/('deluxe-gacha-b-test.html' if TEST else 'deluxe-gacha-b.html')
+target.write_text(page, encoding='utf-8', newline='\n')
+print('wrote', target.name, 'cards:', len(cards), ' %.2f MiB' % (target.stat().st_size / 1048576))

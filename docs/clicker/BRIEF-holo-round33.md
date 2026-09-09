@@ -28,7 +28,9 @@
 
 參考圖：`docs/clicker/ref/summon-ui-reference.png`（四格黑白召喚介面）。
 
-A～I 九題全部要做完。
+A～J 十題全部要做完。
+
+另外還有一題 J，是我獨立重跑第三十二輪驗收時抓到的回歸，不是使用者提的。
 
 ---
 
@@ -225,6 +227,42 @@ n>5    cw = min((width-80)/5.55, (height-200)/3.15)    → 222px，兩排
 3. 縮小之後，A 題的衝擊波環外徑（474／516px）相對卡片會變大——確認環不會擴到畫面外或蓋掉整排卡；必要時環的外徑跟著卡寬等比縮，並在報告寫出新數字。
 4. `focusWidth()` 是很多地方的基準（字級 refit、`fx()` 的寬度、flakes 的偏移），改完要整批重驗，**不要只改 layout 就收工**。
 
+## J. 修 `check_gacha_card_regression.py` 的 hover 失效（本機穩定重現）
+
+**症狀**：第三十二輪落地後，我（Claude）在本機獨立重跑五支保留驗收，`check_gacha_card_regression.py`
+**連續兩次都在第一個 flow 就失敗**：
+
+```
+File "_art/holo-test/check_gacha_card_regression.py", line 203, in main
+    assert before['vars']['--phase']!=hover['vars']['--phase'],(portable,n,skip,'foil did not respond')
+AssertionError: (False, 1, False, 'foil did not respond')
+```
+
+即 `portable=False, n=1, skip=False`：滑鼠移到卡片上之後，箔面光位 `--phase` 沒有改變。
+
+**但 Codex 在第三十二輪跑同一支是 exit 0**（`shots/round32/check_gacha_card_regression.py.log`
+最後一行 `{"pairs": 441, "pairFailures": 0, ..., "flowCount": 12}`，`command-exits.json` 記錄
+`exit_code: 0, seconds: 1114.79`）。同樣的檔案、不同的結果 → **這是時序敏感，不是單純的功能壞掉**。
+
+**兩個假設，先量再改**：
+
+1. **第三十一輪的自動回正把 hover 寫進去的光位蓋掉了。** 回正是 280ms 的 rAF，過程中持續把
+   `--phase` 寫回中性值；測試是 `first.hover()` 後等 250ms 才讀，若那時還有回正在跑，讀到的
+   就會等於 hover 前的值。第三十三輪 C 題的「可中斷」目前只寫了**再次按下**要能接手，
+   **沒有要求「移動滑鼠時也要立即中止回正」**——這是簡報寫漏的。
+2. **卡片還沒 `complete` 就被 hover。** `pointermove` 的處理器開頭是 `if(!s.complete)return`，
+   63 張卡之後素材更重，流程可能在完成前就走到 hover。
+
+**要求**：
+
+1. 先重現並**指出真正成因**（不要兩個都改）。報告要寫「量到什麼」。
+2. 若是假設 1：**任何 `pointermove`／`pointerenter` 都必須立即中止進行中的回正動畫**，
+   並從當下角度接手，光位改由該次移動決定。這條要補進 C 題的契約與驗收。
+3. 若是假設 2：測試要等到卡片 `complete` 再 hover（**改測試，不要改產品去遷就測試**），
+   並在報告說明為什麼原本會過。
+4. 修完 `check_gacha_card_regression.py` 要**連續跑三次都 exit 0** 才算過，退出碼三次都列進報告。
+   這支跑一次約 19 分鐘，排在最後跑。
+
 ---
 
 ## 二、不要做的
@@ -259,6 +297,7 @@ n>5    cw = min((width-80)/5.55, (height-200)/3.15)    → 222px，兩排
 | 13c | G | `check_gacha_ceremony_round30.py` 的固定時間點已重算並全綠；`prefers-reduced-motion` 下過場瞬切但點擊確認仍在 |
 | 14 | H | `foil-pack.webp` 最亮 5% 像素平均亮度為改前的 70–80%；整張圖 RMS 對比下降 ≤ 10%（改前後數字都寫進報告） |
 | 15 | I | 三種抽數 × 三個尺寸的留白達到 I 題表格的數字（量實際 rect）；任兩張卡 rect 交集為 0 且相鄰卡間隙 ≥ 8px；卡寬 ≥ 190px（桌面）；`check_demo_round9.py` 的文字不溢出斷言仍綠 |
+| 17 | J | `check_gacha_card_regression.py` 連續三次 exit 0，三次退出碼都列進報告 |
 | 16 | 全 | `check_gacha_ceremony_round30.py`、`check_gacha_layers_round31.py`、`check_new_cards_round32.py`、`check_gacha_card_regression.py`、`check_demo_round8.py`、`check_demo_round9.py` 全綠 |
 
 ## 四、交付

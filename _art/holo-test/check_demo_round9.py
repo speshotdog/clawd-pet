@@ -19,7 +19,7 @@ from playwright.sync_api import sync_playwright
 from pool_data import pool
 
 OUT = Path(__file__).parent
-SHOTS = OUT.parents[1] / 'docs/clicker/shots/round32/retained/round9-shots'
+SHOTS = OUT.parents[1] / 'docs/clicker/shots/round33/retained/round9-shots'
 ROOT = (OUT / '../..').resolve()
 
 EXPECTED_TOTAL = 65          # 22 sample cards from rounds 1-8 + 43 pool cards
@@ -128,7 +128,7 @@ def check(page, uri, label, expected):
 
 def main():
     expected = pool_from_source()
-    with sync_playwright() as pw, TemporaryDirectory(dir=OUT.parents[1]/'docs/clicker/shots/round32/retained/demo') as tmp:
+    with sync_playwright() as pw, TemporaryDirectory(dir=OUT.parents[1]/'docs/clicker/shots/round33/retained/demo') as tmp:
         copy = Path(tmp) / 'standalone.html'
         shutil.copy(OUT / 'demo-standalone.html', copy)
         browser = pw.chromium.launch()
@@ -140,7 +140,7 @@ def main():
         browser.close()
     report = {'expected_total': EXPECTED_TOTAL, 'pool_cards': len(expected),
               'standalone_bytes': (OUT / 'demo-standalone.html').stat().st_size, 'results': results}
-    (OUT.parents[1] / 'docs/clicker/shots/round32/retained/demo' / 'verification-round9.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    (OUT.parents[1] / 'docs/clicker/shots/round33/retained/demo' / 'verification-round9.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 

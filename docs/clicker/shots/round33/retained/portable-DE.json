@@ -1,0 +1,50 @@
+[
+  {
+    "size": [
+      1440,
+      900
+    ],
+    "rarity": "legendary",
+    "charge_to_F": 1220
+  },
+  {
+    "size": [
+      1440,
+      900
+    ],
+    "rarity": "mythic",
+    "charge_to_F": 1620
+  },
+  {
+    "size": [
+      1024,
+      640
+    ],
+    "rarity": "legendary",
+    "charge_to_F": 1220
+  },
+  {
+    "size": [
+      1024,
+      640
+    ],
+    "rarity": "mythic",
+    "charge_to_F": 1620
+  },
+  {
+    "size": [
+      390,
+      844
+    ],
+    "rarity": "legendary",
+    "charge_to_F": 1220
+  },
+  {
+    "size": [
+      390,
+      844
+    ],
+    "rarity": "mythic",
+    "charge_to_F": 1620
+  }
+]

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_layers_round31.py", line 229, in <module>
+    if len(sys.argv)==1 or option in sys.argv:fn(browser,file,label)
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_layers_round31.py", line 86, in layers
+    assert peak>=(223 if rarity=='legendary' else 255),(rarity,peak)
+AssertionError: ('legendary', 218)
