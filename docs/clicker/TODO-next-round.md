@@ -1,15 +1,15 @@
-# 抽卡卡面與演出：第二十八輪狀態
+# 抽卡卡面與演出：第二十九輪狀態
 
-第二十八輪交付以 [REPORT-holo-round28.md](REPORT-holo-round28.md) 為準。
-實作入口為 `_art/holo-test/ceremony.js`、`ceremony.css`；建置仍跑 `build_deluxe_b.py` → `build_deluxe_b_standalone.py`。
+本輪交付與真實退出碼見 [REPORT-holo-round29.md](REPORT-holo-round29.md)。
+開發入口為 `_art/holo-test/ceremony.js`／`ceremony.css`，建置順序 `build_deluxe_b.py` → `build_deluxe_b_standalone.py`。
 
-- 已接入完整 CSS 前奏、既有鋁箔包素材、單卡後置階級 FX、互斥焦點、有限材質掃光。
-- 無品質預告：正面 +320ms 前全階相同；不重加 rarity-lock、最高階封印或差異蓄力。
-- 跳過／背景點擊／reduced-motion 共用 A5 終態，結果淡入 180ms；完成前不啟用結果卡互動。
-- 結果卡支援鎖角度光位互動、±18° 拖曳保留、Esc／雙擊回正、外層 1.04 倍選取。
-- WebAudio 預設靜音、記憶開關；取消時音源與 gain 一起清理。
-- 檢查入口：`check_gacha_ceremony_round28.py`、既有 `check_gacha_card_regression.py`；真實 exit code 與 Git 限制見 REPORT。
-- 後續待審閱本輪視覺；不要自行加入 three.js、影片、遊戲整合或改正式 RATE。
+- 已完成：獨立入口／演出／結果、滿版印刷卡包、共用拆封、大卡扇形／手機卡帶、十連雙頁、五階材質回饋、220ms 收下。
+- A5 狀態名稱、180ms 跳過、相同抽取身份順序、同一 reveal Promise、結果互動與像素選取防護保留。
+- Claude 的 `fx/summon-substrate.webp` 已到位並嵌入（31,942 bytes）；缺檔時仍有 CSS 漸層替代。往後替換底材需重建兩個產物並重驗素材、亮度與體積。
+- 請人工審閱12組成對靜音／等響度比較；不能把自動化像素與時序通過當成人類美感偏好結果。
+- 第30輪僅在另行授權後評估神話底材真折射及調音；本輪不引入 three.js、影片或舊 gacha 程式。
+- `src/`、`card_face.js`、`pool_data.py`、RATE 未動。卡面幾何、Z、字級維持凍結。
+- Git metadata 不在可寫 worktree 內，未 commit／未 push；提交邊界見報告，待有正常 Git 寫入權限時提交。
 
 以下為第二十七輪歷史摘要（卡面凍結與舊證據繼續有效）。
 

@@ -1,6 +1,6 @@
 # 交接：華麗卡牌（3D 鐳射／全息）＋ 精裝版抽卡
 
-最後更新：2026-09-09（第二十八輪）。分支 `holo-cards`；本輪實作未 commit、未 push，Git metadata 寫入受沙箱限制。
+最後更新：2026-09-09（第二十九輪）。分支 `holo-cards`；本輪實作未 commit、未 push，Git metadata 寫入受沙箱限制。
 
 ## 〇之前、開工前一定要先讀的兩份（不讀就會重演昨天的返工）
 
@@ -339,43 +339,23 @@ pending、重開、匯入、跳過都要能還原。
 `.face-name`／`.face-rarity` 的矩形不准超出卡片矩形 1.5px 以上。
 （`.face-frame` 在 `--zf` 8px、設計上就貼著卡緣，不在檢查範圍。）
 
-## 七、下一步（第二十八輪更新）
+## 七、下一步（第二十九輪更新）
 
-第二十八輪將抽卡演出獨立成 `ceremony.js`／`ceremony.css`，仍由 `build_deluxe_b.py` 嵌入。
-本輪使用者裁決以 [BRIEF-holo-round28.md](BRIEF-holo-round28.md) 第一節為準；
-實測、時長與 commit 邊界見 [REPORT-holo-round28.md](REPORT-holo-round28.md)。
+本輪依 [BRIEF-holo-round29.md](BRIEF-holo-round29.md) 第一節優先於設計文件實作。
+入口、拆封、大卡、五階材質回饋、滿版結果已接入；驗收與限制以
+[REPORT-holo-round29.md](REPORT-holo-round29.md) 為準。
 
-- 前奏 2240／2400／2600ms（單／五／十）；沿單一 `path()` resolver 使用三張既有 WebP 與星軌 SVG。
-- 所有階級在 `face-visible` 前相同：140ms 銀白蓄光＋360ms 翻面，正面 marker 在單卡 +320ms。
-  高階移到中央、彩色 FX、讀卡長度差異都在 marker 後；序列排程一次一張，沒有下一張品質的時序預告。
-- `generation`、`revealed`、`complete`、`cascading` 沿用 A5；跳過會取消當次動畫／timer／rAF／聲音並使舊回呼失效。
-  等素材解碼，180ms 淡入完整結果；reduced-motion 直接走此分支。
-- 只有 `.slot.done` 開放互動：外層 `.reveal-shell` hover 1.04，游標只更新光位；拖曳角度 ±18° 並保留、雙擊／Esc 回正。
-  離開時呼叫中立 API（phase 120deg），不改 HoloCardFace 的幾何、Z、字級或展示頁 tilt。
-- WebAudio 首次靜音，開關保存在 `holo-muted`；有聲驗收必須另量 running AudioContext，不能只看靜音事件。
-- 新驗收與證據放 `verify-round28/`；卡面回歸的輸出移到其 `regression/`，不覆寫第二十七輪證據。
+- 入口只留滿版印刷卡包、單／五／十連、券數，音效在角落。刪除展廳 DOM、假幣、側欄、圓環、正式重設鍵與重複階級標記。
+- `setScreen('entry'|'ceremony'|'results')` 管理滿版生命週期；收下 220ms 淡出才回入口。
+- 桌面五張 380×532（1440×900）、扇形 ±420/210px／±12/6°；焦點 420×588。十連兩組五張，320ms 換組；手機 288px 卡帶／304px 焦點，分頁與拖曳旋轉分工。
+- 拆封 P=0，240ms 移包、200ms 張力、440ms 撕膜、680ms 開始發牌；每張 480ms／錯峰70ms。單／五／十抽前奏 1160／1440／1790ms。
+- 單卡 `beginReveal → commitFaceVisible → runRarityFx → settleReveal` 共用 `revealOne` Promise。所有階級直到 F=單卡+320ms 完全相同；F 的 -89° 翻面已有真正正面像素。
+- F 後五階讀卡／回槽分別 300/220、420/240、640/280、900/320、1200/360ms。下一張不依未揭曉品質排程；傳說材質波、神話雙波都在卡後。
+- 六層背景只以 CSS transform/opacity 循環；`backgroundScope` 與當抽取消分離。隱藏時暫停 timer/rAF/WAAPI/AudioContext，恢復剩餘時間；清理不殺掉背景 CSS。
+- `fx/summon-substrate.webp` 已到位並嵌入：1536×1024 RGB、31,942 bytes。若缺檔，同 class 仍使用 CSS 漸層、不送失敗圖片請求；更新素材後依序重跑兩支 builder，透過 `path()`／asset manifest 嵌入。
+- `card_face.js`、`pool_data.py`、RATE 與 `src/` 凍結。hover 1.04、光位跟游標、±18° 拖曳保留、Esc／雙擊回正、禁止原生選取仍有效。
+- 測試入口：`check_gacha_ceremony_round29.py`（可加 `--live`／`--visual-only`）、`check_gacha_controls_round29.py`；第28輪 core／interaction／edges／FX 及原卡面／A5測試保留並更新新時序。證據集中 `verify-round29/`，不覆寫第28輪證據。
 
-下一步先審閱本輪報告與產物。three.js、影片、遊戲本體整合及經濟層仍不在本輪範圍。
-以下保留第二十七輪的卡面工作摘要，不能把它當成本輪尚待執行的工作。
+未 push。共享 Git metadata 位於別的 worktree 目錄，超出本輪可寫範圍；按使用者指示略過 commit，報告列出七個提交邊界。後續只做素材更新後重建、人工成對美感驗收，以及另行授權的第30輪神話折射／調音；不自動接遊戲本體或修改經濟。
 
-[TODO-next-round.md](TODO-next-round.md) 已同步到本輪實作後狀態；[REPORT-holo-round27.md](REPORT-holo-round27.md) 記錄實測與退出碼。
-
-| 代號 | 本輪結果 |
-|---|---|
-| 0 | 固定 px 外皮綁 `--cw`；mask/background-size 實際原值是 100%／300%，保留百分比，避免平鋪格線 |
-| A1 | 保存起點 commit、可載入的 demo 控制組及 78 份歷史檔雜湊；43＋4 正式資料與 65 展示樣本分清 |
-| A2 | 三型 plate/text 幾何一致，四場景納入五尺寸跨三頁驗證；Z 沿六之五不推高 |
-| A3 | demo 正面接 HoloCardFace、資料由 pool_data adapter 更新；歷史樣本、wrapper 與 shadow-root 舊卡保留 |
-| A4 | content width／gem 更新／動畫完成後 refit／移除前 unobserve 已接齊；加入實際尺寸與 scrim 斷言 |
-| A5 | 完成狀態、cascade finally、run 取消及回呼隔離已修；保留兩種失敗證據與固定時序修後結果 |
-| C | 已於 a6d188b 修正，不再是使用者待辦；保留四角裝飾與排查方法 |
-
-尚未完成的交付是 **Git commit**：沙箱不准寫此 worktree 位於另一個目錄的 index.lock，故每任務一個 commit 也未能完成。所有修改與三份 standalone 留在這個 worktree；沒有 push。
-
-後續仍限於使用者另行授權的範圍：
-
-1. 複驗本輪結果並提交目前修改，再決定是否接新的揭曉光效方案。
-2. 卡面樣品驗收後才接遊戲本體；本輪 `src/` 未改。
-3. 精裝抽卡價格、機率、重複處理與經濟層仍待定案。
-
-提醒：六之四的 flat Z=0 是舊文矛盾；本輪按六之五與 brief 採 **6px**，不要又降到背景層後面。
+六之四的 flat Z=0 是歷史矛盾；仍按六之五採 6px，不能把圖放到背景後面。
