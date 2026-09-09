@@ -1,4 +1,17 @@
-# 抽卡卡面收尾：第二十七輪狀態
+# 抽卡卡面與演出：第二十八輪狀態
+
+第二十八輪交付以 [REPORT-holo-round28.md](REPORT-holo-round28.md) 為準。
+實作入口為 `_art/holo-test/ceremony.js`、`ceremony.css`；建置仍跑 `build_deluxe_b.py` → `build_deluxe_b_standalone.py`。
+
+- 已接入完整 CSS 前奏、既有鋁箔包素材、單卡後置階級 FX、互斥焦點、有限材質掃光。
+- 無品質預告：正面 +320ms 前全階相同；不重加 rarity-lock、最高階封印或差異蓄力。
+- 跳過／背景點擊／reduced-motion 共用 A5 終態，結果淡入 180ms；完成前不啟用結果卡互動。
+- 結果卡支援鎖角度光位互動、±18° 拖曳保留、Esc／雙擊回正、外層 1.04 倍選取。
+- WebAudio 預設靜音、記憶開關；取消時音源與 gain 一起清理。
+- 檢查入口：`check_gacha_ceremony_round28.py`、既有 `check_gacha_card_regression.py`；真實 exit code 與 Git 限制見 REPORT。
+- 後續待審閱本輪視覺；不要自行加入 three.js、影片、遊戲整合或改正式 RATE。
+
+以下為第二十七輪歷史摘要（卡面凍結與舊證據繼續有效）。
 
 更新：2026-09-09。依 `BRIEF-holo-round27.md`，按 0 → A1 → A2 → A3 → A4 → A5 實作。
 本輪起點 `4ab5997ff6a16e5aad3a771a7f1b42b6991457bc`。結果、真實退出碼與限制見 [REPORT-holo-round27.md](REPORT-holo-round27.md)。

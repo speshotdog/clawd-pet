@@ -1,6 +1,6 @@
 # 交接：華麗卡牌（3D 鐳射／全息）＋ 精裝版抽卡
 
-最後更新：2026-09-09（第二十七輪）。分支 `holo-cards`；本輪未 commit、未 push，Git metadata 寫入受沙箱限制。
+最後更新：2026-09-09（第二十八輪）。分支 `holo-cards`；本輪實作未 commit、未 push，Git metadata 寫入受沙箱限制。
 
 ## 〇之前、開工前一定要先讀的兩份（不讀就會重演昨天的返工）
 
@@ -339,7 +339,24 @@ pending、重開、匯入、跳過都要能還原。
 `.face-name`／`.face-rarity` 的矩形不准超出卡片矩形 1.5px 以上。
 （`.face-frame` 在 `--zf` 8px、設計上就貼著卡緣，不在檢查範圍。）
 
-## 七、下一步（第二十七輪更新）
+## 七、下一步（第二十八輪更新）
+
+第二十八輪將抽卡演出獨立成 `ceremony.js`／`ceremony.css`，仍由 `build_deluxe_b.py` 嵌入。
+本輪使用者裁決以 [BRIEF-holo-round28.md](BRIEF-holo-round28.md) 第一節為準；
+實測、時長與 commit 邊界見 [REPORT-holo-round28.md](REPORT-holo-round28.md)。
+
+- 前奏 2240／2400／2600ms（單／五／十）；沿單一 `path()` resolver 使用三張既有 WebP 與星軌 SVG。
+- 所有階級在 `face-visible` 前相同：140ms 銀白蓄光＋360ms 翻面，正面 marker 在單卡 +320ms。
+  高階移到中央、彩色 FX、讀卡長度差異都在 marker 後；序列排程一次一張，沒有下一張品質的時序預告。
+- `generation`、`revealed`、`complete`、`cascading` 沿用 A5；跳過會取消當次動畫／timer／rAF／聲音並使舊回呼失效。
+  等素材解碼，180ms 淡入完整結果；reduced-motion 直接走此分支。
+- 只有 `.slot.done` 開放互動：外層 `.reveal-shell` hover 1.04，游標只更新光位；拖曳角度 ±18° 並保留、雙擊／Esc 回正。
+  離開時呼叫中立 API（phase 120deg），不改 HoloCardFace 的幾何、Z、字級或展示頁 tilt。
+- WebAudio 首次靜音，開關保存在 `holo-muted`；有聲驗收必須另量 running AudioContext，不能只看靜音事件。
+- 新驗收與證據放 `verify-round28/`；卡面回歸的輸出移到其 `regression/`，不覆寫第二十七輪證據。
+
+下一步先審閱本輪報告與產物。three.js、影片、遊戲本體整合及經濟層仍不在本輪範圍。
+以下保留第二十七輪的卡面工作摘要，不能把它當成本輪尚待執行的工作。
 
 [TODO-next-round.md](TODO-next-round.md) 已同步到本輪實作後狀態；[REPORT-holo-round27.md](REPORT-holo-round27.md) 記錄實測與退出碼。
 
