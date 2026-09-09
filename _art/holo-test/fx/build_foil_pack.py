@@ -30,8 +30,8 @@ except Exception as e:  # 沒 GPU 就 CPU
 sc.render.film_transparent = True
 sc.render.image_settings.file_format = 'PNG'
 sc.render.image_settings.color_mode = 'RGBA'
-sc.view_settings.view_transform = 'AgX'
-sc.view_settings.look = 'AgX - Medium High Contrast'
+sc.view_settings.view_transform = 'Standard'
+sc.view_settings.look = 'None'
 
 
 # ---------- 材質：銀白鋁箔 ----------
@@ -88,22 +88,26 @@ def foil_material(name, rainbow=0.22, rough=0.28, crinkle=0.9, print_path=None):
         tex.extension = 'CLIP'
         t.links.new(tc.outputs['Generated'], tex.inputs['Vector'])
         # 印刷覆蓋率：alpha × 0.92，讓皺摺高光還能穿過印刷
-        cov = t.nodes.new('ShaderNodeMath'); cov.operation = 'MULTIPLY'; cov.inputs[1].default_value = 0.92
+        cov = t.nodes.new('ShaderNodeMath'); cov.operation = 'MULTIPLY'; cov.inputs[1].default_value = 1.0
         t.links.new(tex.outputs['Alpha'], cov.inputs[0])
         col = t.nodes.new('ShaderNodeMixRGB'); col.blend_type = 'MIX'; col.location = (350, 500)
         t.links.new(cov.outputs[0], col.inputs[0]); t.links.new(mix.outputs[0], col.inputs[1]); t.links.new(tex.outputs['Color'], col.inputs[2])
         t.links.new(col.outputs[0], bsdf.inputs['Base Color'])
         met = t.nodes.new('ShaderNodeMath'); met.operation = 'MULTIPLY_ADD'; met.location = (350, 350)
         # metallic = 1 - 0.75*cov
-        met.inputs[1].default_value = -0.75; met.inputs[2].default_value = 1.0
+        met.inputs[1].default_value = -1.0; met.inputs[2].default_value = 1.0
         t.links.new(cov.outputs[0], met.inputs[0]); t.links.new(met.outputs[0], bsdf.inputs['Metallic'])
         rg = t.nodes.new('ShaderNodeMath'); rg.operation = 'MULTIPLY_ADD'; rg.location = (350, 250)
         # roughness = rough + 0.3*cov
-        rg.inputs[1].default_value = 0.3; rg.inputs[2].default_value = rough
+        rg.inputs[1].default_value = (0.38 - rough); rg.inputs[2].default_value = rough
         t.links.new(cov.outputs[0], rg.inputs[0]); t.links.new(rg.outputs[0], bsdf.inputs['Roughness'])
         bs = t.nodes.new('ShaderNodeMath'); bs.operation = 'MULTIPLY_ADD'; bs.location = (100, -300)
         # bump strength = base - 0.45*cov
-        bs.inputs[1].default_value = -0.45 * crinkle; bs.inputs[2].default_value = 0.7 * crinkle
+        bs.inputs[1].default_value = -0.58 * crinkle; bs.inputs[2].default_value = 0.7 * crinkle
+        # 印刷面加亮膜（coat）做高光，不靠金屬反射
+        ct = t.nodes.new('ShaderNodeMath'); ct.operation = 'MULTIPLY'; ct.inputs[1].default_value = 0.55
+        t.links.new(cov.outputs[0], ct.inputs[0]); t.links.new(ct.outputs[0], bsdf.inputs['Coat Weight'])
+        bsdf.inputs['Coat Roughness'].default_value = 0.12
         t.links.new(cov.outputs[0], bs.inputs[0]); t.links.new(bs.outputs[0], bump.inputs['Strength'])
     else:
         t.links.new(mix.outputs[0], bsdf.inputs['Base Color'])
@@ -111,7 +115,7 @@ def foil_material(name, rainbow=0.22, rough=0.28, crinkle=0.9, print_path=None):
 
 
 # ---------- 幾何 ----------
-def outline_pack(w=7.0, h=9.8, teeth=34, tooth_h=0.14, seal=0.9):
+def outline_pack(w=7.0, h=9.8, teeth=44, tooth_h=0.09, seal=0.9):
     """卡包外框：直式矩形，上、下各一道封口，封口外緣是鋸齒。回傳頂點座標（逆時針）。"""
     pts = []
     x0, x1, y0, y1 = -w / 2, w / 2, -h / 2, h / 2
@@ -168,7 +172,7 @@ def add_bulge(ob, amount, w, h, seal):
         v.co.z += amount * wgt
 
 
-def seal_ribs(ob, w, h, seal, ribs=10):
+def seal_ribs(ob, w, h, seal, ribs=6):
     """封口區的壓紋：橫向細條 bump（用第二個 displace 限定在封口頂點群組）。"""
     vg = ob.vertex_groups.new(name='seal')
     for v in ob.data.vertices:
@@ -176,7 +180,7 @@ def seal_ribs(ob, w, h, seal, ribs=10):
         inside = 1.0 if abs(y) > h / 2 - seal else 0.0
         vg.add([v.index], inside, 'REPLACE')
         if inside:
-            v.co.z += 0.06 * math.sin((abs(y) - (h / 2 - seal)) / seal * math.pi * ribs)
+            v.co.z += 0.05 * math.sin((abs(y) - (h / 2 - seal)) / seal * math.pi * ribs)
 
 
 # ---------- 場景 ----------
@@ -197,9 +201,9 @@ def lights():
         o.rotation_euler = (Vector((0, 0, 0)) - Vector(loc)).to_track_quat('-Z', 'Y').to_euler()
         bpy.context.collection.objects.link(o)
         return o
-    area('key', (-6, 7, 12), 700, 5, (1, 0.98, 0.95))
-    area('fill', (7, -3, 10), 220, 9, (0.92, 0.95, 1))
-    area('rim', (3, 9, 5), 900, 1.2, (1, 1, 1))
+    area('key', (-6, 7, 12), 1300, 5, (1, 0.99, 0.97))
+    area('fill', (7, -3, 10), 520, 9, (0.96, 0.97, 1))
+    area('rim', (3, 9, 5), 1100, 1.2, (1, 1, 1))
     # 冷暖漸層的世界光讓金屬有東西可以反射
     wd = bpy.data.worlds.new('w'); sc.world = wd; wd.use_nodes = True
     nt = wd.node_tree
@@ -209,12 +213,12 @@ def lights():
     mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Rotation'].default_value = (0, math.radians(90), 0)
     ramp = nt.nodes.new('ShaderNodeValToRGB')
     ramp.color_ramp.elements[0].color = (0.01, 0.015, 0.03, 1)
-    ramp.color_ramp.elements[1].color = (0.35, 0.38, 0.45, 1)
+    ramp.color_ramp.elements[1].color = (0.55, 0.58, 0.66, 1)
     nt.links.new(tc.outputs['Generated'], mp.inputs[0])
     nt.links.new(mp.outputs[0], grad.inputs[0])
     nt.links.new(grad.outputs['Fac'], ramp.inputs[0])
     nt.links.new(ramp.outputs[0], bg.inputs[0])
-    bg.inputs[1].default_value = 0.5
+    bg.inputs[1].default_value = 0.7
 
 
 def render(path, rx, ry):
@@ -231,12 +235,12 @@ def clear_objects():
 
 
 # ---------- 1. 卡包 ----------
-W, H, SEAL = 7.0, 9.8, 0.9
+W, H, SEAL = 7.0, 9.8, 0.4
 mat = foil_material('foil', rainbow=0.4, rough=0.22, print_path=f'{OUT}/pack-print.png')
 pack = mesh_from_outline('pack', outline_pack(W, H, seal=SEAL), mat)
 add_bulge(pack, 0.55, W, H, SEAL)
 seal_ribs(pack, W, H, SEAL)
-add_displace(pack, 0.09, 0.7, 'crinkle')
+add_displace(pack, 0.035, 0.7, 'crinkle')
 sm = pack.modifiers.new('smooth', 'SMOOTH'); sm.factor = 0.6; sm.iterations = 2
 for p in pack.data.polygons:
     p.use_smooth = True
