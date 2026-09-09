@@ -1,0 +1,14 @@
+A-pass dev {'rarity': 'legendary', 'peak': 223, 'duration': 2200, 'samples': 83}
+A-pass dev {'rarity': 'mythic', 'peak': 255, 'duration': 3350, 'samples': 83}
+B-pass dev {'rarity': 'legendary', 'geometry': [{'tag': 'before', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 12}, {'tag': 'after', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 12}]}
+B-pass dev {'rarity': 'mythic', 'geometry': [{'tag': 'before', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 12}, {'tag': 'after', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 12}]}
+C-pass dev {'bbox': None, 'selection_ranges': 0, 'blue_ratio': 0.0, 'interrupt_angles': [[-0.04525958250975314, 0.04525958250975314], [-0.04525958250975314, 0.04525958250975314], [-2.045259582509753, 2.045259582509753]]}
+D/E-pass dev
+native-charge-pass dev
+A-pass portable {'rarity': 'legendary', 'peak': 223, 'duration': 2200, 'samples': 83}
+A-pass portable {'rarity': 'mythic', 'peak': 255, 'duration': 3350, 'samples': 83}
+B-pass portable {'rarity': 'legendary', 'geometry': [{'tag': 'before', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 12}, {'tag': 'after', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 12}]}
+B-pass portable {'rarity': 'mythic', 'geometry': [{'tag': 'before', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 12}, {'tag': 'after', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 12}]}
+C-pass portable {'bbox': None, 'selection_ranges': 0, 'blue_ratio': 0.0, 'interrupt_angles': [[-0.08876791133556845, 0.08876791133556845], [-0.08876791133556845, 0.08876791133556845], [-2.0887679113355686, 2.0887679113355686]]}
+D/E-pass portable
+native-charge-pass portable

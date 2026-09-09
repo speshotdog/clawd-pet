@@ -1,0 +1,38 @@
+{
+  "_art\\holo-test\\cards-remade.html": {
+    "bytes": 1205801,
+    "sha256": "065d3dc5af6e74313ad1f8aaaf74281fc554de99c33732ce46d1c2dbf6cbd672"
+  },
+  "_art\\holo-test\\cards-remade-standalone.html": {
+    "bytes": 4282392,
+    "sha256": "8423da9bbd8d59581649f13e58e1856fe7972f9baaa96b7640d705527a8639ac"
+  },
+  "_art\\holo-test\\deluxe-gacha-b.html": {
+    "bytes": 1280822,
+    "sha256": "cb9b24b534cdaa2826d6d0be48716b8bfb6475ed02d75c875edad821edd59aa9"
+  },
+  "_art\\holo-test\\deluxe-gacha-b-standalone.html": {
+    "bytes": 5945963,
+    "sha256": "00765289fc9be695fce2ef85174a364b0314cb128f7c005f494b13d267380e82"
+  },
+  "frozen_files_checked": 387,
+  "frozen_changed": [],
+  "source_sha256": {
+    "今天我生日 傳說.jpg": "0f267ed73cb23a9002f0a10a8acdf9ec8ccdf83f7abc94ad4846173bfeceb306",
+    "咩噗熊 精良.png": "1c64f9fc559df4080fec8ac69eea86c508e064214dc1d70a8cfb824ed5002dde",
+    "外送咩鴿 精良.png": "d60bf0d81f150d1368847d91a0c41df4d4f1423b8da97c81b00021fd24853859",
+    "小丑玥 史詩.png": "ff62db5a291fce91d913772cb7b741f55f828ca82b6140261548c40186c4c343",
+    "小膠膠 史詩.png": "56a0c95582a5cb7fbc0ee5bb5b44e6ab53594292eb31f9fc9798ecd07b6f799c",
+    "成體熱狗 史詩.png": "faef4d9d4851a073a2d5fab37405203e5fce9a584592d48c82fdd5fa8db1ca52",
+    "扁扁彩華 史詩.png": "a3022f556241cdc0fa6a751fcbaa2e1eec7dd36d18191d27828dcf3dac420a2c",
+    "普發玥玥 精良.png": "0ea160885542733407a46cfdd2668671c0aa2f417fd9d647d715867efeecb777",
+    "沙堡領主 神話.png": "380549b28051b05f38a6119ee4eed94b4b5e315bb570cb6fdb44e8254bd6464a",
+    "流浪玥手 神話.png": "f948df128e6ce778da76f48a9974b52677e9d3f51b93da581e938c416b18b001",
+    "玥熊 史詩.png": "bb5631808bc127dee9d76659b709f9e65b2734f406e697bfe56bfa9df40049f9",
+    "珍氣球 神話.png": "5aa146ff2e9e6bd01e46c83b6ccd09fc917026380dccdcbbecd58dd6beca75fb",
+    "珍珍 神話.png": "96dd45fcd30544f8a788a17747d5ff43c61e55dba713ab0fd445be1bf65ea729",
+    "真菌玥 神話.png": "8d6448863958cc82ee013644b712ce3d2058a1722d3a32499d76cd80eb95b4f6",
+    "給咩錢好嗎 史詩.png": "bc39aeb13b7ad92451f7419c32434dbc0958f18cf739b102cd42d8a1f8389073",
+    "膠齒 精良.png": "0805cbc4cf73d1b4c3e6be193c160c47931f348e9437a990e74a416442309224"
+  }
+}

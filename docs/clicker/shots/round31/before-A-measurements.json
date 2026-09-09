@@ -1,0 +1,1265 @@
+[
+  {
+    "rarity": "legendary",
+    "ms_after_F": 200,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 250,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 300,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 350,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 400,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 450,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 500,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 550,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 600,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 650,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 700,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 750,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 800,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 850,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 900,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 950,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1000,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1050,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1100,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1150,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1200,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1250,
+    "bbox": [
+      37,
+      64,
+      401,
+      434
+    ],
+    "mean": [
+      0.039327987781596026,
+      0.049682919136079154,
+      0.05005644371399638
+    ],
+    "revealing": 0,
+    "lower_upper_bbox": null,
+    "diagnosis": "Only upper z-index changed 4 \u2192 1"
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1300,
+    "bbox": [
+      116,
+      74,
+      402,
+      447
+    ],
+    "mean": [
+      0.02930507827415044,
+      0.03919932931586898,
+      0.039875823829207964
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1350,
+    "bbox": [
+      117,
+      83,
+      404,
+      459
+    ],
+    "mean": [
+      0.02107508674070754,
+      0.028263359729070174,
+      0.031210053621528296
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1400,
+    "bbox": [
+      117,
+      97,
+      293,
+      331
+    ],
+    "mean": [
+      0.013940767302488504,
+      0.01953948569815894,
+      0.024926540166342947
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1450,
+    "bbox": [
+      118,
+      166,
+      294,
+      328
+    ],
+    "mean": [
+      0.011077078871789764,
+      0.016144562312200142,
+      0.020481597689127943
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1500,
+    "bbox": [
+      118,
+      164,
+      294,
+      325
+    ],
+    "mean": [
+      0.008454106280193236,
+      0.013060909407839036,
+      0.017219483041984163
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1550,
+    "bbox": [
+      118,
+      161,
+      285,
+      324
+    ],
+    "mean": [
+      0.006773245679565715,
+      0.010367382173747032,
+      0.014218835599382439
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1600,
+    "bbox": [
+      118,
+      157,
+      286,
+      322
+    ],
+    "mean": [
+      0.005461759383767452,
+      0.009773893122167438,
+      0.012492321994787257
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1650,
+    "bbox": [
+      118,
+      154,
+      286,
+      320
+    ],
+    "mean": [
+      0.0042789315536962335,
+      0.007848166409349735,
+      0.010296827531251556
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1700,
+    "bbox": [
+      118,
+      151,
+      286,
+      319
+    ],
+    "mean": [
+      0.0035111310324219334,
+      0.005586267576406527,
+      0.0077527101283264436
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1750,
+    "bbox": [
+      121,
+      147,
+      287,
+      317
+    ],
+    "mean": [
+      0.0027474807842356027,
+      0.004635855039261583,
+      0.0056153194880223115
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1800,
+    "bbox": [
+      121,
+      144,
+      287,
+      316
+    ],
+    "mean": [
+      0.0024154589371980675,
+      0.004017464349154174,
+      0.004913923336155519
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1850,
+    "bbox": [
+      121,
+      141,
+      287,
+      314
+    ],
+    "mean": [
+      0.0018344207048823812,
+      0.0031417567275926757,
+      0.004025764895330112
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1900,
+    "bbox": [
+      121,
+      138,
+      287,
+      313
+    ],
+    "mean": [
+      0.0014401447615253083,
+      0.0025441174029251124,
+      0.0034530272091903647
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 1950,
+    "bbox": [
+      122,
+      145,
+      287,
+      298
+    ],
+    "mean": [
+      0.0012160300147749722,
+      0.0019091256204658267,
+      0.0026810764148280956
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2000,
+    "bbox": [
+      122,
+      142,
+      287,
+      309
+    ],
+    "mean": [
+      0.001033417998904328,
+      0.0019962813553131794,
+      0.0024403605757258827
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2050,
+    "bbox": [
+      124,
+      139,
+      287,
+      294
+    ],
+    "mean": [
+      0.0008881584408254063,
+      0.0018800737088500424,
+      0.0018468715241462888
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2100,
+    "bbox": [
+      125,
+      136,
+      287,
+      288
+    ],
+    "mean": [
+      0.0008176037983299301,
+      0.0011869781031591878,
+      0.0010251174527283896
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2150,
+    "bbox": [
+      130,
+      133,
+      271,
+      286
+    ],
+    "mean": [
+      0.0006598934209871009,
+      0.0006847950595149161,
+      0.0005312349552600561
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2200,
+    "bbox": [
+      130,
+      130,
+      271,
+      284
+    ],
+    "mean": [
+      0.000551986320699902,
+      0.0006059398708435015,
+      0.00036107375865331937
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2250,
+    "bbox": [
+      131,
+      127,
+      271,
+      282
+    ],
+    "mean": [
+      0.0003984262164450421,
+      0.00044822949350067237,
+      0.00023656556601424374
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2300,
+    "bbox": [
+      132,
+      124,
+      272,
+      280
+    ],
+    "mean": [
+      0.00029881966233378154,
+      0.0003237213008615967,
+      0.00019091256204658267
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2350,
+    "bbox": [
+      132,
+      121,
+      272,
+      278
+    ],
+    "mean": [
+      0.0002116639274864286,
+      0.00022826501983830535,
+      0.00014940983116689077
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2400,
+    "bbox": [
+      133,
+      118,
+      273,
+      276
+    ],
+    "mean": [
+      0.0001369590119029832,
+      0.0001369590119029832,
+      0.00011205737337516809
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2450,
+    "bbox": [
+      134,
+      115,
+      273,
+      275
+    ],
+    "mean": [
+      7.470491558344539e-05,
+      9.960655411126052e-05,
+      7.885518867141458e-05
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "legendary",
+    "ms_after_F": 2500,
+    "bbox": [
+      135,
+      207,
+      274,
+      273
+    ],
+    "mean": [
+      5.395355014359945e-05,
+      7.05546424954762e-05,
+      4.565300396766107e-05
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 200,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 250,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 300,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 350,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 400,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 450,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 500,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 550,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 600,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 650,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 700,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 750,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 800,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 850,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 900,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 950,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1000,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1050,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1100,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1150,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1200,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1250,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1300,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1350,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1400,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1450,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1500,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1550,
+    "bbox": null,
+    "mean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "revealing": 1
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1600,
+    "bbox": [
+      96,
+      162,
+      291,
+      347
+    ],
+    "mean": [
+      0.0028802895230506166,
+      0.013795507744409583,
+      0.022888756080150074
+    ],
+    "revealing": 0,
+    "lower_upper_bbox": null,
+    "diagnosis": "Only upper z-index changed 4 \u2192 1"
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1650,
+    "bbox": [
+      96,
+      159,
+      291,
+      345
+    ],
+    "mean": [
+      0.001954778624433488,
+      0.011844879393064063,
+      0.019796802629613027
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1700,
+    "bbox": [
+      98,
+      158,
+      291,
+      344
+    ],
+    "mean": [
+      0.0013986420306456165,
+      0.008192639075651178,
+      0.014833076016401879
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1750,
+    "bbox": [
+      99,
+      155,
+      291,
+      342
+    ],
+    "mean": [
+      0.00097116390258479,
+      0.006038647342995169,
+      0.011027275594734133
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1800,
+    "bbox": [
+      99,
+      155,
+      291,
+      341
+    ],
+    "mean": [
+      0.0009794644487607284,
+      0.005245945183193054,
+      0.009093248335740491
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1850,
+    "bbox": [
+      98,
+      152,
+      283,
+      338
+    ],
+    "mean": [
+      0.0008674070753855604,
+      0.00419177581884888,
+      0.007138469711307004
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1900,
+    "bbox": [
+      98,
+      149,
+      283,
+      335
+    ],
+    "mean": [
+      0.0007138469711307003,
+      0.003166658366120491,
+      0.005196141906137424
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 1950,
+    "bbox": [
+      98,
+      146,
+      283,
+      334
+    ],
+    "mean": [
+      0.0007138469711307003,
+      0.0028968906154024933,
+      0.004760363231900659
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2000,
+    "bbox": [
+      98,
+      143,
+      284,
+      333
+    ],
+    "mean": [
+      0.0005851885054036556,
+      0.0029051911615784317,
+      0.0037642976907880537
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2050,
+    "bbox": [
+      101,
+      140,
+      284,
+      332
+    ],
+    "mean": [
+      0.00040257648953301127,
+      0.0018053687932665968,
+      0.0025275163105732356
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2100,
+    "bbox": [
+      101,
+      137,
+      284,
+      330
+    ],
+    "mean": [
+      5.395355014359945e-05,
+      0.0011745272838952804,
+      0.001851021797234258
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2150,
+    "bbox": [
+      101,
+      134,
+      284,
+      329
+    ],
+    "mean": [
+      4.565300396766107e-05,
+      0.0006889453326028853,
+      0.0011869781031591878
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2200,
+    "bbox": [
+      100,
+      131,
+      285,
+      328
+    ],
+    "mean": [
+      1.2450819263907565e-05,
+      0.000439928947324734,
+      0.0008466557099457144
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2250,
+    "bbox": [
+      100,
+      128,
+      285,
+      326
+    ],
+    "mean": [
+      1.6601092351876752e-05,
+      0.00037767485100519615,
+      0.0007138469711307003
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2300,
+    "bbox": [
+      99,
+      126,
+      286,
+      325
+    ],
+    "mean": [
+      8.300546175938376e-06,
+      0.0002490163852781513,
+      0.0004772814051164567
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2350,
+    "bbox": [
+      99,
+      123,
+      273,
+      324
+    ],
+    "mean": [
+      1.2450819263907565e-05,
+      0.0001784617427826751,
+      0.00035277321247738103
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2400,
+    "bbox": [
+      99,
+      126,
+      287,
+      323
+    ],
+    "mean": [
+      8.300546175938376e-06,
+      0.0001452595580789216,
+      0.0002780682968939356
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2450,
+    "bbox": [
+      98,
+      174,
+      259,
+      321
+    ],
+    "mean": [
+      0.0,
+      8.715573484735296e-05,
+      0.00017431146969470592
+    ],
+    "revealing": 0
+  },
+  {
+    "rarity": "mythic",
+    "ms_after_F": 2500,
+    "bbox": [
+      98,
+      171,
+      260,
+      225
+    ],
+    "mean": [
+      4.150273087969188e-06,
+      7.885518867141458e-05,
+      0.0001369590119029832
+    ],
+    "revealing": 0
+  }
+]

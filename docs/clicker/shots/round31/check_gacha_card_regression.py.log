@@ -1,0 +1,32 @@
+skin: 63 page/rarity/width cases, 8 proportional properties within 0.3 percentage points
+remade standalone copied: 43 cards, images loaded, no errors
+measured width 80
+measured width 102
+measured width 150
+measured width 230
+measured width 290
+measured width 380
+measured width 420
+flow False 1 False
+flow False 1 True
+flow False 5 False
+flow False 5 True
+flow False 10 False
+flow False 10 True
+flow True 1 False
+flow True 1 True
+flow True 5 False
+flow True 5 True
+flow True 10 False
+flow True 10 True
+fixed timing False wait 20 passed
+fixed timing False last-before 20 passed
+fixed timing False last-after 20 passed
+fixed timing False front 20 passed
+fixed timing False return 20 passed
+fixed timing True wait 20 passed
+fixed timing True last-before 20 passed
+fixed timing True last-after 20 passed
+fixed timing True front 20 passed
+fixed timing True return 20 passed
+{"pairs": 329, "pairFailures": 0, "gachaStructureFailures": 0, "gachaNameFitFailures": 0, "flowCount": 12}

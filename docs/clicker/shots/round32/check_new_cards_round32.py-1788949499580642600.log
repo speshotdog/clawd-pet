@@ -1,0 +1,50 @@
+FAIL miepuxiong bright boundary <=1% 0.10869998009157873
+FAIL xiaochouyue enclosed white preserved 1
+FAIL shabaolingzhu crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+FAIL liulangyueshou crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+FAIL zhenqiqiu crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+FAIL zhenjunyue crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+FAIL zhenzhen crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+dev 1440 batch 0
+dev 1440 batch 10
+dev 1440 batch 20
+dev 1440 batch 30
+dev 1440 batch 40
+dev 1440 batch 50
+dev 1440 batch 60
+dev 1024 batch 0
+dev 1024 batch 10
+dev 1024 batch 20
+dev 1024 batch 30
+dev 1024 batch 40
+dev 1024 batch 50
+dev 1024 batch 60
+dev 390 batch 0
+dev 390 batch 10
+dev 390 batch 20
+dev 390 batch 30
+dev 390 batch 40
+dev 390 batch 50
+dev 390 batch 60
+portable 1440 batch 0
+portable 1440 batch 10
+portable 1440 batch 20
+portable 1440 batch 30
+portable 1440 batch 40
+portable 1440 batch 50
+portable 1440 batch 60
+portable 1024 batch 0
+portable 1024 batch 10
+portable 1024 batch 20
+portable 1024 batch 30
+portable 1024 batch 40
+portable 1024 batch 50
+portable 1024 batch 60
+portable 390 batch 0
+portable 390 batch 10
+portable 390 batch 20
+portable 390 batch 30
+portable 390 batch 40
+portable 390 batch 50
+portable 390 batch 60
+checks 1087 failures 7

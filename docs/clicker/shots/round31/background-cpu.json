@@ -1,0 +1,50 @@
+[
+  {
+    "repeat": 0,
+    "entry": "before",
+    "TaskDuration": 0.0013629999999999998,
+    "ScriptDuration": 0,
+    "LayoutDuration": 0,
+    "RecalcStyleDuration": 0
+  },
+  {
+    "repeat": 0,
+    "entry": "after",
+    "TaskDuration": 0.002499,
+    "ScriptDuration": 0,
+    "LayoutDuration": 0,
+    "RecalcStyleDuration": 0
+  },
+  {
+    "repeat": 1,
+    "entry": "before",
+    "TaskDuration": 0.0009440000000000001,
+    "ScriptDuration": 0,
+    "LayoutDuration": 0,
+    "RecalcStyleDuration": 0
+  },
+  {
+    "repeat": 1,
+    "entry": "after",
+    "TaskDuration": 0.0021230000000000003,
+    "ScriptDuration": 0,
+    "LayoutDuration": 0,
+    "RecalcStyleDuration": 0
+  },
+  {
+    "repeat": 2,
+    "entry": "before",
+    "TaskDuration": 0.000915,
+    "ScriptDuration": 0,
+    "LayoutDuration": 0,
+    "RecalcStyleDuration": 0
+  },
+  {
+    "repeat": 2,
+    "entry": "after",
+    "TaskDuration": 0.002015,
+    "ScriptDuration": 0,
+    "LayoutDuration": 0,
+    "RecalcStyleDuration": 0
+  }
+]

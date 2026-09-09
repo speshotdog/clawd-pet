@@ -1,0 +1,7 @@
+D:\claude\clawd-pet-holo\_art\holo-test\build_card_scenes.py:34: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  px = [p for p in im.getdata() if p[3] > 160]
+wrote palette for 63 cards
+  card-ababa.png #1c201a #4b3c56 #aa6fa7
+  card-alu.png #191b21 #655a41 #b9c879
+  card-bianbiancaihua.png #151418 #41412e #768c5b
+  card-bingyang.png #21201b #495469 #9087cf

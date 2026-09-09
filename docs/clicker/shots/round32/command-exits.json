@@ -1,0 +1,166 @@
+[
+  {
+    "command": "python _art/holo-test/check_demo_round8.py",
+    "exit_code": 0,
+    "seconds": 33.63
+  },
+  {
+    "command": "python _art/holo-test/check_demo_round9.py",
+    "exit_code": 0,
+    "seconds": 14.56
+  },
+  {
+    "command": "python _art/holo-test/check_new_cards_round32.py --self-test",
+    "exit_code": 0,
+    "seconds": 4.5
+  },
+  {
+    "command": "python _art/holo-test/prepare_round32.py",
+    "exit_code": 0,
+    "seconds": 5.01
+  },
+  {
+    "command": "python _art/holo-test/build_card_scenes.py",
+    "exit_code": 0,
+    "seconds": 0.99
+  },
+  {
+    "command": "python _art/holo-test/embed_masks.py",
+    "exit_code": 0,
+    "seconds": 0.48
+  },
+  {
+    "command": "python _art/holo-test/build_cards_remade.py",
+    "exit_code": 0,
+    "seconds": 0.27
+  },
+  {
+    "command": "python _art/holo-test/build_cards_remade_standalone.py",
+    "exit_code": 0,
+    "seconds": 3.02
+  },
+  {
+    "command": "python _art/holo-test/build_deluxe_b.py",
+    "exit_code": 0,
+    "seconds": 0.11
+  },
+  {
+    "command": "python _art/holo-test/build_deluxe_b_standalone.py",
+    "exit_code": 0,
+    "seconds": 2.55
+  },
+  {
+    "command": "python _art/holo-test/check_new_cards_round32.py",
+    "exit_code": 1,
+    "seconds": 53.36
+  },
+  {
+    "command": "python _art/holo-test/prepare_round32.py",
+    "exit_code": 0,
+    "seconds": 5.72,
+    "log": "prepare_round32.py-1788949551448997100.log"
+  },
+  {
+    "command": "python _art/holo-test/build_card_scenes.py",
+    "exit_code": 0,
+    "seconds": 1.01,
+    "log": "build_card_scenes.py-1788949557171118300.log"
+  },
+  {
+    "command": "python _art/holo-test/embed_masks.py",
+    "exit_code": 0,
+    "seconds": 0.49,
+    "log": "embed_masks.py-1788949558187502400.log"
+  },
+  {
+    "command": "python _art/holo-test/build_cards_remade.py",
+    "exit_code": 0,
+    "seconds": 0.28,
+    "log": "build_cards_remade.py-1788949558686723600.log"
+  },
+  {
+    "command": "python _art/holo-test/build_cards_remade_standalone.py",
+    "exit_code": 0,
+    "seconds": 3.46,
+    "log": "build_cards_remade_standalone.py-1788949558980590000.log"
+  },
+  {
+    "command": "python _art/holo-test/build_deluxe_b.py",
+    "exit_code": 0,
+    "seconds": 0.16,
+    "log": "build_deluxe_b.py-1788949562450308400.log"
+  },
+  {
+    "command": "python _art/holo-test/build_deluxe_b_standalone.py",
+    "exit_code": 0,
+    "seconds": 2.76,
+    "log": "build_deluxe_b_standalone.py-1788949562619422500.log"
+  },
+  {
+    "command": "python _art/holo-test/check_new_cards_round32.py",
+    "exit_code": 1,
+    "seconds": 178.0,
+    "log": "check_new_cards_round32.py-1788949499580642600.log"
+  },
+  {
+    "command": "python _art/holo-test/check_new_cards_round32.py",
+    "exit_code": 1,
+    "seconds": 163.15,
+    "log": "check_new_cards_round32.py-1788949687466297000.log"
+  },
+  {
+    "command": "git -c safe.directory=D:/claude/clawd-pet-holo diff --check",
+    "exit_code": 0,
+    "log": "git-diff-check.log"
+  },
+  {
+    "command": "python _art/holo-test/check_new_cards_round32.py",
+    "exit_code": 1,
+    "seconds": 145.45,
+    "log": "check_new_cards_round32.py-1788949884813976300.log"
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_card_regression.py",
+    "exit_code": 0,
+    "seconds": 1114.79
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_ceremony_round30.py",
+    "exit_code": 0,
+    "seconds": 1017.72
+  },
+  {
+    "command": "python _art/holo-test/check_new_cards_round32.py --assets-only",
+    "exit_code": 1,
+    "seconds": 3.39,
+    "log": "check_new_cards_round32.py_--assets-only-1788951978509358700.log"
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py",
+    "exit_code": 0,
+    "seconds": 549.57
+  },
+  {
+    "command": "python _art/holo-test/check_demo_round8.py",
+    "exit_code": 0,
+    "seconds": 31.87
+  },
+  {
+    "command": "python _art/holo-test/check_demo_round9.py",
+    "exit_code": 0,
+    "seconds": 13.37
+  },
+  {
+    "command": "Python Chromium-log cleanup guard (initial GPU-only assertion)",
+    "exit_code": 1
+  },
+  {
+    "command": "Python Chromium-log cleanup guard (GPU/audio verified)",
+    "exit_code": 0
+  },
+  {
+    "command": "git -c safe.directory=D:/claude/clawd-pet-holo diff --check",
+    "exit_code": 0,
+    "log": "git-diff-check-final.log"
+  }
+]

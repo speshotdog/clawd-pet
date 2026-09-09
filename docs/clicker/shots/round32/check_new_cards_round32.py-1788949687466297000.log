@@ -1,0 +1,90 @@
+FAIL miepuxiong bright boundary <=1% 0.10929723272944455
+FAIL shabaolingzhu crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+FAIL liulangyueshou crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+FAIL zhenqiqiu crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+FAIL zhenjunyue crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+FAIL zhenzhen crop-only composition contract Review draft uses transparent padding to preserve all original content; approval pending
+dev 1440 batch 0
+dev 1440 batch 10
+dev 1440 batch 20
+dev 1440 batch 30
+dev 1440 batch 40
+dev 1440 batch 50
+dev 1440 batch 60
+dev 1024 batch 0
+dev 1024 batch 10
+dev 1024 batch 20
+dev 1024 batch 30
+dev 1024 batch 40
+dev 1024 batch 50
+dev 1024 batch 60
+dev 390 batch 0
+dev 390 batch 10
+dev 390 batch 20
+dev 390 batch 30
+dev 390 batch 40
+dev 390 batch 50
+FAIL dev results 390 batch 50 page 1 pairwise zero intersections [{'ids': ['guanjiu', 'jiaolan'], 'area': 116118}]
+FAIL dev results 390 batch 50 page 2 pairwise zero intersections [{'ids': ['guanjiu', 'manhua'], 'area': 116118}]
+FAIL dev results 390 batch 50 page 3 pairwise zero intersections [{'ids': ['guanjiu', 'miepupu'], 'area': 116118}]
+FAIL dev results 390 batch 50 page 4 pairwise zero intersections [{'ids': ['guanjiu', 'salamander'], 'area': 116118}]
+FAIL dev results 390 batch 50 page 5 pairwise zero intersections [{'ids': ['guanjiu', 'seal'], 'area': 116118}]
+FAIL dev results 390 batch 50 page 6 pairwise zero intersections [{'ids': ['guanjiu', 'shiwang'], 'area': 116118}]
+FAIL dev results 390 batch 50 page 7 pairwise zero intersections [{'ids': ['guanjiu', 'yangtuo'], 'area': 116118}]
+FAIL dev results 390 batch 50 page 8 pairwise zero intersections [{'ids': ['guanjiu', 'zhenjpg'], 'area': 116118}]
+FAIL dev results 390 batch 50 page 9 pairwise zero intersections [{'ids': ['guanjiu', 'zhenwang'], 'area': 116118}]
+dev 390 batch 60
+dev natural reveal miepuxiong
+dev natural reveal waisongmiege
+dev natural reveal pufayueyue
+dev natural reveal geimieqianhaoma
+dev natural reveal jiaochi
+dev natural reveal xiaochouyue
+dev natural reveal xiaojiaojiao
+dev natural reveal chengtiregou
+dev natural reveal bianbiancaihua
+dev natural reveal yuexiong
+dev natural reveal jintianwoshengri
+dev natural reveal shabaolingzhu
+dev natural reveal liulangyueshou
+dev natural reveal zhenqiqiu
+dev natural reveal zhenjunyue
+dev natural reveal zhenzhen
+portable 1440 batch 0
+portable 1440 batch 10
+portable 1440 batch 20
+portable 1440 batch 30
+portable 1440 batch 40
+portable 1440 batch 50
+portable 1440 batch 60
+portable 1024 batch 0
+portable 1024 batch 10
+portable 1024 batch 20
+portable 1024 batch 30
+portable 1024 batch 40
+portable 1024 batch 50
+portable 1024 batch 60
+portable 390 batch 0
+portable 390 batch 10
+portable 390 batch 20
+portable 390 batch 30
+portable 390 batch 40
+portable 390 batch 50
+portable 390 batch 60
+portable natural reveal miepuxiong
+portable natural reveal waisongmiege
+portable natural reveal pufayueyue
+portable natural reveal geimieqianhaoma
+portable natural reveal jiaochi
+portable natural reveal xiaochouyue
+portable natural reveal xiaojiaojiao
+portable natural reveal chengtiregou
+portable natural reveal bianbiancaihua
+portable natural reveal yuexiong
+portable natural reveal jintianwoshengri
+portable natural reveal shabaolingzhu
+portable natural reveal liulangyueshou
+portable natural reveal zhenqiqiu
+portable natural reveal zhenjunyue
+portable natural reveal zhenzhen
+checks 1087 failures 15

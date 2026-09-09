@@ -1,0 +1,77 @@
+[
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --b --c --de",
+    "exit_code": 1,
+    "seconds": 15.07
+  },
+  {
+    "command": "python _art/holo-test/check_demo_round8.py",
+    "exit_code": 0,
+    "seconds": 50.15
+  },
+  {
+    "command": "python _art/holo-test/check_demo_round9.py",
+    "exit_code": 0,
+    "seconds": 16.37
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --b --c --de",
+    "exit_code": 1,
+    "seconds": 173.87
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --c",
+    "exit_code": 0,
+    "seconds": 11.56
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --native",
+    "exit_code": 1,
+    "seconds": 4.43
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --native",
+    "exit_code": 0,
+    "seconds": 36.92
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --b --de",
+    "exit_code": 0,
+    "seconds": 239.99
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py",
+    "exit_code": 1,
+    "seconds": 7.31
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --a",
+    "exit_code": 0,
+    "seconds": 482.05
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_card_regression.py",
+    "exit_code": 0,
+    "seconds": 1131.77
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --de",
+    "exit_code": 0,
+    "seconds": 209.59
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --b",
+    "exit_code": 0,
+    "seconds": 66.15
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py",
+    "exit_code": 0,
+    "seconds": 826.23
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_ceremony_round30.py",
+    "exit_code": 0,
+    "seconds": 1068.33
+  }
+]

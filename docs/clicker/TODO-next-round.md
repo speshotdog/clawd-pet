@@ -1,4 +1,28 @@
-# 抽卡卡面與演出：第三十輪狀態
+# 第三十二輪：新卡 4.0 精裝研究線
+
+16 張已整合成 63 張研究卡池，詳見 [REPORT-holo-round32.md](REPORT-holo-round32.md)。只使用原圖，未進遊戲。
+
+- 待裁決：五張 flat 的完整主體／貼紙無法在純 5:7 裁切中全保留；目前為透明留邊審閱稿，不能當成 crop-only 驗收通過。
+- 待裁決：咩噗熊原畫的裸露粉紅底邊符合亮邊門檻，實測 10.92972%；不得為達 1% 而侵蝕角色。原始門檻仍保留，驗收報失敗。
+- 11 張 framed 的封閉白像素移除與新增內部洞均為 0；生日裝飾依最大元件規則移除，若想保留須另改規則。
+- 卡池與卡型仍唯一由 `pool_data.py` 管理，`EXTRA_CARDS` 只在 Deluxe 生效。歷史 demo 維持 65 個樣本。
+- 新驗收入口 `check_new_cards_round32.py`；完整實際退出碼、失敗歷史、原圖前後與三尺寸結果截圖在 `shots/round32/`。先看報告，不能把「整合完成」當成「全部驗收綠」。
+- `src/`、`card_face.js`、ceremony 全部保留開工時的 bytes，RATE 未改。怪物資料夾未收、未新增 depth。沒有 commit／push；共享 Git metadata 位於可寫 worktree 外。
+
+---
+
+# 抽卡卡面與演出：第三十一輪狀態
+
+第三十一輪 A–E 與必跑驗收已完成；數據、失敗歷史、退出碼及提交邊界見 [REPORT-holo-round31.md](REPORT-holo-round31.md)。
+
+- Canvas 永遠在卡後，透明角落也排除卡面 rect；外環改用外槽位的平面堆疊，不再與翻牌相交。
+- 放開／取消／離開拖曳後 280ms 回正，光位同步；原生 400ms 像素比對在 dev／搬移 standalone 均零差。
+- **不預告只適用 common／rare／epic**。legendary／mythic 現在明確預告，蓄力 900／1300ms，閱讀 1400／1900ms；不得恢復成三階 common／legendary／mythic pre-F 零差。
+- 黑底細白線召喚陣由原創 `ceremony-background.svg` 內嵌，沒有新素材或 npm 相依。背景沒有 rAF，降階及 reduced-motion 保留。
+- `check_gacha_layers_round31.py` 是新驗收入口；保留的 round30／card regression 輸出改存 `docs/clicker/shots/round31/retained30/`，原版校準仍可讀 `verify-round30/original-baseline.json`。
+- builder 順序不變：`build_deluxe_b.py` → `build_deluxe_b_standalone.py`。`src/`／`card_face.js`／`pool_data.py`／RATE 不動，沒有 commit／push；共享 Git metadata 不在可寫範圍。
+
+## 第三十輪歷史
 
 本輪以原版 hearthstone 為底線完成移植，交付與真實退出碼見 [REPORT-holo-round30.md](REPORT-holo-round30.md)。
 

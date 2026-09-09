@@ -1,0 +1,17 @@
+[
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --reproduce",
+    "exit_code": 0,
+    "note": "Original pre-edit reproduction; upper-only lowering control passed"
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --b --c --de",
+    "exit_code": 1,
+    "note": "First direct run: B dimensions pass, C pixel baseline and purple artwork mask failed"
+  },
+  {
+    "command": "python _art/holo-test/check_gacha_layers_round31.py --a",
+    "exit_code": 1,
+    "note": "First direct run: legendary peak223/duration2200 passes; mythic edge-on silhouette t0 has 2px strip, max32"
+  }
+]

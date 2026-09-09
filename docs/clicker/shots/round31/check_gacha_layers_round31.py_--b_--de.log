@@ -1,0 +1,6 @@
+B-pass dev {'rarity': 'legendary', 'geometry': [{'tag': 'before', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 12}, {'tag': 'after', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 12}]}
+B-pass dev {'rarity': 'mythic', 'geometry': [{'tag': 'before', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 12}, {'tag': 'after', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 12}]}
+D/E-pass dev
+B-pass portable {'rarity': 'legendary', 'geometry': [{'tag': 'before', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 12}, {'tag': 'after', 'bbox': (483, 183, 957, 657), 'diameter': 474, 'line': 12}]}
+B-pass portable {'rarity': 'mythic', 'geometry': [{'tag': 'before', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 12}, {'tag': 'after', 'bbox': (462, 162, 978, 678), 'diameter': 516, 'line': 12}]}
+D/E-pass portable

@@ -1,0 +1,66 @@
+[
+  {
+    "check": "low-tier-no-preview",
+    "frames": 39,
+    "max_difference": 0
+  },
+  {
+    "check": "high-tier-charge-preview",
+    "variants": 2,
+    "difference": "nonempty"
+  },
+  {
+    "check": "A5",
+    "phase": "controls",
+    "trigger_ms": 100,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "tension",
+    "trigger_ms": 300,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "tear",
+    "trigger_ms": 550,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "deal",
+    "trigger_ms": 900,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "pre-face",
+    "trigger_ms": 3369,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "post-face",
+    "trigger_ms": 3371,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "return",
+    "trigger_ms": 5350,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "last-before",
+    "trigger_ms": 12349,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "last-after",
+    "trigger_ms": 12351,
+    "repeats": 20
+  }
+]

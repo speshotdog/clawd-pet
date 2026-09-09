@@ -1,0 +1,57 @@
+{
+  "ceremony.js": {
+    "bytes": 30783,
+    "sha256": "6a72446de382f8f7aeb7806a48d54232ee7bb977faa6d2e5a58fbad46064e9a7"
+  },
+  "ceremony.css": {
+    "bytes": 8681,
+    "sha256": "203256eb8b1390a8aa24bdc9a835244d9c81904291dd2179a7efbe53ac91da5a"
+  },
+  "ceremony-fx.js": {
+    "bytes": 17875,
+    "sha256": "04647f82b8b72894b2230aff118b6abe11947815a13b61e18775176948244019"
+  },
+  "ceremony-audio.js": {
+    "bytes": 14598,
+    "sha256": "a8dea3bd8d96cb8629cb381872ecbd0cc21457af498317cc3ff4902918fc7107"
+  },
+  "ceremony-layout.js": {
+    "bytes": 774,
+    "sha256": "810d7bed000451b6421e8d7905bcac72e272513391a15fd0e938cd947d83334d"
+  },
+  "ceremony-background.svg": {
+    "bytes": 1962,
+    "sha256": "473cbe5b738b70979a5cd259099b6af4301be3a8c4c78122d19e081cefa421de"
+  },
+  "card_face.js": {
+    "bytes": 9483,
+    "sha256": "4a909694d101b428356fde9e0f4454d8fe53c15c178521412ba9766690765f33"
+  },
+  "pool_data.py": {
+    "bytes": 3579,
+    "sha256": "055388fc5c6ad6214b961920f1543c2b63f9d9a40743116cd3660242c4a8a94f"
+  },
+  "deluxe-gacha-b.html": {
+    "bytes": 1136526,
+    "sha256": "b463c678c7688f6780fbe438da62ab3eed2432363b705861952839f02cf3b40c"
+  },
+  "deluxe-gacha-b-standalone.html": {
+    "bytes": 5146465,
+    "sha256": "4cf716dd7109793fe8dd526743c82562ee8ff5ae17579ffd61092e375d79a28d"
+  },
+  "check_gacha_layers_round31.py": {
+    "bytes": 14917,
+    "sha256": "38abf99d2513bf404f3c73854539cd9ad3586d6d9098dc64b4aa6077c76cf277"
+  },
+  "check_gacha_ceremony_round30.py": {
+    "bytes": 11979,
+    "sha256": "fa58e544ee5e08ea386051bf7da43c3240be7a37f3a9bd0df1b1d88c0f0c18b8"
+  },
+  "check_gacha_card_regression.py": {
+    "bytes": 18987,
+    "sha256": "5b6d16939593f4b62f52dd979ab9579600923b370ccbb990a87100db32c5cb8f"
+  },
+  "frozen_git_diff_exit": 0,
+  "rate_equal": true,
+  "standalone_growth": 4397
+}

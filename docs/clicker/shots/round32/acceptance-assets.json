@@ -1,0 +1,1501 @@
+{
+  "failures": [
+    "miepuxiong bright boundary <=1%",
+    "shabaolingzhu crop-only composition contract",
+    "liulangyueshou crop-only composition contract",
+    "zhenqiqiu crop-only composition contract",
+    "zhenjunyue crop-only composition contract",
+    "zhenzhen crop-only composition contract"
+  ],
+  "records": [
+    {
+      "check": "unique IDs",
+      "pass": true,
+      "data": []
+    },
+    {
+      "check": "pool count",
+      "pass": true,
+      "data": 63
+    },
+    {
+      "check": "source file count",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "palette count",
+      "pass": true,
+      "data": 63
+    },
+    {
+      "check": "miepuxiong filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "miepuxiong kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "miepuxiong RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "miepuxiong reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "miepuxiong tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        589,
+        580
+      ]
+    },
+    {
+      "check": "miepuxiong bright boundary <=1%",
+      "pass": false,
+      "data": 0.10929723272944455
+    },
+    {
+      "check": "miepuxiong no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": true,
+        "white_components": 291,
+        "interior_white_pixels": 335,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 0,
+        "white_component_removed_pixels": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "crop": [
+          70,
+          59,
+          330,
+          315
+        ]
+      }
+    },
+    {
+      "check": "miepuxiong enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "miepuxiong base darker",
+      "pass": true,
+      "data": {
+        "base": "#1b2021",
+        "art_luminance": 150.90154438044706
+      }
+    },
+    {
+      "check": "waisongmiege filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "waisongmiege kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "waisongmiege RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "waisongmiege reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "waisongmiege tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        832,
+        580
+      ]
+    },
+    {
+      "check": "waisongmiege bright boundary <=1%",
+      "pass": true,
+      "data": 0.0
+    },
+    {
+      "check": "waisongmiege no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": true,
+        "white_components": 6,
+        "interior_white_pixels": 1117,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 0,
+        "white_component_removed_pixels": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "crop": [
+          266,
+          200,
+          1094,
+          777
+        ]
+      }
+    },
+    {
+      "check": "waisongmiege enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "waisongmiege base darker",
+      "pass": true,
+      "data": {
+        "base": "#181c1e",
+        "art_luminance": 98.43587958116589
+      }
+    },
+    {
+      "check": "pufayueyue filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "pufayueyue kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "pufayueyue RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "pufayueyue reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "pufayueyue tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        723,
+        580
+      ]
+    },
+    {
+      "check": "pufayueyue bright boundary <=1%",
+      "pass": true,
+      "data": 0.000370919881305638
+    },
+    {
+      "check": "pufayueyue no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": true,
+        "white_components": 4,
+        "interior_white_pixels": 388,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 0,
+        "white_component_removed_pixels": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "crop": [
+          24,
+          55,
+          458,
+          403
+        ]
+      }
+    },
+    {
+      "check": "pufayueyue enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "pufayueyue base darker",
+      "pass": true,
+      "data": {
+        "base": "#131417",
+        "art_luminance": 104.05402245738625
+      }
+    },
+    {
+      "check": "geimieqianhaoma filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "geimieqianhaoma kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "geimieqianhaoma RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "geimieqianhaoma reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "geimieqianhaoma tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        1009,
+        580
+      ]
+    },
+    {
+      "check": "geimieqianhaoma bright boundary <=1%",
+      "pass": true,
+      "data": 0.00618698441796517
+    },
+    {
+      "check": "geimieqianhaoma no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": true,
+        "white_components": 164,
+        "interior_white_pixels": 4732,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 0,
+        "white_component_removed_pixels": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "crop": [
+          24,
+          65,
+          332,
+          242
+        ]
+      }
+    },
+    {
+      "check": "geimieqianhaoma enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "geimieqianhaoma base darker",
+      "pass": true,
+      "data": {
+        "base": "#1a1e1f",
+        "art_luminance": 104.75493706777905
+      }
+    },
+    {
+      "check": "jiaochi filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "jiaochi kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "jiaochi RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "jiaochi reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "jiaochi tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        543,
+        580
+      ]
+    },
+    {
+      "check": "jiaochi bright boundary <=1%",
+      "pass": true,
+      "data": 0.0
+    },
+    {
+      "check": "jiaochi no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": true,
+        "white_components": 4,
+        "interior_white_pixels": 84273,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 0,
+        "white_component_removed_pixels": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "crop": [
+          652,
+          354,
+          1115,
+          849
+        ]
+      }
+    },
+    {
+      "check": "jiaochi enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "jiaochi base darker",
+      "pass": true,
+      "data": {
+        "base": "#171b1d",
+        "art_luminance": 150.45341332559613
+      }
+    },
+    {
+      "check": "xiaochouyue filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "xiaochouyue kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "xiaochouyue RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "xiaochouyue reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "xiaochouyue tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        724,
+        580
+      ]
+    },
+    {
+      "check": "xiaochouyue bright boundary <=1%",
+      "pass": true,
+      "data": 0.00020445716622367614
+    },
+    {
+      "check": "xiaochouyue no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": false,
+        "white_components": 11,
+        "interior_white_pixels": 24790,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 3336,
+        "white_component_removed_pixels": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "crop": [
+          34,
+          121,
+          608,
+          581
+        ]
+      }
+    },
+    {
+      "check": "xiaochouyue enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "xiaochouyue base darker",
+      "pass": true,
+      "data": {
+        "base": "#211c1b",
+        "art_luminance": 135.84526072090935
+      }
+    },
+    {
+      "check": "xiaojiaojiao filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "xiaojiaojiao kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "xiaojiaojiao RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "xiaojiaojiao reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "xiaojiaojiao tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        510,
+        580
+      ]
+    },
+    {
+      "check": "xiaojiaojiao bright boundary <=1%",
+      "pass": true,
+      "data": 0.0
+    },
+    {
+      "check": "xiaojiaojiao no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": false,
+        "white_components": 9,
+        "interior_white_pixels": 1152,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 0,
+        "white_component_removed_pixels": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "crop": [
+          93,
+          69,
+          485,
+          515
+        ]
+      }
+    },
+    {
+      "check": "xiaojiaojiao enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "xiaojiaojiao base darker",
+      "pass": true,
+      "data": {
+        "base": "#1a1c21",
+        "art_luminance": 108.57280807352927
+      }
+    },
+    {
+      "check": "chengtiregou filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "chengtiregou kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "chengtiregou RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "chengtiregou reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "chengtiregou tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        449,
+        580
+      ]
+    },
+    {
+      "check": "chengtiregou bright boundary <=1%",
+      "pass": true,
+      "data": 0.0
+    },
+    {
+      "check": "chengtiregou no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": false,
+        "white_components": 0,
+        "interior_white_pixels": 0,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 0,
+        "white_component_removed_pixels": [],
+        "crop": [
+          27,
+          36,
+          438,
+          567
+        ]
+      }
+    },
+    {
+      "check": "chengtiregou enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "chengtiregou base darker",
+      "pass": true,
+      "data": {
+        "base": "#191b21",
+        "art_luminance": 108.48305224503137
+      }
+    },
+    {
+      "check": "bianbiancaihua filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "bianbiancaihua kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "bianbiancaihua RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "bianbiancaihua reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "bianbiancaihua tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        649,
+        580
+      ]
+    },
+    {
+      "check": "bianbiancaihua bright boundary <=1%",
+      "pass": true,
+      "data": 0.0001832508704416346
+    },
+    {
+      "check": "bianbiancaihua no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": false,
+        "white_components": 2,
+        "interior_white_pixels": 13,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 84,
+        "white_component_removed_pixels": [
+          0,
+          0
+        ],
+        "crop": [
+          128,
+          90,
+          652,
+          558
+        ]
+      }
+    },
+    {
+      "check": "bianbiancaihua enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "bianbiancaihua base darker",
+      "pass": true,
+      "data": {
+        "base": "#151418",
+        "art_luminance": 71.03191833608903
+      }
+    },
+    {
+      "check": "yuexiong filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "yuexiong kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "yuexiong RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "yuexiong reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "yuexiong tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        739,
+        580
+      ]
+    },
+    {
+      "check": "yuexiong bright boundary <=1%",
+      "pass": true,
+      "data": 0.0
+    },
+    {
+      "check": "yuexiong no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": false,
+        "white_components": 0,
+        "interior_white_pixels": 0,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 0,
+        "white_component_removed_pixels": [],
+        "crop": [
+          36,
+          29,
+          585,
+          460
+        ]
+      }
+    },
+    {
+      "check": "yuexiong enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "yuexiong base darker",
+      "pass": true,
+      "data": {
+        "base": "#151619",
+        "art_luminance": 122.87958636678243
+      }
+    },
+    {
+      "check": "jintianwoshengri filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "jintianwoshengri kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "jintianwoshengri RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "jintianwoshengri reproducible original-only cutout",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "jintianwoshengri tight 580",
+      "pass": true,
+      "data": [
+        0,
+        0,
+        482,
+        580
+      ]
+    },
+    {
+      "check": "jintianwoshengri bright boundary <=1%",
+      "pass": true,
+      "data": 0.0
+    },
+    {
+      "check": "jintianwoshengri no new enclosed holes",
+      "pass": true,
+      "data": {
+        "existing_alpha": false,
+        "white_components": 0,
+        "interior_white_pixels": 0,
+        "interior_white_removed": 0,
+        "new_interior_hole_pixels": 0,
+        "removed_non_background_component_pixels": 7766,
+        "white_component_removed_pixels": [],
+        "crop": [
+          119,
+          74,
+          479,
+          507
+        ]
+      }
+    },
+    {
+      "check": "jintianwoshengri enclosed white preserved",
+      "pass": true,
+      "data": 0
+    },
+    {
+      "check": "jintianwoshengri base darker",
+      "pass": true,
+      "data": {
+        "base": "#151619",
+        "art_luminance": 112.94891814956347
+      }
+    },
+    {
+      "check": "shabaolingzhu filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "shabaolingzhu kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "shabaolingzhu RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "shabaolingzhu flat size",
+      "pass": true,
+      "data": [
+        600,
+        840
+      ]
+    },
+    {
+      "check": "shabaolingzhu crop-only composition contract",
+      "pass": false,
+      "data": {
+        "actual_content_bbox": [
+          0,
+          184,
+          600,
+          655
+        ],
+        "note": "Transparent padding preserves full content; crop exception approval pending"
+      }
+    },
+    {
+      "check": "shabaolingzhu base darker",
+      "pass": true,
+      "data": {
+        "base": "#1f1b21",
+        "art_luminance": 205.61292009624913
+      }
+    },
+    {
+      "check": "liulangyueshou filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "liulangyueshou kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "liulangyueshou RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "liulangyueshou flat size",
+      "pass": true,
+      "data": [
+        600,
+        840
+      ]
+    },
+    {
+      "check": "liulangyueshou crop-only composition contract",
+      "pass": false,
+      "data": {
+        "actual_content_bbox": [
+          0,
+          137,
+          600,
+          702
+        ],
+        "note": "Transparent padding preserves full content; crop exception approval pending"
+      }
+    },
+    {
+      "check": "liulangyueshou base darker",
+      "pass": true,
+      "data": {
+        "base": "#1b1d21",
+        "art_luminance": 200.63481126607667
+      }
+    },
+    {
+      "check": "zhenqiqiu filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenqiqiu kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenqiqiu RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenqiqiu flat size",
+      "pass": true,
+      "data": [
+        600,
+        840
+      ]
+    },
+    {
+      "check": "zhenqiqiu crop-only composition contract",
+      "pass": false,
+      "data": {
+        "actual_content_bbox": [
+          0,
+          119,
+          600,
+          720
+        ],
+        "note": "Transparent padding preserves full content; crop exception approval pending"
+      }
+    },
+    {
+      "check": "zhenqiqiu base darker",
+      "pass": true,
+      "data": {
+        "base": "#211e1b",
+        "art_luminance": 185.04137675207986
+      }
+    },
+    {
+      "check": "zhenjunyue filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenjunyue kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenjunyue RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenjunyue flat size",
+      "pass": true,
+      "data": [
+        600,
+        840
+      ]
+    },
+    {
+      "check": "zhenjunyue crop-only composition contract",
+      "pass": false,
+      "data": {
+        "actual_content_bbox": [
+          0,
+          120,
+          600,
+          720
+        ],
+        "note": "Transparent padding preserves full content; crop exception approval pending"
+      }
+    },
+    {
+      "check": "zhenjunyue base darker",
+      "pass": true,
+      "data": {
+        "base": "#11100e",
+        "art_luminance": 77.38682602944444
+      }
+    },
+    {
+      "check": "zhenzhen filename",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenzhen kind",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenzhen RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenzhen flat size",
+      "pass": true,
+      "data": [
+        600,
+        840
+      ]
+    },
+    {
+      "check": "zhenzhen crop-only composition contract",
+      "pass": false,
+      "data": {
+        "actual_content_bbox": [
+          0,
+          217,
+          600,
+          622
+        ],
+        "note": "Transparent padding preserves full content; crop exception approval pending"
+      }
+    },
+    {
+      "check": "zhenzhen base darker",
+      "pass": true,
+      "data": {
+        "base": "#1b1c20",
+        "art_luminance": 162.20860050946501
+      }
+    },
+    {
+      "check": "standalone growth <=900000",
+      "pass": true,
+      "data": {
+        "bytes": 5945963,
+        "delta": 799498
+      }
+    },
+    {
+      "check": "frozen source/card_face/ceremony bytes",
+      "pass": true,
+      "data": []
+    }
+  ]
+}

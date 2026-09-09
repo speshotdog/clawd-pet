@@ -1,0 +1,7 @@
+FAIL miepuxiong bright boundary <=1% 0.10929723272944455
+FAIL shabaolingzhu crop-only composition contract {'actual_content_bbox': (0, 184, 600, 655), 'note': 'Transparent padding preserves full content; crop exception approval pending'}
+FAIL liulangyueshou crop-only composition contract {'actual_content_bbox': (0, 137, 600, 702), 'note': 'Transparent padding preserves full content; crop exception approval pending'}
+FAIL zhenqiqiu crop-only composition contract {'actual_content_bbox': (0, 119, 600, 720), 'note': 'Transparent padding preserves full content; crop exception approval pending'}
+FAIL zhenjunyue crop-only composition contract {'actual_content_bbox': (0, 120, 600, 720), 'note': 'Transparent padding preserves full content; crop exception approval pending'}
+FAIL zhenzhen crop-only composition contract {'actual_content_bbox': (0, 217, 600, 622), 'note': 'Transparent padding preserves full content; crop exception approval pending'}
+checks 135 failures 6

@@ -1,0 +1,22 @@
+FAIL miepuxiong bright boundary <=1% 0.10869998009157873
+FAIL xiaochouyue enclosed white preserved 1
+Traceback (most recent call last):
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_new_cards_round32.py", line 143, in <module>
+    if '--assets-only' not in sys.argv:browser_checks()
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_new_cards_round32.py", line 121, in browser_checks
+    batch=pool()[i:i+10];start(p,batch);advance(p,1800)
+  File "D:\claude\clawd-pet-holo\_art\holo-test\check_gacha_ceremony_round28.py", line 60, in start
+    p.wait_for_function('__ceremony.events.some(e=>e.type==="phase-start")',polling=10)
+  File "C:\Users\ASUS User VII\AppData\Local\Programs\Python\Python310\lib\site-packages\playwright\sync_api\_generated.py", line 11564, in wait_for_function
+    self._sync(
+  File "C:\Users\ASUS User VII\AppData\Local\Programs\Python\Python310\lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+  File "C:\Users\ASUS User VII\AppData\Local\Programs\Python\Python310\lib\site-packages\playwright\_impl\_page.py", line 1088, in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+  File "C:\Users\ASUS User VII\AppData\Local\Programs\Python\Python310\lib\site-packages\playwright\_impl\_frame.py", line 771, in wait_for_function
+    return from_channel(await self._channel.send("waitForFunction", params))
+  File "C:\Users\ASUS User VII\AppData\Local\Programs\Python\Python310\lib\site-packages\playwright\_impl\_connection.py", line 61, in send
+    return await self._connection.wrap_api_call(
+  File "C:\Users\ASUS User VII\AppData\Local\Programs\Python\Python310\lib\site-packages\playwright\_impl\_connection.py", line 528, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.

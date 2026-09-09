@@ -46,3 +46,27 @@ _art/holo-test/verify-round30/*.html
 !_art/holo-test/verify-round30/photometry-mask.png
 _art/holo-test/verify-round30/regression/measure-gacha-after.json
 _art/holo-test/verify-round30/regression/flows-final.json
+
+# 第三十一／三十二輪證據：只留報告有連結的截圖與 json/log；大量逐幀對照、HTML 基準與超大量測 JSON 不進版控
+docs/clicker/shots/round31/**/*.png
+docs/clicker/shots/round31/**/*.html
+docs/clicker/shots/round32/**/*.png
+docs/clicker/shots/round32/**/*.html
+docs/clicker/shots/round31/**/measure-gacha-after.json
+docs/clicker/shots/round32/**/measure-gacha-after.json
+!docs/clicker/shots/round31/before-A-legendary.png
+!docs/clicker/shots/round31/dev-after-A-legendary-2500.png
+!docs/clicker/shots/round31/dev-before-B-legendary.png
+!docs/clicker/shots/round31/dev-after-B-legendary.png
+!docs/clicker/shots/round31/dev-C-before.png
+!docs/clicker/shots/round31/dev-C-after.png
+!docs/clicker/shots/round31/dev-D-mythic-1440-400.png
+!docs/clicker/shots/round31/dev-D-mythic-1440-800.png
+!docs/clicker/shots/round31/dev-D-mythic-1440-1200.png
+!docs/clicker/shots/round31/dev-E-1440.png
+!docs/clicker/shots/round31/dev-E-1024.png
+!docs/clicker/shots/round31/dev-E-390.png
+!docs/clicker/shots/round32/dev-results-1440.png
+!docs/clicker/shots/round32/dev-results-1024.png
+!docs/clicker/shots/round32/dev-results-390.png
+!docs/clicker/shots/round32/*-before-after.png
