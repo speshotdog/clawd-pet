@@ -6,6 +6,7 @@ from PIL import Image,ImageDraw,ImageFont
 from playwright.sync_api import sync_playwright
 from pool_data import pool,EXTRA_CARDS,catalog,SCENE_CARDS,palettes
 from prepare_round32 import SOURCE,source,cutout,boundary,edge_connected
+from bright_edge import measure as measure_bright_edge
 from check_gacha_ceremony_round28 import open_page,start,advance,state
 
 HERE=Path(__file__).resolve().parent
@@ -53,14 +54,22 @@ def assets():
     for c in EXTRA_CARDS:
         original=Image.open(source(c)).convert('RGBA');path=HERE/'art'/c['file']
         check(source(c).stem==c['name']+' '+{'rare':'精良','epic':'史詩','legendary':'傳說','mythic':'神話'}[c['rarity']],c['id']+' filename')
-        check(c['kind'] in ('framed','flat'),c['id']+' kind')
+        check(c['kind'] in ('framed','flat','depth'),c['id']+' kind')
+        if c['kind']=='depth':
+            check(c.get('scene') is True,c['id']+' scene resolver')
+            for layer in ('subject','background'):
+                layered=Image.open(HERE/f"layer-{c['id']}-{layer}.png")
+                check(layered.size==(600,840),c['id']+' '+layer+' size',layered.size)
+                check(layered.mode=='RGBA',c['id']+' '+layer+' RGBA')
+                if layer=='background':check(layered.getchannel('A').getextrema()==(255,255),c['id']+' opaque background')
+            continue
         if not path.exists():check(False,c['id']+' missing asset');continue
         im=Image.open(path);a=np.array(im);check(im.mode=='RGBA',c['id']+' RGBA')
         if c['kind']=='framed':
             expected,m=cutout(original,source(c).suffix=='.jpg')
             check(np.array_equal(a,np.array(expected)),c['id']+' reproducible original-only cutout')
             check(im.height==580 and im.getbbox()==(0,0,*im.size),c['id']+' tight 580',im.getbbox())
-            edge=boundary(a[:,:,3]>0);ratio=float(((a[:,:,:3].min(2)>165)&edge).sum()/edge.sum())
+            ratio=measure_bright_edge(a)['bright_boundary_ratio']
             check(ratio<=.01,c['id']+' bright boundary <=1%',ratio)
             check(m['new_interior_hole_pixels']==0,c['id']+' no new enclosed holes',m)
             check(m['interior_white_removed']==0,c['id']+' enclosed white preserved',m['interior_white_removed'])
@@ -151,9 +160,9 @@ def browser_checks():
 if __name__=='__main__':
     if '--self-test' in sys.argv:self_test();sys.exit(0)
     try:
-        assets()
+        if '--browser-only' not in sys.argv:assets()
         if '--assets-only' not in sys.argv:browser_checks()
     finally:
-        (OUT/('acceptance-assets.json' if '--assets-only' in sys.argv else 'acceptance.json')).write_text(json.dumps({'failures':failures,'records':records},ensure_ascii=False,indent=2),encoding='utf-8')
+        (OUT/('acceptance-assets.json' if '--assets-only' in sys.argv else 'acceptance-browser.json' if '--browser-only' in sys.argv else 'acceptance.json')).write_text(json.dumps({'failures':failures,'records':records},ensure_ascii=False,indent=2),encoding='utf-8')
     print('checks',len(records),'failures',len(failures),flush=True)
     sys.exit(1 if failures else 0)

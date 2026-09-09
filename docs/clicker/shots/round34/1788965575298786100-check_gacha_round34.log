@@ -1,0 +1,1 @@
+final-timing {'p95': 166.69999999999982, 'max': 350.09999999999945, 'frames': 507, 'over20': 216, 'elapsed_ms': 25398.9, 'warmup': False}

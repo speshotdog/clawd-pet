@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_gacha_round34.py final-dev-layout layout"
+  ],
+  "script": [
+    "check_gacha_round34.py",
+    "final-dev-layout",
+    "layout"
+  ],
+  "exit": 0,
+  "seconds": 5.02,
+  "log": "1788963685300671100-check_gacha_round34.log"
+}

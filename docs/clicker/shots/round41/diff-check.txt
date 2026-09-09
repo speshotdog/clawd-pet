@@ -1,0 +1,11 @@
+exit code: 0
+warning: in the working copy of '_art/holo-test/ceremony-fx.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '_art/holo-test/ceremony-layout.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '_art/holo-test/ceremony.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '_art/holo-test/check_gacha_audio_round30.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '_art/holo-test/check_gacha_followup.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '_art/holo-test/check_gacha_layers_round33.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '_art/holo-test/check_new_cards_round32.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '_art/holo-test/check_ui_round33.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '_art/holo-test/embed_masks.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '_art/holo-test/pool_data.py', LF will be replaced by CRLF the next time Git touches it

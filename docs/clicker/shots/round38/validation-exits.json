@@ -1,0 +1,26 @@
+[
+  {
+    "tag": "before-final",
+    "exit": 1
+  },
+  {
+    "tag": "accepted-1",
+    "exit": 0
+  },
+  {
+    "tag": "accepted-2",
+    "exit": 0
+  },
+  {
+    "tag": "accepted-3",
+    "exit": 0
+  },
+  {
+    "tag": "accepted-4",
+    "exit": 0
+  },
+  {
+    "tag": "accepted-5",
+    "exit": 0
+  }
+]

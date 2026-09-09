@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_acceptance_round34.py"
+  ],
+  "script": [
+    "check_acceptance_round34.py"
+  ],
+  "exit": 1,
+  "seconds": 0.48,
+  "log": "1788963345698927300-check_acceptance_round34.log"
+}

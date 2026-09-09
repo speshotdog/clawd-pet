@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_gacha_card_regression.py"
+  ],
+  "script": [
+    "check_gacha_card_regression.py"
+  ],
+  "exit": 0,
+  "seconds": 806.67,
+  "log": "1788962639727640600-check_gacha_card_regression.log"
+}

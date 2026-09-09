@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_ui_round33.py"
+  ],
+  "script": [
+    "check_ui_round33.py"
+  ],
+  "exit": 0,
+  "seconds": 8.17,
+  "log": "1788965231650196400-check_ui_round33.log"
+}

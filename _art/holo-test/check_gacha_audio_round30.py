@@ -39,13 +39,15 @@ with sync_playwright() as pw:
             p=b.new_page();errors=[];p.on('pageerror',lambda e:errors.append(str(e)));p.add_init_script(PROBE)
             p.goto(file.as_uri()+'?ceremony-test');p.click('#sound')
             p.evaluate('f=>{__ceremonyFixture=[f];__ceremony.pull(1)}',card)
+            p.wait_for_function('__ceremony.state().entryPhase==="waiting"');p.evaluate('__ceremony.openPack()')
             p.wait_for_function('__ceremony.events.some(e=>e.type==="face-visible")',timeout=15000)
             data=p.evaluate('({sources:__audioSources,cues:__ceremony.events.filter(e=>e.type==="audio"),scheduled:__ceremony.events.filter(e=>e.type==="audio-scheduled")})')
             schedules=[e for e in data['scheduled'] if e['cue']=='reveal:'+rarity]
             assert len(schedules)==len(expected[rarity]),(rarity,len(schedules),len(expected[rarity]))
             actual=data['sources'][-len(schedules):]
             assert normalized(actual)==expected[rarity],(label,rarity,normalized(actual),expected[rarity])
-            assert [c['kind'] for c in data['cues']]==['tear','burst','deal','flip','reveal']
+            expected_cues=['tear','burst','deal']+(['charge'] if rarity in ['legendary','mythic'] else [])+['flip','reveal']
+            assert [c['kind'] for c in data['cues']]==expected_cues,(rarity,data['cues'])
             assert all(c['state']=='running' and not c['muted'] for c in data['cues'])
             p.wait_for_function('__ceremony.state().collectable',timeout=15000);p.click('#finish')
             p.wait_for_timeout(240)
@@ -54,6 +56,7 @@ with sync_playwright() as pw:
             assert p.evaluate('__ceremony.state().screen')=='entry'
             p.click('#sound');p.evaluate('__audioSources.length=0;__ceremony.events.length=0')
             p.evaluate('f=>{__ceremonyFixture=[f];__ceremony.pull(1)}',card)
+            p.wait_for_function('__ceremony.state().entryPhase==="waiting"');p.evaluate('__ceremony.openPack()')
             p.wait_for_function('__ceremony.events.some(e=>e.type==="face-visible")',timeout=15000)
             assert p.evaluate('__audioSources.length')==0
             assert p.evaluate('__ceremony.events.filter(e=>e.type==="audio-scheduled").length')==0

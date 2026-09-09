@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_gacha_layers_round33.py --self-test"
+  ],
+  "script": [
+    "check_gacha_layers_round33.py",
+    "--self-test"
+  ],
+  "exit": 0,
+  "seconds": 0.26,
+  "log": "1788964539740741800-check_gacha_layers_round33.log"
+}

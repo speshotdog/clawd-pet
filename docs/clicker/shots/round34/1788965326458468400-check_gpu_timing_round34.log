@@ -1,0 +1,5 @@
+baseline {'p95': 238.82000000000102, 'max': 357.8000000000029, 'frames': 317, 'over20': 235, 'elapsed_ms': 23902.9, 'warmup': True}
+filter {'p95': 236.22999999999774, 'max': 351.5, 'frames': 275, 'over20': 228, 'elapsed_ms': 23902.800000000003, 'warmup': True}
+double {'p95': 260.5, 'max': 351.3000000000029, 'frames': 288, 'over20': 234, 'elapsed_ms': 23933.2, 'warmup': True}
+final-dev {'p95': 224.3000000000029, 'max': 351.7000000000007, 'frames': 304, 'over20': 229, 'elapsed_ms': 23945.2, 'warmup': True}
+final-portable {'p95': 224.58999999999602, 'max': 351.59999999999854, 'frames': 280, 'over20': 225, 'elapsed_ms': 23921.0, 'warmup': True}

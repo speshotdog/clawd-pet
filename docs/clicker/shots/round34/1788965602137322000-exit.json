@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_gacha_round34.py final-portable-timing timing"
+  ],
+  "script": [
+    "check_gacha_round34.py",
+    "final-portable-timing",
+    "timing"
+  ],
+  "exit": 0,
+  "seconds": 27.69,
+  "log": "1788965602137322000-check_gacha_round34.log"
+}

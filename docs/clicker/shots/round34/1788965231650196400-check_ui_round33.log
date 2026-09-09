@@ -1,0 +1,61 @@
+Historical button screenshot input is absent; current production checks still run.
+[
+  {
+    "label": "dev",
+    "ticket": "0",
+    "disabled": [
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      },
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      },
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "label": "portable",
+    "ticket": "0",
+    "disabled": [
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      },
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      },
+      {
+        "disabled": true,
+        "opacity": "0.4"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "label": "test-dev",
+    "resetTicket": "\u221e",
+    "singleWidths": [
+      190,
+      190,
+      266.6666666666667,
+      266.6666666666667
+    ]
+  },
+  {
+    "label": "test-portable",
+    "resetTicket": "\u221e",
+    "singleWidths": [
+      190,
+      190,
+      266.6666666666667,
+      266.6666666666667
+    ]
+  }
+]

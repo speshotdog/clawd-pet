@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_new_cards_round32.py --browser-only"
+  ],
+  "script": [
+    "check_new_cards_round32.py",
+    "--browser-only"
+  ],
+  "exit": 0,
+  "seconds": 139.94,
+  "log": "1788963581956192400-check_new_cards_round32.log"
+}

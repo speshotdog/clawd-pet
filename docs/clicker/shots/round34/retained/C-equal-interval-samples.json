@@ -1,0 +1,1982 @@
+[
+  {
+    "width": 1440,
+    "t": 0,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px -30px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 0,
+        "transform": "none",
+        "rotate": "0deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 0,
+        "transform": "none",
+        "rotate": "-12deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 0,
+        "transform": "none",
+        "rotate": "360deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 0,
+        "transform": "none",
+        "rotate": "0deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "t": 2000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 22px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "30deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-3px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "-6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "320deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "22.5deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 1.5px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-4.03479px 0.995652px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "t": 4000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 74px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "60deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-6px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "280deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "45deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "12px 3px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "10.0402px 2.75502px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "t": 6000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px -4px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "90deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "12deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "240deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "67.5deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 1.5px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "10.0402px 2.75502px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "t": 8000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 48px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "120deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-3px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "200deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "90deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-4.03479px 0.995652px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "t": 10000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px -30px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "150deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-6px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "-6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "160deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "112.5deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 1.5px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "t": 0,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px -30px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 0,
+        "transform": "none",
+        "rotate": "0deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 0,
+        "transform": "none",
+        "rotate": "-12deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 0,
+        "transform": "none",
+        "rotate": "360deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 0,
+        "transform": "none",
+        "rotate": "0deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "t": 2000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 22px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "30deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-3px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "-6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "320deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "22.5deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 1.5px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-4.03479px 0.995652px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "t": 4000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 74px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "60deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-6px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "280deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "45deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "12px 3px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "10.0402px 2.75502px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "t": 6000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px -4px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "90deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "12deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "240deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "67.5deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 1.5px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "10.0402px 2.75502px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "t": 8000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 48px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "120deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-3px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "200deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "90deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-4.03479px 0.995652px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "t": 10000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px -30px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "150deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-6px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "-6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "160deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "112.5deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 1.5px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "t": 0,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px -30px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 0,
+        "transform": "none",
+        "rotate": "0deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 0,
+        "transform": "none",
+        "rotate": "-12deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 0,
+        "transform": "none",
+        "rotate": "360deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 0,
+        "transform": "none",
+        "rotate": "0deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 0,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "t": 2000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 22px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "30deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-3px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "-6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "320deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "22.5deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 1.5px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-4.03479px 0.995652px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 2000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "t": 4000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 74px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "60deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-6px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "280deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "45deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "12px 3px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "10.0402px 2.75502px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 4000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "t": 6000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px -4px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "90deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "12deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "240deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "67.5deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 1.5px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "10.0402px 2.75502px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 6000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "t": 8000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 48px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "120deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-3px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "200deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "90deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-4.03479px 0.995652px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 8000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "t": 10000,
+    "elements": [
+      {
+        "name": "sigil-breathe",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "axis-flow",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px -30px",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "150deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-dash",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "-6px"
+      },
+      {
+        "name": "orbit-sway",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "-6.43741deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "160deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "orbit-turn",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "112.5deg",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "floor-wave",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "0px 1.5px",
+        "offset": "0px"
+      },
+      {
+        "name": "water-flow",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "-12px",
+        "offset": "0px"
+      },
+      {
+        "name": "star-pulse",
+        "time": 10000,
+        "transform": "none",
+        "rotate": "none",
+        "translate": "none",
+        "offset": "0px"
+      }
+    ]
+  }
+]

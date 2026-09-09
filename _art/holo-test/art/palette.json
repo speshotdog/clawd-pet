@@ -22,7 +22,7 @@
   "glow": "#41412e",
   "accent": "#768c5b",
   "ink": "#0a0a0c",
-  "hue": 0.1633,
+  "hue": 0.1634,
   "sat": 0.199,
   "val": 0.534
  },
@@ -148,18 +148,18 @@
   "glow": "#433c2f",
   "accent": "#868c5b",
   "ink": "#0b0b0d",
-  "hue": 0.109,
+  "hue": 0.1089,
   "sat": 0.126,
   "val": 0.548
  },
  "card-liulangyueshou.png": {
-  "base": "#1b1d21",
-  "glow": "#5b4d3f",
-  "accent": "#b3b375",
-  "ink": "#0e1011",
-  "hue": 0.085,
-  "sat": 0.209,
-  "val": 0.74
+  "base": "#191b1f",
+  "glow": "#524939",
+  "accent": "#9ca36a",
+  "ink": "#0d0e0f",
+  "hue": 0.1062,
+  "sat": 0.271,
+  "val": 0.671
  },
  "card-lkreal.png": {
   "base": "#1c201a",
@@ -208,12 +208,12 @@
  },
  "card-miepuxiong.png": {
   "base": "#1b2021",
-  "glow": "#6b4d4b",
-  "accent": "#d6b28b",
+  "glow": "#6b4c4b",
+  "accent": "#d7b38c",
   "ink": "#111414",
-  "hue": 0.0082,
-  "sat": 0.263,
-  "val": 0.882
+  "hue": 0.0079,
+  "sat": 0.26,
+  "val": 0.887
  },
  "card-mieshi.png": {
   "base": "#181a1e",
@@ -325,12 +325,12 @@
  },
  "card-xiaochouyue.png": {
   "base": "#211c1b",
-  "glow": "#476465",
-  "accent": "#82a5c7",
+  "glow": "#476565",
+  "accent": "#82a5c8",
   "ink": "#131010",
-  "hue": 0.5016,
-  "sat": 0.35,
-  "val": 0.823
+  "hue": 0.5021,
+  "sat": 0.351,
+  "val": 0.824
  },
  "card-xiaojiaojiao.png": {
   "base": "#1a1c21",

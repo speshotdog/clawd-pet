@@ -1,0 +1,232 @@
+[
+  {
+    "path": "_art/holo-test/gift/layer-mohuashaonv-alt-mask.webp",
+    "indexed": true,
+    "sha256": "6b251baad96990319e16c8d6b761844bcddf64b18ac7f6fc8a4e49c86576a34d"
+  },
+  {
+    "path": "_art/holo-test/gift/layer-mohuashaonv-alt.webp",
+    "indexed": true,
+    "sha256": "2106cf2d734136a9eed41fb3f1dd4f06473c0d16140b998338317cb2f1159b1a"
+  },
+  {
+    "path": "_art/holo-test/gift/layer-mohuashaonv-background.png",
+    "indexed": true,
+    "sha256": "b6bd653eb24cf0dc447e4576e2a57e0ca7ae3bb1eac0e56b58e6d29c5771b7fd"
+  },
+  {
+    "path": "_art/holo-test/gift/layer-mohuashaonv-idle-mask.webp",
+    "indexed": true,
+    "sha256": "b0162e4124043fb66044c30a3db2b595b19ff0878874036cf19e69ba984361c2"
+  },
+  {
+    "path": "_art/holo-test/gift/layer-mohuashaonv-idle.webp",
+    "indexed": true,
+    "sha256": "22a0e43406cc7333894744adab28feb844ae3a96e16a6e4891c1a6b959691366"
+  },
+  {
+    "path": "_art/holo-test/gift/manifest.json",
+    "indexed": true,
+    "sha256": "5cc6f9fcc1f7a1d07b130a6408bcd3e9cb3d239ddcb123868bbaee83e20374f9"
+  },
+  {
+    "path": "_art/holo-test/gift/source/IMG_1820.png",
+    "indexed": true,
+    "sha256": "1556363574e5eabc8da6a1f31340b3f7097bfd248a029e209e432cf56bba4785"
+  },
+  {
+    "path": "_art/holo-test/gift/source/mtk1.mov",
+    "indexed": true,
+    "sha256": "aac030315d94400106258df7a5f779380f57972397f0164fbfaf6cce3fbcd5c4"
+  },
+  {
+    "path": "_art/holo-test/gift/source/mtk2.mov",
+    "indexed": true,
+    "sha256": "2fcc278d7d074f604eec67232ccd7101f1fa8ad0f2cc1ff7049459f3eca49e2d"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/今天我生日 傳說.jpg",
+    "indexed": true,
+    "sha256": "0f267ed73cb23a9002f0a10a8acdf9ec8ccdf83f7abc94ad4846173bfeceb306"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/咩噗熊 精良.png",
+    "indexed": true,
+    "sha256": "1c64f9fc559df4080fec8ac69eea86c508e064214dc1d70a8cfb824ed5002dde"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/外送咩鴿 精良.png",
+    "indexed": true,
+    "sha256": "d60bf0d81f150d1368847d91a0c41df4d4f1423b8da97c81b00021fd24853859"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/小丑玥 史詩.png",
+    "indexed": true,
+    "sha256": "ff62db5a291fce91d913772cb7b741f55f828ca82b6140261548c40186c4c343"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/小膠膠 史詩.png",
+    "indexed": true,
+    "sha256": "56a0c95582a5cb7fbc0ee5bb5b44e6ab53594292eb31f9fc9798ecd07b6f799c"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/成體熱狗 史詩.png",
+    "indexed": true,
+    "sha256": "faef4d9d4851a073a2d5fab37405203e5fce9a584592d48c82fdd5fa8db1ca52"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/扁扁彩華 史詩.png",
+    "indexed": true,
+    "sha256": "a3022f556241cdc0fa6a751fcbaa2e1eec7dd36d18191d27828dcf3dac420a2c"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/普發玥玥 精良.png",
+    "indexed": true,
+    "sha256": "0ea160885542733407a46cfdd2668671c0aa2f417fd9d647d715867efeecb777"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/沙堡領主 神話.png",
+    "indexed": true,
+    "sha256": "380549b28051b05f38a6119ee4eed94b4b5e315bb570cb6fdb44e8254bd6464a"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/流浪玥手 神話.png",
+    "indexed": true,
+    "sha256": "f948df128e6ce778da76f48a9974b52677e9d3f51b93da581e938c416b18b001"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/玥熊 史詩.png",
+    "indexed": true,
+    "sha256": "bb5631808bc127dee9d76659b709f9e65b2734f406e697bfe56bfa9df40049f9"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/珍氣球 神話.png",
+    "indexed": true,
+    "sha256": "5aa146ff2e9e6bd01e46c83b6ccd09fc917026380dccdcbbecd58dd6beca75fb"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/珍珍 神話.png",
+    "indexed": true,
+    "sha256": "96dd45fcd30544f8a788a17747d5ff43c61e55dba713ab0fd445be1bf65ea729"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/真菌玥 神話.png",
+    "indexed": true,
+    "sha256": "8d6448863958cc82ee013644b712ce3d2058a1722d3a32499d76cd80eb95b4f6"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/給咩錢好嗎 史詩.png",
+    "indexed": true,
+    "sha256": "bc39aeb13b7ad92451f7419c32434dbc0958f18cf739b102cd42d8a1f8389073"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/膠齒 精良.png",
+    "indexed": true,
+    "sha256": "0805cbc4cf73d1b4c3e6be193c160c47931f348e9437a990e74a416442309224"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/怪物/01.gif",
+    "indexed": true,
+    "sha256": "c0b60973e567658f5d69eae170c9806e385615cf80c884847caab30f0c87fec0"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/怪物/ej93j4.gif",
+    "indexed": true,
+    "sha256": "f06bc4080f9fa4687f86b33fd574df60b59c989458a6d441ba9f14c5e8eddf8f"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/怪物/image.gif",
+    "indexed": true,
+    "sha256": "197d05af5408cd9661c20f0f9938bfd70c920c4a7ec0911c4c46ae07a230c3f7"
+  },
+  {
+    "path": "_art/holo-test/source-4.0/怪物/rise.png",
+    "indexed": true,
+    "sha256": "0f24e47227b4e63512679df6c4f96c78daf9be0f31627f052d1cf9e551911571"
+  },
+  {
+    "path": "_art/holo-test/build_gift_card.py",
+    "indexed": true,
+    "sha256": "ed3811e123ab37f6ad51617de552ee7ca7a1c8507132334007cc13355f323ff3"
+  },
+  {
+    "path": "_art/holo-test/prepare_round32.py",
+    "indexed": true,
+    "sha256": "ca7dcf4aecf35fdd7b009d3bc9f45fc0c72c9393251ead824afad64fbeccbac8"
+  },
+  {
+    "path": "_art/holo-test/prepare_round40.py",
+    "indexed": true,
+    "sha256": "45153977529d7a986e518a29c8dab2618986c888d6577fabaa9c1f3cbcddb01d"
+  },
+  {
+    "path": "_art/holo-test/bright_edge.py",
+    "indexed": true,
+    "sha256": "c2654dcd1994a03e926ab535b9b1f10cc995f52af77123d1976fa89ae2b6c545"
+  },
+  {
+    "path": "_art/holo-test/gift-mohuashaonv.html",
+    "indexed": true,
+    "sha256": "de5f4101658877303b7ea425169c173547ae77519664b3e3392d9826d6379d3a"
+  },
+  {
+    "path": "_art/holo-test/cards-remade-standalone.html",
+    "indexed": true,
+    "sha256": "b7a60d2d7852f7e7720decc45697f423ab94d83989af70c2263488b542d2b9db"
+  },
+  {
+    "path": "_art/holo-test/cards-remade.html",
+    "indexed": true,
+    "sha256": "a879d9064603fb0027395d2eb90d0afc61741faec1e9b0073feaf66e4e540169"
+  },
+  {
+    "path": "_art/holo-test/deluxe-gacha-b-standalone.html",
+    "indexed": true,
+    "sha256": "6a424003a7a4dda4a0d3686fc721dd082033927ac5777d89cdc29b361ca0e85b"
+  },
+  {
+    "path": "_art/holo-test/deluxe-gacha-b-test-standalone.html",
+    "indexed": true,
+    "sha256": "dfc337132523e9f73d8e1ebc053c33b2cba1193139b7a432d7544e1dd80baf82"
+  },
+  {
+    "path": "_art/holo-test/deluxe-gacha-b-test.html",
+    "indexed": true,
+    "sha256": "ba5fd0e855b22422221ffa5c902fb4ff3969b8115c420702b986c88d969d7f25"
+  },
+  {
+    "path": "_art/holo-test/deluxe-gacha-b.html",
+    "indexed": true,
+    "sha256": "40600377d79d25195004cf0f684a3497006f6d958dfb02ab65ed3b3feb188782"
+  },
+  {
+    "path": "_art/holo-test/layer-zhenqiqiu-subject.png",
+    "indexed": true,
+    "sha256": "aa1ac1bdecf0b30390cf6f4bf4f121a590d5827c29a4726623ad6f8ce25b1f21"
+  },
+  {
+    "path": "_art/holo-test/layer-zhenqiqiu-background.png",
+    "indexed": true,
+    "sha256": "9e779c9b7b93225491bfccffa15821dd04005894dd3704cea90cc497eec86bc4"
+  },
+  {
+    "path": "_art/holo-test/layer-zhenjunyue-subject.png",
+    "indexed": true,
+    "sha256": "8b7457e6a60086716d7ccb93e66013958279e7a7403276aebd4dd0b748072c48"
+  },
+  {
+    "path": "_art/holo-test/layer-zhenjunyue-background.png",
+    "indexed": true,
+    "sha256": "6129efe28714a4062aa8fd810216893eb9268782343f456e341993036b7327f0"
+  },
+  {
+    "path": "_art/holo-test/layer-shabaolingzhu-subject.png",
+    "indexed": true,
+    "sha256": "554992fd3a85f77fd0b4bceb6cff950f7b5871b7c6d4ed9975cb65656f5f3b3a"
+  },
+  {
+    "path": "_art/holo-test/layer-shabaolingzhu-background.png",
+    "indexed": true,
+    "sha256": "bdbad67f82571b6e90f0984bdbce7bc5e39ed0b591ece8b300c695974043a121"
+  }
+]

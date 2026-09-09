@@ -1,0 +1,11 @@
+{'entry': 'dev', 'rarity': 'common', 'cue': 'reveal:common', 'sources': 1, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'dev', 'rarity': 'rare', 'cue': 'reveal:rare', 'sources': 4, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'dev', 'rarity': 'epic', 'cue': 'reveal:epic', 'sources': 9, 'native_schedule_equal': True, 'muted_sources': 0}
+Traceback (most recent call last):
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_retained_round34.py", line 57, in <module>
+    if __name__=='__main__':main()
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_retained_round34.py", line 40, in main
+    exec(compile(source(file),str(file),'exec'),dict(__name__='__main__',__file__=str(file)))
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_gacha_audio_round30.py", line 49, in <module>
+    assert [c['kind'] for c in data['cues']]==['tear','burst','deal','flip','reveal']
+AssertionError

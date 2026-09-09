@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_retained_round34.py", line 52, in <module>
+    if __name__=='__main__':main()
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_retained_round34.py", line 35, in main
+    exec(compile(source(file),str(file),'exec'),dict(__name__='__main__',__file__=str(file)))
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\probe_occlusion_round33.py", line 25, in <module>
+    assert row['original_bbox'] is None and row['unclipped_bbox'] is not None and max(row['css_mean'])>0,row
+AssertionError: {'rarity': 'legendary', 'neighbor': (399, 158, 590, 429), 'original_bbox': (22, 0, 191, 271), 'original_max': 204, 'css_mean': [0.10156295280230289, 0.31821255385328723, 0.8737852823554414], 'unclipped_canvas_mean': [0.34431328606479783, 0.35507428372713046, 0.053650431792276035], 'unclipped_bbox': (27, 0, 164, 271)}

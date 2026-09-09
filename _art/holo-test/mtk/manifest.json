@@ -1,0 +1,42 @@
+{
+ "source": {
+  "idle": "C:\\Users\\spesh\\OneDrive\\Desktop\\mtk1.mp4",
+  "shock": "C:\\Users\\spesh\\OneDrive\\Desktop\\mtk2.mp4"
+ },
+ "bbox": [
+  274,
+  43,
+  1046,
+  720
+ ],
+ "size": [
+  500,
+  438
+ ],
+ "threshold": [
+  8,
+  26
+ ],
+ "files": {
+  "mtk-idle.webp": {
+   "frames": 90,
+   "bytes": 2502790,
+   "mask_bytes": 504060,
+   "mask_size": [
+    300,
+    263
+   ],
+   "still_bytes": 38316
+  },
+  "mtk-shock.webp": {
+   "frames": 90,
+   "bytes": 2237524,
+   "mask_bytes": 484484,
+   "mask_size": [
+    300,
+    263
+   ],
+   "still_bytes": 38316
+  }
+ }
+}

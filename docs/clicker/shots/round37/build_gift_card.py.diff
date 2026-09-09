@@ -1,0 +1,67 @@
+--- before/build_gift_card.py
++++ after/build_gift_card.py
+@@ -296,7 +296,29 @@
+  55%{transform:translate(5px,-10px);opacity:.85}
+  80%{transform:translate(0,-28px);opacity:.7}
+  100%{transform:translate(-3px,-42px);opacity:0}}
++/* 獨立薄邊，不改 face-frame 五道描邊／conic；位移正負隨指標換邊。
++   停在中央時偏移零，不再提亮已定案的框。 */
++.r-special .face-frame:before{content:"";position:absolute;inset:-1px;border-radius:inherit;
++ pointer-events:none;box-shadow:inset clamp(-2px,calc(var(--gift-edge,0) * 3px),2px) 0 0 #fff4faff,
++ inset clamp(-2px,calc(var(--gift-edge,0) * -3px),2px) 0 0 #281020dd,
++ calc(var(--gift-edge,0) * 2px) 1px 2px #18081788}
++/* Chromium 實測 var() transform 有七個不同矩陣；只過渡這張卡的 lift。
++   回正使用單調 ease-out，不增加 rAF 或推高任何圖層。 */
++.r-special .card-lift{transition:transform 500ms cubic-bezier(.2,0,.6,1)}
++.r-special.gift-following .card-lift{transition:transform 100ms ease-out}
++/* 原創 polygon 愛心，獨立同 Z 的點綴；不改二十顆花粉。 */
++.r-special .gift-hearts{position:absolute;inset:0;z-index:5;pointer-events:none;
++ transform:translateZ(0)}
++.r-special .gift-hearts>i{position:absolute;left:var(--x);top:69%;width:12.7px;height:12.7px;
++ background:#ffb3dd;clip-path:polygon(50% 20%,65% 5%,82% 5%,97% 20%,100% 38%,92% 55%,50% 95%,8% 55%,0% 38%,3% 20%,18% 5%,35% 5%);
++ animation:gift-heart var(--duration) linear var(--delay) infinite;opacity:.30}
++@keyframes gift-heart{
++ 0%{transform:translate(-2px,20px);opacity:.18}
++ 50%{transform:translate(2px,-16px);opacity:.30}
++ 100%{transform:translate(-2px,20px);opacity:.18}}
+ @media(prefers-reduced-motion:reduce){
++ .r-special .card-lift{transition:none!important}
++ .r-special .gift-hearts>i{animation:none;transform:none;opacity:.24}
+  .gift-particles>i{animation:none;transform:none;opacity:.65}}
+ </style>
+ 
+@@ -373,6 +395,14 @@
+   pollen.append(dot);
+ }
+ media.append(pollen);
++const hearts=document.createElement('div');
++hearts.className='gift-hearts';hearts.setAttribute('aria-hidden','true');
++for(let i=0;i<5;i++){
++ const heart=document.createElement('i');
++ heart.style.cssText=`--x:${12+i*17}%;--duration:${16+i*2}s;--delay:${-2-i*3.7}s`;
++ hearts.append(heart);
++}
++media.append(hearts);
+ 
+ const FADE = 320;                  // 疊化時間
+ const CYCLE = 2970;                // 一輪動作 = 90 格 × 33ms
+@@ -412,11 +442,18 @@
+ HoloCardFace.observe(card);
+ 
+ stage.addEventListener('pointermove', e => {
++ card.classList.add('gift-following');
++ const edgeRect=stage.getBoundingClientRect();
++ card.style.setProperty('--gift-edge',(e.clientX-edgeRect.left)/edgeRect.width*2-1);
+  const r = stage.getBoundingClientRect();
+  HoloCardFace.paint(card, DATA.rarity,
+    (e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1, {tilt:true});
+ });
+-stage.addEventListener('pointerleave', () => HoloCardFace.paint(card, DATA.rarity, 0, 0, {tilt:true}));
++stage.addEventListener('pointerleave', () => {
++ card.classList.remove('gift-following');
++ card.style.setProperty('--gift-edge','0');
++ HoloCardFace.paint(card, DATA.rarity, 0, 0, {tilt:true});
++});
+ window.giftCard = {card, trigger, show, FADE, CYCLE};
+ })();
+ </script>

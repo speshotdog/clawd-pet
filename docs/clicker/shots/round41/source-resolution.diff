@@ -1,0 +1,80 @@
+--- build_gift_card.py (round41 before)
++++ build_gift_card.py (round41 after)
+@@ -21,16 +21,26 @@
+ """
+ from base64 import b64encode
+ from pathlib import Path
+-import io, json, re, subprocess, sys
++import io, json, os, re, subprocess, sys
+ import numpy as np
+ from PIL import Image
+ 
+-HERE = Path(__file__).parent
++HERE = Path(__file__).resolve().parent
+ GIFT = HERE / 'gift'
+ GIFT.mkdir(exist_ok=True)
+-DESK = Path.home() / 'OneDrive/Desktop'
+-BG_SRC = DESK / 'IMG_1820.png'
+-MOV_SRC = {'idle': DESK / 'mtk1.mov', 'alt': DESK / 'mtk2.mov'}
++def resolve_source():
++    candidates = [GIFT / 'source', Path.home() / 'OneDrive/Desktop']
++    if os.environ.get('HOLO_GIFT_SOURCE'):
++        candidates.append(Path(os.environ['HOLO_GIFT_SOURCE']).expanduser())
++    tried = []
++    for folder in candidates:
++        missing = [name for name in ('IMG_1820.png', 'mtk1.mov', 'mtk2.mov')
++                   if not (folder / name).is_file()]
++        if not missing:
++            print('Gift source: %s' % folder)
++            return folder
++        tried.append('%s (missing: %s)' % (folder, ', '.join(missing)))
++    sys.exit('No complete gift source set. Searched:\n' + '\n'.join(tried))
+ 
+ CARD = (600, 840)          # 場景卡的畫布，兩層都用這個尺寸
+ SUBJ_WIDTH = 0.98          # 角色寬度佔卡寬。1.2 倍會超過卡寬、翅膀被裁掉（使用者說
+@@ -117,9 +127,9 @@
+ 
+ # Page-only rebuilds keep the already approved gift artwork byte-identical.
+ if '--page-only' not in sys.argv:
+-    for p in (BG_SRC, *MOV_SRC.values()):
+-        if not p.exists():
+-            sys.exit('missing source: %s' % p)
++    source_dir = resolve_source()
++    BG_SRC = source_dir / 'IMG_1820.png'
++    MOV_SRC = {'idle': source_dir / 'mtk1.mov', 'alt': source_dir / 'mtk2.mov'}
+ 
+     bg, bg_src_size = build_background()
+     bg_path = GIFT / 'layer-mohuashaonv-background.png'
+--- prepare_round32.py (round41 before)
++++ prepare_round32.py (round41 after)
+@@ -8,11 +8,28 @@
+ import bright_edge
+ 
+ HERE=Path(__file__).resolve().parent
+-SOURCE_CANDIDATES=[Path(r'C:\Users\spesh\OneDrive\Desktop\4.0'), Path(r'C:\Users\ASUS User VII\Desktop\新卡\4.0')]
+-SOURCE=Path(os.environ['HOLO_SOURCE']) if os.environ.get('HOLO_SOURCE') else next((p for p in SOURCE_CANDIDATES if p.is_dir()), SOURCE_CANDIDATES[0])
+ OUT=HERE.parents[1]/'docs/clicker/shots/round32'
+ RARITY={'rare':'精良','epic':'史詩','legendary':'傳說','mythic':'神話'}
+ CROSS=nd.generate_binary_structure(2,1)
++
++def resolve_source():
++    candidates=[HERE/'source-4.0', Path.home()/'OneDrive/Desktop/4.0']
++    for key in ('HOLO_SOURCE_4_0','HOLO_SOURCE'):
++        if os.environ.get(key):candidates.append(Path(os.environ[key]).expanduser())
++    tried=[]
++    for folder in candidates:
++        invalid=[]
++        for c in EXTRA_CARDS:
++            pattern=c['name']+' '+RARITY[c['rarity']]+'.*'
++            matches=[p for p in folder.glob(pattern) if p.is_file()]
++            if len(matches)!=1:invalid.append('%s (%d matches)' % (pattern,len(matches)))
++        if not invalid:
++            print('4.0 source: %s' % folder)
++            return folder
++        tried.append('%s (missing or ambiguous: %s)' % (folder,', '.join(invalid)))
++    raise SystemExit('No complete 4.0 source set. Searched:\n'+'\n'.join(tried))
++
++SOURCE=resolve_source()
+ 
+ def edge_connected(mask):
+     seed=np.zeros_like(mask);seed[0]=mask[0];seed[-1]=mask[-1];seed[:,0]=mask[:,0];seed[:,-1]=mask[:,-1]

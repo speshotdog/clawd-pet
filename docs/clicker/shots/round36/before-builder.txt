@@ -1,0 +1,407 @@
+# -*- coding: utf-8 -*-
+"""魔花少女：送朋友的禮物卡（獨立樣品，不進卡池、不進遊戲）。
+
+使用者給的兩份素材已經是分好的兩層，所以不做任何去背或拆件：
+
+  IMG_1820.png   背景（粉紅蝴蝶結、雲、星星，315×444，本來就接近 5:7）
+  mtk1.mov       角色（qtrle／argb，**有真正的 alpha**，1280×720、30fps、90 格）
+
+因為兩層是分開的，卡型走 `depth`（HANDOFF 三節：主體與背景拆得開 → 兩層沿 Z 推開做視差），
+幾何、Z、字級一律走 card_face.js 的凍結工法，CSS 從 demo.html 擷取，跟卡池那批同一套。
+
+這張多了一個東西：**新階級「特殊」**（使用者指定，粉紅卡框＋粉紅字）。
+`card_face.js` 是凍結檔案，所以不改它——`LABEL`／`ZLIFT`／`TILT` 是它 export 出來的物件，
+在頁面上補一筆 `special` 就好；`.r-special` 的樣式也只寫在這一頁，不污染共用 CSS。
+
+⚠ scene 卡的兩層是**同一張 600×840 畫布**（`.scene .art-media>img{object-fit:fill}`、
+`.scene .subject-mask{mask-size:100% 100%}`），所以角色動畫不能緊裁，要合成到 600×840 上。
+
+用法：python build_gift_card.py
+輸出：gift-mohuashaonv.html（自包含，複製到任何資料夾都能開）
+"""
+from base64 import b64encode
+from pathlib import Path
+import io, json, re, subprocess, sys
+import numpy as np
+from PIL import Image
+
+HERE = Path(__file__).parent
+GIFT = HERE / 'gift'
+GIFT.mkdir(exist_ok=True)
+DESK = Path.home() / 'OneDrive/Desktop'
+BG_SRC = DESK / 'IMG_1820.png'
+MOV_SRC = {'idle': DESK / 'mtk1.mov', 'alt': DESK / 'mtk2.mov'}
+
+CARD = (600, 840)          # 場景卡的畫布，兩層都用這個尺寸
+SUBJ_WIDTH = 0.98          # 角色寬度佔卡寬。1.2 倍會超過卡寬、翅膀被裁掉（使用者說
+                           # 裁切不好看），所以收到「剛好塞滿不裁」的最大值。
+SUBJ_BOTTOM = 0.845        # 角色下緣（佔卡高）。放大時**往上長**，底邊釘住不動——
+                           # 文字框上緣在 80.4%，往下長會把字蓋掉。
+MASK_EDGE = 300            # foil mask 只是剪影，不必跟圖層同解析度
+NAME = '魔花少女'
+RARITY = 'special'
+
+
+def frames(path):
+    """qtrle/argb → RGBA。alpha 是直式（非預乘），實測半透明像素除以 alpha 會爆掉，
+    所以**不要** unpremultiply——那是上一支黑底 mp4 才需要的補救。"""
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', str(path),
+                          '-f', 'rawvideo', '-pix_fmt', 'rgba', '-'],
+                         capture_output=True, check=True).stdout
+    return np.frombuffer(raw, np.uint8).reshape(-1, 720, 1280, 4)
+
+
+def build_background():
+    im = Image.open(BG_SRC).convert('RGB')
+    # 5:7 純裁切（不重畫、不拉伸變形）：315×444 比 5:7 高一點點，裁掉多的高
+    want_h = round(im.width * 7 / 5)
+    if im.height > want_h:                       # 置中裁，構圖上下都不偏
+        off = (im.height - want_h) // 2
+        im = im.crop((0, off, im.width, off + want_h))
+    return im.convert('RGBA').resize(CARD, Image.Resampling.LANCZOS), im.size
+
+
+def union_box(seqs):
+    """兩支動畫共用同一個裁切框：切表情時角色不能跳位或改大小。"""
+    acc = None
+    for seq in seqs:
+        for f in seq:
+            a = f[:, :, 3]
+            acc = a if acc is None else np.maximum(acc, a)
+    return Image.fromarray(acc).getbbox()
+
+
+def place(seq, box):
+    """把角色逐格合成到 600×840 的透明畫布上，位置與縮放整段固定（不能逐格重算，
+    不然角色會在動畫裡自己抖動）。"""
+    cw, ch = box[2] - box[0], box[3] - box[1]
+    w = round(CARD[0] * SUBJ_WIDTH)
+    h = round(ch * w / cw)
+    x = (CARD[0] - w) // 2                       # 放大到超過卡寬時左右各裁掉一點
+    y = round(CARD[1] * SUBJ_BOTTOM) - h
+    out = []
+    for f in seq:
+        sub = Image.fromarray(f).crop(box).resize((w, h), Image.Resampling.LANCZOS)
+        canvas = Image.new('RGBA', CARD, (0, 0, 0, 0))
+        canvas.paste(sub, (x, y), sub)
+        out.append(canvas)
+    return out, {'source_bbox': list(box), 'placed': [x, y, w, h],
+                 'plate_top_px': round(CARD[1] * (1 - 0.034 - 0.162)),
+                 'overlaps_plate_px': max(0, y + h - round(CARD[1] * (1 - 0.034 - 0.162))),
+                 'cropped_each_side_px': max(0, -x)}
+
+
+def anim(images, path, quality, edge=None):
+    if edge:
+        size = (round(CARD[0] * edge / max(CARD)), round(CARD[1] * edge / max(CARD)))
+        images = [im.resize(size, Image.Resampling.LANCZOS) for im in images]
+    buf = io.BytesIO()
+    images[0].save(buf, format='WEBP', save_all=True, append_images=images[1:],
+                   duration=33, loop=0, quality=quality, method=4, minimize_size=True)
+    path.write_bytes(buf.getvalue())
+    return len(buf.getvalue())
+
+
+def palette(im):
+    """背景配色直接取自背景圖本身（這張卡的背景是圖不是 CSS，但卡外光暈仍吃 --pal-*）。"""
+    small = im.convert('RGB').resize((48, 48), Image.Resampling.LANCZOS)
+    a = np.asarray(small).reshape(-1, 3).astype(float)
+    mean = a.mean(0)
+    dark = np.clip(mean * 0.22, 0, 255)
+    glow = np.clip(mean * 0.62, 0, 255)
+    accent = np.clip(mean * 1.18, 0, 255)
+    hexof = lambda v: '#%02x%02x%02x' % tuple(int(round(x)) for x in v)
+    return {'base': hexof(dark), 'glow': hexof(glow), 'accent': hexof(accent),
+            'ink': hexof(np.clip(mean * 0.12, 0, 255))}
+
+
+for p in (BG_SRC, *MOV_SRC.values()):
+    if not p.exists():
+        sys.exit('missing source: %s' % p)
+
+bg, bg_src_size = build_background()
+bg_path = GIFT / 'layer-mohuashaonv-background.png'
+bg.save(bg_path, optimize=True)
+
+raw = {k: frames(v) for k, v in MOV_SRC.items()}
+box = union_box(raw.values())
+sizes, placement = {}, None
+for key, seq in raw.items():
+    placed, placement = place(seq, box)
+    sizes[key] = {
+        'subject': anim(placed, GIFT / ('layer-mohuashaonv-%s.webp' % key), 82),
+        'mask': anim([Image.merge('RGBA', (*[Image.new('L', CARD, 255)] * 3, im.getchannel('A')))
+                      for im in placed], GIFT / ('layer-mohuashaonv-%s-mask.webp' % key), 70, MASK_EDGE),
+        'frames': len(placed)}
+
+pal = palette(bg)
+manifest = {'background_source': str(BG_SRC), 'background_source_size': list(bg_src_size),
+            'subject_source': {k: str(v) for k, v in MOV_SRC.items()},
+            'canvas': list(CARD), 'layers': sizes, 'palette': pal, **placement}
+(GIFT / 'manifest.json').write_text(json.dumps(manifest, indent=1), encoding='utf-8')
+
+# ── 頁面 ────────────────────────────────────────────────────────────
+demo = (HERE / 'demo.html').read_text(encoding='utf-8')
+tpl = re.search(r'<template id="baseline-css">.*?</template>', demo, re.S)
+styles = [m.group(0) for m in re.finditer(r'<style[^>]*>.*?</style>', demo, re.S)
+          if not (tpl.start() <= m.start() < tpl.end())]
+demo_masks = json.loads(re.search(
+    r'<script type="application/json" id="mask-data">(.*?)</script>', demo, re.S).group(1))
+
+SUBJ_KEY = 'layer-mohuashaonv-subject.png'      # card_face.js 對 scene 卡組出來的鍵
+BG_KEY = 'layer-mohuashaonv-background.png'
+
+
+def uri(path, mime):
+    return 'data:%s;base64,%s' % (mime, b64encode(path.read_bytes()).decode('ascii'))
+
+
+assets = {SUBJ_KEY: uri(GIFT / 'layer-mohuashaonv-idle.webp', 'image/webp'),
+          BG_KEY: uri(bg_path, 'image/png'),
+          'alt': uri(GIFT / 'layer-mohuashaonv-alt.webp', 'image/webp'),
+          'alt-mask': uri(GIFT / 'layer-mohuashaonv-alt-mask.webp', 'image/webp')}
+masks = {'frame': demo_masks['frame'], 'glitter': demo_masks['glitter'],
+         SUBJ_KEY: uri(GIFT / 'layer-mohuashaonv-idle-mask.webp', 'image/webp')}
+card = {'id': 'mohuashaonv', 'name': NAME, 'rarity': RARITY, 'kind': 'depth',
+        'scene': True, 'pal': pal}
+
+HTML = r'''<!doctype html>
+<meta charset="utf-8">
+<title>魔花少女 · 特殊</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+__CARD_CSS__
+<script>__CARD_FACE_JS__</script>
+<style id="gift-stage">
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:
+  radial-gradient(120% 80% at 50% -10%,#3a2140 0%,#160e1c 48%,#0a0710 100%);
+ color:#ffe6f3;font:14px/1.7 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ padding:36px 20px 46px;gap:18px;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:-20%;pointer-events:none;z-index:0;
+ background:
+  radial-gradient(closest-side,#ff8fc84a 0%,transparent 70%) 20% 24%/50% 50% no-repeat,
+  radial-gradient(closest-side,#b39cff33 0%,transparent 70%) 80% 72%/54% 54% no-repeat;
+ filter:blur(8px);animation:drift 20s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(2%,-2.5%,0) scale(1.07)}}
+h1{position:relative;z-index:1;margin:0;font-size:17px;letter-spacing:.2em;font-weight:700;
+ color:#ffd9ec;text-shadow:0 0 20px #ff7ab866}
+.hint{position:relative;z-index:1;margin:0;color:#c39fb6;font-size:13px;letter-spacing:.04em}
+.hint b{color:#ffc0dd;font-weight:700}
+.stage{position:relative;z-index:1;width:min(78vw,380px);aspect-ratio:5/7;
+ filter:drop-shadow(0 30px 48px #00000099) drop-shadow(0 0 26px #ff8ac41f)}
+
+/* ── 新階級「特殊」：粉紅卡框＋粉紅字（使用者指定） ──────────────
+   只寫在這一頁。共用 CSS 沒有 .r-special，卡池與抽卡頁不受影響。 */
+.hcard.r-special{
+ --accent-card:#ffa8d2;--foil-gain:1.0;--grain-gain:1.3;--subject-gain:.4;
+ --palette:repeating-linear-gradient(124deg,#ffd4e6 0%,#ff9ecb 12%,#eab6f0 24%,
+   #b9cdff 38%,#9ce6ff 50%,#ffc9e4 64%,#ffd4e6 76%)}
+.r-special .frame-material{opacity:calc(var(--foil) * .92);
+ background-image:conic-gradient(from var(--phase),
+   #ffd7e8,#ff9dc8,#e6b4ee,#a9c8ff,#8fdcff,#ffd7e8)}
+.r-special .face-frame{box-shadow:
+ inset 0 0 0 3px #ffc2dd,inset 0 0 0 6px #3a1c2b,inset 0 0 0 7px #ffa8d2,
+ inset 0 0 0 10px #2b1420,inset 0 0 0 11px #ffc2dd66}
+.r-special .face-name{
+ /* 「特殊」的字效：粉→藍漸層（使用者指定），角度吃 --phase，所以傾斜時
+    漸層會跟著卡框一起轉，跟神話的 conic 彩虹同一套做法。
+    ⚠ 用了 background-clip:text 就**只能用 drop-shadow 疊描邊**——text-shadow 會把
+    陰影畫在漸層外面而不是貼著字形（HANDOFF 六之二）。 */
+ /* 粉→藍，整條都走亮色：字要打在半透明的莓紫 scrim 上，中明度的粉紅對比只有 12
+    （門檻 35），把整條漸層拉亮之後才讀得到。 */
+ background-image:linear-gradient(var(--phase),
+   #ffb3dd 0%,#ffd2ec 20%,#efd0ff 42%,#bfe0ff 66%,#d8f6ff 86%,#ffb3dd 100%);
+ background-size:180% 180%;background-position:50% 50%;
+ -webkit-background-clip:text;background-clip:text;
+ -webkit-text-fill-color:transparent;color:transparent;
+ /* 共用 CSS 給卡名留了 text-shadow（0 4px 0 黑、0 0 12px 黑）。在 background-clip:text
+    的字上，那個陰影會畫在漸層外面把字糊成黑塊——實測就是這樣，一定要關掉。 */
+ text-shadow:none !important;
+ filter:drop-shadow(0 0 1px #21102c) drop-shadow(0 0 1px #21102c)
+        drop-shadow(0 1.5px 0 #21102c) drop-shadow(0 0 8px #ff8fd0aa)
+        drop-shadow(0 0 18px #86d9ff66)}
+.r-special .face-rarity{color:#ffd0e6;text-shadow:0 1px 2px #3a1428;
+ /* 共用 CSS 把稀有度那行寫死成 `font:9px monospace`。monospace 沒有中文字，
+    所以「特殊」走系統中文字、「SPECIAL」走 monospace，同一行兩種字型。
+    這張卡改成跟卡名同一套字，字級仍照 290px 基準的 --rarity-fs。 */
+ font-family:var(--card-font,"Noto Sans TC","Microsoft JhengHei",sans-serif) !important;
+ font-weight:700 !important}
+/* 文字框不是黑條（HANDOFF 三節「已否決的路線」＋六之五）。共用 CSS 只給 flat／bleed
+   套半透明 scrim，scene 卡照樣是 alpha .97 的深色板——那批背景本來就是暗色畫所以
+   看不出來，但這張背景是亮粉紅，深色板會在卡底壓出一條黑棒。換成同一份 scrim 配方
+   （由下往上收、只有一層、保留上緣稀有度色細線），色調走同家族的莓紫。 */
+.hcard.r-special .face-plate{
+ background:linear-gradient(to top,#1c0714f0,#2b0f24c4 52%,#3a15305e) !important;
+ border:1px solid #ffc2dd2e !important;border-top:1px solid var(--accent-card) !important;
+ border-radius:5px !important;
+ box-shadow:0 0 0 1px #2a0f1e66,0 7px 18px #00000059 !important}
+.r-special .face-text{background:none !important;border:0 !important;box-shadow:none !important}
+
+/* ── 淡色畫的光反射 ─────────────────────────────────────────────
+   共用箔面是 mix-blend-mode:overlay，對接近白的底幾乎不動作（overlay 在亮側走
+   screen，白的還是白）。魔花少女整隻是奶油白，實測平塗區只被改 6.66／底色 230 ≈ 3%，
+   所以看起來沒有材質；火箭珍看得到是因為它的底是深色星空。
+
+   第一版補的是 multiply 的彩虹，數字有起來（6.66→18.34）但**把人物染藍了**，
+   使用者否決。改成「光反射」：同一層 multiply，但漸層**只有明度變化、沒有色相**
+   ——帶子中央留純白、兩側壓暗約 12%，看起來就是一道掃過去的高光，不會改變膚色。
+   只在帶子邊緣放極淡的粉／藍（#fff2f8／#f0f8ff）當彩邊，那是箔面該有的一點色散。
+
+   ⚠ 不能把 multiply 放進 .subject-mask 裡面：那個元素自己有 mix-blend-mode、是獨立
+   堆疊脈絡，內部只有箔面圖層、沒有畫，乘不到東西（實測只有 6.66→9.13）。
+   要另外掛一個吃同一個剪影、整層是 multiply 的兄弟元素。 */
+.r-special .special-tint{mix-blend-mode:multiply !important}
+.r-special .special-tint>i,.r-special .bg-tint>i{
+ position:absolute;inset:-25%;display:block;
+ background-image:linear-gradient(var(--phase),
+   #e4dee9 0%,#efe9f2 22%,#fbf6fb 36%,#fff2f8 43%,#ffffff 48%,#ffffff 52%,
+   #f0f8ff 57%,#f7f2f9 64%,#eae4ee 80%,#e2dce8 100%);
+ background-size:auto;}
+/* 高光帶會隨傾斜變強：--glare 是 paint() 算出來的，靜止時弱、游標靠邊時強 */
+.r-special .special-tint>i{opacity:calc(.55 + .45 * var(--glare))}
+.r-special .bg-tint{mix-blend-mode:multiply;opacity:.3;position:absolute;inset:0;
+ pointer-events:none;border-radius:12px;overflow:hidden}
+
+/* 疊化切換：兩組（角色圖／剪影遮罩／反光）各自淡入淡出，JS 直接設 opacity */
+.r-special .art-media img,.r-special .subject-mask,.r-special .special-tint{
+ transition:opacity 320ms ease}
+.r-special .face-gem{border-color:#ffe3f1 !important;
+ background:radial-gradient(circle at 35% 35%,#fff,#ff9ecb 55%) !important;
+ box-shadow:0 0 12px #ff8ac4a8 !important}
+</style>
+
+<h1>魔花少女 · 特殊</h1>
+<div class="stage" id="stage"></div>
+<p class="hint">滑鼠移到卡片上可以<b>傾斜</b>看反光，<b>點一下卡片</b>會做一個動作，做完自己變回來。</p>
+
+<script type="application/json" id="mask-data">__MASKS__</script>
+<script type="application/json" id="asset-data">__ASSETS__</script>
+<script type="application/json" id="card-data">__CARD__</script>
+<script>
+'use strict';
+(() => {
+const $ = s => document.querySelector(s);
+const masks = JSON.parse($('#mask-data').textContent);
+const A = JSON.parse($('#asset-data').textContent);
+const DATA = JSON.parse($('#card-data').textContent);
+
+// 新階級：card_face.js 是凍結檔，不改它——它 export 出來的表補一筆就好。
+HoloCardFace.LABEL.special = '特殊';
+HoloCardFace.ZLIFT.special = 56;
+HoloCardFace.TILT.special = 14;
+
+document.documentElement.style.setProperty('--frame-mask', `url("${masks.frame}")`);
+document.documentElement.style.setProperty('--glitter-mask', `url("${masks.glitter}")`);
+document.body.classList.add('font-system','gem-faceted','ink-chroma');
+
+const stage = $('#stage');
+const card = HoloCardFace.create(DATA, {masks, resolve: n => A[n] || n});
+
+// 反光層。card_face.js 是凍結檔，不改它的 material()——建好之後在這一頁補掛，
+// 只有 .r-special 有樣式。
+function sheen(host, cls, subject) {
+  const el = document.createElement('div');
+  el.className = cls;
+  if (subject) el.style.setProperty('--subject', subject);
+  el.innerHTML = '<i></i>';
+  host.append(el);
+  return el;
+}
+
+const media = card.querySelector('.art-media');
+const baseImg = media.querySelector('img');
+const baseMask = card.querySelector('.subject-mask');
+const baseSubject = baseMask ? baseMask.style.getPropertyValue('--subject') : '';
+const baseTint = sheen(media, 'subject-mask special-tint', baseSubject);
+sheen(card.querySelector('.face-depth-bg'), 'bg-tint');
+
+// ── 特殊動作：另一支動畫疊在上面，用疊化切換 ─────────────────────
+// 兩支動畫共用同一個裁切框與擺放（build 時就對齊了），所以疊化中角色不會位移。
+const altImg = document.createElement('img');
+// 一開始就給 src：一來先讀進 cache，二來沒有 src 的 <img> 會讓
+// 「所有圖都載入完成」的等待條件永遠不成立（驗收腳本會卡住）。
+altImg.src = A['alt'];
+altImg.alt = ''; altImg.draggable = false; altImg.style.opacity = '0';
+media.append(altImg);
+const altMask = document.createElement('div');
+altMask.className = 'subject-mask';
+altMask.style.setProperty('--subject', `url("${A['alt-mask']}")`);
+altMask.style.opacity = '0';
+altMask.innerHTML = baseMask ? baseMask.innerHTML : '';
+media.append(altMask);
+const altTint = sheen(media, 'subject-mask special-tint', `url("${A['alt-mask']}")`);
+altTint.style.opacity = '0';
+
+const FADE = 320;                  // 疊化時間
+const CYCLE = 2970;                // 一輪動作 = 90 格 × 33ms
+const gain = () => getComputedStyle(card).getPropertyValue('--subject-gain').trim() || '.4';
+let busy = false, timers = [];
+
+function show(alt) {
+  // 遮罩的 opacity 平常吃 --subject-gain，疊化期間要自己算，兩邊加起來才不會忽亮忽暗
+  const g = parseFloat(gain());
+  baseImg.style.opacity = alt ? '0' : '1';
+  altImg.style.opacity = alt ? '1' : '0';
+  if (baseMask) baseMask.style.opacity = alt ? '0' : String(g);
+  altMask.style.opacity = alt ? String(g) : '0';
+  baseTint.style.opacity = alt ? '0' : '.72';
+  altTint.style.opacity = alt ? '.72' : '0';
+  card.dataset.face = alt ? 'alt' : 'idle';
+}
+
+function trigger() {
+  if (busy) return;
+  busy = true;
+  altImg.removeAttribute('src');    // 同一個 src 再指定不會重播，要清掉才從第 0 格開始
+  altImg.src = A['alt'];
+  altMask.style.setProperty('--subject', `url("${A['alt-mask']}")`);
+  show(true);
+  timers.push(setTimeout(() => {    // 疊化進去 + 完整跑一輪，再疊化回來
+    show(false);
+    timers.push(setTimeout(() => { busy = false; }, FADE));
+  }, FADE + CYCLE));
+}
+
+show(false);
+card.style.cursor = 'pointer';
+card.addEventListener('click', trigger);
+
+stage.append(card);
+HoloCardFace.observe(card);
+
+stage.addEventListener('pointermove', e => {
+ const r = stage.getBoundingClientRect();
+ HoloCardFace.paint(card, DATA.rarity,
+   (e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1, {tilt:true});
+});
+stage.addEventListener('pointerleave', () => HoloCardFace.paint(card, DATA.rarity, 0, 0, {tilt:true}));
+window.giftCard = {card, trigger, show, FADE, CYCLE};
+})();
+</script>
+'''
+
+page = (HTML.replace('__CARD_FACE_JS__', (HERE / 'card_face.js').read_text(encoding='utf-8'))
+            .replace('__CARD_CSS__', '\n'.join(styles))
+            .replace('__MASKS__', json.dumps(masks, separators=(',', ':')))
+            .replace('__ASSETS__', json.dumps(assets, separators=(',', ':')))
+            .replace('__CARD__', json.dumps(card, ensure_ascii=False, separators=(',', ':'))))
+
+for tex in ('texture-fiber.png', 'texture-engraving.png'):
+    assert tex in page, tex
+    page = page.replace(tex, 'data:image/png;base64,' +
+                        b64encode((HERE / tex).read_bytes()).decode('ascii'))
+
+out = HERE / 'gift-mohuashaonv.html'
+out.write_text(page, encoding='utf-8', newline='\n')
+# Remove only this gift's obsolete pre-rename outputs after the new page is written.
+for obsolete in [HERE / 'gift-manhuahua.html', *GIFT.glob('layer-manhuahua-*')]:
+    obsolete.unlink(missing_ok=True)
+print('背景 %s → %s' % ('x'.join(map(str, bg_src_size)), 'x'.join(map(str, CARD))))
+for key, v in sizes.items():
+    print('角色 %-4s %d 格，動畫 %.1f KiB、mask %.1f KiB'
+          % (key, v['frames'], v['subject'] / 1024, v['mask'] / 1024))
+print('放在 %s（文字框上緣 %d，重疊 %d，左右各裁 %d）'
+      % (placement['placed'], placement['plate_top_px'],
+         placement['overlaps_plate_px'], placement['cropped_each_side_px']))
+print('wrote %s : %.2f MiB  pal=%s' % (out.name, out.stat().st_size / 1048576, pal['base']))

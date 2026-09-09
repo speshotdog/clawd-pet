@@ -1,0 +1,27 @@
+{
+  "failures": [
+    "source file count"
+  ],
+  "records": [
+    {
+      "check": "unique IDs",
+      "pass": true,
+      "data": []
+    },
+    {
+      "check": "pool count",
+      "pass": true,
+      "data": 63
+    },
+    {
+      "check": "source file count",
+      "pass": false,
+      "data": null
+    },
+    {
+      "check": "palette count",
+      "pass": true,
+      "data": 63
+    }
+  ]
+}

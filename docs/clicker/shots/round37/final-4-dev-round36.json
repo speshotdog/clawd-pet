@@ -1,0 +1,263 @@
+{
+ "baselineMetrics": {
+  "rarity": "special",
+  "kind": "depth",
+  "nameFits": "true",
+  "plate": {
+   "left": 4.399684210526316,
+   "right": 4.39978947368421,
+   "bottom": 3.398139097744362,
+   "height": 16.197725563909774
+  },
+  "nameCenterDelta": 0.00811767578125,
+  "rarityCenterDelta": 0.0081329345703125,
+  "nameText": "魔花少女",
+  "rarityText": "特殊 / SPECIAL",
+  "nameFill": "rgba(0, 0, 0, 0)",
+  "nameTop": "face-name",
+  "nameImage": "linear-gradient(120d",
+  "nameShadow": "none",
+  "plateBg": "linear-gradient(",
+  "sheenLayers": 3,
+  "plateAlpha": "linear-gradient(to top, rgba(2",
+  "cardWidth": 380,
+  "nameFs": 31.45,
+  "rarityFs": 17.69,
+  "gemFs": 28.83,
+  "maxOverflow": -7.72113037109375,
+  "layers": [
+   [
+    600,
+    840
+   ],
+   [
+    600,
+    840
+   ],
+   [
+    600,
+    840
+   ]
+  ],
+  "hasSubjectMask": true
+ },
+ "rarityContrast": {
+  "特殊": 10.33,
+  "SPECIAL": 10.57
+ },
+ "nameContrast": 6.46,
+ "gemContrast": 145.67,
+ "stats": {
+  "ringMean": 177.20839661484686,
+  "ringStd": 72.05942811559031,
+  "cardMean": 184.05645513454684,
+  "centerMean": 206.13795575735116
+ },
+ "gainsPercent": {
+  "ringMean": 18.78818238579538,
+  "ringStd": 16.846770998469985,
+  "cardMean": 2.0820462074903068,
+  "centerMean": 0.0
+ },
+ "css": {
+  "fill": "rgba(0, 0, 0, 0)",
+  "image": "linear-gradient(120deg, rgb(255, 212, 236) 0%, rgb(255, 228, 244) 20%, rgb(244, 227, 255) 42%, rgb(220, 238, 255) 66%, rgb(232, 251, 255) 86%, rgb(255, 212, 236) 100%)",
+  "shadow": "none",
+  "nameHit": "face-name",
+  "rarityHit": "face-rarity",
+  "particles": {
+   "count": 20,
+   "z": 0,
+   "zIndex": 5,
+   "overflow": "hidden",
+   "borderRadius": "12px",
+   "blend": "screen",
+   "effectiveZ": 36.4,
+   "maxOverflow": -9.00457763671875,
+   "keyframeProperties": [
+    [
+     "transform",
+     "opacity"
+    ],
+    [
+     "transform",
+     "opacity"
+    ],
+    [
+     "transform",
+     "opacity"
+    ],
+    [
+     "transform",
+     "opacity"
+    ],
+    [
+     "transform",
+     "opacity"
+    ]
+   ],
+   "children": [
+    {
+     "blend": "normal",
+     "size": 3.1875,
+     "duration": "8s",
+     "delay": "0s"
+    },
+    {
+     "blend": "normal",
+     "size": 3.89062,
+     "duration": "9s",
+     "delay": "-1.73s"
+    },
+    {
+     "blend": "normal",
+     "size": 4.59375,
+     "duration": "10s",
+     "delay": "-3.46s"
+    },
+    {
+     "blend": "normal",
+     "size": 5.29688,
+     "duration": "11s",
+     "delay": "-5.19s"
+    },
+    {
+     "blend": "normal",
+     "size": 6,
+     "duration": "12s",
+     "delay": "-6.92s"
+    },
+    {
+     "blend": "normal",
+     "size": 3.1875,
+     "duration": "13s",
+     "delay": "-8.65s"
+    },
+    {
+     "blend": "normal",
+     "size": 3.89062,
+     "duration": "14s",
+     "delay": "-10.38s"
+    },
+    {
+     "blend": "normal",
+     "size": 4.59375,
+     "duration": "15s",
+     "delay": "-12.11s"
+    },
+    {
+     "blend": "normal",
+     "size": 5.29688,
+     "duration": "16s",
+     "delay": "-13.84s"
+    },
+    {
+     "blend": "normal",
+     "size": 6,
+     "duration": "17s",
+     "delay": "-15.57s"
+    },
+    {
+     "blend": "normal",
+     "size": 3.1875,
+     "duration": "18s",
+     "delay": "-17.3s"
+    },
+    {
+     "blend": "normal",
+     "size": 3.89062,
+     "duration": "8s",
+     "delay": "-1.03s"
+    },
+    {
+     "blend": "normal",
+     "size": 4.59375,
+     "duration": "9s",
+     "delay": "-2.76s"
+    },
+    {
+     "blend": "normal",
+     "size": 5.29688,
+     "duration": "10s",
+     "delay": "-4.49s"
+    },
+    {
+     "blend": "normal",
+     "size": 6,
+     "duration": "11s",
+     "delay": "-6.22s"
+    },
+    {
+     "blend": "normal",
+     "size": 3.1875,
+     "duration": "12s",
+     "delay": "-7.95s"
+    },
+    {
+     "blend": "normal",
+     "size": 3.89062,
+     "duration": "13s",
+     "delay": "-9.68s"
+    },
+    {
+     "blend": "normal",
+     "size": 4.59375,
+     "duration": "14s",
+     "delay": "-11.41s"
+    },
+    {
+     "blend": "normal",
+     "size": 5.29688,
+     "duration": "15s",
+     "delay": "-13.14s"
+    },
+    {
+     "blend": "normal",
+     "size": 6,
+     "duration": "16s",
+     "delay": "-14.87s"
+    }
+   ]
+  }
+ },
+ "motionPercent": 0.5029951445071625,
+ "plateMotionPercent": 0.0,
+ "particlePeak": 132.451,
+ "particleNeighborPeak": 104.04049999999998,
+ "particleGainPercent": 0.016202586263158736,
+ "rafs": 0,
+ "tiltedGradients": [
+  "linear-gradient(190deg, rgb(255, 212, 236) 0%, rgb(255, 228, 244) 20%, rgb(244, 227, 255) 42%, rgb(220, 238, 255) 66%, rgb(232, 251, 255) 86%, rgb(255, 212, 236) 100%)",
+  "linear-gradient(190deg, rgb(255, 212, 236) 0%, rgb(255, 228, 244) 20%, rgb(244, 227, 255) 42%, rgb(220, 238, 255) 66%, rgb(232, 251, 255) 86%, rgb(255, 212, 236) 100%)"
+ ],
+ "tiltedParticleOverflow": -3.1184844970703125,
+ "reducedPercent": 0.0,
+ "reducedAnimation": [
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none"
+ ],
+ "failures": []
+}

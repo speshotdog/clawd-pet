@@ -1,0 +1,44 @@
+[
+ {
+  "old": "layer-manhuahua-alt-mask.webp",
+  "new": "layer-mohuashaonv-alt-mask.webp",
+  "sha256": "6b251baad96990319e16c8d6b761844bcddf64b18ac7f6fc8a4e49c86576a34d",
+  "identical": true
+ },
+ {
+  "old": "layer-manhuahua-alt.webp",
+  "new": "layer-mohuashaonv-alt.webp",
+  "sha256": "2106cf2d734136a9eed41fb3f1dd4f06473c0d16140b998338317cb2f1159b1a",
+  "identical": true
+ },
+ {
+  "old": "layer-manhuahua-background.png",
+  "new": "layer-mohuashaonv-background.png",
+  "sha256": "b6bd653eb24cf0dc447e4576e2a57e0ca7ae3bb1eac0e56b58e6d29c5771b7fd",
+  "identical": true
+ },
+ {
+  "old": "layer-manhuahua-idle-mask.webp",
+  "new": "layer-mohuashaonv-idle-mask.webp",
+  "sha256": "b0162e4124043fb66044c30a3db2b595b19ff0878874036cf19e69ba984361c2",
+  "identical": true
+ },
+ {
+  "old": "layer-manhuahua-idle.webp",
+  "new": "layer-mohuashaonv-idle.webp",
+  "sha256": "22a0e43406cc7333894744adab28feb844ae3a96e16a6e4891c1a6b959691366",
+  "identical": true
+ },
+ {
+  "old": "layer-manhuahua-mask.webp",
+  "new": "layer-mohuashaonv-mask.webp",
+  "sha256": "d38b84767ccaf120eb7a50e5d1f53c0934af76ab9f53f73e1057063540a161d5",
+  "identical": false
+ },
+ {
+  "old": "layer-manhuahua-subject.webp",
+  "new": "layer-mohuashaonv-subject.webp",
+  "sha256": "1969f4f6cc69f452dde0422e0ae922e511c827590884245367e1dd265f4dea5e",
+  "identical": false
+ }
+]

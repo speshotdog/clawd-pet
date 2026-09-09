@@ -1,0 +1,162 @@
+[
+  {
+    "tag": "accepted-1",
+    "exit": 0,
+    "entries": [
+      {
+        "label": "dev",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 257,
+        "minimumFadeMiddleFrames": 12,
+        "maximumComplementError": 1.2500000000637002e-06,
+        "errors": [],
+        "externalRequests": []
+      },
+      {
+        "label": "moved-copy",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 252,
+        "minimumFadeMiddleFrames": 12,
+        "maximumComplementError": 1.2500000000637002e-06,
+        "errors": [],
+        "externalRequests": []
+      }
+    ]
+  },
+  {
+    "tag": "accepted-2",
+    "exit": 0,
+    "entries": [
+      {
+        "label": "dev",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 258,
+        "minimumFadeMiddleFrames": 12,
+        "maximumComplementError": 1.2500000000637002e-06,
+        "errors": [],
+        "externalRequests": []
+      },
+      {
+        "label": "moved-copy",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 258,
+        "minimumFadeMiddleFrames": 12,
+        "maximumComplementError": 1.180000000045034e-06,
+        "errors": [],
+        "externalRequests": []
+      }
+    ]
+  },
+  {
+    "tag": "accepted-3",
+    "exit": 0,
+    "entries": [
+      {
+        "label": "dev",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 258,
+        "minimumFadeMiddleFrames": 12,
+        "maximumComplementError": 1.38888888900901e-06,
+        "errors": [],
+        "externalRequests": []
+      },
+      {
+        "label": "moved-copy",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 256,
+        "minimumFadeMiddleFrames": 12,
+        "maximumComplementError": 1.2500000000637002e-06,
+        "errors": [],
+        "externalRequests": []
+      }
+    ]
+  },
+  {
+    "tag": "accepted-4",
+    "exit": 0,
+    "entries": [
+      {
+        "label": "dev",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 232,
+        "minimumFadeMiddleFrames": 11,
+        "maximumComplementError": 1.2500000000637002e-06,
+        "errors": [],
+        "externalRequests": []
+      },
+      {
+        "label": "moved-copy",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 258,
+        "minimumFadeMiddleFrames": 12,
+        "maximumComplementError": 1.38888888900901e-06,
+        "errors": [],
+        "externalRequests": []
+      }
+    ]
+  },
+  {
+    "tag": "accepted-5",
+    "exit": 0,
+    "entries": [
+      {
+        "label": "dev",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 257,
+        "minimumFadeMiddleFrames": 12,
+        "maximumComplementError": 1.2500000001747225e-06,
+        "errors": [],
+        "externalRequests": []
+      },
+      {
+        "label": "moved-copy",
+        "coveragePercent": 1.578823703996834,
+        "particleGainPercent": 0.35751338964213897,
+        "motionPercent": 3.886350815064093,
+        "minHeartIoU": 0.8585714285714285,
+        "idleRaf": 0,
+        "fadeFrames": 249,
+        "minimumFadeMiddleFrames": 12,
+        "maximumComplementError": 1.38888888900901e-06,
+        "errors": [],
+        "externalRequests": []
+      }
+    ]
+  }
+]

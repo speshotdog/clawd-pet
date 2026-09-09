@@ -1,0 +1,33 @@
+<!-- Original geometry, round 31. No third-party paths or assets. -->
+<svg class="summoning-geometry" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" fill="none" aria-hidden="true">
+ <defs>
+  <radialGradient id="summon-light"><stop stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="summon-reflection" x2="0" y2="1"><stop stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ </defs>
+ <g stroke="#fff" stroke-width="1">
+  <g class="summon-axes" opacity=".24"><path d="M400 12V172M400 540V788M112 186V414M688 186V414M146 258V370M654 258V370"/>
+   <path class="axis-points" d="m400 84 4 7-4 7-4-7Zm-288 174 4 7-4 7-4-7Zm576 0 4 7-4 7-4-7Zm-288 360 4 7-4 7-4-7Z" fill="#fff"/>
+  </g>
+  <g class="summon-orbit" opacity=".28">
+   <circle class="orbit-outer" stroke-dasharray="480 60" cx="400" cy="352" r="172"/>
+   <circle class="orbit-dots" cx="400" cy="352" r="157" stroke-dasharray="1 8" stroke-linecap="round"/>
+   <path class="orbit-arcs" d="M235 292A176 176 0 0 1 565 292M235 412A176 176 0 0 0 565 412" stroke-width="2"/>
+   <circle class="orbit-inner" stroke-dasharray="400 30" cx="400" cy="352" r="137" opacity=".38"/>
+   <path class="orbit-ticks" d="m400 167 5 7-5 7-5-7Zm0 356 5 7-5 7-5-7ZM215 352l7-5 7 5-7 5Zm356 0 7-5 7 5-7 5Z"/>
+   <g fill="#fff"><circle cx="287" cy="239" r="2"/><circle cx="513" cy="239" r="2"/><circle cx="287" cy="465" r="2"/><circle cx="513" cy="465" r="2"/></g>
+  </g>
+  <g opacity=".1">
+   <ellipse cx="400" cy="576" rx="85" ry="17"/>
+   <ellipse cx="400" cy="585" rx="155" ry="35"/>
+   <ellipse cx="400" cy="600" rx="245" ry="65" opacity=".7"/>
+   <ellipse cx="400" cy="625" rx="355" ry="105" opacity=".45"/>
+   <path d="M400 552 90 730M400 552 710 730M400 552 270 764M400 552 530 764M400 552V788" opacity=".65"/>
+  </g>
+ </g>
+ <g stroke="#fff" fill="none"><ellipse class="floor-ripple" cx="400" cy="576" rx="210" ry="44"/><ellipse class="floor-ripple two" cx="400" cy="576" rx="210" ry="44"/><ellipse class="floor-ripple three" cx="400" cy="576" rx="210" ry="44"/>
+ <path class="water-line" d="M0 611Q100 591 200 610T400 610T600 610T800 610M0 620Q100 600 200 619T400 619T600 619T800 619" stroke-width=".6"/>
+ <path class="water-line second" d="M0 650Q100 620 200 640T400 640T600 640T800 640M0 654Q100 624 200 644T400 644T600 644T800 644" stroke-width=".6"/></g>
+ <ellipse cx="400" cy="352" rx="48" ry="64" fill="url(#summon-light)"/>
+ <path class="orbit-star" d="m400 320 4 27 17 5-17 5-4 27-4-27-17-5 17-5Z" fill="#fff" opacity=".65"/>
+ <path d="m400 551 9 188h-18Z" fill="url(#summon-reflection)"/>
+</svg>

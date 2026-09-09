@@ -33,7 +33,8 @@ SCENE_CARDS = [
 
 # 2026-09-09: 桌面「新卡\4.0」，只在精裝研究線生效，尚未進遊戲。
 EXTRA_CARDS = [
-    {'id': ident, 'name': name, 'rarity': rarity, 'kind': kind, 'file': f'card-{ident}.png'}
+    {'id': ident, 'name': name, 'rarity': rarity, 'kind': kind, 'file': f'card-{ident}.png',
+     **({'scene': True} if kind == 'depth' else {})}
     for ident, name, rarity, kind in [
         ('miepuxiong', '咩噗熊', 'rare', 'framed'),
         ('waisongmiege', '外送咩鴿', 'rare', 'framed'),
@@ -46,10 +47,10 @@ EXTRA_CARDS = [
         ('bianbiancaihua', '扁扁彩華', 'epic', 'framed'),
         ('yuexiong', '玥熊', 'epic', 'framed'),
         ('jintianwoshengri', '今天我生日', 'legendary', 'framed'),
-        ('shabaolingzhu', '沙堡領主', 'mythic', 'flat'),
-        ('liulangyueshou', '流浪玥手', 'mythic', 'flat'),
-        ('zhenqiqiu', '珍氣球', 'mythic', 'flat'),
-        ('zhenjunyue', '真菌玥', 'mythic', 'flat'),
+        ('shabaolingzhu', '沙堡領主', 'mythic', 'depth'),
+        ('liulangyueshou', '流浪玥手', 'mythic', 'framed'),
+        ('zhenqiqiu', '珍氣球', 'mythic', 'depth'),
+        ('zhenjunyue', '真菌玥', 'mythic', 'depth'),
         ('zhenzhen', '珍珍', 'mythic', 'flat'),
     ]
 ]

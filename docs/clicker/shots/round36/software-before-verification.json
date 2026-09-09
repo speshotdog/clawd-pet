@@ -1,0 +1,240 @@
+[
+ {
+  "baselineMetrics": {
+   "rarity": "special",
+   "kind": "depth",
+   "nameFits": "true",
+   "plate": {
+    "left": 4.399684210526316,
+    "right": 4.39978947368421,
+    "bottom": 3.398139097744362,
+    "height": 16.197725563909774
+   },
+   "nameCenterDelta": 0.00811767578125,
+   "rarityCenterDelta": 0.0081329345703125,
+   "nameText": "魔花少女",
+   "rarityText": "特殊 / SPECIAL",
+   "nameFill": "rgba(0, 0, 0, 0)",
+   "nameTop": "face-name",
+   "nameImage": "linear-gradient(120d",
+   "nameShadow": "none",
+   "plateBg": "linear-gradient(",
+   "sheenLayers": 3,
+   "plateAlpha": "linear-gradient(to top, rgba(2",
+   "cardWidth": 380,
+   "nameFs": 31.45,
+   "rarityFs": 17.69,
+   "gemFs": 28.83,
+   "maxOverflow": -7.72113037109375,
+   "layers": [
+    [
+     600,
+     840
+    ],
+    [
+     600,
+     840
+    ],
+    [
+     600,
+     840
+    ]
+   ],
+   "hasSubjectMask": true
+  },
+  "rarityContrast": {
+   "特殊": 12.25,
+   "SPECIAL": 11.94
+  },
+  "nameContrast": 5.94,
+  "gemContrast": 145.67,
+  "stats": {
+   "ringMean": 148.31763840493053,
+   "ringStd": 62.06248717567116,
+   "cardMean": 179.6507739513257,
+   "centerMean": 205.42338252409192
+  },
+  "gainsPercent": {
+   "ringMean": 0.0,
+   "ringStd": 0.0,
+   "cardMean": 0.0,
+   "centerMean": 0.0
+  },
+  "css": {
+   "fill": "rgb(241, 240, 229)",
+   "image": "none",
+   "shadow": "rgb(58, 20, 40) 0px 1px 2px",
+   "nameHit": "face-name",
+   "rarityHit": "face-rarity",
+   "particles": null
+  },
+  "motionPercent": 0.0,
+  "plateMotionPercent": 0.0,
+  "particlePeak": 0.0,
+  "particleNeighborPeak": -136.2965,
+  "particleGainPercent": 0.0,
+  "rafs": 0,
+  "reducedPercent": 0.0,
+  "reducedAnimation": [],
+  "failures": [
+   [
+    "particle motion >=0.15%",
+    0.0
+   ],
+   [
+    "visible particle peak >=8",
+    [
+     0.0,
+     -136.2965
+    ]
+   ],
+   [
+    "frame brightness +12..30%",
+    0.0
+   ],
+   [
+    "rarity transparent fill",
+    "rgb(241, 240, 229)"
+   ],
+   [
+    "rarity linear gradient",
+    "none"
+   ],
+   [
+    "rarity no text-shadow",
+    "rgb(58, 20, 40) 0px 1px 2px"
+   ],
+   [
+    "name contrast >=6.44",
+    5.94
+   ],
+   [
+    "particle layer exists",
+    null
+   ],
+   [
+    "reduced animation none",
+    []
+   ]
+  ]
+ },
+ {
+  "baselineMetrics": {
+   "rarity": "special",
+   "kind": "depth",
+   "nameFits": "true",
+   "plate": {
+    "left": 4.399684210526316,
+    "right": 4.39978947368421,
+    "bottom": 3.398139097744362,
+    "height": 16.197725563909774
+   },
+   "nameCenterDelta": 0.00811767578125,
+   "rarityCenterDelta": 0.0081329345703125,
+   "nameText": "魔花少女",
+   "rarityText": "特殊 / SPECIAL",
+   "nameFill": "rgba(0, 0, 0, 0)",
+   "nameTop": "face-name",
+   "nameImage": "linear-gradient(120d",
+   "nameShadow": "none",
+   "plateBg": "linear-gradient(",
+   "sheenLayers": 3,
+   "plateAlpha": "linear-gradient(to top, rgba(2",
+   "cardWidth": 380,
+   "nameFs": 31.45,
+   "rarityFs": 17.69,
+   "gemFs": 28.83,
+   "maxOverflow": -7.72113037109375,
+   "layers": [
+    [
+     600,
+     840
+    ],
+    [
+     600,
+     840
+    ],
+    [
+     600,
+     840
+    ]
+   ],
+   "hasSubjectMask": true
+  },
+  "rarityContrast": {
+   "特殊": 12.25,
+   "SPECIAL": 11.94
+  },
+  "nameContrast": 5.94,
+  "gemContrast": 145.67,
+  "stats": {
+   "ringMean": 148.31763840493053,
+   "ringStd": 62.06248717567116,
+   "cardMean": 179.6507739513257,
+   "centerMean": 205.42338252409192
+  },
+  "gainsPercent": {
+   "ringMean": 0.0,
+   "ringStd": 0.0,
+   "cardMean": 0.0,
+   "centerMean": 0.0
+  },
+  "css": {
+   "fill": "rgb(241, 240, 229)",
+   "image": "none",
+   "shadow": "rgb(58, 20, 40) 0px 1px 2px",
+   "nameHit": "face-name",
+   "rarityHit": "face-rarity",
+   "particles": null
+  },
+  "motionPercent": 0.0,
+  "plateMotionPercent": 0.0,
+  "particlePeak": 0.0,
+  "particleNeighborPeak": -136.2965,
+  "particleGainPercent": 0.0,
+  "rafs": 0,
+  "reducedPercent": 0.0,
+  "reducedAnimation": [],
+  "failures": [
+   [
+    "particle motion >=0.15%",
+    0.0
+   ],
+   [
+    "visible particle peak >=8",
+    [
+     0.0,
+     -136.2965
+    ]
+   ],
+   [
+    "frame brightness +12..30%",
+    0.0
+   ],
+   [
+    "rarity transparent fill",
+    "rgb(241, 240, 229)"
+   ],
+   [
+    "rarity linear gradient",
+    "none"
+   ],
+   [
+    "rarity no text-shadow",
+    "rgb(58, 20, 40) 0px 1px 2px"
+   ],
+   [
+    "name contrast >=6.44",
+    5.94
+   ],
+   [
+    "particle layer exists",
+    null
+   ],
+   [
+    "reduced animation none",
+    []
+   ]
+  ]
+ }
+]

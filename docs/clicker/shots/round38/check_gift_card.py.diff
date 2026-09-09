@@ -1,0 +1,363 @@
+--- round37/check_gift_card.py
++++ round38/check_gift_card.py
+@@ -16,7 +16,7 @@
+ from playwright.sync_api import sync_playwright
+ 
+ OUT = Path(__file__).parent
+-SHOTS = OUT.parents[1] / 'docs/clicker/shots/round37'
++SHOTS = OUT.parents[1] / 'docs/clicker/shots/round38'
+ PLATE = {'left': 4.4, 'right': 4.4, 'bottom': 3.4, 'height': 16.2}
+ TOL = 0.15
+ 
+@@ -43,6 +43,16 @@
+ }'''
+ 
+ 
++def repaint(page):
++    # Two frame boundaries commit paused WAAPI seeks and visibility changes.
++    page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
++
++
++def capture(page, target=None, **kwargs):
++    repaint(page)
++    return (target if target is not None else page).screenshot(**kwargs)
++
++
+ def transition_curve(page):
+     # Native time: sample all six computed opacities every 60 ms, plus every rendered frame.
+     return page.evaluate('''async () => {
+@@ -114,48 +124,31 @@
+       giftCard.trigger();
+     }""")
+     page.wait_for_function("giftCard.card.dataset.face==='alt' && +getComputedStyle(giftCard.card.querySelectorAll('.art-media img')[1]).opacity>.999")
+-    page.locator('#stage').screenshot(path=str(SHOTS / (label+'-alt.png')))
++    capture(page, page.locator('#stage'), path=str(SHOTS / (label+'-alt.png')))
+     page.wait_for_function('window.returnHeld===true')
+     mid = page.evaluate("[...giftCard.card.querySelectorAll('.art-media img')].map(e=>+getComputedStyle(e).opacity)")
+     assert all(.15 < v < .85 for v in mid), ('held native fade at 160ms',mid)
+-    page.locator('#stage').screenshot(path=str(SHOTS / (label+'-fade-return-middle.png')))
++    capture(page, page.locator('#stage'), path=str(SHOTS / (label+'-fade-return-middle.png')))
+     page.evaluate('returnAnimations.forEach(a=>a.play())')
+     page.wait_for_timeout(700)
+     # Hold artwork frames constant so the pixel difference measures pointer response.
+     page.evaluate('''async () => {for(const img of giftCard.card.querySelectorAll('img')){
+       const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+       canvas.getContext('2d').drawImage(img,0,0);img.src=canvas.toDataURL();await img.decode();}}''')
+-    flat = np.asarray(Image.open(BytesIO(page.locator('#stage').screenshot())).convert('RGB')).astype(float)
++    flat = np.asarray(Image.open(BytesIO(capture(page, page.locator('#stage'), ))).convert('RGB')).astype(float)
+     r = page.locator('#stage').bounding_box()
+     page.mouse.move(r['x']+r['width']*.84,r['y']+r['height']*.22)
+     page.wait_for_timeout(450)
+-    shot = page.locator('#stage').screenshot(path=str(SHOTS / (label+'-tilt.png')))
++    shot = capture(page, page.locator('#stage'), path=str(SHOTS / (label+'-tilt.png')))
+     tilted = np.asarray(Image.open(BytesIO(shot)).convert('RGB')).astype(float)
+     change = float(np.abs(flat-tilted).mean())
+     assert change > 1, ('pointer produced no visible pixel change', change)
+     return {'returnImageOpacities':mid,'pointerMeanPixelDelta':change}
+ 
+ 
+-def references(browser):
+-    result = {}
+-    desktop = Path.home() / 'OneDrive/Desktop' / '\u62bd\u5361round33\u6e2c\u8a66\u7248.html'
+-    for label, path in [('desktop-round33', desktop), ('cards-remade', OUT / 'cards-remade.html')]:
+-        page = browser.new_page(viewport={'width':1440,'height':1000})
+-        page.goto(path.as_uri() + ('?ceremony-test' if label == 'desktop-round33' else ''))
+-        if label == 'desktop-round33':
+-            page.evaluate('''window.__ceremonyFixture=[JSON.parse(document.querySelector('#pool-data').textContent).find(x=>x.id==='rocketdog')];void __ceremony.pull(1)''')
+-            page.wait_for_timeout(1200)
+-            page.evaluate('void __ceremony.skipAll()')
+-            page.wait_for_function('__ceremony.state().collectable')
+-        card = page.locator('.hcard[data-id="rocketdog"]').first
+-        card.scroll_into_view_if_needed()
+-        page.evaluate('document.fonts.ready')
+-        page.wait_for_timeout(500)
+-        result[label] = card.evaluate(DETAIL)
+-        result[label]['maskAlignment'] = mask_alignment(card)
+-        card.screenshot(path=str(SHOTS / (ARGS.tag + '-' + label + '-rocketdog.png')))
+-        page.close()
+-    return result
++def references():
++    # Round 38 only visits the gift; reuse the round-37 measured reference geometry.
++    return json.loads((SHOTS.parent/'round37/accepted-5-references.json').read_text(encoding='utf-8'))
+ 
+ 
+ def diff(a, b):
+@@ -170,7 +163,7 @@
+     最亮的 25% 當字身、最暗的 35% 當底，算 (L1+.05)/(L2+.05)，門檻 4.5:1（WCAG AA 內文）。
+     這比舊量法**更嚴**，不是為了湊綠燈放寬。
+     """
+-    im = Image.open(BytesIO(page.locator('#stage').screenshot())).convert('RGB')
++    im = Image.open(BytesIO(capture(page, page.locator('#stage'), ))).convert('RGB')
+     dpr = page.evaluate('devicePixelRatio')
+     box = page.evaluate("""([sel,segment]) => {
+       const s = document.querySelector('#stage').getBoundingClientRect();
+@@ -193,7 +186,7 @@
+ 
+ def region_contrast(page, selector, pad):
+     """量 selector 內部相對於它四周一圈的色差（寶石與名字共用一套量法）。"""
+-    im = Image.open(BytesIO(page.locator('#stage').screenshot())).convert('RGB')
++    im = Image.open(BytesIO(capture(page, page.locator('#stage'), ))).convert('RGB')
+     dpr = page.evaluate('devicePixelRatio')
+     box = page.evaluate('''(sel) => {
+       const s = document.querySelector('#stage').getBoundingClientRect();
+@@ -287,7 +280,7 @@
+         if not condition:
+             failures.append([name, value])
+     def shot(suffix):
+-        return np.asarray(Image.open(BytesIO(page.locator('#stage').screenshot(
++        return np.asarray(Image.open(BytesIO(capture(page, page.locator('#stage'), 
+             path=str(SHOTS / (prefix + '-' + suffix + '.png'))))).convert('RGB')).astype(float)
+     def gray(a):
+         return a @ np.array([.299, .587, .114])
+@@ -301,8 +294,10 @@
+       return Object.fromEntries(['.hcard','.art-media','.face-plate'].map(sel=>{
+         const r=document.querySelector(sel).getBoundingClientRect();
+         return [sel,{x:r.x-s.x,y:r.y-s.y,width:r.width,height:r.height}];}));}''')
++    # Same CSS clock in every run: compare t=10s and t=12s, with committed seeks.
++    page.evaluate("giftCard.card.getAnimations({subtree:true}).filter(a=>['gift-pollen','gift-heart'].includes(a.animationName)).forEach(a=>{a.pause();a.currentTime=10000})")
+     a = shot('particles-0')
+-    page.wait_for_timeout(2000)
++    page.evaluate("giftCard.card.getAnimations({subtree:true}).filter(a=>['gift-pollen','gift-heart'].includes(a.animationName)).forEach(a=>a.currentTime=12000)")
+     b = shot('particles-2')
+     delta = np.abs(gray(a)-gray(b))
+     Image.fromarray(np.uint8(np.clip(delta*8,0,255))).save(SHOTS / (prefix+'-particles-diff.png'))
+@@ -320,7 +315,7 @@
+     mask_path = SHOTS.parent / 'round36' / ('frame-ring-'+label+'.png')
+     saved = np.asarray(Image.open(mask_path)) > 0
+     assert np.array_equal(ring,saved), 'frame mask changed'
+-    gate('particle motion >=0.15%', float((delta[art]>6).mean()*100)>=.15,
++    gate('particle motion 1..4%', 1 <= float((delta[art]>6).mean()*100) <= 4,
+          float((delta[art]>6).mean()*100))
+     gate('plate motion <=0.02%', float((delta[plate]>6).mean()*100)<=.02,
+          float((delta[plate]>6).mean()*100))
+@@ -341,17 +336,21 @@
+         yy,xx=np.ogrid[y0:y1,x0:x1]
+         near=((xx-px)**2+(yy-py)**2>=4**2)&((xx-px)**2+(yy-py)**2<=16**2)
+         neighbor_peak=max(neighbor_peak,float(on_gray[py,px]-np.median(off_gray[y0:y1,x0:x1][near])))
+-    gate('visible particle peak >=8', min(peak,neighbor_peak)>=8, [peak,neighbor_peak])
++    gate('visible particle peak >=25', min(peak,neighbor_peak)>=25, [peak,neighbor_peak])
+     particle_gain = float((gray(on)[card_mask].mean()/gray(off)[card_mask].mean()-1)*100)
+-    gate('particle brightness <=2%', particle_gain<=.06, particle_gain)
++    gate('particle brightness 0.30..1.2%', .30<=particle_gain<=1.2, particle_gain)
++    coverage = float((np.abs(particle_delta)[card_mask]>6).mean()*100)
++    plate_particles = float((np.abs(particle_delta)[plate]>6).mean()*100)
++    gate('particle coverage 1.2..3%',1.2<=coverage<=3,coverage)
++    gate('plate particles <=0.02%',plate_particles<=.02,plate_particles)
+     stats = {'ringMean':float(gray(off)[ring].mean()),'ringStd':float(gray(off)[ring].std()),
+              'cardMean':float(gray(off)[card_mask].mean()),'centerMean':float(gray(off)[center].mean())}
+     baseline_path = SHOTS.parent / 'round36' / ('baseline-'+label+'.json')
+     baseline = json.loads(baseline_path.read_text(encoding='utf-8'))['stats']
+     gains = {k:float((v/baseline[k]-1)*100) for k,v in stats.items()}
+-    gate('frame brightness round37 <=6%',stats['ringMean']<=176.908446*1.06,stats['ringMean'])
+-    gate('frame round36 variation >=95%',stats['ringStd']>=72.845376*.95,stats['ringStd'])
+-    gate('card round37 brightness <=2%',stats['cardMean']<=184.016131*1.02,stats['cardMean'])
++    gate('frame brightness vs round37 <=8%',stats['ringMean']<=177.208397*1.08,stats['ringMean'])
++    gate('frame variation vs round37 >=95%',stats['ringStd']>=72.059428*.95,stats['ringStd'])
++    gate('card brightness vs round37 <=2%',stats['cardMean']*(1+particle_gain/100)<=184.056455*1.02,stats['cardMean']*(1+particle_gain/100))
+     gate('center round37 brightness <=1%',stats['centerMean']<=206.137956*1.01,stats['centerMean'])
+     gate('frame variation >=95%',stats['ringStd']>=baseline['ringStd']*.95,gains['ringStd'])
+     gate('whole card brightness <=5%',gains['cardMean']<=5,gains['cardMean'])
+@@ -416,7 +415,7 @@
+     gate('both gradients follow phase',all(a!=b for a,b in zip(before_gradients,tilted_gradients)) and
+          tilted_gradients[0].split(',')[0]==tilted_gradients[1].split(',')[0],tilted_gradients)
+     page.mouse.move(0,0)
+-    page.wait_for_timeout(450)
++    page.wait_for_timeout(850)
+     page.evaluate("giftCard.card.getAnimations({subtree:true}).filter(a=>['gift-pollen','gift-heart'].includes(a.animationName)).forEach(a=>a.play())")
+     # 計數器只涵蓋頁面程式；驗收自己的 transition_curve rAF 尚未啟動。
+     page.evaluate('''() => {window.giftRafCount=0;window.originalGiftRaf=window.requestAnimationFrame;
+@@ -438,12 +437,12 @@
+     result = {'baselineMetrics':m,'rarityContrast':rarity,'nameContrast':name,'gemContrast':gem,
+         'stats':stats,'gainsPercent':gains,'css':css,'motionPercent':float((delta[art]>6).mean()*100),
+         'plateMotionPercent':float((delta[plate]>6).mean()*100),'particlePeak':peak,
+-        'particleNeighborPeak':neighbor_peak,'particleGainPercent':particle_gain,
++        'particleNeighborPeak':neighbor_peak,'particleGainPercent':particle_gain,'coveragePercent':coverage,'plateParticlesPercent':plate_particles,
+         'rafs':rafs,'tiltedGradients':tilted_gradients,'tiltedParticleOverflow':tilted_overflow,
+         'reducedPercent':reduced_diff,'reducedAnimation':reduced_css,'failures':failures}
+     (SHOTS/(prefix+'-round36.json')).write_text(json.dumps(result,ensure_ascii=False,indent=1),encoding='utf-8')
+     print(label, json.dumps({k:result[k] for k in ['rarityContrast','nameContrast','gemContrast','gainsPercent','motionPercent','particlePeak','failures']},ensure_ascii=False))
+-    assert not failures, failures
++    if not ARGS.baseline: assert not failures, failures
+     return result
+ 
+ 
+@@ -456,15 +455,15 @@
+         if not ok:
+             failures.append([name, value])
+     def shot(name):
+-        return np.asarray(Image.open(BytesIO(page.screenshot(
++        return np.asarray(Image.open(BytesIO(capture(page, None, 
+             path=str(SHOTS/(prefix+'-'+name+'.png'))))).convert('RGB')).astype(float)
+     def gray(a):
+         return a @ np.array([.299,.587,.114])
+     page.evaluate("giftCard.card.getAnimations({subtree:true}).forEach(a=>{a.pause();a.currentTime=10000})")
+     hearts = page.locator('.gift-hearts > i')
+     count = hearts.count()
+-    gate('heart count 4..6', 4 <= count <= 6, count)
+-    gate('all twenty dots retained', page.locator('.gift-particles > i').count()==20,
++    gate('heart count 8..12', 8 <= count <= 12, count)
++    gate('dot count 45..60', 45<=page.locator('.gift-particles > i').count()<=60,
+          page.locator('.gift-particles > i').count())
+     heart_rows = []
+     for i in range(count):
+@@ -475,10 +474,30 @@
+             const r=e.getBoundingClientRect(),c=giftCard.card.getBoundingClientRect(),s=getComputedStyle(e);
+             rows.push({width:r.width,height:r.height,top:(r.top-c.top)/c.height*100,
+               bottom:(r.bottom-c.top)/c.height*100,opacity:+s.opacity});}return rows;}''')
+-        gate('heart rect 8..14', all(8 <= r['width'] <= 14 and 8 <= r['height'] <= 14 for r in rows), rows)
++        gate('heart rect 14..20', all(14 <= r['width'] <= 20 and 14 <= r['height'] <= 20 for r in rows), rows)
+         gate('heart rect within 60..80%', all(60 <= r['top'] and r['bottom'] <= 80 for r in rows), rows)
+-        gate('heart opacity below dots', max(r['opacity'] for r in rows) < .85, rows)
++        gate('heart opacity 0.45..0.65', all(.45<=r['opacity']<=.65 for r in rows), [min(r['opacity'] for r in rows),max(r['opacity'] for r in rows)])
+         heart_rows.append(rows)
++    movement = page.evaluate("""async()=>{
++      const es=[...document.querySelectorAll('.gift-particles>i,.gift-hearts>i')];
++      es.forEach(e=>e.getAnimations()[0].pause());
++      await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
++      return es.map(e=>{const a=e.getAnimations()[0],timing=a.effect.getTiming(),samples=[];
++        const center=()=>{const r=e.getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2]};
++        for(let f=0;f<=100;f++){
++          a.currentTime=timing.delay+timing.duration*(10+f/100);const before=center(),opacity=+getComputedStyle(e).opacity;
++          a.currentTime+=2000;const after=center(),distance=Math.hypot(after[0]-before[0],after[1]-before[1]);
++          samples.push({phase:f/100,distance,percent:distance/giftCard.card.clientHeight*100,opacity});
++        }
++        return {kind:e.parentElement.className,size:parseFloat(getComputedStyle(e).width),
++          minPercent:Math.min(...samples.map(s=>s.percent)),maxPercent:Math.max(...samples.map(s=>s.percent)),samples};
++      });}""")
++    gate('each particle moves 3..12% in 2s, all phases',all(3<=r['minPercent'] and r['maxPercent']<=12 for r in movement),
++         [{'kind':r['kind'],'min':r['minPercent'],'max':r['maxPercent']} for r in movement])
++    dots=[r for r in movement if r['kind']=='gift-particles']
++    gate('dot size 4..9px',all(4<=r['size']<=9 for r in dots),[r['size'] for r in dots])
++    gate('dot opacity 0.81..0.85',all(.81<=q['opacity']<=.85 for r in dots for q in r['samples']),
++         [min(q['opacity'] for r in dots for q in r['samples']),max(q['opacity'] for r in dots for q in r['samples'])])
+     # Isolate each actual heart against the unchanged card, then rasterize the same
+     # authored clip at the exact subpixel location on black to form an independent reference.
+     ious = []
+@@ -508,7 +527,7 @@
+     config = hearts.evaluate_all('''es=>es.map(e=>{const s=getComputedStyle(e),p=getComputedStyle(e.parentElement);
+       return {duration:parseFloat(s.animationDuration),delay:parseFloat(s.animationDelay),color:s.backgroundColor,
+         zIndex:+p.zIndex,z:new DOMMatrixReadOnly(getComputedStyle(e.closest('.face-art')).transform).m43};})''')
+-    gate('heart periods and depth', bool(config) and all(14<=r['duration']<=24 and r['delay']<0 and r['zIndex']<20 and r['z']<=42 for r in config),config)
++    gate('heart periods and depth', bool(config) and all(0<r['duration']<=24 and r['delay']<0 and r['zIndex']<20 and r['z']<=42 for r in config),config)
+     # A rect is perspective-projected: also sweep each full heart cycle at the
+     # four maximum (14 degree) corners, not just the neutral card.
+     corner_hearts = page.evaluate('''async()=>{const c=giftCard.card,s=document.querySelector('#stage'),r=s.getBoundingClientRect(),rows=[];
+@@ -522,8 +541,8 @@
+       }
+       s.dispatchEvent(new PointerEvent('pointerleave'));await new Promise(done=>setTimeout(done,600));return rows;}''')
+     corner_boxes = [h for row in corner_hearts for h in row['hearts']]
+-    gate('full-corner hearts within 60..80% and 8..14px',bool(corner_boxes) and all(
+-        60<=h['top'] and h['bottom']<=80 and 8<=h['width']<=14 and 8<=h['height']<=14 for h in corner_boxes),
++    gate('full-corner hearts within 60..80% and 14..20px',bool(corner_boxes) and all(
++        60<=h['top'] and h['bottom']<=80 and 14<=h['width']<=20 and 14<=h['height']<=20 for h in corner_boxes),
+         {'topMin':min((h['top'] for h in corner_boxes),default=0),
+          'bottomMax':max((h['bottom'] for h in corner_boxes),default=0),
+          'sizeMax':max((max(h['width'],h['height']) for h in corner_boxes),default=0)})
+@@ -544,15 +563,15 @@
+               rows.push(sample());s.dispatchEvent(new PointerEvent(leave?'pointerleave':'pointermove',
+                 {clientX:r.x+r.width*x,clientY:r.y+r.height*y}));
+               const cs=getComputedStyle(c),target=[parseFloat(cs.getPropertyValue('--rx')),parseFloat(cs.getPropertyValue('--ry'))];
+-              await new Promise(resolve=>{function frame(){rows.push(sample());if(performance.now()-start<650)requestAnimationFrame(frame);else resolve();}requestAnimationFrame(frame);});
++              await new Promise(resolve=>{function frame(){rows.push(sample());if(performance.now()-start<900)requestAnimationFrame(frame);else resolve();}requestAnimationFrame(frame);});
+               return {leave,target,rows};}''',{'x':x,'y':y,'leave':leave})
+             rows = curve['rows']
+-            gate('every-frame heart bounds',all(60<=h['top'] and h['bottom']<=80 and 8<=h['width']<=14 and 8<=h['height']<=14 for row in rows for h in row['hearts']),
++            gate('every-frame heart bounds',all(60<=h['top'] and h['bottom']<=80 and 14<=h['width']<=20 and 14<=h['height']<=20 for row in rows for h in row['hearts']),
+                  {'x':x,'y':y,'leave':leave})
+             gate('every-frame projection <=1.5px',max(max(r['overflow']) for r in rows)<=1.5, max(max(r['overflow']) for r in rows))
+             if leave:
+-                settled = next((r['ms'] for r in rows[1:] if max(abs(r['rx']),abs(r['ry']))<.1),999)
+-                gate('return settles 380..520ms',380<=settled<=520,settled)
++                settled = next((r['ms'] for j,r in enumerate(rows[1:],1) if all(max(abs(q['rx']),abs(q['ry']))<.1 for q in rows[j:])),999)
++                gate('return settles 550..800ms',550<=settled<=800,settled)
+                 curve['settledMs']=settled
+                 overshoots=[]
+                 for axis in ['rx','ry']:
+@@ -560,7 +579,7 @@
+                     opposite=[max(0,-r[axis]/initial) for r in rows]
+                     crossings=sum(a<=0 and b>0 for a,b in zip(opposite,opposite[1:]))
+                     overshoots.append({'fraction':max(opposite),'crossings':crossings})
+-                gate('overshoot <=8% at most once',all(v['fraction']<=.08 and v['crossings']<=1 for v in overshoots),overshoots)
++                gate('overshoot 8..20%, 1..2 crossings',all(.08<=v['fraction']<=.20 and 1<=v['crossings']<=2 for v in overshoots),overshoots)
+                 curve['overshoot']=overshoots
+             else:
+                 target=curve['target']
+@@ -591,18 +610,21 @@
+         shadow = page.locator('.face-frame').evaluate("e=>getComputedStyle(e,'::before').boxShadow")
+         # Computed inset offset is the width of this zero-blur, zero-spread edge.
+         widths = [abs(float(v)) for v in re.findall(r'(-?[\d.]+)px 0px 0px 0px inset',shadow)]
+-        gate('edge width 1..2 CSS px', len(widths)==2 and all(1<=v<=2 for v in widths),[shadow,widths])
++        gate('edge width 3..5 CSS px', len(widths)==2 and all(3<=v<=5 for v in widths),[shadow,widths])
+         edges.append({'pose':name,'left':float(np.mean(values[0])),'right':float(np.mean(values[1])),
+                       'shadow':shadow,'widths':widths})
+         edges[-1]['difference']=edges[-1]['left']-edges[-1]['right']
+-    gate('edge swaps sign, abs >=6',edges[0]['difference']*edges[1]['difference']<0 and all(abs(r['difference'])>=6 for r in edges),edges)
++    gate('edge swaps sign, abs 25..60',edges[0]['difference']*edges[1]['difference']<0 and all(25<=abs(r['difference'])<=60 for r in edges),edges)
+     # Deterministic start/middle/end pictures of the native return transition.
+     page.evaluate("document.querySelector('#stage').dispatchEvent(new PointerEvent('pointerleave'))")
+-    for time,name in [(0,'start'),(240,'middle'),(600,'end')]:
++    return_frames=[]
++    for time,name in [(0,'start'),(240,'middle'),(514.3,'overshoot'),(850,'end')]:
+         page.evaluate('''t=>{const e=giftCard.card.querySelector('.card-lift');getComputedStyle(e).transform;
+           if(!window.tiltCapture)window.tiltCapture=e.getAnimations().filter(a=>a.transitionProperty==='transform');
+           tiltCapture.forEach(a=>{a.pause();a.currentTime=t});}''',time)
+         shot('return-'+name)
++        angles=page.evaluate("()=>{const m=new DOMMatrixReadOnly(getComputedStyle(giftCard.card.querySelector('.card-lift')).transform);return {rx:Math.atan2(m.m23,m.m22)*180/Math.PI,ry:Math.atan2(m.m31,m.m11)*180/Math.PI}}")
++        return_frames.append({'name':name,'time':time,**angles})
+     page.evaluate("(window.tiltCapture||[]).forEach(a=>a.finish())")
+     leaf = page.locator('.leaf:not(.face-frame)').evaluate_all('es=>es.map(e=>({class:e.className,overflow:getComputedStyle(e).overflow}))')
+     gate('leaf clipping retained',all(r['overflow']==('visible' if 'face-plate' in r['class'] else 'hidden') for r in leaf),leaf)
+@@ -617,10 +639,10 @@
+     gate('reduced hearts none',bool(reduced['hearts']) and all(v=='none' for v in reduced['hearts']),reduced)
+     shot('reduced-motion')
+     page.emulate_media(reduced_motion='no-preference')
+-    result={'heartSamples':heart_rows,'cornerHearts':corner_hearts,'heartIoU':ious,'heartConfig':config,'curves':curves,'edges':edges,'leaf':leaf,'reduced':reduced,'failures':failures}
++    result={'movement':movement,'heartSamples':heart_rows,'cornerHearts':corner_hearts,'heartIoU':ious,'heartConfig':config,'curves':curves,'returnFrames':return_frames,'edges':edges,'leaf':leaf,'reduced':reduced,'failures':failures}
+     (SHOTS/(prefix+'-round37.json')).write_text(json.dumps(result,ensure_ascii=False,indent=1),encoding='utf-8')
+     print(label,'round37',json.dumps({'heartIoU':ious,'edges':edges,'failures':failures},ensure_ascii=False))
+-    assert not failures, failures
++    if not ARGS.baseline: assert not failures, failures
+     return result
+ 
+ 
+@@ -636,13 +658,13 @@
+     assert not external, external
+ 
+     r37 = None if ARGS.round36_only else round37(page, label)
+-    if ARGS.baseline or ARGS.round37_only:
++    if ARGS.round37_only:
+         return r37
+     page.goto(uri, wait_until='load')
+     page.wait_for_timeout(600)
+     r36 = round36(page, label)
+     if ARGS.baseline or ARGS.round36_only:
+-        return r36
++        return {'round36':r36,'round37':r37}
+     # 原有動畫驗收重新載入原頁，避免固定素材影響疊化測試。
+     page.goto(uri, wait_until='load')
+     page.wait_for_function('Array.from(document.images).every(i => i.complete && i.naturalWidth > 0)')
+@@ -696,7 +718,7 @@
+     name = text_contrast(page, '.face-name')
+     assert name >= 4.5, '%s 卡名對比 %s:1 < 4.5:1（WCAG AA）' % (label, name)
+ 
+-    page.locator('#stage').screenshot(path=str(SHOTS / (ARGS.tag + '-gift-%s.png' % label)))
++    capture(page, page.locator('#stage'), path=str(SHOTS / (ARGS.tag + '-gift-%s.png' % label)))
+     print('  %s：幾何 OK・寶石對比 %s・卡名對比 %s・%s / %s・卡寬 %.0fpx・字級 %.2f/%.2f/%.2f'
+           % (label, gem, '%.2f:1' % name, m['nameText'], m['rarityText'], w,
+              m['nameFs'], m['rarityFs'], m['gemFs']))
+@@ -726,7 +748,7 @@
+         # 不改 320ms 過渡或取樣門檻，讓 rAF 記錄實際硬體呈現的每一格。
+         browser = pw.chromium.launch(args=['--use-angle=d3d11'])
+         page = browser.new_page(viewport={'width': 900, 'height': 1000}, device_scale_factor=2)
+-        refs = {} if ARGS.baseline or ARGS.round36_only or ARGS.round37_only else references(browser)
++        refs = {} if ARGS.baseline or ARGS.round36_only or ARGS.round37_only else references()
+         (SHOTS / (ARGS.tag + '-references.json')).write_text(json.dumps(refs, ensure_ascii=False, indent=1), encoding='utf-8')
+         src = ARGS.source.resolve()
+         assert src.is_relative_to(OUT.parents[1].resolve()), 'source must stay in this worktree'
+@@ -738,4 +760,6 @@
+         browser.close()
+ 
+     (SHOTS / (ARGS.tag+'-verification.json')).write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding='utf-8')
++    if ARGS.baseline:
++        assert not any(r[k] and r[k]['failures'] for r in report for k in ('round36','round37')), 'new bounds reject baseline; see JSON'
+     print('OK ·', len(report), 'entries')

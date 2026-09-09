@@ -1,0 +1,182 @@
+[
+  {
+    "tag": "verified-1",
+    "entry": "dev",
+    "frames": 253,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.2500000000637002e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "tag": "verified-1",
+    "entry": "moved-copy",
+    "frames": 249,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.2500000001747225e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "tag": "verified-2",
+    "entry": "dev",
+    "frames": 254,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.2499999999526779e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "tag": "verified-2",
+    "entry": "moved-copy",
+    "frames": 254,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.2500000000637002e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "tag": "verified-3",
+    "entry": "dev",
+    "frames": 252,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.0797500000769844e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "tag": "verified-3",
+    "entry": "moved-copy",
+    "frames": 255,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.2499999999526779e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "tag": "verified-4",
+    "entry": "dev",
+    "frames": 255,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.2549999999222905e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "tag": "verified-4",
+    "entry": "moved-copy",
+    "frames": 256,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.2499999999526779e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "tag": "verified-5",
+    "entry": "dev",
+    "frames": 256,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.2500000000637002e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "tag": "verified-5",
+    "entry": "moved-copy",
+    "frames": 255,
+    "middle": {
+      "idle": 12,
+      "alt": 12
+    },
+    "maxComplementError": 1.38888888900901e-06,
+    "endpoint": [
+      1,
+      0.4,
+      0.72,
+      0,
+      0,
+      0
+    ]
+  }
+]

@@ -1,0 +1,84 @@
+[
+ {
+  "label": "dev",
+  "gem_delta": 191.0,
+  "kind": "framed",
+  "rarity": "mythic",
+  "nameFits": "true",
+  "plate": {
+   "left": 4.399684210526316,
+   "right": 4.39978947368421,
+   "top": 80.40413533834587,
+   "bottom": 3.398139097744362,
+   "height": 16.197725563909774,
+   "width": 91.20052631578947
+  },
+  "media": {
+   "left": 2.3972052631578946,
+   "right": 2.397268421052633,
+   "top": 1.6976033834586468,
+   "bottom": 3.298261278195484,
+   "height": 95.00413533834588,
+   "width": 95.20552631578948
+  },
+  "nameCenterDelta": 1.52587890625e-05,
+  "rarityCenterDelta": 1.52587890625e-05,
+  "nameFill": "rgba(0, 0, 0, 0)",
+  "nameImage": "conic-gradient(from 120d",
+  "nameText": "女僕羊咩",
+  "rarityText": "神話 / MYTHIC",
+  "cardWidth": 380,
+  "nameFs": 31.45,
+  "rarityFs": 17.69,
+  "gemFs": 28.83,
+  "maxOverflow": -7.72113037109375,
+  "face": "normal",
+  "art": "3337079:ZvrHduxc3qLVwErnrUv8yRqRyAAAAA==",
+  "mask": "672110:+3Ig+Q/2URVZ10fi3BZ/9uEAFh9MMLqS8n+AAA\")",
+  "artNatural": [
+   500,
+   438
+  ]
+ },
+ {
+  "label": "moved-copy",
+  "gem_delta": 191.0,
+  "kind": "framed",
+  "rarity": "mythic",
+  "nameFits": "true",
+  "plate": {
+   "left": 4.399684210526316,
+   "right": 4.39978947368421,
+   "top": 80.40413533834587,
+   "bottom": 3.398139097744362,
+   "height": 16.197725563909774,
+   "width": 91.20052631578947
+  },
+  "media": {
+   "left": 2.3972052631578946,
+   "right": 2.397268421052633,
+   "top": 1.6976033834586468,
+   "bottom": 3.298261278195484,
+   "height": 95.00413533834588,
+   "width": 95.20552631578948
+  },
+  "nameCenterDelta": 1.52587890625e-05,
+  "rarityCenterDelta": 1.52587890625e-05,
+  "nameFill": "rgba(0, 0, 0, 0)",
+  "nameImage": "conic-gradient(from 120d",
+  "nameText": "女僕羊咩",
+  "rarityText": "神話 / MYTHIC",
+  "cardWidth": 380,
+  "nameFs": 31.45,
+  "rarityFs": 17.69,
+  "gemFs": 28.83,
+  "maxOverflow": -7.72113037109375,
+  "face": "normal",
+  "art": "3337079:ZvrHduxc3qLVwErnrUv8yRqRyAAAAA==",
+  "mask": "672110:+3Ig+Q/2URVZ10fi3BZ/9uEAFh9MMLqS8n+AAA\")",
+  "artNatural": [
+   500,
+   438
+  ]
+ }
+]

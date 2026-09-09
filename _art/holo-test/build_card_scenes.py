@@ -62,16 +62,23 @@ def palette(path: Path):
     }
 
 
-out = {}
-for f in sorted(ART.glob('*.png')):
-    p = palette(f)
-    if p:
-        out[f.name] = p
-from pool_data import SCENE_CARDS
-for card in SCENE_CARDS:
-    key = f"layer-{card['id']}-subject.png"
-    out[key] = palette(OUT / key)
-(ART / 'palette.json').write_text(json.dumps(out, indent=1), encoding='utf-8')
-print('wrote palette for', len(out), 'cards')
-for k in list(out)[:4]:
-    print(' ', k, out[k]['base'], out[k]['glow'], out[k]['accent'])
+# 直接跑才重算整批；被 import 時只借 palette()（build_mtk_card.py 要用），
+# 不然每次 import 都會把 art/palette.json 重寫一次。
+def main():
+  out = {}
+  for f in sorted(ART.glob('*.png')):
+      p = palette(f)
+      if p:
+          out[f.name] = p
+  from pool_data import SCENE_CARDS
+  for card in SCENE_CARDS:
+      key = f"layer-{card['id']}-subject.png"
+      out[key] = palette(OUT / key)
+  (ART / 'palette.json').write_text(json.dumps(out, indent=1), encoding='utf-8')
+  print('wrote palette for', len(out), 'cards')
+  for k in list(out)[:4]:
+      print(' ', k, out[k]['base'], out[k]['glow'], out[k]['accent'])
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_wave_coverage_round34.py"
+  ],
+  "script": [
+    "check_wave_coverage_round34.py"
+  ],
+  "exit": 0,
+  "seconds": 62.23,
+  "log": "1788965180704916300-check_wave_coverage_round34.log"
+}

@@ -1,0 +1,336 @@
+# -*- coding: utf-8 -*-
+"""驗 gift-mohuashaonv.html：凍結幾何、新階級「特殊」的樣式、名字讀得到、可攜。
+
+門檻沿用 check_demo_round8/9（寶石對比 ≥35、置中偏差 <2px、投影不得浮出卡緣 1.5px），
+沒有為了新階級放寬。另外多量一項：粉紅字在半透明文字框上的**對比**，
+因為這張卡把文字框從深色板換成了莓紫 scrim（讓下層的畫透出來），字又是漸層。
+"""
+from io import BytesIO
+from pathlib import Path
+import json, shutil, argparse
+from base64 import b64decode
+from urllib.parse import urlparse, unquote
+from tempfile import TemporaryDirectory
+import numpy as np
+from PIL import Image, ImageStat
+from playwright.sync_api import sync_playwright
+
+OUT = Path(__file__).parent
+SHOTS = OUT.parents[1] / 'docs/clicker/shots/round35'
+PLATE = {'left': 4.4, 'right': 4.4, 'bottom': 3.4, 'height': 16.2}
+TOL = 0.15
+
+# Layout percentages use computed boxes, never perspective-projected rects.
+DETAIL = '''card => {
+ const cs = getComputedStyle(card), W = parseFloat(cs.width), H = parseFloat(cs.height);
+ const selectors = ['.face-depth-bg','.face-art','.face-frame','.face-plate','.face-text','.face-gem'];
+ const box = sel => {const e=card.querySelector(sel), s=getComputedStyle(e);
+   return Object.fromEntries(['left','right','top','bottom','width','height'].map(k=>
+     [k,parseFloat(s[k]) / (['left','right','width'].includes(k)?W:H)*100]));};
+ const range=document.createRange();range.selectNodeContents(card.querySelector('.face-name'));
+ const nr=range.getBoundingClientRect(), gr=card.querySelector('.face-gem').getBoundingClientRect();
+ const mask=card.querySelector('.subject-mask'), ms=getComputedStyle(mask);
+ return {id:card.dataset.id, width:W,height:H,
+   boxes:Object.fromEntries(['.art-media','.face-plate','.face-text','.face-gem'].map(s=>[s,box(s)])),
+   layers:Object.fromEntries(selectors.map(sel=>{const s=getComputedStyle(card.querySelector(sel));
+     return [sel,{z:new DOMMatrixReadOnly(s.transform).m43,zIndex:s.zIndex}]})),
+   fontShares:Object.fromEntries(['--name-fs','--rarity-fs','--gem-fs'].map(k=>[k,parseFloat(cs.getPropertyValue(k))/W*100])),
+   foil:Object.fromEntries(['--foil-gain','--grain-gain','--subject-gain','--palette'].map(k=>[k,cs.getPropertyValue(k).trim()])),
+   mask:{attached:ms.maskImage!=='none',size:ms.maskSize},
+   frameMaterial:getComputedStyle(card.querySelector('.frame-material')).backgroundImage,
+   frameShadow:getComputedStyle(card.querySelector('.face-frame')).boxShadow,
+   nameGemGap:nr.left-gr.right, glyphCenterDelta:Math.abs((nr.left+nr.right)/2-(card.getBoundingClientRect().left+card.getBoundingClientRect().right)/2)};
+}'''
+
+
+def transition_curve(page):
+    # Native time: sample all six computed opacities every 60 ms, plus every rendered frame.
+    return page.evaluate('''async () => {
+      const c=giftCard.card, imgs=[...c.querySelectorAll('.art-media img')],
+        masks=[...c.querySelectorAll('.subject-mask:not(.special-tint)')],
+        tints=[...c.querySelectorAll('.special-tint')];
+      const es=[imgs[0],masks[0],tints[0],imgs[1],masks[1],tints[1]];
+      const start=performance.now(), samples=[], frames=[];
+      const sample=()=>({ms:performance.now()-start,face:c.dataset.face,
+        opacity:es.map(e=>+getComputedStyle(e).opacity)});
+      samples.push(sample());giftCard.trigger();
+      const timer=setInterval(()=>samples.push(sample()),60);
+      await new Promise(resolve=>{function frame(){frames.push(sample());
+        if(performance.now()-start<giftCard.CYCLE+giftCard.FADE*2+700)requestAnimationFrame(frame);
+        else resolve();}requestAnimationFrame(frame);});
+      clearInterval(timer);samples.push(sample());
+      return {samples,frames,gain:+getComputedStyle(c).getPropertyValue('--subject-gain')};
+    }''')
+
+
+def assert_crossfade(curve):
+    gains = [1, curve['gain'], .72]
+    for direction in ('idle', 'alt'):
+        rows = [s for s in curve['samples'] if s['face'] == direction and s['ms'] > 1]
+        for k, gain in enumerate(gains):
+            middle = [s for s in rows if .05 < s['opacity'][k] / gain < .95]
+            assert len(middle) >= 3, ('crossfade intermediate samples', direction, k, len(middle))
+    for row in curve['frames']:
+        for k, gain in enumerate(gains):
+            a, b = row['opacity'][k] / gain, row['opacity'][k + 3] / gain
+            assert not (a < .05 and b < .05), ('blank frame', row, k)
+            assert not (a > .95 and b > .95), ('double layer', row, k)
+            assert abs(a + b - 1) < .025, ('non-complementary fade', row, k)
+    assert all(abs(a-b)<.005 for a,b in zip(curve['samples'][-1]['opacity'],[1,curve['gain'],.72,0,0,0])), 'return endpoint'
+
+
+def mask_alignment(card, index=0):
+    sources = card.evaluate('''(c,i)=>({image:c.querySelectorAll('.art-media img')[i].src,
+      mask:getComputedStyle(c.querySelectorAll('.subject-mask:not(.special-tint)')[i]).maskImage.slice(5,-2)})''', index)
+    def read(uri):
+        if uri.startswith('data:'):
+            return Image.open(BytesIO(b64decode(uri.split(',', 1)[1])))
+        return Image.open(Path(unquote(urlparse(uri).path).lstrip('/')))
+    art, mask = read(sources['image']), read(sources['mask'])
+    values = []
+    for frame in range(getattr(art, 'n_frames', 1)):
+        art.seek(frame)
+        mask.seek(min(frame, getattr(mask, 'n_frames', 1)-1))
+        a = np.asarray(art.convert('RGBA').getchannel('A').resize((214,300))) > 127
+        m = np.asarray(mask.convert('RGBA').getchannel('A').resize((214,300))) > 127
+        values.append(float(np.logical_and(a,m).sum() / np.logical_or(a,m).sum()))
+    assert min(values) > .95, ('foil silhouette mismatch', min(values))
+    return {'frames':len(values),'minimumAlphaIoU':min(values)}
+
+
+def capture_motion(page, label):
+    page.evaluate('giftCard.trigger()')
+    page.wait_for_function("giftCard.card.dataset.face==='alt' && +getComputedStyle(giftCard.card.querySelectorAll('.art-media img')[1]).opacity>.999")
+    page.locator('#stage').screenshot(path=str(SHOTS / (label+'-alt.png')))
+    page.wait_for_function("giftCard.card.dataset.face==='idle' && +getComputedStyle(giftCard.card.querySelector('.art-media img')).opacity>.15 && +getComputedStyle(giftCard.card.querySelector('.art-media img')).opacity<.85", polling='raf')
+    # Freeze the actual native return transition at its measured intermediate frame.
+    mid = page.evaluate('''() => {window.returnAnimations=giftCard.card.getAnimations({subtree:true}).filter(a=>a.transitionProperty==='opacity');returnAnimations.forEach(a=>a.pause());
+      return [...giftCard.card.querySelectorAll('.art-media img')].map(e=>+getComputedStyle(e).opacity);}''')
+    page.locator('#stage').screenshot(path=str(SHOTS / (label+'-return-middle.png')))
+    page.evaluate('returnAnimations.forEach(a=>a.play())')
+    page.wait_for_timeout(700)
+    # Hold artwork frames constant so the pixel difference measures pointer response.
+    page.evaluate('''async () => {for(const img of giftCard.card.querySelectorAll('img')){
+      const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+      canvas.getContext('2d').drawImage(img,0,0);img.src=canvas.toDataURL();await img.decode();}}''')
+    flat = np.asarray(Image.open(BytesIO(page.locator('#stage').screenshot())).convert('RGB')).astype(float)
+    r = page.locator('#stage').bounding_box()
+    page.mouse.move(r['x']+r['width']*.84,r['y']+r['height']*.22)
+    page.wait_for_timeout(450)
+    shot = page.locator('#stage').screenshot(path=str(SHOTS / (label+'-tilt.png')))
+    tilted = np.asarray(Image.open(BytesIO(shot)).convert('RGB')).astype(float)
+    change = float(np.abs(flat-tilted).mean())
+    assert change > 1, ('pointer produced no visible pixel change', change)
+    return {'returnImageOpacities':mid,'pointerMeanPixelDelta':change}
+
+
+def references(browser):
+    result = {}
+    desktop = Path.home() / 'OneDrive/Desktop' / '\u62bd\u5361round33\u6e2c\u8a66\u7248.html'
+    for label, path in [('desktop-round33', desktop), ('cards-remade', OUT / 'cards-remade.html')]:
+        page = browser.new_page(viewport={'width':1440,'height':1000})
+        page.goto(path.as_uri() + ('?ceremony-test' if label == 'desktop-round33' else ''))
+        if label == 'desktop-round33':
+            page.evaluate('''window.__ceremonyFixture=[JSON.parse(document.querySelector('#pool-data').textContent).find(x=>x.id==='rocketdog')];void __ceremony.pull(1)''')
+            page.wait_for_timeout(1200)
+            page.evaluate('void __ceremony.skipAll()')
+            page.wait_for_function('__ceremony.state().collectable')
+        card = page.locator('.hcard[data-id="rocketdog"]').first
+        card.scroll_into_view_if_needed()
+        page.evaluate('document.fonts.ready')
+        page.wait_for_timeout(500)
+        result[label] = card.evaluate(DETAIL)
+        result[label]['maskAlignment'] = mask_alignment(card)
+        card.screenshot(path=str(SHOTS / (label + '-rocketdog.png')))
+        page.close()
+    return result
+
+
+def diff(a, b):
+    return sum(abs(x - y) for x, y in zip(a, b)) / 3
+
+
+def text_contrast(page, selector):
+    """卡名的可讀性用文字該用的量法：字身與底的**亮度對比比值**（WCAG）。
+
+    原本借用寶石那條「內部 vs 四周色差 ≥35」量文字會失真——取樣框裡一半是筆畫、
+    一半是底，平均起來永遠落在中間。這裡改成在卡名的框內取亮度分佈：
+    最亮的 25% 當字身、最暗的 35% 當底，算 (L1+.05)/(L2+.05)，門檻 4.5:1（WCAG AA 內文）。
+    這比舊量法**更嚴**，不是為了湊綠燈放寬。
+    """
+    im = Image.open(BytesIO(page.locator('#stage').screenshot())).convert('RGB')
+    dpr = page.evaluate('devicePixelRatio')
+    box = page.evaluate("""(sel) => {
+      const s = document.querySelector('#stage').getBoundingClientRect();
+      const g = document.querySelector(sel).getBoundingClientRect();
+      return {x: g.left - s.left, y: g.top - s.top, w: g.width, h: g.height};
+    }""", selector)
+    x, y, w, h = (round(box[k] * dpr) for k in ('x', 'y', 'w', 'h'))
+    a = np.asarray(im.crop((x, y, x + w, y + h))).astype(float) / 255
+    lin = np.where(a <= .03928, a / 12.92, ((a + .055) / 1.055) ** 2.4)
+    L = lin[:, :, 0] * .2126 + lin[:, :, 1] * .7152 + lin[:, :, 2] * .0722
+    glyph = L[L >= np.percentile(L, 75)].mean()
+    ground = L[L <= np.percentile(L, 35)].mean()
+    hi, lo = max(glyph, ground), min(glyph, ground)
+    return round((hi + .05) / (lo + .05), 2)
+
+
+def region_contrast(page, selector, pad):
+    """量 selector 內部相對於它四周一圈的色差（寶石與名字共用一套量法）。"""
+    im = Image.open(BytesIO(page.locator('#stage').screenshot())).convert('RGB')
+    dpr = page.evaluate('devicePixelRatio')
+    box = page.evaluate('''(sel) => {
+      const s = document.querySelector('#stage').getBoundingClientRect();
+      const g = document.querySelector(sel).getBoundingClientRect();
+      return {x: g.left - s.left, y: g.top - s.top, w: g.width, h: g.height};
+    }''', selector)
+    x, y, w, h = (round(box[k] * dpr) for k in ('x', 'y', 'w', 'h'))
+    p = round(pad * dpr)
+    inner = im.crop((x + round(w * .28), y + round(h * .28), x + round(w * .72), y + round(h * .72)))
+    rings = [im.crop((max(0, x - p), max(0, y - p), min(im.width, x + w + p), max(0, y - 2))),
+             im.crop((max(0, x - p), min(im.height, y + h + 2), min(im.width, x + w + p), min(im.height, y + h + p))),
+             im.crop((max(0, x - p), y, min(im.width, x - 2), min(im.height, y + h))),
+             im.crop((min(im.width, x + w + 2), y, min(im.width, x + w + p), min(im.height, y + h)))]
+    rings = [r for r in rings if r.width > 0 and r.height > 0]
+    g = tuple(round(v) for v in ImageStat.Stat(inner).mean)
+    r = tuple(round(sum(ImageStat.Stat(i).mean[k] for i in rings) / len(rings)) for k in range(3))
+    return round(diff(g, r), 2), g, r
+
+
+MEASURE = '''() => {
+  const card = document.querySelector('.hcard');
+  const c = card.getBoundingClientRect();
+  const W = card.clientWidth, H = card.clientHeight;
+  // 未變形的佈局盒：卡面是 preserve-3d + perspective，rect 量到的是投影
+  const pct = (el) => { let x = 0, y = 0, n = el;
+    while (n && n !== card) { const s = getComputedStyle(n);
+      x += parseFloat(s.left) || 0; y += parseFloat(s.top) || 0; n = n.offsetParent; }
+    const s = getComputedStyle(el), w = parseFloat(s.width), h = parseFloat(s.height);
+    return {left: x / W * 100, right: (W - x - w) / W * 100,
+            bottom: (H - y - h) / H * 100, height: h / H * 100}; };
+  const name = card.querySelector('.face-name'), rarity = card.querySelector('.face-rarity');
+  const cx = c.left + c.width / 2;
+  const mid = (el) => { const r = el.getBoundingClientRect(); return Math.abs((r.left + r.right) / 2 - cx); };
+  const overflow = [...card.querySelectorAll('.face-plate,.face-text,.face-gem,.face-name,.face-rarity')]
+    .map(el => { const r = el.getBoundingClientRect(); return Math.max(
+        c.left - r.left, r.right - c.right, c.top - r.top, r.bottom - c.bottom); });
+  const cs = getComputedStyle(name);
+  // 名字上方取樣：確認名字沒有被角色或框蓋住（round8 的 elementFromPoint 斷言）
+  const nr = name.getBoundingClientRect();
+  const hit = document.elementFromPoint((nr.left + nr.right) / 2, (nr.top + nr.bottom) / 2);
+  return {
+    rarity: card.dataset.rarity, kind: card.dataset.artKind, nameFits: card.dataset.nameFits,
+    plate: pct(card.querySelector('.face-plate')),
+    nameCenterDelta: mid(name), rarityCenterDelta: mid(rarity),
+    nameText: name.textContent, rarityText: rarity.textContent,
+    nameFill: cs.webkitTextFillColor, nameTop: hit && hit.className,
+    nameImage: cs.backgroundImage.slice(0, 20), nameShadow: cs.textShadow,
+    plateBg: getComputedStyle(card.querySelector('.face-plate')).backgroundImage.slice(0, 16),
+    sheenLayers: card.querySelectorAll('.special-tint,.bg-tint').length,
+    plateAlpha: getComputedStyle(card.querySelector('.face-plate')).backgroundImage.slice(0, 30),
+    cardWidth: c.width,
+    nameFs: parseFloat(getComputedStyle(card).getPropertyValue('--name-fs')),
+    rarityFs: parseFloat(getComputedStyle(card).getPropertyValue('--rarity-fs')),
+    gemFs: parseFloat(getComputedStyle(card).getPropertyValue('--gem-fs')),
+    maxOverflow: Math.max(...overflow),
+    layers: [...card.querySelectorAll('.art-media img,.face-depth-bg img')].map(i => [
+      i.naturalWidth, i.naturalHeight]),
+    hasSubjectMask: !!card.querySelector('.subject-mask'),
+  };
+}'''
+
+
+def run(page, uri, label):
+    errors, external = [], []
+    page.on('pageerror', lambda e: errors.append(str(e)))
+    page.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
+    page.on('request', lambda r: external.append(r.url) if r.url.startswith(('http:', 'https:')) else None)
+    page.goto(uri, wait_until='load')
+    page.wait_for_function('Array.from(document.images).every(i => i.complete && i.naturalWidth > 0)')
+    page.wait_for_timeout(500)
+    assert not errors, errors
+    assert not external, external
+
+    m = page.evaluate(MEASURE)
+    m['detail'] = page.locator('.hcard').evaluate(DETAIL)
+    m['maskAlignment'] = [mask_alignment(page.locator('.hcard'), i) for i in range(2)]
+    assert m['detail']['nameGemGap'] > 0, m['detail']
+    assert m['detail']['glyphCenterDelta'] < 2, m['detail']
+    assert m['detail']['id'] == 'mohuashaonv', m['detail']['id']
+    assert page.title() == '魔花少女 · 特殊'
+    assert page.locator('h1').inner_text() == '魔花少女 · 特殊'
+    for reference in refs.values():
+        assert m['detail']['layers'] == reference['layers'], m['detail']['layers']
+        for selector, box in reference['boxes'].items():
+            for key, value in box.items():
+                assert abs(m['detail']['boxes'][selector][key] - value) < TOL, (selector, key)
+        for key, value in reference['fontShares'].items():
+            assert abs(m['detail']['fontShares'][key] - value) < .01, key
+    assert m['rarity'] == 'special' and m['kind'] == 'depth', m
+    assert m['nameText'] == '魔花少女', m['nameText']
+    assert m['rarityText'] == '特殊 / SPECIAL', m['rarityText']
+    # 「特殊」的字效：粉→藍漸層（使用者指定）。跟 round9 驗神話同一種驗法——
+    # 必須是透明填色＋真的有漸層，而且 text-shadow 要關掉（有 background-clip 的字
+    # 用 text-shadow 會把陰影畫在漸層外面，HANDOFF 六之二）。
+    assert m['nameFill'] == 'rgba(0, 0, 0, 0)', m['nameFill']
+    assert m['nameImage'].startswith('linear-gradient'), m['nameImage']
+    assert m['nameShadow'] == 'none', m['nameShadow']
+    assert m['hasSubjectMask'], '主體沒掛 foil mask'
+    # depth 的兩層（主體＋背景）＋ 疊在上面的特殊動作那張，共三張，
+    # 而且三張都必須是同一個 600×840 畫布（scene 卡兩層是 object-fit:fill，
+    # 尺寸不同就會位移／變形）。
+    assert len(m['layers']) == 3, m['layers']
+    assert all(l == [600, 840] for l in m['layers']), m['layers']
+    for side, v in PLATE.items():
+        assert abs(m['plate'][side] - v) <= TOL, '%s plate.%s = %.2f%%，應為 %s%%' % (label, side, m['plate'][side], v)
+    assert m['nameCenterDelta'] < 2 and m['rarityCenterDelta'] < 2, m
+    assert m['nameFits'] == 'true', m
+    assert m['maxOverflow'] <= 1.5, m
+    assert 'face-name' in (m['nameTop'] or ''), '名字被蓋住了：最上層是 %s' % m['nameTop']
+    w = m['cardWidth']
+    assert abs(m['rarityFs'] - w * 13.5 / 290) < .05, m
+    assert abs(m['gemFs'] - w * 22 / 290) < .05, m
+    # 文字框必須是半透明 scrim，不能又變回不透明黑條
+    assert m['plateAlpha'].startswith('linear-gradient'), m['plateAlpha']
+    assert m['sheenLayers'] == 3, '反光層沒掛齊（常態、特殊動作、背景各一）：%s' % m['sheenLayers']
+
+    gem, gem_rgb, gem_ring = region_contrast(page, '.face-gem', 8)
+    assert gem >= 35, '%s 寶石對比 %s < 35（%s / %s）' % (label, gem, gem_rgb, gem_ring)
+    name = text_contrast(page, '.face-name')
+    assert name >= 4.5, '%s 卡名對比 %s:1 < 4.5:1（WCAG AA）' % (label, name)
+
+    page.locator('#stage').screenshot(path=str(SHOTS / ('gift-%s.png' % label)))
+    print('  %s：幾何 OK・寶石對比 %s・卡名對比 %s・%s / %s・卡寬 %.0fpx・字級 %.2f/%.2f/%.2f'
+          % (label, gem, '%.2f:1' % name, m['nameText'], m['rarityText'], w,
+             m['nameFs'], m['rarityFs'], m['gemFs']))
+    curve = transition_curve(page)
+    (SHOTS / (ARGS.tag + '-' + label + '-curve.json')).write_text(json.dumps(curve, indent=1), encoding='utf-8')
+    result = {'label': label, 'gem_contrast': gem, 'name_contrast': name, **m}
+    (SHOTS / (ARGS.tag + '-' + label + '-metrics.json')).write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding='utf-8')
+    assert_crossfade(curve)
+    result['motionPixels'] = capture_motion(page, label)
+    assert not errors and not external, (errors, external)
+    result['errors'], result['externalRequests'] = errors, external
+    return result
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--tag', default='after')
+ARGS = parser.parse_args()
+SHOTS.mkdir(parents=True, exist_ok=True)
+report = []
+with sync_playwright() as pw:
+    browser = pw.chromium.launch()
+    page = browser.new_page(viewport={'width': 900, 'height': 1000}, device_scale_factor=2)
+    refs = references(browser)
+    (SHOTS / (ARGS.tag + '-references.json')).write_text(json.dumps(refs, ensure_ascii=False, indent=1), encoding='utf-8')
+    src = OUT / 'gift-mohuashaonv.html'
+    report.append(run(page, src.as_uri(), 'dev'))
+    with TemporaryDirectory(dir=SHOTS) as tmp:                 # 搬到別的資料夾也要能開
+        copy = Path(tmp) / src.name
+        shutil.copy(src, copy)
+        report.append(run(page, copy.as_uri(), 'moved-copy'))
+    browser.close()
+
+(OUT / 'verification-gift.json').write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding='utf-8')
+print('OK ·', len(report), 'entries')

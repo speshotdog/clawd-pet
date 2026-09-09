@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_gacha_followup.py"
+  ],
+  "script": [
+    "check_gacha_followup.py"
+  ],
+  "exit": 0,
+  "seconds": 32.95,
+  "log": "1788963446408227400-check_gacha_followup.log"
+}

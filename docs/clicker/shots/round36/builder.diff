@@ -1,0 +1,84 @@
+--- before/build_gift_card.py
++++ after/build_gift_card.py
+@@ -200,7 +200,9 @@
+ .r-special .frame-material{opacity:calc(var(--foil) * .92);
+  background-image:conic-gradient(from var(--phase),
+    #ffd7e8,#ff9dc8,#e6b4ee,#a9c8ff,#8fdcff,#ffd7e8)}
+-.r-special .face-frame{box-shadow:
++.r-special .face-frame{
++ /* 只提亮框的合成結果；保留暗槽與亮邊的層次，不動角色／箔面 gain。 */
++ filter:brightness(1.6);box-shadow:
+  inset 0 0 0 3px #ffc2dd,inset 0 0 0 6px #3a1c2b,inset 0 0 0 7px #ffa8d2,
+  inset 0 0 0 10px #2b1420,inset 0 0 0 11px #ffc2dd66}
+ .r-special .face-name{
+@@ -211,7 +213,7 @@
+  /* 粉→藍，整條都走亮色：字要打在半透明的莓紫 scrim 上，中明度的粉紅對比只有 12
+     （門檻 35），把整條漸層拉亮之後才讀得到。 */
+  background-image:linear-gradient(var(--phase),
+-   #ffb3dd 0%,#ffd2ec 20%,#efd0ff 42%,#bfe0ff 66%,#d8f6ff 86%,#ffb3dd 100%);
++   #ffd4ec 0%,#ffe4f4 20%,#f4e3ff 42%,#dceeff 66%,#e8fbff 86%,#ffd4ec 100%);
+  background-size:180% 180%;background-position:50% 50%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+@@ -221,7 +223,14 @@
+  filter:drop-shadow(0 0 1px #21102c) drop-shadow(0 0 1px #21102c)
+         drop-shadow(0 1.5px 0 #21102c) drop-shadow(0 0 8px #ff8fd0aa)
+         drop-shadow(0 0 18px #86d9ff66)}
+-.r-special .face-rarity{color:#ffd0e6;text-shadow:0 1px 2px #3a1428;
++.r-special .face-rarity{
++ /* 小字沿用卡名的粉藍色系與 phase，描邊貼字形，不用 text-shadow。 */
++ background-image:linear-gradient(var(--phase),
++   #ffd4ec 0%,#ffe4f4 20%,#f4e3ff 42%,#dceeff 66%,#e8fbff 86%,#ffd4ec 100%);
++ background-size:180% 180%;background-position:50% 50%;
++ -webkit-background-clip:text;background-clip:text;
++ -webkit-text-fill-color:transparent;color:transparent;text-shadow:none!important;
++ filter:drop-shadow(0 1px 0 #21102c);
+  /* 共用 CSS 把稀有度那行寫死成 `font:9px monospace`。monospace 沒有中文字，
+     所以「特殊」走系統中文字、「SPECIAL」走 monospace，同一行兩種字型。
+     這張卡改成跟卡名同一套字，字級仍照 290px 基準的 --rarity-fs。 */
+@@ -269,6 +278,26 @@
+ .r-special .face-gem{border-color:#ffe3f1 !important;
+  background:radial-gradient(circle at 35% 35%,#fff,#ff9ecb 55%) !important;
+  box-shadow:0 0 12px #ff8ac4a8 !important}
++
++/* 花粉附在既有圖窗，隨角色平面（36.4px）走；不另推高 Z。
++   下緣在文字框之前裁掉，圓角與父層裁切共同保護卡緣。
++   固定同一時刻比較：screen 有 881 個 >6 灰階像素，normal 為 809；
++   白色實心＋粉藍柔邊已能在淡底看見，因此保留 screen（round36 證據）。 */
++.r-special .gift-particles{position:absolute;inset:0 0 20%;z-index:5;
++ transform:translateZ(0);border-radius:12px;overflow:hidden;pointer-events:none;
++ mix-blend-mode:screen}
++.gift-particles>i{position:absolute;display:block;left:var(--x);top:var(--y);
++ width:var(--size);aspect-ratio:1;border-radius:50%;
++ background:radial-gradient(circle,#fff 0 25%,var(--pollen) 40%,transparent 72%);
++ animation:gift-pollen var(--duration) linear var(--delay) infinite;opacity:0}
++@keyframes gift-pollen{
++ 0%{transform:translate(-3px,28px);opacity:0}
++ 20%{transform:translate(1px,14px);opacity:.85}
++ 55%{transform:translate(5px,-10px);opacity:.85}
++ 80%{transform:translate(0,-28px);opacity:.7}
++ 100%{transform:translate(-3px,-42px);opacity:0}}
++@media(prefers-reduced-motion:reduce){
++ .gift-particles>i{animation:none;transform:none;opacity:.65}}
+ </style>
+ 
+ <h1>魔花少女 · 特殊</h1>
+@@ -333,6 +362,18 @@
+ const altTint = sheen(media, 'subject-mask special-tint', `url("${A['alt-mask']}")`);
+ altTint.style.opacity = '0';
+ 
++// 固定分布與負延遲：開頁即散開，只有 CSS transform／opacity 在動。
++const pollen = document.createElement('div');
++pollen.className = 'gift-particles';pollen.setAttribute('aria-hidden','true');
++for(let i=0;i<20;i++){
++  const dot=document.createElement('i');
++  dot.style.cssText=`--x:${5+(i*37)%90}%;--y:${12+(i*23)%76}%;`+
++    `--size:${3.2+(i%5)*.7}px;--duration:${8+i%11}s;--delay:${-(i*1.73)%18}s;`+
++    `--pollen:${['#ffd4ec','#cfeeff','#ffffff'][i%3]}`;
++  pollen.append(dot);
++}
++media.append(pollen);
++
+ const FADE = 320;                  // 疊化時間
+ const CYCLE = 2970;                // 一輪動作 = 90 格 × 33ms
+ const gain = () => getComputedStyle(card).getPropertyValue('--subject-gain').trim() || '.4';

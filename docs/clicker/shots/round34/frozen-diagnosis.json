@@ -1,0 +1,38 @@
+[
+  {
+    "file": "src/clicker.html",
+    "expected": "0ac2a2f4fb8ee47e3259c9079e96a2eb1598679bdbc314f48701cea813caf0b3",
+    "working": "5e2df2e2a5b842c3dc99656c0b9e0b0d85c3727d17fa84d824908c654962aec6",
+    "head": "5e2df2e2a5b842c3dc99656c0b9e0b0d85c3727d17fa84d824908c654962aec6",
+    "normalized": "5e2df2e2a5b842c3dc99656c0b9e0b0d85c3727d17fa84d824908c654962aec6",
+    "workingMatchesHead": true,
+    "normalizedMatchesHead": true
+  },
+  {
+    "file": "src/gacha-mode-deluxe.js",
+    "expected": "0a2dbc077ff9b45a2b5454e69e3d670f37346a4c9d9774b41fad007029d547a9",
+    "working": "bd1bce735de1436e3b7adff539f285984be6deabb3dc1176987bd33479b9bec1",
+    "head": "bd1bce735de1436e3b7adff539f285984be6deabb3dc1176987bd33479b9bec1",
+    "normalized": "bd1bce735de1436e3b7adff539f285984be6deabb3dc1176987bd33479b9bec1",
+    "workingMatchesHead": true,
+    "normalizedMatchesHead": true
+  },
+  {
+    "file": "src/gacha.html",
+    "expected": "335718603723b6b32ab6dfbabad826032c780e3af261b6ceed0022dc1f557ba0",
+    "working": "e709dd54b123e951e9b943ac06832accf5a253549f33ccde741e56006d9c03cc",
+    "head": "a1783f1389906e698572718173c01f939ffd6554f193d2f7ee15d4eff01ee143",
+    "normalized": "a1783f1389906e698572718173c01f939ffd6554f193d2f7ee15d4eff01ee143",
+    "workingMatchesHead": false,
+    "normalizedMatchesHead": true
+  },
+  {
+    "file": "_art/holo-test/pool_data.py",
+    "expected": "b05e2ef6041f53254b949d574bd7695fe72e84cb80158e354df8b48a8f66f92e",
+    "working": "7df5c2cdcf49d38c949b367837a86d037b98fa90a8b66a10a089121f9238e042",
+    "head": "7a18f45a13ae223bd7ee3a0813f676057a1e17aed0d5651002043154c64871ee",
+    "normalized": "7a18f45a13ae223bd7ee3a0813f676057a1e17aed0d5651002043154c64871ee",
+    "workingMatchesHead": false,
+    "normalizedMatchesHead": true
+  }
+]

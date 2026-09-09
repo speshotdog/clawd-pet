@@ -1,0 +1,32 @@
+[
+ {
+  "file": "layer-mohuashaonv-alt-mask.webp",
+  "before": "6b251baad96990319e16c8d6b761844bcddf64b18ac7f6fc8a4e49c86576a34d",
+  "after": "6b251baad96990319e16c8d6b761844bcddf64b18ac7f6fc8a4e49c86576a34d",
+  "identical": true
+ },
+ {
+  "file": "layer-mohuashaonv-alt.webp",
+  "before": "2106cf2d734136a9eed41fb3f1dd4f06473c0d16140b998338317cb2f1159b1a",
+  "after": "2106cf2d734136a9eed41fb3f1dd4f06473c0d16140b998338317cb2f1159b1a",
+  "identical": true
+ },
+ {
+  "file": "layer-mohuashaonv-background.png",
+  "before": "b6bd653eb24cf0dc447e4576e2a57e0ca7ae3bb1eac0e56b58e6d29c5771b7fd",
+  "after": "b6bd653eb24cf0dc447e4576e2a57e0ca7ae3bb1eac0e56b58e6d29c5771b7fd",
+  "identical": true
+ },
+ {
+  "file": "layer-mohuashaonv-idle-mask.webp",
+  "before": "b0162e4124043fb66044c30a3db2b595b19ff0878874036cf19e69ba984361c2",
+  "after": "b0162e4124043fb66044c30a3db2b595b19ff0878874036cf19e69ba984361c2",
+  "identical": true
+ },
+ {
+  "file": "layer-mohuashaonv-idle.webp",
+  "before": "22a0e43406cc7333894744adab28feb844ae3a96e16a6e4891c1a6b959691366",
+  "after": "22a0e43406cc7333894744adab28feb844ae3a96e16a6e4891c1a6b959691366",
+  "identical": true
+ }
+]

@@ -1,0 +1,452 @@
+[
+  {
+    "entry": "cards-remade",
+    "id": "zhenqiqiu",
+    "kind": "depth",
+    "mask": true,
+    "images": [
+      {
+        "data": true,
+        "w": 420,
+        "h": 588
+      },
+      {
+        "data": true,
+        "w": 420,
+        "h": 588
+      }
+    ],
+    "backgroundOpaque": 0,
+    "corners": [
+      {
+        "x": -1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "-1.5px",
+          "--bx": "0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": -1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "1.5px",
+          "--bx": "0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "-1.5px",
+          "--bx": "-0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "1.5px",
+          "--bx": "-0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      }
+    ],
+    "errors": [],
+    "external": []
+  },
+  {
+    "entry": "cards-remade",
+    "id": "zhenjunyue",
+    "kind": "depth",
+    "mask": true,
+    "images": [
+      {
+        "data": true,
+        "w": 420,
+        "h": 588
+      },
+      {
+        "data": true,
+        "w": 420,
+        "h": 588
+      }
+    ],
+    "backgroundOpaque": 0,
+    "corners": [
+      {
+        "x": -1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "-1.5px",
+          "--bx": "0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": -1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "1.5px",
+          "--bx": "0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "-1.5px",
+          "--bx": "-0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "1.5px",
+          "--bx": "-0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      }
+    ],
+    "errors": [],
+    "external": []
+  },
+  {
+    "entry": "cards-remade",
+    "id": "shabaolingzhu",
+    "kind": "depth",
+    "mask": true,
+    "images": [
+      {
+        "data": true,
+        "w": 420,
+        "h": 588
+      },
+      {
+        "data": true,
+        "w": 420,
+        "h": 588
+      }
+    ],
+    "backgroundOpaque": 0,
+    "corners": [
+      {
+        "x": -1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "-1.5px",
+          "--bx": "0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": -1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "1.5px",
+          "--bx": "0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "-1.5px",
+          "--bx": "-0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "1.5px",
+          "--bx": "-0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      }
+    ],
+    "errors": [],
+    "external": []
+  },
+  {
+    "entry": "deluxe-gacha-b",
+    "id": "zhenqiqiu",
+    "kind": "depth",
+    "mask": true,
+    "images": [
+      {
+        "data": true,
+        "w": 360,
+        "h": 504
+      },
+      {
+        "data": true,
+        "w": 360,
+        "h": 504
+      }
+    ],
+    "backgroundOpaque": 0,
+    "corners": [
+      {
+        "x": -1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "-1.5px",
+          "--bx": "0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": -1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "1.5px",
+          "--bx": "0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "-1.5px",
+          "--bx": "-0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "1.5px",
+          "--bx": "-0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      }
+    ],
+    "errors": [],
+    "external": []
+  },
+  {
+    "entry": "deluxe-gacha-b",
+    "id": "zhenjunyue",
+    "kind": "depth",
+    "mask": true,
+    "images": [
+      {
+        "data": true,
+        "w": 360,
+        "h": 504
+      },
+      {
+        "data": true,
+        "w": 360,
+        "h": 504
+      }
+    ],
+    "backgroundOpaque": 0,
+    "corners": [
+      {
+        "x": -1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "-1.5px",
+          "--bx": "0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": -1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "1.5px",
+          "--bx": "0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "-1.5px",
+          "--bx": "-0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "1.5px",
+          "--bx": "-0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      }
+    ],
+    "errors": [],
+    "external": []
+  },
+  {
+    "entry": "deluxe-gacha-b",
+    "id": "shabaolingzhu",
+    "kind": "depth",
+    "mask": true,
+    "images": [
+      {
+        "data": true,
+        "w": 360,
+        "h": 504
+      },
+      {
+        "data": true,
+        "w": 360,
+        "h": 504
+      }
+    ],
+    "backgroundOpaque": 0,
+    "corners": [
+      {
+        "x": -1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "-1.5px",
+          "--bx": "0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": -1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "-14deg",
+          "--ax": "-1.5px",
+          "--ay": "1.5px",
+          "--bx": "0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": -1,
+        "style": {
+          "--rx": "14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "-1.5px",
+          "--bx": "-0.5px",
+          "--by": "0.5px"
+        },
+        "unfilled_background_pixels": 0
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "style": {
+          "--rx": "-14deg",
+          "--ry": "14deg",
+          "--ax": "1.5px",
+          "--ay": "1.5px",
+          "--bx": "-0.5px",
+          "--by": "-0.5px"
+        },
+        "unfilled_background_pixels": 0
+      }
+    ],
+    "errors": [],
+    "external": []
+  }
+]

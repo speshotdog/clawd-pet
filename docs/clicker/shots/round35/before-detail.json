@@ -1,0 +1,84 @@
+{
+ "id": "manhuahua",
+ "width": 380,
+ "height": 532,
+ "boxes": {
+  ".art-media": {
+   "left": 2.3972052631578946,
+   "right": 2.3972052631578946,
+   "top": 1.6976033834586468,
+   "bottom": 3.2982894736842105,
+   "width": 95.20552631578948,
+   "height": 95.00413533834588
+  },
+  ".face-plate": {
+   "left": 4.399684210526316,
+   "right": 4.399684210526316,
+   "top": 80.40413533834587,
+   "bottom": 3.3981390977443606,
+   "width": 91.20052631578947,
+   "height": 16.197725563909774
+  },
+  ".face-text": {
+   "left": 4.399684210526316,
+   "right": 4.399684210526316,
+   "top": 80.40413533834587,
+   "bottom": 3.3981390977443606,
+   "width": 91.20052631578947,
+   "height": 16.197725563909774
+  },
+  ".face-gem": {
+   "left": 9.699842105263158,
+   "right": 82.71368421052631,
+   "top": 85.29135338345864,
+   "bottom": 9.289830827067668,
+   "width": 7.586342105263158,
+   "height": 5.418815789473684
+  }
+ },
+ "layers": {
+  ".face-depth-bg": {
+   "z": 2,
+   "zIndex": "10"
+  },
+  ".face-art": {
+   "z": 36.4,
+   "zIndex": "30"
+  },
+  ".face-frame": {
+   "z": 24,
+   "zIndex": "10"
+  },
+  ".face-plate": {
+   "z": 13,
+   "zIndex": "20"
+  },
+  ".face-text": {
+   "z": 40,
+   "zIndex": "200"
+  },
+  ".face-gem": {
+   "z": 42,
+   "zIndex": "210"
+  }
+ },
+ "fontShares": {
+  "--name-fs": 8.276315789473685,
+  "--rarity-fs": 4.655263157894737,
+  "--gem-fs": 7.586842105263157
+ },
+ "foil": {
+  "--foil-gain": "1.0",
+  "--grain-gain": "1.3",
+  "--subject-gain": ".4",
+  "--palette": "repeating-linear-gradient(124deg,#ffd4e6 0%,#ff9ecb 12%,#eab6f0 24%,\n   #b9cdff 38%,#9ce6ff 50%,#ffc9e4 64%,#ffd4e6 76%)"
+ },
+ "mask": {
+  "attached": true,
+  "size": "100% 100%"
+ },
+ "frameMaterial": "conic-gradient(from 120deg, rgb(255, 215, 232), rgb(255, 157, 200), rgb(230, 180, 238), rgb(169, 200, 255), rgb(143, 220, 255), rgb(255, 215, 232))",
+ "frameShadow": "rgb(255, 194, 221) 0px 0px 0px 3px inset, rgb(58, 28, 43) 0px 0px 0px 6px inset, rgb(255, 168, 210) 0px 0px 0px 7px inset, rgb(43, 20, 32) 0px 0px 0px 10px inset, rgba(255, 194, 221, 0.4) 0px 0px 0px 11px inset",
+ "nameGemGap": 71.68228149414062,
+ "glyphCenterDelta": 0.0081329345703125
+}

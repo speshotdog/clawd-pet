@@ -1,0 +1,122 @@
+[
+  {
+    "entry": "demo.html",
+    "width": 102,
+    "values": {
+      "--cw": 102,
+      "--name-fs": 8.44,
+      "--rarity-fs": 4.75,
+      "--gem-fs": 7.74
+    }
+  },
+  {
+    "entry": "demo.html",
+    "width": 80,
+    "values": {
+      "--cw": 80,
+      "--name-fs": 6.62,
+      "--rarity-fs": 3.72,
+      "--gem-fs": 6.07
+    }
+  },
+  {
+    "entry": "demo.html",
+    "width": 290,
+    "values": {
+      "--cw": 290,
+      "--name-fs": 24,
+      "--rarity-fs": 13.5,
+      "--gem-fs": 22
+    }
+  },
+  {
+    "entry": "demo.html",
+    "width": 102,
+    "values": {
+      "--cw": 102,
+      "--name-fs": 8.44,
+      "--rarity-fs": 4.75,
+      "--gem-fs": 7.74
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "width": 102,
+    "values": {
+      "--cw": 102,
+      "--name-fs": 8.44,
+      "--rarity-fs": 4.75,
+      "--gem-fs": 7.74
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "width": 80,
+    "values": {
+      "--cw": 80,
+      "--name-fs": 6.62,
+      "--rarity-fs": 3.72,
+      "--gem-fs": 6.07
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "width": 290,
+    "values": {
+      "--cw": 290,
+      "--name-fs": 24,
+      "--rarity-fs": 13.5,
+      "--gem-fs": 22
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "width": 102,
+    "values": {
+      "--cw": 102,
+      "--name-fs": 8.44,
+      "--rarity-fs": 4.75,
+      "--gem-fs": 7.74
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "width": 102,
+    "values": {
+      "--cw": 102,
+      "--name-fs": 8.44,
+      "--rarity-fs": 4.75,
+      "--gem-fs": 7.74
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "width": 80,
+    "values": {
+      "--cw": 80,
+      "--name-fs": 6.62,
+      "--rarity-fs": 3.72,
+      "--gem-fs": 6.07
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "width": 290,
+    "values": {
+      "--cw": 290,
+      "--name-fs": 24,
+      "--rarity-fs": 13.5,
+      "--gem-fs": 22
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "width": 102,
+    "values": {
+      "--cw": 102,
+      "--name-fs": 8.44,
+      "--rarity-fs": 4.75,
+      "--gem-fs": 7.74
+    }
+  }
+]

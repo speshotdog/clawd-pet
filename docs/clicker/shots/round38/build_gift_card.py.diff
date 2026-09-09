@@ -1,0 +1,170 @@
+--- round37/build_gift_card.py
++++ round38/build_gift_card.py
+@@ -16,7 +16,7 @@
+ ⚠ scene 卡的兩層是**同一張 600×840 畫布**（`.scene .art-media>img{object-fit:fill}`、
+ `.scene .subject-mask{mask-size:100% 100%}`），所以角色動畫不能緊裁，要合成到 600×840 上。
+ 
+-用法：python build_gift_card.py
++用法：python build_gift_card.py（只重建頁面加 --page-only，沿用已驗收素材）
+ 輸出：gift-mohuashaonv.html（自包含，複製到任何資料夾都能開）
+ """
+ from base64 import b64encode
+@@ -115,32 +115,40 @@
+             'ink': hexof(np.clip(mean * 0.12, 0, 255))}
+ 
+ 
+-for p in (BG_SRC, *MOV_SRC.values()):
+-    if not p.exists():
+-        sys.exit('missing source: %s' % p)
+-
+-bg, bg_src_size = build_background()
+-bg_path = GIFT / 'layer-mohuashaonv-background.png'
+-bg.save(bg_path, optimize=True)
+-
+-raw = {k: frames(v) for k, v in MOV_SRC.items()}
+-box = union_box(raw.values())
+-sizes, placement = {}, None
+-for key, seq in raw.items():
+-    placed, placement = place(seq, box)
+-    sizes[key] = {
+-        'subject': anim(placed, GIFT / ('layer-mohuashaonv-%s.webp' % key), 82),
+-        'mask': anim([Image.merge('RGBA', (*[Image.new('L', CARD, 255)] * 3, im.getchannel('A')))
+-                      for im in placed], GIFT / ('layer-mohuashaonv-%s-mask.webp' % key), 70, MASK_EDGE),
+-        'frames': len(placed)}
+-
+-pal = palette(bg)
+-manifest = {'background_source': str(BG_SRC), 'background_source_size': list(bg_src_size),
+-            'subject_source': {k: str(v) for k, v in MOV_SRC.items()},
+-            'canvas': list(CARD), 'layers': sizes, 'palette': pal, **placement}
+-(GIFT / 'manifest.json').write_text(json.dumps(manifest, indent=1), encoding='utf-8')
+-
+-# ── 頁面 ────────────────────────────────────────────────────────────
++# Page-only rebuilds keep the already approved gift artwork byte-identical.
++if '--page-only' not in sys.argv:
++    for p in (BG_SRC, *MOV_SRC.values()):
++        if not p.exists():
++            sys.exit('missing source: %s' % p)
++
++    bg, bg_src_size = build_background()
++    bg_path = GIFT / 'layer-mohuashaonv-background.png'
++    bg.save(bg_path, optimize=True)
++
++    raw = {k: frames(v) for k, v in MOV_SRC.items()}
++    box = union_box(raw.values())
++    sizes, placement = {}, None
++    for key, seq in raw.items():
++        placed, placement = place(seq, box)
++        sizes[key] = {
++            'subject': anim(placed, GIFT / ('layer-mohuashaonv-%s.webp' % key), 82),
++            'mask': anim([Image.merge('RGBA', (*[Image.new('L', CARD, 255)] * 3, im.getchannel('A')))
++                          for im in placed], GIFT / ('layer-mohuashaonv-%s-mask.webp' % key), 70, MASK_EDGE),
++            'frames': len(placed)}
++
++    pal = palette(bg)
++    manifest = {'background_source': str(BG_SRC), 'background_source_size': list(bg_src_size),
++                'subject_source': {k: str(v) for k, v in MOV_SRC.items()},
++                'canvas': list(CARD), 'layers': sizes, 'palette': pal, **placement}
++    (GIFT / 'manifest.json').write_text(json.dumps(manifest, indent=1), encoding='utf-8')
++
++    # ── 頁面 ────────────────────────────────────────────────────────────
++else:
++    manifest = json.loads((GIFT / 'manifest.json').read_text(encoding='utf-8'))
++    bg_path = GIFT / 'layer-mohuashaonv-background.png'
++    bg_src_size = manifest['background_source_size']
++    sizes, placement, pal = manifest['layers'], manifest, manifest['palette']
++
+ demo = (HERE / 'demo.html').read_text(encoding='utf-8')
+ tpl = re.search(r'<template id="baseline-css">.*?</template>', demo, re.S)
+ styles = [m.group(0) for m in re.finditer(r'<style[^>]*>.*?</style>', demo, re.S)
+@@ -282,44 +290,44 @@
+ /* 花粉附在既有圖窗，隨角色平面（36.4px）走；不另推高 Z。
+    下緣在文字框之前裁掉，圓角與父層裁切共同保護卡緣。
+    固定同一時刻比較：screen 有 881 個 >6 灰階像素，normal 為 809；
+-   白色實心＋粉藍柔邊已能在淡底看見，因此保留 screen（round36 證據）。 */
++   保留白色核心與 screen；本輪靠數量、尺寸及較完整的圓面增加覆蓋率。 */
+ .r-special .gift-particles{position:absolute;inset:0 0 20%;z-index:5;
+  transform:translateZ(0);border-radius:12px;overflow:hidden;pointer-events:none;
+  mix-blend-mode:screen}
+ .gift-particles>i{position:absolute;display:block;left:var(--x);top:var(--y);
+  width:var(--size);aspect-ratio:1;border-radius:50%;
+- background:radial-gradient(circle,#fff 0 25%,var(--pollen) 40%,transparent 72%);
++ background:radial-gradient(circle,#fff 0 55%,var(--pollen) 65%,transparent 72%);
+  animation:gift-pollen var(--duration) linear var(--delay) infinite;opacity:0}
+ @keyframes gift-pollen{
+- 0%{transform:translate(-3px,28px);opacity:0}
+- 20%{transform:translate(1px,14px);opacity:.85}
+- 55%{transform:translate(5px,-10px);opacity:.85}
+- 80%{transform:translate(0,-28px);opacity:.7}
+- 100%{transform:translate(-3px,-42px);opacity:0}}
+-/* 獨立薄邊，不改 face-frame 五道描邊／conic；位移正負隨指標換邊。
++ 0%{transform:translate(-3px,36px);opacity:.81}
++ 50%{transform:translate(5px,-9px);opacity:.85}
++ 100%{transform:translate(-3px,-54px);opacity:.81}}
++/* 獨立 3px 亮暗邊，不改 face-frame 五道描邊／conic；位移正負隨指標換邊。
+    停在中央時偏移零，不再提亮已定案的框。 */
+ .r-special .face-frame:before{content:"";position:absolute;inset:-1px;border-radius:inherit;
+- pointer-events:none;box-shadow:inset clamp(-2px,calc(var(--gift-edge,0) * 3px),2px) 0 0 #fff4faff,
+- inset clamp(-2px,calc(var(--gift-edge,0) * -3px),2px) 0 0 #281020dd,
++ pointer-events:none;box-shadow:inset clamp(-3px,calc(var(--gift-edge,0) * 5px),3px) 0 0 #fff4faff,
++ inset clamp(-3px,calc(var(--gift-edge,0) * -5px),3px) 0 0 #281020dd,
+  calc(var(--gift-edge,0) * 2px) 1px 2px #18081788}
+ /* Chromium 實測 var() transform 有七個不同矩陣；只過渡這張卡的 lift。
+-   回正使用單調 ease-out，不增加 rAF 或推高任何圖層。 */
+-.r-special .card-lift{transition:transform 500ms cubic-bezier(.2,0,.6,1)}
++   回正用原生旋轉過渡產生約 10% 過衝；Z 位移不參與彈跳，也不增加 rAF。 */
++.r-special .card-lift{transition:transform 700ms cubic-bezier(.2,0,.3,1.5)}
+ .r-special.gift-following .card-lift{transition:transform 100ms ease-out}
+-/* 原創 polygon 愛心，獨立同 Z 的點綴；不改二十顆花粉。 */
+-.r-special .gift-hearts{position:absolute;inset:0;z-index:5;pointer-events:none;
++/* 八顆原創 polygon 愛心，與四十五顆花粉同 Z；完整形狀守在文字框上方。 */
++.r-special .gift-hearts{position:absolute;inset:0;z-index:5;pointer-events:none;mix-blend-mode:screen;
+  transform:translateZ(0)}
+-.r-special .gift-hearts>i{position:absolute;left:var(--x);top:69%;width:12.7px;height:12.7px;
+- background:#ffb3dd;clip-path:polygon(50% 20%,65% 5%,82% 5%,97% 20%,100% 38%,92% 55%,50% 95%,8% 55%,0% 38%,3% 20%,18% 5%,35% 5%);
+- animation:gift-heart var(--duration) linear var(--delay) infinite;opacity:.30}
++.r-special .gift-hearts>i{position:absolute;left:var(--x);top:69%;width:16px;height:16px;
++ background:#ffd9ee;clip-path:polygon(50% 20%,65% 5%,82% 5%,97% 20%,100% 38%,92% 55%,50% 95%,8% 55%,0% 38%,3% 20%,18% 5%,35% 5%);
++ animation:gift-heart var(--duration) linear var(--delay) infinite;opacity:.55}
+ @keyframes gift-heart{
+- 0%{transform:translate(-2px,20px);opacity:.18}
+- 50%{transform:translate(2px,-16px);opacity:.30}
+- 100%{transform:translate(-2px,20px);opacity:.18}}
++ 0%{transform:translate(-18px,0);opacity:.55}
++ 25%{transform:translate(0,-18px);opacity:.65}
++ 50%{transform:translate(18px,0);opacity:.55}
++ 75%{transform:translate(0,18px);opacity:.45}
++ 100%{transform:translate(-18px,0);opacity:.55}}
+ @media(prefers-reduced-motion:reduce){
+  .r-special .card-lift{transition:none!important}
+- .r-special .gift-hearts>i{animation:none;transform:none;opacity:.24}
+- .gift-particles>i{animation:none;transform:none;opacity:.65}}
++ .r-special .gift-hearts>i{animation:none;transform:none;opacity:.55}
++ .gift-particles>i{animation:none;transform:none;opacity:.83}}
+ </style>
+ 
+ <h1>魔花少女 · 特殊</h1>
+@@ -387,19 +395,19 @@
+ // 固定分布與負延遲：開頁即散開，只有 CSS transform／opacity 在動。
+ const pollen = document.createElement('div');
+ pollen.className = 'gift-particles';pollen.setAttribute('aria-hidden','true');
+-for(let i=0;i<20;i++){
++for(let i=0;i<45;i++){
+   const dot=document.createElement('i');
+-  dot.style.cssText=`--x:${5+(i*37)%90}%;--y:${12+(i*23)%76}%;`+
+-    `--size:${3.2+(i%5)*.7}px;--duration:${8+i%11}s;--delay:${-(i*1.73)%18}s;`+
++  dot.style.cssText=`--x:${5+(i*37)%90}%;--y:${10+(i*23)%28}%;`+
++    `--size:${[4,6,7,8,9,9,9,9,9,9,9,9][i%12]}px;--duration:${5+i%3*.4}s;--delay:${-(i*1.73)%18}s;`+
+     `--pollen:${['#ffd4ec','#cfeeff','#ffffff'][i%3]}`;
+   pollen.append(dot);
+ }
+ media.append(pollen);
+ const hearts=document.createElement('div');
+ hearts.className='gift-hearts';hearts.setAttribute('aria-hidden','true');
+-for(let i=0;i<5;i++){
++for(let i=0;i<8;i++){
+  const heart=document.createElement('i');
+- heart.style.cssText=`--x:${12+i*17}%;--duration:${16+i*2}s;--delay:${-2-i*3.7}s`;
++ heart.style.cssText=`--x:${19+i*8.5}%;--duration:${6+i%3*.2}s;--delay:${-2-i*3.7}s`;
+  hearts.append(heart);
+ }
+ media.append(hearts);

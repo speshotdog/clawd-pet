@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_bright_edge.py"
+  ],
+  "script": [
+    "check_bright_edge.py"
+  ],
+  "exit": 0,
+  "seconds": 1.08,
+  "log": "1788963479353981300-check_bright_edge.log"
+}

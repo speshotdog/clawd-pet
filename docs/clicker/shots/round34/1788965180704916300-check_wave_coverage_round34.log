@@ -1,0 +1,116 @@
+[
+  {
+    "label": "before",
+    "seed": 300,
+    "samples": [
+      {
+        "t": 50,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 100,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 150,
+        "bins": 1,
+        "missing": []
+      },
+      {
+        "t": 200,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 250,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 300,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 350,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 400,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 450,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 500,
+        "bins": 0,
+        "missing": []
+      }
+    ],
+    "errors": []
+  },
+  {
+    "label": "after",
+    "seed": 300,
+    "samples": [
+      {
+        "t": 50,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 100,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 150,
+        "bins": 1,
+        "missing": []
+      },
+      {
+        "t": 200,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 250,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 300,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 350,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 400,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 450,
+        "bins": 0,
+        "missing": []
+      },
+      {
+        "t": 500,
+        "bins": 0,
+        "missing": []
+      }
+    ],
+    "errors": []
+  }
+]

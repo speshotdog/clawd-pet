@@ -1,0 +1,169 @@
+"""Assemble round-39 evidence from actual checker output, without rerunning browsers."""
+from pathlib import Path
+import difflib
+import hashlib
+import json
+import re
+from PIL import Image, ImageDraw
+
+S = Path(__file__).resolve().parent
+ROOT = S.parents[3]
+
+
+def read(name):
+    return json.loads((S/name).read_text(encoding='utf-8'))
+
+
+def span(values, digits=6):
+    values=list(values)
+    return f'{min(values):.{digits}f}～{max(values):.{digits}f}'
+
+
+def walk(value):
+    if isinstance(value,dict):
+        yield value
+        for v in value.values():
+            yield from walk(v)
+    elif isinstance(value,list):
+        for v in value:
+            yield from walk(v)
+
+
+old=(S/'baseline-gift.html').read_text(encoding='utf-8')
+new=(ROOT/'_art/holo-test/gift-mohuashaonv.html').read_text(encoding='utf-8')
+identity={
+    'allStyleBlocksIdentical':re.findall(r'<style[^>]*>.*?</style>',old,re.S)==re.findall(r'<style[^>]*>.*?</style>',new,re.S),
+    'scriptsAndEmbeddedAssetsExceptGiftRuntimeIdentical':re.findall(r'<script[^>]*>.*?</script>',old,re.S)[:-1]==re.findall(r'<script[^>]*>.*?</script>',new,re.S)[:-1],
+    'finalHtmlSHA256':hashlib.sha256(new.encode()).hexdigest(),
+}
+assert identity['allStyleBlocksIdentical'] and identity['scriptsAndEmbeddedAssetsExceptGiftRuntimeIdentical']
+(S/'scope-identity.json').write_text(json.dumps(identity,indent=2),encoding='utf-8')
+for name in ('builder','checker'):
+    target='build_gift_card' if name=='builder' else 'check_gift_card'
+    diff=difflib.unified_diff((S/f'before-{name}.txt').read_text(encoding='utf-8').splitlines(True),
+                             (ROOT/f'_art/holo-test/{target}.py').read_text(encoding='utf-8').splitlines(True),
+                             fromfile=f'before-{name}',tofile=target+'.py')
+    (S/f'{target}.diff').write_text(''.join(diff),encoding='utf-8')
+
+tags=[f'verified-{i}' for i in range(1,6)]
+entries=[r for tag in tags for r in read(tag+'-verification.json')]
+before36=[read('before-'+entry+'-round36.json') for entry in ('dev','moved-copy')]
+before37=[read('before-'+entry+'-round37.json') for entry in ('dev','moved-copy')]
+after36=[r['round36'] for r in entries]
+after37=[r['round37'] for r in entries]
+curves=[]
+for tag in tags:
+    for entry in ('dev','moved-copy'):
+        c=read(f'{tag}-{entry}-curve.json'); gains=[1,c['gain'],.72]
+        curves.append({'tag':tag,'entry':entry,'frames':len(c['frames']),
+            'middle':{direction:min(sum(.05<r['opacity'][k]/g<.95 for r in c['frames'] if r['face']==direction and r['ms']>1) for k,g in enumerate(gains)) for direction in ('idle','alt')},
+            'maxComplementError':max(abs(r['opacity'][k]/g+r['opacity'][k+3]/g-1) for r in c['frames'] for k,g in enumerate(gains)),
+            'endpoint':c['samples'][-1]['opacity']})
+(S/'crossfade-summary.json').write_text(json.dumps(curves,indent=2),encoding='utf-8')
+
+def visual(a,b):
+    c=[c for r in b for c in r['curves']]
+    hearts=[r for group in b for r in walk([group['heartSamples'],group['cornerHearts'],[x['rows'] for x in group['curves']]]) if all(k in r for k in ('width','height','top','bottom'))]
+    m=a[0]['baselineMetrics']
+    return {
+      '粒子覆蓋率 %（1.2～3.0）':span(r['coveragePercent'] for r in a),
+      '整卡粒子增亮 %（0.30～1.2）':span(r['particleGainPercent'] for r in a),
+      '圖窗兩秒差異 %（1.0～4.0）':span(r['motionPercent'] for r in a),
+      '每顆兩秒位移／卡高 %（3～12）':span(v for r in b for p in r['movement'] for v in [p['minPercent'],p['maxPercent']]),
+      '單顆對鄰近背景峰值（≥25）':span(r['particleNeighborPeak'] for r in a),
+      '圓點數／直徑（45～60／4～9px）':'45／4～9',
+      '愛心數（8～12）':str(len(b[0]['heartConfig'])),
+      '愛心投影尺寸 px（14～20）':span(r[k] for r in hearts for k in ('width','height')),
+      '愛心透明度（0.45～0.65）':span(r['opacity'] for r in hearts if 'opacity' in r),
+      '愛心 IoU（≥0.80）':span(v for r in b for v in r['heartIoU']),
+      '愛心垂直範圍／卡高 %（60～80）':span(r[k] for r in hearts for k in ('top','bottom')),
+      '回正過衝 %（8～20）':span(o['fraction']*100 for r in c if r['leave'] for o in r['overshoot']),
+      '過衝次數（1～2）':span((o['crossings'] for r in c if r['leave'] for o in r['overshoot']),0),
+      '持續回正 ms（550～800）':span(r['settledMs'] for r in c if r['leave']),
+      '跟隨 90% ms（≤120）':span(r['reach90Ms'] for r in c if not r['leave']),
+      '卡緣左傾／右傾差（相反符號，絕對值25～60）':'／'.join(f"{r['difference']:.6f}" for r in b[0]['edges']),
+      '卡緣寬 px（3～5）':'3',
+      '框環平均／標準差（平均增幅≤8%，標準差保留≥95%）':'／'.join(f"{a[0]['stats'][k]:.6f}" for k in ('ringMean','ringStd')),
+      '整卡／中央灰階（隔離卡緣，增幅≤2%／1%）':'／'.join(f"{a[0]['stats'][k]:.6f}" for k in ('cardMean','centerMean')),
+      '卡名對比（≥6.46）':str(a[0]['nameContrast']),
+      '稀有度中／英對比（≥4.5）':'／'.join(map(str,a[0]['rarityContrast'].values())),
+      '寶石對比（≥145.67）':str(a[0]['gemContrast']),
+      '卡名／稀有度置中 px（<2）':'／'.join(f'{m[k]:.6f}' for k in ('nameCenterDelta','rarityCenterDelta')),
+      '卡名／稀有度／寶石字級 px（不變）':'／'.join(str(m[k]) for k in ('nameFs','rarityFs','gemFs')),
+      '文字框左／右／底／高 %（不變）':'／'.join(f'{m["plate"][k]:.6f}' for k in ('left','right','bottom','height')),
+      '文字框粒子開關／兩秒差異 %（≤0.02）':span(v for r in a for v in (r['plateParticlesPercent'],r['plateMotionPercent'])),
+      '卡名／稀有度 elementFromPoint（不變）':a[0]['css']['nameHit']+'／'+a[0]['css']['rarityHit'],
+      '逐格最大投影超緣 px（≤1.5，含過衝）':f"{max(v for r in c for row in r['rows'] for v in row['overflow']):.6f}",
+      '靜置三秒頁面 rAF（=0）':span((r['rafs'] for r in a),0),
+      'reduced-motion 粒子兩秒差異 %（=0）':span(r['reducedPercent'] for r in a),
+      'reduced-motion 粒子／愛心動畫、回正（不變）':'animation:none／transition:0s，立即回正',
+    }
+
+before,after=visual(before36,before37),visual(after36,after37)
+summary={'before':before,'after':after,'crossfade':curves,'scope':identity}
+(S/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+
+images=[Image.open(S/f'verified-5-dev-{name}.png').convert('RGB') for name in ('particles-held','particles-off')]
+pair=Image.new('RGB',(sum(i.width for i in images),images[0].height+36),'#201b29')
+for x,im,label in [(0,images[0],'PARTICLES ON'),(images[0].width,images[1],'PARTICLES OFF')]:
+    pair.paste(im,(x,36));ImageDraw.Draw(pair).text((x+12,12),label,fill='white')
+pair.save(S/'particles-on-off-side-by-side.png')
+
+lines=['# 第三十九輪：移除魔花少女待機的特殊動作解碼',
+       '', '**A 已完成；B 三條路皆已量測，選擇保留逐格遮罩；C 效能預算仍未通過。五次完整視覺驗收全部 exit 0。沒有放寬門檻，沒有拿視覺換效能。**',
+       '', '## 閱讀與範圍', '',
+       '先讀 round39 〇的診斷及整份簡報，再讀 round38 必讀所列 round37／36 報告、builder `.r-special` 註解、HANDOFF 六之四與 DESIGN 第8節，另核對 round38 報告及 MTK 動畫遮罩警示。依診斷 → A → B → C → 交付執行。',
+       '', '所有產品修改、單檔搬移暫存與證據均留在這個 worktree。依「新效能腳本進版控」要求，僅將新增的 check_gift_perf.py／check_gift_masks.py 加入此 worktree 的 Git 暫存區；未 commit、未 push。原有其他髒檔未修改、未加入暫存。',
+       '', '最終產品只改 `build_gift_card.py` 的這張卡動畫生命週期，以及重建 `gift-mohuashaonv.html`。所有 CSS（含 gift-stage）、共用 card_face.js、嵌入素材／遮罩／卡資料逐位元組相同，見 [scope-identity.json](shots/round39/scope-identity.json)。另更新單卡 checker，新增 check_gift_perf.py／check_gift_masks.py；候選遮罩只在本輪證據目錄。',
+       '', '## 〇：重現診斷', '',
+       'headless Chromium、`--use-angle=d3d11`、900×1000、DPR 2；載入有 src 的圖片後靜置700ms，每個原生 rAF 派送橢圓 pointermove，取至少3秒的全部間隔。fps=間隔數÷實測秒數；中位及p95由全部間隔計算。頁面 rAF 計數與量測自身 rAF 分離。',
+       '', '初次診斷末段可能與基準驗收重疊，保留 diagnosis.json，但不作結論。下表使用無其他本輪瀏覽器驗收並行的 [diagnosis-isolated.json](shots/round39/diagnosis-isolated.json)。',
+       '', '| 狀態 | fps | 中位 ms | p95 ms |', '|---|---:|---:|---:|']
+labels={'current':'第三十八輪原頁','no-particles':'關掉粒子與愛心','no-alt':'關掉 alt 圖片及兩個 alt 遮罩層','no-masks':'再關掉所有角色遮罩'}
+for r in read('diagnosis-isolated.json'):
+    lines.append(f"| {labels[r['mode']]} | {r['fps']:.3f} | {r['medianMs']:.3f} | {r['p95Ms']:.3f} |")
+lines += ['', '排序一致：關粒子未改善，關 alt 有改善，移除動畫遮罩改善最大。本機關 alt 後中位為50ms，沒有重現簡報的33.4ms；沒有拿簡報數字當本次實測。',
+          '', '## A：特殊動作按需解碼', '',
+          '`altImg` 待機沒有 src；alt 箔面及反光層 `--subject:none`。點擊才設定 src，`await altImg.decode()` 後掛兩個 alt 遮罩並開始320ms疊化。返回時等待真實 opacity 動畫 finished，才移除 src／遮罩並解除 busy，避免暫停驗收截圖時提前清掉仍可見的圖片。未新增頁面 rAF。',
+          '', 'checker 的圖片載入、定格與指標截圖忽略無 src 圖片。alt 遮罩對位改從內嵌資料離線讀取；真正顯示時逐格驗圖片已載入且600×840，不以讓 alt 常駐解碼來通過測試。初始及每次疊化返回均斷言 src=null、兩層 maskImage=none。',
+          '', 'A單獨量測（[after-A-perf.json](shots/round39/after-A-perf.json)）：', '']
+for r in read('after-A-perf.json'):
+    lines.append(f"- {r['entry']}：{r['fps']:.3f} fps／中位 {r['medianMs']:.3f}ms／p95 {r['p95Ms']:.3f}ms／靜置 rAF {r['idleRaf']}。")
+lines += ['', f"十入口原生疊化：每方向每組最少 {min(min(c['middle'].values()) for c in curves)} 個中間值（門檻≥3），最大互補和誤差 {max(c['maxComplementError'] for c in curves):.9f}（<0.025）；沒有雙空、雙滿或未載入的可見圖片，皆回到常態端點。詳見 [crossfade-summary.json](shots/round39/crossfade-summary.json)。",
+          '', '## B：先量三條路，再選擇', '',
+          '兩支角色動畫各90格，600×840卡面分母固定504000像素。遮罩以 bilinear 還原卡面尺寸；溢出嚴格用 `(mask alpha>0) & (art alpha==0)`，逐格取最大，不忽略低alpha邊緣。IoU用雙方alpha>127的二值輪廓。15fps抽每2格、45張×66ms；10fps抽每3格、30張×99ms；均保留2970ms週期。',
+          '', '| 路線 | idle／alt 最大溢出 % | 第0格 IoU（idle／alt） | dev fps／中位／p95 | 搬移 fps／中位／p95 |', '|---|---|---|---|---|']
+masks=read('mask-analysis.json')
+for name,label in [('frame0','靜態第0格'),('union','靜態聯集'),('15fps','降張數15fps'),('10fps','降張數10fps'),('original','原90格遮罩')]:
+    r=read(f'candidate-{name}-perf.json')
+    lines.append(f"| {label} | {masks['idle'][name]['maxSpillPercent']:.6f}／{masks['alt'][name]['maxSpillPercent']:.6f} | {masks['idle'][name]['frame0IoU']:.6f}／{masks['alt'][name]['frame0IoU']:.6f} | "+' | '.join(f"{v['fps']:.3f}／{v['medianMs']:.3f}／{v['p95Ms']:.3f}" for v in r)+' |')
+lines += ['', '靜態第0格超過1.20%，因此按簡報選路線3，保留逐格。聯集更差；降張數也沒有降到≤0.40%。原始小遮罩本來就有約3%的非零alpha重採樣邊緣，不能把它藏掉；另外直接用角色600×840原alpha第0格量得 idle 2.335317%、alt 2.571230%，聯集5.352183%／6.103968%，即使完全不經小遮罩重採樣仍超標。這張動作不足以支持「很可能看不出來」的假設。',
+          '', '原90格遮罩第0格IoU皆0.997645≥0.95，全部格最低idle 0.997431、alt 0.997148。沒有為效能更換已驗收遮罩。新增的按需解碼就是本次保留逐格條件下省下的成本。',
+          '', '數據：[mask-analysis.json](shots/round39/mask-analysis.json)、[完整解析度靜態補測](shots/round39/exact-art-static-spill.json)。[idle溢出示意](shots/round39/idle-spill-comparison.png)、[alt溢出示意](shots/round39/alt-spill-comparison.png)：左靜態、右逐格，紅色標記所有非零alpha溢出，為分類示意，不代表紅色的實際反光強度。',
+          '', '## C：五次連跑，保留失敗', '',
+          '**要求仍是中位≤25ms、p95≤50ms、fps≥35、靜置rAF=0。下表所有入口未通過效能預算；final-perf.exit=1。** 每輪原地及搬移單檔皆測，未降DPR、未停粒子、未凍結角色或遮罩、未放寬斷言。',
+          '', '| 次數 | 入口 | fps | 中位 ms | p95 ms | 靜置3秒rAF |', '|---:|---|---:|---:|---:|---:|']
+for r in read('final-perf.json'):
+    lines.append(f"| {r['run']} | {r['entry']} | {r['fps']:.3f} | {r['medianMs']:.3f} | {r['p95Ms']:.3f} | {r['idleRaf']} |")
+lines += ['', '完整逐格間隔及結果：[final-perf.json](shots/round39/final-perf.json)、[log](shots/round39/final-perf.log)、[exit](shots/round39/final-perf.exit)。',
+          '', '## 〇之二：不可退步的保底，改前／改後', '',
+          '改前為保存原頁本機重跑兩入口；改後為最終五次、十入口範圍。像素比較沿用既有第0格定格、CSS同時刻與雙重rAF重繪屏障；原生疊化另重新載入真動畫。所有既有上下限與幾何容差都保留。極小像素計數／取樣時刻變動保留原值，不宣稱所有浮點數逐位相同；整份CSS與素材的位元組不變，全部門檻均通過。',
+          '', '| 項目／門檻 | 改前 | 改後（十入口） |', '|---|---|---|']
+lines += [f'| {key} | {before[key]} | {value} |' for key,value in after.items()]
+lines += ['', '框環平均、標準差、整卡與中央灰階均不變（增幅0%，標準差保留100%）。所有leaf裁切、36.4px角色平面、兩行漸層角度反應均通過。reduced-motion沿用先定格角色素材再量粒子／傾斜的既有驗收口徑；沒有聲稱它能停止WebP自身播放。',
+          '', '## 五次完整驗收與截圖', '', '| 次數 | exit | 原地／搬移 | 日誌 |', '|---:|---:|---|---|']
+for i,tag in enumerate(tags,1):
+    code=(S/(tag+'.exit')).read_text(encoding='utf-8-sig').strip()
+    assert code=='0', (tag,code)
+    lines.append(f'| {i} | {code} | 2／2通過 | [{tag}.log](shots/round39/{tag}.log) |')
+lines += ['', '另保留改前驗收 before.exit=0、首次整合 trial.exit=0，以及第一批 accepted-1～4=0／accepted-5=1。失敗是第一條跟隨軌跡90%取樣121.7ms，未達≤120；第0格之後37.8ms才有首個rAF，不能刪掉或冒充通過。',
+          '', '追查發生在大量 synthetic corner／WAAPI seek 後，timed-input setup 原先沒有重繪屏障。checker在每條輸入軌跡開始前補既有雙重rAF屏障，先提交上一段測試狀態；計時依然在pointer dispatch之前，所有之後的格均納入，不扣除首格延遲、不改120ms、不改產品100ms ease-out。修正後另用verified-1～5完整連跑，未覆寫第一次失敗。所有最終入口 pageerror、console error、外部HTTP請求皆為空。',
+          '', '- [粒子開／關並排](shots/round39/particles-on-off-side-by-side.png)',
+          '- [常態](shots/round39/verified-5-dev-particles-held.png)、[左傾](shots/round39/verified-5-dev-edge-left.png)、[右傾](shots/round39/verified-5-dev-edge-right.png)',
+          '- [特殊動作](shots/round39/verified-5-dev-alt.png)、[返回疊化中間格](shots/round39/verified-5-dev-fade-return-middle.png)',
+          '', '重跑指令（worktree根目錄）：', '', '```powershell', "$env:PYTHONIOENCODING='utf-8'", 'python _art/holo-test/build_gift_card.py --page-only', 'python _art/holo-test/check_gift_masks.py', 'python _art/holo-test/check_gift_perf.py --runs 5 --tag rerun-perf', 'python _art/holo-test/check_gift_card.py --tag rerun-visual', '```',
+          '', '## 未解決的主門檻', '',
+          '原本要求：不犧牲既有視覺且中位≤25ms。量到：所有合法保留逐格的成品入口未達標；靜態及降張數候選既不符合溢出限制，也未達效能預算。所以沒有改門檻，也沒有把候選推進產品；按簡報C的失敗處理，交付真實數字，後續需討論其他逐格遮罩渲染方式。單純同意靜態遮罩在本機也不能保證達標。',
+          '', '成品：[gift-mohuashaonv.html](../../_art/holo-test/gift-mohuashaonv.html)。未 commit，未 push。', '']
+(ROOT/'docs/clicker/REPORT-holo-round39.md').write_text('\n'.join(lines),encoding='utf-8')
+print('Wrote Chinese report, summary, scope diff and particle comparison.')

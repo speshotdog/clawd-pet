@@ -1,0 +1,119 @@
+[
+  {
+    "id": "zhenqiqiu",
+    "name": "珍氣球",
+    "original_size": [
+      848,
+      850
+    ],
+    "output_size": [
+      600,
+      840
+    ],
+    "source_alpha_bbox": [
+      69,
+      54,
+      795,
+      850
+    ],
+    "crop": [
+      61,
+      0,
+      803,
+      850
+    ],
+    "extension_top": 94,
+    "extension_bottom": 95,
+    "extension_ratio": 0.18190567853705486,
+    "extension_color_delta": 0.14854746930218657,
+    "hole_pixels": 353824,
+    "unfilled_pixels": 0,
+    "boundary_color_delta": 0.15418120023305923,
+    "output_alpha_bbox": [
+      4,
+      117,
+      596,
+      766
+    ],
+    "subject_pixels_cropped": 0,
+    "cloned_rgb_all_from_source": true
+  },
+  {
+    "id": "zhenjunyue",
+    "name": "真菌玥",
+    "original_size": [
+      800,
+      800
+    ],
+    "output_size": [
+      600,
+      840
+    ],
+    "source_alpha_bbox": [
+      43,
+      105,
+      726,
+      697
+    ],
+    "crop": [
+      35,
+      0,
+      734,
+      800
+    ],
+    "extension_top": 89,
+    "extension_bottom": 90,
+    "extension_ratio": 0.18283963227783454,
+    "extension_color_delta": 0.2726116674614528,
+    "hole_pixels": 273925,
+    "unfilled_pixels": 0,
+    "boundary_color_delta": 1.619375528690907,
+    "output_alpha_bbox": [
+      4,
+      164,
+      596,
+      677
+    ],
+    "subject_pixels_cropped": 0,
+    "cloned_rgb_all_from_source": true
+  },
+  {
+    "id": "shabaolingzhu",
+    "name": "沙堡領主",
+    "original_size": [
+      952,
+      747
+    ],
+    "output_size": [
+      600,
+      840
+    ],
+    "source_alpha_bbox": [
+      120,
+      329,
+      710,
+      630
+    ],
+    "crop": [
+      116,
+      0,
+      878,
+      747
+    ],
+    "extension_top": 160,
+    "extension_bottom": 160,
+    "extension_ratio": 0.29990627928772257,
+    "extension_color_delta": 0.0,
+    "hole_pixels": 138122,
+    "unfilled_pixels": 0,
+    "boundary_color_delta": 0.33762955914554027,
+    "output_alpha_bbox": [
+      1,
+      383,
+      470,
+      624
+    ],
+    "subject_pixels_cropped": 0,
+    "cloned_rgb_all_from_source": true
+  }
+]

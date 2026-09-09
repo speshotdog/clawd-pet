@@ -1,0 +1,26 @@
+[
+  {
+    "script": "build_card_scenes.py",
+    "exit_code": 0
+  },
+  {
+    "script": "embed_masks.py",
+    "exit_code": 0
+  },
+  {
+    "script": "build_cards_remade.py",
+    "exit_code": 0
+  },
+  {
+    "script": "build_cards_remade_standalone.py",
+    "exit_code": 0
+  },
+  {
+    "script": "build_deluxe_b.py",
+    "exit_code": 0
+  },
+  {
+    "script": "build_deluxe_b_standalone.py",
+    "exit_code": 0
+  }
+]

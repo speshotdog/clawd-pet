@@ -1,0 +1,10 @@
+{'entry': 'dev', 'rarity': 'common', 'cue': 'reveal:common', 'sources': 1, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'dev', 'rarity': 'rare', 'cue': 'reveal:rare', 'sources': 4, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'dev', 'rarity': 'epic', 'cue': 'reveal:epic', 'sources': 9, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'dev', 'rarity': 'legendary', 'cue': 'reveal:legendary', 'sources': 34, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'dev', 'rarity': 'mythic', 'cue': 'reveal:mythic', 'sources': 51, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'portable', 'rarity': 'common', 'cue': 'reveal:common', 'sources': 1, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'portable', 'rarity': 'rare', 'cue': 'reveal:rare', 'sources': 4, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'portable', 'rarity': 'epic', 'cue': 'reveal:epic', 'sources': 9, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'portable', 'rarity': 'legendary', 'cue': 'reveal:legendary', 'sources': 34, 'native_schedule_equal': True, 'muted_sources': 0}
+{'entry': 'portable', 'rarity': 'mythic', 'cue': 'reveal:mythic', 'sources': 51, 'native_schedule_equal': True, 'muted_sources': 0}

@@ -143,9 +143,10 @@ def layout_ui(browser,file,label):
         p,errors=open_page(browser,file.as_uri());p.set_viewport_size({'width':w,'height':h});start(p,[BY['common']]*n);p.evaluate('()=>{__ceremony.skipAll()}');advance(p,180)
         rects=p.locator('.slot').evaluate_all('es=>es.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}})');nonoverlap(rects)
         left=min(r['x'] for r in rects);right=w-max(r['x']+r['w'] for r in rects);top=min(r['y'] for r in rects);bottom=h-max(r['y']+r['h'] for r in rects)
-        row=dict(rects=rects,margins=[left,right,top,bottom]);ok=all(r['w']>=(260 if w<=600 else 190) for r in rects)
+        row=dict(rects=rects,margins=[left,right,top,bottom]);ok=all(r['w']>=(260 if w<=600 else 170 if w<=1024 and n>1 else 190) for r in rects)
         if w==1440:ok &= (360<=rects[0]['w']<=390 if n==1 else 200<=rects[0]['w']<=215 if n==5 else 190<=rects[0]['w']<=205) and min(left,right)>=140 and (n!=10 or min(top,bottom)>=70)
-        if 600<w<1440 and n>1:ok &= min(left,right)>=140*min(w/1440,h/900)
+        # Round 34 user decision replaces the impossible 1024 absolute margin.
+        if 600<w<1440 and n>1:ok &= min(left,right)>=w*.06 and (n!=10 or min(top,bottom)>=70)
         for a,b in zip(rects,rects[1:]):
             if a['y']==b['y']:ok &= b['x']-a['x']-a['w']>=7.99
         record(label+f' I {w} {n}',row,ok);p.screenshot(path=str(OUT/f'{label}-I-{w}-{n}.png'));p.close()

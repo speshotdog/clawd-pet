@@ -1,0 +1,18 @@
+{
+  "meanBefore": 13.44829012345679,
+  "meanAfter": 13.726053240740741,
+  "meanRatio": 1.0206541586130322,
+  "linePixels": 23505,
+  "lineBefore": 15.15120187194214,
+  "lineAfter": 24.801489044884068,
+  "lineRatio": 1.6369321229105185,
+  "widthBefore": 2.0,
+  "widthAfter": 4.0,
+  "widthRatio": 2.0,
+  "heldBefore": 30.899385802469137,
+  "heldAfter": 30.900189814814816,
+  "heldRatio": 1.000026020334217,
+  "cardStdBefore": 69.21027837119087,
+  "cardStdAfter": 69.23053360731546,
+  "cardStdRatio": 1.0002926622548165
+}

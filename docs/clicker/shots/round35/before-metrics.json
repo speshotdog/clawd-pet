@@ -1,0 +1,92 @@
+[
+ {
+  "label": "dev",
+  "gem_contrast": 145.67,
+  "name_contrast": 6.44,
+  "rarity": "special",
+  "kind": "depth",
+  "nameFits": "true",
+  "plate": {
+   "left": 4.399684210526316,
+   "right": 4.39978947368421,
+   "bottom": 3.398139097744362,
+   "height": 16.197725563909774
+  },
+  "nameCenterDelta": 0.0081329345703125,
+  "rarityCenterDelta": 0.0081329345703125,
+  "nameText": "滿花花",
+  "rarityText": "特殊 / SPECIAL",
+  "nameFill": "rgba(0, 0, 0, 0)",
+  "nameTop": "face-name",
+  "nameImage": "linear-gradient(120d",
+  "nameShadow": "none",
+  "plateBg": "linear-gradient(",
+  "sheenLayers": 3,
+  "plateAlpha": "linear-gradient(to top, rgba(2",
+  "cardWidth": 380,
+  "nameFs": 31.45,
+  "rarityFs": 17.69,
+  "gemFs": 28.83,
+  "maxOverflow": -7.72113037109375,
+  "layers": [
+   [
+    600,
+    840
+   ],
+   [
+    600,
+    840
+   ],
+   [
+    600,
+    840
+   ]
+  ],
+  "hasSubjectMask": true
+ },
+ {
+  "label": "moved-copy",
+  "gem_contrast": 145.67,
+  "name_contrast": 6.44,
+  "rarity": "special",
+  "kind": "depth",
+  "nameFits": "true",
+  "plate": {
+   "left": 4.399684210526316,
+   "right": 4.39978947368421,
+   "bottom": 3.398139097744362,
+   "height": 16.197725563909774
+  },
+  "nameCenterDelta": 0.0081329345703125,
+  "rarityCenterDelta": 0.0081329345703125,
+  "nameText": "滿花花",
+  "rarityText": "特殊 / SPECIAL",
+  "nameFill": "rgba(0, 0, 0, 0)",
+  "nameTop": "face-name",
+  "nameImage": "linear-gradient(120d",
+  "nameShadow": "none",
+  "plateBg": "linear-gradient(",
+  "sheenLayers": 3,
+  "plateAlpha": "linear-gradient(to top, rgba(2",
+  "cardWidth": 380,
+  "nameFs": 31.45,
+  "rarityFs": 17.69,
+  "gemFs": 28.83,
+  "maxOverflow": -7.72113037109375,
+  "layers": [
+   [
+    600,
+    840
+   ],
+   [
+    600,
+    840
+   ],
+   [
+    600,
+    840
+   ]
+  ],
+  "hasSubjectMask": true
+ }
+]

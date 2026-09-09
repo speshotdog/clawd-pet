@@ -1,0 +1,183 @@
+J {'complete': 1, 'rafs': 0, 'before': '156deg', 'after': '156deg', 'after300': '156deg'}
+[
+  {
+    "rarity": "legendary",
+    "t": 100,
+    "source": ".ceremony-canvas",
+    "neighborMean": [
+      209.09681654085986,
+      199.04326660102834,
+      168.92653976588994
+    ],
+    "raisedMean": [
+      209.09681654085986,
+      199.04326660102834,
+      168.92653976588994
+    ]
+  },
+  {
+    "rarity": "legendary",
+    "t": 100,
+    "source": ".fx-substrate-wave,.fx-spectrum-wave",
+    "neighborMean": [
+      0.08999744739816942,
+      0.2757356963133136,
+      0.8235422820260365
+    ],
+    "raisedMean": [
+      0.08999744739816942,
+      0.2757356963133136,
+      0.8235422820260365
+    ]
+  },
+  {
+    "rarity": "legendary",
+    "t": 200,
+    "source": ".ceremony-canvas",
+    "neighborMean": [
+      210.75471319695146,
+      200.40075848740108,
+      169.3866097801116
+    ],
+    "raisedMean": [
+      210.75429384093644,
+      200.40012033694344,
+      169.38515115049412
+    ]
+  },
+  {
+    "rarity": "legendary",
+    "t": 200,
+    "source": ".fx-substrate-wave,.fx-spectrum-wave",
+    "neighborMean": [
+      0.18736097436458446,
+      0.2905772526711155,
+      0.500255260183058
+    ],
+    "raisedMean": [
+      0.18736097436458446,
+      0.2905772526711155,
+      0.500255260183058
+    ]
+  },
+  {
+    "rarity": "legendary",
+    "t": 300,
+    "source": ".ceremony-canvas",
+    "neighborMean": [
+      211.97573204973926,
+      201.59373518579295,
+      170.69930350435766
+    ],
+    "raisedMean": [
+      211.97573204973926,
+      201.59373518579295,
+      170.69930350435766
+    ]
+  },
+  {
+    "rarity": "legendary",
+    "t": 300,
+    "source": ".fx-substrate-wave,.fx-spectrum-wave",
+    "neighborMean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "raisedMean": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "rarity": "mythic",
+    "t": 100,
+    "source": ".ceremony-canvas",
+    "neighborMean": [
+      123.34275972723626,
+      129.19418006782627,
+      136.7169711555993
+    ],
+    "raisedMean": [
+      123.3441818911133,
+      129.19445356087957,
+      136.71777340188893
+    ]
+  },
+  {
+    "rarity": "mythic",
+    "t": 100,
+    "source": ".fx-substrate-wave,.fx-spectrum-wave",
+    "neighborMean": [
+      0.14816030339496045,
+      0.12471283229405973,
+      0.12234255916566386
+    ],
+    "raisedMean": [
+      0.14816030339496045,
+      0.12471283229405973,
+      0.12234255916566386
+    ]
+  },
+  {
+    "rarity": "mythic",
+    "t": 200,
+    "source": ".ceremony-canvas",
+    "neighborMean": [
+      190.89607263975495,
+      199.09668891076834,
+      212.02291871786457
+    ],
+    "raisedMean": [
+      190.89523392772492,
+      199.09592313021915,
+      212.02171534843015
+    ]
+  },
+  {
+    "rarity": "mythic",
+    "t": 200,
+    "source": ".fx-substrate-wave,.fx-spectrum-wave",
+    "neighborMean": [
+      0.20408051635488458,
+      0.20110855850928053,
+      0.13207891186230536
+    ],
+    "raisedMean": [
+      0.20408051635488458,
+      0.20110855850928053,
+      0.13207891186230536
+    ]
+  },
+  {
+    "rarity": "mythic",
+    "t": 300,
+    "source": ".ceremony-canvas",
+    "neighborMean": [
+      193.6726470480983,
+      201.25259818400613,
+      213.67348576012836
+    ],
+    "raisedMean": [
+      193.6726470480983,
+      201.25259818400613,
+      213.67344929438792
+    ]
+  },
+  {
+    "rarity": "mythic",
+    "t": 300,
+    "source": ".fx-substrate-wave,.fx-spectrum-wave",
+    "neighborMean": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "raisedMean": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  }
+]

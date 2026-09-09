@@ -1,0 +1,130 @@
+{
+ "baselineMetrics": {
+  "rarity": "special",
+  "kind": "depth",
+  "nameFits": "true",
+  "plate": {
+   "left": 4.399684210526316,
+   "right": 4.39978947368421,
+   "bottom": 3.398139097744362,
+   "height": 16.197725563909774
+  },
+  "nameCenterDelta": 0.00811767578125,
+  "rarityCenterDelta": 0.0081329345703125,
+  "nameText": "魔花少女",
+  "rarityText": "特殊 / SPECIAL",
+  "nameFill": "rgba(0, 0, 0, 0)",
+  "nameTop": "face-name",
+  "nameImage": "linear-gradient(120d",
+  "nameShadow": "none",
+  "plateBg": "linear-gradient(",
+  "sheenLayers": 3,
+  "plateAlpha": "linear-gradient(to top, rgba(2",
+  "cardWidth": 380,
+  "nameFs": 31.45,
+  "rarityFs": 17.69,
+  "gemFs": 28.83,
+  "maxOverflow": -7.72113037109375,
+  "layers": [
+   [
+    600,
+    840
+   ],
+   [
+    600,
+    840
+   ],
+   [
+    600,
+    840
+   ]
+  ],
+  "hasSubjectMask": true
+ },
+ "rarityContrast": {
+  "特殊": 11.99,
+  "SPECIAL": 11.7
+ },
+ "nameContrast": 5.73,
+ "gemContrast": 145.67,
+ "stats": {
+  "ringMean": 149.18015669211664,
+  "ringStd": 61.67002091699553,
+  "cardMean": 180.30247430624252,
+  "centerMean": 206.13795575735116
+ },
+ "gainsPercent": {
+  "ringMean": 0.0,
+  "ringStd": 0.0,
+  "cardMean": 0.0,
+  "centerMean": 0.0
+ },
+ "css": {
+  "fill": "rgb(241, 240, 229)",
+  "image": "none",
+  "shadow": "rgb(58, 20, 40) 0px 1px 2px",
+  "nameHit": "face-name",
+  "rarityHit": "face-rarity",
+  "particles": null
+ },
+ "motionPercent": 0.0,
+ "plateMotionPercent": 0.0,
+ "particlePeak": 0.0,
+ "particleNeighborPeak": 0.0,
+ "particleGainPercent": 0.0,
+ "rafs": 0,
+ "tiltedGradients": [
+  "linear-gradient(190deg, rgb(255, 179, 221) 0%, rgb(255, 210, 236) 20%, rgb(239, 208, 255) 42%, rgb(191, 224, 255) 66%, rgb(216, 246, 255) 86%, rgb(255, 179, 221) 100%)",
+  "none"
+ ],
+ "reducedPercent": 0.0,
+ "reducedAnimation": [],
+ "failures": [
+  [
+   "particle motion >=0.15%",
+   0.0
+  ],
+  [
+   "visible particle peak >=8",
+   [
+    0.0,
+    0.0
+   ]
+  ],
+  [
+   "frame brightness +12..30%",
+   0.0
+  ],
+  [
+   "rarity transparent fill",
+   "rgb(241, 240, 229)"
+  ],
+  [
+   "rarity linear gradient",
+   "none"
+  ],
+  [
+   "rarity no text-shadow",
+   "rgb(58, 20, 40) 0px 1px 2px"
+  ],
+  [
+   "name contrast >=6.44",
+   5.73
+  ],
+  [
+   "particle layer exists",
+   null
+  ],
+  [
+   "both gradients follow phase",
+   [
+    "linear-gradient(190deg, rgb(255, 179, 221) 0%, rgb(255, 210, 236) 20%, rgb(239, 208, 255) 42%, rgb(191, 224, 255) 66%, rgb(216, 246, 255) 86%, rgb(255, 179, 221) 100%)",
+    "none"
+   ]
+  ],
+  [
+   "reduced animation none",
+   []
+  ]
+ ]
+}

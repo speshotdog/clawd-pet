@@ -8,11 +8,13 @@ shutil.copy2(HERE/'deluxe-gacha-b-standalone.html',portable/'production.html')
 rows=[]
 with sync_playwright() as pw:
  b=pw.chromium.launch()
- p=b.new_page(viewport={'width':1440,'height':900})
- p.goto((OUT/'frozen-before-reproduction.html').as_uri())
- p.evaluate('document.fonts.ready')
- p.screenshot(path=str(OUT/'D-before-buttons.png'))
- p.locator('.entry-actions').screenshot(path=str(OUT/'D-before-buttons-detail.png'));p.close()
+ historical=OUT/'frozen-before-reproduction.html'
+ if historical.exists():
+    p=b.new_page(viewport={'width':1440,'height':900})
+    p.goto(historical.as_uri());p.evaluate('document.fonts.ready')
+    p.screenshot(path=str(OUT/'D-before-buttons.png'))
+    p.locator('.entry-actions').screenshot(path=str(OUT/'D-before-buttons-detail.png'));p.close()
+ else:print('Historical button screenshot input is absent; current production checks still run.')
  for label,file in [('dev',HERE/'deluxe-gacha-b.html'),('portable',portable/'production.html')]:
     p=b.new_page(reduced_motion='reduce',viewport={'width':1440,'height':900});errors=[]
     p.on('pageerror',lambda e:errors.append(str(e)));p.on('console',lambda m:errors.append(m.text) if m.type=='error' else None)

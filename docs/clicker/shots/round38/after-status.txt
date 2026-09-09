@@ -1,0 +1,73 @@
+ M _art/holo-test/build_card_scenes.py
+ M _art/holo-test/ceremony-background.svg
+ M _art/holo-test/ceremony-fx.js
+ M _art/holo-test/ceremony-layout.js
+ M _art/holo-test/ceremony.css
+ M _art/holo-test/check_gacha_audio_round30.py
+ M _art/holo-test/check_gacha_followup.py
+ M _art/holo-test/check_gacha_layers_round33.py
+ M _art/holo-test/check_new_cards_round32.py
+ M _art/holo-test/check_ui_round33.py
+ M _art/holo-test/deluxe-gacha-b-standalone.html
+ M _art/holo-test/deluxe-gacha-b-test-standalone.html
+ M _art/holo-test/deluxe-gacha-b-test.html
+ M _art/holo-test/deluxe-gacha-b.html
+ M _art/holo-test/prepare_round32.py
+ M docs/clicker/ISSUES-2026-09-09-night.md
+ M docs/clicker/shots/round33/retained/demo/verification-round8.json
+ M docs/clicker/shots/round33/retained/demo/verification-round9.json
+?? _art/holo-test/bright_edge.py
+?? _art/holo-test/build_gift_card.py
+?? _art/holo-test/build_mtk_art.py
+?? _art/holo-test/build_mtk_card.py
+?? _art/holo-test/check_acceptance_round34.py
+?? _art/holo-test/check_background_mean_round34.py
+?? _art/holo-test/check_bright_edge.py
+?? _art/holo-test/check_epic_cause_round34.py
+?? _art/holo-test/check_gacha_round34.py
+?? _art/holo-test/check_gift_card.py
+?? _art/holo-test/check_glow_candidates_round34.py
+?? _art/holo-test/check_gpu_timing_round34.py
+?? _art/holo-test/check_mtk_card.py
+?? _art/holo-test/check_retained_round34.py
+?? _art/holo-test/check_wave_coverage_round34.py
+?? _art/holo-test/gift-mohuashaonv.html
+?? _art/holo-test/gift/
+?? _art/holo-test/mtk-card.html
+?? _art/holo-test/mtk/
+?? _art/holo-test/shots/gift-alt.png
+?? _art/holo-test/shots/gift-dev.png
+?? _art/holo-test/shots/gift-flat.png
+?? _art/holo-test/shots/gift-idle.png
+?? _art/holo-test/shots/gift-moved-copy.png
+?? _art/holo-test/shots/gift-tilt.png
+?? _art/holo-test/shots/mtk-dev-normal.png
+?? _art/holo-test/shots/mtk-dev-special-late.png
+?? _art/holo-test/shots/mtk-dev-special.png
+?? _art/holo-test/shots/mtk-dev-tilt.png
+?? _art/holo-test/shots/mtk-moved-copy-normal.png
+?? _art/holo-test/shots/mtk-moved-copy-special.png
+?? _art/holo-test/shots/mtk-standalone-copy-normal.png
+?? _art/holo-test/shots/mtk-standalone-copy-special.png
+?? _art/holo-test/verification-bright-edge.json
+?? _art/holo-test/verification-gift.json
+?? _art/holo-test/verification-mtk.json
+?? _art/holo-test/write_report_round34.py
+?? docs/clicker/BRIEF-holo-round34.md
+?? docs/clicker/BRIEF-holo-round35.md
+?? docs/clicker/BRIEF-holo-round36.md
+?? docs/clicker/BRIEF-holo-round37.md
+?? docs/clicker/BRIEF-holo-round38.md
+?? docs/clicker/PLAN-round36-depth.md
+?? docs/clicker/REPORT-holo-round34.md
+?? docs/clicker/REPORT-holo-round35.md
+?? docs/clicker/REPORT-holo-round36.md
+?? docs/clicker/REPORT-holo-round37.md
+?? docs/clicker/REPORT-holo-round38.md
+?? docs/clicker/shots/round33/retained/retained30/regression/followup.json
+?? docs/clicker/shots/round33/retained/retained30/regression/sizing.json
+?? docs/clicker/shots/round34/
+?? docs/clicker/shots/round35/
+?? docs/clicker/shots/round36/
+?? docs/clicker/shots/round37/
+?? docs/clicker/shots/round38/

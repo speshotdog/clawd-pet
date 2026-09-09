@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "probe_round33_before.py"
+  ],
+  "script": [
+    "probe_round33_before.py"
+  ],
+  "exit": 0,
+  "seconds": 61.58,
+  "log": "1788963169099762100-probe_round33_before.log"
+}

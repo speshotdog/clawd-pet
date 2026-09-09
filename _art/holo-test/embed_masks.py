@@ -16,6 +16,7 @@ old_html=(out/'demo.html').read_text(encoding='utf-8')
 data.update(json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>',old_html,re.S).group(1)))
 from pool_data import pool, EXTRA_CARDS
 extra_files={c['file'] for c in EXTRA_CARDS}
+extra_files.update(f"layer-{c['id']}-subject.png" for c in EXTRA_CARDS if c.get('scene'))
 
 def resolve_art(card):
     """One data-driven resolver: scene layers, research art, legacy source fallback."""

@@ -1,0 +1,52 @@
+--- before-builder
++++ build_gift_card.py
+@@ -378,18 +378,16 @@
+ // ── 特殊動作：另一支動畫疊在上面，用疊化切換 ─────────────────────
+ // 兩支動畫共用同一個裁切框與擺放（build 時就對齊了），所以疊化中角色不會位移。
+ const altImg = document.createElement('img');
+-// 一開始就給 src：一來先讀進 cache，二來沒有 src 的 <img> 會讓
+-// 「所有圖都載入完成」的等待條件永遠不成立（驗收腳本會卡住）。
+-altImg.src = A['alt'];
++// 待機不持有動畫來源；觸發並 decode 完成後才開始疊化。
+ altImg.alt = ''; altImg.draggable = false; altImg.style.opacity = '0';
+ media.append(altImg);
+ const altMask = document.createElement('div');
+ altMask.className = 'subject-mask';
+-altMask.style.setProperty('--subject', `url("${A['alt-mask']}")`);
++altMask.style.setProperty('--subject', 'none');
+ altMask.style.opacity = '0';
+ altMask.innerHTML = baseMask ? baseMask.innerHTML : '';
+ media.append(altMask);
+-const altTint = sheen(media, 'subject-mask special-tint', `url("${A['alt-mask']}")`);
++const altTint = sheen(media, 'subject-mask special-tint', 'none');
+ altTint.style.opacity = '0';
+ 
+ // 固定分布與負延遲：開頁即散開，只有 CSS transform／opacity 在動。
+@@ -429,16 +427,23 @@
+   card.dataset.face = alt ? 'alt' : 'idle';
+ }
+ 
+-function trigger() {
++async function trigger() {
+   if (busy) return;
+   busy = true;
+-  altImg.removeAttribute('src');    // 同一個 src 再指定不會重播，要清掉才從第 0 格開始
+   altImg.src = A['alt'];
++  await altImg.decode();
+   altMask.style.setProperty('--subject', `url("${A['alt-mask']}")`);
++  altTint.style.setProperty('--subject', `url("${A['alt-mask']}")`);
+   show(true);
+-  timers.push(setTimeout(() => {    // 疊化進去 + 完整跑一輪，再疊化回來
++  timers.push(setTimeout(async () => {    // 疊化進去 + 完整跑一輪，再疊化回來
+     show(false);
+-    timers.push(setTimeout(() => { busy = false; }, FADE));
++    // 等真正的淡出終點（也支援驗收暫停過渡），才釋放動畫來源。
++    getComputedStyle(altImg).opacity;
++    await Promise.all(altImg.getAnimations().map(a => a.finished));
++    altImg.removeAttribute('src');
++    altMask.style.setProperty('--subject', 'none');
++    altTint.style.setProperty('--subject', 'none');
++    busy = false;
+   }, FADE + CYCLE));
+ }
+ 

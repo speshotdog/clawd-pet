@@ -1,0 +1,178 @@
+{
+ "desktop-round33": {
+  "id": "rocketdog",
+  "width": 375,
+  "height": 525,
+  "boxes": {
+   ".art-media": {
+    "left": 2.4,
+    "right": 2.4,
+    "top": 1.6994057142857142,
+    "bottom": 3.297619047619048,
+    "width": 95.19999999999999,
+    "height": 95.00304761904762
+   },
+   ".face-plate": {
+    "left": 4.3999999999999995,
+    "right": 4.3999999999999995,
+    "top": 80.40171428571429,
+    "bottom": 3.398819047619048,
+    "width": 91.2,
+    "height": 16.19940952380952
+   },
+   ".face-text": {
+    "left": 4.3999999999999995,
+    "right": 4.3999999999999995,
+    "top": 80.40171428571429,
+    "bottom": 3.398819047619048,
+    "width": 91.2,
+    "height": 16.19940952380952
+   },
+   ".face-gem": {
+    "left": 9.700000000000001,
+    "right": 82.7168,
+    "top": 85.29466666666667,
+    "bottom": 9.288685714285714,
+    "width": 7.583333333333334,
+    "height": 5.416666666666667
+   }
+  },
+  "layers": {
+   ".face-depth-bg": {
+    "z": 2,
+    "zIndex": "10"
+   },
+   ".face-art": {
+    "z": 36.4,
+    "zIndex": "30"
+   },
+   ".face-frame": {
+    "z": 24,
+    "zIndex": "10"
+   },
+   ".face-plate": {
+    "z": 13,
+    "zIndex": "20"
+   },
+   ".face-text": {
+    "z": 40,
+    "zIndex": "200"
+   },
+   ".face-gem": {
+    "z": 42,
+    "zIndex": "210"
+   }
+  },
+  "fontShares": {
+   "--name-fs": 8.274666666666667,
+   "--rarity-fs": 4.656000000000001,
+   "--gem-fs": 7.586666666666667
+  },
+  "foil": {
+   "--foil-gain": "1.08",
+   "--grain-gain": "1.5",
+   "--subject-gain": ".42",
+   "--palette": "repeating-linear-gradient(124deg,#efc080 0%,#b6e5bd 12%,#8acada 24%,#b0a1e4 36%,#e1a2d5 48%,#efc080 60%)"
+  },
+  "mask": {
+   "attached": true,
+   "size": "100% 100%"
+  },
+  "frameMaterial": "conic-gradient(from 120deg, rgb(220, 197, 154), rgb(164, 214, 186), rgb(158, 189, 228), rgb(196, 166, 221), rgb(227, 178, 177), rgb(220, 197, 154))",
+  "frameShadow": "rgba(255, 255, 255, 0.533) 0px 0px 0px 2.8626px inset, rgb(147, 240, 223) 0px 0px 0px 5.72519px inset, rgb(24, 16, 28) 0px 0px 0px 10.0191px inset, rgba(255, 255, 255, 0.333) 0px 0px 0px 12.8817px inset, rgb(147, 240, 223) 0px 0px 20.0382px 0px",
+  "nameGemGap": 37.87298583984375,
+  "glyphCenterDelta": 0.00811767578125,
+  "maskAlignment": {
+   "frames": 1,
+   "minimumAlphaIoU": 0.9998045959043301
+  }
+ },
+ "cards-remade": {
+  "id": "rocketdog",
+  "width": 261.594,
+  "height": 366.219,
+  "boxes": {
+   ".art-media": {
+    "left": 2.3951696139819725,
+    "right": 2.3951696139819725,
+    "top": 1.6980959480529412,
+    "bottom": 3.298053896712076,
+    "width": 95.20937024549492,
+    "height": 95.00380919613674
+   },
+   ".face-plate": {
+    "left": 4.396125293393579,
+    "right": 4.396125293393579,
+    "top": 80.40789800638416,
+    "bottom": 3.3961918961058823,
+    "width": 91.20774941321285,
+    "height": 16.195910097509962
+   },
+   ".face-text": {
+    "left": 4.396125293393579,
+    "right": 4.396125293393579,
+    "top": 80.40789800638416,
+    "bottom": 3.3961918961058823,
+    "width": 91.20774941321285,
+    "height": 16.195910097509962
+   },
+   ".face-gem": {
+    "left": 9.700146027814094,
+    "right": 82.7140530746118,
+    "top": 85.29295312367736,
+    "bottom": 9.288322014969184,
+    "width": 7.585724443221176,
+    "height": 5.418561024960475
+   }
+  },
+  "layers": {
+   ".face-depth-bg": {
+    "z": 2,
+    "zIndex": "10"
+   },
+   ".face-art": {
+    "z": 36.4,
+    "zIndex": "30"
+   },
+   ".face-frame": {
+    "z": 24,
+    "zIndex": "10"
+   },
+   ".face-plate": {
+    "z": 13,
+    "zIndex": "20"
+   },
+   ".face-text": {
+    "z": 40,
+    "zIndex": "200"
+   },
+   ".face-gem": {
+    "z": 42,
+    "zIndex": "210"
+   }
+  },
+  "fontShares": {
+   "--name-fs": 8.276183704519216,
+   "--rarity-fs": 4.656070093350765,
+   "--gem-fs": 7.588094528161962
+  },
+  "foil": {
+   "--foil-gain": "1.08",
+   "--grain-gain": "1.5",
+   "--subject-gain": ".42",
+   "--palette": "repeating-linear-gradient(124deg,#efc080 0%,#b6e5bd 12%,#8acada 24%,#b0a1e4 36%,#e1a2d5 48%,#efc080 60%)"
+  },
+  "mask": {
+   "attached": true,
+   "size": "100% 100%"
+  },
+  "frameMaterial": "conic-gradient(from 120deg, rgb(220, 197, 154), rgb(164, 214, 186), rgb(158, 189, 228), rgb(196, 166, 221), rgb(227, 178, 177), rgb(220, 197, 154))",
+  "frameShadow": "rgba(255, 255, 255, 0.533) 0px 0px 0px 1.9969px inset, rgb(147, 240, 223) 0px 0px 0px 3.9938px inset, rgb(24, 16, 28) 0px 0px 0px 6.98915px inset, rgba(255, 255, 255, 0.333) 0px 0px 0px 8.98605px inset, rgb(147, 240, 223) 0px 0px 13.9783px 0px",
+  "nameGemGap": 26.40021514892578,
+  "glyphCenterDelta": 3.814697265625e-06,
+  "maskAlignment": {
+   "frames": 1,
+   "minimumAlphaIoU": 1.0
+  }
+ }
+}

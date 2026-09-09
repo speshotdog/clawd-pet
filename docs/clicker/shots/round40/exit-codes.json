@@ -1,0 +1,70 @@
+[
+  {
+    "script": "check_demo_round8.py",
+    "args": [
+      "C:\\Python310\\python.exe",
+      "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\check_demo_round8.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "script": "check_demo_round9.py",
+    "args": [
+      "C:\\Python310\\python.exe",
+      "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\check_demo_round9.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "script": "check_gacha_card_regression.py",
+    "args": [
+      "C:\\Python310\\python.exe",
+      "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\check_gacha_card_regression.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "script": "check_gacha_followup.py",
+    "args": [
+      "C:\\Python310\\python.exe",
+      "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\check_gacha_followup.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "script": "check_bright_edge.py",
+    "args": [
+      "C:\\Python310\\python.exe",
+      "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\check_bright_edge.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "script": "check_new_cards_round32.py",
+    "args": [
+      "C:\\Python310\\python.exe",
+      "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\check_new_cards_round32.py"
+    ],
+    "exit_code": 1
+  },
+  {
+    "script": "check_gift_card.py",
+    "args": [
+      "C:\\Python310\\python.exe",
+      "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\check_gift_card.py",
+      "--tag",
+      "round40"
+    ],
+    "exit_code": 0
+  },
+  {
+    "script": "check_gift_perf.py",
+    "args": [
+      "C:\\Python310\\python.exe",
+      "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\check_gift_perf.py",
+      "--tag",
+      "round40"
+    ],
+    "exit_code": 1
+  }
+]

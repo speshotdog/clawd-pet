@@ -1,0 +1,13 @@
+{
+  "src\\gacha-pool.js": "b264c057bed47e1c6192e5e761a2dff696e8a0d47cf5ba356a62397969f99964",
+  "_art\\holo-test\\card_face.js": "4a909694d101b428356fde9e0f4454d8fe53c15c178521412ba9766690765f33",
+  "_art\\holo-test\\art\\card-zhenzhen.png": "baa8626aa9492fb9afa526b91b156c58315337c9ca588d4a179b1bda20fe3999",
+  "_art\\holo-test\\build_gift_card.py": "f13ef0327f17b61118c1c7e7e528f7782df1f7ffc16fb3e4506c768402a7d061",
+  "_art\\holo-test\\gift-mohuashaonv.html": "de5f4101658877303b7ea425169c173547ae77519664b3e3392d9826d6379d3a",
+  "_art\\holo-test\\gift\\layer-mohuashaonv-alt-mask.webp": "6b251baad96990319e16c8d6b761844bcddf64b18ac7f6fc8a4e49c86576a34d",
+  "_art\\holo-test\\gift\\layer-mohuashaonv-alt.webp": "2106cf2d734136a9eed41fb3f1dd4f06473c0d16140b998338317cb2f1159b1a",
+  "_art\\holo-test\\gift\\layer-mohuashaonv-background.png": "b6bd653eb24cf0dc447e4576e2a57e0ca7ae3bb1eac0e56b58e6d29c5771b7fd",
+  "_art\\holo-test\\gift\\layer-mohuashaonv-idle-mask.webp": "b0162e4124043fb66044c30a3db2b595b19ff0878874036cf19e69ba984361c2",
+  "_art\\holo-test\\gift\\layer-mohuashaonv-idle.webp": "22a0e43406cc7333894744adab28feb844ae3a96e16a6e4891c1a6b959691366",
+  "_art\\holo-test\\gift\\manifest.json": "5cc6f9fcc1f7a1d07b130a6408bcd3e9cb3d239ddcb123868bbaee83e20374f9"
+}

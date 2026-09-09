@@ -1,0 +1,42 @@
+{
+  "filter": {
+    "timing": {
+      "p95": 166.60000000000164,
+      "max": 300.09999999999854,
+      "frames": 544,
+      "over20": 233
+    },
+    "pixels": {
+      "meanBefore": 13.44829012345679,
+      "meanAfter": 13.952917438271605,
+      "meanRatio": 1.0375235297708691,
+      "linePixels": 23505,
+      "lineBefore": 15.15120187194214,
+      "lineAfter": 32.90134014039566,
+      "lineRatio": 2.171533348870774,
+      "widthBefore": 2.0,
+      "widthAfter": 4.375,
+      "widthRatio": 2.1875
+    }
+  },
+  "double": {
+    "timing": {
+      "p95": 166.60000000000036,
+      "max": 316.6999999999998,
+      "frames": 505,
+      "over20": 252
+    },
+    "pixels": {
+      "meanBefore": 13.44829012345679,
+      "meanAfter": 13.726053240740741,
+      "meanRatio": 1.0206541586130322,
+      "linePixels": 23505,
+      "lineBefore": 15.15120187194214,
+      "lineAfter": 24.801489044884068,
+      "lineRatio": 1.6369321229105185,
+      "widthBefore": 2.0,
+      "widthAfter": 4.0,
+      "widthRatio": 2.0
+    }
+  }
+}

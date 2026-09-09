@@ -1,0 +1,12 @@
+{
+ "screen": {
+  "peak": 81.735,
+  "pixelsOver6": 881,
+  "cardGainPercent": 0.01488782112175624
+ },
+ "normal": {
+  "peak": 75.995,
+  "pixelsOver6": 809,
+  "cardGainPercent": 0.013057214717582255
+ }
+}

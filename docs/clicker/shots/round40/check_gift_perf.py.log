@@ -1,0 +1,16 @@
+{"run": 1, "entry": "dev", "mode": "current", "fps": 20.222111718879496, "medianMs": 50.0, "p95Ms": 50.09999999999991, "idleRaf": 0, "passed": false}
+{"run": 1, "entry": "moved-copy", "mode": "current", "fps": 20.440458921271265, "medianMs": 50.0, "p95Ms": 50.100000000000364, "idleRaf": 0, "passed": false}
+{"run": 2, "entry": "dev", "mode": "current", "fps": 20.55294039647285, "medianMs": 50.0, "p95Ms": 50.09999999999991, "idleRaf": 0, "passed": false}
+{"run": 2, "entry": "moved-copy", "mode": "current", "fps": 20.553621747057846, "medianMs": 50.0, "p95Ms": 50.09999999999991, "idleRaf": 0, "passed": false}
+{"run": 3, "entry": "dev", "mode": "current", "fps": 20.552940396472852, "medianMs": 50.0, "p95Ms": 50.10000000000035, "idleRaf": 0, "passed": false}
+{"run": 3, "entry": "moved-copy", "mode": "current", "fps": 20.55362174705785, "medianMs": 50.0, "p95Ms": 50.09999999999991, "idleRaf": 0, "passed": false}
+{"run": 4, "entry": "dev", "mode": "current", "fps": 20.32853536181514, "medianMs": 50.0, "p95Ms": 50.09999999999991, "idleRaf": 0, "passed": false}
+{"run": 4, "entry": "moved-copy", "mode": "current", "fps": 20.328535361815145, "medianMs": 50.0, "p95Ms": 50.09999999999991, "idleRaf": 0, "passed": false}
+{"run": 5, "entry": "dev", "mode": "current", "fps": 20.656414964425064, "medianMs": 50.0, "p95Ms": 50.100000000000136, "idleRaf": 0, "passed": false}
+{"run": 5, "entry": "moved-copy", "mode": "current", "fps": 20.657092268345465, "medianMs": 50.0, "p95Ms": 50.100000000000364, "idleRaf": 0, "passed": false}
+Traceback (most recent call last):
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_gift_perf.py", line 84, in <module>
+    main()
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_gift_perf.py", line 80, in main
+    assert all(r['passed'] for r in results), 'frame budget failed; see recorded measurements'
+AssertionError: frame budget failed; see recorded measurements

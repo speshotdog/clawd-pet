@@ -1,0 +1,982 @@
+[
+  {
+    "seed": 0,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 26.42891123071658,
+        "waveStd": 25.942632100174464,
+        "ratio": 0.9816004856841418
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 7.99520453310295,
+        "waveStd": 7.945977675946055,
+        "ratio": 0.9938429521154738
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 6.812554451316555,
+        "waveStd": 5.791570721865915,
+        "ratio": 0.8501320265772949
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 8.652669636403248,
+        "waveStd": 7.747612008660133,
+        "ratio": 0.8954013425018119
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 1,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 23.021641539733665,
+        "waveStd": 22.270577947532278,
+        "ratio": 0.9673757585485333
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.9975934136928775,
+        "waveStd": 5.738268307373036,
+        "ratio": 1.1482063129927271
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 13.419813976024246,
+        "waveStd": 13.026859505167696,
+        "ratio": 0.970718336963642
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 11.672589206149175,
+        "waveStd": 11.83942316231355,
+        "ratio": 1.0142927977004867
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 2,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 17.03615952696574,
+        "waveStd": 16.659523974738704,
+        "ratio": 0.9778919919345157
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.9975934136928775,
+        "waveStd": 5.738268307373036,
+        "ratio": 1.1482063129927271
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 6.553934400972962,
+        "waveStd": 5.47737021084597,
+        "ratio": 0.8357377226773628
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 15.514183372459078,
+        "waveStd": 14.383352338373552,
+        "ratio": 0.9271098576743015
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 3,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 2.9759150927975635,
+        "waveStd": 3.102789167850114,
+        "ratio": 1.0426336340575093
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.0237417653946155,
+        "waveStd": 4.234489965981934,
+        "ratio": 1.0523761744354014
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 7.161536548015791,
+        "waveStd": 6.281405978780661,
+        "ratio": 0.8771031100191784
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 13.896171547353228,
+        "waveStd": 12.944438881588637,
+        "ratio": 0.9315111602845846
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 4,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 6.955246571029547,
+        "waveStd": 7.160877527864063,
+        "ratio": 1.02956486944561
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.999999159840298,
+        "waveStd": 5.742576187081913,
+        "ratio": 1.1485154304036589
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 0.0,
+        "waveStd": 1.9867819255626435,
+        "ratio": null
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 6.2541617164501115,
+        "waveStd": 6.806428384030701,
+        "ratio": 1.088303867507612
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 5,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 6.955246571029547,
+        "waveStd": 7.160877527864063,
+        "ratio": 1.02956486944561
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.9975934136928775,
+        "waveStd": 5.738268307373036,
+        "ratio": 1.1482063129927271
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 12.512137933716106,
+        "waveStd": 12.088918835929208,
+        "ratio": 0.9661753171177516
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 0.8346378904430743,
+        "waveStd": 1.7743846303230115,
+        "ratio": null
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 6,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 3.8863598981565617,
+        "waveStd": 3.817646301940719,
+        "ratio": 0.9823192915693588
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 14.044385262584715,
+        "waveStd": 13.442429854564057,
+        "ratio": 0.9571390703995916
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 10.842792649560753,
+        "waveStd": 10.806532092267492,
+        "ratio": 0.9966557916889862
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 10.432484588719868,
+        "waveStd": 9.712127491346234,
+        "ratio": 0.9309505716258119
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 7,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 19.216185468122198,
+        "waveStd": 18.924836104795393,
+        "ratio": 0.984838335172705
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 12.83393561545493,
+        "waveStd": 12.69367035024632,
+        "ratio": 0.9890707519960051
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 8.594259120391435,
+        "waveStd": 9.26083399939655,
+        "ratio": 1.0775604819062932
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 9.873392403374863,
+        "waveStd": 9.243606063719099,
+        "ratio": 0.9362137840849418
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 8,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 19.663092108085397,
+        "waveStd": 19.123059384145193,
+        "ratio": 0.9725357171205975
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.9975934136928775,
+        "waveStd": 5.738268307373036,
+        "ratio": 1.1482063129927271
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 13.916870409934859,
+        "waveStd": 13.037052873756473,
+        "ratio": 0.9367805037869499
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 5.916074781164157,
+        "waveStd": 6.024988102283112,
+        "ratio": 1.0184097269131414
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 9,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 30.293279440069586,
+        "waveStd": 29.60848083918088,
+        "ratio": 0.9773943721661609
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.9975934136928775,
+        "waveStd": 5.738268307373036,
+        "ratio": 1.1482063129927271
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 6.553934400972962,
+        "waveStd": 5.47737021084597,
+        "ratio": 0.8357377226773628
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 13.43738586092958,
+        "waveStd": 12.542165291690331,
+        "ratio": 0.9333783684933701
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 10,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 6.955246571029547,
+        "waveStd": 7.160877527864063,
+        "ratio": 1.02956486944561
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 31.25522665806081,
+        "waveStd": 30.881840146430033,
+        "ratio": 0.9880536296947801
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 8.00719614291585,
+        "waveStd": 7.328247649182376,
+        "ratio": 0.9152077104625249
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 11.869206513718856,
+        "waveStd": 11.14681788581799,
+        "ratio": 0.939137580337329
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 11,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 6.955246571029547,
+        "waveStd": 7.160877527864063,
+        "ratio": 1.02956486944561
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.9975934136928775,
+        "waveStd": 5.738268307373036,
+        "ratio": 1.1482063129927271
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 14.005179055231274,
+        "waveStd": 13.21400651662308,
+        "ratio": 0.9435085738291455
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 8.47976751702882,
+        "waveStd": 9.268936380872029,
+        "ratio": 1.093064917435345
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 12,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 15.247304354383886,
+        "waveStd": 15.008793497932794,
+        "ratio": 0.9843571787571411
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.9975934136928775,
+        "waveStd": 5.738268307373036,
+        "ratio": 1.1482063129927271
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 13.145022979097876,
+        "waveStd": 12.75987024522698,
+        "ratio": 0.9706997291306881
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 14.46488182193166,
+        "waveStd": 13.938542657988727,
+        "ratio": 0.9636126191404552
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 13,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 24.476551511249586,
+        "waveStd": 24.1433568552495,
+        "ratio": 0.9863871895578531
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 1.9395555306241457,
+        "waveStd": 2.0699670782657313,
+        "ratio": 1.0672378519627224
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 9.141657453635831,
+        "waveStd": 8.709094445721346,
+        "ratio": 0.9526822121580977
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 8.619815803704618,
+        "waveStd": 7.707745375627701,
+        "ratio": 0.8941891046343555
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 14,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 14.947730411203358,
+        "waveStd": 14.844689445907166,
+        "ratio": 0.993106581235974
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 18.76469785896619,
+        "waveStd": 17.935861188472348,
+        "ratio": 0.9558300018085393
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 18.045978882905526,
+        "waveStd": 18.045945302713076,
+        "ratio": 0.9999981391869808
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 19.199707215029534,
+        "waveStd": 19.10477421900567,
+        "ratio": 0.9950554977239678
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 15,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 15.814288772145854,
+        "waveStd": 15.540184045775328,
+        "ratio": 0.9826672744933485
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.9975934136928775,
+        "waveStd": 5.738268307373036,
+        "ratio": 1.1482063129927271
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 9.951702378908337,
+        "waveStd": 9.09171007443409,
+        "ratio": 0.9135833979222573
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 20.493082755318355,
+        "waveStd": 19.370830374244544,
+        "ratio": 0.9452375030895455
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 16,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 1.811753315125401,
+        "waveStd": 1.948205152280367,
+        "ratio": 1.0753147992145506
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 3.0688370720168856,
+        "waveStd": 3.1961989738902887,
+        "ratio": 1.0415016825216137
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 6.553934400972962,
+        "waveStd": 5.47737021084597,
+        "ratio": 0.8357377226773628
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 8.652669636403248,
+        "waveStd": 7.747612008660133,
+        "ratio": 0.8954013425018119
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 17,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 6.955246571029547,
+        "waveStd": 7.160877527864063,
+        "ratio": 1.02956486944561
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 22.730420598482354,
+        "waveStd": 22.65247364123381,
+        "ratio": 0.9965708088457568
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 4.5413802910675605,
+        "waveStd": 5.534111689594508,
+        "ratio": 1.2185968438889716
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 13.104548205621947,
+        "waveStd": 12.912220046553275,
+        "ratio": 0.9853235566727769
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 18,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 6.955246571029547,
+        "waveStd": 7.160877527864063,
+        "ratio": 1.02956486944561
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 4.9975934136928775,
+        "waveStd": 5.738268307373036,
+        "ratio": 1.1482063129927271
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 13.848083246502965,
+        "waveStd": 12.952540629677886,
+        "ratio": 0.9353309334668226
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 4.070413657963865,
+        "waveStd": 4.091008308423712,
+        "ratio": 1.0050595964416424
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  },
+  {
+    "seed": 19,
+    "canvasOpacity": 0.25,
+    "cssOpacity": 0.4,
+    "labels": [
+      {
+        "index": 0,
+        "label": ".face-name",
+        "baseStd": 3.3817145599433744,
+        "waveStd": 3.548156444834324,
+        "ratio": 1.0492181944811263
+      },
+      {
+        "index": 0,
+        "label": ".face-rarity",
+        "baseStd": 15.928335686969113,
+        "waveStd": 15.586402404935734,
+        "ratio": 0.9785330188443283
+      },
+      {
+        "index": 1,
+        "label": ".face-name",
+        "baseStd": 12.903385244909442,
+        "waveStd": 12.726463564393084,
+        "ratio": 0.9862887391829089
+      },
+      {
+        "index": 1,
+        "label": ".face-rarity",
+        "baseStd": 14.000450721607617,
+        "waveStd": 13.741085124842336,
+        "ratio": 0.9814744823632722
+      },
+      {
+        "index": 2,
+        "label": ".face-name",
+        "baseStd": 50.03226696935645,
+        "waveStd": 50.03226696935645,
+        "ratio": 1.0
+      },
+      {
+        "index": 2,
+        "label": ".face-rarity",
+        "baseStd": 44.73519224003152,
+        "waveStd": 44.73519224003152,
+        "ratio": 1.0
+      }
+    ]
+  }
+]

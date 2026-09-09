@@ -1,0 +1,11 @@
+{
+  "initialOpacity": 0.65,
+  "initialIsolatedBackground": {
+    "before": 2.7654814814814817,
+    "after": 3.244006172839506,
+    "ratio": 1.1730348565204192,
+    "pass": false
+  },
+  "finalOpacity": 0.5,
+  "reason": "The foreground diluted the full-frame average; reduce the halo to also meet the isolated full-background limit."
+}

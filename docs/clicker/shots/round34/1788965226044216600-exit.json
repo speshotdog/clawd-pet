@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_hover_round33.py"
+  ],
+  "script": [
+    "check_hover_round33.py"
+  ],
+  "exit": 0,
+  "seconds": 5.61,
+  "log": "1788965226044216600-check_hover_round33.log"
+}

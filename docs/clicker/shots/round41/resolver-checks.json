@@ -1,0 +1,18 @@
+[
+  {
+    "script": "build_gift_card.py",
+    "repo_priority": true,
+    "desktop_fallback": true,
+    "environment_fallback": true,
+    "incomplete_rejected": true,
+    "searched_paths_reported": true
+  },
+  {
+    "script": "prepare_round32.py",
+    "repo_priority": true,
+    "desktop_fallback": true,
+    "environment_fallback": true,
+    "incomplete_rejected": true,
+    "searched_paths_reported": true
+  }
+]

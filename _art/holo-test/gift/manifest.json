@@ -1,0 +1,48 @@
+{
+ "background_source": "D:\\claude\u7814\u7a76\\clawd-pet-holo\\_art\\holo-test\\gift\\source\\IMG_1820.png",
+ "background_source_size": [
+  315,
+  441
+ ],
+ "subject_source": {
+  "idle": "D:\\claude\u7814\u7a76\\clawd-pet-holo\\_art\\holo-test\\gift\\source\\mtk1.mov",
+  "alt": "D:\\claude\u7814\u7a76\\clawd-pet-holo\\_art\\holo-test\\gift\\source\\mtk2.mov"
+ },
+ "canvas": [
+  600,
+  840
+ ],
+ "layers": {
+  "idle": {
+   "subject": 2929322,
+   "mask": 362724,
+   "frames": 90
+  },
+  "alt": {
+   "subject": 2585518,
+   "mask": 358976,
+   "frames": 90
+  }
+ },
+ "palette": {
+  "base": "#312a32",
+  "glow": "#8b768e",
+  "accent": "#ffe0ff",
+  "ink": "#1b171c"
+ },
+ "source_bbox": [
+  280,
+  52,
+  1036,
+  720
+ ],
+ "placed": [
+  6,
+  190,
+  588,
+  520
+ ],
+ "plate_top_px": 675,
+ "overlaps_plate_px": 35,
+ "cropped_each_side_px": 0
+}

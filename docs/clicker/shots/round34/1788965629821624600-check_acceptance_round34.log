@@ -1,0 +1,42 @@
+after-A A full frame <=15% PASS
+after-A A line >=40% and width >=1.5x PASS
+after-A A card contrast >=98% PASS
+after-A A focus-held <=105% PASS
+final-portable-A A full frame <=15% PASS
+final-portable-A A line >=40% and width >=1.5x PASS
+final-portable-A A card contrast >=98% PASS
+final-portable-A A focus-held <=105% PASS
+A isolated full background <=15% PASS
+after B 1440 5 PASS
+after B 1440 5 exactly unchanged PASS
+after B 1440 10 PASS
+after B 1440 10 exactly unchanged PASS
+after B 1024 5 PASS
+after B 1024 10 PASS
+after B 390 5 PASS
+after B 390 10 PASS
+after C monotonic peaks and durations PASS
+after C epic >=110% rare and >=200ms PASS
+after C common and rare unchanged PASS
+after C legendary and mythic not reduced PASS
+after-portable reduced background animations PASS
+after-portable B 1440 5 PASS
+after-portable B 1440 5 exactly unchanged PASS
+after-portable B 1440 10 PASS
+after-portable B 1440 10 exactly unchanged PASS
+after-portable B 1024 5 PASS
+after-portable B 1024 10 PASS
+after-portable B 390 5 PASS
+after-portable B 390 10 PASS
+after-portable C monotonic peaks and durations PASS
+after-portable C epic >=110% rare and >=200ms PASS
+after-portable C common and rare unchanged PASS
+after-portable C legendary and mythic not reduced PASS
+filter A p95 <=20ms and baseline+2ms FAIL
+double A p95 <=20ms and baseline+2ms FAIL
+final-timing A p95 <=20ms and baseline+2ms FAIL
+final-portable-timing A p95 <=20ms and baseline+2ms FAIL
+Chrome GPU filter p95 <=20ms and baseline+2ms FAIL
+Chrome GPU double p95 <=20ms and baseline+2ms FAIL
+Chrome GPU final-dev p95 <=20ms and baseline+2ms FAIL
+Chrome GPU final-portable p95 <=20ms and baseline+2ms FAIL

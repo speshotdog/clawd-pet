@@ -1,0 +1,146 @@
+[
+  {
+    "rarity": "legendary",
+    "method": "skip",
+    "charge_to_F_ms": null,
+    "after": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "alienkitty"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "rarity": "legendary",
+    "method": "Escape",
+    "charge_to_F_ms": null,
+    "after": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "alienkitty"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "rarity": "legendary",
+    "method": "finish-charge",
+    "charge_to_F_ms": 1249,
+    "after": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "alienkitty"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "rarity": "mythic",
+    "method": "skip",
+    "charge_to_F_ms": null,
+    "after": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "rocketdog"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "rarity": "mythic",
+    "method": "Escape",
+    "charge_to_F_ms": null,
+    "after": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "rocketdog"
+      ],
+      "collectable": true
+    }
+  },
+  {
+    "rarity": "mythic",
+    "method": "finish-charge",
+    "charge_to_F_ms": 1633,
+    "after": {
+      "screen": "results",
+      "entryPhase": "idle",
+      "pageIndex": 0,
+      "selectedIndex": 0,
+      "generation": 3,
+      "busy": false,
+      "cascading": false,
+      "skipped": true,
+      "anims": 0,
+      "timers": 0,
+      "rafs": 0,
+      "voices": 0,
+      "complete": 1,
+      "ids": [
+        "rocketdog"
+      ],
+      "collectable": true
+    }
+  }
+]

@@ -1,0 +1,232 @@
+[
+  {
+    "path": "_art/holo-test/gift/source/mtk1.mov",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\mtk1.mov",
+    "bytes": 34612715,
+    "sha256": "aac030315d94400106258df7a5f779380f57972397f0164fbfaf6cce3fbcd5c4",
+    "source_sha256": "aac030315d94400106258df7a5f779380f57972397f0164fbfaf6cce3fbcd5c4",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/gift/source/mtk2.mov",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\mtk2.mov",
+    "bytes": 27911682,
+    "sha256": "2fcc278d7d074f604eec67232ccd7101f1fa8ad0f2cc1ff7049459f3eca49e2d",
+    "source_sha256": "2fcc278d7d074f604eec67232ccd7101f1fa8ad0f2cc1ff7049459f3eca49e2d",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/gift/source/IMG_1820.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\IMG_1820.png",
+    "bytes": 98599,
+    "sha256": "1556363574e5eabc8da6a1f31340b3f7097bfd248a029e209e432cf56bba4785",
+    "source_sha256": "1556363574e5eabc8da6a1f31340b3f7097bfd248a029e209e432cf56bba4785",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/今天我生日 傳說.jpg",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\今天我生日 傳說.jpg",
+    "bytes": 27921,
+    "sha256": "0f267ed73cb23a9002f0a10a8acdf9ec8ccdf83f7abc94ad4846173bfeceb306",
+    "source_sha256": "0f267ed73cb23a9002f0a10a8acdf9ec8ccdf83f7abc94ad4846173bfeceb306",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/咩噗熊 精良.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\咩噗熊 精良.png",
+    "bytes": 36488,
+    "sha256": "1c64f9fc559df4080fec8ac69eea86c508e064214dc1d70a8cfb824ed5002dde",
+    "source_sha256": "1c64f9fc559df4080fec8ac69eea86c508e064214dc1d70a8cfb824ed5002dde",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/外送咩鴿 精良.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\外送咩鴿 精良.png",
+    "bytes": 105233,
+    "sha256": "d60bf0d81f150d1368847d91a0c41df4d4f1423b8da97c81b00021fd24853859",
+    "source_sha256": "d60bf0d81f150d1368847d91a0c41df4d4f1423b8da97c81b00021fd24853859",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/小丑玥 史詩.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\小丑玥 史詩.png",
+    "bytes": 74693,
+    "sha256": "ff62db5a291fce91d913772cb7b741f55f828ca82b6140261548c40186c4c343",
+    "source_sha256": "ff62db5a291fce91d913772cb7b741f55f828ca82b6140261548c40186c4c343",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/小膠膠 史詩.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\小膠膠 史詩.png",
+    "bytes": 45649,
+    "sha256": "56a0c95582a5cb7fbc0ee5bb5b44e6ab53594292eb31f9fc9798ecd07b6f799c",
+    "source_sha256": "56a0c95582a5cb7fbc0ee5bb5b44e6ab53594292eb31f9fc9798ecd07b6f799c",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/成體熱狗 史詩.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\成體熱狗 史詩.png",
+    "bytes": 60914,
+    "sha256": "faef4d9d4851a073a2d5fab37405203e5fce9a584592d48c82fdd5fa8db1ca52",
+    "source_sha256": "faef4d9d4851a073a2d5fab37405203e5fce9a584592d48c82fdd5fa8db1ca52",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/扁扁彩華 史詩.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\扁扁彩華 史詩.png",
+    "bytes": 51885,
+    "sha256": "a3022f556241cdc0fa6a751fcbaa2e1eec7dd36d18191d27828dcf3dac420a2c",
+    "source_sha256": "a3022f556241cdc0fa6a751fcbaa2e1eec7dd36d18191d27828dcf3dac420a2c",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/普發玥玥 精良.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\普發玥玥 精良.png",
+    "bytes": 33881,
+    "sha256": "0ea160885542733407a46cfdd2668671c0aa2f417fd9d647d715867efeecb777",
+    "source_sha256": "0ea160885542733407a46cfdd2668671c0aa2f417fd9d647d715867efeecb777",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/沙堡領主 神話.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\沙堡領主 神話.png",
+    "bytes": 139517,
+    "sha256": "380549b28051b05f38a6119ee4eed94b4b5e315bb570cb6fdb44e8254bd6464a",
+    "source_sha256": "380549b28051b05f38a6119ee4eed94b4b5e315bb570cb6fdb44e8254bd6464a",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/流浪玥手 神話.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\流浪玥手 神話.png",
+    "bytes": 150097,
+    "sha256": "f948df128e6ce778da76f48a9974b52677e9d3f51b93da581e938c416b18b001",
+    "source_sha256": "f948df128e6ce778da76f48a9974b52677e9d3f51b93da581e938c416b18b001",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/玥熊 史詩.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\玥熊 史詩.png",
+    "bytes": 38757,
+    "sha256": "bb5631808bc127dee9d76659b709f9e65b2734f406e697bfe56bfa9df40049f9",
+    "source_sha256": "bb5631808bc127dee9d76659b709f9e65b2734f406e697bfe56bfa9df40049f9",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/珍氣球 神話.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\珍氣球 神話.png",
+    "bytes": 213860,
+    "sha256": "5aa146ff2e9e6bd01e46c83b6ccd09fc917026380dccdcbbecd58dd6beca75fb",
+    "source_sha256": "5aa146ff2e9e6bd01e46c83b6ccd09fc917026380dccdcbbecd58dd6beca75fb",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/珍珍 神話.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\珍珍 神話.png",
+    "bytes": 6403612,
+    "sha256": "96dd45fcd30544f8a788a17747d5ff43c61e55dba713ab0fd445be1bf65ea729",
+    "source_sha256": "96dd45fcd30544f8a788a17747d5ff43c61e55dba713ab0fd445be1bf65ea729",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/真菌玥 神話.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\真菌玥 神話.png",
+    "bytes": 328441,
+    "sha256": "8d6448863958cc82ee013644b712ce3d2058a1722d3a32499d76cd80eb95b4f6",
+    "source_sha256": "8d6448863958cc82ee013644b712ce3d2058a1722d3a32499d76cd80eb95b4f6",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/給咩錢好嗎 史詩.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\給咩錢好嗎 史詩.png",
+    "bytes": 44708,
+    "sha256": "bc39aeb13b7ad92451f7419c32434dbc0958f18cf739b102cd42d8a1f8389073",
+    "source_sha256": "bc39aeb13b7ad92451f7419c32434dbc0958f18cf739b102cd42d8a1f8389073",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/膠齒 精良.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\膠齒 精良.png",
+    "bytes": 49948,
+    "sha256": "0805cbc4cf73d1b4c3e6be193c160c47931f348e9437a990e74a416442309224",
+    "source_sha256": "0805cbc4cf73d1b4c3e6be193c160c47931f348e9437a990e74a416442309224",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/怪物/01.gif",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\怪物\\01.gif",
+    "bytes": 14299,
+    "sha256": "c0b60973e567658f5d69eae170c9806e385615cf80c884847caab30f0c87fec0",
+    "source_sha256": "c0b60973e567658f5d69eae170c9806e385615cf80c884847caab30f0c87fec0",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/怪物/ej93j4.gif",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\怪物\\ej93j4.gif",
+    "bytes": 130870,
+    "sha256": "f06bc4080f9fa4687f86b33fd574df60b59c989458a6d441ba9f14c5e8eddf8f",
+    "source_sha256": "f06bc4080f9fa4687f86b33fd574df60b59c989458a6d441ba9f14c5e8eddf8f",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/怪物/image.gif",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\怪物\\image.gif",
+    "bytes": 468144,
+    "sha256": "197d05af5408cd9661c20f0f9938bfd70c920c4a7ec0911c4c46ae07a230c3f7",
+    "source_sha256": "197d05af5408cd9661c20f0f9938bfd70c920c4a7ec0911c4c46ae07a230c3f7",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  },
+  {
+    "path": "_art/holo-test/source-4.0/怪物/rise.png",
+    "source": "C:\\Users\\spesh\\OneDrive\\Desktop\\4.0\\怪物\\rise.png",
+    "bytes": 70300,
+    "sha256": "0f24e47227b4e63512679df6c4f96c78daf9be0f31627f052d1cf9e551911571",
+    "source_sha256": "0f24e47227b4e63512679df6c4f96c78daf9be0f31627f052d1cf9e551911571",
+    "check_ignore_exit": 1,
+    "check_ignore_stdout": "",
+    "check_ignore_stderr": ""
+  }
+]

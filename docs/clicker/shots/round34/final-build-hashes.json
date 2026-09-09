@@ -1,0 +1,34 @@
+{
+  "_art/holo-test/ceremony-background.svg": {
+    "sha256": "c21e7a6ec87eedd05c7d490868ad457543f0b44eb5381fca71f1a1491455b7b8",
+    "bytes": 6300
+  },
+  "_art/holo-test/ceremony.css": {
+    "sha256": "ab03a9df2c846b400c3b31dfaed24e0deb79e337e18a28f7680946537e508d79",
+    "bytes": 12235
+  },
+  "_art/holo-test/ceremony-layout.js": {
+    "sha256": "fb856499a57456774c0b66366d0340c87915600127e2f85fe2605165360ef3c2",
+    "bytes": 1054
+  },
+  "_art/holo-test/ceremony-fx.js": {
+    "sha256": "57474fca50c7263ff3453427d1e8a9c29504fc75316ede57494728f2d25df310",
+    "bytes": 18836
+  },
+  "_art/holo-test/deluxe-gacha-b.html": {
+    "sha256": "a40b13179ee0b65c7e47de4d63a27d88c8ac5ec6f7c1e2c79de454a82e9e4f39",
+    "bytes": 1292302
+  },
+  "_art/holo-test/deluxe-gacha-b-standalone.html": {
+    "sha256": "54040f8a31ff39782c28aec18d5dd7e64fd19e0e770e570afda4068bfcf08834",
+    "bytes": 5970379
+  },
+  "_art/holo-test/deluxe-gacha-b-test.html": {
+    "sha256": "ba5fd0e855b22422221ffa5c902fb4ff3969b8115c420702b986c88d969d7f25",
+    "bytes": 1292334
+  },
+  "_art/holo-test/deluxe-gacha-b-test-standalone.html": {
+    "sha256": "dfc337132523e9f73d8e1ebc053c33b2cba1193139b7a432d7544e1dd80baf82",
+    "bytes": 5970411
+  }
+}

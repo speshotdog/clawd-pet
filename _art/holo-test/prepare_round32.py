@@ -1,16 +1,35 @@
 """Original-only cutouts; no drawing, inpainting, generated art or RGB edits."""
 from pathlib import Path
-import json
+import json, os
 import numpy as np
 from scipy import ndimage as nd
 from PIL import Image, ImageDraw, ImageFont
 from pool_data import EXTRA_CARDS, catalog, SCENE_CARDS
+import bright_edge
 
 HERE=Path(__file__).resolve().parent
-SOURCE=Path(r'C:\Users\ASUS User VII\Desktop\新卡\4.0')
 OUT=HERE.parents[1]/'docs/clicker/shots/round32'
 RARITY={'rare':'精良','epic':'史詩','legendary':'傳說','mythic':'神話'}
 CROSS=nd.generate_binary_structure(2,1)
+
+def resolve_source():
+    candidates=[HERE/'source-4.0', Path.home()/'OneDrive/Desktop/4.0']
+    for key in ('HOLO_SOURCE_4_0','HOLO_SOURCE'):
+        if os.environ.get(key):candidates.append(Path(os.environ[key]).expanduser())
+    tried=[]
+    for folder in candidates:
+        invalid=[]
+        for c in EXTRA_CARDS:
+            pattern=c['name']+' '+RARITY[c['rarity']]+'.*'
+            matches=[p for p in folder.glob(pattern) if p.is_file()]
+            if len(matches)!=1:invalid.append('%s (%d matches)' % (pattern,len(matches)))
+        if not invalid:
+            print('4.0 source: %s' % folder)
+            return folder
+        tried.append('%s (missing or ambiguous: %s)' % (folder,', '.join(invalid)))
+    raise SystemExit('No complete 4.0 source set. Searched:\n'+'\n'.join(tried))
+
+SOURCE=resolve_source()
 
 def edge_connected(mask):
     seed=np.zeros_like(mask);seed[0]=mask[0];seed[-1]=mask[-1];seed[:,0]=mask[:,0];seed[:,-1]=mask[:,-1]
@@ -37,10 +56,11 @@ def cutout(im,jpg=False):
         mask=cc==sizes.argmax()
     component_removed=int((original & ~mask & ~edge_connected(white)).sum())
     for _ in range(7 if jpg else 5):
-        mask &= ~(boundary(mask)&(np.min(rgb,axis=2)>(150 if jpg else 165))&~interior_white)
+        mask &= ~(boundary(mask)&bright_edge.sat_ok(rgb)&~interior_white)
     a[:,:,3]=np.where(mask,a[:,:,3],0)
     new_holes=(~mask & ~edge_connected(~mask)) & original
     metrics={'existing_alpha':had_alpha,'white_components':n,'interior_white_pixels':int(interior_white.sum()),
+             'white_pixels':int((white & original).sum()),'removed_white_pixels':int((white & original & ~mask).sum()),
              'interior_white_removed':int((interior_white & ~mask).sum()),'new_interior_hole_pixels':int(new_holes.sum()),
              'removed_non_background_component_pixels':component_removed,
              'white_component_removed_pixels':[int(((labels==i)&~mask).sum()) for i in range(1,n+1)]}
@@ -49,7 +69,7 @@ def cutout(im,jpg=False):
     # LANCZOS can expose near-white AA at the new raster edge; same defringe rule.
     b=np.array(result);m=b[:,:,3]>0
     protected=np.array(Image.fromarray(interior_white).crop(box).resize(result.size,Image.Resampling.NEAREST))
-    for _ in range(7 if jpg else 5):m &= ~(boundary(m)&(b[:,:,:3].min(2)>(150 if jpg else 165))&~protected)
+    for _ in range(7 if jpg else 5):m &= ~(boundary(m)&bright_edge.sat_ok(b[:,:,:3])&~protected)
     b[:,:,3]=np.where(m,b[:,:,3],0);result=Image.fromarray(b)
     metrics['crop']=box
     return result,metrics
@@ -68,6 +88,8 @@ def main():
     assert not old & {c['id'] for c in EXTRA_CARDS},old & {c['id'] for c in EXTRA_CARDS}
     OUT.mkdir(parents=True,exist_ok=True);rows=[]
     for c in EXTRA_CARDS:
+        if c['kind']=='depth':
+            continue  # Layered assets are rebuilt by prepare_round40.py.
         im=Image.open(source(c)).convert('RGBA')
         if c['kind']=='flat':
             # Preservation-first review draft. A strict 5:7 crop cuts subjects in
@@ -83,8 +105,9 @@ def main():
         result.save(HERE/'art'/c['file'],optimize=True)
         comparison(c,im,result)
         if c['kind']=='framed':
-            a=np.array(result);b=boundary(a[:,:,3]>0)
-            metrics['bright_boundary_ratio']=float(((a[:,:,:3].min(2)>165)&b).sum()/b.sum())
+            # 判準只有一份，在 bright_edge.py（2026-09-09 使用者裁決：飽和的填色不算白毛邊）。
+            # 產圖時與事後用 check_bright_edge.py 複驗，量到的是同一個數字。
+            metrics.update(bright_edge.measure(np.array(result)))
         row={**c,'source':source(c).name,'original_size':im.size,'output_size':result.size,**metrics};rows.append(row)
         print(c['id'],result.size,metrics.get('bright_boundary_ratio'),metrics.get('new_interior_hole_pixels'))
     (OUT/'cutout-metrics.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2),encoding='utf-8')

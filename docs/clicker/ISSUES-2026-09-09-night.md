@@ -137,9 +137,69 @@ Codex 沒有暗降門檻，保留了四項失敗來問。**1440×900 與 390×84
 
 ---
 
+## 七、內嵌字型從來沒有生效過（2026-09-09 深夜補記，全專案）
+
+使用者在看「魔花少女」那張禮物卡時問「階級的字體是不是跟今天做的標準都不同？」——
+查下去發現兩件事，**都不是那張卡的問題，是共用 CSS 與素材的問題**。
+
+### 7-1. `Holo Noto Sans` 載入失敗，卡名一直是 fallback 在畫
+
+`_art/holo-test/round4_noto_sans_data.woff2` **只有 996 bytes**，內嵌成 data URL 之後
+瀏覽器解不開，`FontFace.load()` 直接 throw。
+
+實測（`cards-remade.html`、`gift-*.html` 都一樣）：
+
+```
+document.fonts → [['Holo Noto Sans','THREW: A network error occurred.'],
+                  ['Holo Noto Serif','THREW: A network error occurred.']]
+
+同一段字 40px 的量寬：
+  font-family:"Holo Noto Sans",monospace  → 180px
+  font-family:monospace                   → 180px   （完全一樣＝字型沒生效）
+  font-family:sans-serif                  → 199px
+```
+
+`.face-name` 的 computed `font-family` 是 `"Holo Noto Sans", sans-serif`，
+所以實際畫出來的是系統的 sans-serif，不是 HANDOFF 六之五寫的 Noto Sans TC。
+**也就是「字體：Noto Sans TC（子集化內嵌 data URL，SIL OFL）」這條工法從來沒有真的成立過。**
+
+影響範圍是全部從 `demo.html` 擷取 CSS 的產物：`demo.html`、`cards-remade*.html`、
+`deluxe-gacha-b*.html`。因為一直都是同一個 fallback，所以視覺上沒有「突然變樣」，
+歷史截圖也都是 fallback 的樣子——修好之後**所有卡名的字寬會變**，
+`check_demo_round8/9` 的置中與縮字斷言要重跑，可能需要重新產生基準。
+
+選項（**待裁決**）：
+
+1. **修字型**：重新產一份真的子集（`build_round4_fonts.py` 就是產這個的，要先查它為什麼只吐 996 bytes），
+   確認 `document.fonts` 全部 `loaded` 之後再重建六支產物。**這會改變所有卡的字寬**。
+2. **改成明文用系統字**：把 `.face-name` 的 `font-family` 直接寫成現在實際生效的那組，
+   並把 HANDOFF 六之五「Noto Sans TC 內嵌」那條改寫成事實。畫面零變化，只是文件與程式對齊。
+3. 先不動，只在 HANDOFF 標註「這條目前沒有生效」。
+
+我的建議是 **2 或 3**：畫面現在是好看的，而 1 會讓每一張卡的字寬改變、連帶動到既有斷言與截圖基準，
+在沒有人抱怨字醜的前提下風險大於收益。要走 1 的話應該獨立成一輪，不要跟別的題目混。
+
+### 7-2. 稀有度那行寫死 monospace，中英兩種字型
+
+`demo.html` 的共用 CSS：`.face-rarity{font:9px monospace;color:var(--accent-card);letter-spacing:.14em}`。
+
+monospace 沒有中文字符，所以「神話」走系統中文字型、「MYTHIC」走 monospace，
+**同一行是兩種字型**。卡名（sans-serif 800 weight）與稀有度（monospace 400）也是兩套。
+使用者就是看到這個才問的。
+
+魔花少女那張已經在自己的頁面覆蓋成跟卡名同一套字（`build_gift_card.py` 的 `.r-special .face-rarity`），
+但**共用 CSS 沒動**，卡池與抽卡頁的所有卡還是舊的。
+
+選項（**待裁決**）：monospace 是不是刻意的設計（科技感標籤）？
+- 是 → 在 HANDOFF 六之五補一條寫明，並接受中英不同字型。
+- 不是 → 把 `.face-rarity` 改成與卡名同一套，然後重跑 round8／round9（字寬會變，置中要重量）。
+
+---
+
 ## 開工順序建議
 
 1. 先裁決第一節的補洞路線（那是最大的一塊，而且會連帶解掉第三十二輪四項留邊失敗）。
 2. 第二節光暈可以跟第一節同一輪做，互不干擾。
 3. 第三、四節是判準／規格修正，成本低，可以順手一起收掉。
 4. 第五、六節可以再放。
+5. 第七節是文件與事實不符，成本低但會動到基準，建議獨立一輪處理，不要跟卡面題目混。

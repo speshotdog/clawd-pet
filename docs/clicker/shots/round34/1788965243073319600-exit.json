@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "probe_label_contrast_round33.py --final"
+  ],
+  "script": [
+    "probe_label_contrast_round33.py",
+    "--final"
+  ],
+  "exit": 0,
+  "seconds": 32.88,
+  "log": "1788965243073319600-probe_label_contrast_round33.log"
+}

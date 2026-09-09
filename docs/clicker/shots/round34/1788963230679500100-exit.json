@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "probe_occlusion_round33.py"
+  ],
+  "script": [
+    "probe_occlusion_round33.py"
+  ],
+  "exit": 1,
+  "seconds": 6.22,
+  "log": "1788963230679500100-probe_occlusion_round33.log"
+}

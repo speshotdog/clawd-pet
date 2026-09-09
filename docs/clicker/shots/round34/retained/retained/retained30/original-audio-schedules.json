@@ -1,0 +1,1166 @@
+{
+  "common": [
+    {
+      "kind": "tone",
+      "type": "triangle",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 330,
+          "at": 0.0
+        }
+      ]
+    }
+  ],
+  "rare": [
+    {
+      "kind": "tone",
+      "type": "triangle",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 659,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "triangle",
+      "at": 0.09,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 988,
+          "at": 0.09
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.09,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1319,
+          "at": 0.09
+        }
+      ]
+    },
+    {
+      "kind": "noiseHit",
+      "type": null,
+      "at": 0.0,
+      "frequency": []
+    }
+  ],
+  "epic": [
+    {
+      "kind": "tone",
+      "type": "triangle",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 523,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "triangle",
+      "at": 0.055,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 659,
+          "at": 0.055
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "triangle",
+      "at": 0.11,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 784,
+          "at": 0.11
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "triangle",
+      "at": 0.165,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1047,
+          "at": 0.165
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "triangle",
+      "at": 0.22,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1319,
+          "at": 0.22
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sawtooth",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 262,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sawtooth",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 262,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "noiseHit",
+      "type": null,
+      "at": 0.0,
+      "frequency": []
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.3,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1568,
+          "at": 0.3
+        },
+        {
+          "method": "exponentialRampToValueAtTime",
+          "value": 2093,
+          "at": 0.8
+        }
+      ]
+    }
+  ],
+  "legendary": [
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 55,
+          "at": 0.0
+        },
+        {
+          "method": "exponentialRampToValueAtTime",
+          "value": 40,
+          "at": 1.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 392,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 392,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 784,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 784,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1081.92,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1081.92,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1528.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1528.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2116.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2116.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3488.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3488.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "noiseHit",
+      "type": null,
+      "at": 0.0,
+      "frequency": []
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 784,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 784,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1568,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1568,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2163.84,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2163.84,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3057.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3057.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 4233.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 4233.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 6977.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 6977.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "noiseHit",
+      "type": null,
+      "at": 0.12,
+      "frequency": []
+    },
+    {
+      "kind": "noiseHit",
+      "type": null,
+      "at": 0.0,
+      "frequency": []
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.35,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2093,
+          "at": 0.35
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.42,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2637,
+          "at": 0.42
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.49,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3136,
+          "at": 0.49
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.56,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3520,
+          "at": 0.56
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.63,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 4186,
+          "at": 0.63
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.7,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 5274,
+          "at": 0.7
+        }
+      ]
+    }
+  ],
+  "mythic": [
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2093,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2616.25,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3139.5,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "triangle",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 65,
+          "at": 0.0
+        },
+        {
+          "method": "exponentialRampToValueAtTime",
+          "value": 32,
+          "at": 1.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1047,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1047,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2094,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2094,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2889.72,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2889.72,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 4083.3,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 4083.3,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 5653.8,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 5653.8,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 9318.3,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.4,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 9318.3,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "kind": "noiseHit",
+      "type": null,
+      "at": 0.4,
+      "frequency": []
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 55,
+          "at": 0.0
+        },
+        {
+          "method": "exponentialRampToValueAtTime",
+          "value": 40,
+          "at": 1.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 392,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 392,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 784,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 784,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1081.92,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1081.92,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1528.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1528.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2116.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2116.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3488.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.0,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3488.8,
+          "at": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "noiseHit",
+      "type": null,
+      "at": 0.0,
+      "frequency": []
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 784,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 784,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1568,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 1568,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2163.84,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2163.84,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3057.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3057.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 4233.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 4233.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 6977.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.12,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 6977.6,
+          "at": 0.12
+        }
+      ]
+    },
+    {
+      "kind": "noiseHit",
+      "type": null,
+      "at": 0.12,
+      "frequency": []
+    },
+    {
+      "kind": "noiseHit",
+      "type": null,
+      "at": 0.0,
+      "frequency": []
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.35,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2093,
+          "at": 0.35
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.42,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 2637,
+          "at": 0.42
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.49,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3136,
+          "at": 0.49
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.56,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 3520,
+          "at": 0.56
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.63,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 4186,
+          "at": 0.63
+        }
+      ]
+    },
+    {
+      "kind": "tone",
+      "type": "sine",
+      "at": 0.7,
+      "frequency": [
+        {
+          "method": "setValueAtTime",
+          "value": 5274,
+          "at": 0.7
+        }
+      ]
+    }
+  ]
+}

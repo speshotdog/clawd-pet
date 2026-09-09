@@ -1,0 +1,125 @@
+--- before-checker
++++ check_gift_card.py
+@@ -16,7 +16,7 @@
+ from playwright.sync_api import sync_playwright
+ 
+ OUT = Path(__file__).parent
+-SHOTS = OUT.parents[1] / 'docs/clicker/shots/round38'
++SHOTS = OUT.parents[1] / 'docs/clicker/shots/round39'
+ PLATE = {'left': 4.4, 'right': 4.4, 'bottom': 3.4, 'height': 16.2}
+ TOL = 0.15
+ 
+@@ -62,8 +62,9 @@
+       const es=[imgs[0],masks[0],tints[0],imgs[1],masks[1],tints[1]];
+       const start=performance.now(), samples=[], frames=[];
+       const sample=()=>({ms:performance.now()-start,face:c.dataset.face,
+-        opacity:es.map(e=>+getComputedStyle(e).opacity)});
+-      samples.push(sample());giftCard.trigger();
++        opacity:es.map(e=>+getComputedStyle(e).opacity),
++        images:imgs.map(i=>({loaded:i.complete&&i.naturalWidth>0,size:[i.naturalWidth,i.naturalHeight]}))});
++      samples.push(sample());await giftCard.trigger();
+       const timer=setInterval(()=>samples.push(sample()),60);
+       await new Promise(resolve=>{function frame(){frames.push(sample());
+         if(performance.now()-start<giftCard.CYCLE+giftCard.FADE*2+700)requestAnimationFrame(frame);
+@@ -81,6 +82,10 @@
+             middle = [s for s in rows if .05 < s['opacity'][k] / gain < .95]
+             assert len(middle) >= 3, ('crossfade intermediate samples', direction, k, len(middle))
+     for row in curve['frames']:
++        for index in range(2):
++            if row['opacity'][index*3] > .05:
++                assert row['images'][index]['loaded'], ('visible image not decoded', row)
++                assert row['images'][index]['size'] == [600,840], ('active canvas changed', row)
+         for k, gain in enumerate(gains):
+             a, b = row['opacity'][k] / gain, row['opacity'][k + 3] / gain
+             assert not (a < .05 and b < .05), ('blank frame', row, k)
+@@ -89,9 +94,19 @@
+     assert all(abs(a-b)<.005 for a,b in zip(curve['samples'][-1]['opacity'],[1,curve['gain'],.72,0,0,0])), 'return endpoint'
+ 
+ 
++def assert_idle_sources(page):
++    state = page.evaluate('''()=>({altSrc:giftCard.card.querySelectorAll('.art-media img')[1].getAttribute('src'),
++      masks:['.subject-mask:not(.special-tint)','.special-tint'].map(s=>
++        getComputedStyle(giftCard.card.querySelectorAll(s)[1]).maskImage)})''')
++    assert state == {'altSrc':None,'masks':['none','none']}, state
++    return state
++
++
+ def mask_alignment(card, index=0):
+-    sources = card.evaluate('''(c,i)=>({image:c.querySelectorAll('.art-media img')[i].src,
+-      mask:getComputedStyle(c.querySelectorAll('.subject-mask:not(.special-tint)')[i]).maskImage.slice(5,-2)})''', index)
++    # Read embedded alt bytes offline; validation must not start idle decoding.
++    sources = card.evaluate('''(c,i)=>{const a=JSON.parse(document.querySelector('#asset-data').textContent);
++      return {image:i?a.alt:c.querySelector('.art-media img').src,
++      mask:i?a['alt-mask']:getComputedStyle(c.querySelector('.subject-mask')).maskImage.slice(5,-2)}}''', index)
+     def read(uri):
+         if uri.startswith('data:'):
+             return Image.open(BytesIO(b64decode(uri.split(',', 1)[1])))
+@@ -132,7 +147,7 @@
+     page.evaluate('returnAnimations.forEach(a=>a.play())')
+     page.wait_for_timeout(700)
+     # Hold artwork frames constant so the pixel difference measures pointer response.
+-    page.evaluate('''async () => {for(const img of giftCard.card.querySelectorAll('img')){
++    page.evaluate('''async () => {for(const img of giftCard.card.querySelectorAll('img[src]')){
+       const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+       canvas.getContext('2d').drawImage(img,0,0);img.src=canvas.toDataURL();await img.decode();}}''')
+     flat = np.asarray(Image.open(BytesIO(capture(page, page.locator('#stage'), ))).convert('RGB')).astype(float)
+@@ -263,7 +278,7 @@
+             im.convert('RGBA').save(buf, format='PNG')
+             fixed[uri] = 'data:image/png;base64,' + b64encode(buf.getvalue()).decode()
+     page.evaluate('''async fixed => {
+-      for(const i of document.images){if(fixed[i.src])i.src=fixed[i.src];await i.decode();}
++      for(const i of document.images){if(!i.getAttribute('src'))continue;if(fixed[i.src])i.src=fixed[i.src];await i.decode();}
+       for(const e of document.querySelectorAll('.subject-mask')){
+         const src=getComputedStyle(e).maskImage.slice(5,-2);
+         if(fixed[src])e.style.setProperty('--subject',`url("${fixed[src]}")`);}
+@@ -551,6 +566,9 @@
+     curves = []
+     for x,y in [(1,0),(0,0),(0,1),(1,1)]:
+         for leave in [False,True]:
++            # Commit the preceding synthetic WAAPI seeks before timed input.
++            # The clock still starts before pointer dispatch; no frame is excluded.
++            repaint(page)
+             curve = page.evaluate('''async ({x,y,leave})=>{
+               const c=giftCard.card,s=document.querySelector('#stage'),r=s.getBoundingClientRect(),rows=[];
+               const start=performance.now();
+@@ -652,7 +670,7 @@
+     page.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
+     page.on('request', lambda r: external.append(r.url) if r.url.startswith(('http:', 'https:')) else None)
+     page.goto(uri, wait_until='load')
+-    page.wait_for_function('Array.from(document.images).every(i => i.complete && i.naturalWidth > 0)')
++    page.wait_for_function('Array.from(document.images).every(i => !i.getAttribute("src") || (i.complete && i.naturalWidth > 0))')
+     page.wait_for_timeout(500)
+     assert not errors, errors
+     assert not external, external
+@@ -667,7 +685,7 @@
+         return {'round36':r36,'round37':r37}
+     # 原有動畫驗收重新載入原頁，避免固定素材影響疊化測試。
+     page.goto(uri, wait_until='load')
+-    page.wait_for_function('Array.from(document.images).every(i => i.complete && i.naturalWidth > 0)')
++    page.wait_for_function('Array.from(document.images).every(i => !i.getAttribute("src") || (i.complete && i.naturalWidth > 0))')
+     page.wait_for_timeout(500)
+ 
+     m = page.evaluate(MEASURE)
+@@ -695,11 +713,10 @@
+     assert m['nameImage'].startswith('linear-gradient'), m['nameImage']
+     assert m['nameShadow'] == 'none', m['nameShadow']
+     assert m['hasSubjectMask'], '主體沒掛 foil mask'
+-    # depth 的兩層（主體＋背景）＋ 疊在上面的特殊動作那張，共三張，
+-    # 而且三張都必須是同一個 600×840 畫布（scene 卡兩層是 object-fit:fill，
+-    # 尺寸不同就會位移／變形）。
++    # 待機的 alt 沒有 src；其 600×840 尺寸在實際疊化逐格驗證。
+     assert len(m['layers']) == 3, m['layers']
+-    assert all(l == [600, 840] for l in m['layers']), m['layers']
++    assert m['layers'].count([600, 840]) == 2 and m['layers'].count([0, 0]) == 1, m['layers']
++    m['idleSources'] = assert_idle_sources(page)
+     for side, v in PLATE.items():
+         assert abs(m['plate'][side] - v) <= TOL, '%s plate.%s = %.2f%%，應為 %s%%' % (label, side, m['plate'][side], v)
+     assert m['nameCenterDelta'] < 2 and m['rarityCenterDelta'] < 2, m
+@@ -723,6 +740,7 @@
+           % (label, gem, '%.2f:1' % name, m['nameText'], m['rarityText'], w,
+              m['nameFs'], m['rarityFs'], m['gemFs']))
+     curve = transition_curve(page)
++    m['returnedIdleSources'] = assert_idle_sources(page)
+     (SHOTS / (ARGS.tag + '-' + label + '-curve.json')).write_text(json.dumps(curve, indent=1), encoding='utf-8')
+     result = {'label': label, 'gem_contrast': gem, 'name_contrast': name, 'round36':r36, 'round37':r37, **m}
+     (SHOTS / (ARGS.tag + '-' + label + '-metrics.json')).write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding='utf-8')

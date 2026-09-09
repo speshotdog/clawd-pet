@@ -1,0 +1,435 @@
+{
+ "baselineMetrics": {
+  "rarity": "special",
+  "kind": "depth",
+  "nameFits": "true",
+  "plate": {
+   "left": 4.399684210526316,
+   "right": 4.39978947368421,
+   "bottom": 3.398139097744362,
+   "height": 16.197725563909774
+  },
+  "nameCenterDelta": 0.00811767578125,
+  "rarityCenterDelta": 0.0081329345703125,
+  "nameText": "魔花少女",
+  "rarityText": "特殊 / SPECIAL",
+  "nameFill": "rgba(0, 0, 0, 0)",
+  "nameTop": "face-name",
+  "nameImage": "linear-gradient(120d",
+  "nameShadow": "none",
+  "plateBg": "linear-gradient(",
+  "sheenLayers": 3,
+  "plateAlpha": "linear-gradient(to top, rgba(2",
+  "cardWidth": 380,
+  "nameFs": 31.45,
+  "rarityFs": 17.69,
+  "gemFs": 28.83,
+  "maxOverflow": -7.72113037109375,
+  "layers": [
+   [
+    600,
+    840
+   ],
+   [
+    600,
+    840
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "hasSubjectMask": true
+ },
+ "rarityContrast": {
+  "特殊": 10.33,
+  "SPECIAL": 10.57
+ },
+ "nameContrast": 6.46,
+ "gemContrast": 145.67,
+ "stats": {
+  "ringMean": 177.20839661484686,
+  "ringStd": 72.05942811559031,
+  "cardMean": 184.05645513454684,
+  "centerMean": 206.13795575735116
+ },
+ "gainsPercent": {
+  "ringMean": 18.78818238579538,
+  "ringStd": 16.846770998469985,
+  "cardMean": 2.0820462074903068,
+  "centerMean": 0.0
+ },
+ "css": {
+  "fill": "rgba(0, 0, 0, 0)",
+  "image": "linear-gradient(120deg, rgb(255, 212, 236) 0%, rgb(255, 228, 244) 20%, rgb(244, 227, 255) 42%, rgb(220, 238, 255) 66%, rgb(232, 251, 255) 86%, rgb(255, 212, 236) 100%)",
+  "shadow": "none",
+  "nameHit": "face-name",
+  "rarityHit": "face-rarity",
+  "particles": {
+   "count": 45,
+   "z": 0,
+   "zIndex": 5,
+   "overflow": "hidden",
+   "borderRadius": "12px",
+   "blend": "screen",
+   "effectiveZ": 36.4,
+   "maxOverflow": -9.00457763671875,
+   "keyframeProperties": [
+    [
+     "transform",
+     "opacity"
+    ],
+    [
+     "transform",
+     "opacity"
+    ],
+    [
+     "transform",
+     "opacity"
+    ]
+   ],
+   "children": [
+    {
+     "blend": "normal",
+     "size": 4,
+     "duration": "5s",
+     "delay": "0s"
+    },
+    {
+     "blend": "normal",
+     "size": 6,
+     "duration": "5.4s",
+     "delay": "-1.73s"
+    },
+    {
+     "blend": "normal",
+     "size": 7,
+     "duration": "5.8s",
+     "delay": "-3.46s"
+    },
+    {
+     "blend": "normal",
+     "size": 8,
+     "duration": "5s",
+     "delay": "-5.19s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-6.92s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-8.65s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5s",
+     "delay": "-10.38s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-12.11s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-13.84s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5s",
+     "delay": "-15.57s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-17.3s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-1.03s"
+    },
+    {
+     "blend": "normal",
+     "size": 4,
+     "duration": "5s",
+     "delay": "-2.76s"
+    },
+    {
+     "blend": "normal",
+     "size": 6,
+     "duration": "5.4s",
+     "delay": "-4.49s"
+    },
+    {
+     "blend": "normal",
+     "size": 7,
+     "duration": "5.8s",
+     "delay": "-6.22s"
+    },
+    {
+     "blend": "normal",
+     "size": 8,
+     "duration": "5s",
+     "delay": "-7.95s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-9.68s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-11.41s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5s",
+     "delay": "-13.14s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-14.87s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-16.6s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5s",
+     "delay": "-0.33s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-2.06s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-3.79s"
+    },
+    {
+     "blend": "normal",
+     "size": 4,
+     "duration": "5s",
+     "delay": "-5.52s"
+    },
+    {
+     "blend": "normal",
+     "size": 6,
+     "duration": "5.4s",
+     "delay": "-7.25s"
+    },
+    {
+     "blend": "normal",
+     "size": 7,
+     "duration": "5.8s",
+     "delay": "-8.98s"
+    },
+    {
+     "blend": "normal",
+     "size": 8,
+     "duration": "5s",
+     "delay": "-10.71s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-12.44s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-14.17s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5s",
+     "delay": "-15.9s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-17.63s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-1.36s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5s",
+     "delay": "-3.09s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-4.82s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-6.55s"
+    },
+    {
+     "blend": "normal",
+     "size": 4,
+     "duration": "5s",
+     "delay": "-8.28s"
+    },
+    {
+     "blend": "normal",
+     "size": 6,
+     "duration": "5.4s",
+     "delay": "-10.01s"
+    },
+    {
+     "blend": "normal",
+     "size": 7,
+     "duration": "5.8s",
+     "delay": "-11.74s"
+    },
+    {
+     "blend": "normal",
+     "size": 8,
+     "duration": "5s",
+     "delay": "-13.47s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-15.2s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-16.93s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5s",
+     "delay": "-0.66s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.4s",
+     "delay": "-2.39s"
+    },
+    {
+     "blend": "normal",
+     "size": 9,
+     "duration": "5.8s",
+     "delay": "-4.12s"
+    }
+   ]
+  }
+ },
+ "motionPercent": 3.886350815064093,
+ "plateMotionPercent": 0.0,
+ "particlePeak": 126.528,
+ "particleNeighborPeak": 110.39250000000001,
+ "particleGainPercent": 0.357504848663992,
+ "coveragePercent": 1.5789473684210527,
+ "plateParticlesPercent": 0.0,
+ "rafs": 0,
+ "tiltedGradients": [
+  "linear-gradient(190deg, rgb(255, 212, 236) 0%, rgb(255, 228, 244) 20%, rgb(244, 227, 255) 42%, rgb(220, 238, 255) 66%, rgb(232, 251, 255) 86%, rgb(255, 212, 236) 100%)",
+  "linear-gradient(190deg, rgb(255, 212, 236) 0%, rgb(255, 228, 244) 20%, rgb(244, 227, 255) 42%, rgb(220, 238, 255) 66%, rgb(232, 251, 255) 86%, rgb(255, 212, 236) 100%)"
+ ],
+ "tiltedParticleOverflow": -3.1184844970703125,
+ "reducedPercent": 0.0,
+ "reducedAnimation": [
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none"
+ ],
+ "failures": []
+}

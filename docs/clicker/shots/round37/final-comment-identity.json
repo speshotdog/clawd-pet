@@ -1,0 +1,5 @@
+{
+ "giftStageRulesIdenticalIgnoringComments": true,
+ "allHtmlOutsideGiftStageIdentical": true,
+ "finalBuildExit": 0
+}

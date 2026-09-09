@@ -1,0 +1,735 @@
+[
+  {
+    "rarity": "common",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": null,
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "rare",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": [
+      496,
+      251,
+      785,
+      647
+    ],
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "epic",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": null,
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "common",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": null,
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "rare",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": null,
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "epic",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": [
+      496,
+      251,
+      785,
+      647
+    ],
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "common",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": null,
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "rare",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": null,
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "epic",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": null,
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "common",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": [
+      496,
+      251,
+      785,
+      647
+    ],
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "rare",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": [
+      496,
+      251,
+      785,
+      647
+    ],
+    "cross_rarity_delta": null
+  },
+  {
+    "rarity": "epic",
+    "meta": {
+      "now": 1788912001800,
+      "events": [
+        {
+          "type": "screen",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "screen": "ceremony"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001000,
+          "run": 2,
+          "index": null,
+          "phase": "controls"
+        },
+        {
+          "type": "transition",
+          "time": 1788912001220,
+          "run": 2,
+          "index": null,
+          "phase": "push"
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "waiting"
+        },
+        {
+          "type": "pack-open",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null
+        },
+        {
+          "type": "phase-start",
+          "time": 1788912001600,
+          "run": 2,
+          "index": null,
+          "phase": "entry"
+        }
+      ],
+      "pack": "matrix(1.01333, 0, 0, 1.01333, 0, 0)",
+      "animations": [
+        {
+          "time": 200,
+          "start": null,
+          "state": "paused"
+        }
+      ]
+    },
+    "same_time_delta": [
+      496,
+      251,
+      785,
+      647
+    ],
+    "cross_rarity_delta": null
+  }
+]

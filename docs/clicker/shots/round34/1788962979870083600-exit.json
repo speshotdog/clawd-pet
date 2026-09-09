@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_gpu_timing_round34.py"
+  ],
+  "script": [
+    "check_gpu_timing_round34.py"
+  ],
+  "exit": 1,
+  "seconds": 126.36,
+  "log": "1788962979870083600-check_gpu_timing_round34.log"
+}

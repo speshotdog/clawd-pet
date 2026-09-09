@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "_art/holo-test/check_retained_round34.py",
+    "check_gacha_audio_round30.py"
+  ],
+  "script": [
+    "check_gacha_audio_round30.py"
+  ],
+  "exit": 1,
+  "seconds": 16.44,
+  "log": "1788963245709739500-check_gacha_audio_round30.log"
+}

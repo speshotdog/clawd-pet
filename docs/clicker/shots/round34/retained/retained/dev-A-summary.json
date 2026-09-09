@@ -1,0 +1,14 @@
+[
+  {
+    "rarity": "legendary",
+    "peak": 231,
+    "duration": 2200,
+    "samples": 83
+  },
+  {
+    "rarity": "mythic",
+    "peak": 255,
+    "duration": 3350,
+    "samples": 83
+  }
+]

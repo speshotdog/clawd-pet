@@ -1,0 +1,13 @@
+FAIL source file count None
+Traceback (most recent call last):
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_retained_round34.py", line 57, in <module>
+    if __name__=='__main__':main()
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_retained_round34.py", line 40, in main
+    exec(compile(source(file),str(file),'exec'),dict(__name__='__main__',__file__=str(file)))
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_new_cards_round32.py", line 154, in <module>
+    if '--browser-only' not in sys.argv:assets()
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_new_cards_round32.py", line 54, in assets
+    original=Image.open(source(c)).convert('RGBA');path=HERE/'art'/c['file']
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\prepare_round32.py", line 25, in source
+    assert len(matches)==1,(c,matches)
+AssertionError: ({'id': 'miepuxiong', 'name': '咩噗熊', 'rarity': 'rare', 'kind': 'framed', 'file': 'card-miepuxiong.png'}, [])

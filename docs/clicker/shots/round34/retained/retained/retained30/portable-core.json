@@ -1,0 +1,75 @@
+[
+  {
+    "check": "low-tier-no-preview",
+    "frames": 39,
+    "max_difference": 0
+  },
+  {
+    "check": "high-tier-charge-preview",
+    "variants": 2,
+    "difference": "nonempty"
+  },
+  {
+    "check": "A5",
+    "phase": "controls",
+    "trigger_ms": 100,
+    "clock_origin": "pull",
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "tension",
+    "trigger_ms": 300,
+    "clock_origin": "pack-open (after 600ms + player wait)",
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "tear",
+    "trigger_ms": 550,
+    "clock_origin": "pack-open (after 600ms + player wait)",
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "deal",
+    "trigger_ms": 900,
+    "clock_origin": "pack-open (after 600ms + player wait)",
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "pre-face",
+    "trigger_ms": 3369,
+    "clock_origin": "pack-open (after 600ms + player wait)",
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "post-face",
+    "trigger_ms": 3371,
+    "clock_origin": "pack-open (after 600ms + player wait)",
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "return",
+    "trigger_ms": 5350,
+    "clock_origin": "pack-open (after 600ms + player wait)",
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "last-before",
+    "trigger_ms": 12349,
+    "clock_origin": "pack-open (after 600ms + player wait)",
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "last-after",
+    "trigger_ms": 12351,
+    "clock_origin": "pack-open (after 600ms + player wait)",
+    "repeats": 20
+  }
+]

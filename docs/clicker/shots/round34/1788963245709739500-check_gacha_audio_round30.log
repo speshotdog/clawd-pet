@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_retained_round34.py", line 52, in <module>
+    run=subprocess.run([sys.executable,__file__,'--child',*args],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT)
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_retained_round34.py", line 35, in main
+    if sys.argv[2].startswith('probe_'):
+  File "D:\claude研究\clawd-pet-holo\_art\holo-test\check_gacha_audio_round30.py", line 42, in <module>
+    p.wait_for_function('__ceremony.events.some(e=>e.type==="face-visible")',timeout=15000)
+  File "C:\Python310\lib\site-packages\playwright\sync_api\_generated.py", line 12594, in wait_for_function
+    self._sync(
+  File "C:\Python310\lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+  File "C:\Python310\lib\site-packages\playwright\_impl\_page.py", line 1144, in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+  File "C:\Python310\lib\site-packages\playwright\_impl\_frame.py", line 932, in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+  File "C:\Python310\lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+  File "C:\Python310\lib\site-packages\playwright\_impl\_connection.py", line 563, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 15000ms exceeded.

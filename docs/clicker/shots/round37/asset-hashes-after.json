@@ -1,0 +1,32 @@
+﻿[
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "6B251BAAD96990319E16C8D6B761844BCDDF64B18AC7F6FC8A4E49C86576A34D",
+        "Path":  "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\gift\\layer-mohuashaonv-alt-mask.webp"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "2106CF2D734136A9EED41FB3F1DD4F06473C0D16140B998338317CB2F1159B1A",
+        "Path":  "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\gift\\layer-mohuashaonv-alt.webp"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "B6BD653EB24CF0DC447E4576E2A57E0CA7AE3BB1EAC0E56B58E6D29C5771B7FD",
+        "Path":  "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\gift\\layer-mohuashaonv-background.png"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "B0162E4124043FB66044C30A3DB2B595B19FF0878874036CF19E69BA984361C2",
+        "Path":  "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\gift\\layer-mohuashaonv-idle-mask.webp"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "22A0E43406CC7333894744ADAB28FEB844AE3A96E16A6E4891C1A6B959691366",
+        "Path":  "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\gift\\layer-mohuashaonv-idle.webp"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "5CC6F9FCC1F7A1D07B130A6408BCD3E9CB3D239DDCB123868BBAEE83E20374F9",
+        "Path":  "D:\\claude研究\\clawd-pet-holo\\_art\\holo-test\\gift\\manifest.json"
+    }
+]
