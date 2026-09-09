@@ -52,8 +52,8 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
               'last-after':[low]*9+[high],'front':[low]*9+[high],
               'return':[low]*9+[high]}
     # Round 29: 1750ms ten-card peel/deal, 840ms common, no page handoff.
-    # All ranks first appear at +320ms.
-    offsets={'wait':500,'last-before':7559,'last-after':7561,'front':7900,'return':9170}
+    # Nine commons finish at +7560; mythic F +1620, read1900, return360.
+    offsets={'wait':500,'last-before':7559,'last-after':7561,'front':9181,'return':11170}
     selected=next((arg.split('=',1)[1] for arg in sys.argv if arg.startswith('--timing-phase=')),None)
     if selected:fixtures={selected:fixtures[selected]};evidence='timing-'+selected+'-final.json'
     rows=[]

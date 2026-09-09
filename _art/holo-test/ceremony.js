@@ -168,10 +168,28 @@ async function cascade(){const run=generation;cascading=true;
 }
 function revealOne(s,fast=false){if(s.work)return s.work;if(s.run!==generation)return Promise.resolve();
   s.work=performReveal(s,fast);return s.work;}
-// All pre-F movement is independent of data.rarity. The frozen face is only exposed at -89deg.
+// Round 31 user decision: only common/rare/epic remain neutral before first sight.
+async function chargeHigh(s){
+ const mythic=s.data.rarity==='mythic',duration=mythic?1300:900,contraction=mythic?160:120;
+ if(!mythic&&s.data.rarity!=='legendary')return true;
+ const glow=node('div','rarity-fx charge-glow');s.el.prepend(glow);
+ glow.style.setProperty('--charge-color',mythic?'218,241,255':'255,194,104');
+ const frames=[],steps=Math.ceil(duration/10);
+ for(let i=0;i<=steps;i++){
+  const t=i/steps*duration,p=t/duration,release=Math.max(0,(t-duration+contraction)/contraction);
+  const envelope=p*(1-.85*release)*(mythic&&t>duration-200?1.15:1);
+  const wave=Math.sin(t/1000*Math.PI*2*21),amp=(mythic?4:2.5)*Math.min(1,envelope);
+  frames.push({offset:p,transform:`translate(${wave*amp}px,${Math.cos(t/1000*Math.PI*2*19)*amp*.35}px) rotate(${wave*(mythic?1.2:.8)*Math.min(1,envelope)}deg)`});
+ }
+ const shake=A(s.shell,frames,{duration,easing:'linear'});
+ const light=A(glow,[{opacity:0},{opacity:mythic?.7:.6,offset:1-contraction/duration},{opacity:mythic?.3:.25}],{duration,easing:'ease-in'});
+ sound('charge',s,duration/1000);
+ const ok=await wait(duration,s.run);shake.cancel();light.cancel();glow.remove();return ok;
+}
 async function beginReveal(s){const run=s.run;s.revealed=true;s.el.classList.add('is-revealing');mark('phase-start',s,{phase:'charge'});
  const start=slotTransform(s);s.el.style.setProperty('--cw',focusWidth()+'px');HoloCardFace.refit(s.face);
  s.focus=A(s.el,[{transform:start},{transform:start+' translateY(-6px)'}],{duration:500,easing:'cubic-bezier(.2,.7,.2,1)'});
+ if(!await chargeHigh(s))return false;
  if(!await wait(140,run))return false;
  sound('flip',s);
  const flip=A(s.flip,[{transform:'rotateY(0deg)'},{transform:'rotateY(90deg)'}],{duration:180,easing:'ease-in'});
@@ -197,7 +215,7 @@ function flakes(s,count,delay,duration,name='fx-flake'){
  for(let i=0;i<count;i++){const angle=(i*137.508+32)*Math.PI/180,corner=i%4;const x=(corner%2?1:-1)*focusWidth()*.52,y=(corner<2?-1:1)*focusWidth()*.72;
  const dist=24+(i%5)*10;fx(s,name,delay,duration,{width:3+i%4,height:12+(i%4)*6,frames:[{opacity:0,transform:`translate(${x}px,${y}px) rotate(${i*31}deg)`},{opacity:.72,offset:24/duration},{opacity:0,transform:`translate(${x+Math.cos(angle)*dist}px,${y+Math.sin(angle)*dist}px) rotate(${i*31+54}deg)`}]});}
 }
-const READ={common:300,rare:420,epic:640,legendary:900,mythic:1200};
+const READ={common:300,rare:420,epic:640,legendary:1400,mythic:1900};
 const RETURN={common:220,rare:240,epic:280,legendary:320,mythic:360};
 function runRarityFx(s){const r=s.data.rarity,u=unit();
  const sweepDuration={common:220,rare:300,epic:420,legendary:520,mythic:560}[r];
@@ -229,6 +247,14 @@ function runCanvasFx(s){
  let id,ended=false,ticks=0;const start=activeNow();
  const cancel=()=>{if(ended)return;ended=true;fxPainters.delete(paint);cancelAnimationFrame(id);rafs.delete(id);engine.stop();upper.remove();lower.remove();mark('fx-end',s,{effect:'original-particles'});};
  const paint=(force=false)=>{if(ended||run!==generation)return;const targetTicks=Math.floor(((activeNow()-start)*60+1e-6)/1000);
+  // The rectangular contract also covers transparent rounded corners and the
+  // edge-on flip. Exclude those footprints without changing off-card photons.
+  const faces=slots.filter(s=>s.face&&s.face.style.visibility==='visible').map(s=>s.face.getBoundingClientRect());
+  for(const c of stage.querySelectorAll('.ceremony-canvas,.ceremony-flash')){
+    const box=c.getBoundingClientRect();
+    const holes=faces.map(r=>`M${r.left-box.left} ${r.top-box.top}H${r.right-box.left}V${r.bottom-box.top}H${r.left-box.left}Z`).join('');
+    c.style.clipPath=`path(evenodd, "M0 0H${box.width}V${box.height}H0Z${holes}")`;
+  }
   const target=s.shell.getBoundingClientRect();engine.move((target.x+target.width/2)*upper.width/innerWidth-box.x-box.width/2,(target.y+target.height/2)*upper.height/innerHeight-box.y-box.height/2);
   // Integrate elapsed active time, including delayed frames, without truncating tails.
   while(ticks<targetTicks&&engine.active){ticks++;engine.step(1/60,ticks===targetTicks);}
@@ -271,24 +297,34 @@ async function skipAll(){if(!slots.length||skipped)return;skipped=true;const pre
   if(run!==generation)return;
   mark('phase-start',null,{phase:reduced.matches?'reduced':'skip',fromRun:old});
   for(const s of slots){s.shell.getAnimations({subtree:true}).forEach(a=>a.cancel());s.flip.style.transform='';s.el.classList.remove('is-revealing');s.back.hidden=true;s.face.style.visibility='visible';s.el.style.opacity='1';position(s);}
-  const fade=A(fan,[{opacity:0},{opacity:1}],{duration:180});await fade.finished.catch(()=>{});if(run!==generation)return;fade.cancel();
+  const fade=A(fan,[{opacity:0},{opacity:1}],{duration:180});if(!await wait(180,run)||run!==generation)return;fade.cancel();
   for(const s of slots)completeSlot(s);busy=false;finishReveal();
 }
-function bindInteraction(s){let drag=null;const face=s.face,el=s.shell;
-  const paint=(x,y)=>{paintFoil(face,s.data.rarity,x,y);face.style.setProperty('--rx',s.rx+'deg');face.style.setProperty('--ry',s.ry+'deg');};
-  const reset=()=>{s.rx=s.ry=0;paint(0,0);};s.resetPose=reset;
-  el.addEventListener('pointerdown',e=>{if(!s.complete||e.button>0)return;e.preventDefault();getSelection()?.removeAllRanges();if(e.pointerType!=='touch'){slots.forEach(x=>x.el.classList.remove('selected'));s.el.classList.add('selected');}drag={x:e.clientX,y:e.clientY,rx:s.rx,ry:s.ry};el.setPointerCapture(e.pointerId);});
+function bindInteraction(s){let drag=null,rebound=null,lightX=0,lightY=0;const face=s.face,el=s.shell;
+  const paint=(x,y)=>{lightX=x;lightY=y;paintFoil(face,s.data.rarity,x,y);face.style.setProperty('--rx',s.rx+'deg');face.style.setProperty('--ry',s.ry+'deg');};
+  const stop=()=>{rebound?.();rebound=null;};
+  const reset=()=>{stop();s.rx=s.ry=0;paint(0,0);};s.resetPose=reset;
+  const release=()=>{drag=null;stop();const rx=s.rx,ry=s.ry,x=lightX,y=lightY,start=activeNow(),run=generation;let id;
+    const cancel=()=>{cancelAnimationFrame(id);rafs.delete(id);rebound=null;};
+    const step=()=>{rafs.delete(id);if(run!==generation){cancel();return;}
+      const p=Math.min(1,(activeNow()-start)/280),k=Math.pow(1-p,4);
+      s.rx=rx*k;s.ry=ry*k;paint(x*k,y*k);
+      if(p<1){id=requestAnimationFrame(step);rafs.set(id,cancel);}else{cancel();reset();updateFinish();}
+    };
+    cancel.resume=()=>{id=requestAnimationFrame(step);rafs.set(id,cancel);};rebound=cancel;cancel.resume();
+  };
+  el.addEventListener('pointerdown',e=>{if(!s.complete||e.button>0)return;e.preventDefault();getSelection()?.removeAllRanges();stop();if(e.pointerType!=='touch'){slots.forEach(x=>x.el.classList.remove('selected'));s.el.classList.add('selected');}drag={x:e.clientX,y:e.clientY,rx:s.rx,ry:s.ry};el.setPointerCapture(e.pointerId);});
   el.addEventListener('pointermove',e=>{if(!s.complete)return;const b=el.getBoundingClientRect();
     if(drag){s.rx=Math.max(-18,Math.min(18,drag.rx-(e.clientY-drag.y)*.2));s.ry=Math.max(-18,Math.min(18,drag.ry+(e.clientX-drag.x)*.2));}
-    paint((e.clientX-b.left)/b.width*2-1,(e.clientY-b.top)/b.height*2-1);});
-  el.addEventListener('pointerup',e=>{if(drag&&e.pointerType==='touch'&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6){const selected=s.el.classList.contains('selected');slots.forEach(x=>x.el.classList.remove('selected'));s.el.classList.toggle('selected',!selected);}drag=null;if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);});
-  el.addEventListener('pointercancel',()=>{drag=null;paint(0,0);});el.addEventListener('pointerleave',()=>{if(!drag)paint(0,0);});
+    if(!rebound)paint((e.clientX-b.left)/b.width*2-1,(e.clientY-b.top)/b.height*2-1);});
+  el.addEventListener('pointerup',e=>{if(drag&&e.pointerType==='touch'&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6){const selected=s.el.classList.contains('selected');slots.forEach(x=>x.el.classList.remove('selected'));s.el.classList.toggle('selected',!selected);}release();if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);});
+  el.addEventListener('pointercancel',release);el.addEventListener('pointerleave',()=>{if(!rebound)release();});
   el.addEventListener('dblclick',reset);
 }
 function finishReveal(){updateFinish();}
 function updateFinish(){const complete=slots.length&&slots.every(s=>s.complete)&&!cascading&&!busy&&!anims.size&&!timers.size&&!rafs.size&&!voices.size;
   btn.all.hidden=!slots.length||!!complete||skipped;btn.fin.hidden=!complete||collecting;
-  if(complete&&!collecting){hint.textContent='拖曳轉動 · 雙擊或 Esc 回正';if(!collectMarked){collectMarked=true;root?.remove();root=null;setScreen('results');relayout();mark('collectable');}}
+  if(complete&&!collecting){hint.textContent='拖曳轉動 · 放開自動回正';if(!collectMarked){collectMarked=true;root?.remove();root=null;setScreen('results');relayout();mark('collectable');}}
 }
 btn.all.textContent='跳過演出';btn.all.addEventListener('click',skipAll);
 stage.addEventListener('click',e=>{if(!e.target.closest('button,a,.slot.done')&&slots.length&&!btn.all.hidden)skipAll();});
@@ -298,7 +334,7 @@ btn.fin.addEventListener('click',async()=>{if(btn.fin.hidden||collecting)return;
  if(await wait(220,run)){clearRun();hint.textContent='';}
 });
 btn.p1.addEventListener('click',()=>pull(1));btn.p5.addEventListener('click',()=>pull(5));btn.p10.addEventListener('click',()=>pull(10));
-addEventListener('keydown',e=>{if(e.key==='Escape')for(const s of slots)if(s.complete)s.resetPose?.();
+addEventListener('keydown',e=>{if(e.key==='Escape'){if(screen==='ceremony')skipAll();else for(const s of slots)if(s.complete)s.resetPose?.();}
  if(screen==='results'&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();const d=e.key==='ArrowLeft'?-1:1;
  if(mobile())browse(d);else{selectedIndex=Math.max(0,Math.min(slots.length-1,selectedIndex+d));pageIndex=Math.floor(selectedIndex/5);relayout();slots.forEach((s,i)=>s.el.classList.toggle('selected',i===selectedIndex));}}
 });

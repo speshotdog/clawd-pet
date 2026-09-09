@@ -187,13 +187,13 @@ window.CeremonyFx = ({ rng = Math.random } = {}) => {
 
   // ---------- 傳說射線：從卡後方放射、緩慢旋轉的橘光，fadeIn → 停留 → fadeOut ----------
   // 回傳的物件有 stop()，讓流程在揭曉後把它慢慢收掉
-  function rays(x, y, { color = '#ff8000', n = 14, len = 900, fadeIn = 0.5, hold = 0.6, mythic = false } = {}) {
+  function rays(x, y, { color = '#ff8000', n = 14, len = 900, fadeIn = 0.5, hold = 0.6, tail = 0.8, mythic = false } = {}) {
     hold = Number.isFinite(hold) ? Math.min(hold, 4) : 0.6;
     let t = 0, rot = rand(0, TAU), alpha = 0, stopping = false, fadeOut = 0;
     const layer = {
       dead: false,
       under: true,
-      stop(dur = 0.8) { stopping = true; fadeOut = dur; },
+      stop(dur = tail) { stopping = true; fadeOut = dur; },
       update(dt) {
         t += dt; rot += dt * 0.35;
         if (stopping) { alpha -= dt / fadeOut; if (alpha <= 0) this.dead = true; }
@@ -352,9 +352,9 @@ window.CeremonyFx = ({ rng = Math.random } = {}) => {
     const high=['legendary','mythic'].includes(rarity),mythic=rarity==='mythic';
     // Original particles and rings remain intact; add exposure and extend the impact.
     reveal(x,y,rarity);
-    flash(x,y,{duration:high?1.65:.7,radius:high?760:620,strength:high?.92:.25,color:mythic?'218,241,255':rarity==='epic'?'225,185,255':'255,238,208'});
+    flash(x,y,{duration:high?(mythic?2.85:2.25):.7,radius:high?760:620,strength:high?.92:.25,color:mythic?'218,241,255':rarity==='epic'?'225,185,255':'255,238,208'});
     if(high){
-      rays(x,y,{fadeIn:.08,hold:1.6,mythic});
+      rays(x,y,{fadeIn:.08,hold:mythic?2.8:2.2,tail:mythic?1.2:1,mythic});
       layers.push(ring(x,y,mythic?'#e7faff':'#fff0b8',1.04,410,14));
       if(mythic)createScope({rng}).rainbowRing(x,y,1.2,420);
     }

@@ -6,19 +6,17 @@ body{padding:0;display:block;background:#091221;color:#eadfc4;font:14px/1.6 "Not
 .win{position:fixed;inset:0;width:100vw;height:100dvh;overflow:hidden;isolation:isolate}
 .stage,.stage-background,.stage-background>div{position:absolute;inset:0}
 .stage-background{pointer-events:none;z-index:0}
-.stage-base{background:#091221}
-.stage-substrate{background:var(--substrate,linear-gradient(122deg,#87919a 0%,#202c39 23%,#bac0bf 24%,#354151 26%,#737d83 51%,#263342 78%,#9b9f9c));background-size:cover;mix-blend-mode:soft-light;opacity:.12}
-.stage-geometry{opacity:.06;animation:geometry-drift 28s ease-in-out infinite}
-.stage-geometry:before{content:"";position:absolute;left:-5%;top:-8%;width:42%;height:46%;background:#eadfc4;clip-path:polygon(0 0,100% 0,73% 26%,16% 44%,0 100%)}
-.stage-geometry:after{content:"";position:absolute;right:-4%;bottom:-8%;width:34%;height:50%;background:#eadfc4;clip-path:polygon(40% 0,100% 0,100% 4%,42% 4%,4% 70%,70% 70%,70% 74%,0 74%)}
-.stage-glow{background:radial-gradient(ellipse 38% 48% at 50% 47%,#9bacc2,transparent);mix-blend-mode:screen;opacity:.08;animation:glow-breathe 12s ease-in-out infinite}
-.stage-sheen{background:linear-gradient(122deg,transparent 25%,#bac2c8 45%,transparent 65%);opacity:.035;mix-blend-mode:soft-light;animation:sheen-travel 18s ease-in-out infinite}
+.stage-base{background:#010203}
+.stage-substrate{background:none;opacity:0}
+.stage-geometry{opacity:.85;animation:sigil-breathe 28s ease-in-out infinite}
+.summoning-geometry{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:min(100dvh,980px);width:min(100vw,980px);overflow:visible}
+.stage-glow{background:radial-gradient(ellipse 22% 30% at 50% 45%,#fff,transparent);opacity:.025}
+.stage-sheen{background:none;opacity:0}
 .stage-vignette{background:radial-gradient(ellipse,transparent 34%,#000);mix-blend-mode:multiply;opacity:.32}
-@keyframes geometry-drift{50%{transform:translate(12px,-8px)}}
-@keyframes glow-breathe{0%,100%{transform:scale(.98);opacity:.08}50%{transform:scale(1.03);opacity:.12}}
-@keyframes sheen-travel{50%{transform:translate(40px,-26px)}}
+@keyframes sigil-breathe{50%{opacity:.55}}
 .background-paused .stage-background>div{animation-play-state:paused!important}
-.focus-held .stage-geometry,.focus-held .stage-glow,.focus-held .stage-sheen{opacity:.035;animation-play-state:paused}
+.focus-held .stage-geometry{opacity:.22;animation:none}
+.focus-held .stage-glow,.focus-held .stage-sheen{opacity:.01;animation-play-state:paused}
 button{font:600 14px/1.2 "Noto Sans TC","Microsoft JhengHei",sans-serif;cursor:pointer;color:#eadfc4;background:#17243a;border:2px solid #050d19;border-radius:4px;padding:12px 20px;box-shadow:0 3px 0 #030912;transition:transform 80ms,background-color 160ms;letter-spacing:.04em}
 button:active{transform:translateY(2px);box-shadow:0 1px 0 #030912}
 button:focus-visible{outline:2px solid #eadfc4;outline-offset:4px}
@@ -41,11 +39,15 @@ button:disabled{opacity:.4;cursor:default}
 .pages{display:flex;align-items:center;gap:14px;white-space:nowrap;font-size:12px}
 .pages button{padding:10px 14px;box-shadow:none}
 .fan{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-.slot{position:absolute;width:var(--cw,380px);aspect-ratio:5/7;transform-style:preserve-3d;pointer-events:none;transition:none;z-index:2}
+.slot{position:absolute;width:var(--cw,380px);aspect-ratio:5/7;transform-style:flat;pointer-events:none;transition:none;z-index:2}
 .slot .hcard{position:absolute;inset:0;width:100%;height:100%;margin:0}
 .reveal-anchor,.reveal-shell,.reveal-flip{position:absolute;inset:0;transform-style:preserve-3d}
-.reveal-anchor{pointer-events:none;transform:translateZ(-200px)}
+/* Flatten only the outer slot: the shell retains its own frozen 3D card tree.
+   The 2D ring plane cannot intersect the rotating flip, and needs no Z scaling. */
+.reveal-anchor{pointer-events:none;transform:none;transform-style:flat;z-index:1}
 .reveal-shell{transition:scale 180ms ease-out;touch-action:none}
+/* The owned rebound updates pose and foil together; avoid a second inherited tween. */
+.reveal-shell .card-lift{transition:none}
 .reveal-flip{backface-visibility:hidden}
 .veilback{position:absolute;inset:0;border-radius:12px;background:#26324f url("cardback/deluxe-back.webp") center/cover no-repeat;box-shadow:0 10px 20px #0009;backface-visibility:hidden}
 .slot.done{pointer-events:auto;cursor:grab}
@@ -71,6 +73,8 @@ button:disabled{opacity:.4;cursor:default}
 .fx-local-reflection{width:210%;height:150%;background:radial-gradient(ellipse,currentColor,transparent 65%);opacity:.16;mix-blend-mode:screen}
 .fx-flake,.fx-afterglow{width:6px;height:24px;background:linear-gradient(110deg,transparent,currentColor 45%,#eee8d6 52%,transparent);clip-path:polygon(35% 0,100% 18%,65% 100%,0 72%)}
 @media(max-width:600px){
+ .summoning-geometry{width:780px;height:780px;max-width:none}
+ .summon-axes{transform:translateX(200px) scaleX(.5)}
  .entry-pack,.summon-pack{width:min(76vw,300px)}
  .entry-pack{top:calc(50% - 40px)}
  .entry-actions{top:calc(50% + 190px);width:calc(100% - 36px)}
@@ -90,7 +94,8 @@ button:disabled{opacity:.4;cursor:default}
 .slot.mobile-current:not(.is-revealing){z-index:6}
 
 /* Round 30: separate tabletop slots; original canvas impact lives behind cards. */
-.ceremony-canvas{position:absolute;inset:0;left:0;top:0;translate:none;width:100%;height:100%;z-index:4}
+.ceremony-canvas{position:absolute;inset:0;left:0;top:0;translate:none;width:100%;height:100%;z-index:1}
 .ceremony-canvas.under{z-index:1}
 .ceremony-flash{inset:0;left:0;top:0;translate:none;background:white;z-index:1}
 .mythic-ripple{aspect-ratio:5/7;border:6px solid #ff4fd8;border-image:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8) 1}
+.charge-glow{width:230%;height:180%;z-index:-1;background:radial-gradient(ellipse,rgba(var(--charge-color),.9),rgba(var(--charge-color),.35) 35%,transparent 68%);opacity:0}

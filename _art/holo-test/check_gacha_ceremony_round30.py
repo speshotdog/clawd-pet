@@ -5,8 +5,9 @@ import json, sys, shutil
 from PIL import Image, ImageDraw, ImageChops
 from playwright.sync_api import sync_playwright
 from check_gacha_ceremony_round28 import HERE, BY, open_page, start, advance, state, CLOCK
-OUT=HERE/'verify-round30'
-OUT.mkdir(exist_ok=True)
+BASELINE=HERE/'verify-round30'
+OUT=HERE.parent.parent/'docs/clicker/shots/round32/retained/retained30'
+OUT.mkdir(parents=True,exist_ok=True)
 RARITIES=list(BY)
 
 def shot(p):
@@ -34,7 +35,7 @@ def measure(p,selector,label,rarity):
         advance(p,10)
     assert p.evaluate('window.__faceTime!=null'),p.evaluate('({cards:document.querySelector("#cards")?.innerHTML,body:document.body.innerText})')
     values=[]
-    for t in range(0,2401,50):
+    for t in range(0,4501,50):
         if t:advance(p,50)
         im=shot(p);values.append({'ms':t,'p95':p95(im,mask)})
         if t<=600:im.save(OUT/f'{label}-{rarity}-{t:03}.png')
@@ -47,7 +48,9 @@ def save(name,data):
     (OUT/name).write_text(json.dumps(data,indent=2),encoding='utf-8')
 
 def pixels(browser,file,label):
-    baseline=json.loads((OUT/'original-baseline.json').read_text());rows=[]
+    baseline_file=OUT/'original-baseline.json'
+    if not baseline_file.exists():baseline_file=BASELINE/'original-baseline.json'
+    baseline=json.loads(baseline_file.read_text());rows=[]
     for rarity,original in zip(RARITIES,baseline):
         p,errors=open_page(browser,file.as_uri());p.set_viewport_size({'width':1440,'height':900})
         p.evaluate('()=>{let seed=300;Math.random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}}')
@@ -96,19 +99,23 @@ def layouts(browser,file,label):
 def core(browser,file,label):
     # Same 13 full-frame pre-F captures × 3 ranks × 2 builds = 78 frames.
     captures=[]
-    for rarity in ([] if '--a5-only' in sys.argv else ['common','legendary','mythic']):
+    for rarity in ([] if '--a5-only' in sys.argv else ['common','rare','epic','legendary','mythic']):
         p,errors=open_page(browser,file.as_uri());start(p,[BY[rarity]]);last=0;frames=[]
         for t in [0,200,400,600,680,780,1000,1300,1400,1500,1580,1618,1619]:
             advance(p,t-last);last=t;assert not p.evaluate('__ceremony.events.some(e=>e.type==="face-visible")')
             im=shot(p);im.save(OUT/f'{label}-neutral-{rarity}-{t}.png');frames.append(im)
         captures.append(frames);assert not errors,errors;p.close()
-    for frames in captures[1:]:
+    for frames in captures[1:3]:
         for a,b in zip(captures[0],frames):assert ImageChops.difference(a,b).getbbox() is None
-    rows=[{'check':'no-preview','frames':39,'max_difference':0}] if captures else []
+    for frames in captures[3:]:
+        assert ImageChops.difference(captures[0][-1],frames[-1]).getbbox() is not None
+    rows=[{'check':'low-tier-no-preview','frames':39,'max_difference':0},
+          {'check':'high-tier-charge-preview','variants':2,'difference':'nonempty'}] if captures else []
     p,errors=open_page(browser,file.as_uri());p.evaluate('window.__clockRender=false')
     fixture=[BY['mythic']]+[BY['common']]*9
-    # Fixed points: exact new 1750ms prelude, F=2070 and mythic return=3270.
-    for phase,ms in [('controls',100),('tension',300),('tear',550),('deal',900),('pre-face',2069),('post-face',2071),('return',3350),('last-before',10349),('last-after',10351)]:
+    # 1750 prelude + 1300 charge + 320 flip = F3370; read1900 → return5270.
+    # First complete5630 + eight commons*(320+300+220) = last charge12350.
+    for phase,ms in [('controls',100),('tension',300),('tear',550),('deal',900),('pre-face',3369),('post-face',3371),('return',5350),('last-before',12349),('last-after',12351)]:
         if '--late-only' in sys.argv and not phase.startswith('last-'):continue
         for _ in range(20):
             start(p,fixture);advance(p,ms)
