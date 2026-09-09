@@ -1,6 +1,6 @@
 # 交接：華麗卡牌（3D 鐳射／全息）＋ 精裝版抽卡
 
-最後更新：2026-09-09 凌晨（第二十六輪之後）。分支 `holo-cards`，已 push 到 origin。
+最後更新：2026-09-09（第二十七輪）。分支 `holo-cards`；本輪未 commit、未 push，Git metadata 寫入受沙箱限制。
 
 ## 〇之前、開工前一定要先讀的兩份（不讀就會重演昨天的返工）
 
@@ -339,29 +339,26 @@ pending、重開、匯入、跳過都要能還原。
 `.face-name`／`.face-rarity` 的矩形不准超出卡片矩形 1.5px 以上。
 （`.face-frame` 在 `--zf` 8px、設計上就貼著卡緣，不在檢查範圍。）
 
-## 七、下一步（2026-09-09 凌晨更新）
+## 七、下一步（第二十七輪更新）
 
-**權威清單是 [`TODO-next-round.md`](TODO-next-round.md)**，它已按「當前源碼狀態 vs 下一輪處理」逐項校正過，
-接手時照那份走，不要照舊報告的結論（`REPORT-gacha-card-verify.md` 測的是 `57a9887`，之後已有修碼）。
+[TODO-next-round.md](TODO-next-round.md) 已同步到本輪實作後狀態；[REPORT-holo-round27.md](REPORT-holo-round27.md) 記錄實測與退出碼。
 
-那份清單的五件事：
+| 代號 | 本輪結果 |
+|---|---|
+| 0 | 固定 px 外皮綁 `--cw`；mask/background-size 實際原值是 100%／300%，保留百分比，避免平鋪格線 |
+| A1 | 保存起點 commit、可載入的 demo 控制組及 78 份歷史檔雜湊；43＋4 正式資料與 65 展示樣本分清 |
+| A2 | 三型 plate/text 幾何一致，四場景納入五尺寸跨三頁驗證；Z 沿六之五不推高 |
+| A3 | demo 正面接 HoloCardFace、資料由 pool_data adapter 更新；歷史樣本、wrapper 與 shadow-root 舊卡保留 |
+| A4 | content width／gem 更新／動畫完成後 refit／移除前 unobserve 已接齊；加入實際尺寸與 scrim 斷言 |
+| A5 | 完成狀態、cascade finally、run 取消及回呼隔離已修；保留兩種失敗證據與固定時序修後結果 |
+| C | 已於 a6d188b 修正，不再是使用者待辦；保留四角裝飾與排查方法 |
 
-| 代號 | 內容 | 狀態 |
-|---|---|---|
-| A1 | 保存控制組與資料身分（正式 pool 43 張＋四場景 4 張，demo 65 張是展示樣本不是基準） | 待做 |
-| A2 | 三型幾何收斂：depth／flat／framed 的 plate/text 統一 4.4%／3.4%／16.2%，depth text 的 z-index 收回 200 | 待做 |
-| A3 | demo 的 `makeCard()` 接共用 `HoloCardFace`（第三份實作還在），保留 wrapper 與 65 張歷史基準 | 待做 |
-| A4 | `refit/observe/unobserve` 補驗（refit 目前只 fit 字、沒重算 gem） | 部分已改，待驗 |
-| A5 | 十連快轉的完成判定競態：先用固定時序重現，再修 | 待重現 |
-| C | 傳說卡左上黃色方塊——**使用者自己排查**，線索在 TODO 第 3 節，不要批量刪四角裝飾 | 使用者處理 |
+尚未完成的交付是 **Git commit**：沙箱不准寫此 worktree 位於另一個目錄的 index.lock，故每任務一個 commit 也未能完成。所有修改與三份 standalone 留在這個 worktree；沒有 push。
 
-揭曉光效改版的研究是 [`DESIGN-reveal-light-v2.md`](DESIGN-reveal-light-v2.md)，
-**A 全部收尾後才接**，不要用新光芒蓋住還沒修完的卡面問題。
+後續仍限於使用者另行授權的範圍：
 
-原本這一節的四項仍未消化：
+1. 複驗本輪結果並提交目前修改，再決定是否接新的揭曉光效方案。
+2. 卡面樣品驗收後才接遊戲本體；本輪 `src/` 未改。
+3. 精裝抽卡價格、機率、重複處理與經濟層仍待定案。
 
-1. **等使用者確認**：`framed` 卡的「舊版樣式」是指遊戲現在線上的版本，
-   還是展示頁那個「卡框＋稀有度色調底」的版型？兩種讀法工作量差很多。
-2. 另外三張場景卡的名字還是暫定名（太空人狗、粉紅外星貓、白色捲毛狗），等使用者指定。
-3. 卡面樣品若通過驗收，才進入「接進遊戲」的階段（`DESIGN-holo-cards.md` 第 10 節的分輪計畫）。
-4. 精裝版抽卡等商業規則定案後才能接經濟層。
+提醒：六之四的 flat Z=0 是舊文矛盾；本輪按六之五與 brief 採 **6px**，不要又降到背景層後面。
