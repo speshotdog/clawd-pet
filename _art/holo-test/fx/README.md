@@ -8,3 +8,4 @@
 
 重渲：`blender -b -P build_foil_pack.py -- <out_dir>`（可攜版 Blender 在 `D:\claude\holo-pack\tools\`）。
 中立銀白，不帶稀有度色——使用者裁決「不預告任何品質」。
+| `summon-substrate.webp` | 1536×1024 RGB | 第二十九輪背景箔底材：`build_foil_stage.py`（同卡包材質，無印刷、皺摺 0.25、彩虹 0.06、寬面積光），Pillow 飽和度烘焙至 15% | 32KB |
