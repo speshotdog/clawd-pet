@@ -1,0 +1,14 @@
+[
+  {
+    "script": "check_demo_round8.py",
+    "exit": 0
+  },
+  {
+    "script": "check_demo_round9.py",
+    "exit": 0
+  },
+  {
+    "script": "check_gacha_followup.py",
+    "exit": 0
+  }
+]

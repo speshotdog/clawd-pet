@@ -1,0 +1,807 @@
+{
+  "commit": "4ab5997ff6a16e5aad3a771a7f1b42b6991457bc",
+  "output": "verify-round27",
+  "catalog": 43,
+  "withScenes": 47,
+  "demoSamples": 65,
+  "historicalHashes": {
+    "_art\\holo-test\\verify-gacha\\all-exit-codes.json": "7838ea65a1ef697cc004bb4b6e1ae092b770a3a0917dcc713ac5e6829f116cc3",
+    "_art\\holo-test\\verify-gacha\\baseline-demo-standalone.html": "284b6978b9863865036d819a27ee5c1b63ad0a90134110535d4fbe91f3d973cf",
+    "_art\\holo-test\\verify-gacha\\baseline-demo.html": "b5bf26f2e5b995573ff9aa95e0f145ea6622532a7d30495adb4c022ef4fd3a0b",
+    "_art\\holo-test\\verify-gacha\\build_cards_remade.py.log": "705292f4090a175ed0174db5f431b12521a3846e3e79545e62a1a2692d0f9d4a",
+    "_art\\holo-test\\verify-gacha\\build_deluxe_b.py.log": "574971476b1b6f35e70b6fbf37627b0e167382db44867ecc690184baa6055157",
+    "_art\\holo-test\\verify-gacha\\build_deluxe_b_standalone.py.log": "1915876ba7baeed8e11baa766c0e34f4904f4fb49a9b6e88c2382eb5ca9b7658",
+    "_art\\holo-test\\verify-gacha\\build_round5_standalone.py.log": "5ebe13bb927fd0a01890247ade2912984a09519ad1d7eda404b031d4e8896ea8",
+    "_art\\holo-test\\verify-gacha\\check_demo_round8.py.log": "79a7590ef3015e92b2ba02113ef63734e7be36d1ce99b854e6e4f541a4e758e8",
+    "_art\\holo-test\\verify-gacha\\check_demo_round9.py.log": "7a7a783843561f920ee7718a79dd3b108b18e012a2181bdd62ce42aec82456f1",
+    "_art\\holo-test\\verify-gacha\\commands.json": "7b3aaee758cd15fa0c6349593b3da4f3bc5cde787e0dfd310f4c4fff60a4649a",
+    "_art\\holo-test\\verify-gacha\\comparison-290.png": "d898009ee90124b4ad821a4809635335b3b6390faa48327cd70afb61e314d141",
+    "_art\\holo-test\\verify-gacha\\cross-page-first-attempt.log": "d1cef82821922cb44013e58197ac32e2d3de1f01b23784c900f59a16e3299b7e",
+    "_art\\holo-test\\verify-gacha\\cross-page.log": "9f7f5ea785a5e6d7ae92ed970c85ac5127fae7ea1c9ccd6a9e16c5c0752df2d3",
+    "_art\\holo-test\\verify-gacha\\dino-102-gacha.png": "78cc69b6fa5ffa7e2b1b7be3cbd6a056aafa496c356727f3fa2e606775af88dd",
+    "_art\\holo-test\\verify-gacha\\dino-102-reference.png": "634fd8d5b8c7f365f2d9c682044c8bd01ac02366323a6fddfd976b70382361e6",
+    "_art\\holo-test\\verify-gacha\\dino-150-gacha.png": "355ef8222b9aa3acb424f917d1fcad520a4a765c5b2e24a3a2d2384296a2a552",
+    "_art\\holo-test\\verify-gacha\\dino-150-reference.png": "b6b35a49e6d96965210796eb790eb98a528e709bd082cc844d14db9d6f534d94",
+    "_art\\holo-test\\verify-gacha\\dino-230-gacha.png": "a1e773518a0ea36e92eb07d56c3859bb7c148f3f231a13cea5e97ffd852b7075",
+    "_art\\holo-test\\verify-gacha\\dino-230-reference.png": "bb03bdfafd348c15cdf7b86c5d82f44c1ab1b6d206cb53f8298804dce405d413",
+    "_art\\holo-test\\verify-gacha\\dino-290-gacha.png": "79263948f4b937465f20fe802a629acfa467b63d450ed481bbcf16257ac49c95",
+    "_art\\holo-test\\verify-gacha\\dino-290-reference.png": "371fca66c7f5a005b6fc45c44dd03d657b47beb03f580ab4965a326e7ffb48dd",
+    "_art\\holo-test\\verify-gacha\\dino-80-gacha.png": "58d6fb272565a98e9434ac06c70d914e2257d23e97801f4b358476c0abfa69fc",
+    "_art\\holo-test\\verify-gacha\\dino-80-reference.png": "324101f0d92805d2402ba37f2223f725b23265b005ce235f3277d3bf015a5234",
+    "_art\\holo-test\\verify-gacha\\extra-pages.json": "3e39d09936967cd8d0fb538d92a696cc777c871adc11bbbbb2d65c154f2fafb6",
+    "_art\\holo-test\\verify-gacha\\flat-hover.json": "471437f88b9f2d2fe033c65fb37fe5831a426c3310cbb4ba75079ca67d8caf60",
+    "_art\\holo-test\\verify-gacha\\followup.json": "0b590affa97af5ce01427f71d579f5fdb00e6e21f0d473cd4b12e68638f053df",
+    "_art\\holo-test\\verify-gacha\\followup.log": "808c5d8ab9700b072fc5956c8f406fde14d61e629c47220ff7ff973be18c977f",
+    "_art\\holo-test\\verify-gacha\\foxfriend-102-gacha.png": "e0372bf7d3a02d865c0970f04c27edee54a11c282da60b73b16854b8c873818a",
+    "_art\\holo-test\\verify-gacha\\foxfriend-102-reference.png": "cb111e0131622f67498440ecce56316a7c399d88565a23c30017d849fc6cb235",
+    "_art\\holo-test\\verify-gacha\\foxfriend-150-gacha.png": "e5b1dd29104089ba4dfba5756fa9b748e9d23f9683b7654b125aff54bcda9975",
+    "_art\\holo-test\\verify-gacha\\foxfriend-150-reference.png": "0c4b582897d25f0a7c1612051e3b6d5b174c0f6f6bc5d895a368752cb033a7c0",
+    "_art\\holo-test\\verify-gacha\\foxfriend-230-gacha.png": "80a5ce00e99bc2b1dbb5519e4e864b7dc90bc8f694357f60e4df55e29e07388f",
+    "_art\\holo-test\\verify-gacha\\foxfriend-230-reference.png": "7caa44c45b30db99e22458209ea20d31633dfec828acd4f69992833bb774f82f",
+    "_art\\holo-test\\verify-gacha\\foxfriend-290-gacha.png": "3066220eeace5989e8d9decf0975960325ec7b02e50e01b00ac799e7cd6eb641",
+    "_art\\holo-test\\verify-gacha\\foxfriend-290-reference.png": "c94869cfbca0302279e42082e557f32a254d1a0b3123c155f3ca2119507d8243",
+    "_art\\holo-test\\verify-gacha\\foxfriend-80-gacha.png": "d3b96ed91520adc9aca904c8b28ee833be19fd4282d8588b4053e63ff51efe4c",
+    "_art\\holo-test\\verify-gacha\\foxfriend-80-reference.png": "b53c460f0caaf70807065958268c3bef59a48b43d33676fbd33f6cd49d46d8be",
+    "_art\\holo-test\\verify-gacha\\measure-gacha-after.json": "500e413994acdf68b81d21acf5ae51ef264bba15fa11586a5c2420fd00b8b3cd",
+    "_art\\holo-test\\verify-gacha\\mieshi-102-gacha.png": "3e2ca567741f593056e672463eb91d9c3b4b74886d6dfb5835dae6bae91a344d",
+    "_art\\holo-test\\verify-gacha\\mieshi-102-reference.png": "6c64c18b64ea042fa708baf0c6d9e4caca08b72d0462f3e52df9b3546e14b276",
+    "_art\\holo-test\\verify-gacha\\mieshi-150-gacha.png": "f2d5d10f27e125c3a45cf249279aedbbdef968de0a2282deae4f6bb2c41ba56c",
+    "_art\\holo-test\\verify-gacha\\mieshi-150-reference.png": "a07644081ac9b970aa0591b35f43a386411c3a2858b27e3b9e424dff104b41d7",
+    "_art\\holo-test\\verify-gacha\\mieshi-230-gacha.png": "b076b00d4fc150dcd14c807b72e4a874aa916ad4f2707d8b74ca3979516fa2f2",
+    "_art\\holo-test\\verify-gacha\\mieshi-230-reference.png": "0d3a72a6d7d86d331448854d6b312075255f54693dc0ac856fb77fcd2e5eb034",
+    "_art\\holo-test\\verify-gacha\\mieshi-290-gacha.png": "aff159300b04e990a72162f3559121bb3aade62969ed43c750c5d333fbc98fb8",
+    "_art\\holo-test\\verify-gacha\\mieshi-290-reference.png": "7d1198f5a8eb71f359f9dfc8f32ce4d836645ce02c82bcb89e895174cd36d302",
+    "_art\\holo-test\\verify-gacha\\mieshi-80-gacha.png": "32621e26fc6daefc9090e019338c7552b5386d6eb7d0584c55875948943b667f",
+    "_art\\holo-test\\verify-gacha\\mieshi-80-reference.png": "21e2567b278e8ce70cb4bb730459aac8cf6127f4fae0899c89e6009a01a4a0e7",
+    "_art\\holo-test\\verify-gacha\\restored-generated-files.json": "6b0614c1ffc8094adc99e70dbdd059df7617a6ee34ca75740d53b387389e6e0f",
+    "_art\\holo-test\\verify-gacha\\rocketdog-102-gacha.png": "57bce520a3471c133f78a83ee0d762268959f69ffc59af71f480cbe369baf582",
+    "_art\\holo-test\\verify-gacha\\rocketdog-102-reference.png": "7a214e06844b4c689eabe2aced263e1c02e148035a4c4b06b6180b5532920689",
+    "_art\\holo-test\\verify-gacha\\rocketdog-150-gacha.png": "a16dbc6cf9c8b970ca3da684ee490c3cfb85c32c81bfc20ba2bd851ef1c5e22e",
+    "_art\\holo-test\\verify-gacha\\rocketdog-150-reference.png": "6004f8e09095ac4ec617cfefb1a7710cb239fbe66516fa716d5c2ad7264abc85",
+    "_art\\holo-test\\verify-gacha\\rocketdog-230-gacha.png": "1769d5ef4cd63f7a40c666eeda1fed8cd7a658640944df59461af2db339b3cf7",
+    "_art\\holo-test\\verify-gacha\\rocketdog-230-reference.png": "9d3380c6c2ba9adae77ff9be0fcccae2e1753dc13933a7d873014a3d6f06ab3c",
+    "_art\\holo-test\\verify-gacha\\rocketdog-290-gacha.png": "f69d4ef0ee5e18682b6f99219a4b4f7993dd7e4ff3c950df4abadc7d86cf6cca",
+    "_art\\holo-test\\verify-gacha\\rocketdog-290-reference.png": "cf51421b3357d7fd19a66590aa7748c1c3a335890ea2746b5934bb712beadddf",
+    "_art\\holo-test\\verify-gacha\\rocketdog-80-gacha.png": "1349c6dd7325199a8667688eff57392568ac7dfb7a01453594af93bc94bd2543",
+    "_art\\holo-test\\verify-gacha\\rocketdog-80-reference.png": "54acd405771bde99eddb52fd7edb3b9cb3bde0b6d8ce948085583cc1226c3d17",
+    "_art\\holo-test\\verify-gacha\\ten-pull-False.png": "a0b9752e20fa9251311ddd76af1536f8969905e970d49ba17c5d3f2a2ce3a9f3",
+    "_art\\holo-test\\verify-gacha\\ten-pull-neutral.png": "061919ab4bd62290189ce571244cbbefcc39caba9f47ff0fb70990edb09c30ef",
+    "_art\\holo-test\\verify-gacha\\ten-pull-True.png": "933c6e8fecbd3d3b3a417d7f4c3f5b1df4b8026de5141115f7561158dc866a4c",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-102-gacha.png": "82114e51a9bb60a8418dc8b6b61f21286d9fa33f778b11fdba816eb817409703",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-102-reference.png": "46cd6d6793a9d339de02acc91ed992d5642eff67b4e8d6a1e6cc1837e6866c8c",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-150-gacha.png": "af056710f116c3704bb19717172a432863cdcba50fce29b071ab98b3a8949f07",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-150-reference.png": "568aa7af7f1ffdc2984c8dec3be7a309e3c3fbc9f9d1ff64d97f128243c2d743",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-230-gacha.png": "6fb085a000cd5bcfed3da2346407eb9fdabc2e0555f9a78955ce10552e6a2179",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-230-reference.png": "30aabbb6a30aa3bd450e5e922c4d482c79a430bc8f038e8b68ae2073535a8bb0",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-290-gacha.png": "978a2c8bd4ac7c2d34d994d00e760c2289a7c1383b3ca77e3c8d4a2ba78cd125",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-290-reference.png": "7168f30873c841a1d8a8d0ef791d669837acc358dd248ae4e1423a56a0b12474",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-80-gacha.png": "068aca1a0f8894d15340849280144cf87930020bdad3b68ccfabf77b34190b2c",
+    "_art\\holo-test\\verify-gacha\\wanwumythic-80-reference.png": "80d699e899e9f692106b756d79776cefd800195b5b6b97ab739873ca59bd0a90",
+    "_art\\holo-test\\verify-gacha\\generated-evidence\\demo-standalone.html": "265ef900ddbe7862f11527b04c5ec34d2b14b7ef5434ac3dd79962d02647912a",
+    "_art\\holo-test\\verify-gacha\\generated-evidence\\r8-dev-rocketdog-tilted-closeup.png": "507ed5769b26b6a21be0cfcafed2cb367a9694a63924edb11a983d8594681fe2",
+    "_art\\holo-test\\verify-gacha\\generated-evidence\\r8-standalone-copy-five-rarities.png": "0545b46c515709da6bb0ce6c07552cf3484b328e4ffb61435d041550cd64ca2e",
+    "_art\\holo-test\\verify-gacha\\generated-evidence\\r9-standalone-copy-pool.png": "19834ee4bdd6f104945fb6ed2552c7553f19eb64bc7c1f1bbcdb5866697b358b",
+    "_art\\holo-test\\verify-gacha\\generated-evidence\\verification-round8.json": "93168c764f39f0a4e575432efa4c081ec633473d46dd604cd58e9f3c267395be",
+    "_art\\holo-test\\verify-gacha\\generated-evidence\\verification-round9.json": "92564f3228e8e16d8579871dcc7e4ffe813e1c15d408b788354f94f552238102"
+  },
+  "pool": [
+    {
+      "id": "rocketdog",
+      "name": "宇宙冒險羊",
+      "rarity": "mythic",
+      "kind": "depth",
+      "scene": true
+    },
+    {
+      "id": "alienkitty",
+      "name": "天外膠膠",
+      "rarity": "legendary",
+      "kind": "depth",
+      "scene": true
+    },
+    {
+      "id": "astronaut",
+      "name": "玥面探索者",
+      "rarity": "epic",
+      "kind": "depth",
+      "scene": true
+    },
+    {
+      "id": "fluffdog",
+      "name": "居家珍獸",
+      "rarity": "epic",
+      "kind": "depth",
+      "scene": true
+    },
+    {
+      "id": "mieshi",
+      "name": "滅世珍獸",
+      "rarity": "mythic",
+      "file": "card-mieshi.png",
+      "kind": "flat",
+      "bleed": true,
+      "pal": {
+        "base": "#181a1e",
+        "glow": "#514738",
+        "accent": "#9da068",
+        "ink": "#0c0d0f",
+        "hue": 0.0976,
+        "sat": 0.39,
+        "val": 0.662
+      }
+    },
+    {
+      "id": "qinghua",
+      "name": "青花膠",
+      "rarity": "mythic",
+      "file": "card-qinghua.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1c1a20",
+        "glow": "#50563c",
+        "accent": "#7faa6f",
+        "ink": "#0e0d10",
+        "hue": 0.207,
+        "sat": 0.331,
+        "val": 0.702
+      }
+    },
+    {
+      "id": "wanwumythic",
+      "name": "玩物就玩物",
+      "rarity": "mythic",
+      "file": "card-wanwumythic.png",
+      "kind": "flat",
+      "bleed": true,
+      "pal": {
+        "base": "#1b1f21",
+        "glow": "#644d46",
+        "accent": "#c6b281",
+        "ink": "#101213",
+        "hue": 0.0401,
+        "sat": 0.335,
+        "val": 0.816
+      }
+    },
+    {
+      "id": "yueyuexian",
+      "name": "玥來玥閒",
+      "rarity": "mythic",
+      "file": "card-yueyuexian.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#191a1e",
+        "glow": "#514939",
+        "accent": "#98a068",
+        "ink": "#0d0e0f",
+        "hue": 0.1108,
+        "sat": 0.167,
+        "val": 0.66
+      }
+    },
+    {
+      "id": "foxfriend",
+      "name": "摯友之狐",
+      "rarity": "legendary",
+      "file": "card-foxfriend.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1b1e21",
+        "glow": "#59473e",
+        "accent": "#b0a572",
+        "ink": "#0e1011",
+        "hue": 0.0569,
+        "sat": 0.18,
+        "val": 0.726
+      }
+    },
+    {
+      "id": "jiaotou",
+      "name": "膠頭燃額",
+      "rarity": "legendary",
+      "file": "card-jiaotou.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#171b21",
+        "glow": "#66523b",
+        "accent": "#c7ca6a",
+        "ink": "#0e1013",
+        "hue": 0.091,
+        "sat": 0.53,
+        "val": 0.833
+      }
+    },
+    {
+      "id": "jinggou",
+      "name": "警狗",
+      "rarity": "legendary",
+      "file": "card-jinggou.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#191c21",
+        "glow": "#5a4c3b",
+        "accent": "#afb16d",
+        "ink": "#0d0f11",
+        "hue": 0.0928,
+        "sat": 0.431,
+        "val": 0.732
+      }
+    },
+    {
+      "id": "lksphinx",
+      "name": "獅身ㄌㄎ",
+      "rarity": "legendary",
+      "file": "card-lksphinx.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#191b21",
+        "glow": "#685d43",
+        "accent": "#c1cf7c",
+        "ink": "#0f1114",
+        "hue": 0.1142,
+        "sat": 0.444,
+        "val": 0.853
+      }
+    },
+    {
+      "id": "shiyi",
+      "name": "十一",
+      "rarity": "legendary",
+      "file": "card-shiyi.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#191c1e",
+        "glow": "#514138",
+        "accent": "#a09568",
+        "ink": "#0d0e0f",
+        "hue": 0.0559,
+        "sat": 0.275,
+        "val": 0.659
+      }
+    },
+    {
+      "id": "wanwu",
+      "name": "玩物",
+      "rarity": "legendary",
+      "file": "card-wanwu.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1b1f21",
+        "glow": "#624945",
+        "accent": "#c2aa7e",
+        "ink": "#101212",
+        "hue": 0.0271,
+        "sat": 0.302,
+        "val": 0.8
+      }
+    },
+    {
+      "id": "yuefeimo",
+      "name": "飛沫月月",
+      "rarity": "legendary",
+      "file": "card-yuefeimo.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#18171e",
+        "glow": "#4f5133",
+        "accent": "#7ca05e",
+        "ink": "#0c0c0f",
+        "hue": 0.1775,
+        "sat": 0.459,
+        "val": 0.659
+      }
+    },
+    {
+      "id": "yuesong",
+      "name": "玥之歌",
+      "rarity": "legendary",
+      "file": "card-yuesong.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#181920",
+        "glow": "#564e37",
+        "accent": "#9aaa65",
+        "ink": "#0c0d10",
+        "hue": 0.1257,
+        "sat": 0.449,
+        "val": 0.702
+      }
+    },
+    {
+      "id": "zhenbush",
+      "name": "草叢珍珍",
+      "rarity": "legendary",
+      "file": "card-zhenbush.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#19161f",
+        "glow": "#4d542f",
+        "accent": "#6fa654",
+        "ink": "#0c0b10",
+        "hue": 0.1977,
+        "sat": 0.548,
+        "val": 0.684
+      }
+    },
+    {
+      "id": "zhenfang",
+      "name": "珍的很方",
+      "rarity": "legendary",
+      "file": "card-zhenfang.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#141721",
+        "glow": "#6b542c",
+        "accent": "#c7d748",
+        "ink": "#0d1014",
+        "hue": 0.1059,
+        "sat": 0.74,
+        "val": 0.888
+      }
+    },
+    {
+      "id": "zhenmoss",
+      "name": "苔蘚珍珍",
+      "rarity": "legendary",
+      "file": "card-zhenmoss.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#191620",
+        "glow": "#4c552e",
+        "accent": "#6aa951",
+        "ink": "#0c0b10",
+        "hue": 0.2064,
+        "sat": 0.58,
+        "val": 0.698
+      }
+    },
+    {
+      "id": "bingyang",
+      "name": "冰羊咩",
+      "rarity": "epic",
+      "file": "card-bingyang.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#21201b",
+        "glow": "#495469",
+        "accent": "#9087cf",
+        "ink": "#141311",
+        "hue": 0.6091,
+        "sat": 0.221,
+        "val": 0.854
+      }
+    },
+    {
+      "id": "foxmoney",
+      "name": "給狐錢好嗎",
+      "rarity": "epic",
+      "file": "card-foxmoney.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1a1d20",
+        "glow": "#56483c",
+        "accent": "#aaa66e",
+        "ink": "#0d0f10",
+        "hue": 0.0773,
+        "sat": 0.352,
+        "val": 0.7
+      }
+    },
+    {
+      "id": "gebugou",
+      "name": "哥不狗",
+      "rarity": "epic",
+      "file": "card-gebugou.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#191821",
+        "glow": "#5e5c38",
+        "accent": "#94b966",
+        "ink": "#0d0d12",
+        "hue": 0.1611,
+        "sat": 0.499,
+        "val": 0.766
+      }
+    },
+    {
+      "id": "lkreal",
+      "name": "ㄌㄎ正卡",
+      "rarity": "epic",
+      "file": "card-lkreal.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1c201a",
+        "glow": "#4c3c56",
+        "accent": "#aa6fa4",
+        "ink": "#0e100d",
+        "hue": 0.7714,
+        "sat": 0.346,
+        "val": 0.702
+      }
+    },
+    {
+      "id": "mianhua",
+      "name": "棉花糖",
+      "rarity": "epic",
+      "file": "card-mianhua.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1b2021",
+        "glow": "#634845",
+        "accent": "#c4a77f",
+        "ink": "#101213",
+        "hue": 0.0175,
+        "sat": 0.076,
+        "val": 0.808
+      }
+    },
+    {
+      "id": "qipupu",
+      "name": "氣噗噗",
+      "rarity": "epic",
+      "file": "card-qipupu.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1b2021",
+        "glow": "#5b4240",
+        "accent": "#b49875",
+        "ink": "#0f1111",
+        "hue": 0.013,
+        "sat": 0.222,
+        "val": 0.744
+      }
+    },
+    {
+      "id": "yangpu",
+      "name": "羊咩噗",
+      "rarity": "epic",
+      "file": "card-yangpu.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1b2021",
+        "glow": "#604543",
+        "accent": "#be9f7c",
+        "ink": "#0f1212",
+        "hue": 0.0095,
+        "sat": 0.259,
+        "val": 0.785
+      }
+    },
+    {
+      "id": "yuetrumpet",
+      "name": "小號玥",
+      "rarity": "epic",
+      "file": "card-yuetrumpet.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#141518",
+        "glow": "#413a2d",
+        "accent": "#848c5b",
+        "ink": "#0a0b0c",
+        "hue": 0.1133,
+        "sat": 0.196,
+        "val": 0.527
+      }
+    },
+    {
+      "id": "zhenbing",
+      "name": "珍冰",
+      "rarity": "epic",
+      "file": "card-zhenbing.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#211f1b",
+        "glow": "#4b5b6b",
+        "accent": "#8a8cd4",
+        "ink": "#141311",
+        "hue": 0.5822,
+        "sat": 0.23,
+        "val": 0.874
+      }
+    },
+    {
+      "id": "zhencao",
+      "name": "珍的是草",
+      "rarity": "epic",
+      "file": "card-zhencao.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1a1a1f",
+        "glow": "#534e3a",
+        "accent": "#96a56b",
+        "ink": "#0d0e10",
+        "hue": 0.1298,
+        "sat": 0.33,
+        "val": 0.68
+      }
+    },
+    {
+      "id": "zhenpete",
+      "name": "珍彼特",
+      "rarity": "epic",
+      "file": "card-zhenpete.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1b1f21",
+        "glow": "#5c4841",
+        "accent": "#b7a777",
+        "ink": "#0f1111",
+        "hue": 0.0458,
+        "sat": 0.197,
+        "val": 0.755
+      }
+    },
+    {
+      "id": "ababa",
+      "name": "阿巴阿巴",
+      "rarity": "rare",
+      "file": "card-ababa.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1c201a",
+        "glow": "#4b3c56",
+        "accent": "#aa6fa7",
+        "ink": "#0f100d",
+        "hue": 0.762,
+        "sat": 0.339,
+        "val": 0.702
+      }
+    },
+    {
+      "id": "alu",
+      "name": "阿漉",
+      "rarity": "rare",
+      "file": "card-alu.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#191b21",
+        "glow": "#655a41",
+        "accent": "#b9c879",
+        "ink": "#0f1013",
+        "hue": 0.1172,
+        "sat": 0.439,
+        "val": 0.824
+      }
+    },
+    {
+      "id": "chaichai",
+      "name": "柴柴",
+      "rarity": "rare",
+      "file": "card-chaichai.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#141618",
+        "glow": "#41362d",
+        "accent": "#8c885b",
+        "ink": "#0a0b0c",
+        "hue": 0.0722,
+        "sat": 0.233,
+        "val": 0.53
+      }
+    },
+    {
+      "id": "gebuyang",
+      "name": "哥布羊",
+      "rarity": "rare",
+      "file": "card-gebuyang.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#19191e",
+        "glow": "#504e38",
+        "accent": "#879e67",
+        "ink": "#0d0d0f",
+        "hue": 0.1568,
+        "sat": 0.284,
+        "val": 0.653
+      }
+    },
+    {
+      "id": "guanjiu",
+      "name": "罐酒",
+      "rarity": "rare",
+      "file": "card-guanjiu.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#191a21",
+        "glow": "#60583f",
+        "accent": "#acbe74",
+        "ink": "#0e0f12",
+        "hue": 0.127,
+        "sat": 0.433,
+        "val": 0.783
+      }
+    },
+    {
+      "id": "jiaolan",
+      "name": "膠頭爛額",
+      "rarity": "rare",
+      "file": "card-jiaolan.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1a1b21",
+        "glow": "#5a503d",
+        "accent": "#a8b272",
+        "ink": "#0d0f11",
+        "hue": 0.1124,
+        "sat": 0.4,
+        "val": 0.733
+      }
+    },
+    {
+      "id": "manhua",
+      "name": "滿花",
+      "rarity": "rare",
+      "file": "card-manhua.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#171c1c",
+        "glow": "#4b3435",
+        "accent": "#947860",
+        "ink": "#0c0e0e",
+        "hue": 0.9965,
+        "sat": 0.221,
+        "val": 0.612
+      }
+    },
+    {
+      "id": "miepupu",
+      "name": "咩噗噗噗",
+      "rarity": "rare",
+      "file": "card-miepupu.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1b1f21",
+        "glow": "#5c4640",
+        "accent": "#b6a276",
+        "ink": "#0e1111",
+        "hue": 0.0348,
+        "sat": 0.324,
+        "val": 0.751
+      }
+    },
+    {
+      "id": "salamander",
+      "name": "黃色蠑螈",
+      "rarity": "rare",
+      "file": "card-salamander.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#131621",
+        "glow": "#6b562a",
+        "accent": "#c3da45",
+        "ink": "#0d0f14",
+        "hue": 0.1123,
+        "sat": 0.761,
+        "val": 0.899
+      }
+    },
+    {
+      "id": "seal",
+      "name": "快樂海豹",
+      "rarity": "rare",
+      "file": "card-seal.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#16191b",
+        "glow": "#473732",
+        "accent": "#8c805b",
+        "ink": "#0b0d0d",
+        "hue": 0.0456,
+        "sat": 0.138,
+        "val": 0.579
+      }
+    },
+    {
+      "id": "shiwang",
+      "name": "失望卡哇",
+      "rarity": "rare",
+      "file": "card-shiwang.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#181b1e",
+        "glow": "#4f3e37",
+        "accent": "#9c9066",
+        "ink": "#0d0e0f",
+        "hue": 0.0478,
+        "sat": 0.202,
+        "val": 0.646
+      }
+    },
+    {
+      "id": "yangtuo",
+      "name": "羊駝",
+      "rarity": "rare",
+      "file": "card-yangtuo.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#1b171d",
+        "glow": "#404c35",
+        "accent": "#629764",
+        "ink": "#0d0c0e",
+        "hue": 0.2596,
+        "sat": 0.319,
+        "val": 0.624
+      }
+    },
+    {
+      "id": "zhenjpg",
+      "name": "珍珍JPG",
+      "rarity": "rare",
+      "file": "card-zhenjpg.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#171c1b",
+        "glow": "#4a3437",
+        "accent": "#926e5f",
+        "ink": "#0c0e0d",
+        "hue": 0.9714,
+        "sat": 0.084,
+        "val": 0.601
+      }
+    },
+    {
+      "id": "zhenwang",
+      "name": "珍汪",
+      "rarity": "rare",
+      "file": "card-zhenwang.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#181c1d",
+        "glow": "#4d3a36",
+        "accent": "#998563",
+        "ink": "#0c0e0e",
+        "hue": 0.0255,
+        "sat": 0.093,
+        "val": 0.631
+      }
+    },
+    {
+      "id": "ballyellow",
+      "name": "黃色球",
+      "rarity": "common",
+      "file": "toy-ballyellow.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#141721",
+        "glow": "#6b582e",
+        "accent": "#c4da4e",
+        "ink": "#0d0f14",
+        "hue": 0.1133,
+        "sat": 0.715,
+        "val": 0.901
+      }
+    },
+    {
+      "id": "beachball",
+      "name": "皮球",
+      "rarity": "common",
+      "file": "toy-beachball.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#201b21",
+        "glow": "#4c6043",
+        "accent": "#7bbd87",
+        "ink": "#110f12",
+        "hue": 0.2835,
+        "sat": 0.23,
+        "val": 0.782
+      }
+    },
+    {
+      "id": "dino",
+      "name": "小恐龍",
+      "rarity": "common",
+      "file": "toy-dino.png",
+      "kind": "framed",
+      "pal": {
+        "base": "#19181d",
+        "glow": "#4d4e36",
+        "accent": "#7f9a64",
+        "ink": "#0c0c0f",
+        "hue": 0.171,
+        "sat": 0.269,
+        "val": 0.636
+      }
+    }
+  ]
+}

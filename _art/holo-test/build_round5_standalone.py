@@ -27,6 +27,8 @@ def data_uri(path: Path) -> str:
     URI_CACHE[key] = 'data:image/webp;base64,' + b64encode(out.getvalue()).decode('ascii')
     return URI_CACHE[key]
 
+from update_demo_data import update
+update()
 html = SOURCE.read_text(encoding='utf-8')
 refs = set(re.findall(r'(?:(?:src|href)=["\']|url\(["\']?)([^"\')]+\.(?:png|jpg|jpeg|webp))', html))
 replacements = {}
@@ -54,9 +56,13 @@ for name in ('texture-fiber.png', 'texture-engraving.png', 'gacha-cardback.jpg')
     path = (ROOT / name) if (ROOT / name).exists() else (ROOT / '../../src' / name).resolve()
     if path.exists():
         asset_map[name] = cached_uri(path)
-html = html.replace("const masks=JSON.parse($('#mask-data').textContent);", "const assetMap=" + repr(asset_map).replace("'", '"') + ";const asset=name=>assetMap[name]||name;const masks=JSON.parse($('#mask-data').textContent);")
-html = html.replace("const src=scene?srcKey:`art/${srcKey}`;", "const src=asset(srcKey);")
-html = html.replace("image.src=`layer-${data.id}-background.png`", "image.src=asset(`layer-${data.id}-background.png`)")
+resolver = "function resolve(name){return name.startsWith('layer-')?name:'art/'+name;}"
+assert html.count(resolver) == 1, 'demo resolver contract changed'
+import json
+html = html.replace(resolver, 'const assetMap='+json.dumps(asset_map)+';function resolve(name){if(!assetMap[name])throw Error("Missing asset: "+name);return assetMap[name];}')
+script = '<script src="card_face.js"></script>'
+assert html.count(script) == 1, 'shared card script contract changed'
+html = html.replace(script, '<script>'+(ROOT/'card_face.js').read_text(encoding='utf-8')+'</script>')
 html = html.replace('../../src/card-zhenpete.png', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')
 
 html = html.replace('華麗卡牌第五輪', '華麗卡牌第五輪 · 單檔分享版')

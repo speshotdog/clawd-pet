@@ -1,0 +1,14 @@
+[
+  {
+    "label": "baseline",
+    "maskSize": "100% 100%",
+    "backgroundSize": "300% 300%",
+    "maskRepeat": "repeat"
+  },
+  {
+    "label": "current",
+    "maskSize": "100% 100%",
+    "backgroundSize": "300% 300%",
+    "maskRepeat": "repeat"
+  }
+]

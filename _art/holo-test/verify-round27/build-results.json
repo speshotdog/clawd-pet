@@ -1,0 +1,27 @@
+[
+  {
+    "script": "build_round5_standalone.py",
+    "exit": 0,
+    "output": "embedded=15 size=3776566 bytes\n"
+  },
+  {
+    "script": "build_cards_remade.py",
+    "exit": 0,
+    "output": "wrote cards-remade.html : 43 cards, 1.01 MiB\n"
+  },
+  {
+    "script": "build_cards_remade_standalone.py",
+    "exit": 0,
+    "output": "wrote cards-remade-standalone.html 3.35 MiB | assets: 43\n"
+  },
+  {
+    "script": "build_deluxe_b.py",
+    "exit": 0,
+    "output": "wrote deluxe-gacha-b.html  cards: 47  1.03 MiB\n"
+  },
+  {
+    "script": "build_deluxe_b_standalone.py",
+    "exit": 0,
+    "output": "wrote deluxe-gacha-b-standalone.html 4.47 MiB | assets: 51\n"
+  }
+]

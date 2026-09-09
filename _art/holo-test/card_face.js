@@ -144,37 +144,42 @@
   }
 
   var observer = null;
+  var observed = new Set();
+  // Both ResizeObserver and explicit refits use the untransformed content box.
+  function contentWidth(card) {
+    var cs = getComputedStyle(card), w = parseFloat(cs.width);
+    if (cs.boxSizing === 'border-box') {
+      w -= parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) +
+           parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+    }
+    return Math.max(0, w || 0);
+  }
+  function resize(card) {
+    if (!card.isConnected) return;
+    var w = contentWidth(card);
+    if (!w) return;
+    card.style.setProperty('--cw', w + 'px');
+    card.style.setProperty('--gem-fs', (w * GEM_SHARE).toFixed(2) + 'px');
+    fit(card, w);
+  }
   function observe(card) {
     if (!observer) {
       observer = new ResizeObserver(function (list) {
-        for (var i = 0; i < list.length; i++) {
-          var w = list[i].contentRect.width;
-          if (!w) continue;
-          var c = list[i].target;
-          c.style.setProperty('--gem-fs', (w * GEM_SHARE).toFixed(2) + 'px');
-          fit(c, w);
-        }
+        list.forEach(function (entry) { if (observed.has(entry.target)) resize(entry.target); });
       });
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(function () { refit(); });
-      }
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { refit(); });
     }
+    observed.add(card);
     observer.observe(card);
   }
-
-  function unobserve(card) { if (observer) observer.unobserve(card); }
-
-  function refit() {
-    // ⚠ 一定要用未變形的佈局寬（clientWidth），不能用 getBoundingClientRect()。
-    // 卡片外層有 hover scale 與 Z 投影，用 rect 會把 102px 的卡算成 115px，
-    // 字級就變成 9.54px 而不是 8.44px（Astra 驗收抓到）。
-    document.querySelectorAll('.hcard').forEach(function (c) {
-      var w = c.clientWidth;
-      if (w) fit(c, w);
-    });
+  function unobserve(card) {
+    observed.delete(card);
+    if (observer) observer.unobserve(card);
   }
-
-  /* ── 姿態：tilt=false 時卡片不轉，只有材質跟著游標 ──────────── */
+  function refit(card) {
+    if (card) resize(card);
+    else observed.forEach(resize);
+  }
 
   function paint(card, rarity, x, y, opts) {
     opts = opts || {};

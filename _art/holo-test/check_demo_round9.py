@@ -16,9 +16,10 @@ from pathlib import Path
 import json, re, shutil
 from tempfile import TemporaryDirectory
 from playwright.sync_api import sync_playwright
+from pool_data import pool
 
 OUT = Path(__file__).parent
-SHOTS = OUT / 'shots'
+SHOTS = OUT / 'verify-round27' / 'round9-shots'
 ROOT = (OUT / '../..').resolve()
 
 EXPECTED_TOTAL = 65          # 22 sample cards from rounds 1-8 + 43 pool cards
@@ -65,6 +66,9 @@ def check(page, uri, label, expected):
         name: name.textContent,
         rarityText: rarity.textContent,
         artLoaded: !!(img && img.complete && img.naturalWidth > 0),
+        kind:c.dataset.artKind,
+        palette:getComputedStyle(c).getPropertyValue('--pal-base').trim(),
+        effectiveBackground:getComputedStyle(c.querySelector('.face-depth-bg')).backgroundImage,
         masked: !!c.querySelector('.subject-mask'),
         fill: cs.webkitTextFillColor,
         background: cs.backgroundImage,
@@ -73,6 +77,7 @@ def check(page, uri, label, expected):
     })""")
     assert len(rows) == len(expected), (len(rows), len(expected))
 
+    canonical = {c["id"]: c for c in pool(with_scenes=False)}
     by_id = {r['id']: r for r in rows}
     for want in expected:
         got = by_id.get(want['id'])
@@ -81,7 +86,11 @@ def check(page, uri, label, expected):
         assert got['rarity'] == want['rarity'], (want['id'], got['rarity'], want['rarity'])
         assert got['rarityText'].endswith(want['rarity'].upper()), (want['id'], got['rarityText'])
         assert got['artLoaded'], 'art failed to load: ' + want['id']
-        assert got['masked'], 'no foil mask: ' + want['id']
+        data=canonical[want['id']]
+        assert got['kind']==data['kind'], got
+        assert got['masked']==(data['kind']!='flat'), got
+        assert got['palette']==data['pal']['base'], got
+        assert got['effectiveBackground']!='none', got
         assert got['nameCenterDelta'] < 2, (want['id'], got['nameCenterDelta'])
 
         if want['rarity'] == 'legendary':
@@ -111,7 +120,7 @@ def check(page, uri, label, expected):
       return bad;}""")
     assert not floating, floating
 
-    SHOTS.mkdir(exist_ok=True)
+    SHOTS.mkdir(parents=True,exist_ok=True)
     page.locator('#pool-grid').screenshot(path=str(SHOTS / f'r9-{label}-pool.png'))
     return {'label': label, 'cards': page.locator('.hcard').count(), 'pool': len(rows),
             'external_requests': external, 'console_errors': errors}
@@ -119,7 +128,7 @@ def check(page, uri, label, expected):
 
 def main():
     expected = pool_from_source()
-    with sync_playwright() as pw, TemporaryDirectory() as tmp:
+    with sync_playwright() as pw, TemporaryDirectory(dir=OUT/'verify-round27') as tmp:
         copy = Path(tmp) / 'standalone.html'
         shutil.copy(OUT / 'demo-standalone.html', copy)
         browser = pw.chromium.launch()
@@ -131,7 +140,7 @@ def main():
         browser.close()
     report = {'expected_total': EXPECTED_TOTAL, 'pool_cards': len(expected),
               'standalone_bytes': (OUT / 'demo-standalone.html').stat().st_size, 'results': results}
-    (OUT / 'verification-round9.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    (OUT / 'verify-round27' / 'verification-round9.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 

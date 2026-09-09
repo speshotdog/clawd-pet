@@ -10,3 +10,17 @@ _art/out/
 _art/*.json
 _art/*-source.png
 build.log
+# Codex 執行紀錄與派工用的暫存檔（報告與簡報才進版控）
+docs/clicker/codex-*.log
+docs/clicker/codex-*.log.err
+docs/clicker/codex-*-prompt.txt
+docs/clicker/run-*.cmd
+docs/clicker/verify*-*.log
+# 第二十七輪證據：只留報告有連結的截圖與所有 json/log，其餘截圖與 HTML 基準不進版控
+_art/holo-test/verify-round27/*.png
+_art/holo-test/verify-round27/*.html
+!_art/holo-test/verify-round27/material-baseline.png
+!_art/holo-test/verify-round27/material-current.png
+_art/holo-test/verify-round27/**/*.png
+_art/holo-test/verify-round27/**/*.html
+_art/holo-test/verify-round27/timing-copies-*/

@@ -78,7 +78,7 @@ function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x!=
 
 function build(d,host,capHtml){
  const cell=node('div','cell'),hit=node('div','hit');
- const card=HoloCardFace.create(d,{masks,resolve:n=>(typeof __A!=='undefined'&&__A[n])||('art/'+n)});
+ const card=HoloCardFace.create(d,{masks,resolve:n=>(typeof __A!=='undefined'&&__A[n])||(n.startsWith('layer-')?n:'art/'+n)});
  hit.append(card);
  const cap=node('p','cap');
  cap.innerHTML=capHtml!==undefined?capHtml:`${LABEL[d.rarity]}・${d.file}`;

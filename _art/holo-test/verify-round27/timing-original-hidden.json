@@ -1,0 +1,66 @@
+[
+  {
+    "portable": false,
+    "phase": "wait",
+    "repeat": 0,
+    "before": {
+      "cascading": true,
+      "skipped": false,
+      "busy": false,
+      "slots": 10,
+      "started": 1,
+      "completed": 0,
+      "ids": [
+        "rocketdog",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino"
+      ],
+      "faces": 1,
+      "hidden": true,
+      "tickets": 20,
+      "anims": 55,
+      "finishAt": 0,
+      "lastAnimationEnd": 1788912003000,
+      "detached": 0,
+      "sparks": 47
+    },
+    "after": {
+      "cascading": false,
+      "skipped": true,
+      "busy": false,
+      "slots": 10,
+      "started": 10,
+      "completed": 0,
+      "ids": [
+        "rocketdog",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino",
+        "dino"
+      ],
+      "faces": 10,
+      "hidden": true,
+      "tickets": 20,
+      "anims": 0,
+      "finishAt": 0,
+      "lastAnimationEnd": 1788912005190,
+      "detached": 0,
+      "sparks": 0
+    },
+    "early": [],
+    "errors": [],
+    "failedRequests": []
+  }
+]

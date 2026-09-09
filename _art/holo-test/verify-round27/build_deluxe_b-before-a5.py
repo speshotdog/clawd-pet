@@ -231,33 +231,9 @@ const stage=$('#stage'),fan=$('#fan'),charge=$('#charge'),core=$('#core'),rays=$
       starfield=$('#starfield'),flashwrap=$('#flashwrap'),idlepack=$('#idlepack'),hint=$('#hint');
 const btn={p1:$('#p1'),p5:$('#p5'),p10:$('#p10'),all:$('#revealall'),fin:$('#finish')};
 let busy=false, slots=[], pending=0, tickets=30, cascading=false, skipped=false;
-const anims=new Set(),timers=new Map();
-let generation=0;
-const A=(el,frames,opts)=>{
-  const run=generation,a=el.animate(frames,{fill:'both',...opts});anims.add(a);
-  a.finished.catch(()=>{}).finally(()=>{anims.delete(a);if(run===generation)updateFinish();});return a;
-};
-function later(fn,ms,run=generation){
-  const id=setTimeout(()=>{timers.delete(id);if(run===generation){fn();updateFinish();}},ms);
-  timers.set(id,()=>{});return id;
-}
-const wait=(ms,run=generation)=>new Promise(resolve=>{
-  const id=setTimeout(()=>{timers.delete(id);resolve(run===generation);if(run===generation)updateFinish();},reduced.matches?Math.min(ms,120):ms);
-  timers.set(id,()=>resolve(false));
-});
-function clearRun(){
-  generation++;
-  for(const [id,cancel] of timers){clearTimeout(id);cancel();}timers.clear();
-  for(const a of anims)a.cancel();anims.clear();
-  win.getAnimations({subtree:true}).forEach(a=>a.cancel());
-  win.classList.remove('shake');
-  for(const e of win.querySelectorAll('.shock,.spark'))e.remove();
-  for(const f of fan.querySelectorAll('.hcard'))HoloCardFace.unobserve(f);
-  fan.replaceChildren();slots=[];busy=false;skipped=false;cascading=false;
-  btn.fin.hidden=true;btn.all.hidden=true;stage.removeEventListener('click',skipAll);
-  idlepack.style.opacity='';
-  for(const [b,n] of [[btn.p1,1],[btn.p5,5],[btn.p10,10]])b.disabled=tickets<n;
-}
+const anims=new Set();
+const A=(el,frames,opts)=>{const a=el.animate(frames,{fill:'both',...opts});anims.add(a);a.finished.catch(()=>{}).finally(()=>anims.delete(a));return a;};
+const wait=ms=>new Promise(r=>setTimeout(r,reduced.matches?Math.min(ms,120):ms));
 
 function layout(n){
   const r=stage.getBoundingClientRect();
@@ -296,15 +272,14 @@ function rayBurst(color,dur,turns){
 }
 function shakeWin(){ if(reduced.matches)return;
   win.classList.remove('shake');void win.offsetWidth;win.classList.add('shake');
-  later(()=>win.classList.remove('shake'),470); }
+  setTimeout(()=>win.classList.remove('shake'),470); }
 function flash(bg,dur,blend){
   flashwrap.style.background=bg;flashwrap.style.mixBlendMode=blend||'screen';
   A(flashwrap,[{opacity:0},{opacity:.85,offset:.12},{opacity:0}],{duration:dur,easing:'ease-out'});
 }
 
 async function pull(n){
-  if(busy||slots.length||tickets<n)return;
-  const run=++generation;
+  if(busy||tickets<n)return;
   busy=true;skipped=false;cascading=false;tickets-=n;$('#ticket').textContent=tickets;
   for(const b of [btn.p1,btn.p5,btn.p10])b.disabled=true;
   const result=draw(n);
@@ -325,7 +300,7 @@ async function pull(n){
     {duration:900,easing:'cubic-bezier(.3,0,.2,1)'});
   A(core,[{opacity:0,scale:.3},{opacity:1,scale:1.5,offset:.75},{opacity:0,scale:2.6}],
     {duration:900,easing:'ease-in'});
-  if(!await wait(760,run))return;
+  await wait(760);
   shock(SURGE[best],9,520);
 
   // 2) 發牌：從核心沿軌道甩出來
@@ -340,9 +315,9 @@ async function pull(n){
     A(s,[{transform:`translate(${Math.cos(a0)*40}px,${Math.sin(a0)*40}px) rotate(${-160+i*22}deg) scale(.24)`,opacity:0},
          {transform:`translate(${spots[i].x}px,${spots[i].y}px) rotate(0deg) scale(1)`,opacity:1}],
       {duration:400,delay:i*42,easing:'cubic-bezier(.2,.9,.25,1.05)'});
-    slots.push({el:s,data:result[i],spot:spots[i],revealed:false,complete:false,run});
+    slots.push({el:s,data:result[i],spot:spots[i],revealed:false});
   }
-  if(!await wait(320+n*42,run))return;
+  await wait(320+n*42);
   for(const sl of slots) sl.el.addEventListener('click',()=>skipAll());
   stage.addEventListener('click',skipAll);
   busy=false;
@@ -352,19 +327,16 @@ async function pull(n){
 
 // 手遊的抽卡不用一張一張按：發完牌就一路翻下去，玩家想快轉就點畫面。
 async function cascade(){
-  const run=generation;
   cascading=true;
-  try {
-    for(const sl of slots){
-      if(skipped||run!==generation)break;
-      if(sl.revealed)continue;
-      const r=sl.data.rarity;
-      revealOne(sl);
-      if(!await wait(r==='mythic'?1500:r==='legendary'?1000:r==='epic'?330:170,run))return;
-    }
-  } finally {
-    if(run===generation){cascading=false;finishReveal();}
+  for(const sl of slots){
+    if(skipped) break;
+    if(sl.revealed) continue;
+    const r=sl.data.rarity;
+    revealOne(sl);
+    await wait(r==='mythic'?1500:r==='legendary'?1000:r==='epic'?330:170);
   }
+  cascading=false;
+  if(!skipped) finishReveal();
 }
 
 function skipAll(){
@@ -380,15 +352,14 @@ function finishReveal(){
 }
 
 async function revealOne(s,fast){
-  const run=s.run;
-  if(s.revealed||run!==generation)return;s.revealed=true;s.el.classList.add('done');
+  if(s.revealed)return;s.revealed=true;s.el.classList.add('done');
   const r=s.data.rarity, big=r==='legendary'||r==='mythic';
 
   // (1) 預告：卡背先亮起來，稀有的還會抖一下。快轉時整段跳過。
   if(!fast){
     s.el.classList.add('tease');
-    if(big){ s.el.classList.add('rattle'); if(!await wait(300,run))return; s.el.classList.remove('rattle'); }
-    else if(!await wait(110,run))return;
+    if(big){ s.el.classList.add('rattle'); await wait(300); s.el.classList.remove('rattle'); }
+    else await wait(110);
     s.el.classList.remove('tease');
   }
 
@@ -410,7 +381,7 @@ async function revealOne(s,fast){
             {transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1)`}],
       {duration:420,easing:'cubic-bezier(.2,.9,.25,1)'});
   }
-  if(!await wait(big?190:205,run))return;
+  await wait(big?190:205);
   s.el.querySelector('.veilback').style.display='none';
   face.style.opacity='1';
   A(face,[{transform:'rotateY(-90deg)'},{transform:'rotateY(0deg)'}],{duration:big?260:280,easing:'ease-out'});
@@ -419,10 +390,10 @@ async function revealOne(s,fast){
   if(r==='mythic'){
     flash('linear-gradient(120deg,#ff7ad0aa,#ffc25eaa,#7dffab99,#6fd8ffaa,#c39dffaa)',760,'soft-light');
     shock('#ff7ad0',13,760);
-    later(()=>shock('#6fd8ff',17,900),120);
-    later(()=>shock('#fff87d',21,1000),250);
+    setTimeout(()=>shock('#6fd8ff',17,900),120);
+    setTimeout(()=>shock('#fff87d',21,1000),250);
     burst('#ff7ad0',46,190);
-    later(()=>burst('#6fd8ff',34,230),180);
+    setTimeout(()=>burst('#6fd8ff',34,230),180);
     A(starfield,[{opacity:0},{opacity:.9,offset:.18},{opacity:0}],{duration:2200});
     A(charge,[{opacity:.9},{opacity:0}],{duration:1000});
     for(const el of document.querySelectorAll('.ring'))
@@ -430,7 +401,7 @@ async function revealOne(s,fast){
   } else if(r==='legendary'){
     flash('radial-gradient(circle,#ffd45c88,#ffb43a55 45%,transparent 74%)',600,'soft-light');
     shock('#ffd45c',11,660);
-    later(()=>shock('#fff3c9',15,780),110);
+    setTimeout(()=>shock('#fff3c9',15,780),110);
     burst('#ffd45c',30,150);
   } else if(r==='epic'){
     shock('#c39dff',8,520);burst('#c39dff',14,105);
@@ -440,7 +411,7 @@ async function revealOne(s,fast){
 
   // 放大的傳說／神話看完就歸位，不然會壓到旁邊的卡
   if(big){
-    if(!await wait(980,run))return;
+    await wait(980);
     A(s.el,[{transform:`translate(${s.spot.x*.35}px,${s.spot.y*.35}px) scale(1.5)`},
             {transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1.06)`}],
       {duration:460,easing:'cubic-bezier(.3,.8,.3,1)'});
@@ -449,10 +420,8 @@ async function revealOne(s,fast){
   // 揭曉後：卡片不轉，只有材質光影跟著游標
   // Wait for real flip / return animation completion before fitting.
   await Promise.all(s.el.getAnimations({subtree:true}).map(a=>a.finished.catch(()=>{})));
-  if(run!==generation)return;
   paintFoil(face,r,0,0);
   HoloCardFace.refit(face);
-  s.complete=true;
   s.el.addEventListener('pointermove',e=>{
     const b=s.el.getBoundingClientRect();
     paintFoil(face,r,(e.clientX-b.left)/b.width*2-1,(e.clientY-b.top)/b.height*2-1);
@@ -463,19 +432,23 @@ async function revealOne(s,fast){
 
 function updateFinish(){
   const left=slots.filter(s=>!s.revealed).length;
-  btn.all.hidden=left===0;
-  btn.fin.hidden=!slots.length||slots.some(s=>!s.complete)||cascading||busy||anims.size>0||timers.size>0;
+  btn.all.hidden = left===0;            // 還沒翻完時當「快轉」用
+  btn.fin.hidden = left>0 || cascading;
 }
 btn.all.addEventListener('click',skipAll);
 btn.fin.addEventListener('click',()=>{
-  if(btn.fin.hidden)return;
-  clearRun();
+  for(const s of slots){const f=s.el.querySelector('.hcard'); if(f) HoloCardFace.unobserve(f);}
+  fan.replaceChildren();slots=[];btn.fin.hidden=true;btn.all.hidden=true;skipped=false;cascading=false;
+  stage.removeEventListener('click',skipAll);
+  idlepack.style.opacity='';idlepack.getAnimations().forEach(a=>a.cancel());
   hint.textContent='從軌道上取下你的卡。';
+  for(const b of [btn.p1,btn.p5,btn.p10])b.disabled=tickets<1;
+  btn.p5.disabled=tickets<5;btn.p10.disabled=tickets<10;
 });
 $('#p1').addEventListener('click',()=>pull(1));
 $('#p5').addEventListener('click',()=>pull(5));
 $('#p10').addEventListener('click',()=>pull(10));
-$('#reset').addEventListener('click',()=>{tickets=30;$('#ticket').textContent=tickets;clearRun();});
+$('#reset').addEventListener('click',()=>{tickets=30;$('#ticket').textContent=tickets;btn.fin.click();});
 $('#ratebtn').addEventListener('click',()=>{
   hint.textContent='試抽用的假機率：神話 0.5%／傳說 4%／史詩 15%／精良 40%／普通 40.5%；十連保底一張傳說以上。正式數字未定案。';});
 $('#bookbtn').addEventListener('click',()=>{hint.textContent='典藏冊在試抽版還沒接，先看抽卡。';});

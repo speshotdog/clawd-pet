@@ -1,11 +1,15 @@
 """Targeted lifecycle and resize probes; no implementation files are changed."""
-import json
+import json, sys
+from check_card_sizing import check_sizing
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from check_gacha_card_regression import HERE, OUT, MEASURE, settle
 
 with sync_playwright() as pw:
     b=pw.chromium.launch()
+    check_sizing(b)
+    if "--sizing-only" in sys.argv:
+        b.close();sys.exit(0)
     p=b.new_page(viewport={'width':1512,'height':1000})
     p.add_init_script("""(()=>{const Original=ResizeObserver;window.__observed=new Set();window.ResizeObserver=class extends Original{observe(e,...a){__observed.add(e);return super.observe(e,...a)}unobserve(e){__observed.delete(e);return super.unobserve(e)}disconnect(){return super.disconnect()}}})()""")
     p.goto((HERE/'deluxe-gacha-b.html').as_uri())
@@ -27,4 +31,8 @@ with sync_playwright() as pw:
     result={'native':native,'neutralRefit':refit,'detachedStillObserved':retained,'long':long,'sameNodeResize':restore,'restoredShort':short}
     (OUT/'followup.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps({'detachedStillObserved':retained,'nativeFitChanges':sum(a['layers']['.face-name']['styles']['fontSize']!=z['layers']['.face-name']['styles']['fontSize'] for a,z in zip(native,refit)),'longFits':long['nameFits'],'longWidth':long['rangeWidth'],'longRoom':long['room'],'restoredShortFs':short['layers']['.face-name']['styles']['fontSize']}))
+    assert retained==0, result
+    assert all(a['layers']['.face-name']['styles']['fontSize']==z['layers']['.face-name']['styles']['fontSize'] for a,z in zip(native,refit)), 'neutral refit changed settled text'
+    assert long['nameFits']=='false' and abs(float(long['layers']['.face-name']['styles']['fontSize'].removesuffix('px'))-24*.55)<.02
+    assert short['nameFits']=='true' and short['layers']['.face-name']['styles']['fontSize']=='24px'
     b.close()
