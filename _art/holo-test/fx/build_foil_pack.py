@@ -35,7 +35,7 @@ sc.view_settings.look = 'AgX - Medium High Contrast'
 
 
 # ---------- 材質：銀白鋁箔 ----------
-def foil_material(name, rainbow=0.22, rough=0.28, crinkle=0.9):
+def foil_material(name, rainbow=0.22, rough=0.28, crinkle=0.9, print_path=None):
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     t = m.node_tree
@@ -82,7 +82,31 @@ def foil_material(name, rainbow=0.22, rough=0.28, crinkle=0.9):
     mix.blend_type = 'OVERLAY'; mix.inputs[0].default_value = rainbow
     mix.inputs[1].default_value = (0.62, 0.64, 0.70, 1)
     t.links.new(ramp.outputs[0], mix.inputs[2])
-    t.links.new(mix.outputs[0], bsdf.inputs['Base Color'])
+    if print_path:
+        img = bpy.data.images.load(print_path)
+        tex = t.nodes.new('ShaderNodeTexImage'); tex.image = img; tex.location = (-300, 700)
+        tex.extension = 'CLIP'
+        t.links.new(tc.outputs['Generated'], tex.inputs['Vector'])
+        # 印刷覆蓋率：alpha × 0.92，讓皺摺高光還能穿過印刷
+        cov = t.nodes.new('ShaderNodeMath'); cov.operation = 'MULTIPLY'; cov.inputs[1].default_value = 0.92
+        t.links.new(tex.outputs['Alpha'], cov.inputs[0])
+        col = t.nodes.new('ShaderNodeMixRGB'); col.blend_type = 'MIX'; col.location = (350, 500)
+        t.links.new(cov.outputs[0], col.inputs[0]); t.links.new(mix.outputs[0], col.inputs[1]); t.links.new(tex.outputs['Color'], col.inputs[2])
+        t.links.new(col.outputs[0], bsdf.inputs['Base Color'])
+        met = t.nodes.new('ShaderNodeMath'); met.operation = 'MULTIPLY_ADD'; met.location = (350, 350)
+        # metallic = 1 - 0.75*cov
+        met.inputs[1].default_value = -0.75; met.inputs[2].default_value = 1.0
+        t.links.new(cov.outputs[0], met.inputs[0]); t.links.new(met.outputs[0], bsdf.inputs['Metallic'])
+        rg = t.nodes.new('ShaderNodeMath'); rg.operation = 'MULTIPLY_ADD'; rg.location = (350, 250)
+        # roughness = rough + 0.3*cov
+        rg.inputs[1].default_value = 0.3; rg.inputs[2].default_value = rough
+        t.links.new(cov.outputs[0], rg.inputs[0]); t.links.new(rg.outputs[0], bsdf.inputs['Roughness'])
+        bs = t.nodes.new('ShaderNodeMath'); bs.operation = 'MULTIPLY_ADD'; bs.location = (100, -300)
+        # bump strength = base - 0.45*cov
+        bs.inputs[1].default_value = -0.45 * crinkle; bs.inputs[2].default_value = 0.7 * crinkle
+        t.links.new(cov.outputs[0], bs.inputs[0]); t.links.new(bs.outputs[0], bump.inputs['Strength'])
+    else:
+        t.links.new(mix.outputs[0], bsdf.inputs['Base Color'])
     return m
 
 
@@ -208,7 +232,7 @@ def clear_objects():
 
 # ---------- 1. 卡包 ----------
 W, H, SEAL = 7.0, 9.8, 0.9
-mat = foil_material('foil', rainbow=0.4, rough=0.22)
+mat = foil_material('foil', rainbow=0.4, rough=0.22, print_path=f'{OUT}/pack-print.png')
 pack = mesh_from_outline('pack', outline_pack(W, H, seal=SEAL), mat)
 add_bulge(pack, 0.55, W, H, SEAL)
 seal_ribs(pack, W, H, SEAL)
