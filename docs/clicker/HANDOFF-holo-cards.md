@@ -1,6 +1,6 @@
 # 交接：華麗卡牌（3D 鐳射／全息）＋ 精裝版抽卡
 
-最後更新：2026-09-09（第二十九輪）。分支 `holo-cards`；本輪實作未 commit、未 push，Git metadata 寫入受沙箱限制。
+最後更新：2026-09-09（第三十輪）。分支 `holo-cards`；未 commit、未 push，Git metadata 位於可寫 worktree 之外。
 
 ## 〇之前、開工前一定要先讀的兩份（不讀就會重演昨天的返工）
 
@@ -339,7 +339,26 @@ pending、重開、匯入、跳過都要能還原。
 `.face-name`／`.face-rarity` 的矩形不准超出卡片矩形 1.5px 以上。
 （`.face-frame` 在 `--zf` 8px、設計上就貼著卡緣，不在檢查範圍。）
 
-## 七、下一步（第二十九輪更新）
+## 七、下一步（第三十輪更新）
+
+本節以 [BRIEF-holo-round30.md](BRIEF-holo-round30.md) 覆蓋第二十九輪的扇形、雙頁十連及薄環／合成音方案。
+完整驗收、原版像素基準與提交邊界見 [REPORT-holo-round30.md](REPORT-holo-round30.md)。
+
+- 原版讀取來源為 `src/gacha-mode-hearthstone.js`、`gacha-mode-runtime.js`、`gacha-fx.js`、`gacha-audio.js`、`gacha-card.css`；**src 不改**。
+- 新增 `ceremony-layout.js`：五張一排、十張兩排全部可見，零旋角、預留 hover／拖转間距；1440×900 未變形卡寬約 245／222px。手機單張 288px、352px 槽距，按鈕／方向鍵切換，卡片 rect 不重疊。
+- 新增 `ceremony-fx.js`：原版 ring／rainbowRing／spawn／各階粒子／rays，以外部時鐘和畫布驅動；保留全部原版粒子與壽命，再加亮光、加厚長環及箔底材波。原版神話白閃移至 face-visible，156ms；不在卡背階段預告品質。
+- 新增 `ceremony-audio.js`：完整移植原版 WebAudio 合成參數，首次靜音、開關記憶。發牌／翻面／五階 reveal／collect 都接回原音效；揭曉原生 source 排程對照原版。收下音效有獨立生命週期，保留風聲和低音尾韻。
+- 發牌為原版 620ms、五張 stagger 95ms／十張 50ms、`cubic-bezier(.22,.9,.32,1.12)`；卡片從同一封口發出。保留 680ms 前段拆封，單／五／十抽前奏為 1300／1680／1750ms；F 為 1620／2000／2070ms。
+- 揭曉留在各自桌面槽位，僅抬起 6px；取消會先失效 generation，再清 timer／rAF／WAAPI／音效／畫布。隱藏時暫停 active clock，恢復後繼續。拖轉、hover 1.04、Esc／雙擊回正、零選取藍像素與 A5 身份／完成契約保留。
+- `card_face.js`、`pool_data.py`、RATE 與卡面幾何／Z／字级全部凍結。背景六層與卡包素材未換。
+- 建置順序仍為 `build_deluxe_b.py` → `build_deluxe_b_standalone.py`；兩個 HTML 都直接內嵌新模組，不依賴 src runtime。Standalone 必須 ≤6,000,000 bytes。
+- 新驗收入口 `check_gacha_ceremony_round30.py`（`--baseline`／`--baseline-layout`／`--layout`／`--core`／`--pixels`），音效為 `check_gacha_audio_round30.py`。保留並更新舊測試；證據在 `verify-round30/`。
+- 原版基準在真正的 `file://.../src/clicker.html` hearthstone 模式量測。Chromium 的 file fetch 以測試 shim 回傳原 `src/index.html` 模板原文，未改原版效果／布局／音效。P95 避開 UI 與共同卡面排除區；完整遮罩與 50ms 截圖可檢查。
+
+未 commit／未 push。不要自動接入遊戲或更動經濟；後續先看本輪報告的剩餘限制。
+六之四的 flat Z=0 是歷史矛盾；仍按六之五採 6px。
+
+### 第二十九輪歷史（已由上方第三十輪規格取代）
 
 本輪依 [BRIEF-holo-round29.md](BRIEF-holo-round29.md) 第一節優先於設計文件實作。
 入口、拆封、大卡、五階材質回饋、滿版結果已接入；驗收與限制以

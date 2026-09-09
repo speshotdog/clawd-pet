@@ -1,4 +1,15 @@
-# 抽卡卡面與演出：第二十九輪狀態
+# 抽卡卡面與演出：第三十輪狀態
+
+本輪以原版 hearthstone 為底線完成移植，交付與真實退出碼見 [REPORT-holo-round30.md](REPORT-holo-round30.md)。
+
+- 新入口：`ceremony-layout.js`／`ceremony-fx.js`／`ceremony-audio.js`，由既有 builder 內嵌到 dev 與 standalone。
+- 五張單排、十張雙排，不再重疊或桌面換頁；手機有間距的單卡瀏覽保留。
+- 原版粒子數、環、音效排程已移植；強化後以原版 file:// 畫面 50ms 截圖做 P95／持續時間對照。不要再用 CSS 參數當亮度證據。
+- 保留卡面凍結、入口／拆封、六層背景、首次靜音、不預告、拖轉／光位／hover、A5 與跳過語意。
+- 後續重新調整 FX 時，同時跑原版相同 mask 的比較和兩入口驗收，不能重新套用第二十九輪的亮度上限或縮短原版粒子尾韻。
+- 不自動修改 `src/` 或合併遊戲經濟；不 push。共享 Git metadata 超出可寫範圍，依報告中的五個邊界待有權限時提交。
+
+以下為第二十九輪歷史狀態（第三十輪 brief 已取代其中扇形、薄環與禁止移植舊 gacha 的敘述）。
 
 本輪交付與真實退出碼見 [REPORT-holo-round29.md](REPORT-holo-round29.md)。
 開發入口為 `_art/holo-test/ceremony.js`／`ceremony.css`，建置順序 `build_deluxe_b.py` → `build_deluxe_b_standalone.py`。
