@@ -1,0 +1,1193 @@
+[
+  {
+    "time": 1788912001000,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 0,
+        "target": ""
+      },
+      {
+        "time": 0,
+        "target": "control-sheen"
+      },
+      {
+        "time": 0,
+        "target": "entry-actions press-feedback"
+      },
+      {
+        "time": 0,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912001200,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 80,
+        "target": ""
+      },
+      {
+        "time": 160,
+        "target": "control-sheen"
+      },
+      {
+        "time": 200,
+        "target": "entry-actions press-feedback"
+      },
+      {
+        "time": 200,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912001400,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 240,
+        "target": "summon-pack"
+      },
+      {
+        "time": 160,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912001600,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 200,
+        "target": "summon-pack"
+      },
+      {
+        "time": 160,
+        "target": "summon-pack-top"
+      },
+      {
+        "time": 160,
+        "target": "summon-tear"
+      }
+    ]
+  },
+  {
+    "time": 1788912001680,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 200,
+        "target": "summon-pack"
+      },
+      {
+        "time": 240,
+        "target": "summon-pack-top"
+      },
+      {
+        "time": 240,
+        "target": "summon-tear"
+      },
+      {
+        "time": 0,
+        "target": "slot"
+      },
+      {
+        "time": 0,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912001780,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 200,
+        "target": "summon-pack"
+      },
+      {
+        "time": 340,
+        "target": "summon-pack-top"
+      },
+      {
+        "time": 340,
+        "target": "summon-tear"
+      },
+      {
+        "time": 100,
+        "target": "slot"
+      },
+      {
+        "time": 100,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912002000,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 200,
+        "target": "summon-pack"
+      },
+      {
+        "time": 340,
+        "target": "summon-pack-top"
+      },
+      {
+        "time": 340,
+        "target": "summon-tear"
+      },
+      {
+        "time": 320,
+        "target": "slot"
+      },
+      {
+        "time": 320,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912002300,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1300
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 0,
+        "target": "slot is-revealing"
+      }
+    ]
+  },
+  {
+    "time": 1788912002400,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1300
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 100,
+        "target": "slot is-revealing"
+      }
+    ]
+  },
+  {
+    "time": 1788912002500,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1300
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002440,
+        "run": 2,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 200,
+        "target": "slot is-revealing"
+      },
+      {
+        "time": 60,
+        "target": "reveal-flip"
+      }
+    ]
+  },
+  {
+    "time": 1788912002580,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1300
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002440,
+        "run": 2,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 280,
+        "target": "slot is-revealing"
+      },
+      {
+        "time": 140,
+        "target": "reveal-flip"
+      }
+    ]
+  },
+  {
+    "time": 1788912002618,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1300
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002440,
+        "run": 2,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 318,
+        "target": "slot is-revealing"
+      },
+      {
+        "time": 178,
+        "target": "reveal-flip"
+      }
+    ]
+  },
+  {
+    "time": 1788912002619,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1300
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002440,
+        "run": 2,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "stage-geometry"
+      },
+      {
+        "time": 0,
+        "target": "stage-glow"
+      },
+      {
+        "time": 0,
+        "target": "stage-sheen"
+      },
+      {
+        "time": 319,
+        "target": "slot is-revealing"
+      },
+      {
+        "time": 179,
+        "target": "reveal-flip"
+      }
+    ]
+  }
+]

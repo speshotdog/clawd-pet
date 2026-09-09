@@ -1,0 +1,14 @@
+[
+  {
+    "command": "python check_gacha_ceremony_round30.py --layout",
+    "exit": 0,
+    "seconds": 21.0,
+    "log": "check_gacha_ceremony_round30-layout.log"
+  },
+  {
+    "command": "python check_gacha_ceremony_round30.py --pixels",
+    "exit": 0,
+    "seconds": 532.7,
+    "log": "check_gacha_ceremony_round30-pixels.log"
+  }
+]

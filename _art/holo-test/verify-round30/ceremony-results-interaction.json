@@ -1,0 +1,216 @@
+[
+  {
+    "check": "drag-pixels",
+    "entry": "dev",
+    "blue_pixels": 0,
+    "total_pixels": 211380,
+    "blue_ratio": 0.0,
+    "selection_ranges": 0
+  },
+  {
+    "check": "interaction",
+    "entry": "dev",
+    "before": {
+      "--rx": "0deg",
+      "--ry": "0deg",
+      "--phase": "120deg",
+      "--name-fs": "30.90px"
+    },
+    "hover": {
+      "--rx": "0deg",
+      "--ry": "0deg",
+      "--phase": "90.53565769711838deg",
+      "--name-fs": "30.90px"
+    },
+    "drag": {
+      "--rx": "0deg",
+      "--ry": "12deg",
+      "--phase": "113.41198451590695deg",
+      "--name-fs": "30.90px"
+    }
+  },
+  {
+    "check": "reduced-motion",
+    "entry": "dev",
+    "fade_ms": 180
+  },
+  {
+    "check": "audio",
+    "entry": "dev",
+    "events": [
+      {
+        "type": "audio",
+        "time": 1788936576143,
+        "run": 1,
+        "index": null,
+        "kind": "tear",
+        "muted": false,
+        "state": "running",
+        "audioTime": 0.632
+      },
+      {
+        "type": "audio",
+        "time": 1788936576392,
+        "run": 1,
+        "index": null,
+        "kind": "burst",
+        "muted": false,
+        "state": "running",
+        "audioTime": 0.88
+      },
+      {
+        "type": "audio",
+        "time": 1788936576395,
+        "run": 1,
+        "index": 0,
+        "kind": "deal",
+        "muted": false,
+        "state": "running",
+        "audioTime": 0.88
+      },
+      {
+        "type": "audio",
+        "time": 1788936577165,
+        "run": 1,
+        "index": 0,
+        "kind": "flip",
+        "muted": false,
+        "state": "running",
+        "audioTime": 1.6506666666666667
+      },
+      {
+        "type": "audio",
+        "time": 1788936577350,
+        "run": 1,
+        "index": 0,
+        "kind": "reveal",
+        "muted": false,
+        "state": "running",
+        "audioTime": 1.832
+      }
+    ]
+  },
+  {
+    "check": "real-idle",
+    "entry": "dev",
+    "seconds": [
+      5,
+      30
+    ],
+    "mutations": 0
+  },
+  {
+    "check": "remembered-audio-cancel",
+    "entry": "dev",
+    "voices": 0
+  },
+  {
+    "check": "drag-pixels",
+    "entry": "portable",
+    "blue_pixels": 0,
+    "total_pixels": 211380,
+    "blue_ratio": 0.0,
+    "selection_ranges": 0
+  },
+  {
+    "check": "interaction",
+    "entry": "portable",
+    "before": {
+      "--rx": "0deg",
+      "--ry": "0deg",
+      "--phase": "120deg",
+      "--name-fs": "30.90px"
+    },
+    "hover": {
+      "--rx": "0deg",
+      "--ry": "0deg",
+      "--phase": "90.53565769711838deg",
+      "--name-fs": "30.90px"
+    },
+    "drag": {
+      "--rx": "0deg",
+      "--ry": "12deg",
+      "--phase": "113.41198451590695deg",
+      "--name-fs": "30.90px"
+    }
+  },
+  {
+    "check": "reduced-motion",
+    "entry": "portable",
+    "fade_ms": 180
+  },
+  {
+    "check": "audio",
+    "entry": "portable",
+    "events": [
+      {
+        "type": "audio",
+        "time": 1788936623012,
+        "run": 1,
+        "index": null,
+        "kind": "tear",
+        "muted": false,
+        "state": "running",
+        "audioTime": 0.5813333333333334
+      },
+      {
+        "type": "audio",
+        "time": 1788936623262,
+        "run": 1,
+        "index": null,
+        "kind": "burst",
+        "muted": false,
+        "state": "running",
+        "audioTime": 0.832
+      },
+      {
+        "type": "audio",
+        "time": 1788936623264,
+        "run": 1,
+        "index": 0,
+        "kind": "deal",
+        "muted": false,
+        "state": "running",
+        "audioTime": 0.84
+      },
+      {
+        "type": "audio",
+        "time": 1788936624040,
+        "run": 1,
+        "index": 0,
+        "kind": "flip",
+        "muted": false,
+        "state": "running",
+        "audioTime": 1.6106666666666667
+      },
+      {
+        "type": "audio",
+        "time": 1788936624232,
+        "run": 1,
+        "index": 0,
+        "kind": "reveal",
+        "muted": false,
+        "state": "running",
+        "audioTime": 1.8
+      }
+    ]
+  },
+  {
+    "check": "real-idle",
+    "entry": "portable",
+    "seconds": [
+      5,
+      30
+    ],
+    "mutations": 0
+  },
+  {
+    "check": "remembered-audio-cancel",
+    "entry": "portable",
+    "voices": 0
+  },
+  {
+    "check": "size",
+    "bytes": 5141494
+  }
+]

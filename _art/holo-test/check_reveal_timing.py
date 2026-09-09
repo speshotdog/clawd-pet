@@ -6,16 +6,15 @@ Normal timing is separately exercised without instrumentation by the regression 
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import json
+import json,sys
 from pool_data import pool
+from check_gacha_ceremony_round28 import CLOCK,advance
 
-ANIMATION_CLOCK = """(() => {
+ANIMATION_CLOCK = "window.__clockRender=false;\n" + CLOCK + """(() => {
   const animate=Element.prototype.animate;
   Element.prototype.animate=function(frames,options){
     const a=animate.call(this,frames,options);a.pause();
-    const o=typeof options==='number'?{duration:options}:options;
-    const timer=setTimeout(()=>{if(a.playState!=='idle')a.finish()},(o.delay||0)+(o.duration||0)*(o.iterations||1));
-    a.finished.catch(()=>{}).finally(()=>{clearTimeout(timer);window.__lastAnimationEnd=Date.now()});return a;
+    a.finished.catch(()=>{}).finally(()=>{window.__lastAnimationEnd=Date.now()});return a;
   };
   const Original=ResizeObserver;window.__observed=new Set();
   window.ResizeObserver=class extends Original{
@@ -32,6 +31,8 @@ window.__prepared=()=>typeof ready==='undefined'?Promise.resolve():ready;
 window.__early=[];
 window.__state=()=>({cascading,skipped,busy,slots:slots.length,
   started:slots.filter(s=>s.revealed).length,completed:slots.filter(s=>s.complete).length,
+  lastFaceVisible:slots.at(-1)?.face?.style.visibility==='visible',
+  lastReturning:!!slots.at(-1)?.returning&& !['idle','finished'].includes(slots.at(-1).returning.playState),
   ids:slots.map(s=>s.data.id),faces:fan.querySelectorAll('.hcard').length,
   hidden:btn.fin.hidden,tickets,anims:[...anims].filter(a=>a.playState!=='finished'&&a.playState!=='idle').length,
   finishAt:window.__finishVisibleAt||0,lastAnimationEnd:window.__lastAnimationEnd||0,
@@ -50,15 +51,17 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
     fixtures={'wait':[high]+[low]*9,'last-before':[low]*9+[high],
               'last-after':[low]*9+[high],'front':[low]*9+[high],
               'return':[low]*9+[high]}
-    # Round 29: 1790ms ten-card peel/deal, 840ms common, 320ms page handoff.
+    # Round 29: 1750ms ten-card peel/deal, 840ms common, no page handoff.
     # All ranks first appear at +320ms.
-    offsets={'wait':500,'last-before':7879,'last-after':7881,'front':8201,'return':9410}
+    offsets={'wait':500,'last-before':7559,'last-after':7561,'front':7900,'return':9170}
+    selected=next((arg.split('=',1)[1] for arg in sys.argv if arg.startswith('--timing-phase=')),None)
+    if selected:fixtures={selected:fixtures[selected]};evidence='timing-'+selected+'-final.json'
     rows=[]
     with TemporaryDirectory(prefix='timing-copies-',dir=out) as tmp:
         for portable in portable_values:
             source=source_override or here/('deluxe-gacha-b-standalone.html' if portable else 'deluxe-gacha-b.html')
             html=source.read_text(encoding='utf-8')
-            hook=HOOK.replace('__FIXTURE__',json.dumps(fixtures['wait'],ensure_ascii=False))
+            hook=HOOK.replace('__FIXTURE__',json.dumps(next(iter(fixtures.values())),ensure_ascii=False))
             anchor='// Test instrumentation boundary (no window dragging).'
             assert html.count(anchor)==1
             html=html.replace(anchor,hook+'\n'+anchor)
@@ -77,10 +80,14 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
                 for repeat in range(repeats):
                     p.evaluate("""f=>{__testReset();window.__fixture=f;window.__early=[];window.__finishVisibleAt=0;window.__lastAnimationEnd=0;document.querySelector('#p10').click()}""",fixture)
                     p.evaluate('async()=>await __prepared()')
-                    p.clock.run_for(1790+offsets[phase])
+                    advance(p,1750+offsets[phase])
                     before=p.evaluate('__state()')
+                    if phase=='last-before':assert before['started']==9,before
+                    if phase=='last-after':assert before['started']==10,before
+                    if phase=='front':assert before['lastFaceVisible'],before
+                    if phase=='return':assert before['lastReturning'],before
                     p.evaluate("document.querySelector('#revealall').click();document.querySelector('#revealall').click()")
-                    p.clock.run_for(6000)
+                    advance(p,6000)
                     after=p.evaluate('__state()');early=p.evaluate('__early')
                     row=dict(portable=portable,phase=phase,repeat=repeat,before=before,after=after,early=early,errors=list(errors),failedRequests=list(failed))
                     rows.append(row)
@@ -90,17 +97,17 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
                     assert after['completed']==10 and after['tickets']==20, row
                     assert 0<=after['finishAt']-after['lastAnimationEnd']<=100, row
                     p.evaluate("document.querySelector('#finish').click();document.querySelector('#finish').click()")
-                    p.clock.run_for(221)
+                    advance(p,221)
                     clean=p.evaluate('__state()');row['collected']=clean
                     assert clean['slots']==0 and clean['faces']==0 and clean['detached']==0 and clean['sparks']==0, row
                 print('fixed timing',portable,phase,repeats,'passed',flush=True)
                 # Cancel while callbacks/animations are live, then immediately draw again.
                 p.evaluate("__testReset();document.querySelector('#p10').click()")
                 p.evaluate('async()=>await __prepared()')
-                p.clock.run_for(1790+offsets[phase])
+                advance(p,1750+offsets[phase])
                 p.evaluate("document.querySelector('#revealall').click();__testReset();document.querySelector('#p1').click()")
                 p.evaluate('async()=>await __prepared()')
-                p.clock.run_for(9000)
+                advance(p,9000)
                 clean=p.evaluate('__state()')
                 assert clean['slots']==1 and clean['faces']==1 and clean['completed']==1 and clean['tickets']==29 and clean['detached']==0 and not clean['hidden'] and not clean['anims'] and not clean['sparks'], clean
                 assert clean['ids']==[fixture[0]['id']] and not errors and not failed, (clean,errors,failed)
@@ -108,10 +115,10 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
             # Reset during the initial charge, before slots exist.
             p.evaluate("__testReset();document.querySelector('#p10').click()")
             p.evaluate('async()=>await __prepared()')
-            p.clock.run_for(100)
+            advance(p,100)
             p.evaluate("__testReset();document.querySelector('#p1').click()")
             p.evaluate('async()=>await __prepared()')
-            p.clock.run_for(9000)
+            advance(p,9000)
             clean=p.evaluate('__state()')
             assert clean['slots']==1 and clean['faces']==1 and clean['detached']==0 and not clean['hidden'],clean
             rows[-1]['chargeReset']=clean

@@ -1,0 +1,8 @@
+[
+  {
+    "command": "python check_gacha_ceremony_round28.py --core-only",
+    "exit": 0,
+    "seconds": 1595.8,
+    "log": "check_gacha_ceremony_round28-core-only.log"
+  }
+]

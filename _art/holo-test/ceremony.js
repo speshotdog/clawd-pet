@@ -3,6 +3,7 @@ const stage=$('#stage'),fan=$('#fan'),win=$('#win'),idlepack=$('#entry-pack'),hi
 const btn={p1:$('#p1'),p5:$('#p5'),p10:$('#p10'),all:$('#revealall'),fin:$('#finish')};
 let busy=false,slots=[],pending=0,tickets=30,cascading=false,skipped=false,generation=0;
 const anims=new Set(),timers=new Map(),rafs=new Map(),voices=new Set();
+const fxPainters=new Set();
 const testing=new URLSearchParams(location.search).has('ceremony-test');
 const events=[];
 let screen='entry',pageIndex=0,selectedIndex=0,collecting=false;
@@ -13,21 +14,21 @@ $('.stageacts').prepend(audioButton);
 function audioLabel(){audioButton.textContent=muted?'音效：關':'音效：開';audioButton.setAttribute('aria-pressed',String(!muted));}
 audioLabel();
 audioButton.addEventListener('click',async()=>{muted=!muted;try{localStorage.setItem('holo-muted',String(muted));}catch{}
-  if(!muted){try{audio ||= new AudioContext();await audio.resume();}catch{muted=true;}}
-  else stopAudio();audioLabel();});
+  if(!muted){try{audio=window.CeremonyAudio.ensure();await audio.resume();}catch{muted=true;}}
+  else{stopAudio();stopCollectionAudio();}audioLabel();});
 function mark(type,s,extra={}){if(testing)events.push({type,time:Date.now(),run:generation,index:s?slots.indexOf(s):null,...extra});}
-function sound(kind,s,duration){
+let audioScope=null, currentCue=null,collectionAudio=null;
+const collectionVoices=new Set();
+CeremonyAudio.onSchedule=({type:primitive,...cue})=>mark('audio-scheduled',currentCue?.slot,{cue:currentCue?.name,primitive,...cue});
+CeremonyAudio.onSource=o=>{const run=generation,group=currentCue?.name==='collect'?collectionVoices:voices;group.add(o);o.addEventListener('ended',()=>{group.delete(o);if(group===collectionVoices){if(!group.size){collectionAudio?.stop(0);collectionAudio=null;}return;}if(run===generation)updateFinish();},{once:true});};
+function sound(kind,s,arg){
   const record={kind,muted,state:audio?.state||'uninitialized',audioTime:audio?.currentTime??null};
   mark('audio',s,record);if(muted||audio?.state!=='running')return;
-  const t=audio.currentTime,d=(duration??(kind==='tear'?180:80))/1000;
-  const frequencies=kind==='chord'?[261.63,329.63,392]:kind==='charge'?[160]:kind==='impact'?[s&&['common','rare'].includes(s.data.rarity)?920:65]:[1200,1730];
-  for(const f of frequencies){const o=audio.createOscillator(),g=audio.createGain();o.type=kind==='tear'?'sawtooth':'sine';
-    o.frequency.setValueAtTime(f,t);if(kind==='charge')o.frequency.exponentialRampToValueAtTime(500,t+d);
-    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045/frequencies.length,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-    o.connect(g).connect(audio.destination);o.outputGain=g;voices.add(o);o.onended=()=>{voices.delete(o);o.disconnect();g.disconnect();updateFinish();};o.start(t);o.stop(t+d);
-  }
+  const scope=kind==='collect'?(collectionAudio ||= CeremonyAudio.createScope()):(audioScope ||= CeremonyAudio.createScope());currentCue={name:kind==='reveal'?'reveal:'+s.data.rarity:kind,slot:s};
+  try{scope[kind](kind==='reveal'?s.data.rarity:arg);}finally{currentCue=null;}
 }
-function stopAudio(){for(const o of voices){o.onended=null;try{o.stop();o.disconnect();o.outputGain.disconnect();}catch{}}voices.clear();}
+function stopCollectionAudio(){collectionAudio?.stop(0);collectionAudio=null;collectionVoices.clear();}
+function stopAudio(){audioScope?.stop(0);audioScope=null;for(const o of voices){try{o.stop();o.disconnect();}catch{}}voices.clear();}
 const A=(el,frames,opts)=>{const run=generation,a=el.animate(frames,{fill:'both',...opts});anims.add(a);
   a.finished.catch(()=>{}).finally(()=>{anims.delete(a);if(run===generation)updateFinish();});if(document.hidden){a.pause();a.__visibilityPaused=true;}return a;};
 // Logical timer IDs survive visibility suspension; cancellation resolves pending waits.
@@ -80,19 +81,20 @@ function setScreen(next){
 }
 const mobile=()=>innerWidth<=600;
 const unit=()=>Math.min(innerWidth/1440,innerHeight/900);
-const focusWidth=()=>mobile()?Math.min(304,innerWidth-48):420*unit();
-function layout(n){const u=unit(),phone=mobile();return Array.from({length:n},(_,i)=>{
-  const j=i%5,k=j-2;
-  return {cw:phone?(n===1?Math.min(304,innerWidth-48):Math.min(288,innerWidth-64)):(n===1?420:380)*u,
-    x:phone?(i-selectedIndex)*224:n===1?0:k*210*u,
-    y:phone?-24+(i===selectedIndex?0:18):(-12+(n===1?0:[44,12,0,12,44][j]))*u,
-    rz:phone?(i===selectedIndex?0:Math.sign(i-selectedIndex)*6):n===1?0:k*6,page:Math.floor(i/5)};
-});}
+const focusWidth=()=>layout(Math.max(1,slots.length))[0].cw;
+// Original tabletop columns / two rows, with clearance for hover and ±18° drag.
+function layout(n){return CeremonyTable.layout(n,{index:selectedIndex});}
 const slotTransform=s=>`translate(${s.spot.x}px,${s.spot.y}px) rotate(${s.spot.rz}deg)`;
 function position(s){s.el.classList.toggle('mobile-current',mobile()&&slots.indexOf(s)===selectedIndex);s.el.style.setProperty('--cw',s.spot.cw+'px');s.el.style.transform=slotTransform(s);
- s.el.classList.toggle('page-away',mobile()?Math.abs(slots.indexOf(s)-selectedIndex)>1:s.spot.page!==pageIndex);}
-function relayout(){const spots=layout(slots.length);slots.forEach((s,i)=>{s.spot=spots[i];if(!s.el.classList.contains('is-revealing'))position(s);else s.el.style.setProperty('--cw',focusWidth()+'px');if(s.face)HoloCardFace.refit(s.face);});updatePages();}
-function updatePages(){const pages=$('.pages');pages.hidden=screen!=='results'||slots.length<2;
+ s.el.classList.toggle('page-away',mobile()?slots.indexOf(s)!==selectedIndex:false);}
+function relayout(){
+ const active=slots.findIndex(s=>s.el.classList.contains('is-revealing'));if(mobile()&&active>=0)selectedIndex=active;
+ const spots=layout(slots.length);slots.forEach((s,i)=>{s.spot=spots[i];position(s);
+  if(s.el.classList.contains('is-revealing')){const rest=slotTransform(s),lift=rest+' translateY(-6px)';
+   for(const a of s.el.getAnimations())a.effect.setKeyframes(s.returning?[{transform:lift},{transform:rest}]:[{transform:rest},{transform:lift}]);}
+  if(s.face)HoloCardFace.refit(s.face);});updatePages();
+}
+function updatePages(){const pages=$('.pages');pages.hidden=screen!=='results'||slots.length<2||!mobile();
  $('#page-count').textContent=mobile()?`${selectedIndex+1} / ${slots.length}`:`${pageIndex*5+1}–${Math.min(pageIndex*5+5,slots.length)} / ${slots.length}`;
  $('#prev').disabled=mobile()?selectedIndex===0:pageIndex===0;$('#next').disabled=mobile()?selectedIndex>=slots.length-1:pageIndex>=Math.ceil(slots.length/5)-1;
 }
@@ -126,15 +128,20 @@ async function prelude(run,n){
  A(tear,[{opacity:0},{opacity:1,offset:.2},{opacity:0}],{duration:340});
  if(!await wait(240,run))return false;
  mark('phase-start',null,{phase:'deal'});
- // The second packet is dealt at this same size behind page one, never as small cards.
- for(const [i,s] of slots.entries())A(s.el,[{opacity:0,transform:'translate(0,-145px) rotate(0deg) scale(.68)'},{opacity:1,offset:.22},{opacity:1,transform:`translate(${s.spot.x}px,${s.spot.y-8}px) rotate(${s.spot.rz}deg)`,offset:.82},{opacity:1,transform:slotTransform(s)}],{duration:480,delay:70*i,easing:'cubic-bezier(.2,.8,.2,1)'});
+ const stagger=CeremonyTable.stagger(n);sound('burst');
+ // Shared seal origin and the original 620ms overshooting deal easing.
+ for(const [i,s] of slots.entries()){
+  later(()=>sound('deal',s,i),i*stagger,run);
+  A(s.el,[{opacity:0,transform:'translate(0,-145px) rotate(0deg) scale(.2)'},{opacity:1,transform:slotTransform(s)}],{duration:CeremonyTable.dealDuration,delay:stagger*i,easing:'cubic-bezier(.22,.9,.32,1.12)'});
+ }
  A(pack,[{opacity:1},{opacity:0}],{duration:480});
- if(!await wait(480+70*(n-1),run))return false;
+ if(!await wait(620+stagger*(n-1),run))return false;
  for(const s of slots){s.el.style.opacity='1';s.el.getAnimations().forEach(a=>a.cancel());position(s);}
- root.remove();root=null;mark('phase-start',null,{phase:'cards',prelude:1160+70*(n-1)});return true;
+ root.remove();root=null;mark('phase-start',null,{phase:'cards',prelude:1300+stagger*(n-1)});return true;
 }
 async function pull(n){if(busy||slots.length||tickets<n)return;const run=++generation;
-  if(!muted){try{audio ||= new AudioContext();audio.resume().catch(()=>{});}catch{muted=true;audioLabel();}}
+  stopCollectionAudio();
+  if(!muted){try{audio=window.CeremonyAudio.ensure();audio.resume().catch(()=>{});}catch{muted=true;audioLabel();}}
   busy=true;skipped=false;cascading=false;collectMarked=false;tickets-=n;$('#ticket').textContent=tickets;
   for(const b of [btn.p1,btn.p5,btn.p10])b.disabled=true;
   setScreen('ceremony');idlepack.style.opacity='1';
@@ -154,7 +161,6 @@ async function cascade(){const run=generation;cascading=true;
   // Serial scheduling is deliberately rarity-independent before first sight.
   // This stricter form of the high-tier mutex also avoids leaking the next rank by its start time.
   try{for(const [i,s] of slots.entries()){if(skipped||run!==generation)break;
-    if(i===5&&!mobile()){mark('phase-start',s,{phase:'page'});const handoff=A(fan,[{transform:'translateX(0)',opacity:1},{transform:'translateX(-80px)',opacity:0}],{duration:160});if(!await wait(160,run))break;handoff.cancel();pageIndex=1;relayout();A(fan,[{transform:'translateX(80px)',opacity:0},{transform:'translateX(0)',opacity:1}],{duration:160});if(!await wait(160,run))break;}
     if(mobile()){selectedIndex=i;pageIndex=Math.floor(i/5);relayout();}
     await revealOne(s);
   }}
@@ -165,8 +171,9 @@ function revealOne(s,fast=false){if(s.work)return s.work;if(s.run!==generation)r
 // All pre-F movement is independent of data.rarity. The frozen face is only exposed at -89deg.
 async function beginReveal(s){const run=s.run;s.revealed=true;s.el.classList.add('is-revealing');mark('phase-start',s,{phase:'charge'});
  const start=slotTransform(s);s.el.style.setProperty('--cw',focusWidth()+'px');HoloCardFace.refit(s.face);
- s.focus=A(s.el,[{transform:start+` scale(${s.spot.cw/focusWidth()})`},{transform:`translate(0px,${mobile()?-24:-12*unit()}px) rotate(0deg) scale(1)`}],{duration:500,easing:'cubic-bezier(.2,.7,.2,1)'});
+ s.focus=A(s.el,[{transform:start},{transform:start+' translateY(-6px)'}],{duration:500,easing:'cubic-bezier(.2,.7,.2,1)'});
  if(!await wait(140,run))return false;
+ sound('flip',s);
  const flip=A(s.flip,[{transform:'rotateY(0deg)'},{transform:'rotateY(90deg)'}],{duration:180,easing:'ease-in'});
  if(!await wait(180,run))return false;flip.cancel();return true;
 }
@@ -195,32 +202,52 @@ const RETURN={common:220,rare:240,epic:280,legendary:320,mythic:360};
 function runRarityFx(s){const r=s.data.rarity,u=unit();
  const sweepDuration={common:220,rare:300,epic:420,legendary:520,mythic:560}[r];
  mark('fx-start',s,{effect:'foil-sweep',duration:sweepDuration});if(r==='mythic'){sweep(s,920,false,1,true);later(()=>mark('fx-end',s,{effect:'foil-sweep'}),560,s.run);}else sweep(s,sweepDuration).then(ok=>{if(ok)mark('fx-end',s,{effect:'foil-sweep'});});
- sound('impact',s,r==='common'?80:r==='rare'?80:r==='epic'?120:180);
- if(r==='common')fx(s,'fx-confirm-ring',0,180,{color:'#dce3e6',from:.88,to:1.25,line:2});
- if(r==='rare'){fx(s,'fx-rare-ring',0,320,{from:.9,to:1.8,line:4});flakes(s,4,40,280);later(()=>sound('metal',s,175),45,s.run);}
- if(r==='epic'){fx(s,'fx-epic-ring',0,420,{to:1.65});fx(s,'fx-broken-ring',70,500,{to:2.1});flakes(s,12,30,400);sound('chord',s,360);}
+ sound('reveal',s);runCanvasFx(s);
  if(r==='legendary'){
-  fx(s,'fx-legendary-ring',0,440,{color:'#fff0bd',from:.9,to:1.9,line:8});fx(s,'fx-local-reflection',0,180,{width:focusWidth()*2.1,peak:.16});
-  fx(s,'fx-substrate-wave',40,680,{width:mobile()?560:1100*u,from:.3,to:1,band:24,peak:.48});flakes(s,24,24,516);flakes(s,6,100,660,'fx-afterglow');
-  later(()=>sound('metal',s,655),45,s.run);later(()=>stageImpact(s,3,160),80,s.run);
+  fx(s,'fx-substrate-wave',40,900,{width:mobile()?560:1100*u,from:.3,to:1,band:32,peak:.65});
+  later(()=>stageImpact(s,3,160),80,s.run);
  }
  if(r==='mythic'){
-  fx(s,'fx-mythic-ring',0,320,{color:'#e7edef',to:1.8});fx(s,'fx-local-reflection',0,320,{width:focusWidth()*2.1,peak:.16});
-  fx(s,'fx-spectrum-wave',60,800,{width:mobile()?680:1320*u,from:.28,to:1,band:24,peak:.55});
-  fx(s,'fx-counter-wave',180,860,{width:mobile()?505:980*u,from:360/980,to:1,band:18,peak:.55*.55});flakes(s,32,40,640);
+  // Original runtime's white flash, moved to F to preserve the neutral pre-F contract.
+  const flash=node('div','rarity-fx ceremony-flash');stage.append(flash);
+  const a=A(flash,[{opacity:1},{opacity:0}],{duration:156});later(()=>{a.cancel();flash.remove();},156,s.run);
+  fx(s,'fx-spectrum-wave',60,1100,{width:mobile()?680:1320*u,from:.28,to:1,band:32,peak:.7});
+  fx(s,'fx-counter-wave',180,1200,{width:mobile()?505:980*u,from:360/980,to:1,band:24,peak:.45});
+  fx(s,'mythic-ripple',0,1040,{width:focusWidth()+30,frames:[{opacity:1,scale:.9},{opacity:0,scale:1.8}]});
   // Single material writer: second pass blends in from +480, never races the first sweep.
   later(()=>{mark('fx-start',s,{effect:'foil-afterglow',duration:440});},480,s.run);
   later(()=>mark('fx-end',s,{effect:'foil-afterglow'}),920,s.run);
-  later(()=>stageImpact(s,4,200),60,s.run);later(()=>sound('impact',s,180),180,s.run);sound('chord',s,1000);
+  later(()=>stageImpact(s,4,200),60,s.run);
  }
+}
+function runCanvasFx(s){
+ const run=s.run,upper=node('canvas','rarity-fx ceremony-canvas'),lower=node('canvas','rarity-fx ceremony-canvas under');
+ for(const c of [lower,upper]){c.width=innerWidth;c.height=innerHeight;stage.append(c);}
+ const engine=CeremonyFx(),box=s.shell.getBoundingClientRect();engine.init(upper,lower);
+ engine.strengthen(box.x+box.width/2,box.y+box.height/2,s.data.rarity);
+ mark('fx-start',s,{effect:'original-particles',particles:engine.particles});
+ let id,ended=false,ticks=0;const start=activeNow();
+ const cancel=()=>{if(ended)return;ended=true;fxPainters.delete(paint);cancelAnimationFrame(id);rafs.delete(id);engine.stop();upper.remove();lower.remove();mark('fx-end',s,{effect:'original-particles'});};
+ const paint=(force=false)=>{if(ended||run!==generation)return;const targetTicks=Math.floor(((activeNow()-start)*60+1e-6)/1000);
+  const target=s.shell.getBoundingClientRect();engine.move((target.x+target.width/2)*upper.width/innerWidth-box.x-box.width/2,(target.y+target.height/2)*upper.height/innerHeight-box.y-box.height/2);
+  // Integrate elapsed active time, including delayed frames, without truncating tails.
+  while(ticks<targetTicks&&engine.active){ticks++;engine.step(1/60,ticks===targetTicks);}
+  if(force&&engine.active)engine.step(0);
+ };
+ fxPainters.add(paint);
+ const step=()=>{rafs.delete(id);if(run!==generation){cancel();return;}paint();
+  if(engine.active){id=requestAnimationFrame(step);rafs.set(id,cancel);}else{cancel();updateFinish();}};
+ cancel.resume=()=>{id=requestAnimationFrame(step);rafs.set(id,cancel);};
+ id=requestAnimationFrame(step);rafs.set(id,cancel);
 }
 function stageImpact(s,px,duration){mark('fx-start',s,{effect:'stage-impact',duration});
  const impact=A($('.stage-background'),[{transform:'translateX(0)'},{transform:`translateX(${px}px)`,offset:.25},{transform:'translateX(-1px)',offset:.6},{transform:'translateX(0)'}],{duration});later(()=>{impact.cancel();mark('fx-end',s,{effect:'stage-impact'});},duration,s.run);
 }
 async function settleReveal(s){const run=s.run,r=s.data.rarity;
  if(!await wait(READ[r],run))return;mark('phase-start',s,{phase:'return'});
- s.focus?.cancel();const from=`translate(0px,${mobile()?-24:-12*unit()}px) rotate(0deg)`;
+ s.focus?.cancel();const from=slotTransform(s)+' translateY(-6px)';
  const returning=A(s.el,[{transform:from},{transform:slotTransform(s)+` scale(${s.spot.cw/focusWidth()})`}],{duration:RETURN[r],easing:'cubic-bezier(.4,0,.2,1)'});
+ s.returning=returning;
  if(!await wait(RETURN[r],run))return;returning.cancel();s.el.getAnimations().forEach(a=>a.cancel());s.flip.getAnimations().forEach(a=>a.cancel());s.shell.getAnimations().forEach(a=>a.cancel());
  completeSlot(s);updateFinish();
 }
@@ -266,6 +293,7 @@ function updateFinish(){const complete=slots.length&&slots.every(s=>s.complete)&
 btn.all.textContent='跳過演出';btn.all.addEventListener('click',skipAll);
 stage.addEventListener('click',e=>{if(!e.target.closest('button,a,.slot.done')&&slots.length&&!btn.all.hidden)skipAll();});
 btn.fin.addEventListener('click',async()=>{if(btn.fin.hidden||collecting)return;collecting=true;btn.fin.hidden=true;const run=generation;
+ sound('collect',null,slots.length);
  A(fan,[{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(20px) scale(.96)'}],{duration:220});
  if(await wait(220,run)){clearRun();hint.textContent='';}
 });
@@ -278,11 +306,11 @@ addEventListener('keydown',e=>{if(e.key==='Escape')for(const s of slots)if(s.com
 const backgroundScope={hidden:false};
 function backgroundVisibility(){const hidden=document.hidden;backgroundScope.hidden=hidden;win.classList.toggle('background-paused',hidden||reduced.matches);
  if(hidden){for(const a of anims)if(a.playState==='running'){a.pause();a.__visibilityPaused=true;}pauseTimers();pauseRafs();audio?.suspend();}
- else{for(const a of anims)if(a.__visibilityPaused){a.__visibilityPaused=false;a.play();}resumeTimers();resumeRafs();if(!muted&&voices.size)audio?.resume();}
+ else{for(const a of anims)if(a.__visibilityPaused){a.__visibilityPaused=false;a.play();}resumeTimers();resumeRafs();if(!muted&&(voices.size||collectionVoices.size))audio?.resume();}
 }
 document.addEventListener('visibilitychange',backgroundVisibility);reduced.addEventListener('change',backgroundVisibility);
 win.style.setProperty('--pack',`url("${path('fx/foil-pack.webp')}")`);win.style.setProperty('--tear',`url("${path('fx/foil-tear.webp')}")`);
 __SUBSTRATE_INIT__
 backgroundVisibility();
 addEventListener('resize',()=>{if(slots.length)relayout();});
-if(testing)window.__ceremony={events,pull,skipAll,reset:()=>{tickets=30;$('#ticket').textContent=tickets;clearRun();},layout,ready:()=>ready,setScreen,state:()=>({screen,pageIndex,selectedIndex,generation,busy,cascading,skipped,anims:anims.size,timers:timers.size,rafs:rafs.size,voices:voices.size,complete:slots.filter(s=>s.complete).length,ids:slots.map(s=>s.data.id),collectable:!btn.fin.hidden}),pause:()=>win.getAnimations({subtree:true}).forEach(a=>a.pause())};
+if(testing)window.__ceremony={events,pull,skipAll,syncFx:()=>fxPainters.forEach(paint=>paint(true)),reset:()=>{tickets=30;$('#ticket').textContent=tickets;clearRun();},layout,ready:()=>ready,setScreen,state:()=>({screen,pageIndex,selectedIndex,generation,busy,cascading,skipped,anims:anims.size,timers:timers.size,rafs:rafs.size,voices:voices.size,complete:slots.filter(s=>s.complete).length,ids:slots.map(s=>s.data.id),collectable:!btn.fin.hidden}),pause:()=>win.getAnimations({subtree:true}).forEach(a=>a.pause())};

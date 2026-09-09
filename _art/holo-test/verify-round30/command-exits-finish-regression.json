@@ -1,0 +1,14 @@
+[
+  {
+    "command": "python check_gacha_card_regression.py --race-only",
+    "exit": 0,
+    "seconds": 775.7,
+    "log": "check_gacha_card_regression-race-only.log"
+  },
+  {
+    "command": "python check_gacha_card_regression.py --flows-only",
+    "exit": 0,
+    "seconds": 91.5,
+    "log": "check_gacha_card_regression-flows-only.log"
+  }
+]

@@ -1,0 +1,10 @@
+fixed timing False wait 20 passed
+fixed timing False last-before 20 passed
+fixed timing False last-after 20 passed
+fixed timing False front 20 passed
+fixed timing False return 20 passed
+fixed timing True wait 20 passed
+fixed timing True last-before 20 passed
+fixed timing True last-after 20 passed
+fixed timing True front 20 passed
+fixed timing True return 20 passed

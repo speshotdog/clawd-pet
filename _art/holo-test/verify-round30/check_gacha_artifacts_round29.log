@@ -1,0 +1,35 @@
+{
+  "standalone_bytes": 5141494,
+  "runtime_bytes": 69734,
+  "assets": {
+    "foil-pack.webp": {
+      "bytes": 87102,
+      "sha256": "49ff3c7a69803e77586050c731c2c55816a02a437e199354ceb30c03e0b8f52b",
+      "embedded_identical": true
+    },
+    "foil-tear.webp": {
+      "bytes": 31988,
+      "sha256": "e5d4c1061ed7d059e8f69393c9b91bccf69ff859e126102d80cb1cd709beb055",
+      "embedded_identical": true
+    },
+    "summon-substrate.webp": {
+      "bytes": 31942,
+      "sha256": "27492bbe89ed195de6ed86f8a75368e4f62d428c97cc2942213ed36120962690",
+      "embedded_identical": true
+    }
+  },
+  "frozen": {
+    "_art/holo-test/card_face.js": {
+      "working_copy_sha256": "4a909694d101b428356fde9e0f4454d8fe53c15c178521412ba9766690765f33",
+      "git_normalized_unchanged": true
+    },
+    "_art/holo-test/pool_data.py": {
+      "working_copy_sha256": "055388fc5c6ad6214b961920f1543c2b63f9d9a40743116cd3660242c4a8a94f",
+      "git_normalized_unchanged": true
+    }
+  },
+  "RATE_unchanged": true,
+  "src_unchanged": true,
+  "deluxe-gacha-b.html": "300521d5ce03de087c0f4928970a587336ca7d62c937281e36abe059da618130",
+  "deluxe-gacha-b-standalone.html": "9665268e800b318a758192385d0a00c29549acbb67c4f3bd4361c39b35d2e2d1"
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "entry": "dev",
+    "return_skips": 20,
+    "trigger_ms": 3350
+  },
+  {
+    "entry": "portable",
+    "return_skips": 20,
+    "trigger_ms": 3350
+  }
+]

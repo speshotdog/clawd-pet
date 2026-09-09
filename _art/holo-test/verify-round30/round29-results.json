@@ -1,0 +1,10 @@
+[
+  {
+    "check": "next-rarity-neutral",
+    "entry": "dev"
+  },
+  {
+    "check": "next-rarity-neutral",
+    "entry": "portable"
+  }
+]

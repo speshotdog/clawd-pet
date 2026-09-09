@@ -10,7 +10,7 @@ from playwright.sync_api import sync_playwright
 from pool_data import pool
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / 'verify-round29' / 'regression'
+OUT = HERE / 'verify-round30' / 'regression'
 OUT.mkdir(parents=True,exist_ok=True)
 WIDTHS = [80, 102, 150, 230, 290, 380, 420]
 MEASURE = r"""c => {

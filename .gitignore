@@ -38,3 +38,11 @@ _art/holo-test/verify-round29/**/*.html
 _art/holo-test/verify-round29/*.png
 _art/holo-test/verify-round29/*.html
 _art/holo-test/verify-round29/**/measure-*.json
+_art/holo-test/verify-round30/**/*.png
+_art/holo-test/verify-round30/*.png
+_art/holo-test/verify-round30/**/*.html
+_art/holo-test/verify-round30/*.html
+!_art/holo-test/verify-round30/final-mixed-5.png
+!_art/holo-test/verify-round30/photometry-mask.png
+_art/holo-test/verify-round30/regression/measure-gacha-after.json
+_art/holo-test/verify-round30/regression/flows-final.json

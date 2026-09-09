@@ -1,0 +1,50 @@
+[
+  {
+    "command": "python check_gacha_controls_round29.py",
+    "exit": 0,
+    "seconds": 41.1,
+    "log": "check_gacha_controls_round29.log"
+  },
+  {
+    "command": "python check_gacha_return_round29.py",
+    "exit": 0,
+    "seconds": 185.9,
+    "log": "check_gacha_return_round29.log"
+  },
+  {
+    "command": "python check_gacha_ceremony_edges_round28.py",
+    "exit": 0,
+    "seconds": 7.7,
+    "log": "check_gacha_ceremony_edges_round28.log"
+  },
+  {
+    "command": "python check_gacha_fx_round28.py",
+    "exit": 0,
+    "seconds": 254.4,
+    "log": "check_gacha_fx_round28.log"
+  },
+  {
+    "command": "python check_gacha_ceremony_round28.py --interaction-only",
+    "exit": 0,
+    "seconds": 98.1,
+    "log": "check_gacha_ceremony_round28-interaction-only.log"
+  },
+  {
+    "command": "python check_gacha_ceremony_round29.py --live",
+    "exit": 0,
+    "seconds": 78.0,
+    "log": "check_gacha_ceremony_round29-live.log"
+  },
+  {
+    "command": "python check_gacha_artifacts_round29.py",
+    "exit": 0,
+    "seconds": 0.6,
+    "log": "check_gacha_artifacts_round29.log"
+  },
+  {
+    "command": "python check_gacha_card_regression.py --cards-only",
+    "exit": 0,
+    "seconds": 277.3,
+    "log": "check_gacha_card_regression-cards-only.log"
+  }
+]

@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from playwright.sync_api import sync_playwright
 from check_gacha_ceremony_round28 import HERE,OUT,BY,open_page,start,advance,state
+from check_gacha_ceremony_round30 import rectangles,nonoverlap
 
 rows=[]
 with sync_playwright() as pw,TemporaryDirectory(dir=OUT,prefix='fx-final-') as tmp:
@@ -14,6 +15,7 @@ with sync_playwright() as pw,TemporaryDirectory(dir=OUT,prefix='fx-final-') as t
         start(p,[BY['legendary']]*10);maximum=0;seen=set()
         for t in range(0,20000,100):
             advance(p,100);p.evaluate('__syncAnimations()')
+            if p.evaluate('__ceremony.events.some(e=>e.type==="face-visible")'):nonoverlap(rectangles(p))
             if t in [3000,7000]:p.set_viewport_size({'width':1100 if t==3000 else 1280,'height':800 if t==3000 else 900})
             probes=p.evaluate('''()=>[...document.querySelectorAll('.slot.is-revealing')].map(s=>{const c=s.querySelector('.reveal-shell').getBoundingClientRect(),a=s.querySelector('.reveal-anchor').getBoundingClientRect();return {i:s.dataset.i,error:Math.hypot(a.x+a.width/2-c.x-c.width/2,a.y+a.height/2-c.y-c.height/2)/s.offsetWidth,z:getComputedStyle(s.querySelector('.reveal-anchor')).transform}})''')
             for x in probes:

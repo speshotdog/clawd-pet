@@ -1,0 +1,4182 @@
+[
+  {
+    "check": "no-preview",
+    "entry": "dev",
+    "samples": 13,
+    "variants": 3,
+    "max_pixel_difference": 0
+  },
+  {
+    "check": "normal",
+    "entry": "dev",
+    "n": 1,
+    "prelude_ms": 1300,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1300
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002440,
+        "run": 2,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "burst",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0,
+        "effect": "foil-sweep",
+        "duration": 220
+      },
+      {
+        "type": "audio",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0,
+        "effect": "original-particles",
+        "particles": 8
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912002840,
+        "run": 2,
+        "index": 0,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002920,
+        "run": 2,
+        "index": 0,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912003140,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912003500,
+        "run": 2,
+        "index": 0,
+        "effect": "original-particles"
+      },
+      {
+        "type": "screen",
+        "time": 1788912003500,
+        "run": 2,
+        "index": null,
+        "screen": "results"
+      },
+      {
+        "type": "collectable",
+        "time": 1788912003500,
+        "run": 2,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "normal",
+    "entry": "dev",
+    "n": 5,
+    "prelude_ms": 1680,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912033721,
+        "run": 5,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912033721,
+        "run": 5,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912033961,
+        "run": 5,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912034161,
+        "run": 5,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912034161,
+        "run": 5,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912034401,
+        "run": 5,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912034401,
+        "run": 5,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034402,
+        "run": 5,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034496,
+        "run": 5,
+        "index": 1,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034591,
+        "run": 5,
+        "index": 2,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034686,
+        "run": 5,
+        "index": 3,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034781,
+        "run": 5,
+        "index": 4,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912035401,
+        "run": 5,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1680
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912035401,
+        "run": 5,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912035541,
+        "run": 5,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0
+      },
+      {
+        "type": "burst",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0,
+        "effect": "foil-sweep",
+        "duration": 220
+      },
+      {
+        "type": "audio",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0,
+        "effect": "original-particles",
+        "particles": 8
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912035941,
+        "run": 5,
+        "index": 0,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912036021,
+        "run": 5,
+        "index": 0,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912036241,
+        "run": 5,
+        "index": 0
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912036241,
+        "run": 5,
+        "index": 1,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912036381,
+        "run": 5,
+        "index": 1,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912036521,
+        "run": 5,
+        "index": 0,
+        "effect": "original-particles"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1
+      },
+      {
+        "type": "burst",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1,
+        "effect": "foil-sweep",
+        "duration": 300
+      },
+      {
+        "type": "audio",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1,
+        "effect": "original-particles",
+        "particles": 26
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912036861,
+        "run": 5,
+        "index": 1,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912036981,
+        "run": 5,
+        "index": 1,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912037221,
+        "run": 5,
+        "index": 1
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912037221,
+        "run": 5,
+        "index": 2,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912037361,
+        "run": 5,
+        "index": 2,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2
+      },
+      {
+        "type": "burst",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2,
+        "effect": "foil-sweep",
+        "duration": 420
+      },
+      {
+        "type": "audio",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2,
+        "effect": "original-particles",
+        "particles": 62
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 1,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912037961,
+        "run": 5,
+        "index": 2,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912038181,
+        "run": 5,
+        "index": 2,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912038461,
+        "run": 5,
+        "index": 2
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912038461,
+        "run": 5,
+        "index": 3,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912038601,
+        "run": 5,
+        "index": 3,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3
+      },
+      {
+        "type": "burst",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3,
+        "effect": "foil-sweep",
+        "duration": 520
+      },
+      {
+        "type": "audio",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3,
+        "effect": "original-particles",
+        "particles": 68
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912038821,
+        "run": 5,
+        "index": 3,
+        "effect": "fx-substrate-wave",
+        "duration": 900
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912038861,
+        "run": 5,
+        "index": 3,
+        "effect": "stage-impact",
+        "duration": 160
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912039021,
+        "run": 5,
+        "index": 3,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912039221,
+        "run": 5,
+        "index": 2,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912039301,
+        "run": 5,
+        "index": 3,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912039681,
+        "run": 5,
+        "index": 3,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912039721,
+        "run": 5,
+        "index": 3,
+        "effect": "fx-substrate-wave"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912040001,
+        "run": 5,
+        "index": 3
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912040001,
+        "run": 5,
+        "index": 4,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912040141,
+        "run": 5,
+        "index": 4,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4
+      },
+      {
+        "type": "burst",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4,
+        "effect": "foil-sweep",
+        "duration": 560
+      },
+      {
+        "type": "audio",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4,
+        "effect": "original-particles",
+        "particles": 100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4,
+        "effect": "mythic-ripple",
+        "duration": 1040
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040381,
+        "run": 5,
+        "index": 4,
+        "effect": "fx-spectrum-wave",
+        "duration": 1100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040381,
+        "run": 5,
+        "index": 4,
+        "effect": "stage-impact",
+        "duration": 200
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040501,
+        "run": 5,
+        "index": 4,
+        "effect": "fx-counter-wave",
+        "duration": 1200
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912040581,
+        "run": 5,
+        "index": 4,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040801,
+        "run": 5,
+        "index": 4,
+        "effect": "foil-afterglow",
+        "duration": 440
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912040881,
+        "run": 5,
+        "index": 4,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041241,
+        "run": 5,
+        "index": 4,
+        "effect": "foil-afterglow"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041361,
+        "run": 5,
+        "index": 4,
+        "effect": "mythic-ripple"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041481,
+        "run": 5,
+        "index": 4,
+        "effect": "fx-spectrum-wave"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912041521,
+        "run": 5,
+        "index": 4,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041701,
+        "run": 5,
+        "index": 4,
+        "effect": "fx-counter-wave"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041821,
+        "run": 5,
+        "index": 3,
+        "effect": "original-particles"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912041881,
+        "run": 5,
+        "index": 4
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912043321,
+        "run": 5,
+        "index": 4,
+        "effect": "original-particles"
+      },
+      {
+        "type": "screen",
+        "time": 1788912043321,
+        "run": 5,
+        "index": null,
+        "screen": "results"
+      },
+      {
+        "type": "collectable",
+        "time": 1788912043321,
+        "run": 5,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "normal",
+    "entry": "dev",
+    "n": 10,
+    "prelude_ms": 1750,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912073542,
+        "run": 8,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912073542,
+        "run": 8,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912073782,
+        "run": 8,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912073982,
+        "run": 8,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912073982,
+        "run": 8,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912074222,
+        "run": 8,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912074222,
+        "run": 8,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074223,
+        "run": 8,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074272,
+        "run": 8,
+        "index": 1,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074322,
+        "run": 8,
+        "index": 2,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074372,
+        "run": 8,
+        "index": 3,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074422,
+        "run": 8,
+        "index": 4,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074472,
+        "run": 8,
+        "index": 5,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074522,
+        "run": 8,
+        "index": 6,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074572,
+        "run": 8,
+        "index": 7,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074622,
+        "run": 8,
+        "index": 8,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074672,
+        "run": 8,
+        "index": 9,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075292,
+        "run": 8,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1750
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075292,
+        "run": 8,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912075432,
+        "run": 8,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912075612,
+        "run": 8,
+        "index": 0
+      },
+      {
+        "type": "burst",
+        "time": 1788912075612,
+        "run": 8,
+        "index": 0
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912075612,
+        "run": 8,
+        "index": 0,
+        "effect": "foil-sweep",
+        "duration": 220
+      },
+      {
+        "type": "audio",
+        "time": 1788912075612,
+        "run": 8,
+        "index": 0,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912075612,
+        "run": 8,
+        "index": 0,
+        "effect": "original-particles",
+        "particles": 8
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912075832,
+        "run": 8,
+        "index": 0,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075912,
+        "run": 8,
+        "index": 0,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912076132,
+        "run": 8,
+        "index": 0
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912076132,
+        "run": 8,
+        "index": 1,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912076272,
+        "run": 8,
+        "index": 1,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912076442,
+        "run": 8,
+        "index": 0,
+        "effect": "original-particles"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912076452,
+        "run": 8,
+        "index": 1
+      },
+      {
+        "type": "burst",
+        "time": 1788912076452,
+        "run": 8,
+        "index": 1
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912076452,
+        "run": 8,
+        "index": 1,
+        "effect": "foil-sweep",
+        "duration": 300
+      },
+      {
+        "type": "audio",
+        "time": 1788912076452,
+        "run": 8,
+        "index": 1,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912076452,
+        "run": 8,
+        "index": 1,
+        "effect": "original-particles",
+        "particles": 26
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912076752,
+        "run": 8,
+        "index": 1,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912076872,
+        "run": 8,
+        "index": 1,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912077112,
+        "run": 8,
+        "index": 1
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912077112,
+        "run": 8,
+        "index": 2,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912077252,
+        "run": 8,
+        "index": 2,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912077432,
+        "run": 8,
+        "index": 2
+      },
+      {
+        "type": "burst",
+        "time": 1788912077432,
+        "run": 8,
+        "index": 2
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912077432,
+        "run": 8,
+        "index": 2,
+        "effect": "foil-sweep",
+        "duration": 420
+      },
+      {
+        "type": "audio",
+        "time": 1788912077432,
+        "run": 8,
+        "index": 2,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912077432,
+        "run": 8,
+        "index": 2,
+        "effect": "original-particles",
+        "particles": 62
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912077542,
+        "run": 8,
+        "index": 1,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912077852,
+        "run": 8,
+        "index": 2,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912078072,
+        "run": 8,
+        "index": 2,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912078352,
+        "run": 8,
+        "index": 2
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912078352,
+        "run": 8,
+        "index": 3,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912078492,
+        "run": 8,
+        "index": 3,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912078672,
+        "run": 8,
+        "index": 3
+      },
+      {
+        "type": "burst",
+        "time": 1788912078672,
+        "run": 8,
+        "index": 3
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912078672,
+        "run": 8,
+        "index": 3,
+        "effect": "foil-sweep",
+        "duration": 520
+      },
+      {
+        "type": "audio",
+        "time": 1788912078672,
+        "run": 8,
+        "index": 3,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912078672,
+        "run": 8,
+        "index": 3,
+        "effect": "original-particles",
+        "particles": 68
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912078712,
+        "run": 8,
+        "index": 3,
+        "effect": "fx-substrate-wave",
+        "duration": 900
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912078752,
+        "run": 8,
+        "index": 3,
+        "effect": "stage-impact",
+        "duration": 160
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912078912,
+        "run": 8,
+        "index": 3,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912078932,
+        "run": 8,
+        "index": 2,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912079192,
+        "run": 8,
+        "index": 3,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912079572,
+        "run": 8,
+        "index": 3,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912079612,
+        "run": 8,
+        "index": 3,
+        "effect": "fx-substrate-wave"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912079892,
+        "run": 8,
+        "index": 3
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912079892,
+        "run": 8,
+        "index": 4,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912080032,
+        "run": 8,
+        "index": 4,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912080212,
+        "run": 8,
+        "index": 4
+      },
+      {
+        "type": "burst",
+        "time": 1788912080212,
+        "run": 8,
+        "index": 4
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080212,
+        "run": 8,
+        "index": 4,
+        "effect": "foil-sweep",
+        "duration": 560
+      },
+      {
+        "type": "audio",
+        "time": 1788912080212,
+        "run": 8,
+        "index": 4,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080212,
+        "run": 8,
+        "index": 4,
+        "effect": "original-particles",
+        "particles": 100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080212,
+        "run": 8,
+        "index": 4,
+        "effect": "mythic-ripple",
+        "duration": 1040
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080272,
+        "run": 8,
+        "index": 4,
+        "effect": "fx-spectrum-wave",
+        "duration": 1100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080272,
+        "run": 8,
+        "index": 4,
+        "effect": "stage-impact",
+        "duration": 200
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080392,
+        "run": 8,
+        "index": 4,
+        "effect": "fx-counter-wave",
+        "duration": 1200
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912080472,
+        "run": 8,
+        "index": 4,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080692,
+        "run": 8,
+        "index": 4,
+        "effect": "foil-afterglow",
+        "duration": 440
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912080772,
+        "run": 8,
+        "index": 4,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081132,
+        "run": 8,
+        "index": 4,
+        "effect": "foil-afterglow"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081252,
+        "run": 8,
+        "index": 4,
+        "effect": "mythic-ripple"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081372,
+        "run": 8,
+        "index": 4,
+        "effect": "fx-spectrum-wave"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912081412,
+        "run": 8,
+        "index": 4,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081592,
+        "run": 8,
+        "index": 4,
+        "effect": "fx-counter-wave"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081642,
+        "run": 8,
+        "index": 3,
+        "effect": "original-particles"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912081772,
+        "run": 8,
+        "index": 4
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912081772,
+        "run": 8,
+        "index": 5,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912081912,
+        "run": 8,
+        "index": 5,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912082092,
+        "run": 8,
+        "index": 5
+      },
+      {
+        "type": "burst",
+        "time": 1788912082092,
+        "run": 8,
+        "index": 5
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912082092,
+        "run": 8,
+        "index": 5,
+        "effect": "foil-sweep",
+        "duration": 220
+      },
+      {
+        "type": "audio",
+        "time": 1788912082092,
+        "run": 8,
+        "index": 5,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912082092,
+        "run": 8,
+        "index": 5,
+        "effect": "original-particles",
+        "particles": 8
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912082312,
+        "run": 8,
+        "index": 5,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912082392,
+        "run": 8,
+        "index": 5,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912082612,
+        "run": 8,
+        "index": 5
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912082612,
+        "run": 8,
+        "index": 6,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912082752,
+        "run": 8,
+        "index": 6,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912082932,
+        "run": 8,
+        "index": 6
+      },
+      {
+        "type": "burst",
+        "time": 1788912082932,
+        "run": 8,
+        "index": 6
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912082932,
+        "run": 8,
+        "index": 6,
+        "effect": "foil-sweep",
+        "duration": 300
+      },
+      {
+        "type": "audio",
+        "time": 1788912082932,
+        "run": 8,
+        "index": 6,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912082932,
+        "run": 8,
+        "index": 6,
+        "effect": "original-particles",
+        "particles": 26
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912082932,
+        "run": 8,
+        "index": 5,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912083232,
+        "run": 8,
+        "index": 6,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912083232,
+        "run": 8,
+        "index": 4,
+        "effect": "original-particles"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912083352,
+        "run": 8,
+        "index": 6,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912083592,
+        "run": 8,
+        "index": 6
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912083592,
+        "run": 8,
+        "index": 7,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912083732,
+        "run": 8,
+        "index": 7,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912083912,
+        "run": 8,
+        "index": 7
+      },
+      {
+        "type": "burst",
+        "time": 1788912083912,
+        "run": 8,
+        "index": 7
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912083912,
+        "run": 8,
+        "index": 7,
+        "effect": "foil-sweep",
+        "duration": 420
+      },
+      {
+        "type": "audio",
+        "time": 1788912083912,
+        "run": 8,
+        "index": 7,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912083912,
+        "run": 8,
+        "index": 7,
+        "effect": "original-particles",
+        "particles": 62
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912083942,
+        "run": 8,
+        "index": 6,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912084332,
+        "run": 8,
+        "index": 7,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912084552,
+        "run": 8,
+        "index": 7,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912084832,
+        "run": 8,
+        "index": 7
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912084832,
+        "run": 8,
+        "index": 8,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912084972,
+        "run": 8,
+        "index": 8,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912085152,
+        "run": 8,
+        "index": 8
+      },
+      {
+        "type": "burst",
+        "time": 1788912085152,
+        "run": 8,
+        "index": 8
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912085152,
+        "run": 8,
+        "index": 8,
+        "effect": "foil-sweep",
+        "duration": 520
+      },
+      {
+        "type": "audio",
+        "time": 1788912085152,
+        "run": 8,
+        "index": 8,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912085152,
+        "run": 8,
+        "index": 8,
+        "effect": "original-particles",
+        "particles": 68
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912085192,
+        "run": 8,
+        "index": 8,
+        "effect": "fx-substrate-wave",
+        "duration": 900
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912085232,
+        "run": 8,
+        "index": 8,
+        "effect": "stage-impact",
+        "duration": 160
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912085392,
+        "run": 8,
+        "index": 8,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912085412,
+        "run": 8,
+        "index": 7,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912085672,
+        "run": 8,
+        "index": 8,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912086052,
+        "run": 8,
+        "index": 8,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912086092,
+        "run": 8,
+        "index": 8,
+        "effect": "fx-substrate-wave"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912086372,
+        "run": 8,
+        "index": 8
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912086372,
+        "run": 8,
+        "index": 9,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912086512,
+        "run": 8,
+        "index": 9,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912086692,
+        "run": 8,
+        "index": 9
+      },
+      {
+        "type": "burst",
+        "time": 1788912086692,
+        "run": 8,
+        "index": 9
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086692,
+        "run": 8,
+        "index": 9,
+        "effect": "foil-sweep",
+        "duration": 560
+      },
+      {
+        "type": "audio",
+        "time": 1788912086692,
+        "run": 8,
+        "index": 9,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086692,
+        "run": 8,
+        "index": 9,
+        "effect": "original-particles",
+        "particles": 100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086692,
+        "run": 8,
+        "index": 9,
+        "effect": "mythic-ripple",
+        "duration": 1040
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086752,
+        "run": 8,
+        "index": 9,
+        "effect": "fx-spectrum-wave",
+        "duration": 1100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086752,
+        "run": 8,
+        "index": 9,
+        "effect": "stage-impact",
+        "duration": 200
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086872,
+        "run": 8,
+        "index": 9,
+        "effect": "fx-counter-wave",
+        "duration": 1200
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912086952,
+        "run": 8,
+        "index": 9,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912087172,
+        "run": 8,
+        "index": 9,
+        "effect": "foil-afterglow",
+        "duration": 440
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087252,
+        "run": 8,
+        "index": 9,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087612,
+        "run": 8,
+        "index": 9,
+        "effect": "foil-afterglow"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087732,
+        "run": 8,
+        "index": 9,
+        "effect": "mythic-ripple"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087852,
+        "run": 8,
+        "index": 9,
+        "effect": "fx-spectrum-wave"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912087892,
+        "run": 8,
+        "index": 9,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912088042,
+        "run": 8,
+        "index": 8,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912088072,
+        "run": 8,
+        "index": 9,
+        "effect": "fx-counter-wave"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912088252,
+        "run": 8,
+        "index": 9
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912089642,
+        "run": 8,
+        "index": 9,
+        "effect": "original-particles"
+      },
+      {
+        "type": "screen",
+        "time": 1788912089642,
+        "run": 8,
+        "index": null,
+        "screen": "results"
+      },
+      {
+        "type": "collectable",
+        "time": 1788912089642,
+        "run": 8,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "prelude",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "tear",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "wait",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "last-before",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "last-after",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "front",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "return",
+    "repeats": 20
+  },
+  {
+    "check": "no-preview",
+    "entry": "portable",
+    "samples": 13,
+    "variants": 3,
+    "max_pixel_difference": 0
+  },
+  {
+    "check": "normal",
+    "entry": "portable",
+    "n": 1,
+    "prelude_ms": 1300,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001240,
+        "run": 2,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001440,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001680,
+        "run": 2,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912001681,
+        "run": 2,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1300
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002300,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002440,
+        "run": 2,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "burst",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0,
+        "effect": "foil-sweep",
+        "duration": 220
+      },
+      {
+        "type": "audio",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912002620,
+        "run": 2,
+        "index": 0,
+        "effect": "original-particles",
+        "particles": 8
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912002840,
+        "run": 2,
+        "index": 0,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002920,
+        "run": 2,
+        "index": 0,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912003140,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912003500,
+        "run": 2,
+        "index": 0,
+        "effect": "original-particles"
+      },
+      {
+        "type": "screen",
+        "time": 1788912003500,
+        "run": 2,
+        "index": null,
+        "screen": "results"
+      },
+      {
+        "type": "collectable",
+        "time": 1788912003500,
+        "run": 2,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "normal",
+    "entry": "portable",
+    "n": 5,
+    "prelude_ms": 1680,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912033721,
+        "run": 5,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912033721,
+        "run": 5,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912033961,
+        "run": 5,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912034161,
+        "run": 5,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912034161,
+        "run": 5,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912034401,
+        "run": 5,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912034401,
+        "run": 5,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034402,
+        "run": 5,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034496,
+        "run": 5,
+        "index": 1,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034591,
+        "run": 5,
+        "index": 2,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034686,
+        "run": 5,
+        "index": 3,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912034781,
+        "run": 5,
+        "index": 4,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912035401,
+        "run": 5,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1680
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912035401,
+        "run": 5,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912035541,
+        "run": 5,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0
+      },
+      {
+        "type": "burst",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0,
+        "effect": "foil-sweep",
+        "duration": 220
+      },
+      {
+        "type": "audio",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912035721,
+        "run": 5,
+        "index": 0,
+        "effect": "original-particles",
+        "particles": 8
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912035941,
+        "run": 5,
+        "index": 0,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912036021,
+        "run": 5,
+        "index": 0,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912036241,
+        "run": 5,
+        "index": 0
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912036241,
+        "run": 5,
+        "index": 1,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912036381,
+        "run": 5,
+        "index": 1,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912036421,
+        "run": 5,
+        "index": 0,
+        "effect": "original-particles"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1
+      },
+      {
+        "type": "burst",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1,
+        "effect": "foil-sweep",
+        "duration": 300
+      },
+      {
+        "type": "audio",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912036561,
+        "run": 5,
+        "index": 1,
+        "effect": "original-particles",
+        "particles": 26
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912036861,
+        "run": 5,
+        "index": 1,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912036981,
+        "run": 5,
+        "index": 1,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912037221,
+        "run": 5,
+        "index": 1
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912037221,
+        "run": 5,
+        "index": 2,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912037361,
+        "run": 5,
+        "index": 2,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2
+      },
+      {
+        "type": "burst",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2,
+        "effect": "foil-sweep",
+        "duration": 420
+      },
+      {
+        "type": "audio",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912037541,
+        "run": 5,
+        "index": 2,
+        "effect": "original-particles",
+        "particles": 62
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912037621,
+        "run": 5,
+        "index": 1,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912037961,
+        "run": 5,
+        "index": 2,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912038181,
+        "run": 5,
+        "index": 2,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912038461,
+        "run": 5,
+        "index": 2
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912038461,
+        "run": 5,
+        "index": 3,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912038601,
+        "run": 5,
+        "index": 3,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3
+      },
+      {
+        "type": "burst",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3,
+        "effect": "foil-sweep",
+        "duration": 520
+      },
+      {
+        "type": "audio",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912038781,
+        "run": 5,
+        "index": 3,
+        "effect": "original-particles",
+        "particles": 68
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912038821,
+        "run": 5,
+        "index": 3,
+        "effect": "fx-substrate-wave",
+        "duration": 900
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912038861,
+        "run": 5,
+        "index": 3,
+        "effect": "stage-impact",
+        "duration": 160
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912039021,
+        "run": 5,
+        "index": 3,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912039121,
+        "run": 5,
+        "index": 2,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912039301,
+        "run": 5,
+        "index": 3,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912039681,
+        "run": 5,
+        "index": 3,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912039721,
+        "run": 5,
+        "index": 3,
+        "effect": "fx-substrate-wave"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912040001,
+        "run": 5,
+        "index": 3
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912040001,
+        "run": 5,
+        "index": 4,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912040141,
+        "run": 5,
+        "index": 4,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4
+      },
+      {
+        "type": "burst",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4,
+        "effect": "foil-sweep",
+        "duration": 560
+      },
+      {
+        "type": "audio",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4,
+        "effect": "original-particles",
+        "particles": 100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040321,
+        "run": 5,
+        "index": 4,
+        "effect": "mythic-ripple",
+        "duration": 1040
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040381,
+        "run": 5,
+        "index": 4,
+        "effect": "fx-spectrum-wave",
+        "duration": 1100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040381,
+        "run": 5,
+        "index": 4,
+        "effect": "stage-impact",
+        "duration": 200
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040501,
+        "run": 5,
+        "index": 4,
+        "effect": "fx-counter-wave",
+        "duration": 1200
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912040581,
+        "run": 5,
+        "index": 4,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912040801,
+        "run": 5,
+        "index": 4,
+        "effect": "foil-afterglow",
+        "duration": 440
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912040881,
+        "run": 5,
+        "index": 4,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041241,
+        "run": 5,
+        "index": 4,
+        "effect": "foil-afterglow"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041361,
+        "run": 5,
+        "index": 4,
+        "effect": "mythic-ripple"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041481,
+        "run": 5,
+        "index": 4,
+        "effect": "fx-spectrum-wave"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912041521,
+        "run": 5,
+        "index": 4,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041701,
+        "run": 5,
+        "index": 4,
+        "effect": "fx-counter-wave"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912041721,
+        "run": 5,
+        "index": 3,
+        "effect": "original-particles"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912041881,
+        "run": 5,
+        "index": 4
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912043221,
+        "run": 5,
+        "index": 4,
+        "effect": "original-particles"
+      },
+      {
+        "type": "screen",
+        "time": 1788912043221,
+        "run": 5,
+        "index": null,
+        "screen": "results"
+      },
+      {
+        "type": "collectable",
+        "time": 1788912043221,
+        "run": 5,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "normal",
+    "entry": "portable",
+    "n": 10,
+    "prelude_ms": 1750,
+    "events": [
+      {
+        "type": "screen",
+        "time": 1788912073442,
+        "run": 8,
+        "index": null,
+        "screen": "ceremony"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912073442,
+        "run": 8,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912073682,
+        "run": 8,
+        "index": null,
+        "phase": "tension"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912073882,
+        "run": 8,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912073882,
+        "run": 8,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912074122,
+        "run": 8,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "audio",
+        "time": 1788912074122,
+        "run": 8,
+        "index": null,
+        "kind": "burst",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074123,
+        "run": 8,
+        "index": 0,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074172,
+        "run": 8,
+        "index": 1,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074222,
+        "run": 8,
+        "index": 2,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074272,
+        "run": 8,
+        "index": 3,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074322,
+        "run": 8,
+        "index": 4,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074372,
+        "run": 8,
+        "index": 5,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074422,
+        "run": 8,
+        "index": 6,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074472,
+        "run": 8,
+        "index": 7,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074522,
+        "run": 8,
+        "index": 8,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074572,
+        "run": 8,
+        "index": 9,
+        "kind": "deal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075192,
+        "run": 8,
+        "index": null,
+        "phase": "cards",
+        "prelude": 1750
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075192,
+        "run": 8,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912075332,
+        "run": 8,
+        "index": 0,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912075512,
+        "run": 8,
+        "index": 0
+      },
+      {
+        "type": "burst",
+        "time": 1788912075512,
+        "run": 8,
+        "index": 0
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912075512,
+        "run": 8,
+        "index": 0,
+        "effect": "foil-sweep",
+        "duration": 220
+      },
+      {
+        "type": "audio",
+        "time": 1788912075512,
+        "run": 8,
+        "index": 0,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912075512,
+        "run": 8,
+        "index": 0,
+        "effect": "original-particles",
+        "particles": 8
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912075732,
+        "run": 8,
+        "index": 0,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075812,
+        "run": 8,
+        "index": 0,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912076032,
+        "run": 8,
+        "index": 0
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912076032,
+        "run": 8,
+        "index": 1,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912076172,
+        "run": 8,
+        "index": 1,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912076342,
+        "run": 8,
+        "index": 0,
+        "effect": "original-particles"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912076352,
+        "run": 8,
+        "index": 1
+      },
+      {
+        "type": "burst",
+        "time": 1788912076352,
+        "run": 8,
+        "index": 1
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912076352,
+        "run": 8,
+        "index": 1,
+        "effect": "foil-sweep",
+        "duration": 300
+      },
+      {
+        "type": "audio",
+        "time": 1788912076352,
+        "run": 8,
+        "index": 1,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912076352,
+        "run": 8,
+        "index": 1,
+        "effect": "original-particles",
+        "particles": 26
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912076652,
+        "run": 8,
+        "index": 1,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912076772,
+        "run": 8,
+        "index": 1,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912077012,
+        "run": 8,
+        "index": 1
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912077012,
+        "run": 8,
+        "index": 2,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912077152,
+        "run": 8,
+        "index": 2,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912077332,
+        "run": 8,
+        "index": 2
+      },
+      {
+        "type": "burst",
+        "time": 1788912077332,
+        "run": 8,
+        "index": 2
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912077332,
+        "run": 8,
+        "index": 2,
+        "effect": "foil-sweep",
+        "duration": 420
+      },
+      {
+        "type": "audio",
+        "time": 1788912077332,
+        "run": 8,
+        "index": 2,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912077332,
+        "run": 8,
+        "index": 2,
+        "effect": "original-particles",
+        "particles": 62
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912077342,
+        "run": 8,
+        "index": 1,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912077752,
+        "run": 8,
+        "index": 2,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912077972,
+        "run": 8,
+        "index": 2,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912078252,
+        "run": 8,
+        "index": 2
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912078252,
+        "run": 8,
+        "index": 3,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912078392,
+        "run": 8,
+        "index": 3,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912078572,
+        "run": 8,
+        "index": 3
+      },
+      {
+        "type": "burst",
+        "time": 1788912078572,
+        "run": 8,
+        "index": 3
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912078572,
+        "run": 8,
+        "index": 3,
+        "effect": "foil-sweep",
+        "duration": 520
+      },
+      {
+        "type": "audio",
+        "time": 1788912078572,
+        "run": 8,
+        "index": 3,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912078572,
+        "run": 8,
+        "index": 3,
+        "effect": "original-particles",
+        "particles": 68
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912078612,
+        "run": 8,
+        "index": 3,
+        "effect": "fx-substrate-wave",
+        "duration": 900
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912078652,
+        "run": 8,
+        "index": 3,
+        "effect": "stage-impact",
+        "duration": 160
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912078812,
+        "run": 8,
+        "index": 3,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912078942,
+        "run": 8,
+        "index": 2,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912079092,
+        "run": 8,
+        "index": 3,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912079472,
+        "run": 8,
+        "index": 3,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912079512,
+        "run": 8,
+        "index": 3,
+        "effect": "fx-substrate-wave"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912079792,
+        "run": 8,
+        "index": 3
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912079792,
+        "run": 8,
+        "index": 4,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912079932,
+        "run": 8,
+        "index": 4,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912080112,
+        "run": 8,
+        "index": 4
+      },
+      {
+        "type": "burst",
+        "time": 1788912080112,
+        "run": 8,
+        "index": 4
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080112,
+        "run": 8,
+        "index": 4,
+        "effect": "foil-sweep",
+        "duration": 560
+      },
+      {
+        "type": "audio",
+        "time": 1788912080112,
+        "run": 8,
+        "index": 4,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080112,
+        "run": 8,
+        "index": 4,
+        "effect": "original-particles",
+        "particles": 100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080112,
+        "run": 8,
+        "index": 4,
+        "effect": "mythic-ripple",
+        "duration": 1040
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080172,
+        "run": 8,
+        "index": 4,
+        "effect": "fx-spectrum-wave",
+        "duration": 1100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080172,
+        "run": 8,
+        "index": 4,
+        "effect": "stage-impact",
+        "duration": 200
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080292,
+        "run": 8,
+        "index": 4,
+        "effect": "fx-counter-wave",
+        "duration": 1200
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912080372,
+        "run": 8,
+        "index": 4,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912080592,
+        "run": 8,
+        "index": 4,
+        "effect": "foil-afterglow",
+        "duration": 440
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912080672,
+        "run": 8,
+        "index": 4,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081032,
+        "run": 8,
+        "index": 4,
+        "effect": "foil-afterglow"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081152,
+        "run": 8,
+        "index": 4,
+        "effect": "mythic-ripple"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081272,
+        "run": 8,
+        "index": 4,
+        "effect": "fx-spectrum-wave"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912081312,
+        "run": 8,
+        "index": 4,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081492,
+        "run": 8,
+        "index": 4,
+        "effect": "fx-counter-wave"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912081542,
+        "run": 8,
+        "index": 3,
+        "effect": "original-particles"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912081672,
+        "run": 8,
+        "index": 4
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912081672,
+        "run": 8,
+        "index": 5,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912081812,
+        "run": 8,
+        "index": 5,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912081992,
+        "run": 8,
+        "index": 5
+      },
+      {
+        "type": "burst",
+        "time": 1788912081992,
+        "run": 8,
+        "index": 5
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912081992,
+        "run": 8,
+        "index": 5,
+        "effect": "foil-sweep",
+        "duration": 220
+      },
+      {
+        "type": "audio",
+        "time": 1788912081992,
+        "run": 8,
+        "index": 5,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912081992,
+        "run": 8,
+        "index": 5,
+        "effect": "original-particles",
+        "particles": 8
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912082212,
+        "run": 8,
+        "index": 5,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912082292,
+        "run": 8,
+        "index": 5,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912082512,
+        "run": 8,
+        "index": 5
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912082512,
+        "run": 8,
+        "index": 6,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912082652,
+        "run": 8,
+        "index": 6,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912082832,
+        "run": 8,
+        "index": 6
+      },
+      {
+        "type": "burst",
+        "time": 1788912082832,
+        "run": 8,
+        "index": 6
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912082832,
+        "run": 8,
+        "index": 6,
+        "effect": "foil-sweep",
+        "duration": 300
+      },
+      {
+        "type": "audio",
+        "time": 1788912082832,
+        "run": 8,
+        "index": 6,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912082832,
+        "run": 8,
+        "index": 6,
+        "effect": "original-particles",
+        "particles": 26
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912082832,
+        "run": 8,
+        "index": 5,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912083132,
+        "run": 8,
+        "index": 6,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912083132,
+        "run": 8,
+        "index": 4,
+        "effect": "original-particles"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912083252,
+        "run": 8,
+        "index": 6,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912083492,
+        "run": 8,
+        "index": 6
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912083492,
+        "run": 8,
+        "index": 7,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912083632,
+        "run": 8,
+        "index": 7,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912083812,
+        "run": 8,
+        "index": 7
+      },
+      {
+        "type": "burst",
+        "time": 1788912083812,
+        "run": 8,
+        "index": 7
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912083812,
+        "run": 8,
+        "index": 7,
+        "effect": "foil-sweep",
+        "duration": 420
+      },
+      {
+        "type": "audio",
+        "time": 1788912083812,
+        "run": 8,
+        "index": 7,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912083812,
+        "run": 8,
+        "index": 7,
+        "effect": "original-particles",
+        "particles": 62
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912083842,
+        "run": 8,
+        "index": 6,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912084232,
+        "run": 8,
+        "index": 7,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912084452,
+        "run": 8,
+        "index": 7,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912084732,
+        "run": 8,
+        "index": 7
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912084732,
+        "run": 8,
+        "index": 8,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912084872,
+        "run": 8,
+        "index": 8,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912085052,
+        "run": 8,
+        "index": 8
+      },
+      {
+        "type": "burst",
+        "time": 1788912085052,
+        "run": 8,
+        "index": 8
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912085052,
+        "run": 8,
+        "index": 8,
+        "effect": "foil-sweep",
+        "duration": 520
+      },
+      {
+        "type": "audio",
+        "time": 1788912085052,
+        "run": 8,
+        "index": 8,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912085052,
+        "run": 8,
+        "index": 8,
+        "effect": "original-particles",
+        "particles": 68
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912085092,
+        "run": 8,
+        "index": 8,
+        "effect": "fx-substrate-wave",
+        "duration": 900
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912085132,
+        "run": 8,
+        "index": 8,
+        "effect": "stage-impact",
+        "duration": 160
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912085292,
+        "run": 8,
+        "index": 8,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912085442,
+        "run": 8,
+        "index": 7,
+        "effect": "original-particles"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912085572,
+        "run": 8,
+        "index": 8,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912085952,
+        "run": 8,
+        "index": 8,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912085992,
+        "run": 8,
+        "index": 8,
+        "effect": "fx-substrate-wave"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912086272,
+        "run": 8,
+        "index": 8
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912086272,
+        "run": 8,
+        "index": 9,
+        "phase": "charge"
+      },
+      {
+        "type": "audio",
+        "time": 1788912086412,
+        "run": 8,
+        "index": 9,
+        "kind": "flip",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912086592,
+        "run": 8,
+        "index": 9
+      },
+      {
+        "type": "burst",
+        "time": 1788912086592,
+        "run": 8,
+        "index": 9
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086592,
+        "run": 8,
+        "index": 9,
+        "effect": "foil-sweep",
+        "duration": 560
+      },
+      {
+        "type": "audio",
+        "time": 1788912086592,
+        "run": 8,
+        "index": 9,
+        "kind": "reveal",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086592,
+        "run": 8,
+        "index": 9,
+        "effect": "original-particles",
+        "particles": 100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086592,
+        "run": 8,
+        "index": 9,
+        "effect": "mythic-ripple",
+        "duration": 1040
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086652,
+        "run": 8,
+        "index": 9,
+        "effect": "fx-spectrum-wave",
+        "duration": 1100
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086652,
+        "run": 8,
+        "index": 9,
+        "effect": "stage-impact",
+        "duration": 200
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912086772,
+        "run": 8,
+        "index": 9,
+        "effect": "fx-counter-wave",
+        "duration": 1200
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912086852,
+        "run": 8,
+        "index": 9,
+        "effect": "stage-impact"
+      },
+      {
+        "type": "fx-start",
+        "time": 1788912087072,
+        "run": 8,
+        "index": 9,
+        "effect": "foil-afterglow",
+        "duration": 440
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087152,
+        "run": 8,
+        "index": 9,
+        "effect": "foil-sweep"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087512,
+        "run": 8,
+        "index": 9,
+        "effect": "foil-afterglow"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087632,
+        "run": 8,
+        "index": 9,
+        "effect": "mythic-ripple"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087752,
+        "run": 8,
+        "index": 9,
+        "effect": "fx-spectrum-wave"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912087792,
+        "run": 8,
+        "index": 9,
+        "phase": "return"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087972,
+        "run": 8,
+        "index": 9,
+        "effect": "fx-counter-wave"
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912087972,
+        "run": 8,
+        "index": 8,
+        "effect": "original-particles"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912088152,
+        "run": 8,
+        "index": 9
+      },
+      {
+        "type": "fx-end",
+        "time": 1788912089642,
+        "run": 8,
+        "index": 9,
+        "effect": "original-particles"
+      },
+      {
+        "type": "screen",
+        "time": 1788912089642,
+        "run": 8,
+        "index": null,
+        "screen": "results"
+      },
+      {
+        "type": "collectable",
+        "time": 1788912089642,
+        "run": 8,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "A5-skip",
+    "entry": "portable",
+    "phase": "prelude",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "portable",
+    "phase": "tear",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "portable",
+    "phase": "wait",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "portable",
+    "phase": "last-before",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "portable",
+    "phase": "last-after",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "portable",
+    "phase": "front",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "portable",
+    "phase": "return",
+    "repeats": 20
+  },
+  {
+    "check": "size",
+    "bytes": 5142068
+  }
+]

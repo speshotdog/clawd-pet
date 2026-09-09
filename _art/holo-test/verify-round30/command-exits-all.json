@@ -1,0 +1,227 @@
+[
+  {
+    "command": "node --check ceremony.js",
+    "exit": 0,
+    "evidence_manifest": "command-exits-direct.json"
+  },
+  {
+    "command": "node --check ceremony-layout.js",
+    "exit": 0,
+    "evidence_manifest": "command-exits-direct.json"
+  },
+  {
+    "command": "node --check ceremony-fx.js",
+    "exit": 0,
+    "evidence_manifest": "command-exits-direct.json"
+  },
+  {
+    "command": "node --check ceremony-audio.js",
+    "exit": 0,
+    "evidence_manifest": "command-exits-direct.json"
+  },
+  {
+    "command": "Python compile current modified acceptance harnesses",
+    "exit": 0,
+    "evidence_manifest": "command-exits-direct.json"
+  },
+  {
+    "command": "python check_gacha_artifacts_round29.py",
+    "exit": 0,
+    "evidence_manifest": "command-exits-direct.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round30.py --baseline",
+    "exit": 0,
+    "log": "baseline.log",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round30.py --baseline-layout",
+    "exit": 0,
+    "evidence": "original-layout.json",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round30.py --core",
+    "exit": 0,
+    "log": "core.log",
+    "note": "Initial late-card offsets were strengthened in the subsequent A5-only run.",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round30.py --core --a5-only",
+    "exit": 0,
+    "log": "core-final-a5.log",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_audio_round30.py",
+    "exit": 0,
+    "log": "audio.log",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_fx_round28.py",
+    "exit": 0,
+    "log": "resize-final.log",
+    "note": "Final resize verification also asserts no intersections during reveals.",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round29.py --neutral-only",
+    "exit": 0,
+    "log": "neutral-final.log",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python capture_round30.py",
+    "exit": 0,
+    "evidence": "final-mixed-5.png",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round29.py --visual-only",
+    "exit": 1,
+    "log": "legacy-visual.log",
+    "note": "Intermediate: waited less than the original 3-second particle tail. Wait corrected.",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round29.py --visual-only",
+    "exit": 1,
+    "log": "legacy-visual-final.log",
+    "note": "Intermediate: next-rarity snapshot differed by one RGB level at an unsynchronized canvas frame.",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round29.py --visual-only",
+    "exit": 1,
+    "log": "legacy-visual-seeded.log",
+    "note": "Seeding alone did not fix sub-frame sampling. Exact canvas clock sampling added; neutral-only subsequently passed.",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_luminance_round29.py",
+    "exit": 0,
+    "log": "luminance-final.log",
+    "note": "Final renderer: identical dev and portable metrics.",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round29.py --visual-only",
+    "exit": 0,
+    "log": "visual-final.log",
+    "note": "Final full rerun, both builds, five tiers and neutral-prefix pixels.",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python run_round30_checks.py regression (initial slow race attempt)",
+    "exit": 1,
+    "status": "interrupted",
+    "log": "race-slow-interrupted.log",
+    "note": "Prior eight child commands passed; race did not complete.",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python run_round30_checks.py return-final (initial slow attempt)",
+    "exit": 1,
+    "status": "interrupted",
+    "note": "Superseded by full corrected race-only run; do not count as success.",
+    "evidence_manifest": "command-exits-manual.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round30.py --layout",
+    "exit": 0,
+    "seconds": 21.0,
+    "log": "check_gacha_ceremony_round30-layout.log",
+    "evidence_manifest": "command-exits-final.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round30.py --pixels",
+    "exit": 0,
+    "seconds": 532.7,
+    "log": "check_gacha_ceremony_round30-pixels.log",
+    "evidence_manifest": "command-exits-final.json"
+  },
+  {
+    "command": "python check_gacha_controls_round29.py",
+    "exit": 0,
+    "seconds": 41.1,
+    "log": "check_gacha_controls_round29.log",
+    "evidence_manifest": "command-exits-regression.json"
+  },
+  {
+    "command": "python check_gacha_return_round29.py",
+    "exit": 0,
+    "seconds": 185.9,
+    "log": "check_gacha_return_round29.log",
+    "evidence_manifest": "command-exits-regression.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_edges_round28.py",
+    "exit": 0,
+    "seconds": 7.7,
+    "log": "check_gacha_ceremony_edges_round28.log",
+    "evidence_manifest": "command-exits-regression.json"
+  },
+  {
+    "command": "python check_gacha_fx_round28.py",
+    "exit": 0,
+    "seconds": 254.4,
+    "log": "check_gacha_fx_round28.log",
+    "evidence_manifest": "command-exits-regression.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round28.py --interaction-only",
+    "exit": 0,
+    "seconds": 98.1,
+    "log": "check_gacha_ceremony_round28-interaction-only.log",
+    "evidence_manifest": "command-exits-regression.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round29.py --live",
+    "exit": 0,
+    "seconds": 78.0,
+    "log": "check_gacha_ceremony_round29-live.log",
+    "evidence_manifest": "command-exits-regression.json"
+  },
+  {
+    "command": "python check_gacha_artifacts_round29.py",
+    "exit": 0,
+    "seconds": 0.6,
+    "log": "check_gacha_artifacts_round29.log",
+    "evidence_manifest": "command-exits-regression.json"
+  },
+  {
+    "command": "python check_gacha_card_regression.py --cards-only",
+    "exit": 0,
+    "seconds": 277.3,
+    "log": "check_gacha_card_regression-cards-only.log",
+    "evidence_manifest": "command-exits-regression.json"
+  },
+  {
+    "command": "python check_gacha_ceremony_round28.py --core-only",
+    "exit": 0,
+    "seconds": 1595.8,
+    "log": "check_gacha_ceremony_round28-core-only.log",
+    "evidence_manifest": "command-exits-retained.json"
+  },
+  {
+    "command": "python check_gacha_card_regression.py --race-only",
+    "exit": 0,
+    "seconds": 775.7,
+    "log": "check_gacha_card_regression-race-only.log",
+    "evidence_manifest": "command-exits-finish-regression.json"
+  },
+  {
+    "command": "python check_gacha_card_regression.py --flows-only",
+    "exit": 0,
+    "seconds": 91.5,
+    "log": "check_gacha_card_regression-flows-only.log",
+    "evidence_manifest": "command-exits-finish-regression.json"
+  },
+  {
+    "command": "git diff --check",
+    "exit": 0
+  }
+]

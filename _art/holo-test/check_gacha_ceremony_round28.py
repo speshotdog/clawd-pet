@@ -12,7 +12,7 @@ from playwright.sync_api import sync_playwright
 from pool_data import pool
 
 HERE=Path(__file__).resolve().parent
-OUT=HERE/'verify-round29'
+OUT=HERE/'verify-round30'
 OUT.mkdir(exist_ok=True)
 CLOCK=r"""(() => {
  const timeouts=new Map(),nativeSet=setTimeout,nativeClear=clearTimeout;
@@ -40,7 +40,7 @@ def record(name,**data):
     (OUT/('ceremony-results'+('-interaction' if '--interaction-only' in sys.argv else '-core' if '--core-only' in sys.argv else '')+'.json')).write_text(json.dumps(rows,indent=2),encoding='utf-8')
     print(name, {k:v for k,v in data.items() if k!='events'},flush=True)
 
-def open_page(browser,url,reduced=False):
+def open_page(browser,url,reduced=False,init_script=None):
     p=browser.new_page(viewport={'width':1280,'height':900},has_touch=True,reduced_motion='reduce' if reduced else 'no-preference')
     errors=[]
     p.on('pageerror',lambda e:errors.append(str(e)))
@@ -48,6 +48,7 @@ def open_page(browser,url,reduced=False):
     p.clock.install(time=datetime(2026,9,9,tzinfo=timezone.utc))
     p.clock.pause_at(datetime(2026,9,9,0,0,1,tzinfo=timezone.utc))
     p.add_init_script(CLOCK)
+    if init_script:p.add_init_script(init_script)
     p.goto(url+'?ceremony-test')
     p.evaluate('document.fonts.ready')
     p.evaluate("document.querySelectorAll('.stage-background *').forEach(e=>e.getAnimations().forEach(a=>{a.pause();a.currentTime=0}))")
@@ -97,7 +98,7 @@ def main():
                     p,errors=open_page(browser,url);start(p,[BY[rarity]])
                     shots=[]; diagnostics=[]
                     previous=0
-                    for t in [0,200,400,600,680,780,1000,1160,1300,1390,1450,1478,1479]:
+                    for t in [0,200,400,600,680,780,1000,1300,1400,1500,1580,1618,1619]:
                         advance(p,t-previous);previous=t
                         assert not p.evaluate('__ceremony.events.some(e=>e.type==="face-visible")')
                         p.evaluate('__syncAnimations()')
@@ -134,14 +135,14 @@ def main():
                             charge=next(e for e in events if e['type']=='phase-start' and e.get('phase')=='charge' and e['index']==i)
                             assert 0<=charge['time']-prev['time']<=(320 if i==5 else 100)
                     entry=next(e for e in events if e.get('phase')=='entry');cards=next(e for e in events if e.get('phase')=='cards')
-                    assert cards['time']-entry['time']==1160+70*(n-1)
+                    assert cards['time']-entry['time']==1300+(50 if n==10 else 95)*(n-1)
                     p.screenshot(path=str(OUT/f'{label}-result-{n}.png'))
                     record('normal',entry=label,n=n,prelude_ms=cards['time']-entry['time'],events=events)
                     clean(p)
                 # Seven fixed trigger points, repeated 20 times, retain A5 ownership assertions.
                 p.evaluate('window.__clockRender=false')
                 fixture=[BY['mythic']]+[BY['common']]*9
-                for phase,ms in [('prelude',500),('tear',550),('wait',3000),('last-before',10709),('last-after',10711),('front',11512),('return',3400)]:
+                for phase,ms in [('prelude',500),('tear',550),('wait',3000),('last-before',10349),('last-after',10351),('front',10800),('return',3350)]:
                     for repeat in range(20):
                         start(p,fixture);advance(p,ms)
                         snapshot=state(p)
@@ -201,9 +202,9 @@ def main():
             p.evaluate('f=>{window.__ceremonyFixture=f;__ceremony.pull(1)}',[BY['mythic']])
             p.wait_for_function('__ceremony.state().collectable',timeout=15000)
             audio=p.evaluate('__ceremony.events.filter(e=>e.type==="audio")')
-            assert len(audio)==4 and all(e['state']=='running' and not e['muted'] for e in audio),audio
+            assert len(audio)==5 and all(e['state']=='running' and not e['muted'] for e in audio),audio
             faces=p.evaluate('__ceremony.events.filter(e=>e.type==="face-visible")')
-            assert max(abs(e['time']-faces[0]['time']) for e in audio if e['kind']=='chord')<=50
+            assert max(abs(e['time']-faces[0]['time']) for e in audio if e['kind']=='reveal')<=50
             record('audio',entry=label,events=audio)
             p.click('#finish');p.wait_for_timeout(250)
             p.evaluate('window.__idleMutations=0;new MutationObserver(x=>__idleMutations+=x.length).observe(document.querySelector("#win"),{subtree:true,attributes:true,childList:true,characterData:true})')

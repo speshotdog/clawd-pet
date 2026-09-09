@@ -1,0 +1,26 @@
+[
+  {
+    "command": "node --check ceremony.js",
+    "exit": 0
+  },
+  {
+    "command": "node --check ceremony-layout.js",
+    "exit": 0
+  },
+  {
+    "command": "node --check ceremony-fx.js",
+    "exit": 0
+  },
+  {
+    "command": "node --check ceremony-audio.js",
+    "exit": 0
+  },
+  {
+    "command": "Python compile current modified acceptance harnesses",
+    "exit": 0
+  },
+  {
+    "command": "python check_gacha_artifacts_round29.py",
+    "exit": 0
+  }
+]

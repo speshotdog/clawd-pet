@@ -1,0 +1,20 @@
+measuring dev common
+pixel-pass dev common 66 300
+measuring dev rare
+pixel-pass dev rare 66 300
+measuring dev epic
+pixel-pass dev epic 60 0
+measuring dev legendary
+pixel-pass dev legendary 223 1600
+measuring dev mythic
+pixel-pass dev mythic 255 1950
+measuring portable common
+pixel-pass portable common 66 300
+measuring portable rare
+pixel-pass portable rare 66 300
+measuring portable epic
+pixel-pass portable epic 60 0
+measuring portable legendary
+pixel-pass portable legendary 223 1600
+measuring portable mythic
+pixel-pass portable mythic 255 1950

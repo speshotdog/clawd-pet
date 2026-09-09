@@ -1,0 +1,56 @@
+[
+  {
+    "check": "A5",
+    "phase": "controls",
+    "trigger_ms": 100,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "tension",
+    "trigger_ms": 300,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "tear",
+    "trigger_ms": 550,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "deal",
+    "trigger_ms": 900,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "pre-face",
+    "trigger_ms": 2069,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "post-face",
+    "trigger_ms": 2071,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "return",
+    "trigger_ms": 3350,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "last-before",
+    "trigger_ms": 10349,
+    "repeats": 20
+  },
+  {
+    "check": "A5",
+    "phase": "last-after",
+    "trigger_ms": 10351,
+    "repeats": 20
+  }
+]

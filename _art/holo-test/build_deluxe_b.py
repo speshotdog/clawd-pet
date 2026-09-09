@@ -110,7 +110,7 @@ __CEREMONY_JS__
 </script>
 '''
 
-page = HTML.replace('__CEREMONY_JS__', (OUT / 'ceremony.js').read_text(encoding='utf-8')).replace('__CEREMONY_CSS__', (OUT / 'ceremony.css').read_text(encoding='utf-8')).replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))\
+page = HTML.replace('__CEREMONY_JS__', '\n'.join((OUT / name).read_text(encoding='utf-8') for name in ['ceremony-layout.js','ceremony-fx.js','ceremony-audio.js','ceremony.js'])).replace('__CEREMONY_CSS__', (OUT / 'ceremony.css').read_text(encoding='utf-8')).replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))\
            .replace('__CARD_CSS__', '\n'.join(styles)) \
            .replace('__MASKS__', json.dumps(masks, separators=(',', ':'))) \
            .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':')))

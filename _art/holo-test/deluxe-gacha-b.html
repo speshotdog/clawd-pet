@@ -697,6 +697,12 @@ button:disabled{opacity:.4;cursor:default}
 .control-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent,#fff7,transparent);mix-blend-mode:soft-light}
 
 .slot.mobile-current:not(.is-revealing){z-index:6}
+
+/* Round 30: separate tabletop slots; original canvas impact lives behind cards. */
+.ceremony-canvas{position:absolute;inset:0;left:0;top:0;translate:none;width:100%;height:100%;z-index:4}
+.ceremony-canvas.under{z-index:1}
+.ceremony-flash{inset:0;left:0;top:0;translate:none;background:white;z-index:1}
+.mythic-ripple{aspect-ratio:5/7;border:6px solid #ff4fd8;border-image:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8) 1}
 </style>
 <main class="win" id="win" data-screen="entry">
  <div class="stage-background" aria-hidden="true">
@@ -772,11 +778,697 @@ function makeFace(d){
 function paintFoil(card,rarity,x,y){HoloCardFace.paint(card,rarity,x,y,{tilt:false});}
 
 /* ── 演出 ─────────────────────────────────────────── */
+/* Tabletop port: src/clicker-gacha.js layout and src/gacha.js ten-card rows.
+ * Original 620ms deal and 95/50ms stagger from gacha-mode-hearthstone.js.
+ * Flat rotations and measured clearance replace the overlapping round-29 fan.
+ */
+window.CeremonyTable = Object.freeze({
+  dealDuration:620,
+  stagger:count=>count===10?50:95,
+  layout(n,{width=innerWidth,height=innerHeight,index=0}={}){
+    const phone=width<=600;
+    const cw=phone?Math.min(n===1?304:288,width-64):n===1?420*Math.min(width/1440,height/900):Math.min((width-80)/5.55,(height-200)/(n>5?3.15:1.7));
+    return Array.from({length:n},(_,i)=>({cw,
+      x:phone?(i-index)*(cw+64):n===1?0:((i%5)-(Math.min(n,5)-1)/2)*cw*1.14,
+      y:phone?-24:n>5?(Math.floor(i/5)-.5)*cw*1.58-30:-24,rz:0,page:0}));
+  }
+});
+
+// Ported from src/gacha-fx.js: original numeric floors retained. Caller advances seconds.
+// ClawdPet 抽卡 ─ Canvas 特效層（粒子／射線／塵）
+// 只有在有活動特效時才跑 rAF；桌上沒事的時候這層完全靜止，不吃 CPU。
+window.CeremonyFx = ({ rng = Math.random } = {}) => {
+  let canvas, ctx, W, H;
+  let under = null;      // 卡底下那層（射線用）
+  const parts = [];      // 粒子
+  const layers = [];     // 長效層（射線等），每個有 update(dt)/draw() 與 dead
+  let running = false;
+  let last = 0;
+  let offsetX=0,offsetY=0;
+
+  const RC = {
+    common: '#9d9d9d', rare: '#0070dd', epic: '#a335ee', legendary: '#ff8000', mythic: '#FF4FD8',
+  };
+  const rainbow = ['#ff4fd8','#ffb347','#fff275','#7dff9c','#5ad7ff','#b48bff','#ff7ab8'];
+  const rand = (a, b) => a + rng() * (b - a);
+  const TAU = Math.PI * 2;
+
+  function init(el, underEl) {
+    canvas = el; ctx = el.getContext('2d');
+    W = el.width; H = el.height;
+    under = underEl ? underEl.getContext('2d') : ctx;
+  }
+
+  function kick() {}
+  function step(dt,paint=true) {
+    if(paint){ctx.resetTransform();under.resetTransform();
+    ctx.clearRect(0, 0, W, H);
+    if (under !== ctx) under.clearRect(0, 0, W, H);
+    ctx.save();ctx.translate(offsetX,offsetY);
+    if(under!==ctx){under.save();under.translate(offsetX,offsetY);}}
+    for (let i = layers.length - 1; i >= 0; i--) {
+      const l = layers[i];
+      if(dt>0)l.update(dt);
+      if (l.dead) { layers.splice(i, 1); continue; }
+      if(paint)l.draw(l.under ? under : ctx);
+    }
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.life -= dt;
+      if (p.life <= 0) { parts.splice(i, 1); continue; }
+      if (dt>0 && p.update) p.update(p, dt);
+      else if(dt>0) {
+        p.vx *= p.drag; p.vy = p.vy * p.drag + p.g * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.rot += p.vr * dt;
+      }
+      if(paint)drawPart(p);
+    }
+    if(paint){ctx.restore();if(under!==ctx)under.restore();}
+    if (!parts.length && !layers.length) { running = false; ctx.clearRect(0, 0, W, H); if (under !== ctx) under.clearRect(0, 0, W, H); }
+  }
+
+  function drawPart(p) {
+    const k = p.life / p.max;
+    ctx.save();
+    ctx.globalCompositeOperation = p.blend || 'lighter';
+    ctx.globalAlpha = Math.min(1, k * (p.fadeK || 1.6));
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = p.color;
+    if (p.img) {
+      // 自訂貼圖粒子（更衣室的櫻花／雪花等）：r 是半寬
+      const s = p.r * 2 * (p.shrink ? (0.3 + 0.7 * k) : 1);
+      if (p.img.complete && p.img.naturalWidth) ctx.drawImage(p.img, -s / 2, -s / 2, s, s);
+    } else if (p.shape === 'shard') {
+      // 鋁箔碎片：長方形，正反面用亮暗兩色模擬翻面
+      const face = Math.cos(p.rot * 2) > 0 ? p.color : p.color2;
+      ctx.fillStyle = face;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    } else if (p.shape === 'star') {
+      ctx.shadowColor = p.color; ctx.shadowBlur = 8;
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const a = i * Math.PI / 2;
+        ctx.lineTo(Math.cos(a) * p.r, Math.sin(a) * p.r);
+        ctx.lineTo(Math.cos(a + Math.PI / 4) * p.r * 0.32, Math.sin(a + Math.PI / 4) * p.r * 0.32);
+      }
+      ctx.closePath(); ctx.fill();
+    } else if (p.shape === 'streak') {
+      ctx.strokeStyle = p.color; ctx.lineWidth = p.r; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-p.vx * 0.04, -p.vy * 0.04); ctx.stroke();
+    } else {
+      const r = p.r * (p.shrink ? k : 1);
+      if (p.glow) { ctx.shadowColor = p.color; ctx.shadowBlur = p.glow; }
+      ctx.beginPath(); ctx.arc(0, 0, Math.max(0.2, r), 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function spawn(p) {
+    parts.push(Object.assign({ x: 0, y: 0, vx: 0, vy: 0, g: 0, drag: 0.985, rot: 0, vr: 0, r: 2, life: 1, color: '#fff' }, p, { max: p.life }));
+  }
+
+  // ---------- 撕包爆光：火花 + 鋁箔碎片 ----------
+  function packBurst(x, y) {
+    for (let i = 0; i < 70; i++) {
+      const a = rand(0, TAU), sp = rand(120, 620);
+      spawn({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 80, g: 420, drag: 0.975,
+        r: rand(1.2, 3.2), life: rand(0.5, 1.1), color: rng() < 0.5 ? '#ffe7a6' : '#ffb866', glow: 6, shrink: true, shape: 'streak' });
+    }
+    const foil = ['#1f8a99', '#12475a', '#d08a4a', '#f0b26a', '#2b3f7a'];
+    const foilDark = ['#0d3f48', '#082530', '#7a4a20', '#8a5a2a', '#141f40'];
+    for (let i = 0; i < 26; i++) {
+      const a = rand(0, TAU), sp = rand(80, 380);
+      const ci = Math.floor(rand(0, foil.length));
+      spawn({ x: x + rand(-30, 30), y: y + rand(-60, 60), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 160, g: 900, drag: 0.985,
+        rot: rand(0, TAU), vr: rand(-12, 12), w: rand(6, 16), h: rand(4, 10), life: rand(0.9, 1.6), color: foil[ci], color2: foilDark[ci], shape: 'shard', fadeK: 3 });
+    }
+    // 光暈環
+    layers.push(ring(x, y, '#ffe7a6', 0.55, 380, 10));
+    kick();
+  }
+
+  // ---------- 環形衝擊波 ----------
+  function ring(x, y, color, dur, maxR, width) {
+    let t = 0;
+    return {
+      dead: false,
+      update(dt) { t += dt; if (t >= dur) this.dead = true; },
+      draw(ctx) {
+        const k = t / dur, e = 1 - Math.pow(1 - k, 3);
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = (1 - k) * 0.9;
+        ctx.strokeStyle = color; ctx.lineWidth = width * (1 - k * 0.6);
+        ctx.shadowColor = color; ctx.shadowBlur = 20;
+        // 第一幀的 t 有機會是很小的負數（dt 從還沒校正的 last 算出來），k<0 會讓 e<0、半徑變負，
+        // arc() 收到負半徑會直接丟例外把整條演出打斷。照第 115 行既有的做法夾住。
+        ctx.beginPath(); ctx.arc(x, y, Math.max(0.2, 10 + e * maxR), 0, TAU); ctx.stroke();
+        ctx.restore();
+      },
+    };
+  }
+
+  // ---------- 揭曉：依稀有度 ----------
+  function reveal(x, y, rarity) {
+    const c = RC[rarity] || RC.common;
+    if (rarity === 'mythic') { const scope = createScope(); scope.reveal(x,y,rarity); scope.rainbowRing(x,y); }
+    if (rarity === 'common') {
+      // 幾顆灰塵掉下來就好
+      for (let i = 0; i < 8; i++) {
+        spawn({ x: x + rand(-40, 40), y: y + rand(-60, 20), vx: rand(-30, 30), vy: rand(-40, 10), g: 200, r: rand(1, 2), life: rand(0.4, 0.8), color: '#cfcfcf', blend: 'source-over', fadeK: 1 });
+      }
+      kick(); return;
+    }
+    if (rarity === 'rare') {
+      layers.push(ring(x, y, c, 0.5, 160, 6));
+      for (let i = 0; i < 26; i++) {
+        const a = rand(0, TAU), sp = rand(60, 260);
+        spawn({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, g: 260, r: rand(1.5, 3.5), life: rand(0.5, 1), color: rng() < 0.6 ? '#7fc0ff' : '#ffffff', glow: 8, shrink: true, shape: 'star', rot: rand(0, TAU), vr: rand(-4, 4) });
+      }
+      kick(); return;
+    }
+    if (rarity === 'epic') {
+      layers.push(ring(x, y, c, 0.6, 260, 8));
+      layers.push(ring(x, y, '#e2b6ff', 0.45, 160, 4));
+      // 一圈旋著往外散的紫光，像被吸出去再甩開
+      for (let i = 0; i < 48; i++) {
+        const a = (i / 48) * TAU, sp = rand(140, 330);
+        spawn({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 0, drag: 0.94, r: rand(2, 4), life: rand(0.7, 1.2), color: rng() < 0.5 ? c : '#e2b6ff', glow: 12, shrink: true,
+          update(p, dt) { const ang = Math.atan2(p.vy, p.vx) + dt * 2.2; const s = Math.hypot(p.vx, p.vy) * p.drag; p.vx = Math.cos(ang) * s; p.vy = Math.sin(ang) * s; p.x += p.vx * dt; p.y += p.vy * dt; } });
+      }
+      for (let i = 0; i < 14; i++) {
+        spawn({ x: x + rand(-50, 50), y: y + rand(-70, 70), vx: rand(-20, 20), vy: rand(-90, -40), g: -30, r: rand(2, 4), life: rand(0.9, 1.6), color: '#ffffff', glow: 10, shape: 'star', rot: rand(0, TAU), vr: rand(-3, 3) });
+      }
+      kick(); return;
+    }
+    // 傳說：一圈貼卡的衝擊波、外緣火星、少量餘燼與星芒——中央留給立繪，不用大環蓋全桌
+    layers.push(ring(x, y, '#ffd27a', 0.55, 220, 8));
+    for (let i = 0; i < 40; i++) {
+      const a = rand(0, TAU), sp = rand(150, 600);
+      spawn({ x: x + Math.cos(a) * 70, y: y + Math.sin(a) * 100, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 100, g: 500, drag: 0.972, r: rand(1.5, 3.5), life: rand(0.7, 1.5), color: rng() < 0.5 ? '#ffd27a' : c, glow: 8, shrink: true, shape: 'streak' });
+    }
+    for (let i = 0; i < 20; i++) {
+      spawn({ x: x + rand(-90, 90), y: y + rand(-40, 110), vx: rand(-15, 15), vy: rand(-70, -25), g: -25, r: rand(1.5, 3), life: rand(1.6, 3), color: rng() < 0.7 ? '#ff9a3c' : '#ffe7a6', glow: 10, shrink: true, fadeK: 1.2,
+        update(p, dt) { p.vx += Math.sin(p.life * 7 + p.x) * 30 * dt; p.x += p.vx * dt; p.y += p.vy * dt; } });
+    }
+    for (let i = 0; i < 8; i++) {
+      const a = rand(0, TAU), sp = rand(120, 220);
+      spawn({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, g: 80, drag: 0.97, r: rand(4, 8), life: rand(1, 1.8), color: '#fff3d0', glow: 16, shape: 'star', rot: rand(0, TAU), vr: rand(-2, 2), shrink: true });
+    }
+    kick();
+  }
+
+  // ---------- 傳說射線：從卡後方放射、緩慢旋轉的橘光，fadeIn → 停留 → fadeOut ----------
+  // 回傳的物件有 stop()，讓流程在揭曉後把它慢慢收掉
+  function rays(x, y, { color = '#ff8000', n = 14, len = 900, fadeIn = 0.5, hold = 0.6, mythic = false } = {}) {
+    hold = Number.isFinite(hold) ? Math.min(hold, 4) : 0.6;
+    let t = 0, rot = rand(0, TAU), alpha = 0, stopping = false, fadeOut = 0;
+    const layer = {
+      dead: false,
+      under: true,
+      stop(dur = 0.8) { stopping = true; fadeOut = dur; },
+      update(dt) {
+        t += dt; rot += dt * 0.35;
+        if (stopping) { alpha -= dt / fadeOut; if (alpha <= 0) this.dead = true; }
+        else alpha = Math.min(1, t / fadeIn);
+        if (t > hold && !stopping) this.stop();
+      },
+      draw(ctx) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.translate(x, y);
+        // 底光
+        const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 260);
+        g.addColorStop(0, `rgba(255,190,90,${0.55 * alpha})`);
+        g.addColorStop(1, 'rgba(255,128,0,0)');
+        ctx.fillStyle = g; ctx.fillRect(-300, -300, 600, 600);
+        // 射線：兩組不同轉速、不同寬度疊在一起，才不會像轉盤
+        for (let set = 0; set < 2; set++) {
+          const r = rot * (set ? -0.6 : 1) + set * 0.3;
+          const count = set ? n - 3 : n;
+          for (let i = 0; i < count; i++) {
+            const a = r + (i / count) * TAU;
+            const w = (set ? 0.05 : 0.09) * (0.7 + 0.3 * Math.sin(t * 2.3 + i * 1.7));
+            const grad = ctx.createLinearGradient(0, 0, Math.cos(a) * len, Math.sin(a) * len);
+            grad.addColorStop(0, mythic ? rainbow[i % 7] + '99' : `rgba(255,210,120,${(set ? 0.28 : 0.42) * alpha})`);
+            grad.addColorStop(0.5, mythic ? rainbow[i % 7] + '44' : `rgba(255,128,0,${0.14 * alpha})`);
+            if (mythic) ctx.globalAlpha = alpha;
+            grad.addColorStop(1, 'rgba(255,128,0,0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(a - w) * len, Math.sin(a - w) * len);
+            ctx.lineTo(Math.cos(a + w) * len, Math.sin(a + w) * len);
+            ctx.closePath(); ctx.fill();
+          }
+        }
+        ctx.restore();
+      },
+    };
+    layers.push(layer);
+    kick();
+    return layer;
+  }
+
+  // ---------- 化塵：卡碎成金粉，沿弧線飛向塵計數器 ----------
+  function dustStream(x, y, tx, ty, { n = 46, onArrive } = {}) {
+    let arrived = 0;
+    for (let i = 0; i < n; i++) {
+      const delay = rand(0, 0.35);
+      const sx = x + rand(-60, 60), sy = y + rand(-90, 90);
+      const cx = (sx + tx) / 2 + rand(-160, 160), cy = Math.min(sy, ty) - rand(60, 220);
+      const dur = rand(0.75, 1.2);
+      spawn({ x: sx, y: sy, r: rand(1.5, 3.2), life: delay + dur + 0.05, color: rng() < 0.7 ? '#ffd24a' : '#fff6c8', glow: 8, fadeK: 8,
+        t0: delay, dur, sx, sy, cx, cy,
+        update(p, dt) {
+          const el = p.max - p.life;
+          if (el < p.t0) { p.x = p.sx + rand(-1, 1); p.y = p.sy - (el / p.t0) * 8; return; }
+          const k = Math.min(1, (el - p.t0) / p.dur);
+          const e = k * k * (3 - 2 * k);
+          // 二次貝茲：出發 → 控制點（上方）→ 塵計數器
+          p.x = (1 - e) * (1 - e) * p.sx + 2 * (1 - e) * e * p.cx + e * e * tx;
+          p.y = (1 - e) * (1 - e) * p.sy + 2 * (1 - e) * e * p.cy + e * e * ty;
+          if (k >= 1 && !p.done) { p.done = true; p.life = 0.01; arrived++; if (onArrive) onArrive(arrived, n); }
+        } });
+    }
+    kick();
+  }
+
+  // ---------- 卡飛進圖鑑時，終點噴一小撮亮片 ----------
+  function puff(x, y, color = '#ffd24a') {
+    for (let i = 0; i < 12; i++) {
+      const a = rand(0, TAU), sp = rand(40, 140);
+      spawn({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 120, r: rand(1, 2.5), life: rand(0.3, 0.6), color, glow: 6, shrink: true });
+    }
+    kick();
+  }
+
+  // scope 只移除自己建立的物件，收集動畫不會被上一場的取消波及。
+  function createScope({ rng = Math.random } = {}) {
+    const ownedParts = new Set(), ownedLayers = new Set();
+    let stopped = false;
+    return {
+      spawn(p) {
+        if (stopped) return;
+        spawn(p); ownedParts.add(parts[parts.length - 1]); kick();
+      },
+      layer(l) {
+        if (stopped) return;
+        layers.push(l); ownedLayers.add(l); kick(); return l;
+      },
+      ring,
+      unveil(x, y) {
+        for (let i = 0; i < 8; i++) {
+          const a = -Math.PI / 2 + (rng() - .5) * Math.PI, speed = 70 + rng() * 100;
+          this.spawn({ sprite: 6, x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
+            g: 180, r: 3 + rng() * 3, life: .45, color: '#ff8000', shrink: true });
+        }
+      },
+      rainbowRing(x, y, dur = .8, maxR = 220) {
+        let age = 0;
+        return this.layer({dead:false, update(dt) { age += dt; this.dead = age >= dur; }, draw(c) {
+          c.save(); c.globalAlpha = Math.max(0,1-age/dur); c.lineWidth = 7;
+          for (let i=0;i<7;i++) { c.strokeStyle=rainbow[i]; c.beginPath(); c.arc(x,y,20+maxR*Math.min(1,age/dur),i*TAU/7,(i+1)*TAU/7); c.stroke(); }
+          c.restore();
+        }});
+      },
+      packBurst(x, y) { if (!stopped) packBurst(x, y); },
+      reveal(x, y, rarity) {
+        const count = { common: 0, rare: 8, epic: 12, legendary: 20, mythic: 32 }[rarity];
+        const life = { common: 0, rare: .24, epic: .42, legendary: .6, mythic: .8 }[rarity];
+        for (let i = 0; i < count; i++) {
+          const a = i / count * TAU + (rng() - .5) * .2;
+          this.spawn({ x: x + Math.cos(a) * 78, y: y + Math.sin(a) * 108,
+            vx: Math.cos(a) * 60, vy: Math.sin(a) * 60, r: 1.5, life,
+            color: rarity === 'mythic' ? rainbow[i % 7] : RC[rarity], shape: rarity === 'epic' ? 'star' : 'streak', shrink: true });
+        }
+        if (rarity === 'legendary' || rarity === 'mythic') {
+          let age = 0;
+          this.layer({ dead: false, under: true,
+            update(dt) { age += dt; this.dead = age >= .6; },
+            draw(c) {
+              c.save(); c.translate(x, y); c.strokeStyle = '#ffba63';
+              c.globalAlpha = Math.sin(Math.PI * age / .6) * .5; c.lineWidth = 7;
+              for (let i = 0; i < 6; i++) {
+                const a = i * TAU / 6;
+                c.beginPath(); c.moveTo(Math.cos(a) * 80, Math.sin(a) * 110);
+                c.lineTo(Math.cos(a) * 185, Math.sin(a) * 190); c.stroke();
+              }
+              c.restore();
+            },
+          });
+        }
+      },
+      stop() {
+        if (stopped) return;
+        stopped = true;
+        for (let i = parts.length - 1; i >= 0; i--) if (ownedParts.has(parts[i])) parts.splice(i, 1);
+        for (let i = layers.length - 1; i >= 0; i--) if (ownedLayers.has(layers[i])) layers.splice(i, 1);
+        ownedParts.clear(); ownedLayers.clear();
+        // 下一幀自然停止；先清畫布，避免背景分頁的 rAF 延後留下殘影。
+        ctx?.clearRect(0, 0, W, H); under?.clearRect(0, 0, W, H);
+      },
+    };
+  }
+  function stop() { parts.length=layers.length=0; ctx?.clearRect(0,0,W,H); under?.clearRect(0,0,W,H); }
+  function flash(x,y,{duration=.16,radius=650,strength=.65,color='255,240,215'}={}) {
+    let age=0;
+    layers.push({dead:false,under:true,update(dt){age+=dt;this.dead=age>=duration},draw(c){
+      const alpha=strength*Math.min(1,age/.035)*Math.min(1,(duration-age)/.35);
+      c.save();c.globalCompositeOperation='lighter';
+      const g=c.createRadialGradient(x,y,30,x,y,radius);
+      g.addColorStop(0,`rgba(${color},${alpha})`);g.addColorStop(.6,`rgba(${color},${alpha*.7})`);g.addColorStop(1,`rgba(${color},0)`);
+      c.fillStyle=g;c.fillRect(x-radius,y-radius,radius*2,radius*2);c.restore();
+    }});
+  }
+  function strengthen(x,y,rarity) {
+    const high=['legendary','mythic'].includes(rarity),mythic=rarity==='mythic';
+    // Original particles and rings remain intact; add exposure and extend the impact.
+    reveal(x,y,rarity);
+    flash(x,y,{duration:high?1.65:.7,radius:high?760:620,strength:high?.92:.25,color:mythic?'218,241,255':rarity==='epic'?'225,185,255':'255,238,208'});
+    if(high){
+      rays(x,y,{fadeIn:.08,hold:1.6,mythic});
+      layers.push(ring(x,y,mythic?'#e7faff':'#fff0b8',1.04,410,14));
+      if(mythic)createScope({rng}).rainbowRing(x,y,1.2,420);
+    }
+  }
+  return {init,step,stop,ring,spawn,reveal,rays,flash,strengthen,createScope,move(x,y){offsetX=x;offsetY=y},
+    get active(){return parts.length+layers.length},get particles(){return parts.length}};
+};
+
+// Ported from src/gacha-audio.js. Synthesis parameters unchanged; observation hooks only.
+// ClawdPet 抽卡 ─ 音效（全部 WebAudio 現場合成，沒有任何音檔）
+// 設計原則：每個音都是「一個動作的回饋」，短、乾、有重量；只有傳說允許拖長尾巴。
+// AudioContext 要在使用者手勢後才能建，所以 ensure() 由第一次 pointerdown 呼叫。
+window.CeremonyAudio = (() => {
+  let activeScope = null;
+  let ctx = null;
+  let master = null;
+  let verb = null;      // 簡易迴響（feedback delay），只給揭曉音用
+
+  function ensure() {
+    if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return ctx; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.7;
+    master.connect(ctx.destination);
+    // 迴響：兩條 delay 交叉回授 + 低通，便宜但夠有空間感
+    verb = ctx.createGain();
+    verb.gain.value = 0.35;
+    const d1 = ctx.createDelay(1); d1.delayTime.value = 0.173;
+    const d2 = ctx.createDelay(1); d2.delayTime.value = 0.251;
+    const fb1 = ctx.createGain(); fb1.gain.value = 0.42;
+    const fb2 = ctx.createGain(); fb2.gain.value = 0.38;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3200;
+    verb.connect(d1); verb.connect(d2);
+    d1.connect(fb1).connect(d2); d2.connect(fb2).connect(d1);
+    d1.connect(lp); d2.connect(lp); lp.connect(master);
+    return ctx;
+  }
+
+  // ---------- 基本積木 ----------
+  const now = () => ctx.currentTime;
+  function env(node, t, a, d, peak = 1, s = 0, r = 0.05) {
+    const g = node.gain;
+    g.cancelScheduledValues(t);
+    g.setValueAtTime(0.0001, t);
+    g.linearRampToValueAtTime(peak, t + a);
+    g.exponentialRampToValueAtTime(Math.max(s * peak, 0.0001), t + a + d);
+    if (s > 0) g.setValueAtTime(s * peak, t + a + d);
+    g.exponentialRampToValueAtTime(0.0001, t + a + d + r);
+  }
+  function tone(freq, { type = 'sine', t = now(), a = 0.005, d = 0.2, r = 0.05, s = 0, gain = 0.3, detune = 0, to = master, slide = null, slideT = 0 } = {}) {
+    to = activeScope ? activeScope.route(to) : to;
+    const o = ctx.createOscillator();
+    activeScope?.track(o);
+    o.type = type; o.frequency.setValueAtTime(freq, t); o.detune.value = detune;
+    if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + (slideT || d));
+    const g = ctx.createGain();
+    env(g, t, a, d, gain, s, r);
+    o.connect(g).connect(to);
+    api.onSchedule?.({type:'tone',freq,t,a,d,r,gain,detune,slide});
+    o.start(t); o.stop(t + a + d + r + 0.05);
+    return o;
+  }
+  let noiseBuf = null;
+  function noise() {
+    if (!noiseBuf) {
+      noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuf; src.loop = true;
+    return src;
+  }
+  function noiseHit({ t = now(), a = 0.002, d = 0.12, r = 0.05, gain = 0.4, type = 'bandpass', f0 = 1500, f1 = null, q = 0.8, to = master } = {}) {
+    to = activeScope ? activeScope.route(to) : to;
+    const src = noise();
+    activeScope?.track(src);
+    const flt = ctx.createBiquadFilter();
+    flt.type = type; flt.Q.value = q; flt.frequency.setValueAtTime(f0, t);
+    if (f1) flt.frequency.exponentialRampToValueAtTime(f1, t + a + d);
+    const g = ctx.createGain();
+    env(g, t, a, d, gain, 0, r);
+    src.connect(flt).connect(g).connect(to);
+    api.onSchedule?.({type:'noiseHit',t,a,d,r,gain,typeFilter:type,f0,f1,q});
+    src.start(t); src.stop(t + a + d + r + 0.05);
+    return src;
+  }
+  // 鐘：一個基頻 + 非諧泛音（真實鐘的泛音比不是整數倍），各自不同衰減
+  function bell(freq, t, { gain = 0.5, decay = 2.6, to = master } = {}) {
+    const partials = [[1, 1, 1], [2.0, 0.55, 0.8], [2.76, 0.42, 0.7], [3.9, 0.25, 0.45], [5.4, 0.18, 0.35], [8.9, 0.08, 0.2]];
+    for (const [ratio, amp, dscale] of partials) {
+      tone(freq * ratio, { t, a: 0.003, d: decay * dscale, r: 0.3, gain: gain * amp, to });
+      // 輕微失諧的第二層讓聲音「晃」——鐘的拍頻感
+      tone(freq * ratio, { t, a: 0.003, d: decay * dscale * 0.9, r: 0.3, gain: gain * amp * 0.5, detune: 6, to });
+    }
+    // 敲擊瞬間的金屬「叮」
+    noiseHit({ t, a: 0.001, d: 0.03, gain: gain * 0.5, f0: 5000, q: 2 });
+  }
+
+  // ---------- 對外：每個動作一個方法 ----------
+  const api = { ensure, onSchedule: null, onSource: null };
+
+  // 拿起卡包：很輕的紙質摩擦
+  api.pick = () => { if (!ensure()) return; noiseHit({ d: 0.06, gain: 0.12, f0: 2500, f1: 1200, q: 1.5 }); };
+  // 放到桌上／彈回托盤：悶悶的一下
+  api.drop = (heavy = false) => {
+    if (!ensure()) return;
+    const t = now();
+    tone(heavy ? 95 : 130, { type: 'sine', t, a: 0.003, d: 0.14, gain: heavy ? 0.5 : 0.28, slide: heavy ? 50 : 80, slideT: 0.12 });
+    noiseHit({ t, d: 0.05, gain: heavy ? 0.25 : 0.14, type: 'lowpass', f0: 900, q: 0.5 });
+  };
+  // 就位：小小一聲確認（玻璃感）
+  api.lock = () => {
+    if (!ensure()) return;
+    const t = now();
+    tone(1320, { type: 'triangle', t, a: 0.003, d: 0.18, gain: 0.16, to: verb });
+    tone(1980, { type: 'sine', t: t + 0.04, a: 0.003, d: 0.22, gain: 0.1, to: verb });
+  };
+  // 撕包：三段——鋸齒撕裂（顆粒噪音掃頻）→ 撕開後的氣流 → 爆光的低音衝擊
+  api.tear = () => {
+    if (!ensure()) return;
+    const t = now();
+    // 撕裂：一連串短促的顆粒，頻率往上爬
+    for (let i = 0; i < 14; i++) {
+      const tt = t + i * 0.028 + Math.random() * 0.006;
+      noiseHit({ t: tt, a: 0.001, d: 0.02 + Math.random() * 0.015, r: 0.01, gain: 0.22 + i * 0.012, f0: 1800 + i * 220, q: 3 + Math.random() * 2 });
+    }
+    // 底下一層連續的紙撕聲
+    noiseHit({ t, a: 0.02, d: 0.36, r: 0.06, gain: 0.2, f0: 700, f1: 3800, q: 0.7 });
+  };
+  api.burst = () => {
+    if (!ensure()) return;
+    const t = now();
+    // 氣流：往上掃的噪音
+    noiseHit({ t, a: 0.04, d: 0.45, r: 0.2, gain: 0.35, type: 'bandpass', f0: 400, f1: 6000, q: 0.6 });
+    // 低音衝擊
+    tone(70, { type: 'sine', t, a: 0.004, d: 0.5, gain: 0.7, slide: 32, slideT: 0.45 });
+    // 光的「嗡」——高頻閃一下
+    tone(2400, { type: 'sine', t: t + 0.02, a: 0.01, d: 0.5, gain: 0.12, slide: 4800, slideT: 0.3, to: verb });
+  };
+  // 發牌：每張一個乾脆的「啪」，音高微升
+  api.deal = (i = 0) => {
+    if (!ensure()) return;
+    const t = now();
+    noiseHit({ t, a: 0.001, d: 0.045, r: 0.02, gain: 0.3, f0: 2600 + i * 180, q: 1.2 });
+    tone(220 + i * 18, { type: 'triangle', t, a: 0.002, d: 0.06, gain: 0.18 });
+  };
+  // 滑鼠靠近未翻的卡：稀有度越高，滲光的聲音越亮、越長
+  api.hover = (rarity) => {
+    if (!ensure()) return;
+    const t = now();
+    const cfg = {
+      common: null,
+      rare: { f: 880, d: 0.25, g: 0.06 },
+      epic: { f: 1174, d: 0.4, g: 0.08 },
+      legendary: { f: 1568, d: 0.7, g: 0.1 },
+      mythic: { f: 2093, d: 1.0, g: .12 },
+    }[rarity];
+    if (!cfg) { noiseHit({ t, d: 0.03, gain: 0.05, f0: 3000, q: 2 }); return; }
+    tone(cfg.f, { type: 'sine', t, a: 0.02, d: cfg.d, r: 0.15, gain: cfg.g, to: verb });
+    tone(cfg.f * 1.5, { type: 'sine', t: t + 0.03, a: 0.02, d: cfg.d, r: 0.15, gain: cfg.g * 0.5, to: verb });
+    if (rarity === 'legendary') tone(cfg.f / 4, { type: 'triangle', t, a: 0.05, d: 0.6, gain: 0.05, to: verb });
+  };
+  // 翻卡：紙板翻面的「啪」+ 短促的低頻
+  api.flip = () => {
+    if (!ensure()) return;
+    const t = now();
+    noiseHit({ t, a: 0.001, d: 0.05, r: 0.03, gain: 0.35, f0: 1800, f1: 900, q: 1 });
+    tone(160, { type: 'sine', t: t + 0.01, a: 0.002, d: 0.08, gain: 0.25, slide: 90, slideT: 0.07 });
+  };
+  // 揭曉：四階四種語彙
+  api.reveal = (rarity) => {
+    if (!ensure()) return;
+    const t = now() + 0.02;
+    if (rarity === 'common') {
+      // 普通：悶悶一聲，沒什麼好慶祝的
+      tone(330, { type: 'triangle', t, a: 0.004, d: 0.12, gain: 0.16 });
+      return;
+    }
+    if (rarity === 'rare') {
+      // 精良：兩個清亮的音（E5 → B5）
+      tone(659, { type: 'triangle', t, a: 0.004, d: 0.28, r: 0.2, gain: 0.22, to: verb });
+      tone(988, { type: 'triangle', t: t + 0.09, a: 0.004, d: 0.42, r: 0.3, gain: 0.2, to: verb });
+      tone(1319, { type: 'sine', t: t + 0.09, a: 0.02, d: 0.5, gain: 0.08, to: verb });
+      noiseHit({ t, a: 0.005, d: 0.08, gain: 0.08, f0: 6000, q: 1 });
+      return;
+    }
+    if (rarity === 'epic') {
+      // 史詩：上行琶音 + 失諧鋸齒的墊底，有點魔法感
+      const seq = [523, 659, 784, 1047, 1319];
+      seq.forEach((f, i) => {
+        tone(f, { type: 'triangle', t: t + i * 0.055, a: 0.004, d: 0.35, r: 0.3, gain: 0.16, to: verb });
+      });
+      tone(262, { type: 'sawtooth', t, a: 0.05, d: 0.7, r: 0.4, gain: 0.07, detune: -8, to: verb });
+      tone(262, { type: 'sawtooth', t, a: 0.05, d: 0.7, r: 0.4, gain: 0.07, detune: 8, to: verb });
+      noiseHit({ t, a: 0.02, d: 0.5, r: 0.3, gain: 0.12, f0: 3000, f1: 9000, q: 0.5, to: verb });
+      tone(1568, { type: 'sine', t: t + 0.3, a: 0.02, d: 0.6, gain: 0.08, slide: 2093, slideT: 0.5, to: verb });
+      return;
+    }
+    if (rarity === 'mythic') {
+      [1,1.25,1.5].forEach(ratio => tone(2093*ratio,{type:'sine',t,a:.02,d:1.0,r:.5,gain:.12,to:verb}));
+      tone(65,{type:'triangle',t,a:.05,d:1.6,r:.4,gain:.12,slide:32,slideT:1.4,to:verb});
+      bell(1047,t+.4,{gain:.18,decay:3.6,to:verb});
+    }
+    // 傳說：大鐘。先一記低沉的鐘身，再疊一顆高的，最後灑一串亮片
+    tone(55, { type: 'sine', t, a: 0.005, d: 1.2, gain: 0.6, slide: 40, slideT: 1 });        // 地面震動
+    bell(392, t, { gain: 0.42, decay: 3.2, to: verb });
+    bell(784, t + 0.12, { gain: 0.26, decay: 2.4, to: verb });
+    noiseHit({ t, a: 0.005, d: 0.4, r: 0.4, gain: 0.25, f0: 2500, f1: 12000, q: 0.4, to: verb });
+    const sparkle = [2093, 2637, 3136, 3520, 4186, 5274];
+    sparkle.forEach((f, i) => {
+      tone(f, { type: 'sine', t: t + 0.35 + i * 0.07, a: 0.003, d: 0.25, r: 0.4, gain: 0.07, to: verb });
+    });
+  };
+  // 傳說蓄力：翻之前那半拍的「來了」——低頻在漲、高頻在抖、心跳
+  api.charge = (dur = 0.9) => {
+    if (!ensure()) return;
+    const t = now();
+    tone(48, { type: 'sine', t, a: dur * 0.85, d: dur * 0.15, r: 0.1, gain: 0.55, slide: 62, slideT: dur });
+    noiseHit({ t, a: dur * 0.9, d: 0.08, r: 0.05, gain: 0.3, f0: 300, f1: 5000, q: 1.2 });
+    tone(1760, { type: 'sine', t, a: dur * 0.8, d: 0.1, gain: 0.05, slide: 3520, slideT: dur, to: verb });
+    // 心跳兩下
+    [0, dur * 0.45].forEach((off) => {
+      tone(80, { type: 'sine', t: t + off, a: 0.004, d: 0.12, gain: 0.35, slide: 45, slideT: 0.1 });
+    });
+  };
+  // 收下：卡飛走的風聲 + 收進袋子的「咚」
+  api.collect = (n = 5) => {
+    if (!ensure()) return;
+    const t = now();
+    for (let i = 0; i < n; i++) {
+      noiseHit({ t: t + i * 0.07, a: 0.01, d: 0.12, r: 0.08, gain: 0.14, f0: 800, f1: 3500, q: 0.8 });
+    }
+    tone(196, { type: 'triangle', t: t + n * 0.07 + 0.15, a: 0.004, d: 0.18, gain: 0.25 });
+    tone(392, { type: 'sine', t: t + n * 0.07 + 0.18, a: 0.004, d: 0.3, gain: 0.12, to: verb });
+  };
+  // 化塵：碎裂的顆粒 + 塵往上飄的亮音
+  api.dust = () => {
+    if (!ensure()) return;
+    const t = now();
+    for (let i = 0; i < 10; i++) {
+      noiseHit({ t: t + i * 0.022 + Math.random() * 0.01, a: 0.001, d: 0.025, r: 0.02, gain: 0.12, f0: 2200 + Math.random() * 3000, q: 4 });
+    }
+    tone(880, { type: 'sine', t: t + 0.1, a: 0.05, d: 0.5, gain: 0.07, slide: 1760, slideT: 0.5, to: verb });
+    noiseHit({ t: t + 0.1, a: 0.1, d: 0.4, r: 0.2, gain: 0.08, f0: 4000, f1: 9000, q: 0.5, to: verb });
+  };
+  // 塵計數器跳數：每跳一格一聲極短的 tick
+  api.tick = (i = 0) => {
+    if (!ensure()) return;
+    tone(2400 + (i % 5) * 60, { type: 'sine', t: now(), a: 0.001, d: 0.014, r: 0.005, gain: 0.04 });
+  };
+  // 一般按鈕
+  api.ui = () => { if (!ensure()) return; tone(660, { type: 'triangle', t: now(), a: 0.002, d: 0.06, gain: 0.1 }); };
+
+  // 每次演出有自己的乾聲與迴響出口，取消時連尾音一起收乾。
+  api.createScope = () => {
+    const sources = new Set(), children = new Set(), nodes = [];
+    let stopped = false;
+    const ac = ensure();
+    const output = ac?.createGain(), wet = ac?.createGain();
+    if (ac) {
+      output.connect(master); wet.gain.value = .35;
+      nodes.push(output, wet);
+      for (const seconds of [.173, .251]) {
+        const delay = ac.createDelay(1), gain = ac.createGain();
+        delay.delayTime.value = seconds; gain.gain.value = .4;
+        wet.connect(delay).connect(gain).connect(output);
+        nodes.push(delay, gain);
+      }
+    }
+    const scope = {
+      createScope() {
+        const child = api.createScope(); children.add(child);
+        if (stopped) child.stop();
+        return child;
+      },
+      dry: output, verb: wet, now: () => ac?.currentTime || 0,
+      route: (to) => to === verb || to === wet ? wet : output,
+      track(src) { api.onSource?.(src); sources.add(src); src.addEventListener('ended', () => sources.delete(src), { once: true }); },
+      stop(ms = 30) {
+        if (stopped) return;
+        stopped = true;
+        children.forEach((child) => child.stop(ms)); children.clear();
+        if (!ac) return;
+        const t = ac.currentTime, end = t + ms / 1000;
+        output.gain.cancelScheduledValues(t);
+        output.gain.setValueAtTime(output.gain.value, t);
+        output.gain.linearRampToValueAtTime(0, end);
+        sources.forEach((src) => { try { src.stop(end); } catch {} });
+        setTimeout(() => { nodes.forEach((n) => n.disconnect()); sources.clear(); }, ms + 10);
+      },
+    };
+    const run = (fn, args) => {
+      if (stopped || !ac) return;
+      const previous = activeScope; activeScope = scope;
+      try { return fn(...args); } finally { activeScope = previous; }
+    };
+    Object.assign(scope, {
+      tone: (...args) => run(tone, args), noiseHit: (...args) => run(noiseHit, args),
+      bell: (...args) => run(bell, args),
+    });
+    for (const name of ['flip', 'reveal', 'deal', 'hover', 'collect', 'dust', 'tick', 'ui', 'tear', 'burst', 'charge', 'lock', 'drop', 'pick']) {
+      scope[name] = (...args) => run(api[name], args);
+    }
+    return scope;
+  };
+
+  return api;
+})();
+
 /* Round 29: generation / revealed / complete remain the A5 ownership contract. */
 const stage=$('#stage'),fan=$('#fan'),win=$('#win'),idlepack=$('#entry-pack'),hint=$('#hint');
 const btn={p1:$('#p1'),p5:$('#p5'),p10:$('#p10'),all:$('#revealall'),fin:$('#finish')};
 let busy=false,slots=[],pending=0,tickets=30,cascading=false,skipped=false,generation=0;
 const anims=new Set(),timers=new Map(),rafs=new Map(),voices=new Set();
+const fxPainters=new Set();
 const testing=new URLSearchParams(location.search).has('ceremony-test');
 const events=[];
 let screen='entry',pageIndex=0,selectedIndex=0,collecting=false;
@@ -787,21 +1479,21 @@ $('.stageacts').prepend(audioButton);
 function audioLabel(){audioButton.textContent=muted?'音效：關':'音效：開';audioButton.setAttribute('aria-pressed',String(!muted));}
 audioLabel();
 audioButton.addEventListener('click',async()=>{muted=!muted;try{localStorage.setItem('holo-muted',String(muted));}catch{}
-  if(!muted){try{audio ||= new AudioContext();await audio.resume();}catch{muted=true;}}
-  else stopAudio();audioLabel();});
+  if(!muted){try{audio=window.CeremonyAudio.ensure();await audio.resume();}catch{muted=true;}}
+  else{stopAudio();stopCollectionAudio();}audioLabel();});
 function mark(type,s,extra={}){if(testing)events.push({type,time:Date.now(),run:generation,index:s?slots.indexOf(s):null,...extra});}
-function sound(kind,s,duration){
+let audioScope=null, currentCue=null,collectionAudio=null;
+const collectionVoices=new Set();
+CeremonyAudio.onSchedule=({type:primitive,...cue})=>mark('audio-scheduled',currentCue?.slot,{cue:currentCue?.name,primitive,...cue});
+CeremonyAudio.onSource=o=>{const run=generation,group=currentCue?.name==='collect'?collectionVoices:voices;group.add(o);o.addEventListener('ended',()=>{group.delete(o);if(group===collectionVoices){if(!group.size){collectionAudio?.stop(0);collectionAudio=null;}return;}if(run===generation)updateFinish();},{once:true});};
+function sound(kind,s,arg){
   const record={kind,muted,state:audio?.state||'uninitialized',audioTime:audio?.currentTime??null};
   mark('audio',s,record);if(muted||audio?.state!=='running')return;
-  const t=audio.currentTime,d=(duration??(kind==='tear'?180:80))/1000;
-  const frequencies=kind==='chord'?[261.63,329.63,392]:kind==='charge'?[160]:kind==='impact'?[s&&['common','rare'].includes(s.data.rarity)?920:65]:[1200,1730];
-  for(const f of frequencies){const o=audio.createOscillator(),g=audio.createGain();o.type=kind==='tear'?'sawtooth':'sine';
-    o.frequency.setValueAtTime(f,t);if(kind==='charge')o.frequency.exponentialRampToValueAtTime(500,t+d);
-    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045/frequencies.length,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-    o.connect(g).connect(audio.destination);o.outputGain=g;voices.add(o);o.onended=()=>{voices.delete(o);o.disconnect();g.disconnect();updateFinish();};o.start(t);o.stop(t+d);
-  }
+  const scope=kind==='collect'?(collectionAudio ||= CeremonyAudio.createScope()):(audioScope ||= CeremonyAudio.createScope());currentCue={name:kind==='reveal'?'reveal:'+s.data.rarity:kind,slot:s};
+  try{scope[kind](kind==='reveal'?s.data.rarity:arg);}finally{currentCue=null;}
 }
-function stopAudio(){for(const o of voices){o.onended=null;try{o.stop();o.disconnect();o.outputGain.disconnect();}catch{}}voices.clear();}
+function stopCollectionAudio(){collectionAudio?.stop(0);collectionAudio=null;collectionVoices.clear();}
+function stopAudio(){audioScope?.stop(0);audioScope=null;for(const o of voices){try{o.stop();o.disconnect();}catch{}}voices.clear();}
 const A=(el,frames,opts)=>{const run=generation,a=el.animate(frames,{fill:'both',...opts});anims.add(a);
   a.finished.catch(()=>{}).finally(()=>{anims.delete(a);if(run===generation)updateFinish();});if(document.hidden){a.pause();a.__visibilityPaused=true;}return a;};
 // Logical timer IDs survive visibility suspension; cancellation resolves pending waits.
@@ -854,19 +1546,20 @@ function setScreen(next){
 }
 const mobile=()=>innerWidth<=600;
 const unit=()=>Math.min(innerWidth/1440,innerHeight/900);
-const focusWidth=()=>mobile()?Math.min(304,innerWidth-48):420*unit();
-function layout(n){const u=unit(),phone=mobile();return Array.from({length:n},(_,i)=>{
-  const j=i%5,k=j-2;
-  return {cw:phone?(n===1?Math.min(304,innerWidth-48):Math.min(288,innerWidth-64)):(n===1?420:380)*u,
-    x:phone?(i-selectedIndex)*224:n===1?0:k*210*u,
-    y:phone?-24+(i===selectedIndex?0:18):(-12+(n===1?0:[44,12,0,12,44][j]))*u,
-    rz:phone?(i===selectedIndex?0:Math.sign(i-selectedIndex)*6):n===1?0:k*6,page:Math.floor(i/5)};
-});}
+const focusWidth=()=>layout(Math.max(1,slots.length))[0].cw;
+// Original tabletop columns / two rows, with clearance for hover and ±18° drag.
+function layout(n){return CeremonyTable.layout(n,{index:selectedIndex});}
 const slotTransform=s=>`translate(${s.spot.x}px,${s.spot.y}px) rotate(${s.spot.rz}deg)`;
 function position(s){s.el.classList.toggle('mobile-current',mobile()&&slots.indexOf(s)===selectedIndex);s.el.style.setProperty('--cw',s.spot.cw+'px');s.el.style.transform=slotTransform(s);
- s.el.classList.toggle('page-away',mobile()?Math.abs(slots.indexOf(s)-selectedIndex)>1:s.spot.page!==pageIndex);}
-function relayout(){const spots=layout(slots.length);slots.forEach((s,i)=>{s.spot=spots[i];if(!s.el.classList.contains('is-revealing'))position(s);else s.el.style.setProperty('--cw',focusWidth()+'px');if(s.face)HoloCardFace.refit(s.face);});updatePages();}
-function updatePages(){const pages=$('.pages');pages.hidden=screen!=='results'||slots.length<2;
+ s.el.classList.toggle('page-away',mobile()?slots.indexOf(s)!==selectedIndex:false);}
+function relayout(){
+ const active=slots.findIndex(s=>s.el.classList.contains('is-revealing'));if(mobile()&&active>=0)selectedIndex=active;
+ const spots=layout(slots.length);slots.forEach((s,i)=>{s.spot=spots[i];position(s);
+  if(s.el.classList.contains('is-revealing')){const rest=slotTransform(s),lift=rest+' translateY(-6px)';
+   for(const a of s.el.getAnimations())a.effect.setKeyframes(s.returning?[{transform:lift},{transform:rest}]:[{transform:rest},{transform:lift}]);}
+  if(s.face)HoloCardFace.refit(s.face);});updatePages();
+}
+function updatePages(){const pages=$('.pages');pages.hidden=screen!=='results'||slots.length<2||!mobile();
  $('#page-count').textContent=mobile()?`${selectedIndex+1} / ${slots.length}`:`${pageIndex*5+1}–${Math.min(pageIndex*5+5,slots.length)} / ${slots.length}`;
  $('#prev').disabled=mobile()?selectedIndex===0:pageIndex===0;$('#next').disabled=mobile()?selectedIndex>=slots.length-1:pageIndex>=Math.ceil(slots.length/5)-1;
 }
@@ -900,15 +1593,20 @@ async function prelude(run,n){
  A(tear,[{opacity:0},{opacity:1,offset:.2},{opacity:0}],{duration:340});
  if(!await wait(240,run))return false;
  mark('phase-start',null,{phase:'deal'});
- // The second packet is dealt at this same size behind page one, never as small cards.
- for(const [i,s] of slots.entries())A(s.el,[{opacity:0,transform:'translate(0,-145px) rotate(0deg) scale(.68)'},{opacity:1,offset:.22},{opacity:1,transform:`translate(${s.spot.x}px,${s.spot.y-8}px) rotate(${s.spot.rz}deg)`,offset:.82},{opacity:1,transform:slotTransform(s)}],{duration:480,delay:70*i,easing:'cubic-bezier(.2,.8,.2,1)'});
+ const stagger=CeremonyTable.stagger(n);sound('burst');
+ // Shared seal origin and the original 620ms overshooting deal easing.
+ for(const [i,s] of slots.entries()){
+  later(()=>sound('deal',s,i),i*stagger,run);
+  A(s.el,[{opacity:0,transform:'translate(0,-145px) rotate(0deg) scale(.2)'},{opacity:1,transform:slotTransform(s)}],{duration:CeremonyTable.dealDuration,delay:stagger*i,easing:'cubic-bezier(.22,.9,.32,1.12)'});
+ }
  A(pack,[{opacity:1},{opacity:0}],{duration:480});
- if(!await wait(480+70*(n-1),run))return false;
+ if(!await wait(620+stagger*(n-1),run))return false;
  for(const s of slots){s.el.style.opacity='1';s.el.getAnimations().forEach(a=>a.cancel());position(s);}
- root.remove();root=null;mark('phase-start',null,{phase:'cards',prelude:1160+70*(n-1)});return true;
+ root.remove();root=null;mark('phase-start',null,{phase:'cards',prelude:1300+stagger*(n-1)});return true;
 }
 async function pull(n){if(busy||slots.length||tickets<n)return;const run=++generation;
-  if(!muted){try{audio ||= new AudioContext();audio.resume().catch(()=>{});}catch{muted=true;audioLabel();}}
+  stopCollectionAudio();
+  if(!muted){try{audio=window.CeremonyAudio.ensure();audio.resume().catch(()=>{});}catch{muted=true;audioLabel();}}
   busy=true;skipped=false;cascading=false;collectMarked=false;tickets-=n;$('#ticket').textContent=tickets;
   for(const b of [btn.p1,btn.p5,btn.p10])b.disabled=true;
   setScreen('ceremony');idlepack.style.opacity='1';
@@ -928,7 +1626,6 @@ async function cascade(){const run=generation;cascading=true;
   // Serial scheduling is deliberately rarity-independent before first sight.
   // This stricter form of the high-tier mutex also avoids leaking the next rank by its start time.
   try{for(const [i,s] of slots.entries()){if(skipped||run!==generation)break;
-    if(i===5&&!mobile()){mark('phase-start',s,{phase:'page'});const handoff=A(fan,[{transform:'translateX(0)',opacity:1},{transform:'translateX(-80px)',opacity:0}],{duration:160});if(!await wait(160,run))break;handoff.cancel();pageIndex=1;relayout();A(fan,[{transform:'translateX(80px)',opacity:0},{transform:'translateX(0)',opacity:1}],{duration:160});if(!await wait(160,run))break;}
     if(mobile()){selectedIndex=i;pageIndex=Math.floor(i/5);relayout();}
     await revealOne(s);
   }}
@@ -939,8 +1636,9 @@ function revealOne(s,fast=false){if(s.work)return s.work;if(s.run!==generation)r
 // All pre-F movement is independent of data.rarity. The frozen face is only exposed at -89deg.
 async function beginReveal(s){const run=s.run;s.revealed=true;s.el.classList.add('is-revealing');mark('phase-start',s,{phase:'charge'});
  const start=slotTransform(s);s.el.style.setProperty('--cw',focusWidth()+'px');HoloCardFace.refit(s.face);
- s.focus=A(s.el,[{transform:start+` scale(${s.spot.cw/focusWidth()})`},{transform:`translate(0px,${mobile()?-24:-12*unit()}px) rotate(0deg) scale(1)`}],{duration:500,easing:'cubic-bezier(.2,.7,.2,1)'});
+ s.focus=A(s.el,[{transform:start},{transform:start+' translateY(-6px)'}],{duration:500,easing:'cubic-bezier(.2,.7,.2,1)'});
  if(!await wait(140,run))return false;
+ sound('flip',s);
  const flip=A(s.flip,[{transform:'rotateY(0deg)'},{transform:'rotateY(90deg)'}],{duration:180,easing:'ease-in'});
  if(!await wait(180,run))return false;flip.cancel();return true;
 }
@@ -969,32 +1667,52 @@ const RETURN={common:220,rare:240,epic:280,legendary:320,mythic:360};
 function runRarityFx(s){const r=s.data.rarity,u=unit();
  const sweepDuration={common:220,rare:300,epic:420,legendary:520,mythic:560}[r];
  mark('fx-start',s,{effect:'foil-sweep',duration:sweepDuration});if(r==='mythic'){sweep(s,920,false,1,true);later(()=>mark('fx-end',s,{effect:'foil-sweep'}),560,s.run);}else sweep(s,sweepDuration).then(ok=>{if(ok)mark('fx-end',s,{effect:'foil-sweep'});});
- sound('impact',s,r==='common'?80:r==='rare'?80:r==='epic'?120:180);
- if(r==='common')fx(s,'fx-confirm-ring',0,180,{color:'#dce3e6',from:.88,to:1.25,line:2});
- if(r==='rare'){fx(s,'fx-rare-ring',0,320,{from:.9,to:1.8,line:4});flakes(s,4,40,280);later(()=>sound('metal',s,175),45,s.run);}
- if(r==='epic'){fx(s,'fx-epic-ring',0,420,{to:1.65});fx(s,'fx-broken-ring',70,500,{to:2.1});flakes(s,12,30,400);sound('chord',s,360);}
+ sound('reveal',s);runCanvasFx(s);
  if(r==='legendary'){
-  fx(s,'fx-legendary-ring',0,440,{color:'#fff0bd',from:.9,to:1.9,line:8});fx(s,'fx-local-reflection',0,180,{width:focusWidth()*2.1,peak:.16});
-  fx(s,'fx-substrate-wave',40,680,{width:mobile()?560:1100*u,from:.3,to:1,band:24,peak:.48});flakes(s,24,24,516);flakes(s,6,100,660,'fx-afterglow');
-  later(()=>sound('metal',s,655),45,s.run);later(()=>stageImpact(s,3,160),80,s.run);
+  fx(s,'fx-substrate-wave',40,900,{width:mobile()?560:1100*u,from:.3,to:1,band:32,peak:.65});
+  later(()=>stageImpact(s,3,160),80,s.run);
  }
  if(r==='mythic'){
-  fx(s,'fx-mythic-ring',0,320,{color:'#e7edef',to:1.8});fx(s,'fx-local-reflection',0,320,{width:focusWidth()*2.1,peak:.16});
-  fx(s,'fx-spectrum-wave',60,800,{width:mobile()?680:1320*u,from:.28,to:1,band:24,peak:.55});
-  fx(s,'fx-counter-wave',180,860,{width:mobile()?505:980*u,from:360/980,to:1,band:18,peak:.55*.55});flakes(s,32,40,640);
+  // Original runtime's white flash, moved to F to preserve the neutral pre-F contract.
+  const flash=node('div','rarity-fx ceremony-flash');stage.append(flash);
+  const a=A(flash,[{opacity:1},{opacity:0}],{duration:156});later(()=>{a.cancel();flash.remove();},156,s.run);
+  fx(s,'fx-spectrum-wave',60,1100,{width:mobile()?680:1320*u,from:.28,to:1,band:32,peak:.7});
+  fx(s,'fx-counter-wave',180,1200,{width:mobile()?505:980*u,from:360/980,to:1,band:24,peak:.45});
+  fx(s,'mythic-ripple',0,1040,{width:focusWidth()+30,frames:[{opacity:1,scale:.9},{opacity:0,scale:1.8}]});
   // Single material writer: second pass blends in from +480, never races the first sweep.
   later(()=>{mark('fx-start',s,{effect:'foil-afterglow',duration:440});},480,s.run);
   later(()=>mark('fx-end',s,{effect:'foil-afterglow'}),920,s.run);
-  later(()=>stageImpact(s,4,200),60,s.run);later(()=>sound('impact',s,180),180,s.run);sound('chord',s,1000);
+  later(()=>stageImpact(s,4,200),60,s.run);
  }
+}
+function runCanvasFx(s){
+ const run=s.run,upper=node('canvas','rarity-fx ceremony-canvas'),lower=node('canvas','rarity-fx ceremony-canvas under');
+ for(const c of [lower,upper]){c.width=innerWidth;c.height=innerHeight;stage.append(c);}
+ const engine=CeremonyFx(),box=s.shell.getBoundingClientRect();engine.init(upper,lower);
+ engine.strengthen(box.x+box.width/2,box.y+box.height/2,s.data.rarity);
+ mark('fx-start',s,{effect:'original-particles',particles:engine.particles});
+ let id,ended=false,ticks=0;const start=activeNow();
+ const cancel=()=>{if(ended)return;ended=true;fxPainters.delete(paint);cancelAnimationFrame(id);rafs.delete(id);engine.stop();upper.remove();lower.remove();mark('fx-end',s,{effect:'original-particles'});};
+ const paint=(force=false)=>{if(ended||run!==generation)return;const targetTicks=Math.floor(((activeNow()-start)*60+1e-6)/1000);
+  const target=s.shell.getBoundingClientRect();engine.move((target.x+target.width/2)*upper.width/innerWidth-box.x-box.width/2,(target.y+target.height/2)*upper.height/innerHeight-box.y-box.height/2);
+  // Integrate elapsed active time, including delayed frames, without truncating tails.
+  while(ticks<targetTicks&&engine.active){ticks++;engine.step(1/60,ticks===targetTicks);}
+  if(force&&engine.active)engine.step(0);
+ };
+ fxPainters.add(paint);
+ const step=()=>{rafs.delete(id);if(run!==generation){cancel();return;}paint();
+  if(engine.active){id=requestAnimationFrame(step);rafs.set(id,cancel);}else{cancel();updateFinish();}};
+ cancel.resume=()=>{id=requestAnimationFrame(step);rafs.set(id,cancel);};
+ id=requestAnimationFrame(step);rafs.set(id,cancel);
 }
 function stageImpact(s,px,duration){mark('fx-start',s,{effect:'stage-impact',duration});
  const impact=A($('.stage-background'),[{transform:'translateX(0)'},{transform:`translateX(${px}px)`,offset:.25},{transform:'translateX(-1px)',offset:.6},{transform:'translateX(0)'}],{duration});later(()=>{impact.cancel();mark('fx-end',s,{effect:'stage-impact'});},duration,s.run);
 }
 async function settleReveal(s){const run=s.run,r=s.data.rarity;
  if(!await wait(READ[r],run))return;mark('phase-start',s,{phase:'return'});
- s.focus?.cancel();const from=`translate(0px,${mobile()?-24:-12*unit()}px) rotate(0deg)`;
+ s.focus?.cancel();const from=slotTransform(s)+' translateY(-6px)';
  const returning=A(s.el,[{transform:from},{transform:slotTransform(s)+` scale(${s.spot.cw/focusWidth()})`}],{duration:RETURN[r],easing:'cubic-bezier(.4,0,.2,1)'});
+ s.returning=returning;
  if(!await wait(RETURN[r],run))return;returning.cancel();s.el.getAnimations().forEach(a=>a.cancel());s.flip.getAnimations().forEach(a=>a.cancel());s.shell.getAnimations().forEach(a=>a.cancel());
  completeSlot(s);updateFinish();
 }
@@ -1040,6 +1758,7 @@ function updateFinish(){const complete=slots.length&&slots.every(s=>s.complete)&
 btn.all.textContent='跳過演出';btn.all.addEventListener('click',skipAll);
 stage.addEventListener('click',e=>{if(!e.target.closest('button,a,.slot.done')&&slots.length&&!btn.all.hidden)skipAll();});
 btn.fin.addEventListener('click',async()=>{if(btn.fin.hidden||collecting)return;collecting=true;btn.fin.hidden=true;const run=generation;
+ sound('collect',null,slots.length);
  A(fan,[{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(20px) scale(.96)'}],{duration:220});
  if(await wait(220,run)){clearRun();hint.textContent='';}
 });
@@ -1052,14 +1771,14 @@ addEventListener('keydown',e=>{if(e.key==='Escape')for(const s of slots)if(s.com
 const backgroundScope={hidden:false};
 function backgroundVisibility(){const hidden=document.hidden;backgroundScope.hidden=hidden;win.classList.toggle('background-paused',hidden||reduced.matches);
  if(hidden){for(const a of anims)if(a.playState==='running'){a.pause();a.__visibilityPaused=true;}pauseTimers();pauseRafs();audio?.suspend();}
- else{for(const a of anims)if(a.__visibilityPaused){a.__visibilityPaused=false;a.play();}resumeTimers();resumeRafs();if(!muted&&voices.size)audio?.resume();}
+ else{for(const a of anims)if(a.__visibilityPaused){a.__visibilityPaused=false;a.play();}resumeTimers();resumeRafs();if(!muted&&(voices.size||collectionVoices.size))audio?.resume();}
 }
 document.addEventListener('visibilitychange',backgroundVisibility);reduced.addEventListener('change',backgroundVisibility);
 win.style.setProperty('--pack',`url("${path('fx/foil-pack.webp')}")`);win.style.setProperty('--tear',`url("${path('fx/foil-tear.webp')}")`);
 win.style.setProperty('--substrate', 'url(' + path('fx/summon-substrate.webp') + ')');
 backgroundVisibility();
 addEventListener('resize',()=>{if(slots.length)relayout();});
-if(testing)window.__ceremony={events,pull,skipAll,reset:()=>{tickets=30;$('#ticket').textContent=tickets;clearRun();},layout,ready:()=>ready,setScreen,state:()=>({screen,pageIndex,selectedIndex,generation,busy,cascading,skipped,anims:anims.size,timers:timers.size,rafs:rafs.size,voices:voices.size,complete:slots.filter(s=>s.complete).length,ids:slots.map(s=>s.data.id),collectable:!btn.fin.hidden}),pause:()=>win.getAnimations({subtree:true}).forEach(a=>a.pause())};
+if(testing)window.__ceremony={events,pull,skipAll,syncFx:()=>fxPainters.forEach(paint=>paint(true)),reset:()=>{tickets=30;$('#ticket').textContent=tickets;clearRun();},layout,ready:()=>ready,setScreen,state:()=>({screen,pageIndex,selectedIndex,generation,busy,cascading,skipped,anims:anims.size,timers:timers.size,rafs:rafs.size,voices:voices.size,complete:slots.filter(s=>s.complete).length,ids:slots.map(s=>s.data.id),collectable:!btn.fin.hidden}),pause:()=>win.getAnimations({subtree:true}).forEach(a=>a.pause())};
 
 
 // Test instrumentation boundary (no window dragging).

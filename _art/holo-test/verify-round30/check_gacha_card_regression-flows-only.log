@@ -1,0 +1,13 @@
+flow False 1 False
+flow False 1 True
+flow False 5 False
+flow False 5 True
+flow False 10 False
+flow False 10 True
+flow True 1 False
+flow True 1 True
+flow True 5 False
+flow True 5 True
+flow True 10 False
+flow True 10 True
+{"pairs": 0, "pairFailures": 0, "gachaStructureFailures": 0, "gachaNameFitFailures": 0, "flowCount": 12}

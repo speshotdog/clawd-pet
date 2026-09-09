@@ -1,0 +1,360 @@
+[
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 1,
+    "width": 420
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 5,
+    "width": 245.031
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 10,
+    "width": 222.219
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 1,
+    "width": 298.656
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 5,
+    "width": 170.078
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 10,
+    "width": 139.672
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 1,
+    "width": 304
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 5,
+    "width": 288
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 10,
+    "width": 288
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "common",
+    "face": 1788912002620,
+    "complete_after_face": 520,
+    "visible_pixels": [
+      699505,
+      693126,
+      688466,
+      438378,
+      0
+    ],
+    "effect_pixels": {},
+    "background_ratio": 0.3125
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "rare",
+    "face": 1788912002620,
+    "complete_after_face": 660,
+    "visible_pixels": [
+      699505,
+      693126,
+      688553,
+      438381,
+      0
+    ],
+    "effect_pixels": {},
+    "background_ratio": 0.37267080745341613
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "epic",
+    "face": 1788912002620,
+    "complete_after_face": 920,
+    "visible_pixels": [
+      699504,
+      693126,
+      688255,
+      437130,
+      0
+    ],
+    "effect_pixels": {},
+    "background_ratio": 0.2557077625570776
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "legendary",
+    "face": 1788912002620,
+    "complete_after_face": 1220,
+    "visible_pixels": [
+      991436,
+      987528,
+      988929,
+      990682,
+      986079
+    ],
+    "effect_pixels": {
+      "fx-substrate-wave": 26765
+    },
+    "background_ratio": 1.0242718446601942
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "mythic",
+    "face": 1788912002620,
+    "complete_after_face": 1560,
+    "visible_pixels": [
+      1044582,
+      983531,
+      992625,
+      993705,
+      993907
+    ],
+    "effect_pixels": {
+      "fx-spectrum-wave": 30746,
+      "fx-counter-wave": 18179
+    },
+    "background_ratio": 0.9169960474308301
+  },
+  {
+    "check": "next-rarity-neutral",
+    "entry": "dev"
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 1,
+    "width": 420
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 5,
+    "width": 245.031
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 10,
+    "width": 222.219
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 1,
+    "width": 298.656
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 5,
+    "width": 170.078
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 10,
+    "width": 139.672
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 1,
+    "width": 304
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 5,
+    "width": 288
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 10,
+    "width": 288
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "common",
+    "face": 1788912002620,
+    "complete_after_face": 520,
+    "visible_pixels": [
+      699505,
+      693126,
+      688466,
+      438378,
+      0
+    ],
+    "effect_pixels": {},
+    "background_ratio": 0.31088082901554404
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "rare",
+    "face": 1788912002620,
+    "complete_after_face": 660,
+    "visible_pixels": [
+      699505,
+      693126,
+      688553,
+      438381,
+      0
+    ],
+    "effect_pixels": {},
+    "background_ratio": 0.37267080745341613
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "epic",
+    "face": 1788912002620,
+    "complete_after_face": 920,
+    "visible_pixels": [
+      699504,
+      693126,
+      688255,
+      437130,
+      0
+    ],
+    "effect_pixels": {},
+    "background_ratio": 0.2557077625570776
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "legendary",
+    "face": 1788912002620,
+    "complete_after_face": 1220,
+    "visible_pixels": [
+      991436,
+      987528,
+      988929,
+      990682,
+      986079
+    ],
+    "effect_pixels": {
+      "fx-substrate-wave": 26765
+    },
+    "background_ratio": 1.0242718446601942
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "mythic",
+    "face": 1788912002620,
+    "complete_after_face": 1560,
+    "visible_pixels": [
+      1044582,
+      983531,
+      992625,
+      993705,
+      993907
+    ],
+    "effect_pixels": {
+      "fx-spectrum-wave": 30746,
+      "fx-counter-wave": 18179
+    },
+    "background_ratio": 0.9169960474308301
+  },
+  {
+    "check": "next-rarity-neutral",
+    "entry": "portable"
+  }
+]
