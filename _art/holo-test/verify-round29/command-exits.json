@@ -1,0 +1,135 @@
+{
+  "source": "Final process exits observed from tool results; not inferred from log text.",
+  "commands": [
+    {
+      "command": "python _art/holo-test/build_deluxe_b.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/build_deluxe_b_standalone.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_ceremony_round28.py --core-only",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_ceremony_round28.py --interaction-only",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_ceremony_edges_round28.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_fx_round28.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_card_regression.py --cards-only",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_card_regression.py --race-only",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_card_regression.py --flows-only",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_ceremony_round29.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_ceremony_round29.py --visual-only",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_ceremony_round29.py --live",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_controls_round29.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_return_round29.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_artifacts_round29.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python _art/holo-test/check_gacha_luminance_round29.py",
+      "exit_code": 0
+    }
+  ],
+  "other": [
+    {
+      "command": "node --check _art/holo-test/ceremony.js",
+      "exit_code": 0
+    },
+    {
+      "command": "python -m py_compile (updated acceptance scripts)",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "git_commit": {
+    "status": "skipped",
+    "exit_code": null,
+    "reason": "Worktree metadata is outside the writable worktree; no permission escalation or push."
+  },
+  "temporary_cleanup": {
+    "status": "rejected before execution",
+    "exit_code": null,
+    "reason": "Automatic approval review: blocked by policy. Two interrupted portable-copy directories retained."
+  },
+  "earlier_unsuccessful_runs": [
+    {
+      "check": "initial builder quoting",
+      "exit_code": 1
+    },
+    {
+      "check": "initial smoke callback",
+      "exit_code": 1
+    },
+    {
+      "check": "initial pre-reveal pixels, unsynchronized CSS background",
+      "exit_code": 1
+    },
+    {
+      "check": "FX center with global perspective",
+      "exit_code": 1
+    },
+    {
+      "check": "touch selected-state expectation",
+      "exit_code": 1
+    },
+    {
+      "check": "live rAF probe wrapper",
+      "exit_code": 1
+    },
+    {
+      "check": "old A5 reset hook scope",
+      "exit_code": 1
+    },
+    {
+      "check": "real-flow hover on occluded fan corner",
+      "exit_code": 1
+    },
+    {
+      "check": "raw frozen-file comparison before CRLF normalization",
+      "exit_code": 1
+    },
+    {
+      "check": "interrupted round29 work-in-progress runs",
+      "exit_code": 1
+    }
+  ]
+}

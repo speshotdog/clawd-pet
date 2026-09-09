@@ -32,3 +32,9 @@ _art/holo-test/verify-round28/*.html
 !_art/holo-test/verify-round28/round28b-pack-1440.png
 !_art/holo-test/verify-round28/dev-drag-card.png
 _art/holo-test/verify-round28/regression/measure-gacha-after.json
+_art/holo-test/verify-round29-*.log
+_art/holo-test/verify-round29/**/*.png
+_art/holo-test/verify-round29/**/*.html
+_art/holo-test/verify-round29/*.png
+_art/holo-test/verify-round29/*.html
+_art/holo-test/verify-round29/**/measure-*.json

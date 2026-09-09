@@ -1,0 +1,4 @@
+idle {'entry': 'dev', 'seconds': [5, 30], 'raf_calls': 0}
+hidden-resume {'entry': 'dev', 'events_during_hidden': 0}
+idle {'entry': 'portable', 'seconds': [5, 30], 'raf_calls': 0}
+hidden-resume {'entry': 'portable', 'events_during_hidden': 0}

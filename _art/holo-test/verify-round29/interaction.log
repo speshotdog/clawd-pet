@@ -1,0 +1,13 @@
+drag-pixels {'entry': 'dev', 'blue_pixels': 0, 'total_pixels': 211770, 'blue_ratio': 0.0, 'selection_ranges': 0}
+interaction {'entry': 'dev', 'before': {'--rx': '0deg', '--ry': '0deg', '--phase': '120deg', '--name-fs': '30.90px'}, 'hover': {'--rx': '0deg', '--ry': '0deg', '--phase': '90.53565769711838deg', '--name-fs': '30.90px'}, 'drag': {'--rx': '0deg', '--ry': '12deg', '--phase': '113.41198583840035deg', '--name-fs': '30.90px'}}
+reduced-motion {'entry': 'dev', 'fade_ms': 180}
+audio {'entry': 'dev'}
+real-idle {'entry': 'dev', 'seconds': [5, 30], 'mutations': 0}
+remembered-audio-cancel {'entry': 'dev', 'voices': 0}
+drag-pixels {'entry': 'portable', 'blue_pixels': 0, 'total_pixels': 211770, 'blue_ratio': 0.0, 'selection_ranges': 0}
+interaction {'entry': 'portable', 'before': {'--rx': '0deg', '--ry': '0deg', '--phase': '120deg', '--name-fs': '30.90px'}, 'hover': {'--rx': '0deg', '--ry': '0deg', '--phase': '90.53565769711838deg', '--name-fs': '30.90px'}, 'drag': {'--rx': '0deg', '--ry': '12deg', '--phase': '113.41198583840035deg', '--name-fs': '30.90px'}}
+reduced-motion {'entry': 'portable', 'fade_ms': 180}
+audio {'entry': 'portable'}
+real-idle {'entry': 'portable', 'seconds': [5, 30], 'mutations': 0}
+remembered-audio-cancel {'entry': 'portable', 'voices': 0}
+size {'bytes': 5107403}

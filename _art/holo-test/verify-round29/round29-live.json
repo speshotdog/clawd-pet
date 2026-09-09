@@ -1,0 +1,30 @@
+[
+  {
+    "check": "idle",
+    "entry": "dev",
+    "seconds": [
+      5,
+      30
+    ],
+    "raf_calls": 0
+  },
+  {
+    "check": "hidden-resume",
+    "entry": "dev",
+    "events_during_hidden": 0
+  },
+  {
+    "check": "idle",
+    "entry": "portable",
+    "seconds": [
+      5,
+      30
+    ],
+    "raf_calls": 0
+  },
+  {
+    "check": "hidden-resume",
+    "entry": "portable",
+    "events_during_hidden": 0
+  }
+]

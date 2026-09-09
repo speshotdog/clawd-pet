@@ -1,0 +1,86 @@
+[
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "tension",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "tear",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "deal",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "before-face",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "after-face",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "return",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "page",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "tension",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "tear",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "deal",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "before-face",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "after-face",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "return",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "page",
+    "repeats": 20
+  }
+]

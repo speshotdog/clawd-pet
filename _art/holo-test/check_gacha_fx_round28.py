@@ -1,4 +1,4 @@
-"""Final external FX depth and center check, including two rows and resize."""
+"""Final external FX depth and center check, including two pages and resize."""
 import json,shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -12,7 +12,7 @@ with sync_playwright() as pw,TemporaryDirectory(dir=OUT,prefix='fx-final-') as t
     for label,file in [('dev',HERE/'deluxe-gacha-b.html'),('portable',copy)]:
         p,errors=open_page(browser,file.as_uri());p.evaluate('window.__clockRender=false')
         start(p,[BY['legendary']]*10);maximum=0;seen=set()
-        for t in range(0,16000,100):
+        for t in range(0,20000,100):
             advance(p,100);p.evaluate('__syncAnimations()')
             if t in [3000,7000]:p.set_viewport_size({'width':1100 if t==3000 else 1280,'height':800 if t==3000 else 900})
             probes=p.evaluate('''()=>[...document.querySelectorAll('.slot.is-revealing')].map(s=>{const c=s.querySelector('.reveal-shell').getBoundingClientRect(),a=s.querySelector('.reveal-anchor').getBoundingClientRect();return {i:s.dataset.i,error:Math.hypot(a.x+a.width/2-c.x-c.width/2,a.y+a.height/2-c.y-c.height/2)/s.offsetWidth,z:getComputedStyle(s.querySelector('.reveal-anchor')).transform}})''')

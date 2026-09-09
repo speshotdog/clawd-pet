@@ -1,0 +1,14 @@
+[
+  {
+    "entry": "dev",
+    "drag_then_skip": "neutral",
+    "early_decode_skip": "complete",
+    "errors": []
+  },
+  {
+    "entry": "portable",
+    "drag_then_skip": "neutral",
+    "early_decode_skip": "complete",
+    "errors": []
+  }
+]

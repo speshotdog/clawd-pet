@@ -12,7 +12,7 @@ with sync_playwright() as pw,TemporaryDirectory(dir=OUT,prefix='edge-portable-')
     for label,file in [('dev',HERE/'deluxe-gacha-b.html'),('portable',copy)]:
         p,errors=open_page(b,file.as_uri());p.evaluate('window.__clockRender=false')
         fixture=[BY['common']]+[BY['mythic']]*9
-        start(p,fixture);advance(p,3450);print(label,'first card done',flush=True)
+        start(p,fixture);advance(p,2700);print(label,'first card done',flush=True)
         assert p.locator('.slot.done').count()==1
         shell=p.locator('.slot').nth(0).locator('.reveal-shell');box=shell.bounding_box()
         x=box['x']+box['width']/2;y=box['y']+box['height']/2

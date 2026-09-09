@@ -1,0 +1,722 @@
+[
+  {
+    "entry": "dev",
+    "rarity": "common",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 26,
+        "card_p95": 192,
+        "ratio": 0.13541666666666666
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 24,
+        "card_p95": 192,
+        "ratio": 0.125
+      }
+    ]
+  },
+  {
+    "entry": "dev",
+    "rarity": "rare",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 26,
+        "card_p95": 161,
+        "ratio": 0.16149068322981366
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 24,
+        "card_p95": 162,
+        "ratio": 0.14814814814814814
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 24,
+        "card_p95": 162,
+        "ratio": 0.14814814814814814
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      }
+    ]
+  },
+  {
+    "entry": "dev",
+    "rarity": "epic",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 26,
+        "card_p95": 206,
+        "ratio": 0.1262135922330097
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 24,
+        "card_p95": 208,
+        "ratio": 0.11538461538461539
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 24,
+        "card_p95": 208,
+        "ratio": 0.11538461538461539
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 24,
+        "card_p95": 209,
+        "ratio": 0.11483253588516747
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 24,
+        "card_p95": 209,
+        "ratio": 0.11483253588516747
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 24,
+        "card_p95": 212,
+        "ratio": 0.11320754716981132
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 24,
+        "card_p95": 212,
+        "ratio": 0.11320754716981132
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 24,
+        "card_p95": 212,
+        "ratio": 0.11320754716981132
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 24,
+        "card_p95": 216,
+        "ratio": 0.1111111111111111
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 24,
+        "card_p95": 212,
+        "ratio": 0.11320754716981132
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 24,
+        "card_p95": 212,
+        "ratio": 0.11320754716981132
+      }
+    ]
+  },
+  {
+    "entry": "dev",
+    "rarity": "legendary",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 42,
+        "card_p95": 203,
+        "ratio": 0.20689655172413793
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 39,
+        "card_p95": 205,
+        "ratio": 0.1902439024390244
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 51,
+        "card_p95": 206,
+        "ratio": 0.24757281553398058
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 57,
+        "card_p95": 206,
+        "ratio": 0.2766990291262136
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 59,
+        "card_p95": 206,
+        "ratio": 0.28640776699029125
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 58,
+        "card_p95": 206,
+        "ratio": 0.2815533980582524
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 50,
+        "card_p95": 206,
+        "ratio": 0.24271844660194175
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 45,
+        "card_p95": 207,
+        "ratio": 0.21739130434782608
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 42,
+        "card_p95": 205,
+        "ratio": 0.2048780487804878
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 42,
+        "card_p95": 207,
+        "ratio": 0.2028985507246377
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 42,
+        "card_p95": 207,
+        "ratio": 0.2028985507246377
+      }
+    ]
+  },
+  {
+    "entry": "dev",
+    "rarity": "mythic",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 39,
+        "card_p95": 253,
+        "ratio": 0.1541501976284585
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 34,
+        "card_p95": 253,
+        "ratio": 0.13438735177865613
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 48,
+        "card_p95": 253,
+        "ratio": 0.18972332015810275
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 50,
+        "card_p95": 253,
+        "ratio": 0.1976284584980237
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 53,
+        "card_p95": 253,
+        "ratio": 0.20948616600790515
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 56,
+        "card_p95": 253,
+        "ratio": 0.22134387351778656
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 52,
+        "card_p95": 253,
+        "ratio": 0.20553359683794467
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 49,
+        "card_p95": 253,
+        "ratio": 0.19367588932806323
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 44,
+        "card_p95": 253,
+        "ratio": 0.17391304347826086
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 43,
+        "card_p95": 253,
+        "ratio": 0.16996047430830039
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 43,
+        "card_p95": 253,
+        "ratio": 0.16996047430830039
+      }
+    ]
+  },
+  {
+    "entry": "portable",
+    "rarity": "common",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 26,
+        "card_p95": 193,
+        "ratio": 0.13471502590673576
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 24,
+        "card_p95": 193,
+        "ratio": 0.12435233160621761
+      }
+    ]
+  },
+  {
+    "entry": "portable",
+    "rarity": "rare",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 26,
+        "card_p95": 160,
+        "ratio": 0.1625
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 24,
+        "card_p95": 160,
+        "ratio": 0.15
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 24,
+        "card_p95": 160,
+        "ratio": 0.15
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 24,
+        "card_p95": 160,
+        "ratio": 0.15
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 24,
+        "card_p95": 162,
+        "ratio": 0.14814814814814814
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 24,
+        "card_p95": 162,
+        "ratio": 0.14814814814814814
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 24,
+        "card_p95": 161,
+        "ratio": 0.14906832298136646
+      }
+    ]
+  },
+  {
+    "entry": "portable",
+    "rarity": "epic",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 26,
+        "card_p95": 206,
+        "ratio": 0.1262135922330097
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 24,
+        "card_p95": 208,
+        "ratio": 0.11538461538461539
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 24,
+        "card_p95": 209,
+        "ratio": 0.11483253588516747
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 24,
+        "card_p95": 209,
+        "ratio": 0.11483253588516747
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 24,
+        "card_p95": 209,
+        "ratio": 0.11483253588516747
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 24,
+        "card_p95": 211,
+        "ratio": 0.11374407582938388
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 24,
+        "card_p95": 211,
+        "ratio": 0.11374407582938388
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 24,
+        "card_p95": 211,
+        "ratio": 0.11374407582938388
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 24,
+        "card_p95": 215,
+        "ratio": 0.11162790697674418
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 24,
+        "card_p95": 212,
+        "ratio": 0.11320754716981132
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 24,
+        "card_p95": 212,
+        "ratio": 0.11320754716981132
+      }
+    ]
+  },
+  {
+    "entry": "portable",
+    "rarity": "legendary",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 42,
+        "card_p95": 203,
+        "ratio": 0.20689655172413793
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 39,
+        "card_p95": 206,
+        "ratio": 0.18932038834951456
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 51,
+        "card_p95": 206,
+        "ratio": 0.24757281553398058
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 57,
+        "card_p95": 206,
+        "ratio": 0.2766990291262136
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 59,
+        "card_p95": 206,
+        "ratio": 0.28640776699029125
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 58,
+        "card_p95": 207,
+        "ratio": 0.28019323671497587
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 50,
+        "card_p95": 207,
+        "ratio": 0.24154589371980675
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 45,
+        "card_p95": 207,
+        "ratio": 0.21739130434782608
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 42,
+        "card_p95": 205,
+        "ratio": 0.2048780487804878
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 42,
+        "card_p95": 207,
+        "ratio": 0.2028985507246377
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 42,
+        "card_p95": 207,
+        "ratio": 0.2028985507246377
+      }
+    ]
+  },
+  {
+    "entry": "portable",
+    "rarity": "mythic",
+    "samples": [
+      {
+        "after_face_ms": 24,
+        "background_p95": 39,
+        "card_p95": 253,
+        "ratio": 0.1541501976284585
+      },
+      {
+        "after_face_ms": 60,
+        "background_p95": 34,
+        "card_p95": 253,
+        "ratio": 0.13438735177865613
+      },
+      {
+        "after_face_ms": 84,
+        "background_p95": 48,
+        "card_p95": 253,
+        "ratio": 0.18972332015810275
+      },
+      {
+        "after_face_ms": 100,
+        "background_p95": 50,
+        "card_p95": 253,
+        "ratio": 0.1976284584980237
+      },
+      {
+        "after_face_ms": 120,
+        "background_p95": 53,
+        "card_p95": 253,
+        "ratio": 0.20948616600790515
+      },
+      {
+        "after_face_ms": 180,
+        "background_p95": 56,
+        "card_p95": 253,
+        "ratio": 0.22134387351778656
+      },
+      {
+        "after_face_ms": 204,
+        "background_p95": 52,
+        "card_p95": 253,
+        "ratio": 0.20553359683794467
+      },
+      {
+        "after_face_ms": 240,
+        "background_p95": 49,
+        "card_p95": 253,
+        "ratio": 0.19367588932806323
+      },
+      {
+        "after_face_ms": 400,
+        "background_p95": 44,
+        "card_p95": 253,
+        "ratio": 0.17391304347826086
+      },
+      {
+        "after_face_ms": 660,
+        "background_p95": 43,
+        "card_p95": 253,
+        "ratio": 0.16996047430830039
+      },
+      {
+        "after_face_ms": 850,
+        "background_p95": 43,
+        "card_p95": 253,
+        "ratio": 0.16996047430830039
+      }
+    ]
+  }
+]

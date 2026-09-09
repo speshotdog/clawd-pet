@@ -10,9 +10,9 @@ from playwright.sync_api import sync_playwright
 from pool_data import pool
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / 'verify-round28' / 'regression'
+OUT = HERE / 'verify-round29' / 'regression'
 OUT.mkdir(parents=True,exist_ok=True)
-WIDTHS = [80, 102, 150, 230, 290]
+WIDTHS = [80, 102, 150, 230, 290, 380, 420]
 MEASURE = r"""c => {
  const cs=getComputedStyle(c), cr=c.getBoundingClientRect();
  const sels=['.card-lift','.card-inner','.card-face','.face-stock','.face-depth-bg','.face-art','.art-media','.art-media img','.face-frame','.frame-material','.face-plate','.face-text','.face-gem','.face-name','.face-rarity'];
@@ -87,7 +87,7 @@ def check_skin(ctx):
                 rows.append(dict(entry=entry,rarity=rarity,width=w,values=row))
         p.close()
     (OUT/'skin.json').write_text(json.dumps(rows,indent=2),encoding='utf-8')
-    print('skin: 45 page/rarity/width cases, 8 proportional properties within 0.3 percentage points',flush=True)
+    print('skin:',len(rows),'page/rarity/width cases, 8 proportional properties within 0.3 percentage points',flush=True)
 
 
 def check_remade_portable(ctx):
@@ -115,56 +115,57 @@ def main():
             from check_reveal_timing import check_timing
             check_timing(ctx,HERE,OUT,repeats=1 if '--race-before' in sys.argv else 20,portable_values=(False,) if '--race-before' in sys.argv else (False,True),evidence='timing-first-failure.json' if '--race-before' in sys.argv else 'timing-after.json')
             return 0
-        check_skin(ctx)
-        if '--skin-only' not in sys.argv:check_remade_portable(ctx)
-        if '--skin-only' in sys.argv:return 0
-        g,r,d=[ctx.new_page() for _ in range(3)]
-        for label,p in [('gacha',g),('remade',r),('demo',d)]:
-            p.on('pageerror',lambda e,l=label:result['errors'].append([l,str(e)]))
-        # Capture the exact resolver/masks actually passed by makeFace on a real draw.
-        g.goto((HERE/'deluxe-gacha-b.html').as_uri())
-        g.evaluate("()=>{const f=HoloCardFace.create;HoloCardFace.create=function(d,o){window.__opts=o;return f(d,o)}}")
-        g.locator('#p1').click();g.wait_for_function('window.__opts!==undefined');g.wait_for_timeout(3500)
-        g.evaluate("()=>{for(const e of document.body.children)e.style.display='none';document.body.style.background='#07080d';document.body.style.padding='0'}")
-        prepare(r,'cards-remade.html');prepare(d,'demo.html')
-        for w in WIDTHS:
-            for card in pool():
-                ref=r
-                a=place(ref,card,w);b=place(g,card,w,True)
-                demo=place(d,card,w) if ref!=d else a
-                for measured in [a,b,demo]:
-                    expected=dict(frame=12/262*100,inset=(12 if card['rarity'] in ['legendary','mythic'] else 10)/262*100,material=12/262*100,mask=100,background=300,plate=5/262*100,gem=3/262*100,glyph=14/262*100)
-                    for key,value in expected.items():assert abs(measured['skin'][key]-value)<.3,(card['id'],w,key,measured['skin'])
-                    for sel in ['.face-plate','.face-text']:
-                        st=measured['layers'][sel]['styles']
-                        for prop,denom,target in [('left',w,4.4),('right',w,4.4),('bottom',w*1.4,3.4),('height',w*1.4,16.2)]:assert abs(float(st[prop].removesuffix('px'))/denom*100-target)<.03,(card['id'],w,sel,prop,st[prop])
-                row={'demoComparison':compare(demo,b),'id':card['id'],'width':w,'reference':'cards-remade.html','referenceMeasurement':a,'gachaMeasurement':b,**compare(a,b)}
-                for measured in [a,b,demo]:
-                    assert measured['structure'] and not measured['broken'],(card['id'],w,measured['structure'],measured['broken'])
-                    assert all(x['amount']<=1.5 for x in measured['overflow']),(card['id'],w,measured['overflow'])
-                if card['id'] in ['rocketdog','mieshi','wanwumythic','foxfriend','dino']:
-                    imgs=[]
-                    for label,p in [('reference',ref),('gacha',g)]:
-                        buf=p.screenshot(clip={'x':96,'y':96,'width':w+8,'height':int(w*1.4)+8})
-                        (OUT/f'{card["id"]}-{w}-{label}.png').write_bytes(buf);imgs.append(Image.open(BytesIO(buf)).convert('RGB'))
-                    delta=ImageChops.difference(*imgs);row['pixelMAE']=sum(ImageStat.Stat(delta).mean)/3
-                    row['differentPixels']=sum(1 for x in delta.get_flattened_data() if x!=(0,0,0))
-                result['pairs'].append(row)
-            print('measured width',w,flush=True)
-            (OUT/'measure-gacha-after.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
-        if '--cards-only' in sys.argv:
-            failures=[x for x in result['pairs'] if not x['pass'] or not x['demoComparison']['pass']]
-            print('cross-page cases:',len(result['pairs']),'failures:',len(failures),flush=True)
-            return int(bool(failures or result['errors']))
-        # Same-width long-name stress and restore, no production pool mutations.
-        fixture=dict(next(c for c in pool() if c['id']=='dino'))
-        fixture['name']='這是一張用來驗證縮字下限與恢復能力的超長卡片名稱'
-        for w in [290,80,290]:
-            result['stress'].append(place(g,fixture,w,True))
-        # Refit must use content width even under whole-card scale.
-        place(g,next(c for c in pool() if c['id']=='dino'),102,True)
-        g.evaluate("()=>{__host.style.scale='1.13';HoloCardFace.refit()}")
-        result['scaledRefit']=g.locator('body > .slot .hcard').evaluate(MEASURE)
+        if '--flows-only' not in sys.argv:
+            check_skin(ctx)
+            if '--skin-only' not in sys.argv:check_remade_portable(ctx)
+            if '--skin-only' in sys.argv:return 0
+            g,r,d=[ctx.new_page() for _ in range(3)]
+            for label,p in [('gacha',g),('remade',r),('demo',d)]:
+                p.on('pageerror',lambda e,l=label:result['errors'].append([l,str(e)]))
+            # Capture the exact resolver/masks actually passed by makeFace on a real draw.
+            g.goto((HERE/'deluxe-gacha-b.html').as_uri())
+            g.evaluate("()=>{const f=HoloCardFace.create;HoloCardFace.create=function(d,o){window.__opts=o;return f(d,o)}}")
+            g.locator('#p1').click();g.wait_for_function('window.__opts!==undefined');g.wait_for_timeout(3500)
+            g.evaluate("()=>{for(const e of document.body.children)e.style.display='none';document.body.style.background='#07080d';document.body.style.padding='0'}")
+            prepare(r,'cards-remade.html');prepare(d,'demo.html')
+            for w in WIDTHS:
+                for card in pool():
+                    ref=r
+                    a=place(ref,card,w);b=place(g,card,w,True)
+                    demo=place(d,card,w) if ref!=d else a
+                    for measured in [a,b,demo]:
+                        expected=dict(frame=12/262*100,inset=(12 if card['rarity'] in ['legendary','mythic'] else 10)/262*100,material=12/262*100,mask=100,background=300,plate=5/262*100,gem=3/262*100,glyph=14/262*100)
+                        for key,value in expected.items():assert abs(measured['skin'][key]-value)<.3,(card['id'],w,key,measured['skin'])
+                        for sel in ['.face-plate','.face-text']:
+                            st=measured['layers'][sel]['styles']
+                            for prop,denom,target in [('left',w,4.4),('right',w,4.4),('bottom',w*1.4,3.4),('height',w*1.4,16.2)]:assert abs(float(st[prop].removesuffix('px'))/denom*100-target)<.03,(card['id'],w,sel,prop,st[prop])
+                    row={'demoComparison':compare(demo,b),'id':card['id'],'width':w,'reference':'cards-remade.html','referenceMeasurement':a,'gachaMeasurement':b,**compare(a,b)}
+                    for measured in [a,b,demo]:
+                        assert measured['structure'] and not measured['broken'],(card['id'],w,measured['structure'],measured['broken'])
+                        assert all(x['amount']<=1.5 for x in measured['overflow']),(card['id'],w,measured['overflow'])
+                    if card['id'] in ['rocketdog','mieshi','wanwumythic','foxfriend','dino']:
+                        imgs=[]
+                        for label,p in [('reference',ref),('gacha',g)]:
+                            buf=p.screenshot(clip={'x':96,'y':96,'width':w+8,'height':int(w*1.4)+8})
+                            (OUT/f'{card["id"]}-{w}-{label}.png').write_bytes(buf);imgs.append(Image.open(BytesIO(buf)).convert('RGB'))
+                        delta=ImageChops.difference(*imgs);row['pixelMAE']=sum(ImageStat.Stat(delta).mean)/3
+                        row['differentPixels']=sum(1 for x in delta.get_flattened_data() if x!=(0,0,0))
+                    result['pairs'].append(row)
+                print('measured width',w,flush=True)
+                (OUT/('flows-final.json' if '--flows-only' in sys.argv else 'measure-gacha-after.json')).write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+            if '--cards-only' in sys.argv:
+                failures=[x for x in result['pairs'] if not x['pass'] or not x['demoComparison']['pass']]
+                print('cross-page cases:',len(result['pairs']),'failures:',len(failures),flush=True)
+                return int(bool(failures or result['errors']))
+            # Same-width long-name stress and restore, no production pool mutations.
+            fixture=dict(next(c for c in pool() if c['id']=='dino'))
+            fixture['name']='這是一張用來驗證縮字下限與恢復能力的超長卡片名稱'
+            for w in [290,80,290]:
+                result['stress'].append(place(g,fixture,w,True))
+            # Refit must use content width even under whole-card scale.
+            place(g,next(c for c in pool() if c['id']=='dino'),102,True)
+            g.evaluate("()=>{__host.style.scale='1.13';HoloCardFace.refit()}")
+            result['scaledRefit']=g.locator('body > .slot .hcard').evaluate(MEASURE)
         # Real controls, untouched pages and randomness; normal and skip paths.
         for portable in [False,True]:
             with TemporaryDirectory(prefix='gacha-verify-',dir=OUT) as tmp:
@@ -175,10 +176,10 @@ def main():
                 p.on('pageerror',lambda e:errs.append(str(e)))
                 p.on('console',lambda m:errs.append(m.text) if m.type=='error' else None)
                 p.on('requestfailed',lambda q:failed.append(q.url))
-                p.goto(source.as_uri())
+                p.goto(source.as_uri()+"?ceremony-test")
                 for n in [1,5,10]:
                     for skip in [False,True]:
-                        p.locator('#reset').click();p.locator(f'#p{n}').click()
+                        p.evaluate('__ceremony.reset()');p.locator(f'#p{n}').click()
                         p.wait_for_function(f'document.querySelectorAll(".slot").length==={n}')
                         if skip:
                             p.wait_for_timeout(1200);p.locator('#stage').click(position={'x':15,'y':100})
@@ -187,30 +188,31 @@ def main():
                         p.wait_for_function('!document.querySelector("#finish").hidden',timeout=30000)
                         p.mouse.move(1,1);settle(p)
                         cards=p.locator('.slot .hcard').evaluate_all('(cs)=>cs.map('+MEASURE+')')
-                        first=p.locator('.slot .hcard').first
-                        before=first.evaluate(MEASURE);first.hover(position={'x':20,'y':20});p.wait_for_timeout(250);hover=first.evaluate(MEASURE)
+                        first=p.locator('.slot:not(.page-away) .hcard').last
+                        before=first.evaluate(MEASURE);first.hover();p.wait_for_timeout(250);hover=first.evaluate(MEASURE)
                         p.mouse.move(1,1);p.wait_for_timeout(250)
                         if n==10 and not skip:p.screenshot(path=str(OUT/f'ten-pull-{portable}.png'))
                         p.set_viewport_size({'width':1100,'height':800});p.wait_for_timeout(250)
                         resized=p.locator('.slot .hcard').evaluate_all('(cs)=>cs.map('+MEASURE+')')
                         finish_visible=p.locator('#finish').is_visible()
                         if finish_visible:
-                            p.locator('#finish').click();p.wait_for_timeout(150)
+                            p.locator('#finish').click();p.wait_for_timeout(250)
                         else:
                             p.screenshot(path=str(OUT/f'finish-hidden-{portable}-{n}-{skip}.png'))
                         assert all(before['vars'][k]==hover['vars'][k] for k in ['--rx','--ry','--ax','--ay','--bx','--by']),(portable,n,skip,before['vars'],hover['vars'])
                         assert before['vars']['--phase']!=hover['vars']['--phase'],(portable,n,skip,'foil did not respond')
                         assert all(c['structure'] and not c['broken'] for c in cards),(portable,n,skip,'broken card')
                         result['flows'].append({'portable':portable,'n':n,'skip':skip,'cards':cards,'hoverBefore':before['vars'],'hoverAfter':hover['vars'],'resized':resized,'finishVisible':finish_visible,'collected':p.locator('.slot').count()==0,'errors':list(errs),'failedRequests':list(failed)})
-                        (OUT/'measure-gacha-after.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+                        (OUT/('flows-final.json' if '--flows-only' in sys.argv else 'measure-gacha-after.json')).write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
                         p.set_viewport_size(result['viewport'])
                         print('flow',portable,n,skip,flush=True)
                 p.close()
-        from check_reveal_timing import check_timing
-        result['fixedTiming']=check_timing(ctx,HERE,OUT)
+        if '--flows-only' not in sys.argv:
+            from check_reveal_timing import check_timing
+            result['fixedTiming']=check_timing(ctx,HERE,OUT)
         browser.close()
     result['summary']={'pairs':len(result['pairs']),'pairFailures':sum(not x['pass'] or not x['demoComparison']['pass'] for x in result['pairs']),'gachaStructureFailures':sum(not x['gachaMeasurement']['structure'] for x in result['pairs']),'gachaNameFitFailures':sum(x['gachaMeasurement']['nameFits']=='false' for x in result['pairs']),'flowCount':len(result['flows'])}
-    (OUT/'measure-gacha-after.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+    (OUT/('flows-final.json' if '--flows-only' in sys.argv else 'measure-gacha-after.json')).write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps(result['summary'],ensure_ascii=False))
     return 1 if result['summary']['pairFailures'] or result['summary']['gachaStructureFailures'] or result['summary']['gachaNameFitFailures'] or result['errors'] or any(not f['collected'] or f['errors'] or f['failedRequests'] for f in result['flows']) else 0
 

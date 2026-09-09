@@ -1,0 +1,23 @@
+no-preview {'entry': 'dev', 'samples': 13, 'variants': 3, 'max_pixel_difference': 0}
+normal {'entry': 'dev', 'n': 1, 'prelude_ms': 1160}
+normal {'entry': 'dev', 'n': 5, 'prelude_ms': 1440}
+normal {'entry': 'dev', 'n': 10, 'prelude_ms': 1790}
+A5-skip {'entry': 'dev', 'phase': 'prelude', 'repeats': 20}
+A5-skip {'entry': 'dev', 'phase': 'tear', 'repeats': 20}
+A5-skip {'entry': 'dev', 'phase': 'wait', 'repeats': 20}
+A5-skip {'entry': 'dev', 'phase': 'last-before', 'repeats': 20}
+A5-skip {'entry': 'dev', 'phase': 'last-after', 'repeats': 20}
+A5-skip {'entry': 'dev', 'phase': 'front', 'repeats': 20}
+A5-skip {'entry': 'dev', 'phase': 'return', 'repeats': 20}
+no-preview {'entry': 'portable', 'samples': 13, 'variants': 3, 'max_pixel_difference': 0}
+normal {'entry': 'portable', 'n': 1, 'prelude_ms': 1160}
+normal {'entry': 'portable', 'n': 5, 'prelude_ms': 1440}
+normal {'entry': 'portable', 'n': 10, 'prelude_ms': 1790}
+A5-skip {'entry': 'portable', 'phase': 'prelude', 'repeats': 20}
+A5-skip {'entry': 'portable', 'phase': 'tear', 'repeats': 20}
+A5-skip {'entry': 'portable', 'phase': 'wait', 'repeats': 20}
+A5-skip {'entry': 'portable', 'phase': 'last-before', 'repeats': 20}
+A5-skip {'entry': 'portable', 'phase': 'last-after', 'repeats': 20}
+A5-skip {'entry': 'portable', 'phase': 'front', 'repeats': 20}
+A5-skip {'entry': 'portable', 'phase': 'return', 'repeats': 20}
+size {'bytes': 5107403}

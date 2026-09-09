@@ -1,0 +1,476 @@
+[
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 1,
+    "width": 420
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 5,
+    "width": 380
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 10,
+    "width": 380
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 1,
+    "width": 298.656
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 5,
+    "width": 270.219
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 10,
+    "width": 270.219
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 1,
+    "width": 304
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 5,
+    "width": 288
+  },
+  {
+    "check": "layout",
+    "entry": "dev",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 10,
+    "width": 288
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "common",
+    "face": 1788912002480,
+    "complete_after_face": 520,
+    "visible_pixels": [
+      1251,
+      0,
+      0,
+      0,
+      0
+    ],
+    "effect_pixels": {
+      "fx-confirm-ring": 1251
+    },
+    "background_ratio": 0.13020833333333334
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "rare",
+    "face": 1788912002480,
+    "complete_after_face": 660,
+    "visible_pixels": [
+      5026,
+      1620,
+      0,
+      0,
+      0
+    ],
+    "effect_pixels": {
+      "fx-rare-ring": 4753,
+      "fx-flake": 273
+    },
+    "background_ratio": 0.15527950310559005
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "epic",
+    "face": 1788912002480,
+    "complete_after_face": 920,
+    "visible_pixels": [
+      5784,
+      8041,
+      3696,
+      0,
+      0
+    ],
+    "effect_pixels": {
+      "fx-epic-ring": 3674,
+      "fx-broken-ring": 3773,
+      "fx-flake": 939
+    },
+    "background_ratio": 0.1506849315068493
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "legendary",
+    "face": 1788912002480,
+    "complete_after_face": 1220,
+    "visible_pixels": [
+      17417,
+      32201,
+      13564,
+      0,
+      0
+    ],
+    "effect_pixels": {
+      "fx-legendary-ring": 9033,
+      "fx-local-reflection": 4319,
+      "fx-substrate-wave": 24094,
+      "fx-flake": 1929,
+      "fx-afterglow": 277
+    },
+    "background_ratio": 0.3786407766990291
+  },
+  {
+    "check": "five-tier",
+    "entry": "dev",
+    "rarity": "mythic",
+    "face": 1788912002480,
+    "complete_after_face": 1560,
+    "visible_pixels": [
+      438169,
+      32917,
+      34036,
+      9626,
+      0
+    ],
+    "effect_pixels": {
+      "fx-mythic-ring": 4883,
+      "fx-local-reflection": 437703,
+      "fx-spectrum-wave": 24310,
+      "fx-counter-wave": 17113,
+      "fx-flake": 2288
+    },
+    "background_ratio": 0.3438735177865613
+  },
+  {
+    "check": "next-rarity-neutral",
+    "entry": "dev"
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "tension",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "tear",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "deal",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "before-face",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "after-face",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "return",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "dev",
+    "phase": "page",
+    "repeats": 20
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 1,
+    "width": 420
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 5,
+    "width": 380
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1440,
+      900
+    ],
+    "n": 10,
+    "width": 380
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 1,
+    "width": 298.656
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 5,
+    "width": 270.219
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      1024,
+      640
+    ],
+    "n": 10,
+    "width": 270.219
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 1,
+    "width": 304
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 5,
+    "width": 288
+  },
+  {
+    "check": "layout",
+    "entry": "portable",
+    "viewport": [
+      390,
+      844
+    ],
+    "n": 10,
+    "width": 288
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "common",
+    "face": 1788912002480,
+    "complete_after_face": 520,
+    "visible_pixels": [
+      1251,
+      0,
+      0,
+      0,
+      0
+    ],
+    "effect_pixels": {
+      "fx-confirm-ring": 1251
+    },
+    "background_ratio": 0.12953367875647667
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "rare",
+    "face": 1788912002480,
+    "complete_after_face": 660,
+    "visible_pixels": [
+      5026,
+      1620,
+      0,
+      0,
+      0
+    ],
+    "effect_pixels": {
+      "fx-rare-ring": 4753,
+      "fx-flake": 273
+    },
+    "background_ratio": 0.15527950310559005
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "epic",
+    "face": 1788912002480,
+    "complete_after_face": 920,
+    "visible_pixels": [
+      5784,
+      8041,
+      3696,
+      0,
+      0
+    ],
+    "effect_pixels": {
+      "fx-epic-ring": 3674,
+      "fx-broken-ring": 3773,
+      "fx-flake": 939
+    },
+    "background_ratio": 0.1506849315068493
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "legendary",
+    "face": 1788912002480,
+    "complete_after_face": 1220,
+    "visible_pixels": [
+      17417,
+      32201,
+      13564,
+      0,
+      0
+    ],
+    "effect_pixels": {
+      "fx-legendary-ring": 9033,
+      "fx-local-reflection": 4319,
+      "fx-substrate-wave": 24094,
+      "fx-flake": 1929,
+      "fx-afterglow": 277
+    },
+    "background_ratio": 0.3786407766990291
+  },
+  {
+    "check": "five-tier",
+    "entry": "portable",
+    "rarity": "mythic",
+    "face": 1788912002480,
+    "complete_after_face": 1560,
+    "visible_pixels": [
+      438169,
+      32917,
+      34036,
+      9626,
+      0
+    ],
+    "effect_pixels": {
+      "fx-mythic-ring": 4883,
+      "fx-local-reflection": 437703,
+      "fx-spectrum-wave": 24310,
+      "fx-counter-wave": 17113,
+      "fx-flake": 2288
+    },
+    "background_ratio": 0.3438735177865613
+  },
+  {
+    "check": "next-rarity-neutral",
+    "entry": "portable"
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "tension",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "tear",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "deal",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "before-face",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "after-face",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "return",
+    "repeats": 20
+  },
+  {
+    "check": "skip20",
+    "entry": "portable",
+    "phase": "page",
+    "repeats": 20
+  }
+]

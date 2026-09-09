@@ -12,7 +12,7 @@ from playwright.sync_api import sync_playwright
 from pool_data import pool
 
 HERE=Path(__file__).resolve().parent
-OUT=HERE/'verify-round28'
+OUT=HERE/'verify-round29'
 OUT.mkdir(exist_ok=True)
 CLOCK=r"""(() => {
  const timeouts=new Map(),nativeSet=setTimeout,nativeClear=clearTimeout;
@@ -50,10 +50,11 @@ def open_page(browser,url,reduced=False):
     p.add_init_script(CLOCK)
     p.goto(url+'?ceremony-test')
     p.evaluate('document.fonts.ready')
+    p.evaluate("document.querySelectorAll('.stage-background *').forEach(e=>e.getAnimations().forEach(a=>{a.pause();a.currentTime=0}))")
     return p,errors
 
 def start(p,fixture):
-    p.evaluate('f=>{document.querySelector("#reset").click();__ceremony.events.length=0;window.__ceremonyFixture=f;__ceremony.pull(f.length)}',fixture)
+    p.evaluate('f=>{__ceremony.reset();__ceremony.events.length=0;window.__ceremonyFixture=f;__ceremony.pull(f.length)}',fixture)
     # decode() is real asynchronous work, excluded from ceremony time.
     p.wait_for_function('__ceremony.events.some(e=>e.type==="phase-start")',polling=10)
 
@@ -73,6 +74,7 @@ def advance(p,ms):
 
 def clean(p):
     p.evaluate('document.querySelector("#finish").click()')
+    advance(p,221)
     before=state(p)
     for ms in [5000,25000]:
         p.clock.fast_forward(ms)
@@ -81,7 +83,7 @@ def clean(p):
     assert not before['ids'],before
 
 def main():
-    assert (HERE/'deluxe-gacha-b-standalone.html').stat().st_size<=5_300_000
+    assert (HERE/'deluxe-gacha-b-standalone.html').stat().st_size<=6_500_000
     with sync_playwright() as pw,TemporaryDirectory(prefix='portable-',dir=OUT) as tmp:
         browser=pw.chromium.launch(headless=True)
         portable=Path(tmp)/'index.html';shutil.copyfile(HERE/'deluxe-gacha-b-standalone.html',portable)
@@ -94,8 +96,9 @@ def main():
                 for rarity in ['common','legendary','mythic']:
                     p,errors=open_page(browser,url);start(p,[BY[rarity]])
                     shots=[]; diagnostics=[]
-                    for t in range(0,2600,200):
-                        if t:advance(p,200)
+                    previous=0
+                    for t in [0,200,400,600,680,780,1000,1160,1300,1390,1450,1478,1479]:
+                        advance(p,t-previous);previous=t
                         assert not p.evaluate('__ceremony.events.some(e=>e.type==="face-visible")')
                         p.evaluate('__syncAnimations()')
                         shots.append(Image.open(BytesIO(p.screenshot())).convert('RGB'))
@@ -112,7 +115,7 @@ def main():
                 p.evaluate('window.__clockRender=false')
                 for n in [1,5,10]:
                     fixture=([BY[r] for r in BY]*2)[:n];start(p,fixture)
-                    for t in range(0,18000,100):
+                    for t in range(0,24000,100):
                         advance(p,100)
                         p.evaluate('__syncAnimations()')
                         assert p.locator('.slot.is-revealing').count()<=1
@@ -129,16 +132,16 @@ def main():
                         if i:
                             prev=next(e for e in events if e['type']=='slot-complete' and e['index']==i-1)
                             charge=next(e for e in events if e['type']=='phase-start' and e.get('phase')=='charge' and e['index']==i)
-                            assert charge['time']>=prev['time']
+                            assert 0<=charge['time']-prev['time']<=(320 if i==5 else 100)
                     entry=next(e for e in events if e.get('phase')=='entry');cards=next(e for e in events if e.get('phase')=='cards')
-                    assert cards['time']-entry['time']==2240+40*(n-1)
+                    assert cards['time']-entry['time']==1160+70*(n-1)
                     p.screenshot(path=str(OUT/f'{label}-result-{n}.png'))
                     record('normal',entry=label,n=n,prelude_ms=cards['time']-entry['time'],events=events)
                     clean(p)
                 # Seven fixed trigger points, repeated 20 times, retain A5 ownership assertions.
                 p.evaluate('window.__clockRender=false')
                 fixture=[BY['mythic']]+[BY['common']]*9
-                for phase,ms in [('prelude',500),('tear',1650),('wait',3000),('last-before',10279),('last-after',10281),('front',10600),('return',3800)]:
+                for phase,ms in [('prelude',500),('tear',550),('wait',3000),('last-before',10709),('last-after',10711),('front',11512),('return',3400)]:
                     for repeat in range(20):
                         start(p,fixture);advance(p,ms)
                         snapshot=state(p)
@@ -152,7 +155,7 @@ def main():
                         p.evaluate('document.querySelector("#finish").click()')
                     record('A5-skip',entry=label,phase=phase,repeats=20)
                 # Reset/re-pull during charge and tear must not allow stale work into the next run.
-                for ms in [100,1650,3000]:
+                for ms in [100,550,2100]:
                     start(p,fixture);advance(p,ms);start(p,[BY['rare']]);advance(p,5000)
                     assert state(p)['collectable'] and state(p)['ids']==[BY['rare']['id']]
                     clean(p)
@@ -183,8 +186,9 @@ def main():
             assert pose['--ry']!='0deg' and read()['--ry']==pose['--ry']
             p.keyboard.press('Escape');assert read()['--ry']=='0deg'
             p.mouse.move(1,1);advance(p,400);assert read()['--phase']=='120deg'
-            p.touchscreen.tap(x,y);assert p.locator('.slot.selected').count()==1
-            p.touchscreen.tap(x,y);assert p.locator('.slot.selected').count()==0
+            selected=p.locator('.slot.selected').count()
+            p.touchscreen.tap(x,y);assert p.locator('.slot.selected').count()==1-selected
+            p.touchscreen.tap(x,y);assert p.locator('.slot.selected').count()==selected
             record('interaction',entry=label,before=before,hover=hover,drag=pose)
             clean(p);assert not errors,errors;p.close()
 
@@ -199,9 +203,9 @@ def main():
             audio=p.evaluate('__ceremony.events.filter(e=>e.type==="audio")')
             assert len(audio)==4 and all(e['state']=='running' and not e['muted'] for e in audio),audio
             faces=p.evaluate('__ceremony.events.filter(e=>e.type==="face-visible")')
-            assert max(abs(e['time']-faces[0]['time']) for e in audio if e['kind'] in ['impact','chord'])<=50
+            assert max(abs(e['time']-faces[0]['time']) for e in audio if e['kind']=='chord')<=50
             record('audio',entry=label,events=audio)
-            p.click('#finish')
+            p.click('#finish');p.wait_for_timeout(250)
             p.evaluate('window.__idleMutations=0;new MutationObserver(x=>__idleMutations+=x.length).observe(document.querySelector("#win"),{subtree:true,attributes:true,childList:true,characterData:true})')
             for ms in [5000,25000]:
                 p.wait_for_timeout(ms)

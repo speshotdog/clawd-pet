@@ -1,0 +1,1073 @@
+[
+  {
+    "entry": "demo.html",
+    "rarity": "rare",
+    "width": 80,
+    "values": {
+      "frame": 4.580150000000001,
+      "inset": 3.8168,
+      "material": 4.580150000000001,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.14503875,
+      "glyph": 5.343512500000001,
+      "border": 1.25,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "rare",
+    "width": 102,
+    "values": {
+      "frame": 4.580156862745098,
+      "inset": 3.816794117647059,
+      "material": 4.580156862745098,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908392156862745,
+      "gem": 1.1450392156862745,
+      "glyph": 5.3435098039215685,
+      "border": 0.9803921568627451,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "rare",
+    "width": 150,
+    "values": {
+      "frame": 4.5801533333333335,
+      "inset": 3.8167933333333326,
+      "material": 4.5801533333333335,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.1450399999999998,
+      "glyph": 5.343513333333333,
+      "border": 0.6666666666666667,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "rare",
+    "width": 230,
+    "values": {
+      "frame": 4.580173913043478,
+      "inset": 3.8167956521739126,
+      "material": 4.580173913043478,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908395652173913,
+      "gem": 1.1450391304347824,
+      "glyph": 5.343521739130435,
+      "border": 0.43478260869565216,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "rare",
+    "width": 290,
+    "values": {
+      "frame": 4.580137931034483,
+      "inset": 3.816793103448276,
+      "material": 4.580137931034483,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908396551724138,
+      "gem": 1.1450379310344827,
+      "glyph": 5.34351724137931,
+      "border": 0.3448275862068966,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "rare",
+    "width": 380,
+    "values": {
+      "frame": 4.580157894736842,
+      "inset": 3.81678947368421,
+      "material": 4.580157894736842,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083973684210527,
+      "gem": 1.1450394736842104,
+      "glyph": 5.3435,
+      "border": 0.2631578947368421,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "rare",
+    "width": 420,
+    "values": {
+      "frame": 4.580142857142857,
+      "inset": 3.8167857142857144,
+      "material": 4.580142857142857,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083976190476188,
+      "gem": 1.1450380952380954,
+      "glyph": 5.3435,
+      "border": 0.2380952380952381,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "legendary",
+    "width": 80,
+    "values": {
+      "frame": 4.580150000000001,
+      "inset": 4.580150000000001,
+      "material": 4.580150000000001,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.14503875,
+      "glyph": 5.343512500000001,
+      "border": 1.25,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "legendary",
+    "width": 102,
+    "values": {
+      "frame": 4.580156862745098,
+      "inset": 4.580156862745098,
+      "material": 4.580156862745098,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908392156862745,
+      "gem": 1.1450392156862745,
+      "glyph": 5.3435098039215685,
+      "border": 0.9803921568627451,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "legendary",
+    "width": 150,
+    "values": {
+      "frame": 4.5801533333333335,
+      "inset": 4.5801533333333335,
+      "material": 4.5801533333333335,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.1450399999999998,
+      "glyph": 5.343513333333333,
+      "border": 0.6666666666666667,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "legendary",
+    "width": 230,
+    "values": {
+      "frame": 4.580173913043478,
+      "inset": 4.580173913043478,
+      "material": 4.580173913043478,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908395652173913,
+      "gem": 1.1450391304347824,
+      "glyph": 5.343521739130435,
+      "border": 0.43478260869565216,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "legendary",
+    "width": 290,
+    "values": {
+      "frame": 4.580137931034483,
+      "inset": 4.580137931034483,
+      "material": 4.580137931034483,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908396551724138,
+      "gem": 1.1450379310344827,
+      "glyph": 5.34351724137931,
+      "border": 0.3448275862068966,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "legendary",
+    "width": 380,
+    "values": {
+      "frame": 4.580157894736842,
+      "inset": 4.580157894736842,
+      "material": 4.580157894736842,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083973684210527,
+      "gem": 1.1450394736842104,
+      "glyph": 5.3435,
+      "border": 0.2631578947368421,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "legendary",
+    "width": 420,
+    "values": {
+      "frame": 4.580142857142857,
+      "inset": 4.580142857142857,
+      "material": 4.580142857142857,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083976190476188,
+      "gem": 1.1450380952380954,
+      "glyph": 5.3435,
+      "border": 0.2380952380952381,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "mythic",
+    "width": 80,
+    "values": {
+      "frame": 4.580150000000001,
+      "inset": 4.580150000000001,
+      "material": 4.580150000000001,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.14503875,
+      "glyph": 5.343512500000001,
+      "border": 1.25,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "mythic",
+    "width": 102,
+    "values": {
+      "frame": 4.580156862745098,
+      "inset": 4.580156862745098,
+      "material": 4.580156862745098,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908392156862745,
+      "gem": 1.1450392156862745,
+      "glyph": 5.3435098039215685,
+      "border": 0.9803921568627451,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "mythic",
+    "width": 150,
+    "values": {
+      "frame": 4.5801533333333335,
+      "inset": 4.5801533333333335,
+      "material": 4.5801533333333335,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.1450399999999998,
+      "glyph": 5.343513333333333,
+      "border": 0.6666666666666667,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "mythic",
+    "width": 230,
+    "values": {
+      "frame": 4.580173913043478,
+      "inset": 4.580173913043478,
+      "material": 4.580173913043478,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908395652173913,
+      "gem": 1.1450391304347824,
+      "glyph": 5.343521739130435,
+      "border": 0.43478260869565216,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "mythic",
+    "width": 290,
+    "values": {
+      "frame": 4.580137931034483,
+      "inset": 4.580137931034483,
+      "material": 4.580137931034483,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908396551724138,
+      "gem": 1.1450379310344827,
+      "glyph": 5.34351724137931,
+      "border": 0.3448275862068966,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "mythic",
+    "width": 380,
+    "values": {
+      "frame": 4.580157894736842,
+      "inset": 4.580157894736842,
+      "material": 4.580157894736842,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083973684210527,
+      "gem": 1.1450394736842104,
+      "glyph": 5.3435,
+      "border": 0.2631578947368421,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "demo.html",
+    "rarity": "mythic",
+    "width": 420,
+    "values": {
+      "frame": 4.580142857142857,
+      "inset": 4.580142857142857,
+      "material": 4.580142857142857,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083976190476188,
+      "gem": 1.1450380952380954,
+      "glyph": 5.3435,
+      "border": 0.2380952380952381,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "rare",
+    "width": 80,
+    "values": {
+      "frame": 4.580150000000001,
+      "inset": 3.8168,
+      "material": 4.580150000000001,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.14503875,
+      "glyph": 5.343512500000001,
+      "border": 1.25,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "rare",
+    "width": 102,
+    "values": {
+      "frame": 4.580156862745098,
+      "inset": 3.816794117647059,
+      "material": 4.580156862745098,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908392156862745,
+      "gem": 1.1450392156862745,
+      "glyph": 5.3435098039215685,
+      "border": 0.9803921568627451,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "rare",
+    "width": 150,
+    "values": {
+      "frame": 4.5801533333333335,
+      "inset": 3.8167933333333326,
+      "material": 4.5801533333333335,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.1450399999999998,
+      "glyph": 5.343513333333333,
+      "border": 0.6666666666666667,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "rare",
+    "width": 230,
+    "values": {
+      "frame": 4.580173913043478,
+      "inset": 3.8167956521739126,
+      "material": 4.580173913043478,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908395652173913,
+      "gem": 1.1450391304347824,
+      "glyph": 5.343521739130435,
+      "border": 0.43478260869565216,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "rare",
+    "width": 290,
+    "values": {
+      "frame": 4.580137931034483,
+      "inset": 3.816793103448276,
+      "material": 4.580137931034483,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908396551724138,
+      "gem": 1.1450379310344827,
+      "glyph": 5.34351724137931,
+      "border": 0.3448275862068966,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "rare",
+    "width": 380,
+    "values": {
+      "frame": 4.580157894736842,
+      "inset": 3.81678947368421,
+      "material": 4.580157894736842,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083973684210527,
+      "gem": 1.1450394736842104,
+      "glyph": 5.3435,
+      "border": 0.2631578947368421,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "rare",
+    "width": 420,
+    "values": {
+      "frame": 4.580142857142857,
+      "inset": 3.8167857142857144,
+      "material": 4.580142857142857,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083976190476188,
+      "gem": 1.1450380952380954,
+      "glyph": 5.3435,
+      "border": 0.2380952380952381,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "legendary",
+    "width": 80,
+    "values": {
+      "frame": 4.580150000000001,
+      "inset": 4.580150000000001,
+      "material": 4.580150000000001,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.14503875,
+      "glyph": 5.343512500000001,
+      "border": 1.25,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "legendary",
+    "width": 102,
+    "values": {
+      "frame": 4.580156862745098,
+      "inset": 4.580156862745098,
+      "material": 4.580156862745098,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908392156862745,
+      "gem": 1.1450392156862745,
+      "glyph": 5.3435098039215685,
+      "border": 0.9803921568627451,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "legendary",
+    "width": 150,
+    "values": {
+      "frame": 4.5801533333333335,
+      "inset": 4.5801533333333335,
+      "material": 4.5801533333333335,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.1450399999999998,
+      "glyph": 5.343513333333333,
+      "border": 0.6666666666666667,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "legendary",
+    "width": 230,
+    "values": {
+      "frame": 4.580173913043478,
+      "inset": 4.580173913043478,
+      "material": 4.580173913043478,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908395652173913,
+      "gem": 1.1450391304347824,
+      "glyph": 5.343521739130435,
+      "border": 0.43478260869565216,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "legendary",
+    "width": 290,
+    "values": {
+      "frame": 4.580137931034483,
+      "inset": 4.580137931034483,
+      "material": 4.580137931034483,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908396551724138,
+      "gem": 1.1450379310344827,
+      "glyph": 5.34351724137931,
+      "border": 0.3448275862068966,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "legendary",
+    "width": 380,
+    "values": {
+      "frame": 4.580157894736842,
+      "inset": 4.580157894736842,
+      "material": 4.580157894736842,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083973684210527,
+      "gem": 1.1450394736842104,
+      "glyph": 5.3435,
+      "border": 0.2631578947368421,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "legendary",
+    "width": 420,
+    "values": {
+      "frame": 4.580142857142857,
+      "inset": 4.580142857142857,
+      "material": 4.580142857142857,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083976190476188,
+      "gem": 1.1450380952380954,
+      "glyph": 5.3435,
+      "border": 0.2380952380952381,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "mythic",
+    "width": 80,
+    "values": {
+      "frame": 4.580150000000001,
+      "inset": 4.580150000000001,
+      "material": 4.580150000000001,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.14503875,
+      "glyph": 5.343512500000001,
+      "border": 1.25,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "mythic",
+    "width": 102,
+    "values": {
+      "frame": 4.580156862745098,
+      "inset": 4.580156862745098,
+      "material": 4.580156862745098,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908392156862745,
+      "gem": 1.1450392156862745,
+      "glyph": 5.3435098039215685,
+      "border": 0.9803921568627451,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "mythic",
+    "width": 150,
+    "values": {
+      "frame": 4.5801533333333335,
+      "inset": 4.5801533333333335,
+      "material": 4.5801533333333335,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.1450399999999998,
+      "glyph": 5.343513333333333,
+      "border": 0.6666666666666667,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "mythic",
+    "width": 230,
+    "values": {
+      "frame": 4.580173913043478,
+      "inset": 4.580173913043478,
+      "material": 4.580173913043478,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908395652173913,
+      "gem": 1.1450391304347824,
+      "glyph": 5.343521739130435,
+      "border": 0.43478260869565216,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "mythic",
+    "width": 290,
+    "values": {
+      "frame": 4.580137931034483,
+      "inset": 4.580137931034483,
+      "material": 4.580137931034483,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908396551724138,
+      "gem": 1.1450379310344827,
+      "glyph": 5.34351724137931,
+      "border": 0.3448275862068966,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "mythic",
+    "width": 380,
+    "values": {
+      "frame": 4.580157894736842,
+      "inset": 4.580157894736842,
+      "material": 4.580157894736842,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083973684210527,
+      "gem": 1.1450394736842104,
+      "glyph": 5.3435,
+      "border": 0.2631578947368421,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "cards-remade.html",
+    "rarity": "mythic",
+    "width": 420,
+    "values": {
+      "frame": 4.580142857142857,
+      "inset": 4.580142857142857,
+      "material": 4.580142857142857,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083976190476188,
+      "gem": 1.1450380952380954,
+      "glyph": 5.3435,
+      "border": 0.2380952380952381,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "rare",
+    "width": 80,
+    "values": {
+      "frame": 4.580150000000001,
+      "inset": 3.8168,
+      "material": 4.580150000000001,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.14503875,
+      "glyph": 5.343512500000001,
+      "border": 1.25,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "rare",
+    "width": 102,
+    "values": {
+      "frame": 4.580156862745098,
+      "inset": 3.816794117647059,
+      "material": 4.580156862745098,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908392156862745,
+      "gem": 1.1450392156862745,
+      "glyph": 5.3435098039215685,
+      "border": 0.9803921568627451,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "rare",
+    "width": 150,
+    "values": {
+      "frame": 4.5801533333333335,
+      "inset": 3.8167933333333326,
+      "material": 4.5801533333333335,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.1450399999999998,
+      "glyph": 5.343513333333333,
+      "border": 0.6666666666666667,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "rare",
+    "width": 230,
+    "values": {
+      "frame": 4.580173913043478,
+      "inset": 3.8167956521739126,
+      "material": 4.580173913043478,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908395652173913,
+      "gem": 1.1450391304347824,
+      "glyph": 5.343521739130435,
+      "border": 0.43478260869565216,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "rare",
+    "width": 290,
+    "values": {
+      "frame": 4.580137931034483,
+      "inset": 3.816793103448276,
+      "material": 4.580137931034483,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908396551724138,
+      "gem": 1.1450379310344827,
+      "glyph": 5.34351724137931,
+      "border": 0.3448275862068966,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "rare",
+    "width": 380,
+    "values": {
+      "frame": 4.580157894736842,
+      "inset": 3.81678947368421,
+      "material": 4.580157894736842,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083973684210527,
+      "gem": 1.1450394736842104,
+      "glyph": 5.3435,
+      "border": 0.2631578947368421,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "rare",
+    "width": 420,
+    "values": {
+      "frame": 4.580142857142857,
+      "inset": 3.8167857142857144,
+      "material": 4.580142857142857,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083976190476188,
+      "gem": 1.1450380952380954,
+      "glyph": 5.3435,
+      "border": 0.2380952380952381,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "legendary",
+    "width": 80,
+    "values": {
+      "frame": 4.580150000000001,
+      "inset": 4.580150000000001,
+      "material": 4.580150000000001,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.14503875,
+      "glyph": 5.343512500000001,
+      "border": 1.25,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "legendary",
+    "width": 102,
+    "values": {
+      "frame": 4.580156862745098,
+      "inset": 4.580156862745098,
+      "material": 4.580156862745098,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908392156862745,
+      "gem": 1.1450392156862745,
+      "glyph": 5.3435098039215685,
+      "border": 0.9803921568627451,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "legendary",
+    "width": 150,
+    "values": {
+      "frame": 4.5801533333333335,
+      "inset": 4.5801533333333335,
+      "material": 4.5801533333333335,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.1450399999999998,
+      "glyph": 5.343513333333333,
+      "border": 0.6666666666666667,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "legendary",
+    "width": 230,
+    "values": {
+      "frame": 4.580173913043478,
+      "inset": 4.580173913043478,
+      "material": 4.580173913043478,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908395652173913,
+      "gem": 1.1450391304347824,
+      "glyph": 5.343521739130435,
+      "border": 0.43478260869565216,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "legendary",
+    "width": 290,
+    "values": {
+      "frame": 4.580137931034483,
+      "inset": 4.580137931034483,
+      "material": 4.580137931034483,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908396551724138,
+      "gem": 1.1450379310344827,
+      "glyph": 5.34351724137931,
+      "border": 0.3448275862068966,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "legendary",
+    "width": 380,
+    "values": {
+      "frame": 4.580157894736842,
+      "inset": 4.580157894736842,
+      "material": 4.580157894736842,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083973684210527,
+      "gem": 1.1450394736842104,
+      "glyph": 5.3435,
+      "border": 0.2631578947368421,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "legendary",
+    "width": 420,
+    "values": {
+      "frame": 4.580142857142857,
+      "inset": 4.580142857142857,
+      "material": 4.580142857142857,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083976190476188,
+      "gem": 1.1450380952380954,
+      "glyph": 5.3435,
+      "border": 0.2380952380952381,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "mythic",
+    "width": 80,
+    "values": {
+      "frame": 4.580150000000001,
+      "inset": 4.580150000000001,
+      "material": 4.580150000000001,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.14503875,
+      "glyph": 5.343512500000001,
+      "border": 1.25,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "mythic",
+    "width": 102,
+    "values": {
+      "frame": 4.580156862745098,
+      "inset": 4.580156862745098,
+      "material": 4.580156862745098,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908392156862745,
+      "gem": 1.1450392156862745,
+      "glyph": 5.3435098039215685,
+      "border": 0.9803921568627451,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "mythic",
+    "width": 150,
+    "values": {
+      "frame": 4.5801533333333335,
+      "inset": 4.5801533333333335,
+      "material": 4.5801533333333335,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9084,
+      "gem": 1.1450399999999998,
+      "glyph": 5.343513333333333,
+      "border": 0.6666666666666667,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "mythic",
+    "width": 230,
+    "values": {
+      "frame": 4.580173913043478,
+      "inset": 4.580173913043478,
+      "material": 4.580173913043478,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908395652173913,
+      "gem": 1.1450391304347824,
+      "glyph": 5.343521739130435,
+      "border": 0.43478260869565216,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "mythic",
+    "width": 290,
+    "values": {
+      "frame": 4.580137931034483,
+      "inset": 4.580137931034483,
+      "material": 4.580137931034483,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.908396551724138,
+      "gem": 1.1450379310344827,
+      "glyph": 5.34351724137931,
+      "border": 0.3448275862068966,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "mythic",
+    "width": 380,
+    "values": {
+      "frame": 4.580157894736842,
+      "inset": 4.580157894736842,
+      "material": 4.580157894736842,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083973684210527,
+      "gem": 1.1450394736842104,
+      "glyph": 5.3435,
+      "border": 0.2631578947368421,
+      "crown": "none"
+    }
+  },
+  {
+    "entry": "deluxe-gacha-b.html",
+    "rarity": "mythic",
+    "width": 420,
+    "values": {
+      "frame": 4.580142857142857,
+      "inset": 4.580142857142857,
+      "material": 4.580142857142857,
+      "mask": 100,
+      "background": 300,
+      "plate": 1.9083976190476188,
+      "gem": 1.1450380952380954,
+      "glyph": 5.3435,
+      "border": 0.2380952380952381,
+      "crown": "none"
+    }
+  }
+]
