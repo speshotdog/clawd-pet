@@ -1,0 +1,828 @@
+[
+  {
+    "time": 1788912001000,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      }
+    ],
+    "animations": [
+      {
+        "time": 0,
+        "target": "ceremony-root"
+      }
+    ]
+  },
+  {
+    "time": 1788912001200,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 20,
+        "target": "summon-circle"
+      },
+      {
+        "time": 20,
+        "target": "summon-seal"
+      }
+    ]
+  },
+  {
+    "time": 1788912001400,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 220,
+        "target": "summon-circle"
+      },
+      {
+        "time": 220,
+        "target": "summon-seal"
+      }
+    ]
+  },
+  {
+    "time": 1788912001600,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 420,
+        "target": "summon-circle"
+      },
+      {
+        "time": 420,
+        "target": "summon-seal"
+      }
+    ]
+  },
+  {
+    "time": 1788912001800,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 620,
+        "target": "summon-circle"
+      },
+      {
+        "time": 620,
+        "target": "summon-seal"
+      },
+      {
+        "time": 0,
+        "target": "summon-trail"
+      },
+      {
+        "time": 0,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912002000,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 620,
+        "target": "summon-circle"
+      },
+      {
+        "time": 620,
+        "target": "summon-seal"
+      },
+      {
+        "time": 200,
+        "target": "summon-trail"
+      },
+      {
+        "time": 200,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912002200,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 620,
+        "target": "summon-circle"
+      },
+      {
+        "time": 620,
+        "target": "summon-seal"
+      },
+      {
+        "time": 400,
+        "target": "summon-trail"
+      },
+      {
+        "time": 400,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912002400,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 620,
+        "target": "summon-circle"
+      },
+      {
+        "time": 620,
+        "target": "summon-seal"
+      },
+      {
+        "time": 600,
+        "target": "summon-trail"
+      },
+      {
+        "time": 600,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912002600,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 620,
+        "target": "summon-circle"
+      },
+      {
+        "time": 620,
+        "target": "summon-seal"
+      },
+      {
+        "time": 700,
+        "target": "summon-trail"
+      },
+      {
+        "time": 700,
+        "target": "summon-pack"
+      },
+      {
+        "time": 100,
+        "target": "summon-pack-top"
+      },
+      {
+        "time": 100,
+        "target": "summon-tear"
+      }
+    ]
+  },
+  {
+    "time": 1788912002800,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 620,
+        "target": "summon-circle"
+      },
+      {
+        "time": 620,
+        "target": "summon-seal"
+      },
+      {
+        "time": 700,
+        "target": "summon-trail"
+      },
+      {
+        "time": 700,
+        "target": "summon-pack"
+      },
+      {
+        "time": 300,
+        "target": "summon-pack-top"
+      },
+      {
+        "time": 300,
+        "target": "summon-tear"
+      }
+    ]
+  },
+  {
+    "time": 1788912003000,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002880,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 620,
+        "target": "summon-circle"
+      },
+      {
+        "time": 620,
+        "target": "summon-seal"
+      },
+      {
+        "time": 700,
+        "target": "summon-trail"
+      },
+      {
+        "time": 700,
+        "target": "summon-pack"
+      },
+      {
+        "time": 380,
+        "target": "summon-pack-top"
+      },
+      {
+        "time": 380,
+        "target": "summon-tear"
+      },
+      {
+        "time": 120,
+        "target": "slot"
+      },
+      {
+        "time": 120,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912003200,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002880,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 620,
+        "target": "summon-circle"
+      },
+      {
+        "time": 620,
+        "target": "summon-seal"
+      },
+      {
+        "time": 700,
+        "target": "summon-trail"
+      },
+      {
+        "time": 700,
+        "target": "summon-pack"
+      },
+      {
+        "time": 380,
+        "target": "summon-pack-top"
+      },
+      {
+        "time": 380,
+        "target": "summon-tear"
+      },
+      {
+        "time": 320,
+        "target": "slot"
+      },
+      {
+        "time": 300,
+        "target": "summon-pack"
+      }
+    ]
+  },
+  {
+    "time": 1788912003400,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002880,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912003240,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 2240
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912003240,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      }
+    ],
+    "animations": [
+      {
+        "time": 180,
+        "target": "ceremony-root"
+      },
+      {
+        "time": 20,
+        "target": "reveal-shell"
+      }
+    ]
+  }
+]

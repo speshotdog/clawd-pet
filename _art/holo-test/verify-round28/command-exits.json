@@ -1,0 +1,14 @@
+{
+  "build_deluxe_b.py": 0,
+  "build_deluxe_b_standalone.py": 0,
+  "check_gacha_ceremony_round28.py --core-only": 0,
+  "check_gacha_ceremony_round28.py --interaction-only": 0,
+  "check_gacha_ceremony_edges_round28.py": 0,
+  "check_gacha_fx_round28.py": 0,
+  "check_gacha_card_regression.py --race-only": 0,
+  "check_gacha_card_regression.py": 0,
+  "node --check ceremony.js": 0,
+  "git diff --check": 0,
+  "git add": 1,
+  "git commit": 1
+}

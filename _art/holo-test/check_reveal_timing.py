@@ -27,6 +27,7 @@ ANIMATION_CLOCK = """(() => {
 HOOK = """
 window.__fixture=__FIXTURE__;
 draw=n=>window.__fixture.slice(0,n);
+window.__prepared=()=>typeof ready==='undefined'?Promise.resolve():ready;
 window.__early=[];
 window.__state=()=>({cascading,skipped,busy,slots:slots.length,
   started:slots.filter(s=>s.revealed).length,completed:slots.filter(s=>s.complete).length,
@@ -48,9 +49,9 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
     fixtures={'wait':[high]+[low]*9,'last-before':[low]*9+[high],
               'last-after':[low]*9+[high],'front':[low]*9+[high],
               'return':[low]*9+[high]}
-    # Offsets from cascade start: 9 common pauses = 1530ms; mythic tease=300,
-    # front=490, return starts=1470. Keep the animation timings unchanged.
-    offsets={'wait':500,'last-before':1529,'last-after':1531,'front':2020,'return':3130}
+    # Round 28: asset decode precedes the clocked 2600ms ten-card prelude.
+    # Serial common completion is 770ms; all ranks first appear at +320ms.
+    offsets={'wait':500,'last-before':6929,'last-after':6931,'front':7250,'return':8050}
     rows=[]
     with TemporaryDirectory(prefix='timing-copies-',dir=out) as tmp:
         for portable in portable_values:
@@ -74,8 +75,8 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
             for phase,fixture in fixtures.items():
                 for repeat in range(repeats):
                     p.evaluate("""f=>{document.querySelector('#reset').click();window.__fixture=f;window.__early=[];window.__finishVisibleAt=0;window.__lastAnimationEnd=0;document.querySelector('#p10').click()}""",fixture)
-                    # Charge 760 + deal 320 + 10*42 = cascade starts at 1500.
-                    p.clock.run_for(1500+offsets[phase])
+                    p.evaluate('async()=>await __prepared()')
+                    p.clock.run_for(2600+offsets[phase])
                     before=p.evaluate('__state()')
                     p.evaluate("document.querySelector('#revealall').click();document.querySelector('#revealall').click()")
                     p.clock.run_for(6000)
@@ -94,8 +95,10 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
                 print('fixed timing',portable,phase,repeats,'passed',flush=True)
                 # Cancel while callbacks/animations are live, then immediately draw again.
                 p.evaluate("document.querySelector('#reset').click();document.querySelector('#p10').click()")
-                p.clock.run_for(1500+offsets[phase])
+                p.evaluate('async()=>await __prepared()')
+                p.clock.run_for(2600+offsets[phase])
                 p.evaluate("document.querySelector('#revealall').click();document.querySelector('#reset').click();document.querySelector('#p1').click()")
+                p.evaluate('async()=>await __prepared()')
                 p.clock.run_for(9000)
                 clean=p.evaluate('__state()')
                 assert clean['slots']==1 and clean['faces']==1 and clean['completed']==1 and clean['tickets']==29 and clean['detached']==0 and not clean['hidden'] and not clean['anims'] and not clean['sparks'], clean
@@ -103,8 +106,10 @@ def check_timing(ctx, here, out, repeats=20, portable_values=(False, True), evid
                 rows[-1]['resetThenDraw']=clean
             # Reset during the initial charge, before slots exist.
             p.evaluate("document.querySelector('#reset').click();document.querySelector('#p10').click()")
+            p.evaluate('async()=>await __prepared()')
             p.clock.run_for(100)
             p.evaluate("document.querySelector('#reset').click();document.querySelector('#p1').click()")
+            p.evaluate('async()=>await __prepared()')
             p.clock.run_for(9000)
             clean=p.evaluate('__state()')
             assert clean['slots']==1 and clean['faces']==1 and clean['detached']==0 and not clean['hidden'],clean

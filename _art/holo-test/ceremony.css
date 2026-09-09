@@ -1,0 +1,36 @@
+.win.is-ceremony{position:fixed!important;inset:0!important;width:100vw;height:100dvh;max-height:none;aspect-ratio:auto;border-radius:0;margin:0!important}
+.is-ceremony .bar,.is-ceremony .rail,.is-ceremony .foot{display:none}
+.is-ceremony .rate{display:none}
+.is-ceremony .stage{padding:0}
+.ceremony-root{position:absolute;inset:0;pointer-events:none;background:linear-gradient(#060e2380,#080e20b0),var(--night) center/cover;overflow:hidden}
+.summon-circle{position:absolute;left:50%;top:55%;width:min(76vw,680px);aspect-ratio:1;translate:-50% -50%;transform:rotateX(62deg);opacity:0;filter:drop-shadow(0 0 12px #cce9ff)}
+.summon-pack{position:absolute;left:50%;top:46%;width:min(70vw,316px);aspect-ratio:5/7;translate:-50% -50%;opacity:0;filter:drop-shadow(0 22px 28px #000a)}
+.summon-pack-body,.summon-pack-top{position:absolute;inset:0;background:var(--pack) center/contain no-repeat}
+.summon-pack-body{clip-path:inset(7% 0 0)}
+.summon-pack-top{clip-path:inset(0 0 93%);transform-origin:90% 7%}
+.summon-tear{position:absolute;left:3%;right:3%;top:5%;height:4%;background:var(--tear) center/100% 100%;opacity:0}
+.summon-seal{position:absolute;left:50%;top:70%;width:70px;translate:-50% -50%;opacity:0;filter:drop-shadow(0 0 10px #dcecff)}
+.summon-trail{position:absolute;left:50%;top:46%;width:min(50vw,600px);height:3px;background:linear-gradient(90deg,transparent,#d6eaff);transform-origin:right;opacity:0;filter:drop-shadow(0 0 8px white)}
+.reveal-anchor,.reveal-shell{position:absolute;inset:0;transform-style:preserve-3d}
+.reveal-anchor{pointer-events:none;transform:translateZ(-200px)}
+.reveal-shell{transition:scale 180ms ease-out;touch-action:none}
+.slot.done:hover{scale:1}
+.slot.done:hover .reveal-shell,.slot.done.selected .reveal-shell{scale:1.04;filter:drop-shadow(0 0 5px var(--result-color))}
+.slot:not(.done){pointer-events:none}
+.slot.is-revealing{z-index:8}
+.fan:has(.is-revealing) .slot:not(.is-revealing){opacity:.35!important}
+.slot.done{z-index:3;touch-action:none}
+.slot,.slot *{user-select:none;-webkit-user-select:none}
+.slot img{-webkit-user-drag:none}
+.reveal-rays,.reveal-column,.reveal-impact{position:absolute;left:50%;top:50%;translate:-50% -50%;pointer-events:none;color:var(--light,#e5efff)}
+.reveal-rays{width:320%;aspect-ratio:1;background:repeating-conic-gradient(from 4deg,transparent 0deg 14deg,currentColor 15deg 17deg,transparent 18deg 30deg);mask-image:radial-gradient(circle,#000,transparent 68%)}
+.reveal-column{width:150%;height:220%;background:linear-gradient(90deg,transparent,currentColor,transparent);clip-path:polygon(32% 0,68% 0,100% 100%,0 100%);mask-image:linear-gradient(transparent,#0008 45%,#000,transparent)}
+.reveal-impact{width:130%;aspect-ratio:1;border:2px solid currentColor;border-radius:50%;box-shadow:0 0 22px currentColor}
+.reveal-anchor .spark{left:50%;top:50%}
+.foot button.go,.stageacts button.go{background:#c7d9ed;color:#101b30}
+.rail button[aria-pressed=true]{background:#c4d9f522}
+.ring.spin,.idlepack{animation:none}
+.is-ceremony .orbit{opacity:.18}
+.stageacts{z-index:30}
+.result-mark{position:absolute;bottom:-24px;left:0;right:0;text-align:center;color:var(--result-color);font-size:11px;letter-spacing:.14em;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.reveal-shell{transition:none}}

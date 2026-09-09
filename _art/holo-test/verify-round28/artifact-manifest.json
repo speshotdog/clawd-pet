@@ -1,0 +1,50 @@
+{
+  "ceremony.js": {
+    "bytes": 18259,
+    "sha256": "66ac223d5a7c8ce8a9114a1d55301ce96e5779437fc8bb0616c22ffef3f3d3c7"
+  },
+  "ceremony.css": {
+    "bytes": 3200,
+    "sha256": "950f1e3922934e9c2d36056a06c49917249d4ca167812f3c91e99af7b731440a"
+  },
+  "build_deluxe_b.py": {
+    "bytes": 15150,
+    "sha256": "9bdc22951e0bd91e6e4b4e818d32a0e0348001776ff3bb824710c7db489457b4"
+  },
+  "build_deluxe_b_standalone.py": {
+    "bytes": 3273,
+    "sha256": "85f991678fa42c06c239bc9bb51beea468c3dfe896e0ecc96949f518791fb412"
+  },
+  "card_face.js": {
+    "bytes": 9483,
+    "sha256": "4a909694d101b428356fde9e0f4454d8fe53c15c178521412ba9766690765f33"
+  },
+  "deluxe-gacha-b.html": {
+    "bytes": 1091902,
+    "sha256": "4ab7fd1c124ab9f1c852f9f2f02d19c346305cdcfa3649f2ccc0a822ab6f8ada"
+  },
+  "deluxe-gacha-b-standalone.html": {
+    "bytes": 5187027,
+    "sha256": "eac2bc00a2e8e400c9eac7f6988b559d7786848c876c9c33928c9c05e75b6fda"
+  },
+  "fx/summon-night.webp": {
+    "bytes": 62956,
+    "sha256": "d1bb14779d8730418ab360182ebedbc06be59a18b11725ca7b65fb78cd24c7f6"
+  },
+  "fx/foil-pack.webp": {
+    "bytes": 87102,
+    "sha256": "49ff3c7a69803e77586050c731c2c55816a02a437e199354ceb30c03e0b8f52b"
+  },
+  "fx/foil-tear.webp": {
+    "bytes": 31988,
+    "sha256": "e5d4c1061ed7d059e8f69393c9b91bccf69ff859e126102d80cb1cd709beb055"
+  },
+  "fx/star-track.svg": {
+    "bytes": 524,
+    "sha256": "7f2cf5c37d946bf263c36b7e5c7f386d27b4f66c24f96406c9ae79cc9121e8de"
+  },
+  "fx/star-seal.svg": {
+    "bytes": 336,
+    "sha256": "d70ad8b536e83792888ea50f94b74b1339909e47ab22cb76b39216d279668d51"
+  }
+}

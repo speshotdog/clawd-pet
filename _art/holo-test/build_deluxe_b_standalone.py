@@ -33,6 +33,10 @@ def uri(path, box=(360, 504), quality=82):
 
 
 assets = {}
+for name in ('summon-night.webp', 'foil-pack.webp', 'foil-tear.webp', 'star-track.svg', 'star-seal.svg'):
+    file = OUT / 'fx' / name
+    mime = 'image/svg+xml' if file.suffix == '.svg' else 'image/webp'
+    assets['fx/' + name] = 'data:' + mime + ';base64,' + b64encode(file.read_bytes()).decode('ascii')
 for c in cards:
     if c.get('scene'):
         for layer in ('subject', 'background'):

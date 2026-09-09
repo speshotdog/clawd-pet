@@ -1,0 +1,16 @@
+{
+  "standalone_bytes": 5187239,
+  "pack_bytes": 87102,
+  "pack_sha256": "49ff3c7a69803e77586050c731c2c55816a02a437e199354ceb30c03e0b8f52b",
+  "pack_rect": {
+    "x": 562.056396484375,
+    "y": 192.88368225097656,
+    "width": 315.88714599609375,
+    "height": 442.23265075683594
+  },
+  "touch": {
+    "ry": "12deg",
+    "ranges": 0,
+    "imagesUndraggable": true
+  }
+}

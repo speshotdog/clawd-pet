@@ -10,8 +10,8 @@ from playwright.sync_api import sync_playwright
 from pool_data import pool
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / 'verify-round27'
-OUT.mkdir(exist_ok=True)
+OUT = HERE / 'verify-round28' / 'regression'
+OUT.mkdir(parents=True,exist_ok=True)
 WIDTHS = [80, 102, 150, 230, 290]
 MEASURE = r"""c => {
  const cs=getComputedStyle(c), cr=c.getBoundingClientRect();
@@ -183,7 +183,9 @@ def main():
                         if skip:
                             p.wait_for_timeout(1200);p.locator('#stage').click(position={'x':15,'y':100})
                         p.wait_for_function(f'document.querySelectorAll(".slot .hcard").length==={n}',timeout=30000)
-                        p.wait_for_timeout(4200);p.mouse.move(1,1);settle(p)
+                        # Round 28 pre-decodes hidden faces; DOM existence is no longer reveal completion.
+                        p.wait_for_function('!document.querySelector("#finish").hidden',timeout=30000)
+                        p.mouse.move(1,1);settle(p)
                         cards=p.locator('.slot .hcard').evaluate_all('(cs)=>cs.map('+MEASURE+')')
                         first=p.locator('.slot .hcard').first
                         before=first.evaluate(MEASURE);first.hover(position={'x':20,'y':20});p.wait_for_timeout(250);hover=first.evaluate(MEASURE)

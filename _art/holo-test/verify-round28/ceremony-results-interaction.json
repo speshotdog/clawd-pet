@@ -1,0 +1,196 @@
+[
+  {
+    "check": "drag-pixels",
+    "entry": "dev",
+    "blue_pixels": 0,
+    "total_pixels": 74613,
+    "blue_ratio": 0.0,
+    "selection_ranges": 0
+  },
+  {
+    "check": "interaction",
+    "entry": "dev",
+    "before": {
+      "--rx": "0deg",
+      "--ry": "0deg",
+      "--phase": "120deg",
+      "--name-fs": "19.03px"
+    },
+    "hover": {
+      "--rx": "0deg",
+      "--ry": "0deg",
+      "--phase": "90.86956521739131deg",
+      "--name-fs": "19.03px"
+    },
+    "drag": {
+      "--rx": "0deg",
+      "--ry": "12deg",
+      "--phase": "127.10702010753107deg",
+      "--name-fs": "19.03px"
+    }
+  },
+  {
+    "check": "reduced-motion",
+    "entry": "dev",
+    "fade_ms": 180
+  },
+  {
+    "check": "audio",
+    "entry": "dev",
+    "events": [
+      {
+        "type": "audio",
+        "time": 1788927222660,
+        "run": 1,
+        "index": null,
+        "kind": "charge",
+        "muted": false,
+        "state": "running",
+        "audioTime": 0.2906666666666667
+      },
+      {
+        "type": "audio",
+        "time": 1788927223990,
+        "run": 1,
+        "index": null,
+        "kind": "tear",
+        "muted": false,
+        "state": "running",
+        "audioTime": 1.6213333333333333
+      },
+      {
+        "type": "audio",
+        "time": 1788927225076,
+        "run": 1,
+        "index": 0,
+        "kind": "impact",
+        "muted": false,
+        "state": "running",
+        "audioTime": 2.712
+      },
+      {
+        "type": "audio",
+        "time": 1788927225076,
+        "run": 1,
+        "index": 0,
+        "kind": "chord",
+        "muted": false,
+        "state": "running",
+        "audioTime": 2.712
+      }
+    ]
+  },
+  {
+    "check": "real-idle",
+    "entry": "dev",
+    "seconds": [
+      5,
+      30
+    ],
+    "mutations": 0
+  },
+  {
+    "check": "remembered-audio-cancel",
+    "entry": "dev",
+    "voices": 0
+  },
+  {
+    "check": "drag-pixels",
+    "entry": "portable",
+    "blue_pixels": 0,
+    "total_pixels": 74613,
+    "blue_ratio": 0.0,
+    "selection_ranges": 0
+  },
+  {
+    "check": "interaction",
+    "entry": "portable",
+    "before": {
+      "--rx": "0deg",
+      "--ry": "0deg",
+      "--phase": "120deg",
+      "--name-fs": "19.03px"
+    },
+    "hover": {
+      "--rx": "0deg",
+      "--ry": "0deg",
+      "--phase": "90.86956521739131deg",
+      "--name-fs": "19.03px"
+    },
+    "drag": {
+      "--rx": "0deg",
+      "--ry": "12deg",
+      "--phase": "127.10702010753107deg",
+      "--name-fs": "19.03px"
+    }
+  },
+  {
+    "check": "reduced-motion",
+    "entry": "portable",
+    "fade_ms": 180
+  },
+  {
+    "check": "audio",
+    "entry": "portable",
+    "events": [
+      {
+        "type": "audio",
+        "time": 1788927261638,
+        "run": 1,
+        "index": null,
+        "kind": "charge",
+        "muted": false,
+        "state": "running",
+        "audioTime": 0.30133333333333334
+      },
+      {
+        "type": "audio",
+        "time": 1788927262970,
+        "run": 1,
+        "index": null,
+        "kind": "tear",
+        "muted": false,
+        "state": "running",
+        "audioTime": 1.632
+      },
+      {
+        "type": "audio",
+        "time": 1788927264074,
+        "run": 1,
+        "index": 0,
+        "kind": "impact",
+        "muted": false,
+        "state": "running",
+        "audioTime": 2.7413333333333334
+      },
+      {
+        "type": "audio",
+        "time": 1788927264074,
+        "run": 1,
+        "index": 0,
+        "kind": "chord",
+        "muted": false,
+        "state": "running",
+        "audioTime": 2.7413333333333334
+      }
+    ]
+  },
+  {
+    "check": "real-idle",
+    "entry": "portable",
+    "seconds": [
+      5,
+      30
+    ],
+    "mutations": 0
+  },
+  {
+    "check": "remembered-audio-cancel",
+    "entry": "portable",
+    "voices": 0
+  },
+  {
+    "check": "size",
+    "bytes": 5187239
+  }
+]

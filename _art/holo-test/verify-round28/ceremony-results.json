@@ -1,0 +1,1226 @@
+[
+  {
+    "check": "no-preview",
+    "entry": "dev",
+    "samples": 13,
+    "variants": 3,
+    "max_pixel_difference": 0
+  },
+  {
+    "check": "normal",
+    "entry": "dev",
+    "n": 1,
+    "prelude_ms": 2240,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912001000,
+        "run": 2,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912001180,
+        "run": 2,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912001800,
+        "run": 2,
+        "index": null,
+        "phase": "delivery"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912002500,
+        "run": 2,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912002880,
+        "run": 2,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912003240,
+        "run": 2,
+        "index": null,
+        "phase": "cards",
+        "prelude": 2240
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912003240,
+        "run": 2,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912003560,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "burst",
+        "time": 1788912003560,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "audio",
+        "time": 1788912003560,
+        "run": 2,
+        "index": 0,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912003560,
+        "run": 2,
+        "index": 0,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912003740,
+        "run": 2,
+        "index": 0,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912003860,
+        "run": 2,
+        "index": 0,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912004010,
+        "run": 2,
+        "index": 0
+      },
+      {
+        "type": "collectable",
+        "time": 1788912004010,
+        "run": 2,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "normal",
+    "entry": "dev",
+    "n": 5,
+    "prelude_ms": 2400,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912034100,
+        "run": 5,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912034280,
+        "run": 5,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912034280,
+        "run": 5,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912034900,
+        "run": 5,
+        "index": null,
+        "phase": "delivery"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912035600,
+        "run": 5,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912035600,
+        "run": 5,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912035980,
+        "run": 5,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912036500,
+        "run": 5,
+        "index": null,
+        "phase": "cards",
+        "prelude": 2400
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912036500,
+        "run": 5,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912036820,
+        "run": 5,
+        "index": 0
+      },
+      {
+        "type": "burst",
+        "time": 1788912036820,
+        "run": 5,
+        "index": 0
+      },
+      {
+        "type": "audio",
+        "time": 1788912036820,
+        "run": 5,
+        "index": 0,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912036820,
+        "run": 5,
+        "index": 0,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912037000,
+        "run": 5,
+        "index": 0,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912037120,
+        "run": 5,
+        "index": 0,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912037270,
+        "run": 5,
+        "index": 0
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912037270,
+        "run": 5,
+        "index": 1,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912037590,
+        "run": 5,
+        "index": 1
+      },
+      {
+        "type": "burst",
+        "time": 1788912037590,
+        "run": 5,
+        "index": 1
+      },
+      {
+        "type": "audio",
+        "time": 1788912037590,
+        "run": 5,
+        "index": 1,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912037590,
+        "run": 5,
+        "index": 1,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912037770,
+        "run": 5,
+        "index": 1,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912037950,
+        "run": 5,
+        "index": 1,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912038040,
+        "run": 5,
+        "index": 1
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912038040,
+        "run": 5,
+        "index": 2,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912038360,
+        "run": 5,
+        "index": 2
+      },
+      {
+        "type": "burst",
+        "time": 1788912038360,
+        "run": 5,
+        "index": 2
+      },
+      {
+        "type": "audio",
+        "time": 1788912038360,
+        "run": 5,
+        "index": 2,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912038360,
+        "run": 5,
+        "index": 2,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912038540,
+        "run": 5,
+        "index": 2,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912038920,
+        "run": 5,
+        "index": 2,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912039180,
+        "run": 5,
+        "index": 2
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912039180,
+        "run": 5,
+        "index": 3,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912039500,
+        "run": 5,
+        "index": 3
+      },
+      {
+        "type": "burst",
+        "time": 1788912039500,
+        "run": 5,
+        "index": 3
+      },
+      {
+        "type": "audio",
+        "time": 1788912039500,
+        "run": 5,
+        "index": 3,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912039500,
+        "run": 5,
+        "index": 3,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912039680,
+        "run": 5,
+        "index": 3,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912039960,
+        "run": 5,
+        "index": 3,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912040320,
+        "run": 5,
+        "index": 3
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912040320,
+        "run": 5,
+        "index": 4,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912040640,
+        "run": 5,
+        "index": 4
+      },
+      {
+        "type": "burst",
+        "time": 1788912040640,
+        "run": 5,
+        "index": 4
+      },
+      {
+        "type": "audio",
+        "time": 1788912040640,
+        "run": 5,
+        "index": 4,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912040640,
+        "run": 5,
+        "index": 4,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912040820,
+        "run": 5,
+        "index": 4,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912041440,
+        "run": 5,
+        "index": 4,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912041840,
+        "run": 5,
+        "index": 4
+      },
+      {
+        "type": "collectable",
+        "time": 1788912041840,
+        "run": 5,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "normal",
+    "entry": "dev",
+    "n": 10,
+    "prelude_ms": 2600,
+    "events": [
+      {
+        "type": "phase-start",
+        "time": 1788912071900,
+        "run": 8,
+        "index": null,
+        "phase": "entry"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912072080,
+        "run": 8,
+        "index": null,
+        "phase": "circle"
+      },
+      {
+        "type": "audio",
+        "time": 1788912072080,
+        "run": 8,
+        "index": null,
+        "kind": "charge",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912072700,
+        "run": 8,
+        "index": null,
+        "phase": "delivery"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912073400,
+        "run": 8,
+        "index": null,
+        "phase": "tear"
+      },
+      {
+        "type": "audio",
+        "time": 1788912073400,
+        "run": 8,
+        "index": null,
+        "kind": "tear",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912073780,
+        "run": 8,
+        "index": null,
+        "phase": "deal"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912074500,
+        "run": 8,
+        "index": null,
+        "phase": "cards",
+        "prelude": 2600
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912074500,
+        "run": 8,
+        "index": 0,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912074820,
+        "run": 8,
+        "index": 0
+      },
+      {
+        "type": "burst",
+        "time": 1788912074820,
+        "run": 8,
+        "index": 0
+      },
+      {
+        "type": "audio",
+        "time": 1788912074820,
+        "run": 8,
+        "index": 0,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912074820,
+        "run": 8,
+        "index": 0,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075000,
+        "run": 8,
+        "index": 0,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075120,
+        "run": 8,
+        "index": 0,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912075270,
+        "run": 8,
+        "index": 0
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075270,
+        "run": 8,
+        "index": 1,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912075590,
+        "run": 8,
+        "index": 1
+      },
+      {
+        "type": "burst",
+        "time": 1788912075590,
+        "run": 8,
+        "index": 1
+      },
+      {
+        "type": "audio",
+        "time": 1788912075590,
+        "run": 8,
+        "index": 1,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912075590,
+        "run": 8,
+        "index": 1,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075770,
+        "run": 8,
+        "index": 1,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912075950,
+        "run": 8,
+        "index": 1,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912076040,
+        "run": 8,
+        "index": 1
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912076040,
+        "run": 8,
+        "index": 2,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912076360,
+        "run": 8,
+        "index": 2
+      },
+      {
+        "type": "burst",
+        "time": 1788912076360,
+        "run": 8,
+        "index": 2
+      },
+      {
+        "type": "audio",
+        "time": 1788912076360,
+        "run": 8,
+        "index": 2,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912076360,
+        "run": 8,
+        "index": 2,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912076540,
+        "run": 8,
+        "index": 2,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912076920,
+        "run": 8,
+        "index": 2,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912077180,
+        "run": 8,
+        "index": 2
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912077180,
+        "run": 8,
+        "index": 3,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912077500,
+        "run": 8,
+        "index": 3
+      },
+      {
+        "type": "burst",
+        "time": 1788912077500,
+        "run": 8,
+        "index": 3
+      },
+      {
+        "type": "audio",
+        "time": 1788912077500,
+        "run": 8,
+        "index": 3,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912077500,
+        "run": 8,
+        "index": 3,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912077680,
+        "run": 8,
+        "index": 3,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912077960,
+        "run": 8,
+        "index": 3,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912078320,
+        "run": 8,
+        "index": 3
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912078320,
+        "run": 8,
+        "index": 4,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912078640,
+        "run": 8,
+        "index": 4
+      },
+      {
+        "type": "burst",
+        "time": 1788912078640,
+        "run": 8,
+        "index": 4
+      },
+      {
+        "type": "audio",
+        "time": 1788912078640,
+        "run": 8,
+        "index": 4,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912078640,
+        "run": 8,
+        "index": 4,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912078820,
+        "run": 8,
+        "index": 4,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912079440,
+        "run": 8,
+        "index": 4,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912079840,
+        "run": 8,
+        "index": 4
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912079840,
+        "run": 8,
+        "index": 5,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912080160,
+        "run": 8,
+        "index": 5
+      },
+      {
+        "type": "burst",
+        "time": 1788912080160,
+        "run": 8,
+        "index": 5
+      },
+      {
+        "type": "audio",
+        "time": 1788912080160,
+        "run": 8,
+        "index": 5,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912080160,
+        "run": 8,
+        "index": 5,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912080340,
+        "run": 8,
+        "index": 5,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912080460,
+        "run": 8,
+        "index": 5,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912080610,
+        "run": 8,
+        "index": 5
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912080610,
+        "run": 8,
+        "index": 6,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912080930,
+        "run": 8,
+        "index": 6
+      },
+      {
+        "type": "burst",
+        "time": 1788912080930,
+        "run": 8,
+        "index": 6
+      },
+      {
+        "type": "audio",
+        "time": 1788912080930,
+        "run": 8,
+        "index": 6,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912080930,
+        "run": 8,
+        "index": 6,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912081110,
+        "run": 8,
+        "index": 6,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912081290,
+        "run": 8,
+        "index": 6,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912081380,
+        "run": 8,
+        "index": 6
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912081380,
+        "run": 8,
+        "index": 7,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912081700,
+        "run": 8,
+        "index": 7
+      },
+      {
+        "type": "burst",
+        "time": 1788912081700,
+        "run": 8,
+        "index": 7
+      },
+      {
+        "type": "audio",
+        "time": 1788912081700,
+        "run": 8,
+        "index": 7,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912081700,
+        "run": 8,
+        "index": 7,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912081880,
+        "run": 8,
+        "index": 7,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912082260,
+        "run": 8,
+        "index": 7,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912082520,
+        "run": 8,
+        "index": 7
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912082520,
+        "run": 8,
+        "index": 8,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912082840,
+        "run": 8,
+        "index": 8
+      },
+      {
+        "type": "burst",
+        "time": 1788912082840,
+        "run": 8,
+        "index": 8
+      },
+      {
+        "type": "audio",
+        "time": 1788912082840,
+        "run": 8,
+        "index": 8,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912082840,
+        "run": 8,
+        "index": 8,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912083020,
+        "run": 8,
+        "index": 8,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912083300,
+        "run": 8,
+        "index": 8,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912083660,
+        "run": 8,
+        "index": 8
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912083660,
+        "run": 8,
+        "index": 9,
+        "phase": "charge"
+      },
+      {
+        "type": "face-visible",
+        "time": 1788912083980,
+        "run": 8,
+        "index": 9
+      },
+      {
+        "type": "burst",
+        "time": 1788912083980,
+        "run": 8,
+        "index": 9
+      },
+      {
+        "type": "audio",
+        "time": 1788912083980,
+        "run": 8,
+        "index": 9,
+        "kind": "impact",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "audio",
+        "time": 1788912083980,
+        "run": 8,
+        "index": 9,
+        "kind": "chord",
+        "muted": true,
+        "state": "uninitialized",
+        "audioTime": null
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912084160,
+        "run": 8,
+        "index": 9,
+        "phase": "read"
+      },
+      {
+        "type": "phase-start",
+        "time": 1788912084780,
+        "run": 8,
+        "index": 9,
+        "phase": "return"
+      },
+      {
+        "type": "slot-complete",
+        "time": 1788912085180,
+        "run": 8,
+        "index": 9
+      },
+      {
+        "type": "collectable",
+        "time": 1788912085180,
+        "run": 8,
+        "index": null
+      }
+    ]
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "prelude",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "tear",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "wait",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "last-before",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "last-after",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "front",
+    "repeats": 20
+  },
+  {
+    "check": "A5-skip",
+    "entry": "dev",
+    "phase": "return",
+    "repeats": 20
+  }
+]

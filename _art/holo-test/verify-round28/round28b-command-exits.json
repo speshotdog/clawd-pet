@@ -1,0 +1,12 @@
+{
+  "build_deluxe_b": 0,
+  "build_deluxe_b_standalone": 0,
+  "core": 0,
+  "interaction_initial_purple_fixture": 1,
+  "interaction_final": 0,
+  "regression": 0,
+  "node_check": 0,
+  "diff_check": 0,
+  "commit": "skipped: Git metadata outside writable worktree",
+  "push": "not attempted"
+}

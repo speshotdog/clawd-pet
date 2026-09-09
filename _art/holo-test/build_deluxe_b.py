@@ -136,6 +136,7 @@ body{margin:0;font:14px/1.6 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-s
  .ring.spin,.idlepack{animation:none}
 }
 </style>
+<style>__CEREMONY_CSS__</style>
 
 <div class="win" id="win">
  <div class="bar" id="bar"><span></span><b>星 軌 展 廳</b><span class="spacer"></span>
@@ -209,7 +210,7 @@ function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x!=
 function material(p){const s=node('div','foil-stack');['spectrum','relief','etch'].forEach(x=>s.append(node('div','foil-'+x)));
   p.append(s,node('div','foil-fiber'),node('div','foil-grain'),node('div','foil-glare'));}
 function path(n){
-  return (typeof asset==='function') ? asset(n) : (n.startsWith('layer-') ? n : 'art/'+n);
+  return (typeof asset==='function') ? asset(n) : ((n.startsWith('layer-') || n.startsWith('fx/')) ? n : 'art/'+n);
 }
 function makeFace(d){
   // 卡面完全交給共用建立器，抽卡頁不再自己拼一套 DOM
@@ -227,258 +228,7 @@ function makeFace(d){
 function paintFoil(card,rarity,x,y){HoloCardFace.paint(card,rarity,x,y,{tilt:false});}
 
 /* ── 演出 ─────────────────────────────────────────── */
-const stage=$('#stage'),fan=$('#fan'),charge=$('#charge'),core=$('#core'),rays=$('#rays'),win=$('#win'),
-      starfield=$('#starfield'),flashwrap=$('#flashwrap'),idlepack=$('#idlepack'),hint=$('#hint');
-const btn={p1:$('#p1'),p5:$('#p5'),p10:$('#p10'),all:$('#revealall'),fin:$('#finish')};
-let busy=false, slots=[], pending=0, tickets=30, cascading=false, skipped=false;
-const anims=new Set(),timers=new Map();
-let generation=0;
-const A=(el,frames,opts)=>{
-  const run=generation,a=el.animate(frames,{fill:'both',...opts});anims.add(a);
-  a.finished.catch(()=>{}).finally(()=>{anims.delete(a);if(run===generation)updateFinish();});return a;
-};
-function later(fn,ms,run=generation){
-  const id=setTimeout(()=>{timers.delete(id);if(run===generation){fn();updateFinish();}},ms);
-  timers.set(id,()=>{});return id;
-}
-const wait=(ms,run=generation)=>new Promise(resolve=>{
-  const id=setTimeout(()=>{timers.delete(id);resolve(run===generation);if(run===generation)updateFinish();},reduced.matches?Math.min(ms,120):ms);
-  timers.set(id,()=>resolve(false));
-});
-function clearRun(){
-  generation++;
-  for(const [id,cancel] of timers){clearTimeout(id);cancel();}timers.clear();
-  for(const a of anims)a.cancel();anims.clear();
-  win.getAnimations({subtree:true}).forEach(a=>a.cancel());
-  win.classList.remove('shake');
-  for(const e of win.querySelectorAll('.shock,.spark'))e.remove();
-  for(const f of fan.querySelectorAll('.hcard'))HoloCardFace.unobserve(f);
-  fan.replaceChildren();slots=[];busy=false;skipped=false;cascading=false;
-  btn.fin.hidden=true;btn.all.hidden=true;stage.removeEventListener('click',skipAll);
-  idlepack.style.opacity='';
-  for(const [b,n] of [[btn.p1,1],[btn.p5,5],[btn.p10,10]])b.disabled=tickets<n;
-}
-
-function layout(n){
-  const r=stage.getBoundingClientRect();
-  const cw=n<=1?Math.min(230,r.height*.52):n<=5?Math.min(150,r.width/6.6):Math.min(118,r.width/8.4);
-  const rows=n<=5?[n]:[5,n-5];
-  const out=[];let idx=0;
-  rows.forEach((count,ri)=>{
-    const gap=cw*.16,total=count*cw+(count-1)*gap;
-    const y=rows.length===1?0:(ri===0?-cw*.78:cw*.78);
-    for(let i=0;i<count;i++,idx++) out.push({x:-total/2+i*(cw+gap)+cw/2,y,cw});
-  });
-  return out;
-}
-function shock(color,scale,dur){
-  const s=node('div','shock');s.style.setProperty('--sc',color);$('#orbit').append(s);
-  A(s,[{transform:'translate(-50%,-50%) scale(1)',opacity:.9,borderWidth:'4px'},
-       {transform:`translate(-50%,-50%) scale(${scale})`,opacity:0,borderWidth:'1px'}],
-    {duration:dur,easing:'cubic-bezier(.15,.7,.2,1)'}).finished.catch(()=>{}).finally(()=>s.remove());
-}
-function burst(color,count,spread){
-  const box=$('#orbit').getBoundingClientRect();
-  for(let i=0;i<count;i++){
-    const el=node('div','spark');el.style.setProperty('--sp',color);
-    el.style.left=(box.width/2)+'px';el.style.top=(box.height/2)+'px';$('#orbit').append(el);
-    const a=Math.random()*Math.PI*2,d=spread*(.35+Math.random()*.85);
-    A(el,[{transform:'translate(-50%,-50%) scale(1)',opacity:1},
-          {transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(${(.2+Math.random()*.5).toFixed(2)})`,opacity:0}],
-      {duration:700+Math.random()*600,easing:'cubic-bezier(.1,.7,.2,1)'})
-      .finished.catch(()=>{}).finally(()=>el.remove());
-  }
-}
-function rayBurst(color,dur,turns){
-  rays.style.setProperty('--ray',color);
-  A(rays,[{opacity:0,rotate:'0deg',scale:.2},{opacity:.5,offset:.14},
-          {opacity:0,rotate:turns+'deg',scale:1.25}],{duration:dur,easing:'cubic-bezier(.1,.6,.2,1)'});
-}
-function shakeWin(){ if(reduced.matches)return;
-  win.classList.remove('shake');void win.offsetWidth;win.classList.add('shake');
-  later(()=>win.classList.remove('shake'),470); }
-function flash(bg,dur,blend){
-  flashwrap.style.background=bg;flashwrap.style.mixBlendMode=blend||'screen';
-  A(flashwrap,[{opacity:0},{opacity:.85,offset:.12},{opacity:0}],{duration:dur,easing:'ease-out'});
-}
-
-async function pull(n){
-  if(busy||slots.length||tickets<n)return;
-  const run=++generation;
-  busy=true;skipped=false;cascading=false;tickets-=n;$('#ticket').textContent=tickets;
-  for(const b of [btn.p1,btn.p5,btn.p10])b.disabled=true;
-  const result=draw(n);
-  // 先把這一抽會用到的圖解碼好，不然揭曉的那一瞬間卡面可能還是空的
-  for(const c of result){
-    const im=new Image();
-    im.src = path(c.scene ? `layer-${c.id}-subject.png` : c.file);
-    if(c.scene){const bgIm=new Image();bgIm.src=path(`layer-${c.id}-background.png`);}
-  }
-  const best=result.reduce((b,c)=>['common','rare','epic','legendary','mythic'].indexOf(c.rarity)>
-                                  ['common','rare','epic','legendary','mythic'].indexOf(b)?c.rarity:b,'common');
-
-  // 1) 蓄力：軌道亮起、能量沿環轉、核心聚光
-  hint.textContent='軌道充能…';
-  A(idlepack,[{opacity:1,scale:1},{opacity:0,scale:.6}],{duration:260,easing:'ease-in'});
-  charge.style.setProperty('--surge',SURGE[best]);
-  A(charge,[{opacity:0,rotate:'0deg'},{opacity:.95,offset:.3},{opacity:.95,rotate:'760deg'}],
-    {duration:900,easing:'cubic-bezier(.3,0,.2,1)'});
-  A(core,[{opacity:0,scale:.3},{opacity:1,scale:1.5,offset:.75},{opacity:0,scale:2.6}],
-    {duration:900,easing:'ease-in'});
-  if(!await wait(760,run))return;
-  shock(SURGE[best],9,520);
-
-  // 2) 發牌：從核心沿軌道甩出來
-  const spots=layout(n);
-  for(const old of fan.querySelectorAll('.hcard'))HoloCardFace.unobserve(old);
-  fan.replaceChildren();slots=[];
-  hint.textContent='點卡片揭曉，或按「全部揭曉」。';
-  for(let i=0;i<n;i++){
-    const s=node('div','slot');s.style.setProperty('--cw',spots[i].cw+'px');
-    s.append(node('div','veilback'));s.dataset.i=i;fan.append(s);
-    const a0=(i/n)*Math.PI*2;
-    A(s,[{transform:`translate(${Math.cos(a0)*40}px,${Math.sin(a0)*40}px) rotate(${-160+i*22}deg) scale(.24)`,opacity:0},
-         {transform:`translate(${spots[i].x}px,${spots[i].y}px) rotate(0deg) scale(1)`,opacity:1}],
-      {duration:400,delay:i*42,easing:'cubic-bezier(.2,.9,.25,1.05)'});
-    slots.push({el:s,data:result[i],spot:spots[i],revealed:false,complete:false,run});
-  }
-  if(!await wait(320+n*42,run))return;
-  for(const sl of slots) sl.el.addEventListener('click',()=>skipAll());
-  stage.addEventListener('click',skipAll);
-  busy=false;
-  hint.textContent='點畫面任一處＝全部翻開';
-  cascade();
-}
-
-// 手遊的抽卡不用一張一張按：發完牌就一路翻下去，玩家想快轉就點畫面。
-async function cascade(){
-  const run=generation;
-  cascading=true;
-  try {
-    for(const sl of slots){
-      if(skipped||run!==generation)break;
-      if(sl.revealed)continue;
-      const r=sl.data.rarity;
-      revealOne(sl);
-      if(!await wait(r==='mythic'?1500:r==='legendary'?1000:r==='epic'?330:170,run))return;
-    }
-  } finally {
-    if(run===generation){cascading=false;finishReveal();}
-  }
-}
-
-function skipAll(){
-  if(!slots.length||skipped) return;
-  skipped=true;
-  for(const sl of slots) if(!sl.revealed) revealOne(sl,true);
-  finishReveal();
-}
-
-function finishReveal(){
-  hint.textContent='收下之後回到入口。';
-  updateFinish();
-}
-
-async function revealOne(s,fast){
-  const run=s.run;
-  if(s.revealed||run!==generation)return;s.revealed=true;s.el.classList.add('done');
-  const r=s.data.rarity, big=r==='legendary'||r==='mythic';
-
-  // (1) 預告：卡背先亮起來，稀有的還會抖一下。快轉時整段跳過。
-  if(!fast){
-    s.el.classList.add('tease');
-    if(big){ s.el.classList.add('rattle'); if(!await wait(300,run))return; s.el.classList.remove('rattle'); }
-    else if(!await wait(110,run))return;
-    s.el.classList.remove('tease');
-  }
-
-  const face=makeFace(s.data);face.style.opacity='0';s.el.append(face);
-
-  // (2) 撞擊：白閃一格 + 卡片衝出來 + 傳說以上震一下畫面
-  A(s.el.querySelector('.veilback'),[{transform:'rotateY(0deg)'},{transform:'rotateY(90deg)'}],
-    {duration:big?200:230,easing:'ease-in'});
-  if(big){
-    shakeWin();
-    A(s.el,[{transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1)`},
-            {transform:`translate(${s.spot.x*.3}px,${s.spot.y*.3}px) scale(1.72)`,offset:.55},
-            {transform:`translate(${s.spot.x*.35}px,${s.spot.y*.35}px) scale(1.5)`}],
-      {duration:520,easing:'cubic-bezier(.16,1.1,.3,1)'});
-    s.el.style.zIndex='6';
-  } else {
-    A(s.el,[{transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1)`},
-            {transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1.14)`,offset:.5},
-            {transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1)`}],
-      {duration:420,easing:'cubic-bezier(.2,.9,.25,1)'});
-  }
-  if(!await wait(big?190:205,run))return;
-  s.el.querySelector('.veilback').style.display='none';
-  face.style.opacity='1';
-  A(face,[{transform:'rotateY(-90deg)'},{transform:'rotateY(0deg)'}],{duration:big?260:280,easing:'ease-out'});
-
-  // (3) 回報：份量隨稀有度階梯
-  if(r==='mythic'){
-    flash('linear-gradient(120deg,#ff7ad0aa,#ffc25eaa,#7dffab99,#6fd8ffaa,#c39dffaa)',760,'soft-light');
-    shock('#ff7ad0',13,760);
-    later(()=>shock('#6fd8ff',17,900),120);
-    later(()=>shock('#fff87d',21,1000),250);
-    burst('#ff7ad0',46,190);
-    later(()=>burst('#6fd8ff',34,230),180);
-    A(starfield,[{opacity:0},{opacity:.9,offset:.18},{opacity:0}],{duration:2200});
-    A(charge,[{opacity:.9},{opacity:0}],{duration:1000});
-    for(const el of document.querySelectorAll('.ring'))
-      A(el,[{filter:'hue-rotate(0deg) brightness(1)'},{filter:'hue-rotate(360deg) brightness(1.6)'}],{duration:1600});
-  } else if(r==='legendary'){
-    flash('radial-gradient(circle,#ffd45c88,#ffb43a55 45%,transparent 74%)',600,'soft-light');
-    shock('#ffd45c',11,660);
-    later(()=>shock('#fff3c9',15,780),110);
-    burst('#ffd45c',30,150);
-  } else if(r==='epic'){
-    shock('#c39dff',8,520);burst('#c39dff',14,105);
-  } else {
-    shock(SURGE[r],6,420);burst(SURGE[r],7,80);
-  }
-
-  // 放大的傳說／神話看完就歸位，不然會壓到旁邊的卡
-  if(big){
-    if(!await wait(980,run))return;
-    A(s.el,[{transform:`translate(${s.spot.x*.35}px,${s.spot.y*.35}px) scale(1.5)`},
-            {transform:`translate(${s.spot.x}px,${s.spot.y}px) scale(1.06)`}],
-      {duration:460,easing:'cubic-bezier(.3,.8,.3,1)'});
-    s.el.style.zIndex='3';
-  }
-  // 揭曉後：卡片不轉，只有材質光影跟著游標
-  // Wait for real flip / return animation completion before fitting.
-  await Promise.all(s.el.getAnimations({subtree:true}).map(a=>a.finished.catch(()=>{})));
-  if(run!==generation)return;
-  paintFoil(face,r,0,0);
-  HoloCardFace.refit(face);
-  s.complete=true;
-  s.el.addEventListener('pointermove',e=>{
-    const b=s.el.getBoundingClientRect();
-    paintFoil(face,r,(e.clientX-b.left)/b.width*2-1,(e.clientY-b.top)/b.height*2-1);
-  });
-  s.el.addEventListener('pointerleave',()=>paintFoil(face,r,0,0));
-  updateFinish();
-}
-
-function updateFinish(){
-  const left=slots.filter(s=>!s.revealed).length;
-  btn.all.hidden=left===0;
-  btn.fin.hidden=!slots.length||slots.some(s=>!s.complete)||cascading||busy||anims.size>0||timers.size>0;
-}
-btn.all.addEventListener('click',skipAll);
-btn.fin.addEventListener('click',()=>{
-  if(btn.fin.hidden)return;
-  clearRun();
-  hint.textContent='從軌道上取下你的卡。';
-});
-$('#p1').addEventListener('click',()=>pull(1));
-$('#p5').addEventListener('click',()=>pull(5));
-$('#p10').addEventListener('click',()=>pull(10));
-$('#reset').addEventListener('click',()=>{tickets=30;$('#ticket').textContent=tickets;clearRun();});
-$('#ratebtn').addEventListener('click',()=>{
-  hint.textContent='試抽用的假機率：神話 0.5%／傳說 4%／史詩 15%／精良 40%／普通 40.5%；十連保底一張傳說以上。正式數字未定案。';});
-$('#bookbtn').addEventListener('click',()=>{hint.textContent='典藏冊在試抽版還沒接，先看抽卡。';});
+__CEREMONY_JS__
 
 // 視窗可拖曳
 (() => {const win=$('#win'),bar=$('#bar');let dx=0,dy=0,ox=0,oy=0,on=false;
@@ -488,14 +238,12 @@ $('#bookbtn').addEventListener('click',()=>{hint.textContent='典藏冊在試抽
   win.style.position='fixed';win.style.left=ox+'px';win.style.top=oy+'px';win.style.margin='0';});
  bar.addEventListener('pointerup',()=>{on=false});})();
 
-addEventListener('resize',()=>{if(!slots.length)return;const spots=layout(slots.length);
- slots.forEach((s,i)=>{s.spot=spots[i];s.el.style.setProperty('--cw',spots[i].cw+'px');
-  s.el.style.transform=`translate(${spots[i].x}px,${spots[i].y}px)`;});});
+
 })();
 </script>
 '''
 
-page = HTML.replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))\
+page = HTML.replace('__CEREMONY_JS__', (OUT / 'ceremony.js').read_text(encoding='utf-8')).replace('__CEREMONY_CSS__', (OUT / 'ceremony.css').read_text(encoding='utf-8')).replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))\
            .replace('__CARD_CSS__', '\n'.join(styles)) \
            .replace('__MASKS__', json.dumps(masks, separators=(',', ':'))) \
            .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':')))
