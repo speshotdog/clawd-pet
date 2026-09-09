@@ -23,7 +23,7 @@ manifest = json.loads((OUT / 'art' / 'manifest.json').read_text(encoding='utf-8'
 
 # 卡池與卡型只有一個來源：pool_data.py（HANDOFF 三節的定案寫在那裡）
 from pool_data import pool
-cards = pool(with_scenes=False)
+cards = pool()
 
 HTML = r'''<!doctype html>
 <meta charset="utf-8">
@@ -49,7 +49,7 @@ h2{font-size:16px;letter-spacing:.05em;margin:34px 0 4px}
 
 <h1>卡池重製 · 全部照場景卡規格</h1>
 <p class="lede"><b style="color:#ffd76a">滑鼠移到卡片上可以傾斜</b>，看箔面與景深；移開回正。</p>
-<p class="lede">43 張都補上滿版背景，顏色取自每張角色圖的實際像素（<code>art/palette.json</code>），
+<p class="lede">63 張精裝研究卡依卡型呈現原插畫與背景，顏色取自每張角色圖的實際像素（<code>art/palette.json</code>），
 所以背景跟角色同調而不是所有卡共用一層深色。版型維持已定案的：滿版圖窗、人物置中、
 文字框帶階級寶石與名字。背景是 CSS 圖層，不是一張一張畫出來的圖。</p>
 <h2>平面滿版：滅世珍獸</h2>
@@ -81,7 +81,7 @@ function build(d,host,capHtml){
  const card=HoloCardFace.create(d,{masks,resolve:n=>(typeof __A!=='undefined'&&__A[n])||(n.startsWith('layer-')?n:'art/'+n)});
  hit.append(card);
  const cap=node('p','cap');
- cap.innerHTML=capHtml!==undefined?capHtml:`${LABEL[d.rarity]}・${d.file}`;
+ cap.innerHTML=capHtml!==undefined?capHtml:`${LABEL[d.rarity]}・${d.name}`;
  cell.append(hit,cap);
  host.append(cell);
  HoloCardFace.observe(card);

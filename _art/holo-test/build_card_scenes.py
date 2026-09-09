@@ -67,6 +67,10 @@ for f in sorted(ART.glob('*.png')):
     p = palette(f)
     if p:
         out[f.name] = p
+from pool_data import SCENE_CARDS
+for card in SCENE_CARDS:
+    key = f"layer-{card['id']}-subject.png"
+    out[key] = palette(OUT / key)
 (ART / 'palette.json').write_text(json.dumps(out, indent=1), encoding='utf-8')
 print('wrote palette for', len(out), 'cards')
 for k in list(out)[:4]:

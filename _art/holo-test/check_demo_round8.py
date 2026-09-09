@@ -7,7 +7,7 @@ from PIL import Image, ImageStat
 from playwright.sync_api import sync_playwright
 
 OUT = Path(__file__).parent
-SHOTS = OUT / 'verify-round27' / 'round8-shots'
+SHOTS = OUT.parents[1] / 'docs/clicker/shots/round32/retained/demo' / 'round8-shots'
 
 def diff(a, b):
     return sum(abs(x - y) for x, y in zip(a, b)) / 3
@@ -75,7 +75,7 @@ def main():
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(viewport={'width': 1512, 'height': 1000}, device_scale_factor=1)
         results = [check(page, (OUT / 'demo.html').as_uri(), 'dev')]
-        with TemporaryDirectory(prefix='holo-r8-copy-',dir=OUT/'verify-round27') as tmp:
+        with TemporaryDirectory(prefix='holo-r8-copy-',dir=OUT.parents[1]/'docs/clicker/shots/round32/retained/demo') as tmp:
             copied = Path(tmp) / 'portable.html'
             shutil.copy2(OUT / 'demo-standalone.html', copied)
             results.append(check(page, copied.as_uri(), 'standalone-copy'))
@@ -84,7 +84,7 @@ def main():
     assert (OUT / 'demo-standalone.html').stat().st_size <= 15 * 1024 * 1024
     assert not re.search(r'\bfetch\s*\(|XMLHttpRequest|type=["\']module|\bimport\s*\(', source)
     report = {'bytes': (OUT / 'demo-standalone.html').stat().st_size, 'results': results, 'standalone_copied': True, 'gem_contrast_threshold': 35}
-    (OUT / 'verify-round27' / 'verification-round8.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    (OUT.parents[1] / 'docs/clicker/shots/round32/retained/demo' / 'verification-round8.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 if __name__ == '__main__':

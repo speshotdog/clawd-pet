@@ -31,6 +31,30 @@ SCENE_CARDS = [
 ]
 
 
+# 2026-09-09: 桌面「新卡\4.0」，只在精裝研究線生效，尚未進遊戲。
+EXTRA_CARDS = [
+    {'id': ident, 'name': name, 'rarity': rarity, 'kind': kind, 'file': f'card-{ident}.png'}
+    for ident, name, rarity, kind in [
+        ('miepuxiong', '咩噗熊', 'rare', 'framed'),
+        ('waisongmiege', '外送咩鴿', 'rare', 'framed'),
+        ('pufayueyue', '普發玥玥', 'rare', 'framed'),
+        ('geimieqianhaoma', '給咩錢好嗎', 'epic', 'framed'),
+        ('jiaochi', '膠齒', 'rare', 'framed'),
+        ('xiaochouyue', '小丑玥', 'epic', 'framed'),
+        ('xiaojiaojiao', '小膠膠', 'epic', 'framed'),
+        ('chengtiregou', '成體熱狗', 'epic', 'framed'),
+        ('bianbiancaihua', '扁扁彩華', 'epic', 'framed'),
+        ('yuexiong', '玥熊', 'epic', 'framed'),
+        ('jintianwoshengri', '今天我生日', 'legendary', 'framed'),
+        ('shabaolingzhu', '沙堡領主', 'mythic', 'flat'),
+        ('liulangyueshou', '流浪玥手', 'mythic', 'flat'),
+        ('zhenqiqiu', '珍氣球', 'mythic', 'flat'),
+        ('zhenjunyue', '真菌玥', 'mythic', 'flat'),
+        ('zhenzhen', '珍珍', 'mythic', 'flat'),
+    ]
+]
+
+
 def catalog():
     """讀 src/gacha-pool.js 的 CATALOG，回傳有美術素材的卡。
 
@@ -66,7 +90,7 @@ def palettes():
 
 
 def pool(with_scenes=True, with_palette=True, sort_by_rarity=True):
-    cards = catalog()
+    cards = catalog() + [dict(c) for c in EXTRA_CARDS]
     if with_palette:
         pal = palettes()
         for c in cards:

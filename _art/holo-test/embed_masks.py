@@ -11,29 +11,30 @@ data={
  'glitter':uri((out/'texture-glitter-atlas.png').read_bytes(),'image/png'),
  'frame':uri((out/'frame-mask.svg').read_bytes(),'image/svg+xml')
 }
-for name in ('zhenpete','zhenwang','zhencao','zhenjpg','mieshi','wanwumythic'):
-    path=root/'src'/f'card-{name}.png'
-    alpha=Image.open(path).convert('RGBA').getchannel('A')
-    mask=Image.new('RGBA',alpha.size,'white');mask.putalpha(alpha)
-    buf=io.BytesIO();mask.save(buf,format='PNG',optimize=True)
-    data[f'card-{name}.png']=uri(buf.getvalue(),'image/png')
-for name in ('rocketdog','astronaut','alienkitty','fluffdog'):
-    key=f'layer-{name}-subject.png'
-    alpha=Image.open(out/key).getchannel('A');mask=Image.new('RGBA',alpha.size,'white');mask.putalpha(alpha)
-    buf=io.BytesIO();mask.save(buf,format='PNG',optimize=True);data[key]=uri(buf.getvalue(),'image/png')
-# Round 9: the whole pool gets a deluxe frame, so every card art needs its foil mask.
-# Downscaled to 300x420 - the mask only drives foil placement, and 43 full-res alphas
-# would add megabytes to demo.html for no visible gain.
-import json as _json
-for entry in _json.loads((out/'pool-cards.json').read_text(encoding='utf-8')):
-    key=entry['src']
-    if key in data: continue
-    src=root/'src'/entry['src']
-    if not src.exists(): print('missing art, skipped:',entry['src']); continue
-    im=Image.open(src).convert('RGBA')
+# Preserve historical demo masks byte-for-byte; only new framed assets need baking.
+old_html=(out/'demo.html').read_text(encoding='utf-8')
+data.update(json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>',old_html,re.S).group(1)))
+from pool_data import pool, EXTRA_CARDS
+extra_files={c['file'] for c in EXTRA_CARDS}
+
+def resolve_art(card):
+    """One data-driven resolver: scene layers, research art, legacy source fallback."""
+    if card.get('scene'):
+        return out / f"layer-{card['id']}-subject.png"
+    research = out / 'art' / card['file']
+    return research if research.exists() else root / 'src' / card['file']
+
+for card in pool():
+    if card['kind'] == 'flat':
+        continue
+    path = resolve_art(card)
+    key = path.name
+    if key in data and key not in extra_files: continue
+    im=Image.open(path).convert('RGBA')
     im.thumbnail((300,420),Image.Resampling.LANCZOS)
     alpha=im.getchannel('A');mask=Image.new('RGBA',alpha.size,'white');mask.putalpha(alpha)
-    buf=io.BytesIO();mask.save(buf,format='PNG',optimize=True);data[key]=uri(buf.getvalue(),'image/png')
+    buf=io.BytesIO();mask.save(buf,format='PNG',optimize=True)
+    data[key]=uri(buf.getvalue(),'image/png')
 
 path=out/'demo.html';html=path.read_text(encoding='utf-8')
 block='<!-- MASK_DATA_START -->\n<script type="application/json" id="mask-data">'+json.dumps(data,separators=(',',':'))+'</script>\n<!-- MASK_DATA_END -->'

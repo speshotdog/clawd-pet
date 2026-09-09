@@ -37,7 +37,14 @@ for tex in ('texture-fiber.png', 'texture-engraving.png'):
     page = page.replace(tex, 'data:image/png;base64,' + b64encode((OUT / tex).read_bytes()).decode('ascii'))
 
 # 卡圖經過 HoloCardFace 的 resolve()，所以只要把查表塞進頁面即可
-assets = {c['file']: uri(OUT / 'art' / c['file']) for c in pool}
+assets = {}
+for c in pool:
+    if c.get('scene'):
+        for layer in ('subject', 'background'):
+            key = f"layer-{c['id']}-{layer}.png"
+            assets[key] = uri(OUT / key)
+    else:
+        assets[c['file']] = uri(OUT / 'art' / c['file'])
 hook = "const POOL  = JSON.parse($('#pool-data').textContent);"
 assert hook in page, hook
 page = page.replace(hook, hook + "\nconst __A=" + json.dumps(assets, separators=(',', ':')) + ";", 1)

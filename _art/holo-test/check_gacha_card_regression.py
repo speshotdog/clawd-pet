@@ -7,10 +7,10 @@ import json, shutil, sys
 from io import BytesIO
 from PIL import Image, ImageChops, ImageStat
 from playwright.sync_api import sync_playwright
-from pool_data import pool
+from pool_data import pool, EXTRA_CARDS
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / 'verify-round30' / 'regression'
+OUT = HERE.parent.parent / 'docs/clicker/shots/round32/retained/retained30/regression'
 OUT.mkdir(parents=True,exist_ok=True)
 WIDTHS = [80, 102, 150, 230, 290, 380, 420]
 MEASURE = r"""c => {
@@ -98,11 +98,11 @@ def check_remade_portable(ctx):
         p.on('console',lambda m:errors.append(m.text) if m.type=='error' else None)
         p.on('requestfailed',lambda r:failed.append(r.url))
         p.goto(moved.as_uri());settle(p)
-        assert p.locator('#grid .hcard').count()==43
+        assert p.locator('#grid .hcard').count()==len(pool())
         assert p.evaluate('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)')
         assert not errors and not failed,(errors,failed)
         p.close()
-    print('remade standalone copied: 43 cards, images loaded, no errors',flush=True)
+    print('remade standalone copied: full pool, images loaded, no errors',flush=True)
 
 
 def main():
@@ -132,15 +132,15 @@ def main():
                 for card in pool():
                     ref=r
                     a=place(ref,card,w);b=place(g,card,w,True)
-                    demo=place(d,card,w) if ref!=d else a
-                    for measured in [a,b,demo]:
+                    demo=place(d,card,w) if card['id'] not in {c['id'] for c in EXTRA_CARDS} else None
+                    for measured in [a,b]+([demo] if demo else []):
                         expected=dict(frame=12/262*100,inset=(12 if card['rarity'] in ['legendary','mythic'] else 10)/262*100,material=12/262*100,mask=100,background=300,plate=5/262*100,gem=3/262*100,glyph=14/262*100)
                         for key,value in expected.items():assert abs(measured['skin'][key]-value)<.3,(card['id'],w,key,measured['skin'])
                         for sel in ['.face-plate','.face-text']:
                             st=measured['layers'][sel]['styles']
                             for prop,denom,target in [('left',w,4.4),('right',w,4.4),('bottom',w*1.4,3.4),('height',w*1.4,16.2)]:assert abs(float(st[prop].removesuffix('px'))/denom*100-target)<.03,(card['id'],w,sel,prop,st[prop])
-                    row={'demoComparison':compare(demo,b),'id':card['id'],'width':w,'reference':'cards-remade.html','referenceMeasurement':a,'gachaMeasurement':b,**compare(a,b)}
-                    for measured in [a,b,demo]:
+                    row={'demoComparison':compare(demo,b) if demo else {'pass':True,'not_applicable':'Deluxe-only new card; no historical demo counterpart'},'id':card['id'],'width':w,'reference':'cards-remade.html','referenceMeasurement':a,'gachaMeasurement':b,**compare(a,b)}
+                    for measured in [a,b]+([demo] if demo else []):
                         assert measured['structure'] and not measured['broken'],(card['id'],w,measured['structure'],measured['broken'])
                         assert all(x['amount']<=1.5 for x in measured['overflow']),(card['id'],w,measured['overflow'])
                     if card['id'] in ['rocketdog','mieshi','wanwumythic','foxfriend','dino']:

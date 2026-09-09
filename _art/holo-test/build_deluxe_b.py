@@ -30,7 +30,7 @@ __CARD_CSS__
 <main class="win" id="win" data-screen="entry">
  <div class="stage-background" aria-hidden="true">
   <div class="stage-base"></div><div class="stage-substrate"></div>
-  <div class="stage-geometry"></div><div class="stage-glow"></div>
+  <div class="stage-geometry">__BACKGROUND_GEOMETRY__</div><div class="stage-glow"></div>
   <div class="stage-sheen"></div><div class="stage-vignette"></div>
  </div>
  <div class="stage" id="stage">
@@ -115,5 +115,6 @@ page = HTML.replace('__CEREMONY_JS__', '\n'.join((OUT / name).read_text(encoding
            .replace('__MASKS__', json.dumps(masks, separators=(',', ':'))) \
            .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':')))
 page = page.replace('__SUBSTRATE_INIT__', "win.style.setProperty('--substrate', 'url(' + path('fx/summon-substrate.webp') + ')');" if (OUT / 'fx/summon-substrate.webp').exists() else '// Optional substrate pending: CSS material fallback remains active.')
+page = page.replace('__BACKGROUND_GEOMETRY__', (OUT / 'ceremony-background.svg').read_text(encoding='utf-8'))
 (OUT / 'deluxe-gacha-b.html').write_text(page, encoding='utf-8', newline='\n')
 print('wrote deluxe-gacha-b.html  cards:', len(cards), ' %.2f MiB' % ((OUT / 'deluxe-gacha-b.html').stat().st_size / 1048576))
