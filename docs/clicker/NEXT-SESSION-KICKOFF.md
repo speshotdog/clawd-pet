@@ -5,6 +5,18 @@
 > 幫我讀 D:\claude\clawd-pet\docs\clicker\NEXT-SESSION-KICKOFF.md 與 HANDOFF-next-session.md 第十八節，
 > 照舊分工（我寫簡報 → Astra 用本機 codex.exe 實作 → 我用 Playwright 驗收 → commit／export-web／gh-pages／exe），先收我實玩的回饋。
 
+## ⚠ 這個專案有兩條線，先確認你在哪一條
+
+| 分支 | worktree | 內容 | 2026-09-09 凌晨的狀態 |
+|---|---|---|---|
+| `main` | `D:\claude\clawd-pet` | 遊戲本體（本文件講的） | 第三十三輪 `0cb8b1a`，gh-pages 已同步 |
+| `holo-cards` | `D:\claude\clawd-pet-holo` | 華麗卡牌／精裝抽卡研發 | 做到第二十六輪，`_art/holo-test/` 底下，**沒有動到 `src/`** |
+
+**不要在同一個資料夾切分支**（2026-09-08 兩個 session 共用工作區，害卡牌檔案被掃進 main 的 commit）。
+
+要接卡牌那條線的話，開工必讀是 `clawd-pet-holo` 的
+`docs/clicker/HANDOFF-holo-cards.md` 與 `docs/clicker/LESSONS-2026-09-09.md`（那份只在 `holo-cards` 分支上）。
+
 ## 先 `git fetch && git pull --ff-only`
 
 `npm test` 應為 **170 例**。main 最新是**第三十三輪**（`0cb8b1a`：快轉遇新卡才停、
