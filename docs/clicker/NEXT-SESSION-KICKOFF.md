@@ -1,3 +1,8 @@
+> ⚠ **你現在在 `holo-cards` 分支**。這份是 **`main` 遊戲本體** 的開工提示，而且是舊副本
+> （停在第二十三輪；main 上的版本已到第三十三輪）。
+> **卡牌／精裝抽卡這條線請改讀 [`HANDOFF-holo-cards.md`](HANDOFF-holo-cards.md) 與
+> [`LESSONS-2026-09-09.md`](LESSONS-2026-09-09.md)**；要看 main 的最新狀態請到 `D:\claude\clawd-pet`。
+
 # 珍母點點：新 session 開工提示（2026-09-08 下午之後）
 
 貼給新視窗的第一句：
