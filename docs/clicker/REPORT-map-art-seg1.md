@@ -1,3 +1,129 @@
+# 第一段地圖美術修訂回報（seg1b）
+
+日期：2026-09-10
+
+## 本輪交付
+
+已讀本輪 brief、上一輪 brief、原有回報與 DESIGN-2.0-art-direction.md，並目視檢視退回稿、1.0 後院、gacha-pack 與卡背。依本輪明確指定保留大樹、柵欄／信箱、野餐布。
+
+本輪使用 **內建 imagegen 2 個 job，逐一完成，沒有並行**；未使用 CLI/API fallback。第一稿中央第二段超標，第二稿針對中央輪廓與碎盤避讓修正後採用。前輪 6 個 job 為歷史紀錄，不計入本輪。
+
+- 覆蓋地景：`_art/holo-test/map-art/seg1-backyard-ruin.png`，971 × 1619，RGB PNG，約 3:5。
+- 重出對照：`_art/holo-test/map-art/seg1-compare.png`，1648 × 720，RGB PNG。
+- 更新本報告。下面保留上一輪回報，明確標為歷史，不代表本輪成品。
+
+**12 格邊緣密度與上下過渡帶均通過本輪數值門檻。** 殘骸至少 9 件，分布第 2、3、4 段，物件本體均避開中央帶。仍有輕微色調起伏，不宣稱逐像素純色；「是不是同一個後院」仍由使用者看對照圖判定，不宣稱辨識率或全面驗收。
+
+## 四等分 × 三欄量測
+
+直接量最終原尺寸，沒有先縮圖。RGB 8-bit 值以 Y=0.2126R+0.7152G+0.0722B 求亮度，對整張亮度矩陣使用 NumPy gradient，幅值 hypot(gx,gy) >24 的像素占比為邊緣密度，再依下列區域取樣。座標採左閉右開，原點左上。y 邊界為 round(h × 比例)，x 邊界為 int(w × 比例)。
+
+左欄 x=[0,339)，中央 x=[339,631)，右欄 x=[631,971)。有效高度 y=[162,1457)，四段因整數取樣為 324、324、323、324 px。
+
+| 有效高度四等分 | 左 35%（≥0.8%） | 中央 30%（≤1.2%） | 右 35%（≥0.8%） |
+|---|---:|---:|---:|
+| 第 1 段 y=[162,486) | 5.4946% | 0.2315% | 2.7188% |
+| 第 2 段 y=[486,810) | 12.2901% | 0.5761% | 11.9299% |
+| 第 3 段 y=[810,1133) | 13.7127% | 0.0000% | 10.2340% |
+| 第 4 段 y=[1133,1457) | 8.5436% | 0.0772% | 8.8535% |
+
+| 過渡帶（全寬） | 邊緣密度 | 門檻 |
+|---|---:|---|
+| 上端 y=[0,162) | 0.0000% | 0～0.3% |
+| 下端 y=[1457,1619) | 0.0000% | 0～0.3% |
+
+第一稿相同量法的中央四段依序為 0.4535%、**3.7470%**、0.7528%、0.6078%，所以未採用。第二稿去掉中央丘陵黑線，改為大塊相鄰色面，並將破盤與碎片收回左側。中央仍可能有低對比色界或側邊土塊輪廓擦入，並非完全零邊緣；四段皆低於上限。這是圖像密度量測，不是辨識率或 UI 遮擋測試。
+
+## 殘骸與地面破壞
+
+以下是目視約略包圍框，單位 px；不是語意分割遮罩。按物件本體計數，不把每顆碎屑重複充數。
+
+| 殘骸 | 約略包圍框 (x0,y0)–(x1,y1) | 四等分 |
+|---|---|---|
+| 上方折斷白柵欄板 | (28,699)–(167,765) | 第 2 段，左 |
+| 紅白破杯與碎片（合計一組） | (768,745)–(922,815) | 第 2 段為主，少量碎片跨第 3 段，右 |
+| 翻倒野餐籃 | (31,858)–(190,1000) | 第 3 段，左 |
+| 掉出的三明治 | (142,943)–(231,1006) | 第 3 段，左 |
+| 裂成兩半的白盤與碎片（合計一組） | (131,1008)–(303,1110) | 第 3 段，左 |
+| 撕開紅白包裝袋 | (806,1018)–(951,1122) | 第 3 段，右 |
+| 半埋紅白狗球 | (89,1155)–(212,1270) | 第 4 段，左 |
+| 下方斷裂白柵欄板 | (201,1198)–(326,1310) | 第 4 段，左 |
+| 半埋綠色恐龍玩具 | (649,1167)–(891,1276) | 第 4 段，右 |
+| 下方破包裝袋 | (831,1267)–(944,1327) | 第 4 段，右 |
+
+共 10 件／組，其中即使不把掉出的食物獨立計數，也有 9 件／組。全部物件本體在中央 x=[339,631) 之外。第 1 段靠左右煙塵及左側樹枝補足地景，沒有用漂浮垃圾湊數。
+
+地面改為大面積枯黃色，兩側可見翻起棕土、短裂口、折斷板材與倒伏枯草。中央採大片低對比黃色與土色，不放細碎裂紋。破壞從第 2 段延續至第 4 段，沒有再留下上下各四分之一純空的構圖。
+
+檢視發現現有 `src/gacha-pack.png` 實際是藍綠／奶油色、帶狗圖案的包裝，與 brief 所稱紅白色不一致。本輪遵循 brief 明確指定的「紅白零食包裝袋」，保留撕開袋形且不畫字；不宣稱袋面精確還原該參考檔。
+
+## 三個識別物與天空
+
+| 識別物 | 約略包圍框 | 保留情形 |
+|---|---|---|
+| 分叉大樹 | (25,329)–(332,693) | 左短右長的粗分叉與圓切口、三團焦黑樹冠，仍在左側；沒有裁掉識別核心。 |
+| 白柵欄＋紅信箱 | (665,564)–(950,740) | 白尖頭、缺板，紅色圓頂箱體、開門與歪斜支柱，仍在右側。 |
+| 紅白格紋野餐布 | (663,892)–(947,1009) | 完整透視梯形、可讀大格紋、左側撕口與右下捲角，仍在右下。 |
+
+為鋪滿有效高度，地標的絕對 y 座標上移；左右與上下的相對關係保留。不是把原圖的三組物件逐像素貼回，因此不宣稱形狀像素完全相同。所有識別核心皆在中央帶外且遠離上下過渡帶。
+
+天空保留三層水平色帶：上層約 y=[0,173) 的較深灰藍，中層約 y=[173,358) 的淺灰藍，下層自 y=358 起為更淺的灰藍地平帶，至丘陵遮住為止。兩側加入深灰煙塵團，中央遠煙採無黑邊色塊。仍保有「同一片天」的三段結構；實際灰土染色程度較 prompt 期望溫和，偏藍灰而非濃土灰。
+
+## 製作與檢查限制
+
+地景直接生成 971 × 1619 直式，原檔直接複製覆蓋，未裁切、拉伸、補高或程式重畫；沒有方圖轉直式或需保留的方形原稿。
+
+對照圖以 Pillow 做 brief 指定的確定性縮放與並排：共同高度取兩來源較小高度 720；左圖保留 1216 × 720，右圖等比縮為 432 × 720（寬度四捨五入）。左圖從 x=0 起，右圖從 x=1216 起，無間隔、無補白、無裁切、無標題箭頭。程式驗證兩個貼合區與縮放後来源逐像素相等，並已目視檢查成品。
+
+目視未見文字、字母、數字、logo、浮水印、寶石、金屬反光或光暈；未跑 OCR。採粗黑手繪輪廓，但生成器仍留下草地、天空與局部物件的輕微漸層／色調起伏，**未達逐像素完全扁平純色**；第二次明確要求去除後仍存在，不能宣稱這一點已完全解決。沒有寫實投射光影，土色塊兼有地面斑塊感。未擅自用程式調色掩蓋問題。
+
+尚未和相鄰段實際拼接，亦未接 UI 或測試節點覆蓋、配對辨識率；無縫與辨識契約仍待後續人工驗收。
+
+`icons-sheet.png` 完全未修改，修改前後 SHA-256 同為：
+`8F11911E0642075A7536671FAA64D5806E0083EFB8A3A8B975488FA3A8C0EB31`。
+
+只修改兩張指定圖與本報告；未修改參考、src、其他文件，未引入素材或字型，未 build、未起 server、未 commit、未 push。Git 只以單次 safe.directory 參數讀取狀態，未修改 Git 設定。
+
+## 本輪 job 與 prompt 原文
+
+### Job 1：補充災後內容，未採用
+
+輸入依序：退回地景（編輯目標）、1.0 後院（世界與天空參考）、卡背（畫風參考）。
+輸出：`C:\Users\ASUS User VII\.codex\generated_images\01a08a6f-10e8-7f32-bb11-9dacbecd195f\exec-6eb44f46-f0d9-40de-ad47-352760bc9340.png`。
+中央第 2 段超標，故未採用。
+
+```text
+Use case: precise-object-edit
+Asset: ONE portrait 3:5 ruined backyard scrolling game map, approximately 1200x2000.
+Input 1 is the rejected map EDIT TARGET: preserve its three landmark designs, thick black handmade outlines and relative placement. Input 2 is the original backyard REFERENCE for the SAME world and three horizontal sky bands. Input 3 is cardback STYLE reference only.
+Redraw the scene to show destructive aftermath, not merely evening. Preserve the left tree's exact distinctive brown fork silhouette, left short/right long rounded cut arms and three charred rounded foliage masses; preserve right white pointed broken picket fence and RED ROUND-TOP open mailbox; preserve lower right red/cream CHECKERED trapezoid blanket with torn notch and curled corner. Keep these fully inside the canvas, outside x=35%-65%.
+Composition must have content through the whole usable height: top 10% and bottom 10% ONLY are clean transition strips. The usable region y=10%-90% has FOUR equal height zones (10-30,30-50,50-70,70-90%). BOTH left 35% and right 35% must have clear thick outlined shapes in EVERY zone, never empty quarters.
+Zone 1 y10-30: several outlined dark gray distant smoke/dust lobes on BOTH lateral sides, and upper tree branch/charred canopy on left. Three horizontal flat sky bands: slate blue-gray, lighter dusty gray-blue, palest dirty gray horizon, visibly distinct like the original, compressed into top 30%. No harsh outlined sky division across center. Keep top y0-10 totally clear.
+Zone 2 y30-50: left recognizable full fork tree and damaged earth, right recognizable broken white pickets and red round mailbox. Extra loose snapped fence boards on left ground and broken cup fragments on right ground.
+Zone 3 y50-70: LEFT overturned picnic basket with a fallen sandwich, a broken white plate in separate chunks; RIGHT original recognizable small torn checker blanket, and a ripped RED AND CREAM snack wrapper with NO writing. All objects outside central strip.
+Zone 4 y70-90: LEFT a half-buried red dog ball plus a separate snapped ivory fence plank with visible splinters; RIGHT a half-buried green dinosaur dog toy and a second torn red/cream wrapper. Dry bent grass tufts, clear cracks and lifted soil clods on BOTH sides in zones 2,3,4. End all high-contrast details before y89%.
+Ground is visibly wrecked with large straw-yellow dead patches, lifted brown earth and cracks along sides, not uniform olive grass. Central 30% x35-65 must stay quiet: ONLY broad LOW CONTRAST flat dead-earth or straw color areas, NO thin cracks, NO debris, NO black hill outline crossing center, no small patterns. Make sides rich enough in thick outline detail but center calm enough for four game nodes. No actual nodes or UI.
+Flat solid cartoon fills, coarse black hand-drawn outlines like references, NO realistic lighting, shadows, shading, gradients, glow, gems, metal shine, photoreal texture. NO text, letters, numerals, logos, watermark, labels, borders, arrows. Do not introduce buildings, characters or generic stone rubble. Retain SAME original landmark identities; maintain tree LEFT, mailbox/fence RIGHT, blanket LOWER RIGHT. Output one complete portrait only.
+```
+
+### Job 2：中央避讓修正，採為成品
+
+輸入：Job 1 輸出（編輯目標）。
+輸出：`C:\Users\ASUS User VII\.codex\generated_images\01a08a6f-10e8-7f32-bb11-9dacbecd195f\exec-98f3fd64-d5fa-42eb-9707-3c1668cc0eb5.png`。
+原始輸出留在內建預設目錄；選定稿已複製到專案，不依賴該目錄供專案讀取。
+
+```text
+Use case: precise-object-edit
+Edit this image with ONLY a central corridor cleanup and flat-fill correction. Preserve the same portrait 3:5 canvas, all existing side objects and their recognizable shapes, the three horizontal sky bands, smoke, fork tree (left short right long cut branches), red round-top open mailbox and ivory pickets, torn red/cream checker blanket, picnic basket, sandwich, broken plate/cup, red/cream wrappers, ball, dinosaur toy, snapped boards, dead grass and damaged ground. Preserve side detail in ALL four height zones and clean top/bottom 10%.
+CRITICAL correction: the vertical strip x=35%-65% must have NO BLACK OUTLINES anywhere. Remove the entire black hill contour and smoke outlines where they cross this central strip, especially y=30%-50%. Represent the hills in the center as broad LOW-CONTRAST flat adjacent colors, with luminance differences under 20/255. Preserve outlines OUTSIDE the central strip. Center ground is broad continuous flat straw-yellow with a few very broad softly contrasting solid shapes only, no cracks, stones, grass marks or soil contours.
+Move the entire broken plate and its fragments farther LEFT to fit entirely x=8%-32%; move all left debris/soil outlines to x<=33%. Move all right debris/soil outlines to x>=67%. Every piece of debris must be outside x35%-65%, not just its center. Preserve the full plate shards, no cropping. Keep all three landmark identities intact.
+Remove mottled shading and gradients across the whole illustration, use SOLID FLAT colored fills within the existing shapes, hand-drawn thick black outlines on lateral objects. No realistic lighting or cast shadows. Keep the existing content distribution, don't remove side objects or smoke and don't enlarge blank top/bottom areas. No text, logos, numbers, letters, labels, UI, glow, gems or metal reflections. One portrait image.
+```
+
+---
+
+# 上一輪回報（歷史存檔，以下數據與問題不代表 seg1b 成品）
+
 # 第一段地圖美術樣品回報
 
 日期：2026-09-10
@@ -232,4 +358,3 @@ No boxes around icons, no drawn dividing lines. Thin cream sticker rim optional.
 只新增 map-art 下三張交付圖與本報告；沒有更動原參考圖、src、map20.html 或其他文件。未 build、未啟動 server、未 commit、未 push。只用工具複製圖檔、以記憶體中的 Python 指令製作指定並排圖與進行量測，未新增程式檔或接線。
 
 Git 初次只讀狀態查詢遇到 dubious ownership；改用單次命令的 safe.directory 設定讀取，未修改全域或專案 Git 設定。
-
