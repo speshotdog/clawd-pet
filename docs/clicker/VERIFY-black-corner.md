@@ -1,0 +1,76 @@
+# 卡片圓角外的純黑 L 形黑角：判準與現況掃描
+
+工法出處：`docs/clicker/METHOD-card-face.md` 第三節（使用者今天在另一個視窗解掉的那個問題）。
+
+## 一、成因（照抄工法，不要自己推）
+
+> 那塊底板是方角（容器的 `clip-path` 是方形多邊形，沒有圓角），
+> 而容器有 `transform:translateZ(...)` 是獨立的 3D 合成層——
+> **`mix-blend-mode:screen` 在圓角外沒有背景可混，就吐出純黑**。
+> screen 對黑色中性的前提是「有東西可以混」，獨立合成層的空白處不成立。
+
+**觸發條件三件同時成立**：方角圖層 ＋ `mix-blend-mode:screen`（或同類）＋ 獨立合成層（`translateZ`／`isolation`）。
+
+⚠ 這個專案有大量 `mix-blend-mode:screen`：
+`ceremony.css` 的 `.fx-substrate-wave`／`.fx-local-reflection`／`.charge-surface`、
+`demo.html` 的 `.foil-glare`／`.face-holo`／`.mythic-pack::after`／`.mythic-circle::after`。
+**風險是活的，不是理論。**
+
+## 二、判準：`_art/holo-test/check_card_corners.py`
+
+判準本身照工法的兩條規矩做過驗證：
+
+| 檢查 | 拿什麼去量 | 應有結果 | 實測 |
+|---|---|---|---|
+| **有鑑別力** | 注入已知壞寫法（`--inject-bug`）| **紅** | demo.html **3／4 角落 FAIL** ✅ |
+| **不誤傷** | 現況 | 綠 | demo.html **0／4 PASS** ✅ |
+
+⚠ **第一版判準是壞的，而且壞法正是工法警告過的那種。**
+我第一次跑 demo.html 得到「28／32 角落 FAIL」——
+因為取樣落到截圖視窗外的空白（純黑），`local_ref` 是 0.0。
+工法第二節第 7 點寫得很清楚：**驗證腳本說「全部都壞」時，先懷疑判準寫錯。**
+修法兩條：只取**完整落在視窗內**的卡；**在地背景為純黑時判定「取樣無效」，不判紅**。
+
+⚠ **第二版的負控制也是壞的**：我把黑底板注在 `.foil-stack` 上，注了等於沒注（0／4 仍 PASS）。
+`.foil-stack` 的祖先 `.leaf` 有 `border-radius:12px;overflow:hidden`，會把方角剪掉。
+**要重現必須注在沒有被圓角剪裁、而且自己是獨立 3D 合成層的那一層**——
+demo.html 是 `.card-face`（它有 `transform:translateZ(.1px)`）。
+單一變數對照表：
+
+| 注入位置 | 角落最暗 | 角落 ≤12 佔比 |
+|---|---:|---:|
+| 不注入（基準）| 13.30 | 0.00% |
+| `.foil-stack`（被 `.leaf` 圓角剪掉）| 13.30 | 0.00% |
+| `.hcard`（不是獨立合成層）| 13.30 | 0.00% |
+| **`.card-face`（`translateZ(.1px)`，未被圓角剪裁）**| **0.00** | **13.27%** |
+
+**負控制注不出紅燈的時候，先懷疑是注錯地方，不要以為判準沒用。**
+
+判準內容：四角取「圓角外」的方形區（邊長＝圓角半徑），
+在地背景取**緊鄰該角、沿對角外移一個半徑**的同尺寸區（工法第二節第 7 點：參考值要在地）。
+判紅條件：`該角 ≤ max(4, 在地中位×0.35) 的像素佔比 ≥8%` **且** `該角最暗 ≤12`。
+
+## 三、現況掃描（2026-09-10，分支 `holo-5.0`）
+
+| 頁面 | 狀態 | 有效取樣 | 結果 |
+|---|---|---:|---|
+| `demo.html`（卡面頁）| 現況 | 4 角 | **PASS**（0 個黑角）|
+| `demo.html` | 注入壞寫法 | 4 角 | FAIL（3 個）← 證明判準有效 |
+| `deluxe-gacha-b.html` 十連**結果頁** | 現況 | 8 角 | **PASS**（0 個黑角）|
+| `deluxe-gacha-b.html` 十連結果頁 | 注入壞寫法 | 4 角 | FAIL（2 個）← 證明判準有效 |
+
+⚠ **我只掃了「結果頁」這一個時刻。** 揭卡演出過程中會開啟
+`.charge-surface`（`mix-blend-mode:screen` ＋ `border-radius:inherit`）與
+`ceremony-canvas` 各層，**那些狀態還沒掃過**。
+禮物卡那次的黑角就是在特定 FX 狀態才出現的，所以「結果頁沒事」不等於「抽卡沒事」。
+
+## 四、之後每一輪都要跑
+
+`check_card_corners.py` 要接進編隊／地圖的驗收腳本，
+**並且每次都要跑 `--inject-bug` 的負控制**——判準沒有鑑別力的話，綠燈不代表任何事。
+
+用法：
+
+```
+python _art/holo-test/check_card_corners.py <頁面> [--selector .hcard] [--inject-bug]
+```
