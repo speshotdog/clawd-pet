@@ -354,7 +354,13 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
 /* flat／bleed 的文字框：scrim 只畫在 .face-plate 這一層，.face-text 保持透明。
    之前兩層都有底（plate 是 alpha .97～.99 的深色 ＋ text 再畫一次 scrim），
    疊起來就是被否決過的黑棒。HANDOFF 三節「已否決的路線」講的就是這件事。 */
-.hcard.kind-flat .face-plate,.hcard.bleed .face-plate{
+/* 2026-09-10 使用者裁決：depth 也吃這條。理由跟 flat／bleed 一樣——
+   第四十輪之後 depth 的 background 層已經是 600x840 alpha 100% 的整幅畫，
+   再蓋一條 alpha .97~.99 的黑棒等於把畫攔腰切斷。
+   對照組：玩物就玩物（實測名字對比 1.11）用這個框已經上線很久沒有問題，
+   所以驗收的下限用它，不要另訂一個憑感覺的數字。
+   .face-text 本身沒有底（只有定位），所以只改 plate 這一層就夠，不會疊成兩層黑棒。 */
+.hcard.kind-depth .face-plate,.hcard.kind-flat .face-plate,.hcard.bleed .face-plate{
  background:linear-gradient(to top,#070b12d9,#080d16a6 52%,#0a101c40) !important;
  border:max(1px, calc(var(--cw,262px)*1/262)) solid #b4b7c72e !important;border-top:max(1px, calc(var(--cw,262px)*1/262)) solid var(--accent-card) !important;
  border-radius:calc(var(--cw,262px)*5/262) !important;
