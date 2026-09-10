@@ -1,0 +1,2089 @@
+{
+  "checks": {
+    "1440x900.rail_area": {
+      "values": [
+        65.96333094335758
+      ],
+      "range": [
+        65,
+        85
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.floating_panels": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "count",
+      "status": "PASS",
+      "note": "No complete-frame panels; therefore their union is 0% (allowed 0–15%)."
+    },
+    "1440x900.floating_area": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        15
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.texture_area": {
+      "values": [
+        12.99293250025607
+      ],
+      "range": [
+        12,
+        22
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.texture_gray_delta": {
+      "values": [
+        12.214285714285714
+      ],
+      "range": [
+        6,
+        14
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": "(124, 25, 212, 39)"
+    },
+    "1440x900.ui_off_reflow": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.horizontal_overflow": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.summary_position": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.rail_area": {
+      "values": [
+        66.36117801525124
+      ],
+      "range": [
+        65,
+        85
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.floating_panels": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "count",
+      "status": "PASS",
+      "note": "No complete-frame panels; therefore their union is 0% (allowed 0–15%)."
+    },
+    "1024x768.floating_area": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        15
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.texture_area": {
+      "values": [
+        12.65662090133644
+      ],
+      "range": [
+        12,
+        22
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.texture_gray_delta": {
+      "values": [
+        12.214285714285714
+      ],
+      "range": [
+        6,
+        14
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": "(116, 17, 204, 31)"
+    },
+    "1024x768.ui_off_reflow": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.horizontal_overflow": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.summary_position": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.rail_area": {
+      "values": [
+        65.77292168349926
+      ],
+      "range": [
+        65,
+        85
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.floating_panels": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "count",
+      "status": "PASS",
+      "note": "No complete-frame panels; therefore their union is 0% (allowed 0–15%)."
+    },
+    "390x844.floating_area": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        15
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.texture_area": {
+      "values": [
+        12.848568245182557
+      ],
+      "range": [
+        12,
+        22
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.texture_gray_delta": {
+      "values": [
+        12.214285714285714
+      ],
+      "range": [
+        6,
+        14
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": "(112, 13, 200, 27)"
+    },
+    "390x844.ui_off_reflow": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.horizontal_overflow": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.summary_position": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.size": {
+      "values": [
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52
+      ],
+      "range": [
+        44,
+        60
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.vertical_spacing": {
+      "values": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ],
+      "range": [
+        104,
+        144
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.horizontal_offset": {
+      "values": [
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36
+      ],
+      "range": [
+        24,
+        56
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.outline_contrast": {
+      "values": [
+        4.893175156638302
+      ],
+      "range": [
+        3,
+        5
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.width": {
+      "values": [
+        2.5
+      ],
+      "range": [
+        2,
+        3
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.walked_alpha": {
+      "values": [
+        0.72
+      ],
+      "range": [
+        0.65,
+        0.8
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.unwalked_alpha": {
+      "values": [
+        0.28
+      ],
+      "range": [
+        0.22,
+        0.34
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.branches": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.edges": {
+      "values": [
+        19
+      ],
+      "range": [
+        19,
+        19
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.gap": {
+      "values": [
+        8
+      ],
+      "range": [
+        6,
+        10
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.contrast": {
+      "values": [
+        6.684948183120548
+      ],
+      "range": [
+        5,
+        7
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "complete.check_size": {
+      "values": [
+        16
+      ],
+      "range": [
+        14,
+        18
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "complete.graphic_contrast": {
+      "values": [
+        4.18067460415395
+      ],
+      "range": [
+        3,
+        4.5
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "complete.label_contrast": {
+      "values": [
+        6.686390306980519
+      ],
+      "range": [
+        4.5,
+        7
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "complete.retained_names": {
+      "values": [
+        3
+      ],
+      "range": [
+        3,
+        3
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.graphic_alpha": {
+      "values": [
+        0.36
+      ],
+      "range": [
+        0.3,
+        0.42
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.label_contrast": {
+      "values": [
+        6.686390306980519
+      ],
+      "range": [
+        4.5,
+        7
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.outline_alpha": {
+      "values": [
+        0.36
+      ],
+      "range": [
+        0.3,
+        0.42
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.hollow": {
+      "values": [
+        16
+      ],
+      "range": [
+        16,
+        16
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "boss.width_ratio": {
+      "values": [
+        1.5997596153846154,
+        1.5997596153846154,
+        1.5997596153846154,
+        1.5997596153846154,
+        1.5997596153846154
+      ],
+      "range": [
+        1.4,
+        1.8
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "boss.contrast": {
+      "values": [
+        5.608168176246673
+      ],
+      "range": [
+        4,
+        6
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "boss.red_dominance": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "map.stage_count": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "map.boss_count": {
+      "values": [
+        5
+      ],
+      "range": [
+        5,
+        5
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "map.preview_stations": {
+      "values": [
+        5
+      ],
+      "range": [
+        5,
+        5
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.radius": {
+      "values": [
+        1
+      ],
+      "range": [
+        0,
+        2
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.border": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        2
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.body_font": {
+      "values": [
+        16
+      ],
+      "range": [
+        16,
+        18
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.icon_size": {
+      "values": [
+        22
+      ],
+      "range": [
+        20,
+        24
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.icon_stroke": {
+      "values": [
+        1.8
+      ],
+      "range": [
+        1.5,
+        2
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.title_font": {
+      "values": [
+        28
+      ],
+      "range": [
+        24,
+        28
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.idle_displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.press_displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.5.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.6.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.7.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.8.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.9.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.10.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.11.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.12.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.13.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.14.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.15.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.16.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.17.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.18.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.19.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.20.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "tasks.dead_ends": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.0.ordering": {
+      "values": [
+        0,
+        140,
+        420
+      ],
+      "range": [
+        0,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.0.connection_start": {
+      "values": [
+        140
+      ],
+      "range": [
+        140,
+        140
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.0.bracket_start": {
+      "values": [
+        420
+      ],
+      "range": [
+        420,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.0.peak_alpha": {
+      "values": [
+        0.84
+      ],
+      "range": [
+        0.78,
+        0.9
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.0.displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.1.ordering": {
+      "values": [
+        0,
+        140,
+        420
+      ],
+      "range": [
+        0,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.1.connection_start": {
+      "values": [
+        140
+      ],
+      "range": [
+        140,
+        140
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.1.bracket_start": {
+      "values": [
+        420
+      ],
+      "range": [
+        420,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.1.peak_alpha": {
+      "values": [
+        0.84
+      ],
+      "range": [
+        0.78,
+        0.9
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.1.displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.2.ordering": {
+      "values": [
+        0,
+        140,
+        420
+      ],
+      "range": [
+        0,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.2.connection_start": {
+      "values": [
+        140
+      ],
+      "range": [
+        140,
+        140
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.2.bracket_start": {
+      "values": [
+        420
+      ],
+      "range": [
+        420,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.2.peak_alpha": {
+      "values": [
+        0.84
+      ],
+      "range": [
+        0.78,
+        0.9
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.2.displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.check": {
+      "values": [
+        140
+      ],
+      "range": [
+        120,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        140,
+        140,
+        140
+      ]
+    },
+    "advance.connection": {
+      "values": [
+        280
+      ],
+      "range": [
+        240,
+        320
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        280,
+        280,
+        280
+      ]
+    },
+    "advance.bracket": {
+      "values": [
+        190
+      ],
+      "range": [
+        160,
+        220
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        190,
+        190,
+        190
+      ]
+    },
+    "playback.check": {
+      "values": [
+        149.98666666500893
+      ],
+      "range": [
+        120,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        150.05099997967483,
+        149.97100002756343,
+        149.9379999877885
+      ]
+    },
+    "playback.connection": {
+      "values": [
+        293.2866666650089
+      ],
+      "range": [
+        240,
+        320
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        293.35099997967484,
+        293.27100002756345,
+        293.2379999877885
+      ]
+    },
+    "playback.bracket": {
+      "values": [
+        196.61999999834222
+      ],
+      "range": [
+        160,
+        220
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        196.6509999796748,
+        196.5710000275634,
+        196.63799998778848
+      ]
+    },
+    "camera.visible_no_scroll": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "camera.0.not_centered": {
+      "values": [
+        330
+      ],
+      "range": [
+        1,
+        900
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "camera.1.not_centered": {
+      "values": [
+        330
+      ],
+      "range": [
+        1,
+        900
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "camera.2.not_centered": {
+      "values": [
+        330
+      ],
+      "range": [
+        1,
+        900
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "camera.duration": {
+      "values": [
+        331.2666666706403
+      ],
+      "range": [
+        280,
+        380
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        330.80000001192093,
+        332.69999998807907,
+        330.30000001192093
+      ]
+    },
+    "camera.distance": {
+      "values": [
+        13.222222222222221,
+        13.222222222222221,
+        13.222222222222221
+      ],
+      "range": [
+        12,
+        28
+      ],
+      "unit": "% viewport height",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.0.all_state_durations": {
+      "values": [
+        130,
+        130,
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.0.tracking": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.0.static_state_shapes": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.1.all_state_durations": {
+      "values": [
+        130,
+        130,
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.1.tracking": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.1.static_state_shapes": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.2.all_state_durations": {
+      "values": [
+        130,
+        130,
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.2.tracking": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.2.static_state_shapes": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.duration": {
+      "values": [
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        130,
+        130,
+        130
+      ]
+    },
+    "reduced.media_query": {
+      "values": [
+        130,
+        130,
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.0.completed": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.0.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.1.completed": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.1.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.2.completed": {
+      "values": [
+        2
+      ],
+      "range": [
+        2,
+        2
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.2.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.3.completed": {
+      "values": [
+        3
+      ],
+      "range": [
+        3,
+        3
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.3.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.4.completed": {
+      "values": [
+        4
+      ],
+      "range": [
+        4,
+        4
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.4.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.5.completed": {
+      "values": [
+        5
+      ],
+      "range": [
+        5,
+        5
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.5.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.6.completed": {
+      "values": [
+        6
+      ],
+      "range": [
+        6,
+        6
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.6.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.7.completed": {
+      "values": [
+        7
+      ],
+      "range": [
+        7,
+        7
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.7.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.8.completed": {
+      "values": [
+        8
+      ],
+      "range": [
+        8,
+        8
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.8.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.9.completed": {
+      "values": [
+        9
+      ],
+      "range": [
+        9,
+        9
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.9.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.10.completed": {
+      "values": [
+        10
+      ],
+      "range": [
+        10,
+        10
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.10.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.11.completed": {
+      "values": [
+        11
+      ],
+      "range": [
+        11,
+        11
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.11.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.12.completed": {
+      "values": [
+        12
+      ],
+      "range": [
+        12,
+        12
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.12.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.13.completed": {
+      "values": [
+        13
+      ],
+      "range": [
+        13,
+        13
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.13.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.14.completed": {
+      "values": [
+        14
+      ],
+      "range": [
+        14,
+        14
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.14.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.15.completed": {
+      "values": [
+        15
+      ],
+      "range": [
+        15,
+        15
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.15.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.16.completed": {
+      "values": [
+        16
+      ],
+      "range": [
+        16,
+        16
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.16.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.17.completed": {
+      "values": [
+        17
+      ],
+      "range": [
+        17,
+        17
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.17.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.18.completed": {
+      "values": [
+        18
+      ],
+      "range": [
+        18,
+        18
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.18.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.19.completed": {
+      "values": [
+        19
+      ],
+      "range": [
+        19,
+        19
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.19.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.20.completed": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.20.current": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "tasks.final_complete": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "cooldown.failure_seconds": {
+      "values": [
+        180
+      ],
+      "range": [
+        179,
+        180
+      ],
+      "unit": "s",
+      "status": "PASS",
+      "note": ""
+    },
+    "cooldown.result_disabled": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "cooldown.expired_enabled": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "cooldown.hidden_state": {
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "FAIL",
+      "note": ""
+    },
+    "cooldown.hidden_countdown_drop": {
+      "values": [
+        5
+      ],
+      "range": [
+        4,
+        6
+      ],
+      "unit": "s",
+      "status": "PASS",
+      "note": "Only valid if cooldown.hidden_state passes.",
+      "samples": [
+        5,
+        5,
+        5
+      ]
+    },
+    "runtime.errors": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    }
+  },
+  "evidence": {
+    "browser": "136.0.7103.25",
+    "1440x900.ui_pixels": 624832,
+    "1024x768.ui_pixels": 460028,
+    "390x844.ui_pixels": 194761,
+    "hidden_trials": [
+      {
+        "visibility": "visible",
+        "elapsed_ms": 5100,
+        "countdown_drop": 5,
+        "events": []
+      },
+      {
+        "visibility": "visible",
+        "elapsed_ms": 5100,
+        "countdown_drop": 5,
+        "events": []
+      },
+      {
+        "visibility": "visible",
+        "elapsed_ms": 5101,
+        "countdown_drop": 5,
+        "events": []
+      }
+    ],
+    "errors": []
+  },
+  "manual": [
+    "灰階圖的 C 結構辨識須人工判讀，未以像素差冒充玩家辨識率。",
+    "這需要實機量：目前 headless Chromium 的分頁切換仍回報 visible；5 秒實時倒數成立，但不能宣稱通過隱藏分頁測試。"
+  ],
+  "status": "FAIL",
+  "counts": {
+    "PASS": 160,
+    "FAIL": 1
+  }
+}
