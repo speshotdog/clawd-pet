@@ -53,9 +53,20 @@ nav button{flex:1;padding:8px;font-size:14px;line-height:1.3;border-bottom:0;bor
 .gate{background-size:contain;background-position:center}
 .link{stroke:#000;stroke-width:3;stroke-opacity:.32}.link.walked{stroke:#000;stroke-opacity:.58}
 .terrain-tile{left:50%;transform:translateX(-50%);width:min(100%,1040px)}
-@media(max-width:700px){.terrain-tile{width:480px}}
+@media(max-width:700px){.terrain-tile{width:480px;margin-left:var(--terrain-pan,0px)}}
 </style>
+<!-- TEAM_FONT --><style>/* TEAM_CSS */</style>
 <div class="shell"><header class="mast" data-ui><i class="wear"></i><div><small>災後行動 / 路線記錄 02</small><h1>末世地圖</h1></div><div class="meta">單一路線 · 五個封鎖區<br><span id="total" class="digits"></span> 站已通行</div></header><main class="board"><nav class="rail-zone" data-ui data-rail aria-label="區段"><i class="wear"></i><i class="wear wear-right"></i><i class="wear wear-foot"></i></nav><section class="map-window" aria-label="二十站線性地圖"><div class="route"><div class="terrain" aria-hidden="true"></div><svg class="route-lines" aria-hidden="true"></svg></div></section><aside class="inspector rail-zone" data-ui data-rail aria-label="關卡摘要"><i class="wear"></i><i class="wear wear-right"></i><i class="wear wear-foot"></i><small id="section"></small><h2 id="title"></h2><div class="status" id="status" aria-live="polite"></div><hr><p id="description"></p><p class="next" id="next"></p><div class="actions"><button id="advance">記錄通關</button><button id="fail">記錄失敗</button></div><button id="back">返回目前站</button><p id="art-note"></p><p class="footer-note">道路仍在。逐站確認，繼續前進。</p></aside></main></div>
+<button id="open-team">編隊 →</button>
+<section id="team-screen" aria-label="編隊工作盤">
+<header class="team-heading" data-team-ui><div><h1>編隊工作盤</h1><small>原型子集 · 24 / 63 張</small></div><button id="return-map">返回地圖</button></header>
+<div class="team-work"><div class="team-main">
+<section class="capacity team-rail" data-team-ui data-team-rail aria-label="四條累加上限"><i class="team-texture"></i><div id="capacity-rows"></div><div id="capacity-errors" class="capacity-errors" role="status"></div></section>
+<section class="team-roster team-rail" data-team-ui data-team-rail aria-label="隊伍成員"><i class="team-texture"></i><div class="team-roster-head"><span>隊伍 <b id="roster-count" class="digits"></b></span><button id="add-member">＋ 新增成員</button></div><div id="team-grid" class="team-grid"></div></section>
+<section class="team-skills team-rail" data-team-ui data-team-rail><i class="team-texture"></i><div class="team-skills-label"><span>獨立技能</span><small>來源尚未定案 · 神話最多 1 張</small></div><div id="skill-grid" class="skill-grid"></div></section></div>
+<aside id="team-detail" class="team-detail team-rail" data-team-ui data-team-rail aria-label="完整卡片詳情"><button id="detail-close" class="detail-close">返回隊伍</button><header class="team-detail-header"><span id="detail-number" class="team-marker"></span><div><h2 id="detail-name"></h2><small id="detail-rarity"></small></div></header><div class="carrier-board"><i class="team-texture"></i><div class="card-slot"><div id="card-host" class="card-host" tabindex="0" aria-label="完整卡面，方向鍵調整角度"></div></div></div><p class="team-detail-note">選取成員，檢視完整卡面。</p><div class="team-detail-actions"><span id="detail-operation" class="team-marker"></span><button id="replace-member">替換</button><button id="remove-member">移出隊伍</button></div></aside></div>
+<dialog id="team-picker" class="team-dialog"><div class="picker-heading"><h2 id="picker-title"></h2><button id="picker-close">關閉</button></div><div id="picker-grid" class="picker-grid"></div><p id="picker-status" class="picker-status" role="status"></p><button id="picker-confirm" class="picker-confirm" disabled>確認加入</button></dialog>
+</section>
 <script>
 'use strict';
 const q=new URLSearchParams(location.search),$=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)];
@@ -64,6 +75,7 @@ const names=[['倒塌圍籬','荒草小徑','踩平的草地'],['傾斜貨架','
 const omens=['草地被踩平的路徑','纏著撕不斷的包裝膜','地面固定間隔的槌痕；間隔預示之後的拍子','對不上任何動物的腳印','街道不該有的弧度'];
 const finite=(v,d)=>Number.isFinite(Number(v))?Number(v):d;
 let progress=Math.max(0,Math.min(20,Math.floor(finite(q.get('progress'),0)))),selected=Math.min(progress,19),busy=false;
+let mapGeneration=0;
 const cooldowns={};cooldowns[Math.min(19,Math.floor(progress/4)*4+3)]=Date.now()+Math.max(0,finite(q.get('cooldown'),0))*1000;
 const reduced=()=>q.get('motion')==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches;
 document.body.classList.toggle('ui-off',q.get('ui')==='off');
@@ -75,20 +87,20 @@ sections.forEach((name,i)=>{let b=document.createElement('button');b.innerHTML=`
 function lines(){const route=$('.route').getBoundingClientRect();$('.route-lines').innerHTML=stages.slice(0,19).map((s,i)=>{const a=all('.station')[i].getBoundingClientRect(),b=all('.station')[i+1].getBoundingClientRect();return `<path class="link ${i<progress?'walked':''}" data-from="${i}" data-to="${i+1}" d="M${a.x+a.width/2-route.x} ${i*144+100} L${b.x+b.width/2-route.x} ${(i+1)*144+100}"/>`}).join('')}
 function render(){all('.station').forEach((b,i)=>{b.classList.toggle('done',i<progress);b.classList.toggle('current',i===progress);b.classList.toggle('locked',i>progress);b.setAttribute('aria-label',`${i+1} ${stages[i].name} ${i<progress?'已通關':i===progress?'目前站':'未解鎖'}`);b.querySelector('.symbol').innerHTML=i<progress?svg('check','<path d="m3 12 6 6L21 5"/>'):i>progress?svg('lock','<path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5z"/>'):svg('paw','');b.querySelector('.station-label').innerHTML=`${stages[i].name}<small>${i<progress?'已通關':i>progress?`前置：${stages[i-1].name}`:'目前位置'}${i%4===2?' · 預告':''}</small>${stages[i].boss?`<small class="cooldown digits" data-boss="${i}"></small>`:''}`});$('#total').textContent=`${String(progress).padStart(2,'0')} / 20`;lines();details();tick()}
 function details(){const s=stages[selected],r=remaining(selected);$('#section').textContent=`第 ${s.segment+1} 段 / ${sections[s.segment]}`;$('#title').textContent=s.name;$('#status').textContent=selected<progress?'已通關 · 路線保留':selected>progress?'未解鎖 · 先通過前一站':r?'王關冷卻中':'目前位置 · 可記錄結果';$('#description').textContent=s.boss?`王關機制：${mechanics[s.segment]}`:selected%4===2?omens[s.segment]:'一般關 · 放置／點擊';$('#description').classList.toggle('foreshadow',selected%4===2);$('#next').textContent=progress===20?'全線已通行。可選取任一站檢視記錄。':selected>progress?`下一步：先通過「${stages[selected-1].name}」。`:r?'下一步：冷卻結束後重試；可先檢視路線。':'地圖預覽：記錄結果以檢視下一站狀態。';$('#advance').hidden=$('#fail').hidden=selected!==progress||progress===20;$('#advance').disabled=$('#fail').disabled=busy||r>0;all('nav button').forEach((b,i)=>b.setAttribute('aria-current',String(i===s.segment)))}
-function tick(){all('[data-boss]').forEach(e=>{let n=remaining(+e.dataset.boss);e.textContent=n?`冷卻 ${time(n)}`:''});if(!busy)details()}
+function tick(){if(document.body.dataset.screen==='team')return;all('[data-boss]').forEach(e=>{let n=remaining(+e.dataset.boss);e.textContent=n?`冷卻 ${time(n)}`:''});if(!busy)details()}
 function animate(el,frames,duration,id,delay=0){let a=el.animate(frames,{duration,delay,fill:'both',easing:'linear'});a.id=id;return a}
-async function ensureVisible(i){if(reduced())return;const w=$('.map-window'),r=w.getBoundingClientRect(),n=all('.station')[i].getBoundingClientRect();if(n.top-8>=r.top&&n.bottom+8<=r.bottom)return;const start=w.scrollTop,delta=Math.sign(n.top-r.top)*Math.min(innerHeight*.28,Math.max(innerHeight*.12,n.bottom+12-r.bottom));const proxy=document.createElement('span');w.append(proxy);let a=animate(proxy,[{opacity:0},{opacity:1}],330,'camera');const frame=()=>{w.scrollTop=start+delta*Math.min(1,(a.currentTime||0)/330);if(a.playState!=='finished')requestAnimationFrame(frame)};requestAnimationFrame(frame);await a.finished;w.scrollTop=start+delta;proxy.remove()}
-async function advance(){if(busy||progress>=20||remaining(progress))return;busy=true;details();let i=progress,b=all('.station')[i],ds=reduced()?[130,130,130]:[140,280,190];b.querySelector('.symbol').innerHTML=svg('check','<path d="m3 12 6 6L21 5"/>');const check=animate(b.querySelector('.check'),[{opacity:0},{opacity:1}],ds[0],'check');const link=all('.link')[i];let fill;if(link){const len=link.getTotalLength();fill=animate(link,[{strokeDasharray:`${len}`,strokeDashoffset:len,strokeOpacity:.84},{strokeDasharray:`${len}`,strokeDashoffset:0,strokeOpacity:.84}],ds[1],'connection',ds[0])}const next=all('.station')[i+1];let bracket;if(next){next.querySelector('.bracket').style.display='block';bracket=animate(next.querySelector('.bracket'),[{opacity:0},{opacity:1}],ds[2],'bracket',ds[0]+(link?ds[1]:0))}await Promise.all([check,fill,bracket].filter(Boolean).map(a=>a.finished));[check,fill,bracket].filter(Boolean).forEach(a=>a.cancel());if(next)next.querySelector('.bracket').style.display='';progress++;selected=Math.min(progress,19);busy=false;render();if(progress<20)await ensureVisible(progress)}
+async function ensureVisible(i){if(reduced())return;const token=mapGeneration;const w=$('.map-window'),r=w.getBoundingClientRect(),n=all('.station')[i].getBoundingClientRect();if(n.top-8>=r.top&&n.bottom+8<=r.bottom)return;const start=w.scrollTop,delta=Math.sign(n.top-r.top)*Math.min(innerHeight*.28,Math.max(innerHeight*.12,n.bottom+12-r.bottom));const proxy=document.createElement('span');w.append(proxy);let a=animate(proxy,[{opacity:0},{opacity:1}],330,'camera');const frame=()=>{if(token!==mapGeneration)return;w.scrollTop=start+delta*Math.min(1,(a.currentTime||0)/330);if(a.playState!=='finished')requestAnimationFrame(frame)};requestAnimationFrame(frame);try{await a.finished;if(token===mapGeneration)w.scrollTop=start+delta}catch{}finally{proxy.remove()}}
+async function advance(){if(busy||progress>=20||remaining(progress))return;const token=mapGeneration;busy=true;details();let i=progress,b=all('.station')[i],ds=reduced()?[130,130,130]:[140,280,190];b.querySelector('.symbol').innerHTML=svg('check','<path d="m3 12 6 6L21 5"/>');const check=animate(b.querySelector('.check'),[{opacity:0},{opacity:1}],ds[0],'check');const link=all('.link')[i];let fill;if(link){const len=link.getTotalLength();fill=animate(link,[{strokeDasharray:`${len}`,strokeDashoffset:len,strokeOpacity:.84},{strokeDasharray:`${len}`,strokeDashoffset:0,strokeOpacity:.84}],ds[1],'connection',ds[0])}const next=all('.station')[i+1];let bracket;if(next){next.querySelector('.bracket').style.display='block';bracket=animate(next.querySelector('.bracket'),[{opacity:0},{opacity:1}],ds[2],'bracket',ds[0]+(link?ds[1]:0))}try{await Promise.all([check,fill,bracket].filter(Boolean).map(a=>a.finished))}catch{return}if(token!==mapGeneration)return;[check,fill,bracket].filter(Boolean).forEach(a=>a.cancel());if(next)next.querySelector('.bracket').style.display='';progress++;selected=Math.min(progress,19);busy=false;render();if(progress<20)await ensureVisible(progress)}
 $('#advance').onclick=advance;$('#fail').onclick=()=>{if(selected!==progress||busy||remaining(progress))return;if(stages[progress].boss)cooldowns[progress]=Date.now()+180000;tick();if(!stages[progress].boss)$('#next').textContent='未通過。可立即重試，通關後才開放下一站。'};$('#back').onclick=()=>{selected=Math.min(progress,19);details();$('.map-window').scrollTop=Math.max(0,selected*144-144)};
 
 document.body.classList.toggle('no-terrain',q.get('terrain')==='off');
 document.body.classList.toggle('no-texture',q.get('wear')==='off');
-function terrainLayout(){const w=innerWidth<700?480:Math.min($('.route').clientWidth,1040),h=w*1619/971,offset=innerWidth<700?-100:innerWidth<1101?-50:-140;$('.terrain').innerHTML=Array.from({length:Math.ceil((3744-offset)/h)},(_,i)=>`<div class="terrain-tile" data-tile="${i}" style="top:${offset+i*h}px"></div>`).join('')}
+function terrainLayout(){if(document.body.dataset.screen==='team')return;const w=innerWidth<700?480:Math.min($('.route').clientWidth,1040),h=w*1619/971,offset=innerWidth<700?-100:innerWidth<1101?-50:-140;$('.terrain').innerHTML=Array.from({length:Math.ceil((3744-offset)/h)},(_,i)=>`<div class="terrain-tile" data-tile="${i}" style="top:${offset+i*h}px"></div>`).join('')}
 // Fixed irregular edge chips: long scrapes at pressure corners and clustered nicks.
 all('.wear').forEach((e,i)=>{const horizontal=e.closest('.mast')||e.classList.contains('wear-foot');e.innerHTML=horizontal?`<svg preserveAspectRatio="none" viewBox="0 0 1000 16"><path d="M0 2H73l9 2h42l8-2h36l5 3h24M209 1h18m7 2h11M293 2h89l13 3h44M507 1h16m27 2h67M718 2h51l8 3h35M907 2h93M2 5v8m994-9v9"/></svg>`:`<svg preserveAspectRatio="none" viewBox="0 0 18 700"><path d="M2 0v83l3 7v29M1 153v17m3 11v9M2 246v59l3 9v42M1 443v17m3 11v31M2 584v73l3 9v34M5 2h10M5 695h12"/></svg>`});
 new ResizeObserver(terrainLayout).observe($('.route'));terrainLayout();
 
-window.map20={advance,ensureVisible,remaining,get progress(){return progress},get busy(){return busy},get cooldowns(){return {...cooldowns}}};render();$('.map-window').scrollTop=Math.max(0,Math.min(progress,19)*144-144);new ResizeObserver(lines).observe($('.route'));setInterval(tick,1000);document.addEventListener('visibilitychange',tick);
+window.map20={cancel(){mapGeneration++;$('.shell').getAnimations({subtree:true}).forEach(a=>a.cancel());busy=false;render()},advance,ensureVisible,remaining,get progress(){return progress},get busy(){return busy},get cooldowns(){return {...cooldowns}}};render();$('.map-window').scrollTop=Math.max(0,Math.min(progress,19)*144-144);new ResizeObserver(lines).observe($('.route'));setInterval(tick,1000);document.addEventListener('visibilitychange',tick);
 // Keep the selected segment and its placeholder status explicit on small screens.
 const detailBase=details;
 details=function(){detailBase();const s=stages[selected];$('#section').textContent=`第 ${s.segment+1} 段 / 5 · ${sections[s.segment]}`;$('#art-note').textContent=s.segment?'地景佔位：沿用第一段後院美術':'第一段地景 · 後院草地・廢墟'};
@@ -104,8 +116,20 @@ function settleScroll(){
 let cameraRunning=false;
 $('.map-window').addEventListener('scrollend',()=>{if(!cameraRunning)settleScroll()});
 const ensureVisibleBase=ensureVisible;
-ensureVisible=async function(i){cameraRunning=true;try{await ensureVisibleBase(i)}finally{cameraRunning=false;if(!reduced())settleScroll()}};
+ensureVisible=async function(i){cameraRunning=true;try{await ensureVisibleBase(i)}finally{cameraRunning=false;if(!reduced()&&document.body.dataset.screen!=='team')settleScroll()}};
 map20.ensureVisible=ensureVisible;
 if(innerWidth<700)$('.map-window').scrollTop=Math.floor(Math.min(progress,19)/4)*576;
 settleScroll();
-</script></html>
+// A narrow viewport surveys both edges during the segment's scroll travel.
+// No bitmap edits, scaling, or vertical drift relative to the route.
+function surveyTerrain(){
+ const w=$('.map-window'),s=w.scrollTop%576;
+ const pan=innerWidth<700?(s<60?46*Math.sin(Math.PI*s/60):s<330?-46*Math.sin(Math.PI*(s-60)/270):0):0;
+ $('.terrain').style.setProperty('--terrain-pan',pan+'px');
+}
+$('.map-window').addEventListener('scroll',surveyTerrain,{passive:true});
+surveyTerrain();
+</script>
+<script>/* CARD_FACE */</script>
+<script>/* TEAM_DATA */
+/* TEAM_JS */</script></html>

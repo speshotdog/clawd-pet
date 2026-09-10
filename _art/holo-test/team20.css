@@ -1,0 +1,78 @@
+/* Team-only workspace. Frozen card CSS lives in its own shadow root. */
+body[data-screen=team]>.shell{display:none}
+body:not([data-screen=team]) #team-screen{display:none}
+#open-team{position:fixed;right:24px;bottom:28px;z-index:5;padding:8px 16px;font-size:14px}
+body[data-screen=team] #open-team{display:none}
+@media(max-width:700px){#open-team{right:18px;bottom:16px;padding:3px 10px;font-size:13px}}
+#team-screen{--team-ink:#bcc3b3;color:var(--team-ink);height:100dvh;padding:16px;display:flex;flex-direction:column;gap:12px}
+#team-screen button{color:var(--team-ink);font-size:14px;border-radius:1px}
+.team-heading{height:64px;flex:none;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--edge);padding:0 16px;background:var(--plate)}
+.team-heading h1{font-size:26px;color:var(--ink)}
+.team-heading small{color:var(--team-ink)}
+.team-work{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:16px;min-height:0;flex:1;align-items:start}
+.team-main{height:100%;min-height:0;display:flex;flex-direction:column;gap:12px}
+.team-rail{border-left:2px solid var(--edge);background:var(--plate);position:relative}
+.capacity{padding:12px 16px;flex:none}
+.capacity-row{height:30px;display:grid;grid-template-columns:190px 64px 1fr;align-items:center;gap:8px;font-size:14px;border:2px solid transparent;padding:0 6px}
+.capacity-row.affected{border-left-color:var(--team-ink)}
+.capacity-row.violated{border-left-color:var(--team-ink)}
+.segments{display:grid;grid-template-columns:repeat(var(--count),1fr);gap:3px;height:8px}
+.segments i{border:1px solid #969f8a;background:#292e27}
+.segments i.filled{background:#bcc3b3}
+.capacity-errors{font-size:13px;line-height:1.4;min-height:19px;padding:4px 8px 0}
+.capacity-errors:empty{display:none}
+.team-roster{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:14px 12px;scrollbar-gutter:stable}
+.team-roster-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:14px}
+.team-roster-head button{padding:4px 10px}
+.team-grid{display:grid;grid-template-columns:repeat(10, minmax(88px,96px));gap:10px;justify-content:center;align-content:start}
+.team-proxy{padding:0!important;border:0!important;background:none!important;text-align:left;min-width:0;box-shadow:none!important}
+.proxy-image{display:block;position:relative;width:100%;aspect-ratio:5/7;background:#292e27;border:1px solid #707a68}
+.proxy-image img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.proxy-symbol{position:absolute;bottom:4px;right:5px;font-size:12px;color:#c5ccb9;background:#292e27;padding:0 3px}
+.proxy-name{font-size:12px;line-height:18px;display:block;padding-top:4px;color:#bcc3b3;overflow-wrap:anywhere}
+.team-marker{display:inline-block;border-left:3px solid #bcc3b3;padding-left:7px;font:14px/22px Consolas,monospace;min-width:34px}
+.proxy-index{position:absolute;top:3px;left:3px;background:#373d35;font-size:12px;line-height:18px;min-width:27px;padding-left:4px}
+.team-proxy[aria-selected=true] .proxy-image{outline:2px solid #bcc3b3;outline-offset:2px}
+.team-skills{padding:12px 16px;flex:none}
+.team-skills-label{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px}
+.skill-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.skill-slot{height:64px;padding:6px!important;text-align:left;overflow-wrap:anywhere;font-size:13px!important;line-height:18px}
+.skill-slot small{display:block;font-size:12px;color:#bcc3b3}
+.team-detail{height:680px;max-height:calc(100dvh - 108px);padding:16px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.team-detail-header{align-self:stretch;display:flex;align-items:center;gap:10px;min-height:48px}
+.team-detail-header h2{font-size:20px;letter-spacing:.02em}
+.team-detail-header small{color:#bcc3b3}
+.carrier-board{position:relative;padding:12px;background:#373d35;flex:none}
+.card-slot{position:relative;padding:12px;background:#30362e;box-shadow:inset 1px 1px #606957,inset -1px -1px #1d211b;flex:none;isolation:isolate}
+.card-slot::before{content:'';position:absolute;inset:0;box-shadow:inset 0 8px #43493e,inset 0 -8px #23281f;pointer-events:none}
+.card-host{position:relative;display:block;width:280px;aspect-ratio:5/7;box-shadow:0 1px 2px #20271b;touch-action:none}
+.team-detail-note{font-size:14px;align-self:stretch}
+.team-detail-actions{align-self:stretch;display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.team-detail-actions .team-marker{width:100%}
+.team-detail-actions button{flex:1;padding:8px}
+.detail-close{display:none}
+.team-texture{position:absolute;pointer-events:none;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='42'%3E%3Cpath d='M0 4h19m8 0h27m9 0h21M6 10h31m10 0h22M0 17h26m9 0h20m12 0h17M4 23h17m7 0h29m9 0h18M0 29h14m9 0h33m8 0h20M7 36h28m9 0h32' stroke='%23bbc3ad' stroke-opacity='.17' stroke-width='2.5'/%3E%3C/svg%3E");clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,12px 12px,12px calc(100% - 12px),calc(100% - 12px) calc(100% - 12px),calc(100% - 12px) 12px,12px 12px)}
+.carrier-board>.team-texture{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,12px 12px,12px calc(100% - 12px),calc(100% - 12px) calc(100% - 12px),calc(100% - 12px) 12px,12px 12px)}
+.carrier-board>.team-texture{z-index:2;clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,14px 14px,14px calc(100% - 14px),calc(100% - 14px) calc(100% - 14px),calc(100% - 14px) 14px,14px 14px)}
+.no-team-texture .team-texture{visibility:hidden}
+.no-team-carrier .card-slot{background:transparent;box-shadow:none}
+.no-team-carrier .card-slot::before{visibility:hidden}
+.no-team-carrier .card-host{box-shadow:none}
+.no-team-selection .team-marker{border-color:transparent}
+.no-team-selection .team-proxy[aria-selected=true] .proxy-image{outline-color:transparent}
+.no-team-selection .proxy-index{visibility:hidden}
+.no-team-selection #detail-number,.no-team-selection .selection-serial{visibility:hidden}
+.team-dialog{border:1px solid var(--edge);background:var(--base);color:#bcc3b3;padding:20px;width:min(700px,calc(100vw - 24px));max-height:calc(100dvh - 32px)}
+.team-dialog::backdrop{background:#111a}
+.picker-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
+.picker-heading h2{font-size:22px}
+.picker-heading button{padding:6px 12px}
+.picker-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:12px;max-height:52dvh;overflow:auto;padding:6px}
+.picker-grid .team-proxy{max-width:104px}
+.picker-status{font-size:14px;min-height:24px;margin:10px 0}
+.picker-confirm{width:100%}
+@media(max-width:1250px){.team-grid{grid-template-columns:repeat(5,96px)}.capacity-row{grid-template-columns:174px 58px 1fr}.team-work{grid-template-columns:minmax(0,1fr) 350px}.team-detail{height:650px}.card-host{width:272px}}
+@media(max-width:700px){#team-screen{padding:8px;gap:8px}.team-heading{height:64px;padding:0 8px}.team-heading h1{font-size:24px}.team-heading small{font-size:12px}.team-heading button{padding:8px}.team-work{display:block;flex:1}.team-main{gap:8px}.capacity{padding:8px 6px}.capacity-row{height:28px;grid-template-columns:168px 55px 1fr;gap:4px;font-size:13px;padding:0 3px}.segments{gap:2px;height:7px}.team-roster{padding:12px 10px}.team-grid{grid-template-columns:repeat(4, minmax(68px,76px));gap:10px}.team-skills{padding:10px}.skill-grid{gap:8px}.skill-slot{height:64px}.team-detail{display:none;position:fixed;z-index:8;top:80px;left:8px;right:8px;height:650px;max-height:calc(100dvh - 88px);padding:16px 24px;box-shadow:0 0 0 100vmax #171c17b3}.detail-open .team-detail{display:flex}.detail-close{display:block;position:absolute;top:8px;right:8px;padding:3px 8px!important}.card-host{width:272px}.team-detail-header{padding-right:22px}.team-detail-header h2{font-size:18px}.team-detail{gap:12px}.capacity-errors{font-size:12px}.team-dialog{padding:12px}.picker-grid{grid-template-columns:repeat(3,minmax(68px,1fr))}}
+@media(max-width:350px){.team-grid{grid-template-columns:repeat(3,76px)}.capacity-row{grid-template-columns:155px 48px 1fr;font-size:13px}.card-host{width:240px}.team-detail{padding:16px}.skill-slot{font-size:12px!important}}
+@media(max-width:700px){.team-heading{height:68px}.team-detail{top:84px}}
+@media(min-width:701px) and (max-width:1250px){.team-work{grid-template-columns:minmax(0,1fr) 320px}}
