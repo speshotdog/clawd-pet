@@ -1,0 +1,500 @@
+{
+ "demo.html": {
+  "sha256_head_git_blob_LF": "0e1b6de82de2ede6ef919ea848e3779630a6bdbde31eba123b90a0affe895aad",
+  "sha256_work_raw_bytes_CRLF": "c9b3fe9337986642fbf7ec6b8d1f52b0233cadb637847f9863a6a9186f9f86ba",
+  "sha256_work_LF_normalised": "6e4bb5b4ddaf94487d9529182b63ac761f5e827fa3e6876b28330191260d8966",
+  "note": "git blob 是 LF、工作檔是 CRLF，所以同時列原樣與 LF 正規化兩種雜湊，不可混稱",
+  "cards_added": [
+   "bianbiancaihua",
+   "chengtiregou",
+   "geimieqianhaoma",
+   "jiaochi",
+   "jintianwoshengri",
+   "liulangyueshou",
+   "miepuxiong",
+   "pufayueyue",
+   "shabaolingzhu",
+   "waisongmiege",
+   "xiaochouyue",
+   "xiaojiaojiao",
+   "yuexiong",
+   "zhenjunyue",
+   "zhenqiqiu",
+   "zhenzhen"
+  ],
+  "cards_removed": [],
+  "cards_changed": {},
+  "maskKeys_added": [],
+  "maskKeys_removed": [],
+  "maskCount_head": 65,
+  "maskCount_work": 65
+ },
+ "demo-standalone.html": {
+  "sha256_head_git_blob_LF": "30d5cc768a26c755d56d1980975c34c28b428633975ebc6b5bce639f5e3bd8de",
+  "sha256_work_raw_bytes_CRLF": "ffad12d7b35de536be176cd96b7f279d797379f8e7ee88d66cad7c1d6107a3d8",
+  "sha256_work_LF_normalised": "ffad12d7b35de536be176cd96b7f279d797379f8e7ee88d66cad7c1d6107a3d8",
+  "note": "git blob 是 LF、工作檔是 CRLF，所以同時列原樣與 LF 正規化兩種雜湊，不可混稱",
+  "cards_added": [
+   "bianbiancaihua",
+   "chengtiregou",
+   "geimieqianhaoma",
+   "jiaochi",
+   "jintianwoshengri",
+   "liulangyueshou",
+   "miepuxiong",
+   "pufayueyue",
+   "shabaolingzhu",
+   "waisongmiege",
+   "xiaochouyue",
+   "xiaojiaojiao",
+   "yuexiong",
+   "zhenjunyue",
+   "zhenqiqiu",
+   "zhenzhen"
+  ],
+  "cards_removed": [],
+  "cards_changed": {},
+  "maskKeys_added": [
+   "card-bianbiancaihua.png",
+   "card-chengtiregou.png",
+   "card-geimieqianhaoma.png",
+   "card-jiaochi.png",
+   "card-jintianwoshengri.png",
+   "card-liulangyueshou.png",
+   "card-miepuxiong.png",
+   "card-pufayueyue.png",
+   "card-waisongmiege.png",
+   "card-xiaochouyue.png",
+   "card-xiaojiaojiao.png",
+   "card-yuexiong.png",
+   "layer-shabaolingzhu-subject.png",
+   "layer-zhenjunyue-subject.png",
+   "layer-zhenqiqiu-subject.png",
+   "layer-zhenzhen-subject.png"
+  ],
+  "maskKeys_removed": [],
+  "maskCount_head": 49,
+  "maskCount_work": 65
+ },
+ "cards-remade.html": {
+  "sha256_head_git_blob_LF": "27f1570706e7458dca1adccb90b5ad3913344923a60c73a740784ad67c94c599",
+  "sha256_work_raw_bytes_CRLF": "53f0126d22f64133daaa765769cf7bccee5539fa08b4d3d1d79873d13d3de21b",
+  "sha256_work_LF_normalised": "53f0126d22f64133daaa765769cf7bccee5539fa08b4d3d1d79873d13d3de21b",
+  "note": "git blob 是 LF、工作檔是 CRLF，所以同時列原樣與 LF 正規化兩種雜湊，不可混稱",
+  "cards_added": [],
+  "cards_removed": [],
+  "cards_changed": {},
+  "maskKeys_added": [],
+  "maskKeys_removed": [],
+  "maskCount_head": 65,
+  "maskCount_work": 65
+ },
+ "cards-remade-standalone.html": {
+  "sha256_head_git_blob_LF": "eb69e308c2e9a1355b01ad7f30c66e714e48ce4cfd1b1ab80c41be5dc27c737a",
+  "sha256_work_raw_bytes_CRLF": "cdba0662d4226d46ef8eee21aff1116ea6bb9dd13ec6e13a3e977548b5b8c68a",
+  "sha256_work_LF_normalised": "cdba0662d4226d46ef8eee21aff1116ea6bb9dd13ec6e13a3e977548b5b8c68a",
+  "note": "git blob 是 LF、工作檔是 CRLF，所以同時列原樣與 LF 正規化兩種雜湊，不可混稱",
+  "cards_added": [],
+  "cards_removed": [],
+  "cards_changed": {},
+  "maskKeys_added": [],
+  "maskKeys_removed": [],
+  "maskCount_head": 65,
+  "maskCount_work": 65
+ },
+ "deluxe-gacha-b.html": {
+  "sha256_head_git_blob_LF": "b863700030d8645e17fde6509cd5717b9fbd3b3ee9d1eb2dd93b6c7a3de609f8",
+  "sha256_work_raw_bytes_CRLF": "9546ee808b80dac7915827f40db04bddd356a6bb56aac05e700883a89fa8b3fd",
+  "sha256_work_LF_normalised": "9546ee808b80dac7915827f40db04bddd356a6bb56aac05e700883a89fa8b3fd",
+  "note": "git blob 是 LF、工作檔是 CRLF，所以同時列原樣與 LF 正規化兩種雜湊，不可混稱",
+  "cards_added": [],
+  "cards_removed": [],
+  "cards_changed": {},
+  "maskKeys_added": [],
+  "maskKeys_removed": [],
+  "maskCount_head": 65,
+  "maskCount_work": 65
+ },
+ "deluxe-gacha-b-standalone.html": {
+  "sha256_head_git_blob_LF": "9a179408ed0bf9686f52f9552d6b9f8071ab69b864e323dc75d53c067803e97d",
+  "sha256_work_raw_bytes_CRLF": "4f54657c3240d27b87fd500ff8c5914690fd9956dc858ae0df9c9a3a5dc121ff",
+  "sha256_work_LF_normalised": "4f54657c3240d27b87fd500ff8c5914690fd9956dc858ae0df9c9a3a5dc121ff",
+  "note": "git blob 是 LF、工作檔是 CRLF，所以同時列原樣與 LF 正規化兩種雜湊，不可混稱",
+  "cards_added": [],
+  "cards_removed": [],
+  "cards_changed": {},
+  "maskKeys_added": [],
+  "maskKeys_removed": [],
+  "maskCount_head": 65,
+  "maskCount_work": 65
+ },
+ "deluxe-gacha-b-test.html": {
+  "sha256_head_git_blob_LF": "ba5fd0e855b22422221ffa5c902fb4ff3969b8115c420702b986c88d969d7f25",
+  "sha256_work_raw_bytes_CRLF": "d0dab0a3c7bb04ee88f5f02a1ac121452b4a3ee0a813cf207ca903407aa8def8",
+  "sha256_work_LF_normalised": "d0dab0a3c7bb04ee88f5f02a1ac121452b4a3ee0a813cf207ca903407aa8def8",
+  "note": "git blob 是 LF、工作檔是 CRLF，所以同時列原樣與 LF 正規化兩種雜湊，不可混稱",
+  "cards_added": [],
+  "cards_removed": [],
+  "cards_changed": {
+   "bianbiancaihua": {
+    "pal": {
+     "head": {
+      "base": "#151418",
+      "glow": "#41412e",
+      "accent": "#768c5b",
+      "ink": "#0a0a0c",
+      "hue": 0.1633,
+      "sat": 0.199,
+      "val": 0.534
+     },
+     "work": {
+      "base": "#151418",
+      "glow": "#41412e",
+      "accent": "#768c5b",
+      "ink": "#0a0a0c",
+      "hue": 0.1634,
+      "sat": 0.199,
+      "val": 0.534
+     }
+    }
+   },
+   "jintianwoshengri": {
+    "pal": {
+     "head": {
+      "base": "#151619",
+      "glow": "#433c2f",
+      "accent": "#868c5b",
+      "ink": "#0b0b0d",
+      "hue": 0.109,
+      "sat": 0.126,
+      "val": 0.548
+     },
+     "work": {
+      "base": "#151619",
+      "glow": "#433c2f",
+      "accent": "#868c5b",
+      "ink": "#0b0b0d",
+      "hue": 0.1089,
+      "sat": 0.126,
+      "val": 0.548
+     }
+    }
+   },
+   "liulangyueshou": {
+    "kind": {
+     "head": "flat",
+     "work": "framed"
+    },
+    "pal": {
+     "head": {
+      "base": "#1b1d21",
+      "glow": "#5b4d3f",
+      "accent": "#b3b375",
+      "ink": "#0e1011",
+      "hue": 0.085,
+      "sat": 0.209,
+      "val": 0.74
+     },
+     "work": {
+      "base": "#191b1f",
+      "glow": "#524939",
+      "accent": "#9ca36a",
+      "ink": "#0d0e0f",
+      "hue": 0.1062,
+      "sat": 0.271,
+      "val": 0.671
+     }
+    }
+   },
+   "miepuxiong": {
+    "pal": {
+     "head": {
+      "base": "#1b2021",
+      "glow": "#6b4d4b",
+      "accent": "#d6b28b",
+      "ink": "#111414",
+      "hue": 0.0082,
+      "sat": 0.263,
+      "val": 0.882
+     },
+     "work": {
+      "base": "#1b2021",
+      "glow": "#6b4c4b",
+      "accent": "#d7b38c",
+      "ink": "#111414",
+      "hue": 0.0079,
+      "sat": 0.26,
+      "val": 0.887
+     }
+    }
+   },
+   "shabaolingzhu": {
+    "kind": {
+     "head": "flat",
+     "work": "depth"
+    },
+    "scene": {
+     "head": null,
+     "work": true
+    }
+   },
+   "xiaochouyue": {
+    "pal": {
+     "head": {
+      "base": "#211c1b",
+      "glow": "#476465",
+      "accent": "#82a5c7",
+      "ink": "#131010",
+      "hue": 0.5016,
+      "sat": 0.35,
+      "val": 0.823
+     },
+     "work": {
+      "base": "#211c1b",
+      "glow": "#476565",
+      "accent": "#82a5c8",
+      "ink": "#131010",
+      "hue": 0.5021,
+      "sat": 0.351,
+      "val": 0.824
+     }
+    }
+   },
+   "zhenjunyue": {
+    "kind": {
+     "head": "flat",
+     "work": "depth"
+    },
+    "scene": {
+     "head": null,
+     "work": true
+    }
+   },
+   "zhenqiqiu": {
+    "kind": {
+     "head": "flat",
+     "work": "depth"
+    },
+    "scene": {
+     "head": null,
+     "work": true
+    }
+   },
+   "zhenzhen": {
+    "kind": {
+     "head": "flat",
+     "work": "depth"
+    },
+    "name": {
+     "head": "珍珍",
+     "work": "本草珍目"
+    },
+    "scene": {
+     "head": null,
+     "work": true
+    }
+   }
+  },
+  "maskKeys_added": [
+   "card-liulangyueshou.png",
+   "layer-shabaolingzhu-subject.png",
+   "layer-zhenjunyue-subject.png",
+   "layer-zhenqiqiu-subject.png",
+   "layer-zhenzhen-subject.png"
+  ],
+  "maskKeys_removed": [],
+  "maskCount_head": 60,
+  "maskCount_work": 65
+ },
+ "deluxe-gacha-b-test-standalone.html": {
+  "sha256_head_git_blob_LF": "dfc337132523e9f73d8e1ebc053c33b2cba1193139b7a432d7544e1dd80baf82",
+  "sha256_work_raw_bytes_CRLF": "54882ef776cd3dafc2dc67b27fa660f31cd482b56c6f8cce6382832ded6a5e0c",
+  "sha256_work_LF_normalised": "54882ef776cd3dafc2dc67b27fa660f31cd482b56c6f8cce6382832ded6a5e0c",
+  "note": "git blob 是 LF、工作檔是 CRLF，所以同時列原樣與 LF 正規化兩種雜湊，不可混稱",
+  "cards_added": [],
+  "cards_removed": [],
+  "cards_changed": {
+   "bianbiancaihua": {
+    "pal": {
+     "head": {
+      "base": "#151418",
+      "glow": "#41412e",
+      "accent": "#768c5b",
+      "ink": "#0a0a0c",
+      "hue": 0.1633,
+      "sat": 0.199,
+      "val": 0.534
+     },
+     "work": {
+      "base": "#151418",
+      "glow": "#41412e",
+      "accent": "#768c5b",
+      "ink": "#0a0a0c",
+      "hue": 0.1634,
+      "sat": 0.199,
+      "val": 0.534
+     }
+    }
+   },
+   "jintianwoshengri": {
+    "pal": {
+     "head": {
+      "base": "#151619",
+      "glow": "#433c2f",
+      "accent": "#868c5b",
+      "ink": "#0b0b0d",
+      "hue": 0.109,
+      "sat": 0.126,
+      "val": 0.548
+     },
+     "work": {
+      "base": "#151619",
+      "glow": "#433c2f",
+      "accent": "#868c5b",
+      "ink": "#0b0b0d",
+      "hue": 0.1089,
+      "sat": 0.126,
+      "val": 0.548
+     }
+    }
+   },
+   "liulangyueshou": {
+    "kind": {
+     "head": "flat",
+     "work": "framed"
+    },
+    "pal": {
+     "head": {
+      "base": "#1b1d21",
+      "glow": "#5b4d3f",
+      "accent": "#b3b375",
+      "ink": "#0e1011",
+      "hue": 0.085,
+      "sat": 0.209,
+      "val": 0.74
+     },
+     "work": {
+      "base": "#191b1f",
+      "glow": "#524939",
+      "accent": "#9ca36a",
+      "ink": "#0d0e0f",
+      "hue": 0.1062,
+      "sat": 0.271,
+      "val": 0.671
+     }
+    }
+   },
+   "miepuxiong": {
+    "pal": {
+     "head": {
+      "base": "#1b2021",
+      "glow": "#6b4d4b",
+      "accent": "#d6b28b",
+      "ink": "#111414",
+      "hue": 0.0082,
+      "sat": 0.263,
+      "val": 0.882
+     },
+     "work": {
+      "base": "#1b2021",
+      "glow": "#6b4c4b",
+      "accent": "#d7b38c",
+      "ink": "#111414",
+      "hue": 0.0079,
+      "sat": 0.26,
+      "val": 0.887
+     }
+    }
+   },
+   "shabaolingzhu": {
+    "kind": {
+     "head": "flat",
+     "work": "depth"
+    },
+    "scene": {
+     "head": null,
+     "work": true
+    }
+   },
+   "xiaochouyue": {
+    "pal": {
+     "head": {
+      "base": "#211c1b",
+      "glow": "#476465",
+      "accent": "#82a5c7",
+      "ink": "#131010",
+      "hue": 0.5016,
+      "sat": 0.35,
+      "val": 0.823
+     },
+     "work": {
+      "base": "#211c1b",
+      "glow": "#476565",
+      "accent": "#82a5c8",
+      "ink": "#131010",
+      "hue": 0.5021,
+      "sat": 0.351,
+      "val": 0.824
+     }
+    }
+   },
+   "zhenjunyue": {
+    "kind": {
+     "head": "flat",
+     "work": "depth"
+    },
+    "scene": {
+     "head": null,
+     "work": true
+    }
+   },
+   "zhenqiqiu": {
+    "kind": {
+     "head": "flat",
+     "work": "depth"
+    },
+    "scene": {
+     "head": null,
+     "work": true
+    }
+   },
+   "zhenzhen": {
+    "kind": {
+     "head": "flat",
+     "work": "depth"
+    },
+    "name": {
+     "head": "珍珍",
+     "work": "本草珍目"
+    },
+    "scene": {
+     "head": null,
+     "work": true
+    }
+   }
+  },
+  "maskKeys_added": [
+   "card-liulangyueshou.png",
+   "layer-shabaolingzhu-subject.png",
+   "layer-zhenjunyue-subject.png",
+   "layer-zhenqiqiu-subject.png",
+   "layer-zhenzhen-subject.png"
+  ],
+  "maskKeys_removed": [],
+  "maskCount_head": 60,
+  "maskCount_work": 65
+ },
+ "map20.html": {
+  "sha256_head_git_blob_LF": "c3b07c6ca85a46b1c2eabd1980555d5219896a58c11461ef4be59038f96a6c0e",
+  "sha256_work_raw_bytes_CRLF": "869687695204abe91dbdabc49c8f5682547645b6e68b97584e9c89083ad0a8fd",
+  "sha256_work_LF_normalised": "869687695204abe91dbdabc49c8f5682547645b6e68b97584e9c89083ad0a8fd",
+  "note": "git blob 是 LF、工作檔是 CRLF，所以同時列原樣與 LF 正規化兩種雜湊，不可混稱",
+  "cards_added": [],
+  "cards_removed": [],
+  "cards_changed": {},
+  "maskKeys_added": [],
+  "maskKeys_removed": [],
+  "maskCount_head": 0,
+  "maskCount_work": 0
+ }
+}

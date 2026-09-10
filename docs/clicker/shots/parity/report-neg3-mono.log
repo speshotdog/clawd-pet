@@ -1,0 +1,69 @@
+== 環境
+  chromium=149.0.7827.55  viewports=['1440x900']  label=neg3-mono  inject=mono
+  卡池預期 63 張；固定序列 63 張
+
+== 0. 入口／尺寸／取樣完整性（預期清單由資料來源反推，不看輸入有什麼）
+PASS 資料帶有 expectedTeamIds（編隊預期清單的來源）
+PASS gacha-test 1440x900: 取樣失敗 0 筆 []
+PASS gacha-test 1440x900 [native/reveal]: 預期 63 張，缺 0 張 []
+PASS gacha-test 1440x900 [neutral/reveal]: 預期 63 張，缺 0 張 []
+PASS gacha-test 1440x900: 必填欄位缺漏 0 筆 []
+PASS gacha-test 1440x900: 頁面錯誤／console error 0 筆 []
+PASS gacha-test 1440x900: 壞圖 0 張 []
+PASS gacha-test 1440x900: 有揭卡儀式證據
+PASS gacha-test 1440x900: 每一批都到 results
+PASS team 1440x900: 取樣失敗 0 筆 []
+PASS team 1440x900 [native/overview]: 預期 24 張，缺 0 張 []
+PASS team 1440x900 [native/detail]: 預期 24 張，缺 0 張 []
+PASS team 1440x900 [neutral/overview]: 預期 24 張，缺 0 張 []
+PASS team 1440x900 [neutral/detail]: 預期 24 張，缺 0 張 []
+PASS team 1440x900: 必填欄位缺漏 0 筆 []
+PASS team 1440x900: 頁面錯誤／console error 0 筆 []
+PASS team 1440x900: 壞圖 0 張 []
+
+== 1. 抽卡：儀式狀態與固定序列
+PASS gacha-test 1440x900 batch0: screen=results complete=10 err=None
+PASS gacha-test 1440x900 batch1: screen=results complete=10 err=None
+PASS gacha-test 1440x900 batch2: screen=results complete=10 err=None
+PASS gacha-test 1440x900 batch3: screen=results complete=10 err=None
+PASS gacha-test 1440x900 batch4: screen=results complete=10 err=None
+PASS gacha-test 1440x900 batch5: screen=results complete=10 err=None
+PASS gacha-test 1440x900 batch6: screen=results complete=3 err=None
+PASS gacha-test 1440x900: 揭卡序列與指定序列逐位相同（63/63）
+
+== 2. 字型證據（逐節點、保留 CDP node ID、無筆數上限）
+PASS gacha-test 1440x900: 字型取樣錯誤 0 []
+PASS gacha-test 1440x900: 可見文字沒有字型證據 0 []
+FAIL gacha-test 1440x900: 非預期 fallback 63 [('ababa', 'reveal', 'rarity', 'MingLiU', 9), ('alienkitty', 'reveal', 'rarity', 'MingLiU', 14), ('alu', 'reveal', 'rarity', 'MingLiU', 9)]
+PASS gacha-test 1440x900: 非內嵌字型 0 []
+PASS gacha-test 1440x900: 缺 CDP node ID 0 []
+PASS team 1440x900: 字型取樣錯誤 0 []
+PASS team 1440x900: 可見文字沒有字型證據 0 []
+FAIL team 1440x900: 非預期 fallback 34 [('rocketdog', 'overview', 'rarity', 'MingLiU', 11), ('liulangyueshou', 'overview', 'rarity', 'MingLiU', 11), ('alienkitty', 'overview', 'rarity', 'MingLiU', 14)]
+PASS team 1440x900: 非內嵌字型 0 []
+PASS team 1440x900: 缺 CDP node ID 0 []
+
+== 3. 字級契約（--rarity-fs 生效、主副標比例 13.5/24）
+PASS gacha-test 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-test 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('ababa', 'reveal', 'neutral')
+PASS team 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS team 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('rocketdog', 'overview', 'neutral')
+
+== 4. 卡面一致性（同尺寸中性姿態，參考＝gacha-test）
+PASS team: 58 筆同尺寸樣本全部有參考對象；未覆蓋 0 []
+FAIL team: 同尺寸比對 58 張，列入比較的屬性差異 22 項 [('mieshi', 'overview', 'rarityStyle', 'fontFamily', 'monospace', '"Holo Noto Sans", sans-serif'), ('qinghua', 'overview', 'rarityStyle', 'fontFamily', 'monospace', '"Holo Noto Sans", sans-serif'), ('alienkitty', 'overview', 'rarityStyle', 'fontFamily', 'monospace', '"Holo Noto Sans", sans-serif')]
+
+== 5. 同尺寸中性姿態的幾何（原始 px，門檻 0.011px）
+FAIL team: 同尺寸幾何與參考差異 110 項 [('mieshi', 'overview', 'rarityRange.w', 96.641, 96.359), ('mieshi', 'overview', 'rarityRange.h', 12, 17), ('mieshi', 'overview', 'lineGap', 0.01298, 0.00913)]
+
+== 6. 原生姿態的硬判準
+PASS gacha-test: 稀有度全部單行（63 張，最多 1 行）
+PASS gacha-test: 稀有度與寶石零交疊（0 張命中）[]
+PASS gacha-test: 投影倍率只有 1.0，或選取／hover 狀態的 1.04（放大中 0 張）；例外 0 []
+PASS team: 稀有度全部單行（48 張，最多 1 行）
+PASS team: 稀有度與寶石零交疊（0 張命中）[]
+PASS team: 投影倍率只有 1.0，或選取／hover 狀態的 1.04（放大中 14 張）；例外 0 []
+
+== 觀察（不計入通過與否）
+
+== 結果：4 項 FAIL

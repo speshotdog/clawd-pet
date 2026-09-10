@@ -1,0 +1,38 @@
+[
+  {
+    "width": 1440,
+    "scale": 1.04,
+    "max_clipped_percent": 0,
+    "max_overlap_percent": 0
+  },
+  {
+    "width": 1440,
+    "scale": 1.06,
+    "max_clipped_percent": 0.5840062844825078,
+    "max_overlap_percent": 0
+  },
+  {
+    "width": 1024,
+    "scale": 1.04,
+    "max_clipped_percent": 1.2506728046561055,
+    "max_overlap_percent": 0
+  },
+  {
+    "width": 1024,
+    "scale": 1.06,
+    "max_clipped_percent": 2.1730459518113254,
+    "max_overlap_percent": 0
+  },
+  {
+    "width": 390,
+    "scale": 1.04,
+    "max_clipped_percent": 1.549377591497303,
+    "max_overlap_percent": 0
+  },
+  {
+    "width": 390,
+    "scale": 1.06,
+    "max_clipped_percent": 1.8618867187299215,
+    "max_overlap_percent": 0
+  }
+]

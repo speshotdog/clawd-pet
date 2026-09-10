@@ -1,0 +1,319 @@
+== 環境
+  chromium=149.0.7827.55  viewports=['1440x900', '1024x900', '390x844']
+  label=pre
+
+== 0. 入口載入與取樣
+PASS demo 1440x900: 取到 81 張卡
+PASS demo 1024x900: 取到 81 張卡
+PASS demo 390x844: 取到 81 張卡
+PASS demo-standalone 1440x900: 取到 81 張卡
+PASS demo-standalone 1024x900: 取到 81 張卡
+PASS demo-standalone 390x844: 取到 81 張卡
+PASS pool 1440x900: 取到 65 張卡
+PASS pool 1024x900: 取到 65 張卡
+PASS pool 390x844: 取到 65 張卡
+PASS pool-standalone 1440x900: 取到 65 張卡
+PASS pool-standalone 1024x900: 取到 65 張卡
+PASS pool-standalone 390x844: 取到 65 張卡
+PASS gacha 1440x900: 取到 10 張卡
+PASS gacha 1024x900: 取到 10 張卡
+PASS gacha 390x844: 取到 10 張卡
+PASS gacha-standalone 1440x900: 取到 10 張卡
+PASS gacha-standalone 1024x900: 取到 10 張卡
+PASS gacha-standalone 390x844: 取到 10 張卡
+PASS gacha-test 1440x900: 取到 63 張卡
+PASS gacha-test 1024x900: 取到 63 張卡
+PASS gacha-test 390x844: 取到 63 張卡
+PASS gacha-test-standalone 1440x900: 取到 63 張卡
+PASS gacha-test-standalone 1024x900: 取到 63 張卡
+PASS gacha-test-standalone 390x844: 取到 63 張卡
+PASS team 1440x900: 取到 49 張卡
+PASS team 1024x900: 取到 49 張卡
+PASS team 390x844: 取到 49 張卡
+
+== 1. 抽卡固定序列（測試環境，未動正式機率）
+PASS gacha-test 1440x900: 揭到 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']（指定 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']）
+PASS gacha-test 1024x900: 揭到 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']（指定 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']）
+PASS gacha-test 390x844: 揭到 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']（指定 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']）
+PASS gacha-test-standalone 1440x900: 揭到 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']（指定 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']）
+PASS gacha-test-standalone 1024x900: 揭到 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']（指定 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']）
+PASS gacha-test-standalone 390x844: 揭到 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']（指定 ['ababa', 'alienkitty', 'alu', 'astronaut', 'ballyellow', 'beachball', 'bianbiancaihua', 'bingyang', 'chaichai', 'chengtiregou', 'dino', 'fluffdog', 'foxfriend', 'foxmoney', 'gebugou', 'gebuyang', 'geimieqianhaoma', 'guanjiu', 'jiaochi', 'jiaolan', 'jiaotou', 'jinggou', 'jintianwoshengri', 'liulangyueshou', 'lkreal', 'lksphinx', 'manhua', 'mianhua', 'miepupu', 'miepuxiong', 'mieshi', 'pufayueyue', 'qinghua', 'qipupu', 'rocketdog', 'salamander', 'seal', 'shabaolingzhu', 'shiwang', 'shiyi', 'waisongmiege', 'wanwu', 'wanwumythic', 'xiaochouyue', 'xiaojiaojiao', 'yangpu', 'yangtuo', 'yuefeimo', 'yuesong', 'yuetrumpet', 'yuexiong', 'yueyuexian', 'zhenbing', 'zhenbush', 'zhencao', 'zhenfang', 'zhenjpg', 'zhenjunyue', 'zhenmoss', 'zhenpete', 'zhenqiqiu', 'zhenwang', 'zhenzhen']）
+
+== 2. 字型證據（逐節點，CDP，無筆數上限）
+PASS demo 1440x900: 字型取樣錯誤 0 []
+PASS demo 1440x900: 可見文字沒有字型證據 0 []
+FAIL demo 1440x900: 非預期 fallback 9 [('pool-liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('pool-shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('pool-zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS demo 1440x900: 非內嵌字型 0 []
+PASS demo 1024x900: 字型取樣錯誤 0 []
+PASS demo 1024x900: 可見文字沒有字型證據 0 []
+FAIL demo 1024x900: 非預期 fallback 9 [('pool-liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('pool-shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('pool-zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS demo 1024x900: 非內嵌字型 0 []
+PASS demo 390x844: 字型取樣錯誤 0 []
+PASS demo 390x844: 可見文字沒有字型證據 0 []
+FAIL demo 390x844: 非預期 fallback 9 [('pool-liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('pool-shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('pool-zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS demo 390x844: 非內嵌字型 0 []
+PASS demo-standalone 1440x900: 字型取樣錯誤 0 []
+PASS demo-standalone 1440x900: 可見文字沒有字型證據 0 []
+FAIL demo-standalone 1440x900: 非預期 fallback 9 [('pool-liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('pool-shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('pool-zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS demo-standalone 1440x900: 非內嵌字型 0 []
+PASS demo-standalone 1024x900: 字型取樣錯誤 0 []
+PASS demo-standalone 1024x900: 可見文字沒有字型證據 0 []
+FAIL demo-standalone 1024x900: 非預期 fallback 9 [('pool-liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('pool-shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('pool-zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS demo-standalone 1024x900: 非內嵌字型 0 []
+PASS demo-standalone 390x844: 字型取樣錯誤 0 []
+PASS demo-standalone 390x844: 可見文字沒有字型證據 0 []
+FAIL demo-standalone 390x844: 非預期 fallback 9 [('pool-liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('pool-shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('pool-zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS demo-standalone 390x844: 非內嵌字型 0 []
+PASS pool 1440x900: 字型取樣錯誤 0 []
+PASS pool 1440x900: 可見文字沒有字型證據 0 []
+FAIL pool 1440x900: 非預期 fallback 9 [('liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS pool 1440x900: 非內嵌字型 0 []
+PASS pool 1024x900: 字型取樣錯誤 0 []
+PASS pool 1024x900: 可見文字沒有字型證據 0 []
+FAIL pool 1024x900: 非預期 fallback 9 [('liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS pool 1024x900: 非內嵌字型 0 []
+PASS pool 390x844: 字型取樣錯誤 0 []
+PASS pool 390x844: 可見文字沒有字型證據 0 []
+FAIL pool 390x844: 非預期 fallback 9 [('liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS pool 390x844: 非內嵌字型 0 []
+PASS pool-standalone 1440x900: 字型取樣錯誤 0 []
+PASS pool-standalone 1440x900: 可見文字沒有字型證據 0 []
+FAIL pool-standalone 1440x900: 非預期 fallback 9 [('liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS pool-standalone 1440x900: 非內嵌字型 0 []
+PASS pool-standalone 1024x900: 字型取樣錯誤 0 []
+PASS pool-standalone 1024x900: 可見文字沒有字型證據 0 []
+FAIL pool-standalone 1024x900: 非預期 fallback 9 [('liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS pool-standalone 1024x900: 非內嵌字型 0 []
+PASS pool-standalone 390x844: 字型取樣錯誤 0 []
+PASS pool-standalone 390x844: 可見文字沒有字型證據 0 []
+FAIL pool-standalone 390x844: 非預期 fallback 9 [('liulangyueshou', 'grid', 'name', '微軟正黑體', 2), ('shabaolingzhu', 'grid', 'name', '微軟正黑體', 3), ('zhenjunyue', 'grid', 'name', '微軟正黑體', 1)]
+PASS pool-standalone 390x844: 非內嵌字型 0 []
+PASS gacha 1440x900: 字型取樣錯誤 0 []
+PASS gacha 1440x900: 可見文字沒有字型證據 0 []
+FAIL gacha 1440x900: 非預期 fallback 1 [('waisongmiege', 'reveal', 'name', '微軟正黑體', 2)]
+PASS gacha 1440x900: 非內嵌字型 0 []
+PASS gacha 1024x900: 字型取樣錯誤 0 []
+PASS gacha 1024x900: 可見文字沒有字型證據 0 []
+PASS gacha 1024x900: 非預期 fallback 0 []
+PASS gacha 1024x900: 非內嵌字型 0 []
+PASS gacha 390x844: 字型取樣錯誤 0 []
+PASS gacha 390x844: 可見文字沒有字型證據 0 []
+PASS gacha 390x844: 非預期 fallback 0 []
+PASS gacha 390x844: 非內嵌字型 0 []
+PASS gacha-standalone 1440x900: 字型取樣錯誤 0 []
+PASS gacha-standalone 1440x900: 可見文字沒有字型證據 0 []
+PASS gacha-standalone 1440x900: 非預期 fallback 0 []
+PASS gacha-standalone 1440x900: 非內嵌字型 0 []
+PASS gacha-standalone 1024x900: 字型取樣錯誤 0 []
+PASS gacha-standalone 1024x900: 可見文字沒有字型證據 0 []
+PASS gacha-standalone 1024x900: 非預期 fallback 0 []
+PASS gacha-standalone 1024x900: 非內嵌字型 0 []
+PASS gacha-standalone 390x844: 字型取樣錯誤 0 []
+PASS gacha-standalone 390x844: 可見文字沒有字型證據 0 []
+PASS gacha-standalone 390x844: 非預期 fallback 0 []
+PASS gacha-standalone 390x844: 非內嵌字型 0 []
+PASS gacha-test 1440x900: 字型取樣錯誤 0 []
+PASS gacha-test 1440x900: 可見文字沒有字型證據 0 []
+FAIL gacha-test 1440x900: 非預期 fallback 9 [('bianbiancaihua', 'reveal', 'name', '微軟正黑體', 2), ('jintianwoshengri', 'reveal', 'name', '微軟正黑體', 2), ('liulangyueshou', 'reveal', 'name', '微軟正黑體', 2)]
+PASS gacha-test 1440x900: 非內嵌字型 0 []
+PASS gacha-test 1024x900: 字型取樣錯誤 0 []
+PASS gacha-test 1024x900: 可見文字沒有字型證據 0 []
+FAIL gacha-test 1024x900: 非預期 fallback 9 [('bianbiancaihua', 'reveal', 'name', '微軟正黑體', 2), ('jintianwoshengri', 'reveal', 'name', '微軟正黑體', 2), ('liulangyueshou', 'reveal', 'name', '微軟正黑體', 2)]
+PASS gacha-test 1024x900: 非內嵌字型 0 []
+PASS gacha-test 390x844: 字型取樣錯誤 0 []
+PASS gacha-test 390x844: 可見文字沒有字型證據 0 []
+FAIL gacha-test 390x844: 非預期 fallback 9 [('bianbiancaihua', 'reveal', 'name', '微軟正黑體', 2), ('jintianwoshengri', 'reveal', 'name', '微軟正黑體', 2), ('liulangyueshou', 'reveal', 'name', '微軟正黑體', 2)]
+PASS gacha-test 390x844: 非內嵌字型 0 []
+PASS gacha-test-standalone 1440x900: 字型取樣錯誤 0 []
+PASS gacha-test-standalone 1440x900: 可見文字沒有字型證據 0 []
+FAIL gacha-test-standalone 1440x900: 非預期 fallback 9 [('bianbiancaihua', 'reveal', 'name', '微軟正黑體', 2), ('jintianwoshengri', 'reveal', 'name', '微軟正黑體', 2), ('liulangyueshou', 'reveal', 'name', '微軟正黑體', 2)]
+PASS gacha-test-standalone 1440x900: 非內嵌字型 0 []
+PASS gacha-test-standalone 1024x900: 字型取樣錯誤 0 []
+PASS gacha-test-standalone 1024x900: 可見文字沒有字型證據 0 []
+FAIL gacha-test-standalone 1024x900: 非預期 fallback 9 [('bianbiancaihua', 'reveal', 'name', '微軟正黑體', 2), ('jintianwoshengri', 'reveal', 'name', '微軟正黑體', 2), ('liulangyueshou', 'reveal', 'name', '微軟正黑體', 2)]
+PASS gacha-test-standalone 1024x900: 非內嵌字型 0 []
+PASS gacha-test-standalone 390x844: 字型取樣錯誤 0 []
+PASS gacha-test-standalone 390x844: 可見文字沒有字型證據 0 []
+FAIL gacha-test-standalone 390x844: 非預期 fallback 9 [('bianbiancaihua', 'reveal', 'name', '微軟正黑體', 2), ('jintianwoshengri', 'reveal', 'name', '微軟正黑體', 2), ('liulangyueshou', 'reveal', 'name', '微軟正黑體', 2)]
+PASS gacha-test-standalone 390x844: 非內嵌字型 0 []
+PASS team 1440x900: 字型取樣錯誤 0 []
+PASS team 1440x900: 可見文字沒有字型證據 0 []
+FAIL team 1440x900: 非預期 fallback 8 [('liulangyueshou', 'overview', 'name', '微軟正黑體', 2), ('bianbiancaihua', 'overview', 'name', '微軟正黑體', 2), ('liulangyueshou', 'detail', 'name', '微軟正黑體', 2)]
+PASS team 1440x900: 非內嵌字型 0 []
+PASS team 1024x900: 字型取樣錯誤 0 []
+PASS team 1024x900: 可見文字沒有字型證據 0 []
+FAIL team 1024x900: 非預期 fallback 8 [('liulangyueshou', 'overview', 'name', '微軟正黑體', 2), ('bianbiancaihua', 'overview', 'name', '微軟正黑體', 2), ('liulangyueshou', 'detail', 'name', '微軟正黑體', 2)]
+PASS team 1024x900: 非內嵌字型 0 []
+PASS team 390x844: 字型取樣錯誤 0 []
+PASS team 390x844: 可見文字沒有字型證據 0 []
+FAIL team 390x844: 非預期 fallback 4 [('liulangyueshou', 'overview', 'name', '微軟正黑體', 2), ('bianbiancaihua', 'overview', 'name', '微軟正黑體', 2), ('jintianwoshengri', 'overview', 'name', '微軟正黑體', 2)]
+PASS team 390x844: 非內嵌字型 0 []
+
+== 3. 字級契約（--rarity-fs 生效、主副標比例 13.5/24）
+PASS demo 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS demo 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('flat-compare-depth', 'grid')
+PASS demo 1024x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS demo 1024x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('legacy-zhenpete-original', 'grid')
+PASS demo 390x844: |fontSize − --rarity-fs| 最大 0.0000px
+PASS demo 390x844: |rarityFS − nameFS×0.5625| 最大 0.0038px ('rank-common-zhenwang', 'grid')
+PASS demo-standalone 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS demo-standalone 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('flat-compare-depth', 'grid')
+PASS demo-standalone 1024x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS demo-standalone 1024x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('legacy-zhenpete-original', 'grid')
+PASS demo-standalone 390x844: |fontSize − --rarity-fs| 最大 0.0000px
+PASS demo-standalone 390x844: |rarityFS − nameFS×0.5625| 最大 0.0038px ('rank-common-zhenwang', 'grid')
+PASS pool 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS pool 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('compare-depth', 'grid')
+PASS pool 1024x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS pool 1024x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('compare-depth', 'grid')
+PASS pool 390x844: |fontSize − --rarity-fs| 最大 0.0000px
+PASS pool 390x844: |rarityFS − nameFS×0.5625| 最大 0.0056px ('rocketdog', 'grid')
+PASS pool-standalone 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS pool-standalone 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('compare-depth', 'grid')
+PASS pool-standalone 1024x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS pool-standalone 1024x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('compare-depth', 'grid')
+PASS pool-standalone 390x844: |fontSize − --rarity-fs| 最大 0.0000px
+PASS pool-standalone 390x844: |rarityFS − nameFS×0.5625| 最大 0.0056px ('rocketdog', 'grid')
+PASS gacha 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0006px ('alu', 'reveal')
+PASS gacha 1024x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha 1024x900: |rarityFS − nameFS×0.5625| 最大 0.0012px ('dino', 'reveal')
+PASS gacha 390x844: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha 390x844: |rarityFS − nameFS×0.5625| 最大 0.0056px ('shiwang', 'reveal')
+PASS gacha-standalone 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-standalone 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0006px ('astronaut', 'reveal')
+PASS gacha-standalone 1024x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-standalone 1024x900: |rarityFS − nameFS×0.5625| 最大 0.0012px ('ballyellow', 'reveal')
+PASS gacha-standalone 390x844: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-standalone 390x844: |rarityFS − nameFS×0.5625| 最大 0.0056px ('ballyellow', 'reveal')
+PASS gacha-test 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-test 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0006px ('ababa', 'reveal')
+PASS gacha-test 1024x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-test 1024x900: |rarityFS − nameFS×0.5625| 最大 0.0012px ('ababa', 'reveal')
+PASS gacha-test 390x844: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-test 390x844: |rarityFS − nameFS×0.5625| 最大 0.0056px ('ababa', 'reveal')
+PASS gacha-test-standalone 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-test-standalone 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0006px ('ababa', 'reveal')
+PASS gacha-test-standalone 1024x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-test-standalone 1024x900: |rarityFS − nameFS×0.5625| 最大 0.0012px ('ababa', 'reveal')
+PASS gacha-test-standalone 390x844: |fontSize − --rarity-fs| 最大 0.0000px
+PASS gacha-test-standalone 390x844: |rarityFS − nameFS×0.5625| 最大 0.0056px ('ababa', 'reveal')
+PASS team 1440x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS team 1440x900: |rarityFS − nameFS×0.5625| 最大 0.0050px ('rocketdog', 'overview')
+PASS team 1024x900: |fontSize − --rarity-fs| 最大 0.0000px
+PASS team 1024x900: |rarityFS − nameFS×0.5625| 最大 0.0056px ('rocketdog', 'overview')
+PASS team 390x844: |fontSize − --rarity-fs| 最大 0.0000px
+PASS team 390x844: |rarityFS − nameFS×0.5625| 最大 0.0044px ('rocketdog', 'overview')
+
+== 4. 卡面設計一致性（參考＝gacha-test 揭卡）
+PASS demo: 正式卡 12 個(viewport,卡) 組合全部有參考對象；未覆蓋 0 []
+PASS demo: 與參考共同卡 12 張，卡面設計差異 0 項 []
+PASS demo-standalone: 正式卡 12 個(viewport,卡) 組合全部有參考對象；未覆蓋 0 []
+PASS demo-standalone: 與參考共同卡 12 張，卡面設計差異 0 項 []
+PASS pool: 正式卡 189 個(viewport,卡) 組合全部有參考對象；未覆蓋 0 []
+PASS pool: 與參考共同卡 189 張，卡面設計差異 0 項 []
+PASS pool-standalone: 正式卡 189 個(viewport,卡) 組合全部有參考對象；未覆蓋 0 []
+PASS pool-standalone: 與參考共同卡 189 張，卡面設計差異 0 項 []
+PASS gacha: 正式卡 24 個(viewport,卡) 組合全部有參考對象；未覆蓋 0 []
+PASS gacha: 與參考共同卡 30 張，卡面設計差異 0 項 []
+PASS gacha-standalone: 正式卡 18 個(viewport,卡) 組合全部有參考對象；未覆蓋 0 []
+PASS gacha-standalone: 與參考共同卡 30 張，卡面設計差異 0 項 []
+PASS gacha-test-standalone: 正式卡 189 個(viewport,卡) 組合全部有參考對象；未覆蓋 0 []
+PASS gacha-test-standalone: 與參考共同卡 189 張，卡面設計差異 0 項 []
+PASS team: 正式卡 72 個(viewport,卡) 組合全部有參考對象；未覆蓋 0 []
+FAIL team: 與參考共同卡 122 張，卡面設計差異 140 項 [('astronaut', 'overview', 'rarityStyle', 'color', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)'), ('astronaut', 'overview', 'rarityStyle', 'webkitTextFillColor', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)'), ('fluffdog', 'overview', 'rarityStyle', 'color', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)')]
+
+== 5. 幾何量（正規化；沒有校準檔就只列數字，不判通過）
+PASS demo: 稀有度全部單行（243 張，最多 1 行）
+PASS demo: 稀有度與寶石零交疊（0 張命中）[]
+     demo   rarityRange.w          範圍 [0.26387, 0.50338] n=243  (未校準)
+     demo   rarityRange.h          範圍 [0.06465, 0.07487] n=243  (未校準)
+     demo   rarityRange.lines      範圍 [1.00000, 1.00000] n=243  (未校準)
+     demo   lineGap                範圍 [0.00831, 0.04782] n=243  (未校準)
+     demo   rarityClear.left       範圍 [0.24823, 0.36806] n=243  (未校準)
+     demo   rarityClear.right      範圍 [0.24834, 0.36806] n=243  (未校準)
+     demo   gemOverlapArea         範圍 [0.00000, 0.00000] n=243  (未校準)
+PASS demo-standalone: 稀有度全部單行（243 張，最多 1 行）
+PASS demo-standalone: 稀有度與寶石零交疊（0 張命中）[]
+     demo-standalone rarityRange.w          範圍 [0.26387, 0.50338] n=243  (未校準)
+     demo-standalone rarityRange.h          範圍 [0.06465, 0.07487] n=243  (未校準)
+     demo-standalone rarityRange.lines      範圍 [1.00000, 1.00000] n=243  (未校準)
+     demo-standalone lineGap                範圍 [0.00831, 0.04782] n=243  (未校準)
+     demo-standalone rarityClear.left       範圍 [0.24823, 0.36806] n=243  (未校準)
+     demo-standalone rarityClear.right      範圍 [0.24834, 0.36806] n=243  (未校準)
+     demo-standalone gemOverlapArea         範圍 [0.00000, 0.00000] n=243  (未校準)
+PASS pool: 稀有度全部單行（195 張，最多 1 行）
+PASS pool: 稀有度與寶石零交疊（0 張命中）[]
+     pool   rarityRange.w          範圍 [0.30317, 0.50334] n=195  (未校準)
+     pool   rarityRange.h          範圍 [0.06812, 0.07227] n=195  (未校準)
+     pool   rarityRange.lines      範圍 [1.00000, 1.00000] n=195  (未校準)
+     pool   lineGap                範圍 [0.00531, 0.02350] n=195  (未校準)
+     pool   rarityClear.left       範圍 [0.24830, 0.34839] n=195  (未校準)
+     pool   rarityClear.right      範圍 [0.24835, 0.34844] n=195  (未校準)
+     pool   gemOverlapArea         範圍 [0.00000, 0.00000] n=195  (未校準)
+PASS pool-standalone: 稀有度全部單行（195 張，最多 1 行）
+PASS pool-standalone: 稀有度與寶石零交疊（0 張命中）[]
+     pool-standalone rarityRange.w          範圍 [0.30317, 0.50334] n=195  (未校準)
+     pool-standalone rarityRange.h          範圍 [0.06812, 0.07227] n=195  (未校準)
+     pool-standalone rarityRange.lines      範圍 [1.00000, 1.00000] n=195  (未校準)
+     pool-standalone lineGap                範圍 [0.00531, 0.02350] n=195  (未校準)
+     pool-standalone rarityClear.left       範圍 [0.24830, 0.34839] n=195  (未校準)
+     pool-standalone rarityClear.right      範圍 [0.24835, 0.34844] n=195  (未校準)
+     pool-standalone gemOverlapArea         範圍 [0.00000, 0.00000] n=195  (未校準)
+PASS gacha: 稀有度全部單行（30 張，最多 1 行）
+PASS gacha: 稀有度與寶石零交疊（0 張命中）[]
+     gacha  rarityRange.w          範圍 [0.30324, 0.42766] n=30  (未校準)
+     gacha  rarityRange.h          範圍 [0.06593, 0.07366] n=30  (未校準)
+     gacha  rarityRange.lines      範圍 [1.00000, 1.00000] n=30  (未校準)
+     gacha  lineGap                範圍 [0.00763, 0.02369] n=30  (未校準)
+     gacha  rarityClear.left       範圍 [0.28617, 0.34838] n=30  (未校準)
+     gacha  rarityClear.right      範圍 [0.28617, 0.34838] n=30  (未校準)
+     gacha  gemOverlapArea         範圍 [0.00000, 0.00000] n=30  (未校準)
+PASS gacha-standalone: 稀有度全部單行（30 張，最多 1 行）
+PASS gacha-standalone: 稀有度與寶石零交疊（0 張命中）[]
+     gacha-standalone rarityRange.w          範圍 [0.30324, 0.42766] n=30  (未校準)
+     gacha-standalone rarityRange.h          範圍 [0.06593, 0.07366] n=30  (未校準)
+     gacha-standalone rarityRange.lines      範圍 [1.00000, 1.00000] n=30  (未校準)
+     gacha-standalone lineGap                範圍 [0.00763, 0.02369] n=30  (未校準)
+     gacha-standalone rarityClear.left       範圍 [0.28617, 0.34838] n=30  (未校準)
+     gacha-standalone rarityClear.right      範圍 [0.28617, 0.34838] n=30  (未校準)
+     gacha-standalone gemOverlapArea         範圍 [0.00000, 0.00000] n=30  (未校準)
+PASS gacha-test: 稀有度全部單行（189 張，最多 1 行）
+PASS gacha-test: 稀有度與寶石零交疊（0 張命中）[]
+     gacha-test rarityRange.w          範圍 [0.30324, 0.50346] n=189  (未校準)
+     gacha-test rarityRange.h          範圍 [0.06593, 0.07366] n=189  (未校準)
+     gacha-test rarityRange.lines      範圍 [1.00000, 1.00000] n=189  (未校準)
+     gacha-test lineGap                範圍 [0.00763, 0.02369] n=189  (未校準)
+     gacha-test rarityClear.left       範圍 [0.24827, 0.34838] n=189  (未校準)
+     gacha-test rarityClear.right      範圍 [0.24827, 0.34838] n=189  (未校準)
+     gacha-test gemOverlapArea         範圍 [0.00000, 0.00000] n=189  (未校準)
+PASS gacha-test-standalone: 稀有度全部單行（189 張，最多 1 行）
+PASS gacha-test-standalone: 稀有度與寶石零交疊（0 張命中）[]
+     gacha-test-standalone rarityRange.w          範圍 [0.30324, 0.50346] n=189  (未校準)
+     gacha-test-standalone rarityRange.h          範圍 [0.06593, 0.07366] n=189  (未校準)
+     gacha-test-standalone rarityRange.lines      範圍 [1.00000, 1.00000] n=189  (未校準)
+     gacha-test-standalone lineGap                範圍 [0.00763, 0.02369] n=189  (未校準)
+     gacha-test-standalone rarityClear.left       範圍 [0.24827, 0.34838] n=189  (未校準)
+     gacha-test-standalone rarityClear.right      範圍 [0.24827, 0.34838] n=189  (未校準)
+     gacha-test-standalone gemOverlapArea         範圍 [0.00000, 0.00000] n=189  (未校準)
+PASS team: 稀有度全部單行（122 張，最多 1 行）
+PASS team: 稀有度與寶石零交疊（0 張命中）[]
+     team   rarityRange.w          範圍 [0.30303, 0.52373] n=122  (未校準)
+     team   rarityRange.h          範圍 [0.06837, 0.07739] n=122  (未校準)
+     team   rarityRange.lines      範圍 [1.00000, 1.00000] n=122  (未校準)
+     team   lineGap                範圍 [0.00407, 0.03794] n=122  (未校準)
+     team   rarityClear.left       範圍 [0.24821, 0.36235] n=122  (未校準)
+     team   rarityClear.right      範圍 [0.24821, 0.36250] n=122  (未校準)
+     team   gemOverlapArea         範圍 [0.00000, 0.00000] n=122  (未校準)
+
+== 觀察（不計入通過與否）
+  - team 390x844: 未顯示／未 refit 而未套字級門檻：[('rocketdog', 'overview'), ('rocketdog', 'detail'), ('liulangyueshou', 'detail'), ('mieshi', 'detail'), ('qinghua', 'detail'), ('alienkitty', 'detail'), ('foxfriend', 'detail'), ('jiaotou', 'detail'), ('jinggou', 'detail'), ('jintianwoshengri', 'detail'), ('lksphinx', 'detail'), ('astronaut', 'detail'), ('fluffdog', 'detail'), ('bianbiancaihua', 'detail'), ('bingyang', 'detail'), ('chengtiregou', 'detail'), ('gebugou', 'detail'), ('alu', 'detail'), ('chaichai', 'detail'), ('guanjiu', 'detail'), ('jiaochi', 'detail'), ('jiaolan', 'detail'), ('manhua', 'detail'), ('miepupu', 'detail'), ('miepuxiong', 'detail')]
+  - demo: 不在正式卡池、分開列示不計入通過率的樣本 77 種：['comparison-new', 'flat-compare-depth', 'flat-compare-flat', 'legacy-foxfriend-original', 'legacy-miepupu-original', 'legacy-mieshi-original'] …
+  - demo-standalone: 不在正式卡池、分開列示不計入通過率的樣本 77 種：['comparison-new', 'flat-compare-depth', 'flat-compare-flat', 'legacy-foxfriend-original', 'legacy-miepupu-original', 'legacy-mieshi-original'] …
+  - pool: 不在正式卡池、分開列示不計入通過率的樣本 2 種：['compare-depth', 'compare-flat']
+  - pool-standalone: 不在正式卡池、分開列示不計入通過率的樣本 2 種：['compare-depth', 'compare-flat']
+
+== 未校準（照 METHOD-card-face.md 要先量合格樣本才能訂門檻）
+  63 項：demo/rarityRange.w, demo/rarityRange.h, demo/rarityRange.lines, demo/lineGap, demo/rarityClear.left, demo/rarityClear.right …
+
+== 結果：23 項 FAIL

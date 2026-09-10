@@ -1,0 +1,12 @@
+{
+ "demo.html": "c9b3fe9337986642fbf7ec6b8d1f52b0233cadb637847f9863a6a9186f9f86ba",
+ "demo-standalone.html": "ffad12d7b35de536be176cd96b7f279d797379f8e7ee88d66cad7c1d6107a3d8",
+ "cards-remade.html": "53f0126d22f64133daaa765769cf7bccee5539fa08b4d3d1d79873d13d3de21b",
+ "cards-remade-standalone.html": "cdba0662d4226d46ef8eee21aff1116ea6bb9dd13ec6e13a3e977548b5b8c68a",
+ "deluxe-gacha-b.html": "9546ee808b80dac7915827f40db04bddd356a6bb56aac05e700883a89fa8b3fd",
+ "deluxe-gacha-b-standalone.html": "4f54657c3240d27b87fd500ff8c5914690fd9956dc858ae0df9c9a3a5dc121ff",
+ "deluxe-gacha-b-test.html": "d0dab0a3c7bb04ee88f5f02a1ac121452b4a3ee0a813cf207ca903407aa8def8",
+ "deluxe-gacha-b-test-standalone.html": "54882ef776cd3dafc2dc67b27fa660f31cd482b56c6f8cce6382832ded6a5e0c",
+ "map20.html": "869687695204abe91dbdabc49c8f5682547645b6e68b97584e9c89083ad0a8fd",
+ "_note": "九份主線 HTML 的完整 SHA-256（工作目錄 CRLF 原樣）"
+}

@@ -39,8 +39,21 @@ for ref in sorted(refs):
     if path.exists():
         replacements[ref] = data_uri(path)
 
+# ⚠ 整份純字串取代會連 mask-data 的 JSON **鍵名**一起換掉，
+# 而 card_face.js:86 是用原檔名查 masks[key]，查不到就不掛 .subject-mask，
+# 四張場景卡（rocketdog／astronaut／alienkitty／fluffdog）因此少了圖內視差層。
+# 先把 mask-data 區塊挖出來、取代完再放回去。
+_mask_block = re.search(r'<script type="application/json" id="mask-data">.*?</script>', html, re.S)
+_MASK_TOKEN = '<!--MASK_DATA_PLACEHOLDER-->'
+if _mask_block:
+    html = html.replace(_mask_block.group(0), _MASK_TOKEN)
+
 for ref, uri in replacements.items():
     html = html.replace(ref, uri)
+
+if _mask_block:
+    # 鍵名保持原檔名；值本來就是 data URI，不需要取代
+    html = html.replace(_MASK_TOKEN, _mask_block.group(0))
 
 # Runtime-created cards use template strings; route those through the same map.
 asset_map = {}

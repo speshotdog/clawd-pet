@@ -1,0 +1,85 @@
+== 1. 字族指定（computed fontFamily 第一順位）
+PASS demo 1440x900: 81 張，非 Holo Noto Sans 0 張 []
+PASS demo 1024x900: 81 張，非 Holo Noto Sans 0 張 []
+PASS demo 390x844: 81 張，非 Holo Noto Sans 0 張 []
+PASS gacha 1440x900: 1 張，非 Holo Noto Sans 0 張 []
+PASS gacha 1024x900: 1 張，非 Holo Noto Sans 0 張 []
+PASS gacha 390x844: 1 張，非 Holo Noto Sans 0 張 []
+PASS team 1440x900: 11 張，非 Holo Noto Sans 0 張 []
+PASS team 1024x900: 11 張，非 Holo Noto Sans 0 張 []
+PASS team 390x844: 11 張，非 Holo Noto Sans 0 張 []
+
+== 2. 實際平台字型（CDP CSS.getPlatformFontsForNode）
+PASS demo 1440x900: rarity fallback glyph 0 (before={'MingLiU': 687, '微軟正黑體': 2}) after={'Noto Sans TC': 835}
+PASS demo 1024x900: rarity fallback glyph 0 (before={'MingLiU': 687, '微軟正黑體': 2}) after={'Noto Sans TC': 835}
+PASS demo 390x844: rarity fallback glyph 0 (before={'MingLiU': 687, '微軟正黑體': 2}) after={'Noto Sans TC': 835}
+PASS gacha 1440x900: rarity fallback glyph 0 (before={'MingLiU': 9}) after={'Noto Sans TC': 9}
+PASS gacha 1024x900: rarity fallback glyph 0 (before={'MingLiU': 9}) after={'Noto Sans TC': 11}
+PASS gacha 390x844: rarity fallback glyph 0 (before={'MingLiU': 9}) after={'Noto Sans TC': 11}
+PASS team 1440x900: rarity fallback glyph 0 (before={'MingLiU': 125}) after={'Noto Sans TC': 125}
+PASS team 1024x900: rarity fallback glyph 0 (before={'MingLiU': 125}) after={'Noto Sans TC': 125}
+PASS team 390x844: rarity fallback glyph 0 (before={'MingLiU': 114}) after={'Noto Sans TC': 114}
+
+== 3. 卡名的 fallback（本輪沒改，只回報）
+
+== 4. 字級變數生效 + 主副標比例 13.5/24=0.5625
+PASS demo 1440x900: |fontSize - --rarity-fs| max 0.0000px
+PASS demo 1440x900: |rarityFS - nameFS*0.5625| max 0.0050px (flat-compare-depth)
+PASS demo 1024x900: |fontSize - --rarity-fs| max 0.0000px
+PASS demo 1024x900: |rarityFS - nameFS*0.5625| max 0.0050px (legacy-zhenpete-original)
+PASS demo 390x844: |fontSize - --rarity-fs| max 0.0000px
+PASS demo 390x844: |rarityFS - nameFS*0.5625| max 0.0038px (rank-common-zhenwang)
+PASS gacha 1440x900: |fontSize - --rarity-fs| max 0.0000px
+PASS gacha 1440x900: |rarityFS - nameFS*0.5625| max 0.0056px (waisongmiege)
+PASS gacha 1024x900: |fontSize - --rarity-fs| max 0.0000px
+PASS gacha 1024x900: |rarityFS - nameFS*0.5625| max 0.0044px (beachball)
+PASS gacha 390x844: |fontSize - --rarity-fs| max 0.0000px
+PASS gacha 390x844: |rarityFS - nameFS*0.5625| max 0.0025px (dino)
+PASS team 1440x900: |fontSize - --rarity-fs| max 0.0000px
+PASS team 1440x900: |rarityFS - nameFS*0.5625| max 0.0050px (rocketdog)
+PASS team 1024x900: |fontSize - --rarity-fs| max 0.0000px
+PASS team 1024x900: |rarityFS - nameFS*0.5625| max 0.0056px (rocketdog)
+PASS team 390x844: |fontSize - --rarity-fs| max 0.0000px
+PASS team 390x844: |rarityFS - nameFS*0.5625| max 0.0044px (rocketdog)
+
+== 5. 非目標樣式零變更（weight/style/line-height/letter-spacing/color/textShadow）
+PASS demo 1440x900: 共同卡 65 張，非目標樣式差異 0 項 []
+PASS demo 1024x900: 共同卡 65 張，非目標樣式差異 0 項 []
+PASS demo 390x844: 共同卡 65 張，非目標樣式差異 0 項 []
+PASS gacha 1440x900: 共同卡 0 張，非目標樣式差異 0 項 []
+PASS gacha 1024x900: 共同卡 0 張，非目標樣式差異 0 項 []
+PASS gacha 390x844: 共同卡 0 張，非目標樣式差異 0 項 []
+PASS team 1440x900: 共同卡 10 張，非目標樣式差異 0 項 []
+PASS team 1024x900: 共同卡 10 張，非目標樣式差異 0 項 []
+PASS team 390x844: 共同卡 10 張，非目標樣式差異 0 項 []
+
+== 6. 稀有度文字幾何（換字族後的寬高變化，回報用）
+     demo 1440x900: 最大寬增 +7.130px 高增 +6.251px；寬度 >90% 卡寬 0 張 []
+PASS demo 1440x900: 稀有度文字寬度未超過 90% 卡寬
+     demo 1024x900: 最大寬增 +11.166px 高增 +6.251px；寬度 >90% 卡寬 0 張 []
+PASS demo 1024x900: 稀有度文字寬度未超過 90% 卡寬
+     demo 390x844: 最大寬增 +6.315px 高增 +5.209px；寬度 >90% 卡寬 0 張 []
+PASS demo 390x844: 稀有度文字寬度未超過 90% 卡寬
+     team 1440x900: 最大寬增 +3.646px 高增 +6.250px；寬度 >90% 卡寬 0 張 []
+PASS team 1440x900: 稀有度文字寬度未超過 90% 卡寬
+     team 1024x900: 最大寬增 +2.898px 高增 +6.251px；寬度 >90% 卡寬 0 張 []
+PASS team 1024x900: 稀有度文字寬度未超過 90% 卡寬
+     team 390x844: 最大寬增 +2.262px 高增 +3.125px；寬度 >90% 卡寬 0 張 []
+PASS team 390x844: 稀有度文字寬度未超過 90% 卡寬
+
+== 7. 字族負控制（注進正確 root，必須變紅）
+PASS 注入前 11 張全部 Holo Noto Sans
+PASS 注入後 11 張全部變回 monospace（負控制成功變紅）
+PASS 移除後恢復全綠
+
+== 觀察（不計入通過與否）
+  - demo 1440x900: .face-name 仍有 fallback {'微軟正黑體': 15}
+  - demo 1024x900: .face-name 仍有 fallback {'微軟正黑體': 15}
+  - demo 390x844: .face-name 仍有 fallback {'微軟正黑體': 15}
+  - gacha 1440x900: .face-name 仍有 fallback {'微軟正黑體': 2}
+  - team 1440x900: .face-name 仍有 fallback {'微軟正黑體': 4}
+  - team 1024x900: .face-name 仍有 fallback {'微軟正黑體': 4}
+  - team 390x844: .face-name 仍有 fallback {'微軟正黑體': 4}
+  - team 390x844: 排除未佈局卡（cardWidth=0、沒有 --rarity-fs）['rocketdog']；before/after 數值相同，非本輪造成
+
+== 結果：全綠

@@ -3,6 +3,13 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const rank={mythic:0,legendary:1,epic:2,rare:3,common:3}, labels=['神話','神話＋傳說','神話＋傳說＋史詩','全隊'],limits=[2,6,12,20], symbols=['◆◆','◆','◇','△'];
 const cards=TEAM_DATA.cards, byId=new Map(cards.map(c=>[c.id,c]));
+// 抽卡與卡池在 body 掛 ink-chroma，卡名／稀有度才會用階級墨色（--name-ink）。
+// 卡面搬進 shadow root 之後 body 選擇器跨不過邊界，文字會落回 --accent-card，
+// 所以在這裡換成同特異性（2 class + 1 type）的等價選擇器，規則先後順序不變。
+const SHADOW_CSS=TEAM_DATA.css
+  .replace(/body\.ink-chroma \.face-name/g,'.hcard b.face-name')
+  .replace(/body\.ink-chroma \.face-rarity/g,'.hcard span.face-rarity');
+
 const initial=cards.filter(c=>c.rarity!=='mythic'||cards.filter(x=>x.rarity==='mythic').indexOf(c)<2).filter(c=>c.rarity!=='legendary'||cards.filter(x=>x.rarity==='legendary').indexOf(c)<4).map(c=>c.id);
 let roster=[...initial],skills=[null,null,null,null],selected=roster[0],face=null, generation=0,pending=null,pickerMode='add',skillSlot=0,previewTimer=0;
 const state={preview:null,lastReject:null,previewElapsed:null};
@@ -15,12 +22,12 @@ function renderCapacity(){const n=counts(roster);$('#capacity-rows').innerHTML=l
 let rosterPage=0;const overviewFaces=new Set();
 function disposeOverview(){overviewFaces.forEach(f=>{f.disposePointer?.();HoloCardFace.unobserve(f);f.remove()});overviewFaces.clear()}
 function bindPointer(host,paint){let raf=0,point=null;const move=e=>{const r=host.getBoundingClientRect();point=[Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1)),Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1))];if(!raf)raf=requestAnimationFrame(()=>{raf=0;paint(...point)})};const leave=()=>{cancelAnimationFrame(raf);raf=0;paint(0,0)};host.addEventListener('pointermove',move);host.addEventListener('pointerleave',leave);return ()=>{cancelAnimationFrame(raf);host.removeEventListener('pointermove',move);host.removeEventListener('pointerleave',leave)}}
-function mountOverview(b,c){const host=b.querySelector('.proxy-image');host.querySelector('img')?.remove();const mount=document.createElement('span');mount.className='overview-face';host.prepend(mount);const sh=mount.attachShadow({mode:'open'}),st=document.createElement('style');st.textContent=TEAM_DATA.css;sh.append(st);mount.style.setProperty('--frame-mask',`url("${TEAM_DATA.masks.frame}")`);mount.style.setProperty('--glitter-mask',`url("${TEAM_DATA.masks.glitter}")`);const f=HoloCardFace.create(c,{masks:TEAM_DATA.masks,resolve:n=>TEAM_DATA.images[n]});sh.append(f);HoloCardFace.observe(f);HoloCardFace.refit(f);overviewFaces.add(f);f.disposePointer=bindPointer(host,(x,y)=>{if(f.isConnected&&document.body.dataset.screen==='team')HoloCardFace.paint(f,c.rarity,x,y,{tilt:!matchMedia('(prefers-reduced-motion: reduce)').matches})})}
+function mountOverview(b,c){const host=b.querySelector('.proxy-image');host.querySelector('img')?.remove();const mount=document.createElement('span');mount.className='overview-face';host.prepend(mount);const sh=mount.attachShadow({mode:'open'}),st=document.createElement('style');st.textContent=SHADOW_CSS;sh.append(st);mount.style.setProperty('--frame-mask',`url("${TEAM_DATA.masks.frame}")`);mount.style.setProperty('--glitter-mask',`url("${TEAM_DATA.masks.glitter}")`);const f=HoloCardFace.create(c,{masks:TEAM_DATA.masks,resolve:n=>TEAM_DATA.images[n]});sh.append(f);HoloCardFace.observe(f);HoloCardFace.refit(f);overviewFaces.add(f);f.disposePointer=bindPointer(host,(x,y)=>{if(f.isConnected&&document.body.dataset.screen==='team')HoloCardFace.paint(f,c.rarity,x,y,{tilt:!matchMedia('(prefers-reduced-motion: reduce)').matches})})}
 function showPage(n){rosterPage=Math.max(0,Math.min(Math.ceil(roster.length/10)-1,n));disposeOverview();$$('#team-grid .team-proxy').forEach((b,i)=>{b.hidden=Math.floor(i/10)!==rosterPage;b.querySelector('.overview-face')?.remove();if(!b.hidden)mountOverview(b,byId.get(b.dataset.id))});$('#roster-page').textContent=`${rosterPage+1} / ${Math.ceil(roster.length/10)}`;$('#roster-prev').disabled=rosterPage===0;$('#roster-next').disabled=rosterPage>=Math.ceil(roster.length/10)-1}
 $('#roster-prev').onclick=()=>showPage(rosterPage-1);$('#roster-next').onclick=()=>showPage(rosterPage+1);
 function renderRoster(){disposeOverview();const grid=$('#team-grid');grid.replaceChildren(...roster.map((id,i)=>{const b=proxy(byId.get(id),i,()=>select(id,true));b.setAttribute('aria-selected',String(id===selected));return b}));$('#roster-count').textContent=`${roster.length} / 20`;renderCapacity();renderSkills();showPage(rosterPage)}
 function disposeFace(){if(face){HoloCardFace.unobserve(face);face.remove();face=null}}
-const shadow=$('#card-host').attachShadow({mode:'open'});const style=document.createElement('style');style.textContent=TEAM_DATA.css;shadow.append(style);
+const shadow=$('#card-host').attachShadow({mode:'open'});const style=document.createElement('style');style.textContent=SHADOW_CSS;shadow.append(style);
 $('#card-host').style.setProperty('--frame-mask',`url("${TEAM_DATA.masks.frame}")`);$('#card-host').style.setProperty('--glitter-mask',`url("${TEAM_DATA.masks.glitter}")`);
 function detail(){disposeFace();const c=byId.get(selected)||byId.get(roster[0]);if(!c){$('#detail-name').textContent='尚未編入';$('#detail-number').textContent='—';$('#detail-operation').textContent='選擇成員以編入';return}selected=c.id;const index=roster.indexOf(c.id),serial=index>=0?String(index+1).padStart(2,'0'):'候選';
 $('#detail-number').textContent=serial;$('#detail-name').textContent=c.name;$('#detail-rarity').textContent=HoloCardFace.LABEL[c.rarity];$('#detail-operation').innerHTML=`<span class="selection-serial">${serial}</span> · ${index>=0?'已編入':'尚未編入'} · ${c.name}`;$('#team-detail').dataset.id=c.id;$('#team-detail').dataset.slot=serial;

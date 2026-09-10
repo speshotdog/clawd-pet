@@ -1,0 +1,30 @@
+固定序列 auto：整個正式卡池 63 張
+  demo                   1440x900  162 張，字型取樣錯誤 0，凍結動畫 0
+  demo                   1024x900  162 張，字型取樣錯誤 0，凍結動畫 0
+  demo                   390x844   162 張，字型取樣錯誤 0，凍結動畫 0
+  demo-standalone        1440x900  162 張，字型取樣錯誤 0，凍結動畫 0
+  demo-standalone        1024x900  162 張，字型取樣錯誤 0，凍結動畫 0
+  demo-standalone        390x844   162 張，字型取樣錯誤 0，凍結動畫 0
+  pool                   1440x900  130 張，字型取樣錯誤 0，凍結動畫 0
+  pool                   1024x900  130 張，字型取樣錯誤 0，凍結動畫 0
+  pool                   390x844   130 張，字型取樣錯誤 0，凍結動畫 0
+  pool-standalone        1440x900  130 張，字型取樣錯誤 0，凍結動畫 0
+  pool-standalone        1024x900  130 張，字型取樣錯誤 0，凍結動畫 0
+  pool-standalone        390x844   130 張，字型取樣錯誤 0，凍結動畫 0
+  gacha                  1440x900   20 張，字型取樣錯誤 0，凍結動畫 26
+  gacha                  1024x900   20 張，字型取樣錯誤 0，凍結動畫 26
+  gacha                  390x844    20 張，字型取樣錯誤 0，凍結動畫 26
+  gacha-standalone       1440x900   20 張，字型取樣錯誤 0，凍結動畫 26
+  gacha-standalone       1024x900   20 張，字型取樣錯誤 0，凍結動畫 26
+  gacha-standalone       390x844    20 張，字型取樣錯誤 0，凍結動畫 26
+  gacha-test             1440x900  126 張，字型取樣錯誤 0，凍結動畫 26
+  gacha-test             1024x900  126 張，字型取樣錯誤 0，凍結動畫 26
+  gacha-test             390x844   126 張，字型取樣錯誤 0，凍結動畫 26
+  gacha-test-standalone  1440x900  126 張，字型取樣錯誤 0，凍結動畫 26
+  gacha-test-standalone  1024x900  126 張，字型取樣錯誤 0，凍結動畫 26
+  gacha-test-standalone  390x844   126 張，字型取樣錯誤 0，凍結動畫 26
+  team                   1440x900  106 張，字型取樣錯誤 0，凍結動畫 0
+  team                   1024x900  106 張，字型取樣錯誤 0，凍結動畫 0
+  team                   390x844   106 張，字型取樣錯誤 0，凍結動畫 0
+
+寫出 D:\claude研究\clawd-pet-50\docs\clicker\shots\parity\parity-post7.json

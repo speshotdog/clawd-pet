@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "D:\claude研究\clawd-pet-50-head\_art\holo-test\check_round43_idle.py", line 110, in <module>
+    if __name__=='__main__':main()
+  File "D:\claude研究\clawd-pet-50-head\_art\holo-test\check_round43_idle.py", line 49, in main
+    p=b.new_page(viewport={'width':1100,'height':1000});p.goto((portable/'before-cards.html').as_uri());result['card_before']=card_capture(p,262,OUT/'A-before.png');p.close()
+  File "C:\Python310\lib\site-packages\playwright\sync_api\_generated.py", line 9770, in goto
+    self._sync(
+  File "C:\Python310\lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+  File "C:\Python310\lib\site-packages\playwright\_impl\_page.py", line 560, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+  File "C:\Python310\lib\site-packages\playwright\_impl\_frame.py", line 156, in goto
+    await self._channel.send(
+  File "C:\Python310\lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+  File "C:\Python310\lib\site-packages\playwright\_impl\_connection.py", line 563, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Page.goto: net::ERR_FILE_NOT_FOUND at file:///D:/claude%E7%A0%94%E7%A9%B6/clawd-pet-50-head/docs/clicker/shots/round43/portable/before-cards.html
+Call log:
+  - navigating to "file:///D:/claude%E7%A0%94%E7%A9%B6/clawd-pet-50-head/docs/clicker/shots/round43/portable/before-cards.html", waiting until "load"
+

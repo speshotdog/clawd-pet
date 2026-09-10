@@ -826,22 +826,22 @@
     ],
     "travel_percent": 3.7540435836285937,
     "changed_percent": [
-      87.5830078125,
+      87.58161272321429,
       0.0,
-      87.16727120535714
+      87.20982142857143
     ]
   },
   "overview_hover": {
     "centroids_percent": [
-      42.738576583626795,
-      45.75965688536605,
-      48.936230217700206
+      42.63011988310772,
+      45.902958347642645,
+      48.91770767931759
     ],
-    "travel_percent": 6.197653634073411,
+    "travel_percent": 6.28758779620987,
     "changed_percent": [
-      90.07225374535658,
+      89.6150549046822,
       0.0,
-      89.3048128342246
+      89.07009021512839
     ]
   },
   "fonts": {
@@ -987,7 +987,7 @@
           "cls": "hcard r-mythic kind-depth gem-faceted sc",
           "corner": "TR",
           "local_ref": 17.08,
-          "darkest": 26.37,
+          "darkest": 27.09,
           "near_black_pct": 0.0,
           "much_darker_pct": 0.0
         },
@@ -995,17 +995,17 @@
           "card": 0,
           "cls": "hcard r-mythic kind-depth gem-faceted sc",
           "corner": "BL",
-          "local_ref": 22.08,
-          "darkest": 11.45,
-          "near_black_pct": 0.694,
+          "local_ref": 20.72,
+          "darkest": 12.23,
+          "near_black_pct": 0.0,
           "much_darker_pct": 0.0
         },
         {
           "card": 0,
           "cls": "hcard r-mythic kind-depth gem-faceted sc",
           "corner": "BR",
-          "local_ref": 34.74,
-          "darkest": 16.51,
+          "local_ref": 33.41,
+          "darkest": 16.65,
           "near_black_pct": 0.0,
           "much_darker_pct": 0.0
         },
@@ -1013,7 +1013,7 @@
           "card": 1,
           "cls": "hcard r-mythic kind-framed gem-faceted",
           "corner": "TL",
-          "local_ref": 42.24,
+          "local_ref": 41.84,
           "darkest": 25.09,
           "near_black_pct": 0.0,
           "much_darker_pct": 0.0
@@ -1031,8 +1031,8 @@
           "card": 1,
           "cls": "hcard r-mythic kind-framed gem-faceted",
           "corner": "BL",
-          "local_ref": 86.23,
-          "darkest": 22.37,
+          "local_ref": 86.06,
+          "darkest": 21.37,
           "near_black_pct": 0.0,
           "much_darker_pct": 6.25
         },
@@ -1157,7 +1157,7 @@
           "card": 5,
           "cls": "hcard r-legendary kind-framed gem-facete",
           "corner": "TL",
-          "local_ref": 16.5,
+          "local_ref": 16.14,
           "darkest": 25.02,
           "near_black_pct": 0.0,
           "much_darker_pct": 0.0
@@ -2084,6 +2084,70 @@
         [
           64,
           "out of viewport"
+        ],
+        [
+          65,
+          "out of viewport"
+        ],
+        [
+          66,
+          "out of viewport"
+        ],
+        [
+          67,
+          "out of viewport"
+        ],
+        [
+          68,
+          "out of viewport"
+        ],
+        [
+          69,
+          "out of viewport"
+        ],
+        [
+          70,
+          "out of viewport"
+        ],
+        [
+          71,
+          "out of viewport"
+        ],
+        [
+          72,
+          "out of viewport"
+        ],
+        [
+          73,
+          "out of viewport"
+        ],
+        [
+          74,
+          "out of viewport"
+        ],
+        [
+          75,
+          "out of viewport"
+        ],
+        [
+          76,
+          "out of viewport"
+        ],
+        [
+          77,
+          "out of viewport"
+        ],
+        [
+          78,
+          "out of viewport"
+        ],
+        [
+          79,
+          "out of viewport"
+        ],
+        [
+          80,
+          "out of viewport"
         ]
       ],
       "samples": 4,
@@ -2389,6 +2453,70 @@
         [
           64,
           "out of viewport"
+        ],
+        [
+          65,
+          "out of viewport"
+        ],
+        [
+          66,
+          "out of viewport"
+        ],
+        [
+          67,
+          "out of viewport"
+        ],
+        [
+          68,
+          "out of viewport"
+        ],
+        [
+          69,
+          "out of viewport"
+        ],
+        [
+          70,
+          "out of viewport"
+        ],
+        [
+          71,
+          "out of viewport"
+        ],
+        [
+          72,
+          "out of viewport"
+        ],
+        [
+          73,
+          "out of viewport"
+        ],
+        [
+          74,
+          "out of viewport"
+        ],
+        [
+          75,
+          "out of viewport"
+        ],
+        [
+          76,
+          "out of viewport"
+        ],
+        [
+          77,
+          "out of viewport"
+        ],
+        [
+          78,
+          "out of viewport"
+        ],
+        [
+          79,
+          "out of viewport"
+        ],
+        [
+          80,
+          "out of viewport"
         ]
       ],
       "samples": 4,
@@ -2403,15 +2531,15 @@
   "map_1440_changed_pixels": 0,
   "map_1024_changed_pixels": 0,
   "map_390_changed_pixels": 0,
-  "demo_nonfont_identical": true,
+  "demo_nonfont_identical": false,
   "font_bytes": [
-    233748,
-    317200
+    240448,
+    325236
   ],
   "protected_changed": [],
   "checks": {
     "hover_travel_percent": {
-      "value": 6.197653634073411,
+      "value": 6.28758779620987,
       "range": [
         12,
         45
@@ -2419,7 +2547,7 @@
       "status": "FAIL"
     },
     "hover_changed_0_percent": {
-      "value": 90.07225374535658,
+      "value": 89.6150549046822,
       "range": [
         3,
         25
@@ -2435,7 +2563,7 @@
       "status": "FAIL"
     },
     "hover_changed_2_percent": {
-      "value": 89.3048128342246,
+      "value": 89.07009021512839,
       "range": [
         3,
         25
@@ -2475,7 +2603,7 @@
       "status": "PASS"
     },
     "font_0_bytes": {
-      "value": 233748,
+      "value": 240448,
       "range": [
         150000,
         600000
@@ -2483,7 +2611,7 @@
       "status": "PASS"
     },
     "font_1_bytes": {
-      "value": 317200,
+      "value": 325236,
       "range": [
         150000,
         600000
@@ -2491,12 +2619,12 @@
       "status": "PASS"
     },
     "demo_nonfont_diff": {
-      "value": 0,
+      "value": 1,
       "range": [
         0,
         0
       ],
-      "status": "PASS"
+      "status": "FAIL"
     },
     "protected_changes": {
       "value": 0,

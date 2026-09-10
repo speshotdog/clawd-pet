@@ -1,0 +1,12 @@
+{
+ "NotoSansTC-VF.ttf": {
+  "bytes": 11942912,
+  "sha256": "c6481c5d93420aeac11087367dae56ae7492eb1989ce42f4ca5d5aa5e2db3116",
+  "version": "Version 2.04;241114210131;non-release"
+ },
+ "NotoSerifTC-VF.ttf": {
+  "bytes": 16855236,
+  "sha256": "c8b7df78de02c2c35875de707d1d336762fd4db8864a66e249940879fb6859d8",
+  "version": "Version 2.02;241114204559;non-release"
+ }
+}

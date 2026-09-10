@@ -1,6 +1,6 @@
 {
-  "html_bytes": 5234178,
-  "html_sha256": "4f705dec35db03bd0a5e09bc861e521537a128faaa7a60112df65b08d5c12c98",
+  "html_bytes": 5984460,
+  "html_sha256": "869687695204abe91dbdabc49c8f5682547645b6e68b97584e9c89083ad0a8fd",
   "terrain_quality": 94,
   "team_cards": [
     {
@@ -148,7 +148,7 @@
       "kind": "framed"
     }
   ],
-  "frozen_css_sha256": "3ef6c8d24306d8c98619d001be464501ae2bed86c0b90514a925fe059fd621b8",
+  "frozen_css_sha256": "bb6df798b9e356c44aa875ce6605d55498adea3ba2432f439e1409809e182389",
   "terrain_size": [
     971,
     1619

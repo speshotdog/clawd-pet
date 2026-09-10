@@ -1,0 +1,40 @@
+抽卡揭到: [('zhenwang', 'rare', 198), ('ballyellow', 'common', 198), ('miepuxiong', 'rare', 198), ('beachball', 'common', 198), ('beachball', 'common', 198), ('yuefeimo', 'legendary', 198), ('pufayueyue', 'rare', 198), ('jintianwoshengri', 'legendary', 198), ('pufayueyue', 'rare', 198), ('ababa', 'rare', 198)]
+
+卡池∩編隊 共同卡: ['alienkitty', 'astronaut', 'bianbiancaihua', 'bingyang', 'fluffdog', 'foxfriend', 'jiaotou', 'jinggou', 'liulangyueshou', 'rocketdog']
+
+[卡池 vs 編隊#0] alienkitty poolCw=261.59 teamCw=180 差異 1 項
+    ('rar', '_h', 0.07168, 0.06944)
+
+[卡池 vs 編隊#0] astronaut poolCw=261.61 teamCw=180 差異 3 項
+    ('rar', 'color', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)')
+    ('rar', 'webkitTextFillColor', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)')
+    ('rar', '_h', 0.07167, 0.06944)
+
+[卡池 vs 編隊#0] bianbiancaihua poolCw=261.59 teamCw=180 差異 3 項
+    ('rar', 'color', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)')
+    ('rar', 'webkitTextFillColor', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)')
+    ('rar', '_h', 0.07168, 0.06944)
+
+[卡池 vs 編隊#0] bingyang poolCw=261.59 teamCw=180 差異 3 項
+    ('rar', 'color', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)')
+    ('rar', 'webkitTextFillColor', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)')
+    ('rar', '_h', 0.07168, 0.06944)
+
+[卡池 vs 編隊#0] fluffdog poolCw=261.59 teamCw=180 差異 3 項
+    ('rar', 'color', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)')
+    ('rar', 'webkitTextFillColor', 'rgb(240, 214, 255)', 'rgb(184, 117, 255)')
+    ('rar', '_h', 0.07168, 0.06944)
+
+[卡池 vs 編隊#0] foxfriend poolCw=261.59 teamCw=180 差異 1 項
+    ('rar', '_h', 0.07168, 0.06944)
+
+參考（抽卡）: zhenwang cw= 198
+
+[卡池] zhenwang cw=261.61 host=document 差異 5 項
+    ('name', 'fontSize', 0.08278, 0.08276)
+    ('name', '_w', 0.18202, 0.18195)
+    ('rar', 'fontSize', 0.04657, 0.04656)
+    ('rar', '_w', 0.31823, 0.31818)
+    ('rar', '_h', 0.07364, 0.07167)
+
+[編隊] 找不到同一張卡 zhenwang；有的 id： ['rocketdog', 'liulangyueshou', 'alienkitty', 'foxfriend', 'jiaotou', 'jinggou', 'astronaut', 'fluffdog']

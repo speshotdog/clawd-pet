@@ -397,7 +397,7 @@
       "scale": 1.04,
       "page": 0,
       "id": "bingyang",
-      "clipped": 0.5782581501977302,
+      "clipped": 1.250662801215452,
       "overlap": 0
     },
     {
@@ -693,7 +693,7 @@
       "scale": 1.04,
       "page": 0,
       "id": "astronaut",
-      "clipped": 0.9361392182857586,
+      "clipped": 1.549377591497303,
       "overlap": 0
     },
     {
@@ -701,7 +701,7 @@
       "scale": 1.04,
       "page": 0,
       "id": "fluffdog",
-      "clipped": 0.9361392182857586,
+      "clipped": 1.549377591497303,
       "overlap": 0
     },
     {
@@ -709,7 +709,7 @@
       "scale": 1.04,
       "page": 0,
       "id": "bianbiancaihua",
-      "clipped": 0.9361392182857586,
+      "clipped": 1.549377591497303,
       "overlap": 0
     },
     {
@@ -773,7 +773,7 @@
       "scale": 1.04,
       "page": 1,
       "id": "jiaolan",
-      "clipped": 0.9361392182857586,
+      "clipped": 1.549377591497303,
       "overlap": 0
     },
     {
@@ -781,7 +781,7 @@
       "scale": 1.04,
       "page": 1,
       "id": "manhua",
-      "clipped": 0.9361392182857586,
+      "clipped": 1.549377591497303,
       "overlap": 0
     },
     {
@@ -789,7 +789,7 @@
       "scale": 1.04,
       "page": 1,
       "id": "miepupu",
-      "clipped": 0.9361392182857586,
+      "clipped": 1.549377591497303,
       "overlap": 0
     },
     {
@@ -853,7 +853,7 @@
       "scale": 1.06,
       "page": 0,
       "id": "astronaut",
-      "clipped": 1.2602190593214102,
+      "clipped": 1.8618867187299215,
       "overlap": 0
     },
     {
@@ -861,7 +861,7 @@
       "scale": 1.06,
       "page": 0,
       "id": "fluffdog",
-      "clipped": 1.2602190593214102,
+      "clipped": 1.8618867187299215,
       "overlap": 0
     },
     {
@@ -869,7 +869,7 @@
       "scale": 1.06,
       "page": 0,
       "id": "bianbiancaihua",
-      "clipped": 1.2602190593214102,
+      "clipped": 1.8618867187299215,
       "overlap": 0
     },
     {
@@ -933,7 +933,7 @@
       "scale": 1.06,
       "page": 1,
       "id": "jiaolan",
-      "clipped": 1.2602190593214102,
+      "clipped": 1.8618867187299215,
       "overlap": 0
     },
     {
@@ -941,7 +941,7 @@
       "scale": 1.06,
       "page": 1,
       "id": "manhua",
-      "clipped": 1.2602190593214102,
+      "clipped": 1.8618867187299215,
       "overlap": 0
     },
     {
@@ -949,7 +949,7 @@
       "scale": 1.06,
       "page": 1,
       "id": "miepupu",
-      "clipped": 1.2602190593214102,
+      "clipped": 1.8618867187299215,
       "overlap": 0
     },
     {
@@ -989,13 +989,13 @@
     {
       "width": 390,
       "scale": 1.04,
-      "max_clipped_percent": 0.9361392182857586,
+      "max_clipped_percent": 1.549377591497303,
       "max_overlap_percent": 0
     },
     {
       "width": 390,
       "scale": 1.06,
-      "max_clipped_percent": 1.2602190593214102,
+      "max_clipped_percent": 1.8618867187299215,
       "max_overlap_percent": 0
     }
   ]

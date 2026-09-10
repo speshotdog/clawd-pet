@@ -1,0 +1,74 @@
+{
+ "check_card_feel.py.log": {
+  "after_fail": [
+   "/all_page_fonts/cards-remade-standalone.html/faces[0]",
+   "/all_page_fonts/cards-remade-standalone.html/faces[1]",
+   "/all_page_fonts/cards-remade.html/faces[0]",
+   "/all_page_fonts/cards-remade.html/faces[1]",
+   "/all_page_fonts/deluxe-gacha-b-standalone.html/faces[0]",
+   "/all_page_fonts/deluxe-gacha-b-standalone.html/faces[1]",
+   "/all_page_fonts/deluxe-gacha-b.html/faces[0]",
+   "/all_page_fonts/deluxe-gacha-b.html/faces[1]",
+   "/all_page_fonts/demo.html/faces[0]",
+   "/all_page_fonts/demo.html/faces[1]",
+   "/all_page_fonts/map20.html/faces[0]",
+   "/all_page_fonts/map20.html/faces[1]",
+   "/fonts/faces[0]",
+   "/fonts/faces[1]"
+  ],
+  "head_fail": [
+   "/all_page_fonts/cards-remade-standalone.html/faces[0]",
+   "/all_page_fonts/cards-remade-standalone.html/faces[1]",
+   "/all_page_fonts/cards-remade.html/faces[0]",
+   "/all_page_fonts/cards-remade.html/faces[1]",
+   "/all_page_fonts/deluxe-gacha-b-standalone.html/faces[0]",
+   "/all_page_fonts/deluxe-gacha-b-standalone.html/faces[1]",
+   "/all_page_fonts/deluxe-gacha-b.html/faces[0]",
+   "/all_page_fonts/deluxe-gacha-b.html/faces[1]",
+   "/all_page_fonts/demo.html/faces[0]",
+   "/all_page_fonts/demo.html/faces[1]",
+   "/all_page_fonts/map20.html/faces[0]",
+   "/all_page_fonts/map20.html/faces[1]",
+   "/fonts/faces[0]",
+   "/fonts/faces[1]"
+  ],
+  "new_fail": [],
+  "fixed": []
+ },
+ "check_card_feel_clearance.py.log": {
+  "after_fail": [],
+  "head_fail": [],
+  "new_fail": [],
+  "fixed": []
+ },
+ "check_gacha_card_regression.py.log": {
+  "after_fail": [],
+  "head_fail": [],
+  "new_fail": [],
+  "fixed": []
+ },
+ "check_gacha_followup.py_--sizing-only.log": {
+  "after_fail": [],
+  "head_fail": [],
+  "new_fail": [],
+  "fixed": []
+ },
+ "check_round42_contracts.py.log": {
+  "after_fail": [],
+  "head_fail": [],
+  "new_fail": [],
+  "fixed": []
+ },
+ "check_round43_idle.py.log": {
+  "after_fail": [],
+  "head_fail": [],
+  "new_fail": [],
+  "fixed": []
+ },
+ "run_card_feel_regression.py.log": {
+  "after_fail": [],
+  "head_fail": [],
+  "new_fail": [],
+  "fixed": []
+ }
+}
