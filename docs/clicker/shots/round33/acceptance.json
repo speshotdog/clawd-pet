@@ -1,7 +1,5 @@
 {
   "failures": [
-    "zhenzhen crop-only composition contract",
-    "standalone growth <=900000",
     "frozen source/card_face/ceremony bytes"
   ],
   "records": [
@@ -1533,12 +1531,12 @@
       "data": null
     },
     {
-      "check": "zhenzhen RGBA",
+      "check": "zhenzhen scene resolver",
       "pass": true,
       "data": null
     },
     {
-      "check": "zhenzhen flat size",
+      "check": "zhenzhen subject size",
       "pass": true,
       "data": [
         600,
@@ -1546,41 +1544,40 @@
       ]
     },
     {
-      "check": "zhenzhen crop-only composition contract",
-      "pass": false,
-      "data": {
-        "actual_content_bbox": [
-          0,
-          217,
-          600,
-          622
-        ],
-        "note": "Transparent padding preserves full content; crop exception approval pending"
-      }
+      "check": "zhenzhen subject RGBA",
+      "pass": true,
+      "data": null
     },
     {
-      "check": "zhenzhen base darker",
+      "check": "zhenzhen background size",
       "pass": true,
-      "data": {
-        "base": "#1b1c20",
-        "art_luminance": 162.20860050946501
-      }
+      "data": [
+        600,
+        840
+      ]
+    },
+    {
+      "check": "zhenzhen background RGBA",
+      "pass": true,
+      "data": null
+    },
+    {
+      "check": "zhenzhen opaque background",
+      "pass": true,
+      "data": null
     },
     {
       "check": "standalone growth <=900000",
-      "pass": false,
+      "pass": true,
       "data": {
-        "bytes": 6127733,
-        "delta": 981268
+        "bytes": 4453013,
+        "delta": -693452
       }
     },
     {
       "check": "frozen source/card_face/ceremony bytes",
       "pass": false,
       "data": [
-        "src\\clicker.html",
-        "src\\gacha-mode-deluxe.js",
-        "src\\gacha.html",
         "_art\\holo-test\\pool_data.py"
       ]
     },
@@ -1810,9 +1807,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -3083,9 +3080,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -4812,9 +4809,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -6085,9 +6082,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -7814,9 +7811,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -9766,9 +9763,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           }
         ],
@@ -13972,9 +13969,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -15245,9 +15242,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -16974,9 +16971,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -18247,9 +18244,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -19976,9 +19973,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           },
           {
@@ -21928,9 +21925,9 @@
               0,
               0
             ],
-            "name": "珍珍",
-            "kind": "flat",
-            "masked": false,
+            "name": "本草珍目",
+            "kind": "depth",
+            "masked": true,
             "broken": false
           }
         ],

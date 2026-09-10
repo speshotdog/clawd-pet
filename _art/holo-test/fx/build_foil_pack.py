@@ -32,27 +32,9 @@ sc.render.image_settings.file_format = 'PNG'
 sc.render.image_settings.color_mode = 'RGBA'
 sc.view_settings.view_transform = 'Standard'
 sc.view_settings.look = 'None'
-# Round 33: render-time highlight shoulder; retain the print's dark ink.
-# Applied before PNG/WebP output, consistently to the pack and torn foil.
-sc.use_nodes = True
-nt = sc.node_tree
-nt.nodes.clear()
-rl = nt.nodes.new('CompositorNodeRLayers')
-curve = nt.nodes.new('CompositorNodeCurveRGB')
-curve.mapping.initialize()
-master = curve.mapping.curves[3]
-master.points[1].location = (1.0, .52)
-master.points.new(.18, .025)
-master.points.new(.5, .25)
-curve.mapping.update()
-out = nt.nodes.new('CompositorNodeComposite')
-nt.links.new(rl.outputs['Image'], curve.inputs['Image'])
-shoulder = nt.nodes.new('CompositorNodeMixRGB')
-shoulder.blend_type = 'DARKEN'
-shoulder.inputs[0].default_value = 1
-shoulder.inputs[2].default_value = (.55, .55, .55, 1)
-nt.links.new(curve.outputs['Image'], shoulder.inputs[1])
-nt.links.new(shoulder.outputs['Image'], out.inputs['Image'])
+# Round 42: solve the illumination at the material/light source, without a
+# compositor curve or output clamp crushing shadows and flattening highlights.
+sc.use_nodes = False
 
 
 # ---------- 材質：銀白鋁箔 ----------
@@ -104,12 +86,13 @@ def foil_material(name, rainbow=0.22, rough=0.28, crinkle=0.9, print_path=None):
     mix.inputs[1].default_value = (0.62, 0.64, 0.70, 1)
     t.links.new(ramp.outputs[0], mix.inputs[2])
     if print_path:
+        bsdf.inputs['Specular IOR Level'].default_value = .15
         img = bpy.data.images.load(print_path)
         tex = t.nodes.new('ShaderNodeTexImage'); tex.image = img; tex.location = (-300, 700)
         tex.extension = 'CLIP'
         t.links.new(tc.outputs['Generated'], tex.inputs['Vector'])
         # 印刷覆蓋率：alpha × 0.92，讓皺摺高光還能穿過印刷
-        cov = t.nodes.new('ShaderNodeMath'); cov.operation = 'MULTIPLY'; cov.inputs[1].default_value = 1.0
+        cov = t.nodes.new('ShaderNodeMath'); cov.operation = 'MULTIPLY'; cov.inputs[1].default_value = .97
         t.links.new(tex.outputs['Alpha'], cov.inputs[0])
         col = t.nodes.new('ShaderNodeMixRGB'); col.blend_type = 'MIX'; col.location = (350, 500)
         t.links.new(cov.outputs[0], col.inputs[0]); t.links.new(mix.outputs[0], col.inputs[1]); t.links.new(tex.outputs['Color'], col.inputs[2])
@@ -126,9 +109,9 @@ def foil_material(name, rainbow=0.22, rough=0.28, crinkle=0.9, print_path=None):
         # bump strength = base - 0.45*cov
         bs.inputs[1].default_value = -0.58 * crinkle; bs.inputs[2].default_value = 0.7 * crinkle
         # 印刷面加亮膜（coat）做高光，不靠金屬反射
-        ct = t.nodes.new('ShaderNodeMath'); ct.operation = 'MULTIPLY'; ct.inputs[1].default_value = 0.55
+        ct = t.nodes.new('ShaderNodeMath'); ct.operation = 'MULTIPLY'; ct.inputs[1].default_value = 0.06
         t.links.new(cov.outputs[0], ct.inputs[0]); t.links.new(ct.outputs[0], bsdf.inputs['Coat Weight'])
-        bsdf.inputs['Coat Roughness'].default_value = 0.12
+        bsdf.inputs['Coat Roughness'].default_value = 0.42
         t.links.new(cov.outputs[0], bs.inputs[0]); t.links.new(bs.outputs[0], bump.inputs['Strength'])
     else:
         t.links.new(mix.outputs[0], bsdf.inputs['Base Color'])
@@ -222,9 +205,9 @@ def lights():
         o.rotation_euler = (Vector((0, 0, 0)) - Vector(loc)).to_track_quat('-Z', 'Y').to_euler()
         bpy.context.collection.objects.link(o)
         return o
-    area('key', (-6, 7, 12), 1300, 5, (1, 0.99, 0.97))
-    area('fill', (7, -3, 10), 520, 9, (0.96, 0.97, 1))
-    area('rim', (3, 9, 5), 1100, 1.2, (1, 1, 1))
+    area('key', (-6, 7, 12), 737, 9, (1, 0.99, 0.97))
+    area('fill', (7, -3, 10), 573, 11, (0.96, 0.97, 1))
+    area('rim', (3, 9, 5), 82, 7, (1, 1, 1))
     # 冷暖漸層的世界光讓金屬有東西可以反射
     wd = bpy.data.worlds.new('w'); sc.world = wd; wd.use_nodes = True
     nt = wd.node_tree

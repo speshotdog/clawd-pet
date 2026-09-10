@@ -1,0 +1,111 @@
+dev no-preference drag opens 0 click opens 20
+dev reduce drag opens 0 click opens 20
+portable no-preference drag opens 0 click opens 20
+portable reduce drag opens 0 click opens 20
+[
+  {
+    "entry": "dev",
+    "input": [
+      {
+        "motion": "no-preference",
+        "drags": 20,
+        "drag_distance_px": 53.0,
+        "opens_after_drags": 0,
+        "clicks": 20,
+        "opens_after_clicks": 20
+      },
+      {
+        "motion": "reduce",
+        "drags": 20,
+        "drag_distance_px": 53.0,
+        "opens_after_drags": 0,
+        "clicks": 20,
+        "opens_after_clicks": 20
+      }
+    ],
+    "preopen_different_pixels": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cursor_x": [
+      439.84000000000003,
+      467.38,
+      494.91999999999996,
+      522.46,
+      550.0,
+      577.54,
+      605.08,
+      632.62,
+      660.16
+    ],
+    "measured_glare_centroid_x": [
+      89.94599022235458,
+      106.04731965718679,
+      123.94963844146785,
+      142.66381953041682,
+      162.58483299207094,
+      181.90087695889676,
+      200.0237178702467,
+      216.87256202135683,
+      231.75759681759908
+    ],
+    "glare_correlation": 0.9994706025531026,
+    "errors": [],
+    "external_requests": []
+  },
+  {
+    "entry": "portable",
+    "input": [
+      {
+        "motion": "no-preference",
+        "drags": 20,
+        "drag_distance_px": 53.0,
+        "opens_after_drags": 0,
+        "clicks": 20,
+        "opens_after_clicks": 20
+      },
+      {
+        "motion": "reduce",
+        "drags": 20,
+        "drag_distance_px": 53.0,
+        "opens_after_drags": 0,
+        "clicks": 20,
+        "opens_after_clicks": 20
+      }
+    ],
+    "preopen_different_pixels": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cursor_x": [
+      439.84000000000003,
+      467.38,
+      494.91999999999996,
+      522.46,
+      550.0,
+      577.54,
+      605.08,
+      632.62,
+      660.16
+    ],
+    "measured_glare_centroid_x": [
+      89.94599022235458,
+      106.04731965718679,
+      123.94963844146785,
+      142.66381953041682,
+      162.58483299207094,
+      181.90087695889676,
+      200.0237178702467,
+      216.87256202135683,
+      231.75759681759908
+    ],
+    "glare_correlation": 0.9994706025531026,
+    "errors": [],
+    "external_requests": []
+  }
+]
+failures []

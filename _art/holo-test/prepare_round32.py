@@ -4,7 +4,7 @@ import json, os
 import numpy as np
 from scipy import ndimage as nd
 from PIL import Image, ImageDraw, ImageFont
-from pool_data import EXTRA_CARDS, catalog, SCENE_CARDS
+from pool_data import EXTRA_CARDS, catalog, SCENE_CARDS,source_stem
 import bright_edge
 
 HERE=Path(__file__).resolve().parent
@@ -20,7 +20,7 @@ def resolve_source():
     for folder in candidates:
         invalid=[]
         for c in EXTRA_CARDS:
-            pattern=c['name']+' '+RARITY[c['rarity']]+'.*'
+            pattern=source_stem(c)+'.*'
             matches=[p for p in folder.glob(pattern) if p.is_file()]
             if len(matches)!=1:invalid.append('%s (%d matches)' % (pattern,len(matches)))
         if not invalid:
@@ -39,7 +39,8 @@ def boundary(mask):
     return mask & ~nd.binary_erosion(mask,structure=CROSS,border_value=0)
 
 def source(c):
-    matches=list(SOURCE.glob(c['name']+' '+RARITY[c['rarity']]+'.*'))
+    # 來源檔名不可變，顯示名改了也不會動到它（對照表在 pool_data.SOURCE_STEM）。
+    matches=list(SOURCE.glob(source_stem(c)+'.*'))
     assert len(matches)==1,(c,matches)
     return matches[0]
 

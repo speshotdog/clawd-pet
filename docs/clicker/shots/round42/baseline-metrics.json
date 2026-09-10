@@ -1,0 +1,348 @@
+{
+  "stage": "unchanged baseline",
+  "cards": {
+    "shabaolingzhu": {
+      "subject": {
+        "size": [
+          600,
+          840
+        ],
+        "nonzero_alpha_percent": 16.557142857142857,
+        "zero_alpha_pixels": 420552,
+        "opaque_percent": 15.732142857142858,
+        "sha256": "554992fd3a85f77fd0b4bceb6cff950f7b5871b7c6d4ed9975cb65656f5f3b3a"
+      },
+      "background": {
+        "size": [
+          600,
+          840
+        ],
+        "nonzero_alpha_percent": 100.0,
+        "zero_alpha_pixels": 0,
+        "opaque_percent": 100.0,
+        "sha256": "bdbad67f82571b6e90f0984bdbce7bc5e39ed0b591ece8b300c695974043a121"
+      },
+      "kind": "depth",
+      "scene": true
+    },
+    "zhenjunyue": {
+      "subject": {
+        "size": [
+          600,
+          840
+        ],
+        "nonzero_alpha_percent": 39.34761904761905,
+        "zero_alpha_pixels": 305688,
+        "opaque_percent": 37.984722222222224,
+        "sha256": "8b7457e6a60086716d7ccb93e66013958279e7a7403276aebd4dd0b748072c48"
+      },
+      "background": {
+        "size": [
+          600,
+          840
+        ],
+        "nonzero_alpha_percent": 100.0,
+        "zero_alpha_pixels": 0,
+        "opaque_percent": 100.0,
+        "sha256": "6129efe28714a4062aa8fd810216893eb9268782343f456e341993036b7327f0"
+      },
+      "kind": "depth",
+      "scene": true
+    },
+    "zhenqiqiu": {
+      "subject": {
+        "size": [
+          600,
+          840
+        ],
+        "nonzero_alpha_percent": 45.322023809523806,
+        "zero_alpha_pixels": 275577,
+        "opaque_percent": 43.881547619047616,
+        "sha256": "aa1ac1bdecf0b30390cf6f4bf4f121a590d5827c29a4726623ad6f8ce25b1f21"
+      },
+      "background": {
+        "size": [
+          600,
+          840
+        ],
+        "nonzero_alpha_percent": 100.0,
+        "zero_alpha_pixels": 0,
+        "opaque_percent": 100.0,
+        "sha256": "9e779c9b7b93225491bfccffa15821dd04005894dd3704cea90cc497eec86bc4"
+      },
+      "kind": "depth",
+      "scene": true
+    },
+    "fluffdog": {
+      "subject": {
+        "size": [
+          600,
+          840
+        ],
+        "nonzero_alpha_percent": 29.935912698412697,
+        "zero_alpha_pixels": 353123,
+        "opaque_percent": 28.564087301587303,
+        "sha256": "236511cd4f4078bd5fdeeb0298415f2846329b6509e3a0e933addc05ccd2a5e8"
+      },
+      "background": {
+        "size": [
+          600,
+          840
+        ],
+        "nonzero_alpha_percent": 100.0,
+        "zero_alpha_pixels": 0,
+        "opaque_percent": 100.0,
+        "sha256": "0a1c8634e968ea9abeb566ff7968465326b019f08760c6fa1b59c11b21aa37c4"
+      },
+      "kind": "depth",
+      "scene": true
+    }
+  },
+  "pack": {
+    "pack-backdrop-source.png": {
+      "region": "alpha > 0; transparent canvas excluded",
+      "pixel_count": 1572864,
+      "mean": 196.75621924883538,
+      "p05": 158.46699999999998,
+      "p99": 250.18699999999998,
+      "saturation_mean": 0.3646703221648259
+    },
+    "pack-print.png": {
+      "region": "alpha > 0; transparent canvas excluded",
+      "pixel_count": 639100,
+      "mean": 160.85924159943673,
+      "p05": 0.0,
+      "p99": 254.99999999999997,
+      "saturation_mean": 0.36068677068526384
+    },
+    "foil-pack.png": {
+      "region": "alpha > 0; transparent canvas excluded",
+      "pixel_count": 608004,
+      "mean": 126.73888341260913,
+      "p05": 0.0,
+      "p99": 195.99999999999997,
+      "saturation_mean": 0.35590279275920284
+    },
+    "foil-pack.webp": {
+      "region": "alpha > 0; transparent canvas excluded",
+      "pixel_count": 608004,
+      "mean": 127.00218320142633,
+      "p05": 0.7152,
+      "p99": 196.71919999999997,
+      "saturation_mean": 0.3878581626683886
+    },
+    "saturation_ratio": 1.0753323775404964
+  },
+  "rendered_cards": [
+    {
+      "id": "zhenjunyue",
+      "requested_width": 102,
+      "width": 102,
+      "kind": "depth",
+      "name": "真菌玥",
+      "rarity": "神話 / MYTHIC",
+      "art": {
+        "w": 97,
+        "h": 136
+      },
+      "background": {
+        "w": 88,
+        "h": 129,
+        "naturalWidth": 420,
+        "naturalHeight": 588,
+        "objectFit": "fill"
+      }
+    },
+    {
+      "id": "zhenjunyue",
+      "requested_width": 190,
+      "width": 190,
+      "kind": "depth",
+      "name": "真菌玥",
+      "rarity": "神話 / MYTHIC",
+      "art": {
+        "w": 181,
+        "h": 253
+      },
+      "background": {
+        "w": 176,
+        "h": 252,
+        "naturalWidth": 420,
+        "naturalHeight": 588,
+        "objectFit": "fill"
+      }
+    },
+    {
+      "id": "zhenjunyue",
+      "requested_width": 262,
+      "width": 262,
+      "kind": "depth",
+      "name": "真菌玥",
+      "rarity": "神話 / MYTHIC",
+      "art": {
+        "w": 249,
+        "h": 348
+      },
+      "background": {
+        "w": 248,
+        "h": 353,
+        "naturalWidth": 420,
+        "naturalHeight": 588,
+        "objectFit": "fill"
+      }
+    },
+    {
+      "id": "zhenqiqiu",
+      "requested_width": 102,
+      "width": 102,
+      "kind": "depth",
+      "name": "珍氣球",
+      "rarity": "神話 / MYTHIC",
+      "art": {
+        "w": 97,
+        "h": 136
+      },
+      "background": {
+        "w": 88,
+        "h": 129,
+        "naturalWidth": 420,
+        "naturalHeight": 588,
+        "objectFit": "fill"
+      }
+    },
+    {
+      "id": "zhenqiqiu",
+      "requested_width": 190,
+      "width": 190,
+      "kind": "depth",
+      "name": "珍氣球",
+      "rarity": "神話 / MYTHIC",
+      "art": {
+        "w": 181,
+        "h": 253
+      },
+      "background": {
+        "w": 176,
+        "h": 252,
+        "naturalWidth": 420,
+        "naturalHeight": 588,
+        "objectFit": "fill"
+      }
+    },
+    {
+      "id": "zhenqiqiu",
+      "requested_width": 262,
+      "width": 262,
+      "kind": "depth",
+      "name": "珍氣球",
+      "rarity": "神話 / MYTHIC",
+      "art": {
+        "w": 249,
+        "h": 348
+      },
+      "background": {
+        "w": 248,
+        "h": 353,
+        "naturalWidth": 420,
+        "naturalHeight": 588,
+        "objectFit": "fill"
+      }
+    },
+    {
+      "id": "fluffdog",
+      "requested_width": 102,
+      "width": 102,
+      "kind": "depth",
+      "name": "居家珍獸",
+      "rarity": "史詩 / EPIC",
+      "art": {
+        "w": 97,
+        "h": 136
+      },
+      "background": {
+        "w": 88,
+        "h": 129,
+        "naturalWidth": 420,
+        "naturalHeight": 588,
+        "objectFit": "fill"
+      }
+    },
+    {
+      "id": "fluffdog",
+      "requested_width": 190,
+      "width": 190,
+      "kind": "depth",
+      "name": "居家珍獸",
+      "rarity": "史詩 / EPIC",
+      "art": {
+        "w": 181,
+        "h": 253
+      },
+      "background": {
+        "w": 176,
+        "h": 252,
+        "naturalWidth": 420,
+        "naturalHeight": 588,
+        "objectFit": "fill"
+      }
+    },
+    {
+      "id": "fluffdog",
+      "requested_width": 262,
+      "width": 262,
+      "kind": "depth",
+      "name": "居家珍獸",
+      "rarity": "史詩 / EPIC",
+      "art": {
+        "w": 249,
+        "h": 348
+      },
+      "background": {
+        "w": 248,
+        "h": 353,
+        "naturalWidth": 420,
+        "naturalHeight": 588,
+        "objectFit": "fill"
+      }
+    },
+    {
+      "id": "zhenzhen",
+      "requested_width": 102,
+      "width": 102,
+      "kind": "flat",
+      "name": "珍珍",
+      "rarity": "神話 / MYTHIC",
+      "art": {
+        "w": 97,
+        "h": 136
+      },
+      "background": null
+    },
+    {
+      "id": "zhenzhen",
+      "requested_width": 190,
+      "width": 190,
+      "kind": "flat",
+      "name": "珍珍",
+      "rarity": "神話 / MYTHIC",
+      "art": {
+        "w": 181,
+        "h": 253
+      },
+      "background": null
+    },
+    {
+      "id": "zhenzhen",
+      "requested_width": 262,
+      "width": 262,
+      "kind": "flat",
+      "name": "珍珍",
+      "rarity": "神話 / MYTHIC",
+      "art": {
+        "w": 249,
+        "h": 348
+      },
+      "background": null
+    }
+  ]
+}

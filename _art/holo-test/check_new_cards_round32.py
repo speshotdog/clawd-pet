@@ -4,7 +4,7 @@ import json,sys,shutil,hashlib
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont
 from playwright.sync_api import sync_playwright
-from pool_data import pool,EXTRA_CARDS,catalog,SCENE_CARDS,palettes
+from pool_data import pool,EXTRA_CARDS,catalog,SCENE_CARDS,palettes,source_stem
 from prepare_round32 import SOURCE,source,cutout,boundary,edge_connected
 from bright_edge import measure as measure_bright_edge
 from check_gacha_ceremony_round28 import open_page,start,advance,state
@@ -53,7 +53,7 @@ def assets():
     metrics=[]
     for c in EXTRA_CARDS:
         original=Image.open(source(c)).convert('RGBA');path=HERE/'art'/c['file']
-        check(source(c).stem==c['name']+' '+{'rare':'精良','epic':'史詩','legendary':'傳說','mythic':'神話'}[c['rarity']],c['id']+' filename')
+        check(source(c).stem==source_stem(c),c['id']+' filename')
         check(c['kind'] in ('framed','flat','depth'),c['id']+' kind')
         if c['kind']=='depth':
             check(c.get('scene') is True,c['id']+' scene resolver')

@@ -1,0 +1,72 @@
+{
+  "shabaolingzhu": {
+    "size": [
+      600,
+      840
+    ],
+    "coverage_percent": 32.64345238095238,
+    "alpha_bbox": [
+      1,
+      130,
+      600,
+      672
+    ],
+    "height_percent": 64.52380952380953,
+    "background_holes_under_subject": 0
+  },
+  "zhenzhen": {
+    "size": [
+      600,
+      840
+    ],
+    "coverage_percent": 19.4375,
+    "alpha_bbox": [
+      101,
+      309,
+      499,
+      639
+    ],
+    "height_percent": 39.285714285714285,
+    "background_holes_under_subject": 0
+  },
+  "D1": {
+    "before": {
+      "mean": 127.00218320142633,
+      "p05": 0.7152,
+      "p99": 196.71919999999997,
+      "saturation_mean": 0.3878581626683886,
+      "region_pixels": 608004
+    },
+    "after": {
+      "mean": 151.79956209461216,
+      "p05": 44.647,
+      "p99": 249.5026,
+      "saturation_mean": 0.31396722196078397,
+      "region_pixels": 607998
+    },
+    "print": {
+      "mean": 161.45446387576277,
+      "p05": 0.0,
+      "p99": 254.99999999999997,
+      "saturation_mean": 0.3685164417348905,
+      "region_pixels": 639100
+    },
+    "saturation_ratio": 0.8519761573803835
+  },
+  "D2": {
+    "before": {
+      "median_edge_delta": 0.0,
+      "ring_pixels": 5349
+    },
+    "after": {
+      "median_edge_delta": 6.470600000000019,
+      "ring_pixels": 5349
+    },
+    "source_alpha_edge": {
+      "semi_transparent_pixels": 7058,
+      "near_white_pixels": 2497
+    },
+    "method": "700x980 print; Euclidean outer 3px ring around alpha>=128; nearest adjacent background beyond 3px; Rec.709 absolute luminance difference"
+  },
+  "failures": []
+}

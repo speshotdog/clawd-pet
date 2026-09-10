@@ -1,0 +1,133 @@
+{
+  "A_contour": {
+    "reference": "reviewed imagegen master; largest connected nonzero-alpha sheep+castle component before card crop",
+    "contour_pixels": 4940,
+    "cropped_contour_pixels": 0,
+    "retained_percent": 100.0
+  },
+  "C_complete_large_botanical_stickers": [
+    {
+      "bbox": [
+        383,
+        27,
+        561,
+        183
+      ],
+      "pixels": 14658,
+      "occluded_by_sheep": 0
+    },
+    {
+      "bbox": [
+        40,
+        53,
+        221,
+        252
+      ],
+      "pixels": 21528,
+      "occluded_by_sheep": 0
+    },
+    {
+      "bbox": [
+        208,
+        125,
+        378,
+        244
+      ],
+      "pixels": 13706,
+      "occluded_by_sheep": 0
+    },
+    {
+      "bbox": [
+        402,
+        186,
+        575,
+        334
+      ],
+      "pixels": 15269,
+      "occluded_by_sheep": 0
+    },
+    {
+      "bbox": [
+        15,
+        267,
+        193,
+        440
+      ],
+      "pixels": 19643,
+      "occluded_by_sheep": 0
+    },
+    {
+      "bbox": [
+        449,
+        514,
+        589,
+        628
+      ],
+      "pixels": 10388,
+      "occluded_by_sheep": 0
+    }
+  ],
+  "B_unchanged_sha256": {
+    "zhenjunyue": {
+      "subject": true,
+      "background": true
+    },
+    "zhenqiqiu": {
+      "subject": true,
+      "background": true
+    },
+    "fluffdog": {
+      "subject": true,
+      "background": true
+    }
+  },
+  "frozen_files": {
+    "git_exit": 0,
+    "diff": ""
+  },
+  "standalone_bytes": 4453013,
+  "economy": {
+    "rate_unchanged": true,
+    "initial_tickets_30": true,
+    "unlimited_false": true
+  },
+  "D4_timing": [
+    {
+      "entry": "dev",
+      "return_duration_ms_samples": [
+        280,
+        280,
+        280
+      ],
+      "return_duration_mean_ms": 280.0,
+      "drag_transforms": [
+        "rotateX(6deg) rotateY(12deg)",
+        "rotateX(6deg) rotateY(12deg)",
+        "rotateX(6deg) rotateY(12deg)"
+      ],
+      "settled_transform": "matrix(1, 0, 0, 1, 0, 0)",
+      "observed_no_click_wait_ms": 4000,
+      "phase_after_wait": "waiting",
+      "opens_during_wait": 0
+    },
+    {
+      "entry": "portable",
+      "return_duration_ms_samples": [
+        280,
+        280,
+        280
+      ],
+      "return_duration_mean_ms": 280.0,
+      "drag_transforms": [
+        "rotateX(6deg) rotateY(12deg)",
+        "rotateX(6deg) rotateY(12deg)",
+        "rotateX(6deg) rotateY(12deg)"
+      ],
+      "settled_transform": "matrix(1, 0, 0, 1, 0, 0)",
+      "observed_no_click_wait_ms": 4000,
+      "phase_after_wait": "waiting",
+      "opens_during_wait": 0
+    }
+  ],
+  "failures": []
+}

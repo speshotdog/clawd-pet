@@ -51,9 +51,22 @@ EXTRA_CARDS = [
         ('liulangyueshou', '流浪玥手', 'mythic', 'framed'),
         ('zhenqiqiu', '珍氣球', 'mythic', 'depth'),
         ('zhenjunyue', '真菌玥', 'mythic', 'depth'),
-        ('zhenzhen', '珍珍', 'mythic', 'flat'),
+        ('zhenzhen', '本草珍目', 'mythic', 'depth'),
     ]
 ]
+
+
+# 來源圖檔名是**不可變的**，跟顯示名分開。
+# 2026-09-10 珍珍改名成本草珍目時，resolve_source() 還在用顯示名組檔名，
+# 整支 check_new_cards_round32.py 在 import 期就死掉——所以規則只留這一份。
+SOURCE_STEM = {'zhenzhen': '珍珍 神話'}
+
+RARITY_LABEL = {'rare': '精良', 'epic': '史詩', 'legendary': '傳說', 'mythic': '神話'}
+
+
+def source_stem(c):
+    """回傳這張卡在 source-4.0/ 裡的檔名主幹（不含副檔名）。"""
+    return SOURCE_STEM.get(c['id'], c['name'] + ' ' + RARITY_LABEL[c['rarity']])
 
 
 def catalog():

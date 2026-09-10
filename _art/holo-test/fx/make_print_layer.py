@@ -4,6 +4,11 @@
 只有上下封口（4%／3%）留透明給鋁箔。"""
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 import math
+from pathlib import Path
+import numpy as np
+from scipy import ndimage as nd
+
+HERE = Path(__file__).resolve().parent
 
 W, H = 700, 980
 SEAL_TOP, SEAL_BOT = int(H * 0.04), int(H * 0.03)
@@ -11,7 +16,7 @@ CREAM = (255, 248, 222, 255)
 INK = (34, 24, 40, 255)
 
 # ---- 底圖：滿版鮮豔插畫，裁成 700x(980-封口) ----
-bg = Image.open('D:/claude/holo-pack/generated_images/pack-backdrop.png').convert('RGB')
+bg = Image.open(HERE / 'pack-backdrop-source.png').convert('RGB')
 target_h = H - SEAL_TOP - SEAL_BOT
 scale = max(W / bg.width, target_h / bg.height)
 bg = bg.resize((int(bg.width * scale) + 1, int(bg.height * scale) + 1), Image.LANCZOS)
@@ -29,18 +34,26 @@ d.line([(0, SEAL_TOP), (W, SEAL_TOP)], fill=(255, 255, 255, 90), width=2)
 d.line([(0, H - SEAL_BOT - 1), (W, H - SEAL_BOT - 1)], fill=(255, 255, 255, 90), width=2)
 
 # ---- 主視覺：珍珍，含白色描邊＋柔影 ----
-sub = Image.open('D:/claude/clawd-pet-holo/_art/holo-test/cardback/subject-cutout.png').convert('RGBA')
+sub = Image.open(HERE.parent / 'cardback/subject-cutout.png').convert('RGBA')
 sub = sub.crop(sub.getbbox())
+# Defringe only near-white residual RGB; retain every source alpha value and
+# every character pixel. This mascot contains no white ink inside its outline.
+rgba=np.array(sub)
+edge=(rgba[:,:,3]>0)&(rgba[:,:,:3].min(2)>235)
+ink=(rgba[:,:,3]==255)&(rgba[:,:,:3].max(2)<230)
+nearest=nd.distance_transform_edt(~ink,return_distances=False,return_indices=True)
+rgba[:,:,:3][edge]=rgba[nearest[0][edge],nearest[1][edge],:3]
+print('defringed RGB pixels',int(edge.sum()),'alpha pixels removed',0)
+sub=Image.fromarray(rgba)
 sw = int(W * 0.66); sh = int(sub.height * sw / sub.width)
 sub = sub.resize((sw, sh), Image.LANCZOS)
 cx, cy = W // 2, int(H * 0.53)
-# 白描邊：把 alpha 膨脹後填白
+# A narrow contact shadow replaces the added 7px white sticker border.
+# Preserve the source silhouette; no erosion or blur of the character itself.
 a = sub.getchannel('A')
-halo = a.filter(ImageFilter.MaxFilter(15))
-halo_img = Image.new('RGBA', sub.size, (255, 255, 255, 0)); halo_img.putalpha(halo)
-shadow = Image.new('RGBA', sub.size, (40, 20, 60, 0)); shadow.putalpha(halo.filter(ImageFilter.GaussianBlur(14)))
-img.alpha_composite(shadow, (cx - sw // 2 + 6, cy - sh // 2 + 18))
-img.alpha_composite(halo_img, (cx - sw // 2, cy - sh // 2))
+shadow = Image.new('RGBA', sub.size, (40, 20, 60, 0))
+shadow.putalpha(a.filter(ImageFilter.GaussianBlur(2)).point(lambda x: round(x*.28)))
+img.alpha_composite(shadow, (cx - sw // 2, cy - sh // 2 + 1))
 img.alpha_composite(sub, (cx - sw // 2, cy - sh // 2))
 d = ImageDraw.Draw(img)
 
@@ -77,5 +90,5 @@ outlined('精裝典藏包', (W // 2, ty), f_title, (255, 236, 120, 255), INK, 6)
 f_sub = font(22, 'Bold')
 outlined('DELUXE COLLECTOR PACK', (W // 2, ty + 62), f_sub, CREAM, INK, 3)
 
-img.save('D:/claude/holo-pack/out/pack-print.png')
+img.save(HERE / 'pack-print.png')
 print('ok', img.size, 'seal', SEAL_TOP, SEAL_BOT)

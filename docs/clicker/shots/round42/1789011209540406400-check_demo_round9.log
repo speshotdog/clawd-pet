@@ -1,0 +1,21 @@
+{
+  "expected_total": 65,
+  "pool_cards": 43,
+  "standalone_bytes": 3776566,
+  "results": [
+    {
+      "label": "dev",
+      "cards": 65,
+      "pool": 43,
+      "external_requests": [],
+      "console_errors": []
+    },
+    {
+      "label": "standalone-copy",
+      "cards": 65,
+      "pool": 43,
+      "external_requests": [],
+      "console_errors": []
+    }
+  ]
+}

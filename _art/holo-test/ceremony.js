@@ -70,7 +70,7 @@ function cancelWork(){
   for(const e of win.querySelectorAll('.rarity-fx'))e.remove();
   root?.remove();root=null;
 }
-function clearRun(){generation++;cancelWork();
+function clearRun(){generation++;cancelWork();resetPack();packSuppressClick=false;
   for(const f of fan.querySelectorAll('.hcard'))HoloCardFace.unobserve(f);
   $('.entry-actions').classList.remove('press-feedback');win.querySelectorAll('.control-sheen').forEach(e=>e.remove());
   fan.replaceChildren();slots=[];busy=false;skipped=false;cascading=false;pending=0;collectMarked=false;
@@ -176,7 +176,50 @@ function openPack(){
  const resolve=packResolve;packResolve=null;entryPhase='opening';win.dataset.entryPhase=entryPhase;
  idlepack.removeAttribute('role');idlepack.removeAttribute('tabindex');mark('pack-open');resolve(true);return true;
 }
-idlepack.addEventListener('click',e=>{e.stopPropagation();openPack();});
+// Pack print and card faces share the same foil DOM, CSS and cursor parameters.
+// The material class is constant, independent of the unrevealed fixture.
+const packSurface=node('div','pack-surface r-rare');
+material(packSurface);idlepack.append(packSurface);
+let packDrag=null,packSuppressClick=false,packReturn=null,packRX=0,packRY=0;
+function paintPack(x=0,y=0){
+ HoloCardFace.paint(packSurface,'rare',x,y,{tilt:false});
+ packSurface.style.transform=`rotateX(${packRX}deg) rotateY(${packRY}deg)`;
+}
+function resetPack(){
+ packReturn?.cancel();packReturn=null;packDrag=null;packRX=packRY=0;paintPack();
+}
+function releasePack(){
+ const from=packSurface.style.transform;
+ packRX=packRY=0;paintPack();
+ if(!reduced.matches){packReturn?.cancel();packReturn=packSurface.animate(
+  [{transform:from},{transform:'rotateX(0deg) rotateY(0deg)'}],
+  {duration:280,easing:'cubic-bezier(.165,.84,.44,1)'});}
+ packDrag=null;
+}
+paintPack();
+idlepack.addEventListener('pointerdown',e=>{
+ if(e.button>0||!['idle','waiting'].includes(entryPhase))return;
+ e.preventDefault();e.stopPropagation();getSelection()?.removeAllRanges();
+ packReturn?.cancel();packReturn=null;packSuppressClick=false;
+ packDrag={x:e.clientX,y:e.clientY,rx:packRX,ry:packRY};idlepack.setPointerCapture(e.pointerId);
+});
+idlepack.addEventListener('pointermove',e=>{
+ if(!['idle','waiting'].includes(entryPhase))return;
+ if(packDrag){const dx=e.clientX-packDrag.x,dy=e.clientY-packDrag.y;
+  if(Math.hypot(dx,dy)>6)packSuppressClick=true;
+  packRX=Math.max(-18,Math.min(18,packDrag.rx-dy*.2));
+  packRY=Math.max(-18,Math.min(18,packDrag.ry+dx*.2));}
+ const b=idlepack.getBoundingClientRect();
+ paintPack((e.clientX-b.left)/b.width*2-1,(e.clientY-b.top)/b.height*2-1);
+});
+idlepack.addEventListener('pointerup',e=>{
+ if(!packDrag)return;
+ if(Math.hypot(e.clientX-packDrag.x,e.clientY-packDrag.y)>6)packSuppressClick=true;
+ releasePack();if(idlepack.hasPointerCapture(e.pointerId))idlepack.releasePointerCapture(e.pointerId);
+});
+idlepack.addEventListener('pointercancel',()=>{packSuppressClick=true;releasePack();});
+idlepack.addEventListener('pointerleave',()=>{if(!packDrag)releasePack();});
+idlepack.addEventListener('click',e=>{e.stopPropagation();if(packSuppressClick){packSuppressClick=false;return;}openPack();});
 idlepack.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPack();}});
 async function cascade(){const run=generation;cascading=true;
   // Serial scheduling is deliberately rarity-independent before first sight.

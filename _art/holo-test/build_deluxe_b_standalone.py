@@ -62,7 +62,7 @@ hook = "function path(n){"
 assert hook in page, 'path()'
 i = page.index(hook)
 end_i = page.index("}", page.index("return", i)) + 1
-page = page[:i] + ("const __ASSETS=" + json.dumps(assets, separators=(',', ':')) +
+page = page[:i] + ("const __ASSETS=JSON.parse(document.getElementById('asset-data').textContent)" +
                    ";function path(n){ return __ASSETS[n] || n; }") + page[end_i:]
 
 assert 'url("cardback/deluxe-back.webp")' in page

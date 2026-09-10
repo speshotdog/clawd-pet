@@ -1,0 +1,17 @@
+{
+  "source": "Actual process exit codes observed in tool results before the timestamped log wrapper was added; no inferred exit codes",
+  "checks": [
+    {"script": "check_round42_baseline.py", "attempt": 1, "exit_code": 0},
+    {"script": "check_round42_assets.py", "attempt": 1, "exit_code": 1, "metrics": "asset-metrics-attempt1.json", "failure": "saturation retention 0.782617962962981 < 0.85"}
+  ],
+  "builders": [
+    {"script": "fx/build_foil_pack.py", "engine": "Blender 4.5.13", "attempt_exit_codes": [0, 0, 0]},
+    {"script": "fx/make_print_layer.py", "attempt_exit_codes": [0, 0]},
+    {"script": "prepare_round42.py", "attempt_exit_codes": [0, 0]},
+    {"script": "embed_masks.py", "attempt_exit_codes": [0]},
+    {"script": "build_cards_remade.py", "attempt_exit_codes": [0]},
+    {"script": "build_cards_remade_standalone.py", "attempt_exit_codes": [0]},
+    {"script": "build_deluxe_b.py", "initial_exit_code": 0, "subsequent": "timestamped sidecar"},
+    {"script": "build_deluxe_b_standalone.py", "initial_exit_code": 0, "subsequent": "timestamped sidecar"}
+  ]
+}
