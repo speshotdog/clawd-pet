@@ -1,0 +1,104 @@
+{
+  "html_bytes": 843416,
+  "terrain_quality": 94,
+  "terrain_size": [
+    971,
+    1619
+  ],
+  "crops": {
+    "check": {
+      "cell": [
+        0,
+        0,
+        627,
+        627
+      ],
+      "source_box": [
+        112,
+        132,
+        516,
+        506
+      ],
+      "size": [
+        404,
+        374
+      ],
+      "lossless": true,
+      "retained_pixels": 63790,
+      "removed_pixels": 87306
+    },
+    "lock": {
+      "cell": [
+        627,
+        0,
+        1254,
+        627
+      ],
+      "source_box": [
+        804,
+        105,
+        1129,
+        521
+      ],
+      "size": [
+        325,
+        416
+      ],
+      "lossless": true,
+      "retained_pixels": 102054,
+      "removed_pixels": 33146
+    },
+    "paw": {
+      "cell": [
+        0,
+        627,
+        627,
+        1254
+      ],
+      "source_box": [
+        109,
+        744,
+        506,
+        1119
+      ],
+      "size": [
+        397,
+        375
+      ],
+      "lossless": true,
+      "retained_pixels": 96639,
+      "removed_pixels": 52236
+    },
+    "gate": {
+      "cell": [
+        627,
+        627,
+        1254,
+        1254
+      ],
+      "source_box": [
+        682,
+        738,
+        1219,
+        1142
+      ],
+      "size": [
+        537,
+        404
+      ],
+      "lossless": true,
+      "retained_pixels": 151289,
+      "removed_pixels": 65659
+    }
+  },
+  "cutout_method": {
+    "connectivity": 4,
+    "cream_min_channel": 235,
+    "cream_max_channel_spread": 25,
+    "changes": "alpha only; original RGB untouched"
+  },
+  "sources": {
+    "seg1-backyard-ruin.png": "d12fc0cb883c850c3943239a95fce6d4550af828907e758e9c80fb62f7996cce",
+    "icons-sheet.png": "8f11911e0642075a7536671faa64d5806e0083efb8a3a8b975488fa3a8c0eb31"
+  }
+}

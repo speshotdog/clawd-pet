@@ -1,0 +1,11 @@
+{
+  "before": {
+    "map20.html": "521fcb5b861a875141f4fc6284b56489f1158ac97ff0653d4080f526b704453c",
+    "icons-sheet-cutout.png": "0b3fc9128a64d1042ab1c3dd09a6d6d5cf5e725035e35203738670b1c9c63a02"
+  },
+  "after": {
+    "map20.html": "521fcb5b861a875141f4fc6284b56489f1158ac97ff0653d4080f526b704453c",
+    "icons-sheet-cutout.png": "0b3fc9128a64d1042ab1c3dd09a6d6d5cf5e725035e35203738670b1c9c63a02"
+  },
+  "identical": true
+}

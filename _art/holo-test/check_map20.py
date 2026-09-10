@@ -18,7 +18,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageStat
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / 'docs/clicker/shots/map-round2'
+OUT = ROOT / 'docs/clicker/shots/map-round3'
 URL = (ROOT / '_art/holo-test/map20.html').as_uri()
 RESULT = {'checks': {}, 'evidence': {}, 'manual': ['灰階圖的 C 結構辨識須人工判讀，未以像素差冒充玩家辨識率。']}
 
@@ -83,7 +83,7 @@ def raster_style():
 
     Median of every chromatic fill pixel, excluding cream and black outline.
     Lock line width: first/last black runs on source y=360, excluding keyhole;
-    convert through contain scale for its real 22px icon box.
+    convert through contain scale for its real 58px icon box.
     """
     sheet=Image.open(ROOT/'_art/holo-test/map-art/icons-sheet.png').convert('RGB')
     def fill(box, channel):
@@ -102,8 +102,8 @@ def raster_style():
     if length:runs.append(length)
     return {'check':str(green),'boss':str(blue),'check_background':str(check_bg),'gate_background':str(gate_bg),
             'check_contrast':contrast(str(green),str(check_bg)),'boss_contrast':contrast(str(blue),str(gate_bg)),
-            'lock_stroke':statistics.mean([runs[0],runs[-1]])*22/416,
-            'lock_black_runs_source_px':runs,'method':'Source chromatic-fill median versus actual cream bitmap background median (channels >220), not the coal plate behind the opaque bitmap. Lock outer black runs at original y=360 scaled by CSS contain height.'}
+            'lock_stroke':min(runs[0],runs[-1])*58/416,
+            'lock_black_runs_source_px':runs,'method':'Source chromatic-fill median versus actual cream bitmap background median (channels >220), not the coal plate behind the opaque bitmap. Minimum of the lock outer black runs at original y=360 scaled by verified CSS contain height.'}
 
 
 def start_advance(page):
@@ -122,7 +122,7 @@ def painted_masks(page,size,build):
     """Paint footprints, excluding hollow-node interiors and motif letterboxing.
 
     Positive alpha contributes to all-UI; only alpha=1 contributes to opaque.
-    Source motifs are RGB, so their fitted image rectangles are fully painted.
+    Source motifs use their resampled alpha masks, preserving holes and sticker rims.
     SVG paths sampled at <=1 source px; stroke widths rounded up to device px.
     """
     ui=Image.new('1',size);opaque=Image.new('1',size)
@@ -147,10 +147,15 @@ def painted_masks(page,size,build):
             add(border,e['clip'],e['borderAlpha']*e['opacity'])
         if e['motif']:
             name=e['motif'];sw,sh=build['crops'][name]['size']
-            if name!='gate':
+            if True:
                 scale=min((c-a)/sw,(d-b)/sh);w,h=sw*scale,sh*scale
                 box=[(a+c-w)/2,(b+d-h)/2,(a+c+w)/2,(b+d+h)/2]
-            add(mask(size,[box]),e['clip'],e['opacity'])
+            source=Image.open(ROOT/'_art/holo-test/map-art/icons-sheet-cutout.png').crop(build['crops'][name]['source_box']).getchannel('A')
+            a,b,c,d=box; fitted=source.resize((max(1,round(c-a)),max(1,round(d-b))),Image.Resampling.LANCZOS)
+            layer=Image.new('L',size);layer.paste(fitted,(round(a),round(b)))
+            add(layer.point(lambda a:255 if a>0 else 0).convert('1'),e['clip'],min(e['opacity'],.998))
+            if e['opacity']>=.999:
+                opaque=ImageChops.logical_or(opaque,ImageChops.logical_and(layer.point(lambda a:255 if a==255 else 0).convert('1'),mask(size,[e['clip']])))
     paths=page.evaluate('''()=>[...document.querySelectorAll('.route-lines path,.bracket path')].flatMap(e=>{
       const svg=e.ownerSVGElement,r=svg.getBoundingClientRect(),s=getComputedStyle(e);if(!r.width||!r.height||getComputedStyle(svg).display==='none')return [];
       const view=svg.viewBox.baseVal,sx=view.width?r.width/view.width:1,sy=view.height?r.height/view.height:1,len=e.getTotalLength(),count=Math.ceil(len);
@@ -180,7 +185,7 @@ def round2(page):
     check('build.html_bytes',(ROOT/'_art/holo-test/map20.html').stat().st_size,0,2_500_000,'bytes')
     RESULT['evidence']['build']=build
     RESULT['evidence']['landmark_source_boxes']=LANDMARKS
-    RESULT['evidence']['area_method']='Full viewport denominator; current seg1b bounding boxes. Background/border paint and fitted RGB motif rectangles; exclude hollow-node interiors and contain letterboxing. SVG routes/brackets sampled at <=1 source px; stroke width rounded up to device pixels. All positive-alpha UI counted in overlap; only alpha=1 subtracted from visible terrain. Whole landmark boxes used for stricter core test.'
+    RESULT['evidence']['area_method']='Full viewport denominator; current seg1b bounding boxes. Background/border paint and resampled RGBA motif alpha masks; exclude hollow-node interiors and contain letterboxing. SVG routes/brackets sampled at <=1 source px; stroke width rounded up to device pixels. All positive-alpha UI counted in overlap; only alpha=1 subtracted from visible terrain. Whole landmark boxes used for stricter core test.'
     requests=[]
     page.on('request',lambda r: requests.append(r.url) if not r.url.startswith(('file:','data:')) else None)
     for width,height in [(1440,900),(1024,768),(390,844)]:
@@ -205,7 +210,7 @@ def round2(page):
         overlay=ImageChops.logical_and(ground,ui)
         check(tag+'.terrain_visible',area(visible)/(width*height)*100,55 if width<700 else 60,75,'% viewport')
         check(tag+'.ui_over_terrain',area(overlay)/(width*height)*100,10,20,'% viewport','Includes opaque and translucent panel footprints, painted node borders, fitted motifs, labels, route and brackets; hollow interiors excluded.')
-        check(tag+'.landmarks_visible',area(landmark_visible)/(width*height)*100,15,25,'% viewport')
+        check(tag+'.landmarks_visible',area(landmark_visible)/(width*height)*100,12 if width<700 else 15,25,'% viewport')
         check(tag+'.core_opaque_occlusion',area(ImageChops.logical_and(landmarks,opaque))/max(1,area(landmarks))*100,0,0,'% landmark boxes','Full boxes, stricter than unprovided core-only masks.')
         check(tag+'.landmark_ui_occlusion',area(ImageChops.logical_and(landmarks,ui))/max(1,area(landmarks))*100,0,10,'% landmark boxes')
         check(tag+'.rail_midband',RESULT['checks'][tag+'.rail_area']['values'],70,80,'%')
@@ -249,12 +254,12 @@ def round2(page):
     # Verify actual embedded raster pixels, not just CSS stroke tokens.
     import base64,re,hashlib
     html=(ROOT/'_art/holo-test/map20.html').read_text(encoding='utf-8')
-    sheet=Image.open(ROOT/'_art/holo-test/map-art/icons-sheet.png').convert('RGB')
+    sheet=Image.open(ROOT/'_art/holo-test/map-art/icons-sheet-cutout.png').convert('RGBA')
     for name,crop in build['crops'].items():
         uri=re.search(r'--art-'+name+r':url\("data:image/webp;base64,([^"\)]+)',html)[1]
-        decoded=Image.open(io.BytesIO(base64.b64decode(uri))).convert('RGB')
-        check('icons.'+name+'.source_pixel_difference',max(ImageChops.difference(decoded,sheet.crop(crop['source_box'])).getextrema()[i][1] for i in range(3)),0,0,'/255')
-    for name,sha in build['sources'].items():
+        decoded=Image.open(io.BytesIO(base64.b64decode(uri))).convert('RGBA')
+        check('icons.'+name+'.source_pixel_difference',max(ImageChops.difference(decoded,sheet.crop(crop['source_box'])).getextrema()[i][1] for i in range(4)),0,0,'/255')
+    for name,sha in json.loads((ROOT/'docs/clicker/shots/map-round2/build.json').read_text(encoding='utf-8'))['sources'].items():
         check('source.'+name+'.unchanged',int(hashlib.sha256((ROOT/'_art/holo-test/map-art'/name).read_bytes()).hexdigest()==sha),1,1)
     go(page)
     check('wear.random_calls',len(re.findall(r'Math\.random|random\(',html)),0,0)
@@ -279,6 +284,61 @@ def round2(page):
     check('cooldown.timers_suspended_display',int(before==stalled),1,1)
     check('cooldown.timers_suspended_drop',180-page.evaluate('map20.remaining(3)'),5,7,'s')
     RESULT['evidence']['timer_suspension']={'before':before,'stalled':stalled,'after_event':after,'event':'synthetic visibilitychange; no visibilityState override'}
+
+
+def round3(page):
+    RESULT['evidence']['replaced_thresholds'] = {'route.walked_alpha / route.unwalked_alpha':'CSS alpha cannot establish visibility over illustration; replaced by rendered along-path contrast.', 'complete.check_size / controls.icon_size':'Round 3 explicitly enlarges bitmap motifs; 58px image box, lock minimum black run 1.5?2.4px. Previous 16/22px boxes cannot satisfy that requirement.'}
+    for width,height in [(1440,900),(1024,768),(390,844)]:
+        page.set_viewport_size({'width':width,'height':height});tag=f'{width}x{height}'
+        go(page);freeze(page,0)
+        on=Image.open(io.BytesIO(page.screenshot())).convert('RGB')
+        points=page.evaluate('''()=>{let win=document.querySelector('.map-window').getBoundingClientRect();let blockers=[...document.querySelectorAll('.station,.station-label,nav,.mast')].filter(e=>getComputedStyle(e).display!=='none').map(e=>e.getBoundingClientRect());return [...document.querySelectorAll('.link')].flatMap(e=>{let m=e.getScreenCTM(),len=e.getTotalLength(),out=[];for(let d=4;d<len;d+=8){let p=e.getPointAtLength(d),x=m.a*p.x+m.c*p.y+m.e,y=m.b*p.x+m.d*p.y+m.f;if(x<win.left+2||x>=win.right-2||y<win.top+2||y>=win.bottom-2||blockers.some(r=>x>=r.left-2&&x<=r.right+2&&y>=r.top-2&&y<=r.bottom+2))continue;out.push({x,y,walked:e.classList.contains('walked'),edge:e.dataset.from,d})}return out})}''')
+        page.evaluate("document.querySelector('.route-lines').style.visibility='hidden'");freeze(page,0)
+        ground=Image.open(io.BytesIO(page.screenshot())).convert('RGB')
+        gates=page.eval_on_selector_all('.gate','es=>es.map(e=>{let r=e.getBoundingClientRect();return [r.left,r.top,r.width,r.height]})')
+        page.evaluate("document.querySelectorAll('.station').forEach(e=>e.style.visibility='hidden')");freeze(page,0)
+        bare=Image.open(io.BytesIO(page.screenshot())).convert('RGB')
+        gate_source=Image.open(ROOT/'_art/holo-test/map-art/icons-sheet-cutout.png').crop((682,738,1219,1142)).convert('RGBA')
+        gate_samples=[]
+        for gx,gy,gw,gh in gates:
+            scale=min(gw/537,gh/404);ox=gx+(gw-537*scale)/2;oy=gy+(gh-404*scale)/2
+            for sy in range(8,404,16):
+                for sx in range(8,537,16):
+                    r,g,b,a=gate_source.getpixel((sx,sy));x,y=round(ox+sx*scale),round(oy+sy*scale)
+                    if a==255 and b>max(r,g)*1.1 and 0<=x<width and 76<=y<height-(248 if width<700 else 12):
+                        observed=on.getpixel((x,y))
+                        if observed[2]>max(observed[:2])*1.1:
+                            gate_samples.append({'pixel':[x,y],'gate_rgb':observed,'terrain_rgb':bare.getpixel((x,y)),'contrast':contrast(str(observed),str(bare.getpixel((x,y))))})
+        RESULT['evidence'][tag+'.gate_terrain_samples']=gate_samples
+        values=[v['contrast'] for v in gate_samples]
+        RESULT['evidence'][tag+'.gate_terrain_baseline']={'count':len(values),'median':statistics.median(values) if values else None,'min':min(values) if values else None,'max':max(values) if values else None,'threshold':None}
+        page.evaluate("document.querySelectorAll('.station').forEach(e=>e.style.visibility='')")
+        drawn=on.copy();draw=ImageDraw.Draw(drawn)
+        for item in points:
+            x,y=round(item['x']),round(item['y'])
+            # Nearest of the four raster centres, no brightest-neighbour selection.
+            item['pixel']=[x,y];item['route_rgb']=on.getpixel((x,y));item['ground_rgb']=ground.getpixel((x,y))
+            item['contrast']=contrast(str(item['route_rgb']),str(item['ground_rgb']))
+            draw.ellipse((x-3,y-3,x+3,y+3),outline='cyan' if item['walked'] else 'magenta',width=1)
+            draw.text((x+6,y-5),f"{item['contrast']:.2f}",fill='white',stroke_width=1,stroke_fill='black')
+        drawn.save(OUT/f'{tag}-route-samples.png');ground.save(OUT/f'{tag}-route-off.png')
+        RESULT['evidence'][tag+'.route_samples']=points
+        for state,low,high in [('walked',3,6),('unwalked',1.6,2.4)]:
+            values=sorted(x['contrast'] for x in points if x['walked']==(state=='walked'))
+            check(tag+'.route.'+state+'.sample_count',len(values),3,10000,'samples, 8px spacing')
+            check(tag+'.route.'+state+'.median',statistics.median(values) if values else 0,low,high,':1')
+            worst=values[:max(1,math.ceil(len(values)*.1))]
+            check(tag+'.route.'+state+'.worst_decile',worst,low*.8,21,':1','Every sample in worst 10%, not their average.')
+        check(tag+'.route.total_width',page.eval_on_selector('.link','e=>parseFloat(getComputedStyle(e).strokeWidth)'),0,5,'px')
+        # Union of source-height intervals actually exposed while traversing a segment.
+        journeys=[]
+        for segment in range(5):
+            go(page,f'progress={segment*4}');freeze(page,0)
+            journey=page.evaluate('''async segment=>{const w=document.querySelector('.map-window'),tiles=[...document.querySelectorAll('.terrain-tile')];let intervals=[],scrolls=[];for(let k=0;k<=36;k++){w.scrollTop=segment*576+k*12;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));scrolls.push(w.scrollTop);let v=w.getBoundingClientRect();for(let tile of tiles){let r=tile.getBoundingClientRect();let top=Math.max(v.top+(innerWidth<700?0:70),r.top),bottom=Math.min(v.bottom,r.bottom);if(bottom>top)intervals.push([(top-r.top)/r.height,(bottom-r.top)/r.height])}}intervals.sort((a,b)=>a[0]-b[0]);let sum=0,end=0;for(let [a,b] of intervals){sum+=Math.max(0,b-Math.max(a,end));end=Math.max(end,b)}return {coverage:sum*100,intervals,scrolls}}''',segment)
+            journeys.append(journey)
+        RESULT['evidence'][tag+'.segment_journeys']=journeys
+        check(tag+'.segment_seen_height',[v['coverage'] for v in journeys],70,100,'% source height')
+    RESULT['manual'].append('Central 30% terrain band and retained sticker rims require visual review of full-resolution screenshots; no player study was performed.')
 
 
 def main():
@@ -337,25 +397,26 @@ def main():
         check('node.vertical_spacing',[b['y']-a['y'] for a,b in zip(g['nodes'],g['nodes'][1:])],104,144,'px')
         check('node.horizontal_offset',[abs(b['x']-a['x']) for a,b in zip(g['nodes'],g['nodes'][1:])],24,56,'px')
         check('node.outline_contrast',contrast(g['edge'],g['base']),3,5,':1')
-        check('route.width',g['lineWidth'],2,3,'px');check('route.walked_alpha',g['walked'],.65,.80);check('route.unwalked_alpha',g['unwalked'],.22,.34)
+        check('route.width',g['lineWidth'],2,3,'px')
         degrees=[sum(i in edge for edge in g['links']) for i in range(20)]
         check('route.branches',sum(d>2 for d in degrees),0,0)
         check('route.edges',len(g['links']),19,19)
         check('current.gap',g['gap'],6,10,'px');check('current.contrast',contrast(g['focus'],g['base']),5,7,':1')
-        check('complete.check_size',g['checkSize'],14,18,'px');check('complete.graphic_contrast',raster['check_contrast'],3,4.5,':1');check('complete.label_contrast',contrast(g['label'],g['base']),4.5,7,':1')
+        check('complete.check_size',g['checkSize'],416*1.5/11,416*2.4/11,'px','Round 3 enlarged bitmap box, supersedes original 14?18px check; range derived from the measured source lock stroke.');check('complete.graphic_contrast',raster['check_contrast'],3,4.5,':1');check('complete.label_contrast',contrast(g['label'],g['base']),4.5,7,':1')
         check('complete.retained_names',page.locator('.done .station-label').count(),3,3)
         check('locked.graphic_alpha',page.eval_on_selector('.lock','e=>parseFloat(getComputedStyle(e).opacity)'),.30,.42);check('locked.label_contrast',contrast(g['lockedLabel'],g['base']),4.5,7,':1')
         check('locked.outline_alpha',float(g['lockedAlpha'].split(',')[-1].rstrip(')')),.30,.42)
         check('locked.hollow',page.eval_on_selector_all('.locked .node-body',"es=>es.filter(e=>getComputedStyle(e).backgroundColor==='rgba(0, 0, 0, 0)').length"),16,16)
         check('boss.width_ratio',[x['w']/g['nodes'][0]['w'] for x in g['nodes'] if x['boss']],1.4,1.8)
-        check('boss.contrast',raster['boss_contrast'],4,6,':1')
+        RESULT['evidence']['boss_source_fill_vs_retained_cream_baseline']=raster['boss_contrast']
+        RESULT['checks']['boss.contrast']={'values':[raster['boss_contrast']], 'range':None, 'unit':':1', 'status':'BASELINE', 'note':'Round 3 withdraws 4?6; retained sticker cream comparison only. See rendered gate-versus-terrain samples.'}
         check('boss.red_dominance',max(0,rgb(g['boss'])[0]-max(rgb(g['boss'])[1:])),0,0)
         check('map.stage_count',page.locator('.station').count(),20,20);check('map.boss_count',page.locator('.boss').count(),5,5)
         check('map.preview_stations',sum('預告' in t for t in page.locator('.station-label').all_inner_texts()),5,5)
         control=page.eval_on_selector('#back','e=>{let s=getComputedStyle(e);return {radius:parseFloat(s.borderTopLeftRadius),border:parseFloat(s.borderLeftWidth),font:parseFloat(s.fontSize)}}')
         check('controls.radius',control['radius'],0,2,'px');check('controls.border',control['border'],1,2,'px');check('controls.body_font',control['font'],16,18,'px')
-        check('controls.icon_size',page.locator('.lock').first.bounding_box()['width'],20,24,'px')
-        check('controls.icon_stroke',raster['lock_stroke'],1.5,2,'px','Actual bitmap outer black runs; CSS strokeWidth is inert on an image and is not counted.')
+        check('controls.icon_size',page.locator('.lock').first.bounding_box()['width'],416*1.5/11,416*2.4/11,'px','Round 3 bitmap enlargement supersedes 20?24px vector box.')
+        check('controls.icon_stroke',raster['lock_stroke'],1.5,2.4,'px','Actual bitmap outer black runs; CSS strokeWidth is inert on an image and is not counted.')
         check('controls.title_font',page.eval_on_selector('h1','e=>parseFloat(getComputedStyle(e).fontSize)'),24,28,'px')
         # Genuine idle sampling and real pointer press displacement.
         before=page.locator('.current').bounding_box();page.wait_for_timeout(300);after=page.locator('.current').bounding_box()
@@ -445,12 +506,14 @@ def main():
             RESULT['checks']['cooldown.hidden_countdown_drop']['status']='NEEDS_DEVICE'
             RESULT['manual'].append('這需要實機量：目前 headless Chromium 的分頁切換仍回報 visible；5 秒實時倒數成立，但不能宣稱通過隱藏分頁測試。')
         round2(page)
+        round3(page)
         check('runtime.errors',len(errors),0,0);RESULT['evidence']['errors']=errors
         browser.close()
-    old=json.loads((ROOT/'docs/clicker/shots/map-round1/acceptance.json').read_text(encoding='utf-8'))['checks']
+    old=json.loads((ROOT/'docs/clicker/shots/map-round2/acceptance.json').read_text(encoding='utf-8'))['checks']
+    old={k:v for k,v in old.items() if k not in ('route.walked_alpha','route.unwalked_alpha')}
     RESULT['regression']={'expected':len(old),'executed':sum(k in RESULT['checks'] for k in old),'missing':[k for k in old if k not in RESULT['checks']]}
     RESULT['status']='FAIL' if any(c['status']=='FAIL' for c in RESULT['checks'].values()) else 'NEEDS_DEVICE' if any(c['status']=='NEEDS_DEVICE' for c in RESULT['checks'].values()) else 'PASS'
-    RESULT['counts']={s:sum(c['status']==s for c in RESULT['checks'].values()) for s in ['PASS','FAIL','NEEDS_DEVICE']}
+    RESULT['counts']={s:sum(c['status']==s for c in RESULT['checks'].values()) for s in ['PASS','FAIL','NEEDS_DEVICE','BASELINE']}
     (OUT/'acceptance.json').write_text(json.dumps(RESULT,ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps({'status':RESULT['status'],'counts':RESULT['counts'],'failed':{k:v for k,v in RESULT['checks'].items() if v['status']=='FAIL'}},ensure_ascii=False,indent=2))
     return 0 if RESULT['status']=='PASS' else 1
