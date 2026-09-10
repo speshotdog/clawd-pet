@@ -1,0 +1,3268 @@
+{
+  "checks": {
+    "1440x900.rail_area": {
+      "values": [
+        76.58521689172753
+      ],
+      "range": [
+        65,
+        85
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.floating_panels": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "count",
+      "status": "PASS",
+      "note": "No complete-frame panels; therefore their union is 0% (allowed 0–15%)."
+    },
+    "1440x900.floating_area": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        15
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.texture_area": {
+      "values": [
+        16.072916612752124
+      ],
+      "range": [
+        12,
+        22
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.texture_gray_delta": {
+      "values": [
+        10.425324675324676
+      ],
+      "range": [
+        6,
+        14
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": "(1248, 13, 1336, 27)"
+    },
+    "1440x900.ui_off_reflow": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.horizontal_overflow": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.summary_position": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.rail_area": {
+      "values": [
+        73.99044724272687
+      ],
+      "range": [
+        65,
+        85
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.floating_panels": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "count",
+      "status": "PASS",
+      "note": "No complete-frame panels; therefore their union is 0% (allowed 0–15%)."
+    },
+    "1024x768.floating_area": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        15
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.texture_area": {
+      "values": [
+        18.08912690371657
+      ],
+      "range": [
+        12,
+        22
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.texture_gray_delta": {
+      "values": [
+        9.185876623376624
+      ],
+      "range": [
+        6,
+        14
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": "(912, 13, 1000, 27)"
+    },
+    "1024x768.ui_off_reflow": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.horizontal_overflow": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.summary_position": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.rail_area": {
+      "values": [
+        70.27653377595439
+      ],
+      "range": [
+        65,
+        85
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.floating_panels": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "count",
+      "status": "PASS",
+      "note": "No complete-frame panels; therefore their union is 0% (allowed 0–15%)."
+    },
+    "390x844.floating_area": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        15
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.texture_area": {
+      "values": [
+        15.508440073909366
+      ],
+      "range": [
+        12,
+        22
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.texture_gray_delta": {
+      "values": [
+        7.929383116883117
+      ],
+      "range": [
+        6,
+        14
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": "(108, 9, 196, 23)"
+    },
+    "390x844.ui_off_reflow": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.horizontal_overflow": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.summary_position": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.size": {
+      "values": [
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52,
+        52
+      ],
+      "range": [
+        44,
+        60
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.vertical_spacing": {
+      "values": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ],
+      "range": [
+        104,
+        144
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.horizontal_offset": {
+      "values": [
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0
+      ],
+      "range": [
+        24,
+        56
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.outline_contrast": {
+      "values": [
+        4.893175156638302
+      ],
+      "range": [
+        3,
+        5
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.width": {
+      "values": [
+        2.5
+      ],
+      "range": [
+        2,
+        3
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.walked_alpha": {
+      "values": [
+        0.72
+      ],
+      "range": [
+        0.65,
+        0.8
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.unwalked_alpha": {
+      "values": [
+        0.28
+      ],
+      "range": [
+        0.22,
+        0.34
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.branches": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "route.edges": {
+      "values": [
+        19
+      ],
+      "range": [
+        19,
+        19
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.gap": {
+      "values": [
+        8
+      ],
+      "range": [
+        6,
+        10
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.contrast": {
+      "values": [
+        6.684948183120548
+      ],
+      "range": [
+        5,
+        7
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "complete.check_size": {
+      "values": [
+        16
+      ],
+      "range": [
+        14,
+        18
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "complete.graphic_contrast": {
+      "values": [
+        3.218098714834387
+      ],
+      "range": [
+        3,
+        4.5
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "complete.label_contrast": {
+      "values": [
+        6.686390306980519
+      ],
+      "range": [
+        4.5,
+        7
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "complete.retained_names": {
+      "values": [
+        3
+      ],
+      "range": [
+        3,
+        3
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.graphic_alpha": {
+      "values": [
+        0.36
+      ],
+      "range": [
+        0.3,
+        0.42
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.label_contrast": {
+      "values": [
+        6.686390306980519
+      ],
+      "range": [
+        4.5,
+        7
+      ],
+      "unit": ":1",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.outline_alpha": {
+      "values": [
+        0.36
+      ],
+      "range": [
+        0.3,
+        0.42
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.hollow": {
+      "values": [
+        16
+      ],
+      "range": [
+        16,
+        16
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "boss.width_ratio": {
+      "values": [
+        1.5997596153846154,
+        1.5997596153846154,
+        1.5997596153846154,
+        1.5997596153846154,
+        1.5997596153846154
+      ],
+      "range": [
+        1.4,
+        1.8
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "boss.contrast": {
+      "values": [
+        9.262927606699975
+      ],
+      "range": [
+        4,
+        6
+      ],
+      "unit": ":1",
+      "status": "FAIL",
+      "note": ""
+    },
+    "boss.red_dominance": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "map.stage_count": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "map.boss_count": {
+      "values": [
+        5
+      ],
+      "range": [
+        5,
+        5
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "map.preview_stations": {
+      "values": [
+        5
+      ],
+      "range": [
+        5,
+        5
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.radius": {
+      "values": [
+        1
+      ],
+      "range": [
+        0,
+        2
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.border": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        2
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.body_font": {
+      "values": [
+        16
+      ],
+      "range": [
+        16,
+        18
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.icon_size": {
+      "values": [
+        22
+      ],
+      "range": [
+        20,
+        24
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.icon_stroke": {
+      "values": [
+        0.6081730769230769
+      ],
+      "range": [
+        1.5,
+        2
+      ],
+      "unit": "px",
+      "status": "FAIL",
+      "note": "Actual bitmap outer black runs; CSS strokeWidth is inert on an image and is not counted."
+    },
+    "controls.title_font": {
+      "values": [
+        28
+      ],
+      "range": [
+        24,
+        28
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "node.idle_displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "controls.press_displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.5.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.6.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.7.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.8.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.9.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.10.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.11.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.12.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.13.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.14.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.15.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.16.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.17.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.18.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.19.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "locked.20.challenge_buttons": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "tasks.dead_ends": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.0.ordering": {
+      "values": [
+        0,
+        140,
+        420
+      ],
+      "range": [
+        0,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.0.connection_start": {
+      "values": [
+        140
+      ],
+      "range": [
+        140,
+        140
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.0.bracket_start": {
+      "values": [
+        420
+      ],
+      "range": [
+        420,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.0.peak_alpha": {
+      "values": [
+        0.84
+      ],
+      "range": [
+        0.78,
+        0.9
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.0.displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.1.ordering": {
+      "values": [
+        0,
+        140,
+        420
+      ],
+      "range": [
+        0,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.1.connection_start": {
+      "values": [
+        140
+      ],
+      "range": [
+        140,
+        140
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.1.bracket_start": {
+      "values": [
+        420
+      ],
+      "range": [
+        420,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.1.peak_alpha": {
+      "values": [
+        0.84
+      ],
+      "range": [
+        0.78,
+        0.9
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.1.displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.2.ordering": {
+      "values": [
+        0,
+        140,
+        420
+      ],
+      "range": [
+        0,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.2.connection_start": {
+      "values": [
+        140
+      ],
+      "range": [
+        140,
+        140
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.2.bracket_start": {
+      "values": [
+        420
+      ],
+      "range": [
+        420,
+        420
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.2.peak_alpha": {
+      "values": [
+        0.84
+      ],
+      "range": [
+        0.78,
+        0.9
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "current.2.displacement": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "advance.check": {
+      "values": [
+        140
+      ],
+      "range": [
+        120,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        140,
+        140,
+        140
+      ]
+    },
+    "advance.connection": {
+      "values": [
+        280
+      ],
+      "range": [
+        240,
+        320
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        280,
+        280,
+        280
+      ]
+    },
+    "advance.bracket": {
+      "values": [
+        190
+      ],
+      "range": [
+        160,
+        220
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        190,
+        190,
+        190
+      ]
+    },
+    "playback.check": {
+      "values": [
+        149.97499998131147
+      ],
+      "range": [
+        120,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        149.9759999712929,
+        149.94699996281415,
+        150.00200000982733
+      ]
+    },
+    "playback.connection": {
+      "values": [
+        293.27499998131145
+      ],
+      "range": [
+        240,
+        320
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        293.2759999712929,
+        293.24699996281413,
+        293.30200000982734
+      ]
+    },
+    "playback.bracket": {
+      "values": [
+        196.6416666479781
+      ],
+      "range": [
+        160,
+        220
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        196.67599997129287,
+        196.6469999628141,
+        196.6020000098273
+      ]
+    },
+    "camera.visible_no_scroll": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "camera.0.not_centered": {
+      "values": [
+        391
+      ],
+      "range": [
+        1,
+        900
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "camera.1.not_centered": {
+      "values": [
+        391
+      ],
+      "range": [
+        1,
+        900
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "camera.2.not_centered": {
+      "values": [
+        391
+      ],
+      "range": [
+        1,
+        900
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "camera.duration": {
+      "values": [
+        340.36666669448215
+      ],
+      "range": [
+        280,
+        380
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        339.4000000357628,
+        340.30000001192093,
+        341.4000000357628
+      ]
+    },
+    "camera.distance": {
+      "values": [
+        12,
+        12,
+        12
+      ],
+      "range": [
+        12,
+        28
+      ],
+      "unit": "% viewport height",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.0.all_state_durations": {
+      "values": [
+        130,
+        130,
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.0.tracking": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.0.static_state_shapes": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.1.all_state_durations": {
+      "values": [
+        130,
+        130,
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.1.tracking": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.1.static_state_shapes": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.2.all_state_durations": {
+      "values": [
+        130,
+        130,
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.2.tracking": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.2.static_state_shapes": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "reduced.duration": {
+      "values": [
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": "",
+      "samples": [
+        130,
+        130,
+        130
+      ]
+    },
+    "reduced.media_query": {
+      "values": [
+        130,
+        130,
+        130
+      ],
+      "range": [
+        100,
+        160
+      ],
+      "unit": "ms",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.0.completed": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.0.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.1.completed": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.1.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.2.completed": {
+      "values": [
+        2
+      ],
+      "range": [
+        2,
+        2
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.2.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.3.completed": {
+      "values": [
+        3
+      ],
+      "range": [
+        3,
+        3
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.3.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.4.completed": {
+      "values": [
+        4
+      ],
+      "range": [
+        4,
+        4
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.4.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.5.completed": {
+      "values": [
+        5
+      ],
+      "range": [
+        5,
+        5
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.5.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.6.completed": {
+      "values": [
+        6
+      ],
+      "range": [
+        6,
+        6
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.6.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.7.completed": {
+      "values": [
+        7
+      ],
+      "range": [
+        7,
+        7
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.7.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.8.completed": {
+      "values": [
+        8
+      ],
+      "range": [
+        8,
+        8
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.8.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.9.completed": {
+      "values": [
+        9
+      ],
+      "range": [
+        9,
+        9
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.9.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.10.completed": {
+      "values": [
+        10
+      ],
+      "range": [
+        10,
+        10
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.10.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.11.completed": {
+      "values": [
+        11
+      ],
+      "range": [
+        11,
+        11
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.11.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.12.completed": {
+      "values": [
+        12
+      ],
+      "range": [
+        12,
+        12
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.12.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.13.completed": {
+      "values": [
+        13
+      ],
+      "range": [
+        13,
+        13
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.13.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.14.completed": {
+      "values": [
+        14
+      ],
+      "range": [
+        14,
+        14
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.14.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.15.completed": {
+      "values": [
+        15
+      ],
+      "range": [
+        15,
+        15
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.15.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.16.completed": {
+      "values": [
+        16
+      ],
+      "range": [
+        16,
+        16
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.16.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.17.completed": {
+      "values": [
+        17
+      ],
+      "range": [
+        17,
+        17
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.17.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.18.completed": {
+      "values": [
+        18
+      ],
+      "range": [
+        18,
+        18
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.18.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.19.completed": {
+      "values": [
+        19
+      ],
+      "range": [
+        19,
+        19
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.19.current": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.20.completed": {
+      "values": [
+        20
+      ],
+      "range": [
+        20,
+        20
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "progress.20.current": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "tasks.final_complete": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "cooldown.failure_seconds": {
+      "values": [
+        180
+      ],
+      "range": [
+        179,
+        180
+      ],
+      "unit": "s",
+      "status": "PASS",
+      "note": ""
+    },
+    "cooldown.result_disabled": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "cooldown.expired_enabled": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "cooldown.hidden_state": {
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "NEEDS_DEVICE",
+      "note": ""
+    },
+    "cooldown.hidden_countdown_drop": {
+      "values": [
+        5
+      ],
+      "range": [
+        4,
+        6
+      ],
+      "unit": "s",
+      "status": "NEEDS_DEVICE",
+      "note": "Only valid if cooldown.hidden_state passes.",
+      "samples": [
+        5,
+        5,
+        5
+      ]
+    },
+    "build.html_bytes": {
+      "values": [
+        837232
+      ],
+      "range": [
+        0,
+        2500000
+      ],
+      "unit": "bytes",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.terrain_visible": {
+      "values": [
+        65.39220679012345
+      ],
+      "range": [
+        60,
+        75
+      ],
+      "unit": "% viewport",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.ui_over_terrain": {
+      "values": [
+        10.810648148148148
+      ],
+      "range": [
+        10,
+        20
+      ],
+      "unit": "% viewport",
+      "status": "PASS",
+      "note": "Includes opaque and translucent panel footprints, painted node borders, fitted motifs, labels, route and brackets; hollow interiors excluded."
+    },
+    "1440x900.landmarks_visible": {
+      "values": [
+        20.213503086419752
+      ],
+      "range": [
+        15,
+        25
+      ],
+      "unit": "% viewport",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.core_opaque_occlusion": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "% landmark boxes",
+      "status": "PASS",
+      "note": "Full boxes, stricter than unprovided core-only masks."
+    },
+    "1440x900.landmark_ui_occlusion": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        10
+      ],
+      "unit": "% landmark boxes",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.rail_midband": {
+      "values": [
+        76.58521689172753
+      ],
+      "range": [
+        70,
+        80
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.texture_midband": {
+      "values": [
+        16.072916612752124
+      ],
+      "range": [
+        14,
+        19
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.wear_changed_pixels": {
+      "values": [
+        5958
+      ],
+      "range": [
+        1,
+        1296000
+      ],
+      "unit": "pixels",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.wear_interior_gray_delta": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": "Panel interiors inset by 24 px; no seam support included."
+    },
+    "1440x900.terrain_changed_pixels": {
+      "values": [
+        846587
+      ],
+      "range": [
+        1,
+        1296000
+      ],
+      "unit": "pixels",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.terrain_node_scroll_drift": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.terrain_aspect_error": {
+      "values": [
+        3.61508886181916e-06,
+        3.61508886181916e-06
+      ],
+      "range": [
+        0,
+        0.001
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.node_edge_clipping": {
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "% body cropped, all progress hooks",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.segment_indicator": {
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "1440x900.placeholder_label": {
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.terrain_visible": {
+      "values": [
+        62.505340576171875
+      ],
+      "range": [
+        60,
+        75
+      ],
+      "unit": "% viewport",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.ui_over_terrain": {
+      "values": [
+        12.424087524414062
+      ],
+      "range": [
+        10,
+        20
+      ],
+      "unit": "% viewport",
+      "status": "PASS",
+      "note": "Includes opaque and translucent panel footprints, painted node borders, fitted motifs, labels, route and brackets; hollow interiors excluded."
+    },
+    "1024x768.landmarks_visible": {
+      "values": [
+        16.350682576497398
+      ],
+      "range": [
+        15,
+        25
+      ],
+      "unit": "% viewport",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.core_opaque_occlusion": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "% landmark boxes",
+      "status": "PASS",
+      "note": "Full boxes, stricter than unprovided core-only masks."
+    },
+    "1024x768.landmark_ui_occlusion": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        10
+      ],
+      "unit": "% landmark boxes",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.rail_midband": {
+      "values": [
+        73.99044724272687
+      ],
+      "range": [
+        70,
+        80
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.texture_midband": {
+      "values": [
+        18.08912690371657
+      ],
+      "range": [
+        14,
+        19
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.wear_changed_pixels": {
+      "values": [
+        5256
+      ],
+      "range": [
+        1,
+        786432
+      ],
+      "unit": "pixels",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.wear_interior_gray_delta": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": "Panel interiors inset by 24 px; no seam support included."
+    },
+    "1024x768.terrain_changed_pixels": {
+      "values": [
+        490976
+      ],
+      "range": [
+        1,
+        786432
+      ],
+      "unit": "pixels",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.terrain_node_scroll_drift": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.terrain_aspect_error": {
+      "values": [
+        6.83870663586994e-06,
+        6.83870663586994e-06
+      ],
+      "range": [
+        0,
+        0.001
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.node_edge_clipping": {
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "% body cropped, all progress hooks",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.segment_indicator": {
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "1024x768.placeholder_label": {
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.terrain_visible": {
+      "values": [
+        55.046481954064895
+      ],
+      "range": [
+        55,
+        75
+      ],
+      "unit": "% viewport",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.ui_over_terrain": {
+      "values": [
+        11.259266010450844
+      ],
+      "range": [
+        10,
+        20
+      ],
+      "unit": "% viewport",
+      "status": "PASS",
+      "note": "Includes opaque and translucent panel footprints, painted node borders, fitted motifs, labels, route and brackets; hollow interiors excluded."
+    },
+    "390x844.landmarks_visible": {
+      "values": [
+        8.76078502855754
+      ],
+      "range": [
+        15,
+        25
+      ],
+      "unit": "% viewport",
+      "status": "FAIL",
+      "note": ""
+    },
+    "390x844.core_opaque_occlusion": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "% landmark boxes",
+      "status": "PASS",
+      "note": "Full boxes, stricter than unprovided core-only masks."
+    },
+    "390x844.landmark_ui_occlusion": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        10
+      ],
+      "unit": "% landmark boxes",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.rail_midband": {
+      "values": [
+        70.27653377595439
+      ],
+      "range": [
+        70,
+        80
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.texture_midband": {
+      "values": [
+        15.508440073909366
+      ],
+      "range": [
+        14,
+        19
+      ],
+      "unit": "%",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.wear_changed_pixels": {
+      "values": [
+        2240
+      ],
+      "range": [
+        1,
+        329160
+      ],
+      "unit": "pixels",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.wear_interior_gray_delta": {
+      "values": [
+        0.0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": "Panel interiors inset by 24 px; no seam support included."
+    },
+    "390x844.terrain_changed_pixels": {
+      "values": [
+        181079
+      ],
+      "range": [
+        1,
+        329160
+      ],
+      "unit": "pixels",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.terrain_node_scroll_drift": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "px",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.terrain_aspect_error": {
+      "values": [
+        1.1530246133872879e-05,
+        1.1530246133872879e-05,
+        1.1530246133872879e-05,
+        1.1530246133872879e-05,
+        1.1530246133872879e-05
+      ],
+      "range": [
+        0,
+        0.001
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.node_edge_clipping": {
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "% body cropped, all progress hooks",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.segment_indicator": {
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.placeholder_label": {
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "390x844.bottom_panel_height": {
+      "values": [
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972,
+        28.436018957345972
+      ],
+      "range": [
+        0,
+        32
+      ],
+      "unit": "% viewport height",
+      "status": "PASS",
+      "note": ""
+    },
+    "build.external_requests": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "icons.check.state_asset_mapping": {
+      "values": [
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "icons.lock.state_asset_mapping": {
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "icons.paw.state_asset_mapping": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "icons.gate.state_asset_mapping": {
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "icons.no_filters": {
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "icons.check.source_pixel_difference": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": ""
+    },
+    "icons.lock.source_pixel_difference": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": ""
+    },
+    "icons.paw.source_pixel_difference": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": ""
+    },
+    "icons.gate.source_pixel_difference": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "/255",
+      "status": "PASS",
+      "note": ""
+    },
+    "source.seg1-backyard-ruin.png.unchanged": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "source.icons-sheet.png.unchanged": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "wear.random_calls": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "wear.reload_identity": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "wear.interior_support": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "strips detached from panel edge",
+      "status": "PASS",
+      "note": ""
+    },
+    "wear.distinct_seam_gaps": {
+      "values": [
+        6
+      ],
+      "range": [
+        2,
+        6
+      ],
+      "unit": "distinct gap lengths",
+      "status": "PASS",
+      "note": "Parsed from actual fixed SVG move-to positions; equal spacing would produce 1."
+    },
+    "cooldown.timers_suspended_display": {
+      "values": [
+        1
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    },
+    "cooldown.timers_suspended_drop": {
+      "values": [
+        6
+      ],
+      "range": [
+        5,
+        7
+      ],
+      "unit": "s",
+      "status": "PASS",
+      "note": ""
+    },
+    "runtime.errors": {
+      "values": [
+        0
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "PASS",
+      "note": ""
+    }
+  },
+  "evidence": {
+    "browser": "136.0.7103.25",
+    "1440x900.ui_pixels": 386414,
+    "1024x768.ui_pixels": 248724,
+    "390x844.ui_pixels": 127724,
+    "raster_style": {
+      "check": "(103, 153, 107)",
+      "boss": "(46.0, 70.0, 107.0)",
+      "check_background": "(254, 252, 242)",
+      "gate_background": "(254.0, 252.0, 242.0)",
+      "check_contrast": 3.218098714834387,
+      "boss_contrast": 9.262927606699975,
+      "lock_stroke": 0.6081730769230769,
+      "lock_black_runs_source_px": [
+        12,
+        54,
+        11
+      ],
+      "method": "Source chromatic-fill median versus actual cream bitmap background median (channels >220), not the coal plate behind the opaque bitmap. Lock outer black runs at original y=360 scaled by CSS contain height."
+    },
+    "hidden_trials": [
+      {
+        "visibility": "visible",
+        "elapsed_ms": 5114,
+        "countdown_drop": 5,
+        "events": []
+      },
+      {
+        "visibility": "visible",
+        "elapsed_ms": 5111,
+        "countdown_drop": 5,
+        "events": []
+      },
+      {
+        "visibility": "visible",
+        "elapsed_ms": 5115,
+        "countdown_drop": 5,
+        "events": []
+      }
+    ],
+    "build": {
+      "html_bytes": 837232,
+      "terrain_quality": 94,
+      "terrain_size": [
+        971,
+        1619
+      ],
+      "crops": {
+        "check": {
+          "cell": [
+            0,
+            0,
+            627,
+            627
+          ],
+          "source_box": [
+            112,
+            132,
+            516,
+            506
+          ],
+          "size": [
+            404,
+            374
+          ],
+          "lossless": true
+        },
+        "lock": {
+          "cell": [
+            627,
+            0,
+            1254,
+            627
+          ],
+          "source_box": [
+            804,
+            105,
+            1129,
+            521
+          ],
+          "size": [
+            325,
+            416
+          ],
+          "lossless": true
+        },
+        "paw": {
+          "cell": [
+            0,
+            627,
+            627,
+            1254
+          ],
+          "source_box": [
+            109,
+            744,
+            506,
+            1119
+          ],
+          "size": [
+            397,
+            375
+          ],
+          "lossless": true
+        },
+        "gate": {
+          "cell": [
+            627,
+            627,
+            1254,
+            1254
+          ],
+          "source_box": [
+            682,
+            738,
+            1219,
+            1142
+          ],
+          "size": [
+            537,
+            404
+          ],
+          "lossless": true
+        }
+      },
+      "sources": {
+        "seg1-backyard-ruin.png": "d12fc0cb883c850c3943239a95fce6d4550af828907e758e9c80fb62f7996cce",
+        "icons-sheet.png": "8f11911e0642075a7536671faa64d5806e0083efb8a3a8b975488fa3a8c0eb31"
+      }
+    },
+    "landmark_source_boxes": [
+      [
+        25,
+        329,
+        332,
+        693
+      ],
+      [
+        665,
+        564,
+        950,
+        740
+      ],
+      [
+        663,
+        892,
+        947,
+        1009
+      ]
+    ],
+    "area_method": "Full viewport denominator; current seg1b bounding boxes. Background/border paint and fitted RGB motif rectangles; exclude hollow-node interiors and contain letterboxing. SVG routes/brackets sampled at <=1 source px; stroke width rounded up to device pixels. All positive-alpha UI counted in overlap; only alpha=1 subtracted from visible terrain. Whole landmark boxes used for stricter core test.",
+    "wear_paths": [
+      "M0 2H73l9 2h42l8-2h36l5 3h24M209 1h18m7 2h11M293 2h89l13 3h44M507 1h16m27 2h67M718 2h51l8 3h35M907 2h93M2 5v8m994-9v9",
+      "M2 0v83l3 7v29M1 153v17m3 11v9M2 246v59l3 9v42M1 443v17m3 11v31M2 584v73l3 9v34M5 2h10M5 695h12",
+      "M2 0v83l3 7v29M1 153v17m3 11v9M2 246v59l3 9v42M1 443v17m3 11v31M2 584v73l3 9v34M5 2h10M5 695h12",
+      "M0 2H73l9 2h42l8-2h36l5 3h24M209 1h18m7 2h11M293 2h89l13 3h44M507 1h16m27 2h67M718 2h51l8 3h35M907 2h93M2 5v8m994-9v9",
+      "M2 0v83l3 7v29M1 153v17m3 11v9M2 246v59l3 9v42M1 443v17m3 11v31M2 584v73l3 9v34M5 2h10M5 695h12",
+      "M2 0v83l3 7v29M1 153v17m3 11v9M2 246v59l3 9v42M1 443v17m3 11v31M2 584v73l3 9v34M5 2h10M5 695h12",
+      "M0 2H73l9 2h42l8-2h36l5 3h24M209 1h18m7 2h11M293 2h89l13 3h44M507 1h16m27 2h67M718 2h51l8 3h35M907 2h93M2 5v8m994-9v9"
+    ],
+    "wear_seam_gaps": [
+      2,
+      207,
+      84,
+      214,
+      211,
+      189
+    ],
+    "timer_suspension": {
+      "before": "冷卻 03:00",
+      "stalled": "冷卻 03:00",
+      "after_event": "冷卻 02:54",
+      "event": "synthetic visibilitychange; no visibilityState override"
+    },
+    "errors": []
+  },
+  "manual": [
+    "灰階圖的 C 結構辨識須人工判讀，未以像素差冒充玩家辨識率。",
+    "這需要實機量：目前 headless Chromium 的分頁切換仍回報 visible；5 秒實時倒數成立，但不能宣稱通過隱藏分頁測試。"
+  ],
+  "regression": {
+    "expected": 161,
+    "executed": 161,
+    "missing": []
+  },
+  "status": "FAIL",
+  "counts": {
+    "PASS": 221,
+    "FAIL": 3,
+    "NEEDS_DEVICE": 2
+  }
+}
