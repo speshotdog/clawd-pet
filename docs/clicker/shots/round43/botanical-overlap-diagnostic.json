@@ -1,0 +1,62 @@
+[
+  {
+    "bbox": [
+      383,
+      27,
+      561,
+      183
+    ],
+    "original_overlap": 0,
+    "translated_overlap_rounded_to_asset_pixel": 0
+  },
+  {
+    "bbox": [
+      40,
+      53,
+      221,
+      252
+    ],
+    "original_overlap": 0,
+    "translated_overlap_rounded_to_asset_pixel": 0
+  },
+  {
+    "bbox": [
+      208,
+      125,
+      378,
+      244
+    ],
+    "original_overlap": 0,
+    "translated_overlap_rounded_to_asset_pixel": 0
+  },
+  {
+    "bbox": [
+      402,
+      186,
+      575,
+      334
+    ],
+    "original_overlap": 0,
+    "translated_overlap_rounded_to_asset_pixel": 1122
+  },
+  {
+    "bbox": [
+      15,
+      267,
+      193,
+      440
+    ],
+    "original_overlap": 0,
+    "translated_overlap_rounded_to_asset_pixel": 1496
+  },
+  {
+    "bbox": [
+      449,
+      514,
+      589,
+      628
+    ],
+    "original_overlap": 0,
+    "translated_overlap_rounded_to_asset_pixel": 0
+  }
+]

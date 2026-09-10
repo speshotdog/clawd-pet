@@ -1,0 +1,3 @@
+/* Round 43: translate the existing sheep and its registered foil mask together.
+   No resampling, scale change, Z change, or change to the botanical background. */
+.hcard[data-id="zhenzhen"] .art-media{transform:translateY(-6%)}

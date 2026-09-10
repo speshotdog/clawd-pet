@@ -145,3 +145,19 @@ button:disabled{opacity:.4;cursor:default}
 @keyframes floor-wave{0%{scale:.35;opacity:0}20%{opacity:.22}100%{scale:1.6;opacity:0}}
 @keyframes water-flow{0%,100%{translate:-12px 0;opacity:.13}50%{translate:12px 3px;opacity:.2}}
 @media(prefers-reduced-motion:reduce){.stage-background *,.entry-pack:after{animation:none!important;transition:none!important}}
+
+/* Round 43: only idle presentation; outer pack choreography is unchanged. */
+.pack-hover,.pack-float,.pack-breath,.pack-idle-glow{position:absolute;inset:0}
+.pack-hover{transform:scale(1);transition:transform 220ms ease-out}
+.entry-pack:hover .pack-hover{transform:scale(1.055);transition-duration:160ms}
+.win:not([data-entry-phase]) .pack-float,.win[data-entry-phase=idle] .pack-float{animation:pack-float 3.6s ease-in-out infinite}
+.win:not([data-entry-phase]) .pack-breath,.win[data-entry-phase=idle] .pack-breath{animation:pack-breath 4.8s ease-in-out infinite}
+.pack-idle-glow{pointer-events:none;background:var(--pack) center/contain no-repeat;filter:drop-shadow(0 0 7px #52cbe9) drop-shadow(0 0 9px #ef89bf);opacity:0}
+.win:not([data-entry-phase]) .pack-idle-glow,.win[data-entry-phase=idle] .pack-idle-glow{animation:pack-idle-glow 4.2s ease-in-out infinite}
+@keyframes pack-float{0%,100%{transform:translateY(4px)}50%{transform:translateY(-4px)}}
+@keyframes pack-breath{0%,100%{transform:scale(1)}50%{transform:scale(1.018)}}
+@keyframes pack-idle-glow{0%,100%{opacity:.08}50%{opacity:.42}}
+@media(prefers-reduced-motion:reduce){
+ .pack-float,.pack-breath,.pack-idle-glow{animation:none!important}
+ .win:not([data-entry-phase]) .pack-idle-glow,.win[data-entry-phase=idle] .pack-idle-glow{opacity:.35}
+}

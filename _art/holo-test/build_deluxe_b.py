@@ -16,6 +16,7 @@ tpl = re.search(r'<template id="baseline-css">.*?</template>', demo, re.S)
 styles = [m.group(0) for m in re.finditer(r'<style[^>]*>.*?</style>', demo, re.S)
           if not (tpl.start() <= m.start() < tpl.end())]
 masks = json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>', demo, re.S).group(1))
+styles.append('<style>' + (OUT / 'card-position.css').read_text(encoding='utf-8') + '</style>')
 
 # 卡池與卡型只有一個來源：pool_data.py（HANDOFF 三節的定案寫在那裡）
 from pool_data import pool

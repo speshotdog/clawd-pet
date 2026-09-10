@@ -1570,8 +1570,8 @@
       "check": "standalone growth <=900000",
       "pass": true,
       "data": {
-        "bytes": 4454903,
-        "delta": -691562
+        "bytes": 4454975,
+        "delta": -691490
       }
     },
     {

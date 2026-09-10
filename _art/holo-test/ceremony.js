@@ -179,7 +179,9 @@ function openPack(){
 // Pack print and card faces share the same foil DOM, CSS and cursor parameters.
 // The material class is constant, independent of the unrevealed fixture.
 const packSurface=node('div','pack-surface r-rare');
-material(packSurface);idlepack.append(packSurface);
+// Independent transforms preserve drag angles and the frozen outer push animation.
+const packHover=node('div','pack-hover'),packFloat=node('div','pack-float'),packBreath=node('div','pack-breath'),packGlow=node('div','pack-idle-glow');
+material(packSurface);packBreath.append(packGlow,packSurface);packFloat.append(packBreath);packHover.append(packFloat);idlepack.append(packHover);
 let packDrag=null,packSuppressClick=false,packReturn=null,packRX=0,packRY=0;
 function paintPack(x=0,y=0){
  HoloCardFace.paint(packSurface,'rare',x,y,{tilt:false});

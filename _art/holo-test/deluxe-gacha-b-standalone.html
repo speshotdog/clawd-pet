@@ -388,6 +388,10 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
  text-shadow:none !important;
  filter:drop-shadow(0 1px 0 rgba(30,12,40,.9)) drop-shadow(0 2px 6px rgba(0,0,0,.85)) drop-shadow(0 0 12px rgba(255,255,255,.35)) !important}
 </style>
+<style>/* Round 43: translate the existing sheep and its registered foil mask together.
+   No resampling, scale change, Z change, or change to the botanical background. */
+.hcard[data-id="zhenzhen"] .art-media{transform:translateY(-6%)}
+</style>
 <script>/* 卡面建立器：唯一一份。
  *
  * 以前卡面 DOM 與尺寸計算在 demo.html、build_cards_remade.py、build_deluxe_b.py
@@ -754,6 +758,22 @@ button:disabled{opacity:.4;cursor:default}
 @keyframes floor-wave{0%{scale:.35;opacity:0}20%{opacity:.22}100%{scale:1.6;opacity:0}}
 @keyframes water-flow{0%,100%{translate:-12px 0;opacity:.13}50%{translate:12px 3px;opacity:.2}}
 @media(prefers-reduced-motion:reduce){.stage-background *,.entry-pack:after{animation:none!important;transition:none!important}}
+
+/* Round 43: only idle presentation; outer pack choreography is unchanged. */
+.pack-hover,.pack-float,.pack-breath,.pack-idle-glow{position:absolute;inset:0}
+.pack-hover{transform:scale(1);transition:transform 220ms ease-out}
+.entry-pack:hover .pack-hover{transform:scale(1.055);transition-duration:160ms}
+.win:not([data-entry-phase]) .pack-float,.win[data-entry-phase=idle] .pack-float{animation:pack-float 3.6s ease-in-out infinite}
+.win:not([data-entry-phase]) .pack-breath,.win[data-entry-phase=idle] .pack-breath{animation:pack-breath 4.8s ease-in-out infinite}
+.pack-idle-glow{pointer-events:none;background:var(--pack) center/contain no-repeat;filter:drop-shadow(0 0 7px #52cbe9) drop-shadow(0 0 9px #ef89bf);opacity:0}
+.win:not([data-entry-phase]) .pack-idle-glow,.win[data-entry-phase=idle] .pack-idle-glow{animation:pack-idle-glow 4.2s ease-in-out infinite}
+@keyframes pack-float{0%,100%{transform:translateY(4px)}50%{transform:translateY(-4px)}}
+@keyframes pack-breath{0%,100%{transform:scale(1)}50%{transform:scale(1.018)}}
+@keyframes pack-idle-glow{0%,100%{opacity:.08}50%{opacity:.42}}
+@media(prefers-reduced-motion:reduce){
+ .pack-float,.pack-breath,.pack-idle-glow{animation:none!important}
+ .win:not([data-entry-phase]) .pack-idle-glow,.win[data-entry-phase=idle] .pack-idle-glow{opacity:.35}
+}
 </style>
 <main class="win" id="win" data-screen="entry">
  <div class="stage-background" aria-hidden="true">
@@ -1832,7 +1852,9 @@ function openPack(){
 // Pack print and card faces share the same foil DOM, CSS and cursor parameters.
 // The material class is constant, independent of the unrevealed fixture.
 const packSurface=node('div','pack-surface r-rare');
-material(packSurface);idlepack.append(packSurface);
+// Independent transforms preserve drag angles and the frozen outer push animation.
+const packHover=node('div','pack-hover'),packFloat=node('div','pack-float'),packBreath=node('div','pack-breath'),packGlow=node('div','pack-idle-glow');
+material(packSurface);packBreath.append(packGlow,packSurface);packFloat.append(packBreath);packHover.append(packFloat);idlepack.append(packHover);
 let packDrag=null,packSuppressClick=false,packReturn=null,packRX=0,packRY=0;
 function paintPack(x=0,y=0){
  HoloCardFace.paint(packSurface,'rare',x,y,{tilt:false});

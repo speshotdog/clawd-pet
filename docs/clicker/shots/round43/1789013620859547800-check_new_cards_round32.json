@@ -1,0 +1,6 @@
+{
+  "script": "check_new_cards_round32.py",
+  "args": [],
+  "exit_code": 1,
+  "log": "1789013620859547800-check_new_cards_round32.log"
+}

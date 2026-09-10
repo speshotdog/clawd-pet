@@ -1,0 +1,32 @@
+{
+  "frozen_diff_exit": 0,
+  "frozen_changed_files": [],
+  "timing_regions": {
+    "pull_and_push": {
+      "unchanged": true,
+      "sha256": "bf1414fd4f72966c1019ec53f4d653f325d7ce40d652c75651909b3adac69005"
+    },
+    "opening_prelude": {
+      "unchanged": true,
+      "sha256": "b26417b6b7c5d229aa0637a30572bd404d028b0a3d68f35e103a98a3ad3db234"
+    }
+  },
+  "rate": [
+    0.005,
+    0.04,
+    0.15,
+    0.4,
+    0.405
+  ],
+  "tickets": 30,
+  "unlimited": false,
+  "artifact_bytes": {
+    "cards-remade.html": 1271985,
+    "cards-remade-standalone.html": 4471472,
+    "deluxe-gacha-b.html": 1362963,
+    "deluxe-gacha-b-standalone.html": 4454903
+  },
+  "git_directory": "D:/claude/clawd-pet/.git/worktrees/clawd-pet-holo",
+  "largest_png_bytes": 1247004,
+  "pngs_above_2MB": 0
+}

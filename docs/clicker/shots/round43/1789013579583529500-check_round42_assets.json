@@ -1,0 +1,6 @@
+{
+  "script": "check_round42_assets.py",
+  "args": [],
+  "exit_code": 0,
+  "log": "1789013579583529500-check_round42_assets.log"
+}

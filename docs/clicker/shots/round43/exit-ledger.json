@@ -1,0 +1,92 @@
+[
+  {
+    "script": "build_cards_remade.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013483454802200-build_cards_remade.log"
+  },
+  {
+    "script": "build_cards_remade_standalone.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013483686571500-build_cards_remade_standalone.log"
+  },
+  {
+    "script": "build_deluxe_b.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013487182342600-build_deluxe_b.log"
+  },
+  {
+    "script": "build_deluxe_b_standalone.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013487402736000-build_deluxe_b_standalone.log"
+  },
+  {
+    "script": "check_round43_idle.py",
+    "args": [],
+    "exit_code": 1,
+    "log": "1789013563982593800-check_round43_idle.log"
+  },
+  {
+    "script": "check_round42_assets.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013579583529500-check_round42_assets.log"
+  },
+  {
+    "script": "check_round42_contracts.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013581804621500-check_round42_contracts.log"
+  },
+  {
+    "script": "check_new_cards_round32.py",
+    "args": [],
+    "exit_code": 1,
+    "log": "1789013620859547800-check_new_cards_round32.log"
+  },
+  {
+    "script": "build_deluxe_b.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013689625722300-build_deluxe_b.log"
+  },
+  {
+    "script": "build_deluxe_b_standalone.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013689859381500-build_deluxe_b_standalone.log"
+  },
+  {
+    "script": "check_round43_idle.py",
+    "args": [],
+    "exit_code": 1,
+    "log": "1789013707367190600-check_round43_idle.log"
+  },
+  {
+    "script": "check_round42_assets.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013746521254900-check_round42_assets.log"
+  },
+  {
+    "script": "check_round42_contracts.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789013749928883300-check_round42_contracts.log"
+  },
+  {
+    "script": "check_round43_idle.py",
+    "args": [],
+    "exit_code": 1,
+    "log": "1789013885107996200-check_round43_idle.log"
+  },
+  {
+    "script": "check_round42_contracts.py",
+    "args": [],
+    "exit_code": 0,
+    "log": "1789014096924245300-check_round42_contracts.log"
+  }
+]
