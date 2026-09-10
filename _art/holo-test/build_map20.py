@@ -97,8 +97,13 @@ def build():
     payload={'cards':cards,'images':images,'masks':{k:v for k,v in masks.items() if k in used},'css':styles}
     # Styles remain byte-for-byte in a shadow tree; only URL transport changes.
     fonts=''.join(re.findall(r'@font-face\s*\{[^}]+\}',styles))
-    template=template.replace('<!-- TEAM_FONT -->','<style>'+fonts+'</style>')
-    template=template.replace('/* TEAM_DATA */','const TEAM_DATA='+json.dumps(payload,ensure_ascii=False,separators=(',',':'))+';')
+    template=template.replace('<!-- TEAM_FONT -->','<style id="team-fonts">'+fonts+'</style>')
+    # Transport each font once; restore the exact shadow CSS at runtime.
+    font_rules=re.findall(r'@font-face\s*\{[^}]+\}',styles)
+    for i,rule in enumerate(font_rules):
+        payload['css']=payload['css'].replace(rule,f'/* SHARED_FONT_{i} */')
+    restore="TEAM_DATA.css=TEAM_DATA.css.replace(/\/\* SHARED_FONT_(\\d+) \*\//g,(_,i)=>document.querySelector('#team-fonts').textContent.match(/@font-face\\s*\\{[^}]+\\}/g)[+i]);"
+    template=template.replace('/* TEAM_DATA */','const TEAM_DATA='+json.dumps(payload,ensure_ascii=False,separators=(',',':'))+';'+restore)
     template=template.replace('/* CARD_FACE */',(HERE/'card_face.js').read_text(encoding='utf-8'))
     template=template.replace('/* TEAM_CSS */',(HERE/'team20.css').read_text(encoding='utf-8'))
     template=template.replace('/* TEAM_JS */',(HERE/'team20.js').read_text(encoding='utf-8'))

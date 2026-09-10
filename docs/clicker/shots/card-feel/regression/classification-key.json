@@ -1,0 +1,40 @@
+{
+  "order": [
+    "1.0",
+    "C 編隊",
+    "抽卡"
+  ],
+  "styles": [
+    {
+      "source": "C 編隊",
+      "computed": {
+        "border": "1px",
+        "radius": "1px",
+        "shadow": "none",
+        "font": "\"Microsoft JhengHei\", sans-serif",
+        "clip": "none"
+      }
+    },
+    {
+      "source": "1.0",
+      "computed": {
+        "border": "3px",
+        "radius": "12px",
+        "shadow": "rgb(48, 37, 31) 0px 4px 0px 0px",
+        "font": "Huninn, \"Microsoft JhengHei\", sans-serif",
+        "clip": "none"
+      }
+    },
+    {
+      "source": "抽卡",
+      "computed": {
+        "border": "0px",
+        "radius": "0px",
+        "shadow": "none",
+        "font": "\"Noto Sans TC\", \"Microsoft JhengHei\", sans-serif",
+        "clip": "polygon(8% 0px, 92% 0px, 100% 50%, 92% 100%, 8% 100%, 0px 50%)"
+      }
+    }
+  ],
+  "status": "待人工判定；只提供現行元件形狀對照，沒有玩家分類數據。"
+}

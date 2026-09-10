@@ -136,3 +136,8 @@ body[data-screen=team]{background:#101115;color:#ecece6}
 
 /* Round 3: three complete mobile columns; remaining rows scroll vertically. */
 @media(max-width:700px){.team-grid{grid-template-columns:repeat(3,112px);grid-template-rows:none;grid-auto-rows:178.8px;gap:8px;width:100%;justify-content:center;padding:6px}.roster-scroll{overflow-x:hidden}}
+
+/* Same selection motion as the reveal shell; scale the outer mount only. */
+#team-grid .overview-face{transition:scale 180ms ease-out}
+#team-grid .team-proxy:hover .overview-face,#team-grid .team-proxy[aria-selected=true] .overview-face{scale:1.04}
+#team-grid .team-proxy:hover,#team-grid .team-proxy[aria-selected=true]{position:relative;z-index:1}

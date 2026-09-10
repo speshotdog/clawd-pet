@@ -1,0 +1,42 @@
+{
+  "gacha_available": true,
+  "detail_hover": {
+    "centroids_percent": [
+      44.15084388185654,
+      46.07688655878467,
+      47.90488746548513
+    ],
+    "travel_percent": 3.7540435836285937,
+    "changed_percent": [
+      87.49093191964286,
+      0.0,
+      87.21609933035714
+    ]
+  },
+  "overview_hover": {
+    "centroids_percent": [
+      45.32838853394041,
+      45.32838853394041,
+      45.32838853394041
+    ],
+    "travel_percent": 0.0,
+    "changed_percent": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "fonts": {
+    "check": false,
+    "faces": [
+      {
+        "family": "Holo Noto Sans",
+        "status": "error"
+      },
+      {
+        "family": "Holo Noto Serif",
+        "status": "unloaded"
+      }
+    ]
+  }
+}

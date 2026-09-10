@@ -1,0 +1,838 @@
+{
+  "team": {
+    "current": {
+      "rows": [
+        {
+          "card": 0,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "TL",
+          "local_ref": 17.08,
+          "darkest": 27.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 0,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "TR",
+          "local_ref": 17.08,
+          "darkest": 26.37,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 0,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "BL",
+          "local_ref": 22.08,
+          "darkest": 11.45,
+          "near_black_pct": 0.694,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 0,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "BR",
+          "local_ref": 34.74,
+          "darkest": 16.51,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 1,
+          "cls": "hcard r-mythic kind-framed gem-faceted",
+          "corner": "TL",
+          "local_ref": 42.24,
+          "darkest": 25.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 1,
+          "cls": "hcard r-mythic kind-framed gem-faceted",
+          "corner": "TR",
+          "local_ref": 23.82,
+          "darkest": 26.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 1,
+          "cls": "hcard r-mythic kind-framed gem-faceted",
+          "corner": "BL",
+          "local_ref": 86.23,
+          "darkest": 22.37,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 6.25
+        },
+        {
+          "card": 1,
+          "cls": "hcard r-mythic kind-framed gem-faceted",
+          "corner": "BR",
+          "local_ref": 34.79,
+          "darkest": 19.02,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 2,
+          "cls": "hcard r-legendary kind-depth gem-faceted",
+          "corner": "TL",
+          "local_ref": 23.82,
+          "darkest": 26.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 2,
+          "cls": "hcard r-legendary kind-depth gem-faceted",
+          "corner": "TR",
+          "local_ref": 23.25,
+          "darkest": 25.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 2,
+          "cls": "hcard r-legendary kind-depth gem-faceted",
+          "corner": "BL",
+          "local_ref": 29.15,
+          "darkest": 12.3,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 2,
+          "cls": "hcard r-legendary kind-depth gem-faceted",
+          "corner": "BR",
+          "local_ref": 33.63,
+          "darkest": 10.23,
+          "near_black_pct": 2.778,
+          "much_darker_pct": 2.778
+        },
+        {
+          "card": 3,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TL",
+          "local_ref": 23.25,
+          "darkest": 26.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 3,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TR",
+          "local_ref": 23.25,
+          "darkest": 26.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 3,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BL",
+          "local_ref": 27.38,
+          "darkest": 22.0,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 3,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BR",
+          "local_ref": 33.63,
+          "darkest": 19.02,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 4,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TL",
+          "local_ref": 23.25,
+          "darkest": 26.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 4,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TR",
+          "local_ref": 17.08,
+          "darkest": 27.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 4,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BL",
+          "local_ref": 27.38,
+          "darkest": 22.0,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 4,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BR",
+          "local_ref": 15.57,
+          "darkest": 21.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 5,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TL",
+          "local_ref": 16.5,
+          "darkest": 25.02,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 5,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TR",
+          "local_ref": 16.0,
+          "darkest": 25.02,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 5,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BL",
+          "local_ref": 16.07,
+          "darkest": 22.0,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 5,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BR",
+          "local_ref": 16.1,
+          "darkest": 19.02,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 6,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "TL",
+          "local_ref": 18.21,
+          "darkest": 25.16,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 6,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "TR",
+          "local_ref": 13.08,
+          "darkest": 20.66,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 6,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "BL",
+          "local_ref": 16.14,
+          "darkest": 15.02,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 6,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "BR",
+          "local_ref": 10.0,
+          "darkest": 13.44,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 7,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "TL",
+          "local_ref": 13.08,
+          "darkest": 26.3,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 7,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "TR",
+          "local_ref": 13.08,
+          "darkest": 25.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 7,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "BL",
+          "local_ref": 10.0,
+          "darkest": 13.3,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 7,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "BR",
+          "local_ref": 10.0,
+          "darkest": 13.73,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 8,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "TL",
+          "local_ref": 13.08,
+          "darkest": 11.27,
+          "near_black_pct": 2.083,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 8,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "TR",
+          "local_ref": 13.08,
+          "darkest": 15.07,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 8,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "BL",
+          "local_ref": 10.0,
+          "darkest": 21.16,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 8,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "BR",
+          "local_ref": 10.0,
+          "darkest": 18.58,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 9,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "TL",
+          "local_ref": 13.08,
+          "darkest": 16.69,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 9,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "TR",
+          "local_ref": 15.08,
+          "darkest": 25.63,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 9,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "BL",
+          "local_ref": 10.0,
+          "darkest": 21.16,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 9,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "BR",
+          "local_ref": 13.08,
+          "darkest": 20.88,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 10,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "TL",
+          "local_ref": 44.38,
+          "darkest": 30.23,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 10,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "TR",
+          "local_ref": 50.42,
+          "darkest": 28.73,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 10,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "BL",
+          "local_ref": 40.7,
+          "darkest": 21.66,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 10,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "BR",
+          "local_ref": 46.21,
+          "darkest": 26.23,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        }
+      ],
+      "skipped": [],
+      "samples": 44,
+      "bad": 0,
+      "status": "PASS",
+      "thresholds": {
+        "fraction": 5,
+        "darkest": 6
+      }
+    },
+    "computed_after_content": [
+      "\"\"",
+      "\"\"",
+      "\"\"",
+      "\"\"",
+      "\"\"",
+      "\"\"",
+      "\"\"",
+      "\"\"",
+      "\"\"",
+      "\"\"",
+      "\"\""
+    ],
+    "negative_control": {
+      "rows": [
+        {
+          "card": 0,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "TL",
+          "local_ref": 17.08,
+          "darkest": 32.37,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 0,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "TR",
+          "local_ref": 17.08,
+          "darkest": 30.59,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 0,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "BL",
+          "local_ref": 15.0,
+          "darkest": 22.52,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 0,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "BR",
+          "local_ref": 12.83,
+          "darkest": 24.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 1,
+          "cls": "hcard r-mythic kind-framed gem-faceted",
+          "corner": "TL",
+          "local_ref": 21.47,
+          "darkest": 25.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 1,
+          "cls": "hcard r-mythic kind-framed gem-faceted",
+          "corner": "TR",
+          "local_ref": 17.08,
+          "darkest": 19.57,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 1,
+          "cls": "hcard r-mythic kind-framed gem-faceted",
+          "corner": "BL",
+          "local_ref": 34.38,
+          "darkest": 13.58,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 1,
+          "cls": "hcard r-mythic kind-framed gem-faceted",
+          "corner": "BR",
+          "local_ref": 16.29,
+          "darkest": 13.65,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 2,
+          "cls": "hcard r-legendary kind-depth gem-faceted",
+          "corner": "TL",
+          "local_ref": 17.08,
+          "darkest": 27.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 2,
+          "cls": "hcard r-legendary kind-depth gem-faceted",
+          "corner": "TR",
+          "local_ref": 17.08,
+          "darkest": 19.43,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 2,
+          "cls": "hcard r-legendary kind-depth gem-faceted",
+          "corner": "BL",
+          "local_ref": 14.75,
+          "darkest": 10.58,
+          "near_black_pct": 0.694,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 2,
+          "cls": "hcard r-legendary kind-depth gem-faceted",
+          "corner": "BR",
+          "local_ref": 16.21,
+          "darkest": 10.16,
+          "near_black_pct": 1.389,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 3,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TL",
+          "local_ref": 17.08,
+          "darkest": 27.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 3,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TR",
+          "local_ref": 17.08,
+          "darkest": 19.78,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 3,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BL",
+          "local_ref": 14.82,
+          "darkest": 14.65,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 3,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BR",
+          "local_ref": 16.21,
+          "darkest": 13.65,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 4,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TL",
+          "local_ref": 17.08,
+          "darkest": 27.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 4,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TR",
+          "local_ref": 17.08,
+          "darkest": 19.64,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 4,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BL",
+          "local_ref": 14.82,
+          "darkest": 14.65,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 4,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BR",
+          "local_ref": 15.07,
+          "darkest": 14.65,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 5,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TL",
+          "local_ref": 15.0,
+          "darkest": 26.09,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 5,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "TR",
+          "local_ref": 13.08,
+          "darkest": 17.85,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 5,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BL",
+          "local_ref": 15.04,
+          "darkest": 14.65,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 5,
+          "cls": "hcard r-legendary kind-framed gem-facete",
+          "corner": "BR",
+          "local_ref": 12.86,
+          "darkest": 13.65,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 6,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "TL",
+          "local_ref": 14.0,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 7.639
+        },
+        {
+          "card": 6,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "TR",
+          "local_ref": 13.08,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 7.639
+        },
+        {
+          "card": 6,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "BL",
+          "local_ref": 12.86,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 6.944
+        },
+        {
+          "card": 6,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "BR",
+          "local_ref": 11.93,
+          "darkest": 0.0,
+          "near_black_pct": 6.944,
+          "much_darker_pct": 4.861
+        },
+        {
+          "card": 7,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "TL",
+          "local_ref": 13.08,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 7.639
+        },
+        {
+          "card": 7,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "TR",
+          "local_ref": 13.08,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 7.639
+        },
+        {
+          "card": 7,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "BL",
+          "local_ref": 11.22,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 6.944
+        },
+        {
+          "card": 7,
+          "cls": "hcard r-epic kind-depth gem-faceted scen",
+          "corner": "BR",
+          "local_ref": 11.61,
+          "darkest": 0.0,
+          "near_black_pct": 6.944,
+          "much_darker_pct": 4.861
+        },
+        {
+          "card": 8,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "TL",
+          "local_ref": 13.08,
+          "darkest": 0.0,
+          "near_black_pct": 9.722,
+          "much_darker_pct": 7.639
+        },
+        {
+          "card": 8,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "TR",
+          "local_ref": 13.08,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 7.639
+        },
+        {
+          "card": 8,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "BL",
+          "local_ref": 11.22,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 6.944
+        },
+        {
+          "card": 8,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "BR",
+          "local_ref": 11.29,
+          "darkest": 0.0,
+          "near_black_pct": 6.944,
+          "much_darker_pct": 4.861
+        },
+        {
+          "card": 9,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "TL",
+          "local_ref": 13.08,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 7.639
+        },
+        {
+          "card": 9,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "TR",
+          "local_ref": 15.08,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 7.639
+        },
+        {
+          "card": 9,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "BL",
+          "local_ref": 11.22,
+          "darkest": 0.0,
+          "near_black_pct": 8.333,
+          "much_darker_pct": 6.944
+        },
+        {
+          "card": 9,
+          "cls": "hcard r-epic kind-framed gem-faceted",
+          "corner": "BR",
+          "local_ref": 14.08,
+          "darkest": 0.0,
+          "near_black_pct": 6.944,
+          "much_darker_pct": 4.167
+        },
+        {
+          "card": 10,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "TL",
+          "local_ref": 27.94,
+          "darkest": 41.96,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 10,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "TR",
+          "local_ref": 30.66,
+          "darkest": 52.03,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 10,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "BL",
+          "local_ref": 24.87,
+          "darkest": 44.67,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        },
+        {
+          "card": 10,
+          "cls": "hcard r-mythic kind-depth gem-faceted sc",
+          "corner": "BR",
+          "local_ref": 27.91,
+          "darkest": 54.61,
+          "near_black_pct": 0.0,
+          "much_darker_pct": 0.0
+        }
+      ],
+      "skipped": [],
+      "samples": 44,
+      "bad": 12,
+      "status": "FAIL",
+      "thresholds": {
+        "fraction": 5,
+        "darkest": 6
+      }
+    }
+  },
+  "map": {
+    "status": "SKIP",
+    "reason": "No mounted cards",
+    "cards": 0
+  }
+}
