@@ -1,0 +1,59 @@
+
+== 層的樣式與幾何（必須完全一致，參考＝gacha-test）
+PASS demo@1440x1200               差異 0 項 []
+PASS demo-standalone@1440x1200    差異 0 項 []
+PASS pool@1440x1200               差異 0 項 []
+PASS pool-standalone@1440x1200    差異 0 項 []
+PASS gacha@1440x1200              差異 0 項 []
+PASS gacha-standalone@1440x1200   差異 0 項 []
+PASS gacha-test-standalone@1440x1200 差異 0 項 []
+PASS team@1440x1200               差異 0 項 []
+PASS demo@1024x900                差異 0 項 []
+PASS demo-standalone@1024x900     差異 0 項 []
+PASS pool@1024x900                差異 0 項 []
+PASS pool-standalone@1024x900     差異 0 項 []
+PASS gacha@1024x900               差異 0 項 []
+PASS gacha-standalone@1024x900    差異 0 項 []
+PASS gacha-test@1024x900          差異 0 項 []
+PASS gacha-test-standalone@1024x900 差異 0 項 []
+PASS team@1024x900                差異 0 項 []
+PASS demo@390x844                 差異 0 項 []
+PASS demo-standalone@390x844      差異 0 項 []
+PASS pool@390x844                 差異 0 項 []
+PASS pool-standalone@390x844      差異 0 項 []
+PASS gacha@390x844                差異 0 項 []
+PASS gacha-standalone@390x844     差異 0 項 []
+PASS gacha-test@390x844           差異 0 項 []
+PASS gacha-test-standalone@390x844 差異 0 項 []
+PASS team@390x844                 差異 0 項 []
+
+== 素材傳輸與內在解析度（只回報，差異要能追溯到建置參數）
+  demo@1440x1200               .art-media img=file 600x840; .foil-etch bg=file
+  demo-standalone@1440x1200    .art-media img=data:webp 360x504; .foil-etch bg=data:webp
+  pool@1440x1200               .art-media img=file 600x840; .foil-etch bg=file
+  pool-standalone@1440x1200    .art-media img=data:webp 420x588; .foil-etch bg=data:png
+  gacha@1440x1200              .art-media img=file 600x840; .foil-etch bg=file
+  gacha-standalone@1440x1200   .art-media img=data:webp 360x504; .foil-etch bg=data:png
+  gacha-test@1440x1200         .art-media img=file 600x840; .foil-etch bg=file
+  gacha-test-standalone@1440x1200 .art-media img=data:webp 360x504; .foil-etch bg=data:png
+  team@1440x1200               .art-media img=data:webp 600x840; .foil-etch bg=data:webp
+  demo@1024x900                .art-media img=file 600x840; .foil-etch bg=file
+  demo-standalone@1024x900     .art-media img=data:webp 360x504; .foil-etch bg=data:webp
+  pool@1024x900                .art-media img=file 600x840; .foil-etch bg=file
+  pool-standalone@1024x900     .art-media img=data:webp 420x588; .foil-etch bg=data:png
+  gacha@1024x900               .art-media img=file 600x840; .foil-etch bg=file
+  gacha-standalone@1024x900    .art-media img=data:webp 360x504; .foil-etch bg=data:png
+  gacha-test@1024x900          .art-media img=file 600x840; .foil-etch bg=file
+  gacha-test-standalone@1024x900 .art-media img=data:webp 360x504; .foil-etch bg=data:png
+  team@1024x900                .art-media img=data:webp 600x840; .foil-etch bg=data:webp
+  demo@390x844                 .art-media img=file 600x840; .foil-etch bg=file
+  demo-standalone@390x844      .art-media img=data:webp 360x504; .foil-etch bg=data:webp
+  pool@390x844                 .art-media img=file 600x840; .foil-etch bg=file
+  pool-standalone@390x844      .art-media img=data:webp 420x588; .foil-etch bg=data:png
+  gacha@390x844                .art-media img=file 600x840; .foil-etch bg=file
+  gacha-standalone@390x844     .art-media img=data:webp 360x504; .foil-etch bg=data:png
+  gacha-test@390x844           .art-media img=file 600x840; .foil-etch bg=file
+  gacha-test-standalone@390x844 .art-media img=data:webp 360x504; .foil-etch bg=data:png
+  team@390x844                 .art-media img=data:webp 600x840; .foil-etch bg=data:webp
+
+== 結果：層樣式與幾何全綠

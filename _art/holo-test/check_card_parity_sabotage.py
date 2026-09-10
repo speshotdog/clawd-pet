@@ -92,6 +92,71 @@ CASES = [
 ]
 
 
+# ---- 2026-09-11 第二批：Astra 在 VERDICT-v4 示範的五種 ----
+
+def drop_error_fields(d):
+    """錯誤採集欄位整個消失——缺 key 不能被當成空清單。"""
+    for e in d['entries'].values():
+        for vp in (e.get('viewports') or {}).values():
+            vp.pop('pageErrors', None)
+            vp.pop('brokenImages', None)
+
+
+def drop_instance(d):
+    for e in d['entries'].values():
+        for vp in (e.get('viewports') or {}).values():
+            for c in vp.get('cards', []):
+                c.pop('instance', None)
+
+
+def drop_design_keys(d):
+    for e in d['entries'].values():
+        for vp in (e.get('viewports') or {}).values():
+            for c in vp.get('cards', []):
+                for part in ('nameStyle', 'rarityStyle'):
+                    if isinstance(c.get(part), dict):
+                        c[part].pop('fontWeight', None)
+                if isinstance(c.get('frame'), dict):
+                    c['frame'].pop('backgroundImage', None)
+
+
+def truncate_fixture(d):
+    d['fixtureIds'] = d['fixtureIds'][:10]
+    for name in ('gacha-test', 'gacha-test-standalone'):
+        for rec in d['entries'][name]['viewports'].values():
+            rec['activation']['ceremony'] = rec['activation']['ceremony'][:1]
+
+
+def clone_neutral(d):
+    for vp in d['entries']['gacha']['viewports'].values():
+        first = {}
+        for c in vp['cards']:
+            if c.get('pose') != 'neutral':
+                continue
+            k = c.get('canonicalId')
+            if k not in first:
+                first[k] = copy.deepcopy(c)
+        vp['cards'] = [c if c.get('pose') != 'neutral'
+                       else copy.deepcopy(first[c.get('canonicalId')]) for c in vp['cards']]
+
+
+def nan_values(d):
+    for vp in d['entries']['pool']['viewports'].values():
+        for c in vp['cards']:
+            if isinstance(c.get('rarityClear'), dict):
+                c['rarityClear']['left'] = float('nan')
+
+
+CASES += [
+    ('drop-error-fields', '錯誤採集欄位整個消失', drop_error_fields),
+    ('drop-instance', '實例序號消失', drop_instance),
+    ('drop-design-keys', '必驗設計欄位消失', drop_design_keys),
+    ('truncate-fixture', '固定揭卡證據只剩第一批', truncate_fixture),
+    ('clone-neutral', '中性姿態全換成第一筆複本', clone_neutral),
+    ('nan-values', '幾何值改成 NaN', nan_values),
+]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--input', required=True)

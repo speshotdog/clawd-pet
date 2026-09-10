@@ -77,6 +77,25 @@ def expected_manifest(pool_ids, team_ids):
     return man
 
 
+def finite(v):
+    """NaN／Infinity 不是合格的量測值。Python 的 json 預設會接受它們，所以要自己擋。"""
+    return isinstance(v, (int, float)) and v == v and v not in (float('inf'), float('-inf'))
+
+
+def bad_numbers(obj, path=''):
+    """遞迴找出所有非有限數值的位置。"""
+    out = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            out += bad_numbers(v, '%s.%s' % (path, k))
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            out += bad_numbers(v, '%s[%d]' % (path, i))
+    elif isinstance(obj, float) and not finite(obj):
+        out.append(path)
+    return out
+
+
 def px(v):
     try:
         return float(str(v).removesuffix('px'))
@@ -170,6 +189,8 @@ def main():
                 continue
             bad = [(c.get('id'), c.get('error')) for c in rec.get('cards', []) if c.get('error')]
             R.chk(not bad, '%s %s: 取樣失敗 %d 筆 %s' % (name, vp, len(bad), bad[:3]))
+            nan = bad_numbers(rec, '%s.%s' % (name, vp))
+            R.chk(not nan, '%s %s: 非有限數值 %d 處 %s' % (name, vp, len(nan), nan[:3]))
             spec = man.get(name)
             if not spec:
                 continue
@@ -225,6 +246,18 @@ def main():
                 for k in SCALARS:
                     if c.get(k) is None:
                         missing_fields.append((cid(c), c.get('role'), c.get('pose', 'native'), k))
+                # 要比的樣式鍵必須存在，否則「差異 0」只是因為兩邊都沒有這個鍵
+                for part, keys in (('nameStyle', TEXT_SAMESIZE), ('rarityStyle', TEXT_SAMESIZE),
+                                   ('plate', BOX_SAMESIZE), ('gem', BOX_SAMESIZE),
+                                   ('frame', BOX_SAMESIZE)):
+                    v = c.get(part)
+                    if isinstance(v, dict):
+                        for kk in keys:
+                            if kk not in v:
+                                missing_fields.append((cid(c), c.get('role'),
+                                                       c.get('pose', 'native'), '%s.%s 缺鍵' % (part, kk)))
+                if c.get('instance') is None:
+                    missing_fields.append((cid(c), c.get('role'), c.get('pose', 'native'), 'instance'))
                 # 焦點卡（揭卡、詳情）一定要在視窗內，否則等於沒真的呈現；
                 # 卡池／demo 是長格線頁，卡片在摺線下方是捲動位置，不是缺陷——
                 # 那些頁的版面數值不需要進視窗也成立，只有截圖才需要。
@@ -239,11 +272,27 @@ def main():
                     missing_fields.append((cid(c), c.get('role'), c.get('pose', 'native'), 'fs var'))
             R.chk(not missing_fields, '%s %s: 必填欄位缺漏 %d 筆 %s'
                   % (name, vp, len(missing_fields), missing_fields[:3]))
+            # 同尺寸那趟要與原生逐實例對應：同一張卡有幾個實例，中性也要有幾個，
+            # 而且 shadowPath+instance 要對得起來，不能整批換成第一筆的複本
+            def sig(rows):
+                out = {}
+                for c in rows:
+                    out.setdefault((cid(c), c.get('role')), set()).add(
+                        (c.get('shadowPath'), c.get('instance')))
+                return out
+            nat = sig([c for c in good if c.get('pose', 'native') == 'native'])
+            neu = sig([c for c in good if c.get('pose', 'native') == 'neutral'])
+            mism = sorted(k for k in nat if neu.get(k) != nat[k])
+            R.chk(not mism, '%s %s: 中性姿態與原生逐實例對應；不符 %d 組 %s'
+                  % (name, vp, len(mism), [(a, b, sorted(nat[(a, b)])[:2],
+                                            sorted(neu.get((a, b)) or [])[:2]) for a, b in mism][:2]))
             # 這個畫面至少要有卡真的落在視窗裡，否則等於沒呈現
             focal = [c for c in good if c.get('pose', 'native') == 'native']
             R.chk(any(c.get('inViewport') for c in focal),
                   '%s %s: 至少有一張卡真的在視窗內（%d/%d）'
                   % (name, vp, sum(1 for c in focal if c.get('inViewport')), len(focal)))
+            R.chk('pageErrors' in rec and 'brokenImages' in rec,
+                  '%s %s: 有錯誤採集欄位（pageErrors／brokenImages）' % (name, vp))
             R.chk(not rec.get('pageErrors'), '%s %s: 頁面錯誤／console error %d 筆 %s'
                   % (name, vp, len(rec.get('pageErrors') or []), (rec.get('pageErrors') or [])[:2]))
             R.chk(not rec.get('brokenImages'), '%s %s: 壞圖 %d 張 %s'
@@ -285,10 +334,18 @@ def main():
                 R.note('%s %s: 正式版用真實 UI 隨機抽，沒有固定序列可比（抽到 %s）'
                        % (name, vp, ((rec.get('activation') or {}).get('drawnIds') or [])[:4]))
                 continue
+            # ⚠ 固定序列的期望值由**原始碼的卡池**推導，不看待驗 JSON 的 fixtureIds
+            want_seq = sorted(pool_ids_src)
+            n_batches = (len(want_seq) + 9) // 10
+            R.chk(len(cer) == n_batches,
+                  '%s %s: 儀式批次數 %d（卡池 %d 張，每批 10 張應為 %d 批）'
+                  % (name, vp, len(cer), len(want_seq), n_batches))
             got = [i for b in cer for i in (b.get('ids') or [])]
-            same = sum(1 for a, b in zip(got, fixture) if a == b)
-            R.chk(got == fixture,
-                  '%s %s: 揭卡序列與指定序列逐位相同（%d/%d）' % (name, vp, same, len(fixture)))
+            same = sum(1 for a, b in zip(got, want_seq) if a == b)
+            R.chk(got == want_seq,
+                  '%s %s: 揭卡序列與卡池順序逐位相同（%d/%d）' % (name, vp, same, len(want_seq)))
+            R.chk(list(data.get('fixtureIds') or []) == want_seq,
+                  '%s %s: JSON 自帶的 fixtureIds 與原始碼卡池一致' % (name, vp))
 
     # ------------------------------------------------ 2. 字型證據
     print('\n== 2. 字型證據（逐節點、保留 CDP node ID、無筆數上限）')

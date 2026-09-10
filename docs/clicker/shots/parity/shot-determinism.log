@@ -1,0 +1,11 @@
+determinism-demo-run0.png vs determinism-demo-run1.png：mean 0.00  max 0  >100 的像素 0.0%
+
+PASS 截圖可重現性：穩定（門檻 mean < 1.0）
+determinism-pool-standalone-run0.png vs determinism-pool-standalone-run1.png：mean 33.59  max 245  >100 的像素 12.4%
+determinism-pool-standalone-run0.png vs determinism-pool-standalone-run2.png：mean 0.00  max 0  >100 的像素 0.0%
+
+FAIL 截圖可重現性：不穩定，像素比對在修好前不是有效訊號（門檻 mean < 1.0）
+determinism-demo-run0.png vs determinism-demo-run1.png：mean 0.00  max 0  >100 的像素 0.0%
+determinism-demo-run0.png vs determinism-demo-run2.png：mean 29.69  max 241  >100 的像素 10.6%
+
+FAIL 截圖可重現性：不穩定，像素比對在修好前不是有效訊號（門檻 mean < 1.0）

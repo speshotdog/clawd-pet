@@ -29,10 +29,16 @@ sys.path.insert(0, str(HERE))
 from check_card_parity import (ENTRIES, WALK, REFIT, FREEZE, SAMESIZE_JS,
                                activate, REACH_CARD, pull_batch)
 
-# 這些層的樣式與幾何必須完全一致（傳輸方式除外）
-LAYERS = ['.face-stock', '.face-depth-bg', '.face-art', '.art-media', '.art-media img',
-          '.subject-mask', '.face-frame', '.frame-material', '.foil-stack', '.foil-etch',
-          '.face-plate', '.face-gem', '.card-back']
+# 共用卡面元件自己建立的層（card_face.js 第 61-65、80-100 行）：
+# 樣式與幾何必須完全一致，傳輸方式除外。
+COMPONENT_LAYERS = ['.face-stock', '.face-depth-bg', '.face-art', '.art-media', '.art-media img',
+                    '.subject-mask', '.face-frame', '.frame-material', '.foil-stack', '.foil-etch',
+                    '.face-plate', '.face-gem']
+# 頁面自己加的層：只回報、不判定。
+# `.card-back` 全線只有 demo.html 會建立（grep 'card-back' 的元素建立只在 demo.html 命中一次），
+# card_face.js 從頭到尾沒有建立它，所以它是實驗頁自己的翻面樣本，屬於「周邊 UI 可不同」。
+PAGE_LAYERS = ['.card-back']
+LAYERS = COMPONENT_LAYERS + PAGE_LAYERS
 STRICT = ['x', 'y', 'w', 'h', 'transform', 'backgroundSize', 'backgroundPosition',
           'backgroundRepeat', 'opacity', 'mixBlendMode', 'filter', 'objectFit',
           'objectPosition', 'borderRadius', 'maskSize', 'maskPosition', 'maskRepeat']
@@ -81,10 +87,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--card', default='rocketdog')
     ap.add_argument('--reference', default='gacha-test')
-    ap.add_argument('--viewport', default='1440x1200')
+    ap.add_argument('--viewports', default='1440x1200,1024x900,390x844')
     ap.add_argument('--width', type=int, default=260)
     args = ap.parse_args()
-    W, H = (int(x) for x in args.viewport.split('x'))
+    VPS = [tuple(int(x) for x in v.split('x')) for v in args.viewports.split(',')]
 
     from pool_data import pool
     expected = {c['id']: c for c in pool()}
@@ -93,30 +99,38 @@ def main():
     data = {}
     with sync_playwright() as pw:
         br = pw.chromium.launch()
-        for name, cfg in ENTRIES.items():
+        for (W, H) in VPS:
+          for name0, cfg in ENTRIES.items():
+            name = '%s@%dx%d' % (name0, W, H)
             pg = br.new_page(viewport={'width': W, 'height': H}, device_scale_factor=1)
             try:
                 pg.add_init_script(WALK)
                 pg.goto((HERE / cfg['file']).as_uri() +
                         ('?ceremony-test' if cfg['surface'] == 'gacha' else ''))
                 pg.evaluate(WALK)
-                activate(pg, cfg, [args.card], fixture_cards)
-                if cfg.get('fixture'):
+                if cfg['surface'] == 'gacha':
+                    # 正式版也走 ?ceremony-test 的固定序列鉤子，才能比到同一張卡；
+                    # 這只是測試環境替換結果，沒有動產品機率。
+                    pg.wait_for_timeout(500)
                     err, _ = pull_batch(pg, fixture_cards)
                     if err:
-                        print('%-24s 跳過：%s' % (name, err)); continue
+                        print('%-28s 跳過：%s' % (name, err)); continue
+                else:
+                    activate(pg, cfg, [args.card], fixture_cards)
                 if cfg['surface'] == 'team':
                     pg.evaluate(REACH_CARD, args.card)
                     pg.wait_for_timeout(900)
+                if cfg['surface'] != 'gacha':
+                    pass
                 pg.evaluate(WALK); pg.evaluate(REFIT); pg.evaluate(FREEZE)
                 pg.evaluate(SAMESIZE_JS, args.width)
                 pg.evaluate("()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))")
                 v = pg.evaluate(READ, args.card)
                 if v is None:
-                    print('%-24s 跳過：這個入口沒有 %s' % (name, args.card)); continue
+                    print('%-28s 跳過：這個入口沒有 %s' % (name, args.card)); continue
                 data[name] = v
             except Exception as e:
-                print('%-24s 失敗：%s' % (name, str(e)[:140]))
+                print('%-28s 失敗：%s' % (name, str(e)[:140]))
             finally:
                 pg.close()
         br.close()
@@ -124,16 +138,17 @@ def main():
     out = HERE.parent.parent / 'docs' / 'clicker' / 'shots' / 'parity' / 'asset-layers.json'
     out.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding='utf-8')
 
-    ref = data.get(args.reference)
+    ref_key = '%s@%dx%d' % (args.reference, VPS[0][0], VPS[0][1])
+    ref = data.get(ref_key)
     if not ref:
-        print('參考入口 %s 沒有資料' % args.reference); return 2
+        print('參考入口 %s 沒有資料' % ref_key); return 2
     fails = 0
     print('\n== 層的樣式與幾何（必須完全一致，參考＝%s）' % args.reference)
     for name, v in data.items():
-        if name == args.reference:
+        if name == ref_key:
             continue
         bad = []
-        for sel in LAYERS:
+        for sel in COMPONENT_LAYERS:
             a, b = ref.get(sel), v.get(sel)
             if (a is None) != (b is None):
                 bad.append((sel, '存在與否', bool(a), bool(b))); continue
@@ -144,7 +159,7 @@ def main():
                     bad.append((sel, k, a.get(k), b.get(k)))
         ok = not bad
         fails += 0 if ok else 1
-        print(('PASS ' if ok else 'FAIL ') + '%-24s 差異 %d 項 %s'
+        print(('PASS ' if ok else 'FAIL ') + '%-28s 差異 %d 項 %s'
               % (name, len(bad), [(s, k) for s, k, _, _ in bad][:4]))
         for s, k, x, y in bad[:3]:
             print('        %-18s %-18s %r vs %r' % (s, k, str(x)[:40], str(y)[:40]))
@@ -161,7 +176,7 @@ def main():
                                              a.get('naturalWidth'), a.get('naturalHeight')))
             elif a.get('bgKind') and a.get('bgKind') != 'none':
                 rows.append('%s bg=%s' % (sel, a.get('bgKind')))
-        print('  %-24s %s' % (name, '; '.join(rows)))
+        print('  %-28s %s' % (name, '; '.join(rows)))
 
     print('\n== 結果：%s' % ('層樣式與幾何全綠' if not fails else '%d 個入口有層差異' % fails))
     return 1 if fails else 0

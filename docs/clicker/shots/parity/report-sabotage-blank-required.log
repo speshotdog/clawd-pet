@@ -7,97 +7,136 @@ PASS 預期清單來自原始碼：卡池 63 張、編隊 24 張（不是讀待�
 PASS JSON 自帶的 expectedPoolIds 與原始碼一致（63 vs 63）
 PASS JSON 自帶的 expectedTeamIds 與原始碼一致（24 vs 24）
 PASS demo 1440x900: 取樣失敗 0 筆 []
+PASS demo 1440x900: 非有限數值 0 處 []
 PASS demo 1440x900 [native/grid]: 預期 63 張，缺 0 張 []
 PASS demo 1440x900 [neutral/grid]: 預期 63 張，缺 0 張 []
 PASS demo 1440x900: 必填欄位缺漏 0 筆 []
+PASS demo 1440x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS demo 1440x900: 至少有一張卡真的在視窗內（3/81）
+PASS demo 1440x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS demo 1440x900: 頁面錯誤／console error 0 筆 []
 PASS demo 1440x900: 壞圖 0 張 []
 PASS demo 1024x900: 取樣失敗 0 筆 []
+PASS demo 1024x900: 非有限數值 0 處 []
 PASS demo 1024x900 [native/grid]: 預期 63 張，缺 0 張 []
 PASS demo 1024x900 [neutral/grid]: 預期 63 張，缺 0 張 []
 PASS demo 1024x900: 必填欄位缺漏 0 筆 []
+PASS demo 1024x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS demo 1024x900: 至少有一張卡真的在視窗內（1/81）
+PASS demo 1024x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS demo 1024x900: 頁面錯誤／console error 0 筆 []
 PASS demo 1024x900: 壞圖 0 張 []
 PASS demo 390x844: 取樣失敗 0 筆 []
+PASS demo 390x844: 非有限數值 0 處 []
 PASS demo 390x844 [native/grid]: 預期 63 張，缺 0 張 []
 PASS demo 390x844 [neutral/grid]: 預期 63 張，缺 0 張 []
 PASS demo 390x844: 必填欄位缺漏 0 筆 []
+PASS demo 390x844: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS demo 390x844: 至少有一張卡真的在視窗內（1/81）
+PASS demo 390x844: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS demo 390x844: 頁面錯誤／console error 0 筆 []
 PASS demo 390x844: 壞圖 0 張 []
 PASS demo-standalone 1440x900: 取樣失敗 0 筆 []
+PASS demo-standalone 1440x900: 非有限數值 0 處 []
 PASS demo-standalone 1440x900 [native/grid]: 預期 63 張，缺 0 張 []
 PASS demo-standalone 1440x900 [neutral/grid]: 預期 63 張，缺 0 張 []
 PASS demo-standalone 1440x900: 必填欄位缺漏 0 筆 []
+PASS demo-standalone 1440x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS demo-standalone 1440x900: 至少有一張卡真的在視窗內（3/81）
+PASS demo-standalone 1440x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS demo-standalone 1440x900: 頁面錯誤／console error 0 筆 []
 PASS demo-standalone 1440x900: 壞圖 0 張 []
 PASS demo-standalone 1024x900: 取樣失敗 0 筆 []
+PASS demo-standalone 1024x900: 非有限數值 0 處 []
 PASS demo-standalone 1024x900 [native/grid]: 預期 63 張，缺 0 張 []
 PASS demo-standalone 1024x900 [neutral/grid]: 預期 63 張，缺 0 張 []
 PASS demo-standalone 1024x900: 必填欄位缺漏 0 筆 []
+PASS demo-standalone 1024x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS demo-standalone 1024x900: 至少有一張卡真的在視窗內（1/81）
+PASS demo-standalone 1024x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS demo-standalone 1024x900: 頁面錯誤／console error 0 筆 []
 PASS demo-standalone 1024x900: 壞圖 0 張 []
 PASS demo-standalone 390x844: 取樣失敗 0 筆 []
+PASS demo-standalone 390x844: 非有限數值 0 處 []
 PASS demo-standalone 390x844 [native/grid]: 預期 63 張，缺 0 張 []
 PASS demo-standalone 390x844 [neutral/grid]: 預期 63 張，缺 0 張 []
 PASS demo-standalone 390x844: 必填欄位缺漏 0 筆 []
+PASS demo-standalone 390x844: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS demo-standalone 390x844: 至少有一張卡真的在視窗內（1/81）
+PASS demo-standalone 390x844: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS demo-standalone 390x844: 頁面錯誤／console error 0 筆 []
 PASS demo-standalone 390x844: 壞圖 0 張 []
 PASS pool 1440x900: 取樣失敗 0 筆 []
+PASS pool 1440x900: 非有限數值 0 處 []
 PASS pool 1440x900 [native/grid]: 預期 63 張，缺 0 張 []
 PASS pool 1440x900 [neutral/grid]: 預期 63 張，缺 0 張 []
 FAIL pool 1440x900: 必填欄位缺漏 325 筆 [('compare-depth', 'grid', 'native', 'rarityRange'), ('compare-depth', 'grid', 'native', 'not visible'), ('compare-depth', 'grid', 'native', 'fs var')]
+PASS pool 1440x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS pool 1440x900: 至少有一張卡真的在視窗內（7/65）
+PASS pool 1440x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS pool 1440x900: 頁面錯誤／console error 0 筆 []
 PASS pool 1440x900: 壞圖 0 張 []
 PASS pool 1024x900: 取樣失敗 0 筆 []
+PASS pool 1024x900: 非有限數值 0 處 []
 PASS pool 1024x900 [native/grid]: 預期 63 張，缺 0 張 []
 PASS pool 1024x900 [neutral/grid]: 預期 63 張，缺 0 張 []
 FAIL pool 1024x900: 必填欄位缺漏 325 筆 [('compare-depth', 'grid', 'native', 'rarityRange'), ('compare-depth', 'grid', 'native', 'not visible'), ('compare-depth', 'grid', 'native', 'fs var')]
+PASS pool 1024x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS pool 1024x900: 至少有一張卡真的在視窗內（5/65）
+PASS pool 1024x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS pool 1024x900: 頁面錯誤／console error 0 筆 []
 PASS pool 1024x900: 壞圖 0 張 []
 PASS pool 390x844: 取樣失敗 0 筆 []
+PASS pool 390x844: 非有限數值 0 處 []
 PASS pool 390x844 [native/grid]: 預期 63 張，缺 0 張 []
 PASS pool 390x844 [neutral/grid]: 預期 63 張，缺 0 張 []
 FAIL pool 390x844: 必填欄位缺漏 325 筆 [('compare-depth', 'grid', 'native', 'rarityRange'), ('compare-depth', 'grid', 'native', 'not visible'), ('compare-depth', 'grid', 'native', 'fs var')]
+PASS pool 390x844: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS pool 390x844: 至少有一張卡真的在視窗內（3/65）
+PASS pool 390x844: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS pool 390x844: 頁面錯誤／console error 0 筆 []
 PASS pool 390x844: 壞圖 0 張 []
 PASS pool-standalone 1440x900: 取樣失敗 0 筆 []
+PASS pool-standalone 1440x900: 非有限數值 0 處 []
 PASS pool-standalone 1440x900 [native/grid]: 預期 63 張，缺 0 張 []
 PASS pool-standalone 1440x900 [neutral/grid]: 預期 63 張，缺 0 張 []
 PASS pool-standalone 1440x900: 必填欄位缺漏 0 筆 []
+PASS pool-standalone 1440x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS pool-standalone 1440x900: 至少有一張卡真的在視窗內（7/65）
+PASS pool-standalone 1440x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS pool-standalone 1440x900: 頁面錯誤／console error 0 筆 []
 PASS pool-standalone 1440x900: 壞圖 0 張 []
 PASS pool-standalone 1024x900: 取樣失敗 0 筆 []
+PASS pool-standalone 1024x900: 非有限數值 0 處 []
 PASS pool-standalone 1024x900 [native/grid]: 預期 63 張，缺 0 張 []
 PASS pool-standalone 1024x900 [neutral/grid]: 預期 63 張，缺 0 張 []
 PASS pool-standalone 1024x900: 必填欄位缺漏 0 筆 []
+PASS pool-standalone 1024x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS pool-standalone 1024x900: 至少有一張卡真的在視窗內（5/65）
+PASS pool-standalone 1024x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS pool-standalone 1024x900: 頁面錯誤／console error 0 筆 []
 PASS pool-standalone 1024x900: 壞圖 0 張 []
 PASS pool-standalone 390x844: 取樣失敗 0 筆 []
+PASS pool-standalone 390x844: 非有限數值 0 處 []
 PASS pool-standalone 390x844 [native/grid]: 預期 63 張，缺 0 張 []
 PASS pool-standalone 390x844 [neutral/grid]: 預期 63 張，缺 0 張 []
 PASS pool-standalone 390x844: 必填欄位缺漏 0 筆 []
+PASS pool-standalone 390x844: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS pool-standalone 390x844: 至少有一張卡真的在視窗內（3/65）
+PASS pool-standalone 390x844: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS pool-standalone 390x844: 頁面錯誤／console error 0 筆 []
 PASS pool-standalone 390x844: 壞圖 0 張 []
 PASS gacha 1440x900: 取樣失敗 0 筆 []
+PASS gacha 1440x900: 非有限數值 0 處 []
 PASS gacha 1440x900 [native/reveal]: 至少要 10 筆，實得 10 筆（7 種）
 PASS gacha 1440x900 [native/reveal]: 要有 10 個不同槽位，實得 10
 PASS gacha 1440x900 [native/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha 1440x900 [neutral/reveal]: 至少要 10 筆，實得 10 筆（7 種）
 PASS gacha 1440x900 [neutral/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha 1440x900: 必填欄位缺漏 0 筆 []
+PASS gacha 1440x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha 1440x900: 至少有一張卡真的在視窗內（10/10）
+PASS gacha 1440x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha 1440x900: 頁面錯誤／console error 0 筆 []
 PASS gacha 1440x900: 壞圖 0 張 []
 PASS gacha 1440x900: 有揭卡儀式證據
@@ -105,13 +144,16 @@ PASS gacha 1440x900: 每一批都到 results
 PASS gacha 1440x900: 正式版每批 complete=10（實得 [10]）
 PASS gacha 1440x900: drawnIds 有 10 筆（實得 10）
 PASS gacha 1024x900: 取樣失敗 0 筆 []
+PASS gacha 1024x900: 非有限數值 0 處 []
 PASS gacha 1024x900 [native/reveal]: 至少要 10 筆，實得 10 筆（7 種）
 PASS gacha 1024x900 [native/reveal]: 要有 10 個不同槽位，實得 10
 PASS gacha 1024x900 [native/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha 1024x900 [neutral/reveal]: 至少要 10 筆，實得 10 筆（7 種）
 PASS gacha 1024x900 [neutral/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha 1024x900: 必填欄位缺漏 0 筆 []
+PASS gacha 1024x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha 1024x900: 至少有一張卡真的在視窗內（10/10）
+PASS gacha 1024x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha 1024x900: 頁面錯誤／console error 0 筆 []
 PASS gacha 1024x900: 壞圖 0 張 []
 PASS gacha 1024x900: 有揭卡儀式證據
@@ -119,13 +161,16 @@ PASS gacha 1024x900: 每一批都到 results
 PASS gacha 1024x900: 正式版每批 complete=10（實得 [10]）
 PASS gacha 1024x900: drawnIds 有 10 筆（實得 10）
 PASS gacha 390x844: 取樣失敗 0 筆 []
+PASS gacha 390x844: 非有限數值 0 處 []
 PASS gacha 390x844 [native/reveal]: 至少要 10 筆，實得 10 筆（8 種）
 PASS gacha 390x844 [native/reveal]: 要有 10 個不同槽位，實得 10
 PASS gacha 390x844 [native/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha 390x844 [neutral/reveal]: 至少要 10 筆，實得 10 筆（8 種）
 PASS gacha 390x844 [neutral/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha 390x844: 必填欄位缺漏 0 筆 []
+PASS gacha 390x844: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha 390x844: 至少有一張卡真的在視窗內（1/10）
+PASS gacha 390x844: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha 390x844: 頁面錯誤／console error 0 筆 []
 PASS gacha 390x844: 壞圖 0 張 []
 PASS gacha 390x844: 有揭卡儀式證據
@@ -133,13 +178,16 @@ PASS gacha 390x844: 每一批都到 results
 PASS gacha 390x844: 正式版每批 complete=10（實得 [10]）
 PASS gacha 390x844: drawnIds 有 10 筆（實得 10）
 PASS gacha-standalone 1440x900: 取樣失敗 0 筆 []
+PASS gacha-standalone 1440x900: 非有限數值 0 處 []
 PASS gacha-standalone 1440x900 [native/reveal]: 至少要 10 筆，實得 10 筆（8 種）
 PASS gacha-standalone 1440x900 [native/reveal]: 要有 10 個不同槽位，實得 10
 PASS gacha-standalone 1440x900 [native/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha-standalone 1440x900 [neutral/reveal]: 至少要 10 筆，實得 10 筆（8 種）
 PASS gacha-standalone 1440x900 [neutral/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha-standalone 1440x900: 必填欄位缺漏 0 筆 []
+PASS gacha-standalone 1440x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha-standalone 1440x900: 至少有一張卡真的在視窗內（10/10）
+PASS gacha-standalone 1440x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha-standalone 1440x900: 頁面錯誤／console error 0 筆 []
 PASS gacha-standalone 1440x900: 壞圖 0 張 []
 PASS gacha-standalone 1440x900: 有揭卡儀式證據
@@ -147,13 +195,16 @@ PASS gacha-standalone 1440x900: 每一批都到 results
 PASS gacha-standalone 1440x900: 正式版每批 complete=10（實得 [10]）
 PASS gacha-standalone 1440x900: drawnIds 有 10 筆（實得 10）
 PASS gacha-standalone 1024x900: 取樣失敗 0 筆 []
+PASS gacha-standalone 1024x900: 非有限數值 0 處 []
 PASS gacha-standalone 1024x900 [native/reveal]: 至少要 10 筆，實得 10 筆（7 種）
 PASS gacha-standalone 1024x900 [native/reveal]: 要有 10 個不同槽位，實得 10
 PASS gacha-standalone 1024x900 [native/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha-standalone 1024x900 [neutral/reveal]: 至少要 10 筆，實得 10 筆（7 種）
 PASS gacha-standalone 1024x900 [neutral/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha-standalone 1024x900: 必填欄位缺漏 0 筆 []
+PASS gacha-standalone 1024x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha-standalone 1024x900: 至少有一張卡真的在視窗內（10/10）
+PASS gacha-standalone 1024x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha-standalone 1024x900: 頁面錯誤／console error 0 筆 []
 PASS gacha-standalone 1024x900: 壞圖 0 張 []
 PASS gacha-standalone 1024x900: 有揭卡儀式證據
@@ -161,13 +212,16 @@ PASS gacha-standalone 1024x900: 每一批都到 results
 PASS gacha-standalone 1024x900: 正式版每批 complete=10（實得 [10]）
 PASS gacha-standalone 1024x900: drawnIds 有 10 筆（實得 10）
 PASS gacha-standalone 390x844: 取樣失敗 0 筆 []
+PASS gacha-standalone 390x844: 非有限數值 0 處 []
 PASS gacha-standalone 390x844 [native/reveal]: 至少要 10 筆，實得 10 筆（7 種）
 PASS gacha-standalone 390x844 [native/reveal]: 要有 10 個不同槽位，實得 10
 PASS gacha-standalone 390x844 [native/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha-standalone 390x844 [neutral/reveal]: 至少要 10 筆，實得 10 筆（7 種）
 PASS gacha-standalone 390x844 [neutral/reveal]: 樣本 ID 與 drawnIds 相符
 PASS gacha-standalone 390x844: 必填欄位缺漏 0 筆 []
+PASS gacha-standalone 390x844: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha-standalone 390x844: 至少有一張卡真的在視窗內（1/10）
+PASS gacha-standalone 390x844: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha-standalone 390x844: 頁面錯誤／console error 0 筆 []
 PASS gacha-standalone 390x844: 壞圖 0 張 []
 PASS gacha-standalone 390x844: 有揭卡儀式證據
@@ -175,90 +229,117 @@ PASS gacha-standalone 390x844: 每一批都到 results
 PASS gacha-standalone 390x844: 正式版每批 complete=10（實得 [10]）
 PASS gacha-standalone 390x844: drawnIds 有 10 筆（實得 10）
 PASS gacha-test 1440x900: 取樣失敗 0 筆 []
+PASS gacha-test 1440x900: 非有限數值 0 處 []
 PASS gacha-test 1440x900 [native/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test 1440x900 [neutral/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test 1440x900: 必填欄位缺漏 0 筆 []
+PASS gacha-test 1440x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha-test 1440x900: 至少有一張卡真的在視窗內（63/63）
+PASS gacha-test 1440x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha-test 1440x900: 頁面錯誤／console error 0 筆 []
 PASS gacha-test 1440x900: 壞圖 0 張 []
 PASS gacha-test 1440x900: 有揭卡儀式證據
 PASS gacha-test 1440x900: 每一批都到 results
 PASS gacha-test 1440x900: 每批 complete 等於該批張數（實得 [(10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (3, 3)]）
 PASS gacha-test 1024x900: 取樣失敗 0 筆 []
+PASS gacha-test 1024x900: 非有限數值 0 處 []
 PASS gacha-test 1024x900 [native/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test 1024x900 [neutral/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test 1024x900: 必填欄位缺漏 0 筆 []
+PASS gacha-test 1024x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha-test 1024x900: 至少有一張卡真的在視窗內（63/63）
+PASS gacha-test 1024x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha-test 1024x900: 頁面錯誤／console error 0 筆 []
 PASS gacha-test 1024x900: 壞圖 0 張 []
 PASS gacha-test 1024x900: 有揭卡儀式證據
 PASS gacha-test 1024x900: 每一批都到 results
 PASS gacha-test 1024x900: 每批 complete 等於該批張數（實得 [(10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (3, 3)]）
 PASS gacha-test 390x844: 取樣失敗 0 筆 []
+PASS gacha-test 390x844: 非有限數值 0 處 []
 PASS gacha-test 390x844 [native/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test 390x844 [neutral/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test 390x844: 必填欄位缺漏 0 筆 []
+PASS gacha-test 390x844: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha-test 390x844: 至少有一張卡真的在視窗內（7/63）
+PASS gacha-test 390x844: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha-test 390x844: 頁面錯誤／console error 0 筆 []
 PASS gacha-test 390x844: 壞圖 0 張 []
 PASS gacha-test 390x844: 有揭卡儀式證據
 PASS gacha-test 390x844: 每一批都到 results
 PASS gacha-test 390x844: 每批 complete 等於該批張數（實得 [(10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (3, 3)]）
 PASS gacha-test-standalone 1440x900: 取樣失敗 0 筆 []
+PASS gacha-test-standalone 1440x900: 非有限數值 0 處 []
 PASS gacha-test-standalone 1440x900 [native/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test-standalone 1440x900 [neutral/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test-standalone 1440x900: 必填欄位缺漏 0 筆 []
+PASS gacha-test-standalone 1440x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha-test-standalone 1440x900: 至少有一張卡真的在視窗內（63/63）
+PASS gacha-test-standalone 1440x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha-test-standalone 1440x900: 頁面錯誤／console error 0 筆 []
 PASS gacha-test-standalone 1440x900: 壞圖 0 張 []
 PASS gacha-test-standalone 1440x900: 有揭卡儀式證據
 PASS gacha-test-standalone 1440x900: 每一批都到 results
 PASS gacha-test-standalone 1440x900: 每批 complete 等於該批張數（實得 [(10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (3, 3)]）
 PASS gacha-test-standalone 1024x900: 取樣失敗 0 筆 []
+PASS gacha-test-standalone 1024x900: 非有限數值 0 處 []
 PASS gacha-test-standalone 1024x900 [native/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test-standalone 1024x900 [neutral/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test-standalone 1024x900: 必填欄位缺漏 0 筆 []
+PASS gacha-test-standalone 1024x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha-test-standalone 1024x900: 至少有一張卡真的在視窗內（63/63）
+PASS gacha-test-standalone 1024x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha-test-standalone 1024x900: 頁面錯誤／console error 0 筆 []
 PASS gacha-test-standalone 1024x900: 壞圖 0 張 []
 PASS gacha-test-standalone 1024x900: 有揭卡儀式證據
 PASS gacha-test-standalone 1024x900: 每一批都到 results
 PASS gacha-test-standalone 1024x900: 每批 complete 等於該批張數（實得 [(10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (3, 3)]）
 PASS gacha-test-standalone 390x844: 取樣失敗 0 筆 []
+PASS gacha-test-standalone 390x844: 非有限數值 0 處 []
 PASS gacha-test-standalone 390x844 [native/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test-standalone 390x844 [neutral/reveal]: 預期 63 張，缺 0 張 []
 PASS gacha-test-standalone 390x844: 必填欄位缺漏 0 筆 []
+PASS gacha-test-standalone 390x844: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS gacha-test-standalone 390x844: 至少有一張卡真的在視窗內（7/63）
+PASS gacha-test-standalone 390x844: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS gacha-test-standalone 390x844: 頁面錯誤／console error 0 筆 []
 PASS gacha-test-standalone 390x844: 壞圖 0 張 []
 PASS gacha-test-standalone 390x844: 有揭卡儀式證據
 PASS gacha-test-standalone 390x844: 每一批都到 results
 PASS gacha-test-standalone 390x844: 每批 complete 等於該批張數（實得 [(10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (10, 10), (3, 3)]）
 PASS team 1440x900: 取樣失敗 0 筆 []
+PASS team 1440x900: 非有限數值 0 處 []
 PASS team 1440x900 [native/overview]: 預期 24 張，缺 0 張 []
 PASS team 1440x900 [native/detail]: 預期 24 張，缺 0 張 []
 PASS team 1440x900 [neutral/overview]: 預期 24 張，缺 0 張 []
 PASS team 1440x900 [neutral/detail]: 預期 24 張，缺 0 張 []
 PASS team 1440x900: 必填欄位缺漏 0 筆 []
+PASS team 1440x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS team 1440x900: 至少有一張卡真的在視窗內（48/48）
+PASS team 1440x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS team 1440x900: 頁面錯誤／console error 0 筆 []
 PASS team 1440x900: 壞圖 0 張 []
 PASS team 1024x900: 取樣失敗 0 筆 []
+PASS team 1024x900: 非有限數值 0 處 []
 PASS team 1024x900 [native/overview]: 預期 24 張，缺 0 張 []
 PASS team 1024x900 [native/detail]: 預期 24 張，缺 0 張 []
 PASS team 1024x900 [neutral/overview]: 預期 24 張，缺 0 張 []
 PASS team 1024x900 [neutral/detail]: 預期 24 張，缺 0 張 []
 PASS team 1024x900: 必填欄位缺漏 0 筆 []
+PASS team 1024x900: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS team 1024x900: 至少有一張卡真的在視窗內（48/48）
+PASS team 1024x900: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS team 1024x900: 頁面錯誤／console error 0 筆 []
 PASS team 1024x900: 壞圖 0 張 []
 PASS team 390x844: 取樣失敗 0 筆 []
+PASS team 390x844: 非有限數值 0 處 []
 PASS team 390x844 [native/overview]: 預期 24 張，缺 0 張 []
 PASS team 390x844 [native/detail]: 預期 24 張，缺 0 張 []
 PASS team 390x844 [neutral/overview]: 預期 24 張，缺 0 張 []
 PASS team 390x844 [neutral/detail]: 預期 24 張，缺 0 張 []
 PASS team 390x844: 必填欄位缺漏 0 筆 []
+PASS team 390x844: 中性姿態與原生逐實例對應；不符 0 組 []
 PASS team 390x844: 至少有一張卡真的在視窗內（48/48）
+PASS team 390x844: 有錯誤採集欄位（pageErrors／brokenImages）
 PASS team 390x844: 頁面錯誤／console error 0 筆 []
 PASS team 390x844: 壞圖 0 張 []
 
@@ -276,7 +357,9 @@ PASS gacha-test 1440x900 batch3: screen=results complete=10 err=None
 PASS gacha-test 1440x900 batch4: screen=results complete=10 err=None
 PASS gacha-test 1440x900 batch5: screen=results complete=10 err=None
 PASS gacha-test 1440x900 batch6: screen=results complete=3 err=None
-PASS gacha-test 1440x900: 揭卡序列與指定序列逐位相同（63/63）
+PASS gacha-test 1440x900: 儀式批次數 7（卡池 63 張，每批 10 張應為 7 批）
+PASS gacha-test 1440x900: 揭卡序列與卡池順序逐位相同（63/63）
+PASS gacha-test 1440x900: JSON 自帶的 fixtureIds 與原始碼卡池一致
 PASS gacha-test 1024x900 batch0: screen=results complete=10 err=None
 PASS gacha-test 1024x900 batch1: screen=results complete=10 err=None
 PASS gacha-test 1024x900 batch2: screen=results complete=10 err=None
@@ -284,7 +367,9 @@ PASS gacha-test 1024x900 batch3: screen=results complete=10 err=None
 PASS gacha-test 1024x900 batch4: screen=results complete=10 err=None
 PASS gacha-test 1024x900 batch5: screen=results complete=10 err=None
 PASS gacha-test 1024x900 batch6: screen=results complete=3 err=None
-PASS gacha-test 1024x900: 揭卡序列與指定序列逐位相同（63/63）
+PASS gacha-test 1024x900: 儀式批次數 7（卡池 63 張，每批 10 張應為 7 批）
+PASS gacha-test 1024x900: 揭卡序列與卡池順序逐位相同（63/63）
+PASS gacha-test 1024x900: JSON 自帶的 fixtureIds 與原始碼卡池一致
 PASS gacha-test 390x844 batch0: screen=results complete=10 err=None
 PASS gacha-test 390x844 batch1: screen=results complete=10 err=None
 PASS gacha-test 390x844 batch2: screen=results complete=10 err=None
@@ -292,7 +377,9 @@ PASS gacha-test 390x844 batch3: screen=results complete=10 err=None
 PASS gacha-test 390x844 batch4: screen=results complete=10 err=None
 PASS gacha-test 390x844 batch5: screen=results complete=10 err=None
 PASS gacha-test 390x844 batch6: screen=results complete=3 err=None
-PASS gacha-test 390x844: 揭卡序列與指定序列逐位相同（63/63）
+PASS gacha-test 390x844: 儀式批次數 7（卡池 63 張，每批 10 張應為 7 批）
+PASS gacha-test 390x844: 揭卡序列與卡池順序逐位相同（63/63）
+PASS gacha-test 390x844: JSON 自帶的 fixtureIds 與原始碼卡池一致
 PASS gacha-test-standalone 1440x900 batch0: screen=results complete=10 err=None
 PASS gacha-test-standalone 1440x900 batch1: screen=results complete=10 err=None
 PASS gacha-test-standalone 1440x900 batch2: screen=results complete=10 err=None
@@ -300,7 +387,9 @@ PASS gacha-test-standalone 1440x900 batch3: screen=results complete=10 err=None
 PASS gacha-test-standalone 1440x900 batch4: screen=results complete=10 err=None
 PASS gacha-test-standalone 1440x900 batch5: screen=results complete=10 err=None
 PASS gacha-test-standalone 1440x900 batch6: screen=results complete=3 err=None
-PASS gacha-test-standalone 1440x900: 揭卡序列與指定序列逐位相同（63/63）
+PASS gacha-test-standalone 1440x900: 儀式批次數 7（卡池 63 張，每批 10 張應為 7 批）
+PASS gacha-test-standalone 1440x900: 揭卡序列與卡池順序逐位相同（63/63）
+PASS gacha-test-standalone 1440x900: JSON 自帶的 fixtureIds 與原始碼卡池一致
 PASS gacha-test-standalone 1024x900 batch0: screen=results complete=10 err=None
 PASS gacha-test-standalone 1024x900 batch1: screen=results complete=10 err=None
 PASS gacha-test-standalone 1024x900 batch2: screen=results complete=10 err=None
@@ -308,7 +397,9 @@ PASS gacha-test-standalone 1024x900 batch3: screen=results complete=10 err=None
 PASS gacha-test-standalone 1024x900 batch4: screen=results complete=10 err=None
 PASS gacha-test-standalone 1024x900 batch5: screen=results complete=10 err=None
 PASS gacha-test-standalone 1024x900 batch6: screen=results complete=3 err=None
-PASS gacha-test-standalone 1024x900: 揭卡序列與指定序列逐位相同（63/63）
+PASS gacha-test-standalone 1024x900: 儀式批次數 7（卡池 63 張，每批 10 張應為 7 批）
+PASS gacha-test-standalone 1024x900: 揭卡序列與卡池順序逐位相同（63/63）
+PASS gacha-test-standalone 1024x900: JSON 自帶的 fixtureIds 與原始碼卡池一致
 PASS gacha-test-standalone 390x844 batch0: screen=results complete=10 err=None
 PASS gacha-test-standalone 390x844 batch1: screen=results complete=10 err=None
 PASS gacha-test-standalone 390x844 batch2: screen=results complete=10 err=None
@@ -316,7 +407,9 @@ PASS gacha-test-standalone 390x844 batch3: screen=results complete=10 err=None
 PASS gacha-test-standalone 390x844 batch4: screen=results complete=10 err=None
 PASS gacha-test-standalone 390x844 batch5: screen=results complete=10 err=None
 PASS gacha-test-standalone 390x844 batch6: screen=results complete=3 err=None
-PASS gacha-test-standalone 390x844: 揭卡序列與指定序列逐位相同（63/63）
+PASS gacha-test-standalone 390x844: 儀式批次數 7（卡池 63 張，每批 10 張應為 7 批）
+PASS gacha-test-standalone 390x844: 揭卡序列與卡池順序逐位相同（63/63）
+PASS gacha-test-standalone 390x844: JSON 自帶的 fixtureIds 與原始碼卡池一致
 
 == 2. 字型證據（逐節點、保留 CDP node ID、無筆數上限）
 PASS demo 1440x900: 字型取樣錯誤 0 []
