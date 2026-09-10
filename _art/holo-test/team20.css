@@ -133,3 +133,6 @@ body[data-screen=team]{background:#101115;color:#ecece6}
 @media(max-width:1250px){.team-heading{height:40px}.team-heading small{display:none}.capacity{padding:0}.team-roster-head{height:24px}}
 @media(max-width:700px){.capacity-row{height:24px}.skill-slot{height:56px}.team-skills{padding:0}.roster-pages{height:20px}.team-heading button{padding:6px 8px}.team-heading h1{font-size:24px}}
 @media(max-width:1250px){.team-heading{height:38px}}
+
+/* Round 3: three complete mobile columns; remaining rows scroll vertically. */
+@media(max-width:700px){.team-grid{grid-template-columns:repeat(3,112px);grid-template-rows:none;grid-auto-rows:178.8px;gap:8px;width:100%;justify-content:center;padding:6px}.roster-scroll{overflow-x:hidden}}

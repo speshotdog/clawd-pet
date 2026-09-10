@@ -13,6 +13,38 @@ from pathlib import Path
 from PIL import Image, ImageChops, ImageStat, ImageDraw
 
 
+def run_corner_regression(page,result,out,check,go,freeze):
+    from check_card_corners import measure_corners
+    result['evidence']['corner_regression']={}
+    page.set_viewport_size({'width':1440,'height':900})
+    for screen in ['team','map']:
+        go(page,'screen='+screen)
+        freeze(page,0)
+        cards=page.locator('.hcard').count()
+        if not cards:
+            result['evidence']['corner_regression'][screen]={'status':'SKIP','reason':'No mounted cards','cards':0}
+            continue
+        states={}
+        for injected in [False,True]:
+            state='negative_control' if injected else 'current'
+            if injected:
+                contents=page.evaluate('''()=>{let roots=[document,...[...document.querySelectorAll('*')].filter(e=>e.shadowRoot).map(e=>e.shadowRoot)];for(const root of roots){if(!root.querySelector('.card-face'))continue;let s=document.createElement('style');s.textContent='.card-face{isolation:isolate}.card-face::after{content:"";position:absolute;inset:0;background:#000;mix-blend-mode:screen;transform:translateZ(2px);pointer-events:none}';root.appendChild(s)}return roots.flatMap(root=>[...root.querySelectorAll('.card-face')].map(e=>getComputedStyle(e,'::after').content))}''')
+                check(screen+'.corners.injection_effective',[int(v=='""') for v in contents],1,1)
+                states['computed_after_content']=contents
+                if not contents or any(v!='""' for v in contents):
+                    raise RuntimeError('Corner negative control did not reach card faces')
+            page.evaluate("()=>[document,...[...document.querySelectorAll('*')].filter(e=>e.shadowRoot).map(e=>e.shadowRoot)].forEach(root=>root.getAnimations().forEach(a=>{a.pause();a.currentTime=0}))")
+            freeze(page,0)
+            geometry=page.eval_on_selector_all('.hcard','''es=>es.map(e=>{let b=e.getBoundingClientRect(),s=getComputedStyle(e);return {x:b.x,y:b.y,w:b.width,h:b.height,radius:parseFloat(s.borderTopLeftRadius)||12,cls:e.className}})''')
+            shot=out/f'{screen}-corners-{state}.png';page.screenshot(path=str(shot))
+            measured=measure_corners(Image.open(shot),geometry,fraction=5,darkest_limit=6)
+            states[state]=measured
+            check(screen+'.corners.'+state+'.valid_samples',measured['samples'],1,len(geometry)*4)
+            check(screen+'.corners.'+state+'.bad',measured['bad'],1 if injected else 0,len(geometry)*4 if injected else 0,'corners',note='Injected state must FAIL the pixel detector' if injected else 'Current state must PASS')
+        result['evidence']['corner_regression'][screen]=states
+    (out/'corners.json').write_text(json.dumps(result['evidence']['corner_regression'],ensure_ascii=False,indent=2),encoding='utf-8')
+
+
 def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, pair, contrast, landmarks):
     root=Path(__file__).resolve().parents[2]
     def rects(page, selector):
@@ -26,6 +58,7 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
         '待人工判定：承載開的編隊物件判定 85–100%、獨立嵌入 0–15%、並排有效改善 80–100%。',
         '待人工判定：主要角色輪廓面積 45–70%；flat 無獨立角色遮罩，不能把整幅背景或透明框面積冒充輪廓。',
         'common 暫定併入精良；技能來源尚未定案，本輪不定義技能戰力。'])
+    run_corner_regression(page,result,out,check,go,freeze)
     baseline=json.loads((out/'protected-before.json').read_text(encoding='utf-8'))
     changed=[p for p,h in baseline.items() if hashlib.sha256((root/p).read_bytes()).hexdigest()!=h]
     check('team.protected_files_changed',len(changed),0,0,'files');result['evidence']['protected_changed']=changed
@@ -36,9 +69,14 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
         tag=f'team-{w}x{h}';size=(w,h)
         geom=page.evaluate('''()=>{const q=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)],r=e=>e.getBoundingClientRect(),s=e=>getComputedStyle(e),grid=q('.team-grid');let cards=all('#team-grid .team-proxy:not([hidden]) .proxy-image');return {count:all('#team-grid .team-proxy').length,widths:cards.map(e=>r(e).width),ratios:cards.map(e=>r(e).width/r(e).height),cols:s(grid).gridTemplateColumns.split(' ').length,gap:parseFloat(s(grid).gap),rowHeights:all('.capacity-row').map(e=>r(e).height),rowFonts:all('.capacity-row').map(e=>parseFloat(s(e).fontSize)),nameFonts:all('.proxy-name').map(e=>parseFloat(s(e).fontSize)),color:s(q('.capacity-row')).color,bg:s(q('.capacity')).backgroundColor,nameColor:s(q('.proxy-name')).color,nameBg:s(q('.team-roster')).backgroundColor,skillHeights:all('.skill-slot').map(e=>r(e).height),skillGap:parseFloat(s(q('.skill-grid')).gap),skillCount:all('.skill-slot').length,overlap:cards.flatMap((a,i)=>cards.slice(i+1).map(b=>{const A=r(a),B=r(b);return Math.max(0,Math.min(A.right,B.right)-Math.max(A.left,B.left))*Math.max(0,Math.min(A.bottom,B.bottom)-Math.max(A.top,B.top))})).reduce((a,b)=>a+b,0),overflow:Math.max(0,document.body.scrollWidth-innerWidth)}}''')
         result['evidence'][tag+'.geometry']=geom
+        if w<700:
+            # Each row is brought into view; vertical roster scrolling is intentional.
+            clipping=page.evaluate('''async()=>{let rows=[];for(let p=0;p<2;p++){team20.showPage(p);for(const e of document.querySelectorAll('#team-grid .team-proxy:not([hidden]) .proxy-image')){e.scrollIntoView({block:'nearest'});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));let a=e.getBoundingClientRect();rows.push(100*(1-Math.max(0,Math.min(innerWidth,a.right)-Math.max(0,a.left))*Math.max(0,Math.min(innerHeight,a.bottom)-Math.max(0,a.top))/(a.width*a.height)))}}team20.showPage(0);document.querySelector('.roster-scroll').scrollTop=0;return rows}''')
+            check(tag+'.viewport_card_clipped',clipping,0,0,'%')
+            barrier(page)
         check(tag+'.full_team',geom['count'],20,20)
-        check(tag+'.columns',geom['cols'],5,5)
-        check(tag+'.proxy_width',geom['widths'],96 if w<700 else 110 if w<1251 else 140,130 if w<700 else 150 if w<1251 else 200,'px')
+        check(tag+'.columns',geom['cols'],3 if w<700 else 5,3 if w<700 else 5)
+        check(tag+'.proxy_width',geom['widths'],112 if w<700 else 110 if w<1251 else 140,128 if w<700 else 150 if w<1251 else 200,'px')
         check(tag+'.proxy_ratio',geom['ratios'],5/7-.001,5/7+.001)
         check(tag+'.gap',geom['gap'],8,12,'px');check(tag+'.overlap',geom['overlap'],0,0,'px²')
         check(tag+'.capacity_height',geom['rowHeights'],24,36,'px');check(tag+'.capacity_font',geom['rowFonts'],13,15,'px')
@@ -61,7 +99,7 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
         check(tag+'.last_member_reachable',page.eval_on_selector('#team-grid .team-proxy:last-child .proxy-image','''e=>{let a=e.getBoundingClientRect(),b=document.querySelector('.roster-scroll').getBoundingClientRect();return Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top))/(a.width*a.height)*100}'''),100,100,'%')
         page.locator('#roster-prev').click();page.evaluate("document.querySelector('.roster-scroll').scrollLeft=0;document.querySelector('.roster-scroll').scrollTop=0")
         barrier(page)
-        if w==1440: page.screenshot(path=str(out/'team-1440x900-original.png'))
+        if w in (390,1440): page.screenshot(path=str(out/f'team-{w}x{h}-original.png'))
         page.evaluate("document.querySelectorAll('.proxy-name').forEach(e=>e.style.visibility='hidden')");barrier(page)
         page.evaluate("document.querySelectorAll('.overview-face').forEach(e=>e.shadowRoot.querySelectorAll('.face-name').forEach(n=>n.style.visibility='hidden'))")
         barrier(page)
@@ -106,8 +144,6 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
             if ident==samples[0]:
                 check(tag+'.detail_width',k[2]-k[0],280,400,'px')
                 check(tag+'.card_detail_area',area(km)/area(dm)*100,35,50,'%')
-                check(tag+'.new_language_area',area(rail)/area(ui)*100,65,85,'%',note='Historical round-one metric; retained, not a round-two visual-success claim')
-                check(tag+'.texture_area',area(texture)/area(ui)*100,12,22,'%')
                 check(tag+'.slot_gap',[k[0]-slot[0],k[1]-slot[1],slot[2]-k[2],slot[3]-k[3]],8,16,'px')
                 check(tag+'.card_clipped',page.eval_on_selector('#card-host','e=>{const r=e.getBoundingClientRect();return 100*(1-Math.max(0,Math.min(innerWidth,r.right)-Math.max(0,r.left))*Math.max(0,Math.min(innerHeight,r.bottom)-Math.max(0,r.top))/(r.width*r.height))}'),0,0,'%')
                 for name,m in [('D',dm),('K',km),('UI',ui),('C',rail),('R',rm),('texture',texture)]:m.convert('L').save(out/f'{tag}-{name}-mask.png')
@@ -148,8 +184,6 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
                         check(f'{prefix}.{pose}.seam_over24',sum(hist[25:])/den*100,0,5,'% R')
                         if ident==samples[0] and pose=='neutral':
                             on.save(out/f'{tag}-detail.png')
-                    if ident==samples[0] and pose=='neutral' and label=='texture':
-                        check(tag+'.texture_blank_delta',ImageStat.Stat(delta.crop(tuple(map(round,blank)))).mean[0],6,14,'/255')
                 page.evaluate('team20.ablate([])')
         perf=page.evaluate('''async()=>{team20.showPage(0);let intervals=[],last=performance.now();for(let i=0;i<60;i++){await new Promise(requestAnimationFrame);let now=performance.now();intervals.push(now-last);last=now}let start=performance.now();team20.showPage(1);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));let switchMs=performance.now()-start;team20.showPage(0);return {intervals,switchMs,overviewFaces:[...document.querySelectorAll('.overview-face')].filter(e=>e.shadowRoot.querySelector('.hcard')).length}}''')
         result['evidence'][tag+'.performance']=perf

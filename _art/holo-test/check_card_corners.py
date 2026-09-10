@@ -44,6 +44,43 @@ def crop(img, box):
     x0, y0 = max(0, x0), max(0, y0)
     return np.asarray(img.crop((x0, y0, x1, y1)).convert('RGB'))
 
+def measure_corners(img, cards, fraction=8, darkest_limit=12):
+    rows = []
+    W, H = img.size
+    skipped = []
+    for i, c in enumerate(cards):
+        if c['w'] < 40 or c['h'] < 40:
+            skipped.append((i, 'too small')); continue
+        # 只取「完整落在視窗內、而且外圈取樣區也在視窗內」的卡，
+        # 否則會採到截圖外的空白（純黑），製造整片假紅燈。
+        r = max(4, int(c['radius']))
+        if c['x'] - r < 0 or c['y'] - r < 0 or c['x'] + c['w'] + r > W or c['y'] + c['h'] + r > H:
+            skipped.append((i, 'out of viewport')); continue
+        for name, cbox, lbox in corner_boxes(c['x'], c['y'], c['w'], c['h'], c['radius']):
+            cl, ll = lum(crop(img, cbox)), lum(crop(img, lbox))
+            if cl.size == 0 or ll.size == 0:
+                continue
+            local_ref = float(np.median(ll))
+            if local_ref <= 1.0:
+                # 在地背景本身就是純黑 => 這個取樣點沒有鑑別力，不能判紅
+                rows.append(dict(card=i, cls=c['cls'][:40], corner=name,
+                                 local_ref=round(local_ref, 2), darkest=float(cl.min()),
+                                 near_black_pct=None, much_darker_pct=None,
+                                 note='在地背景為純黑，取樣無效')); continue
+            darkest = float(cl.min())
+            # 「比在地背景暗很多」且「接近純黑」才算 L 形黑角
+            near_black = float((cl <= 12).mean() * 100)
+            much_darker = float((cl <= max(4.0, local_ref * 0.35)).mean() * 100)
+            rows.append(dict(card=i, cls=c['cls'][:40], corner=name,
+                             local_ref=round(local_ref, 2), darkest=round(darkest, 2),
+                             near_black_pct=round(near_black, 3),
+                             much_darker_pct=round(much_darker, 3)))
+
+    valid = [r for r in rows if r['much_darker_pct'] is not None]
+    bad = [r for r in valid if r['much_darker_pct'] >= fraction and r['darkest'] <= darkest_limit]
+    return dict(rows=rows, skipped=skipped, samples=len(valid), bad=len(bad), status='FAIL' if bad else 'PASS' if valid else 'SKIP', thresholds={'fraction':fraction,'darkest':darkest_limit})
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('page')
@@ -85,42 +122,13 @@ def main():
         })""" % args.limit)
         b.close()
 
-    img = Image.open(shot)
-    W, H = img.size
-    skipped = []
-    for i, c in enumerate(cards):
-        if c['w'] < 40 or c['h'] < 40:
-            skipped.append((i, 'too small')); continue
-        # 只取「完整落在視窗內、而且外圈取樣區也在視窗內」的卡，
-        # 否則會採到截圖外的空白（純黑），製造整片假紅燈。
-        r = max(4, int(c['radius']))
-        if c['x'] - r < 0 or c['y'] - r < 0 or c['x'] + c['w'] + r > W or c['y'] + c['h'] + r > H:
-            skipped.append((i, 'out of viewport')); continue
-        for name, cbox, lbox in corner_boxes(c['x'], c['y'], c['w'], c['h'], c['radius']):
-            cl, ll = lum(crop(img, cbox)), lum(crop(img, lbox))
-            if cl.size == 0 or ll.size == 0:
-                continue
-            local_ref = float(np.median(ll))
-            if local_ref <= 1.0:
-                # 在地背景本身就是純黑 => 這個取樣點沒有鑑別力，不能判紅
-                rows.append(dict(card=i, cls=c['cls'][:40], corner=name,
-                                 local_ref=round(local_ref, 2), darkest=float(cl.min()),
-                                 near_black_pct=None, much_darker_pct=None,
-                                 note='在地背景為純黑，取樣無效')); continue
-            darkest = float(cl.min())
-            # 「比在地背景暗很多」且「接近純黑」才算 L 形黑角
-            near_black = float((cl <= 12).mean() * 100)
-            much_darker = float((cl <= max(4.0, local_ref * 0.35)).mean() * 100)
-            rows.append(dict(card=i, cls=c['cls'][:40], corner=name,
-                             local_ref=round(local_ref, 2), darkest=round(darkest, 2),
-                             near_black_pct=round(near_black, 3),
-                             much_darker_pct=round(much_darker, 3)))
-
+    measurement = measure_corners(Image.open(shot), cards)
+    rows = measurement['rows']
     valid = [r for r in rows if r['much_darker_pct'] is not None]
     worst = sorted(valid, key=lambda r: -r['much_darker_pct'])[:12]
     print(json.dumps(dict(url=url, cards=len(cards), samples=len(rows), worst=worst),
                      ensure_ascii=False, indent=2))
-    bad = [r for r in rows if r['much_darker_pct'] >= 8 and r['darkest'] <= 12]
+    bad = [r for r in valid if r['much_darker_pct'] >= 8 and r['darkest'] <= 12]
     print(f"\n>>> 疑似 L 形黑角的角落數：{len(bad)} / {len(rows)}")
     print(">>> 判定:", "FAIL" if bad else "PASS")
     if args.out:

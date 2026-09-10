@@ -190,6 +190,9 @@ body[data-screen=team]{background:#101115;color:#ecece6}
 @media(max-width:1250px){.team-heading{height:40px}.team-heading small{display:none}.capacity{padding:0}.team-roster-head{height:24px}}
 @media(max-width:700px){.capacity-row{height:24px}.skill-slot{height:56px}.team-skills{padding:0}.roster-pages{height:20px}.team-heading button{padding:6px 8px}.team-heading h1{font-size:24px}}
 @media(max-width:1250px){.team-heading{height:38px}}
+
+/* Round 3: three complete mobile columns; remaining rows scroll vertically. */
+@media(max-width:700px){.team-grid{grid-template-columns:repeat(3,112px);grid-template-rows:none;grid-auto-rows:178.8px;gap:8px;width:100%;justify-content:center;padding:6px}.roster-scroll{overflow-x:hidden}}
 </style>
 <div class="shell"><header class="mast" data-ui><i class="wear"></i><div><small>災後行動 / 路線記錄 02</small><h1>末世地圖</h1></div><div class="meta">單一路線 · 五個封鎖區<br><span id="total" class="digits"></span> 站已通行</div></header><main class="board"><nav class="rail-zone" data-ui data-rail aria-label="區段"><i class="wear"></i><i class="wear wear-right"></i><i class="wear wear-foot"></i></nav><section class="map-window" aria-label="二十站線性地圖"><div class="route"><div class="terrain" aria-hidden="true"></div><svg class="route-lines" aria-hidden="true"></svg></div></section><aside class="inspector rail-zone" data-ui data-rail aria-label="關卡摘要"><i class="wear"></i><i class="wear wear-right"></i><i class="wear wear-foot"></i><small id="section"></small><h2 id="title"></h2><div class="status" id="status" aria-live="polite"></div><hr><p id="description"></p><p class="next" id="next"></p><div class="actions"><button id="advance">記錄通關</button><button id="fail">記錄失敗</button></div><button id="back">返回目前站</button><p id="art-note"></p><p class="footer-note">道路仍在。逐站確認，繼續前進。</p></aside></main></div>
 <button id="open-team">編隊 →</button>
