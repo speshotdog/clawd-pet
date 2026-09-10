@@ -113,7 +113,7 @@ def build():
     evidence = {'html_bytes':len(html.encode('utf-8')), 'html_sha256':hashlib.sha256(html.encode('utf-8')).hexdigest(), 'terrain_quality':quality,
                 'team_cards':[{k:c[k] for k in ('id','name','rarity','kind')} for c in cards], 'frozen_css_sha256':hashlib.sha256(styles.encode()).hexdigest(), 'terrain_size':scene.size, 'crops':crops, 'cutout_method':{'connectivity':4,'cream_min_channel':235,'cream_max_channel_spread':25,'changes':'alpha only; original RGB untouched'},
                 'sources':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in [art/'seg1-backyard-ruin.png',art/'icons-sheet.png']}}
-    out = HERE.parents[1] / 'docs/clicker/shots/team-round1'
+    out = HERE.parents[1] / 'docs/clicker/shots/team-round2'
     out.mkdir(parents=True,exist_ok=True)
     for name,info in crops.items():
         original=sheet.crop(info['source_box']).convert('RGBA')

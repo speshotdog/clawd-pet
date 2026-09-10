@@ -34,11 +34,11 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
     for w,h in [(1440,900),(1024,768),(390,844)]:
         page.set_viewport_size({'width':w,'height':h});go(page,'screen=team');freeze(page,0)
         tag=f'team-{w}x{h}';size=(w,h)
-        geom=page.evaluate('''()=>{const q=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)],r=e=>e.getBoundingClientRect(),s=e=>getComputedStyle(e),grid=q('.team-grid');let cards=all('#team-grid .proxy-image');return {count:cards.length,widths:cards.map(e=>r(e).width),ratios:cards.map(e=>r(e).width/r(e).height),cols:s(grid).gridTemplateColumns.split(' ').length,gap:parseFloat(s(grid).gap),rowHeights:all('.capacity-row').map(e=>r(e).height),rowFonts:all('.capacity-row').map(e=>parseFloat(s(e).fontSize)),nameFonts:all('.proxy-name').map(e=>parseFloat(s(e).fontSize)),color:s(q('.capacity-row')).color,bg:s(q('.capacity')).backgroundColor,nameColor:s(q('.proxy-name')).color,nameBg:s(q('.team-roster')).backgroundColor,skillHeights:all('.skill-slot').map(e=>r(e).height),skillGap:parseFloat(s(q('.skill-grid')).gap),skillCount:all('.skill-slot').length,overlap:cards.flatMap((a,i)=>cards.slice(i+1).map(b=>{const A=r(a),B=r(b);return Math.max(0,Math.min(A.right,B.right)-Math.max(A.left,B.left))*Math.max(0,Math.min(A.bottom,B.bottom)-Math.max(A.top,B.top))})).reduce((a,b)=>a+b,0),overflow:Math.max(0,document.body.scrollWidth-innerWidth)}}''')
+        geom=page.evaluate('''()=>{const q=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)],r=e=>e.getBoundingClientRect(),s=e=>getComputedStyle(e),grid=q('.team-grid');let cards=all('#team-grid .team-proxy:not([hidden]) .proxy-image');return {count:all('#team-grid .team-proxy').length,widths:cards.map(e=>r(e).width),ratios:cards.map(e=>r(e).width/r(e).height),cols:s(grid).gridTemplateColumns.split(' ').length,gap:parseFloat(s(grid).gap),rowHeights:all('.capacity-row').map(e=>r(e).height),rowFonts:all('.capacity-row').map(e=>parseFloat(s(e).fontSize)),nameFonts:all('.proxy-name').map(e=>parseFloat(s(e).fontSize)),color:s(q('.capacity-row')).color,bg:s(q('.capacity')).backgroundColor,nameColor:s(q('.proxy-name')).color,nameBg:s(q('.team-roster')).backgroundColor,skillHeights:all('.skill-slot').map(e=>r(e).height),skillGap:parseFloat(s(q('.skill-grid')).gap),skillCount:all('.skill-slot').length,overlap:cards.flatMap((a,i)=>cards.slice(i+1).map(b=>{const A=r(a),B=r(b);return Math.max(0,Math.min(A.right,B.right)-Math.max(A.left,B.left))*Math.max(0,Math.min(A.bottom,B.bottom)-Math.max(A.top,B.top))})).reduce((a,b)=>a+b,0),overflow:Math.max(0,document.body.scrollWidth-innerWidth)}}''')
         result['evidence'][tag+'.geometry']=geom
         check(tag+'.full_team',geom['count'],20,20)
-        check(tag+'.columns',geom['cols'],4 if w<700 else 5 if w<1251 else 10,4 if w<700 else 5 if w<1251 else 10)
-        check(tag+'.proxy_width',geom['widths'],68 if w<700 else 88,80 if w<700 else 104,'px')
+        check(tag+'.columns',geom['cols'],5,5)
+        check(tag+'.proxy_width',geom['widths'],96 if w<700 else 110 if w<1251 else 140,130 if w<700 else 150 if w<1251 else 200,'px')
         check(tag+'.proxy_ratio',geom['ratios'],5/7-.001,5/7+.001)
         check(tag+'.gap',geom['gap'],8,12,'px');check(tag+'.overlap',geom['overlap'],0,0,'px²')
         check(tag+'.capacity_height',geom['rowHeights'],24,36,'px');check(tag+'.capacity_font',geom['rowFonts'],13,15,'px')
@@ -47,11 +47,29 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
         check(tag+'.skills',geom['skillCount'],4,4);check(tag+'.skill_height',geom['skillHeights'],56,72,'px');check(tag+'.skill_gap',geom['skillGap'],8,12,'px')
         check(tag+'.overflow',geom['overflow'],0,0,'px')
         page.screenshot(path=str(out/f'{tag}-overview.png'))
+        visiblecards=mask(size,rects(page,'#team-grid .proxy-image')+rects(page,'#card-host'))
+        visibleui=ImageChops.logical_and(mask(size,rects(page,'.team-heading,.capacity,.team-roster-head,.roster-pages,.team-skills,.team-detail-header,.team-detail-note,.team-detail-actions,.carrier-board')),ImageChops.invert(visiblecards))
+        visiblecards.convert('L').save(out/f'{tag}-visible-cards-mask.png')
+        visibleui.convert('L').save(out/f'{tag}-visible-ui-mask.png')
+        check(tag+'.visible_card_area',area(visiblecards)/(w*h)*100,45,70,'% viewport')
+        check(tag+'.visible_noncard_ui_area',area(visibleui)/(w*h)*100,12,30,'% viewport')
+        check(tag+'.visible_page_count',page.locator('#team-grid .team-proxy:visible').count(),10,10)
+        ids=page.evaluate('''()=>{let ids=[];for(let p=0;p<2;p++){team20.showPage(p);ids.push(...[...document.querySelectorAll('#team-grid .team-proxy:not([hidden])')].map(e=>e.dataset.id))}team20.showPage(0);return [...new Set(ids)]}''')
+        check(tag+'.page_union_count',len(ids),20,20)
+        page.locator('#roster-next').click();page.evaluate("document.querySelector('.roster-scroll').scrollLeft=10000;document.querySelector('.roster-scroll').scrollTop=10000")
+        barrier(page);page.screenshot(path=str(out/f'{tag}-page2-end.png'))
+        check(tag+'.last_member_reachable',page.eval_on_selector('#team-grid .team-proxy:last-child .proxy-image','''e=>{let a=e.getBoundingClientRect(),b=document.querySelector('.roster-scroll').getBoundingClientRect();return Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top))/(a.width*a.height)*100}'''),100,100,'%')
+        page.locator('#roster-prev').click();page.evaluate("document.querySelector('.roster-scroll').scrollLeft=0;document.querySelector('.roster-scroll').scrollTop=0")
+        barrier(page)
+        if w==1440: page.screenshot(path=str(out/'team-1440x900-original.png'))
         page.evaluate("document.querySelectorAll('.proxy-name').forEach(e=>e.style.visibility='hidden')");barrier(page)
+        page.evaluate("document.querySelectorAll('.overview-face').forEach(e=>e.shadowRoot.querySelectorAll('.face-name').forEach(n=>n.style.visibility='hidden'))")
+        barrier(page)
         page.screenshot(path=str(out/f'{tag}-names-hidden.png'))
+        page.evaluate("document.querySelectorAll('.overview-face').forEach(e=>e.shadowRoot.querySelectorAll('.face-name').forEach(n=>n.style.visibility=''))")
         page.evaluate("document.querySelectorAll('.proxy-name').forEach(e=>e.style.visibility='')")
-        persistent=page.evaluate('''()=>{const q=s=>document.querySelector(s),before=['.capacity','.team-skills'].map(s=>q(s).getBoundingClientRect().toJSON());q('.team-roster').scrollTop=10000;return before.map((b,i)=>{let a=q(['.capacity','.team-skills'][i]).getBoundingClientRect();return Math.abs(a.y-b.y)+Math.abs(a.height-b.height)+(a.top<0||a.bottom>innerHeight?1000:0)})}''')
-        check(tag+'.fixed_capacity_skills',persistent,0,0,'px');page.evaluate("document.querySelector('.team-roster').scrollTop=0")
+        persistent=page.evaluate('''()=>{const q=s=>document.querySelector(s),before=['.capacity','.team-skills'].map(s=>q(s).getBoundingClientRect().toJSON());q('.roster-scroll').scrollTop=10000;q('.roster-scroll').scrollLeft=10000;return before.map((b,i)=>{let a=q(['.capacity','.team-skills'][i]).getBoundingClientRect();return Math.abs(a.y-b.y)+Math.abs(a.height-b.height)+(a.top<0||a.bottom>innerHeight?1000:0)})}''')
+        check(tag+'.fixed_capacity_skills',persistent,0,0,'px');page.evaluate("document.querySelector('.roster-scroll').scrollTop=0;document.querySelector('.roster-scroll').scrollLeft=0")
         # Identity checks across ALL 20 slots, not just one matching color.
         identities=page.evaluate('''()=>team20.roster.map((id,i)=>{team20.select(id);const q=s=>document.querySelector(s);return Number(q('#detail-number').textContent===String(i+1).padStart(2,'0')&&q('#team-detail').dataset.id===id&&q('#detail-operation').textContent.includes(team20.cards.find(c=>c.id===id).name)&&q('#team-grid [aria-selected=true]').dataset.id===id&&team20.face.dataset.id===id)})''')
         check(tag+'.identity_sync',sum(identities)/len(identities)*100,100,100,'%')
@@ -86,9 +104,9 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
             prefix=f'{tag}-{ident}'
             result['evidence'][prefix+'.denominators']={'D':d,'K':k,'slot':slot,'R_pixels':area(rm),'UI_pixels':area(ui),'blank':blank,'mask_policy':__doc__}
             if ident==samples[0]:
-                check(tag+'.detail_width',k[2]-k[0],240,304,'px')
+                check(tag+'.detail_width',k[2]-k[0],280,400,'px')
                 check(tag+'.card_detail_area',area(km)/area(dm)*100,35,50,'%')
-                check(tag+'.new_language_area',area(rail)/area(ui)*100,65,85,'%')
+                check(tag+'.new_language_area',area(rail)/area(ui)*100,65,85,'%',note='Historical round-one metric; retained, not a round-two visual-success claim')
                 check(tag+'.texture_area',area(texture)/area(ui)*100,12,22,'%')
                 check(tag+'.slot_gap',[k[0]-slot[0],k[1]-slot[1],slot[2]-k[2],slot[3]-k[3]],8,16,'px')
                 check(tag+'.card_clipped',page.eval_on_selector('#card-host','e=>{const r=e.getBoundingClientRect();return 100*(1-Math.max(0,Math.min(innerWidth,r.right)-Math.max(0,r.left))*Math.max(0,Math.min(innerHeight,r.bottom)-Math.max(0,r.top))/(r.width*r.height))}'),0,0,'%')
@@ -102,6 +120,23 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
                     off=Image.open(io.BytesIO(page.screenshot())).convert('RGB')
                     pair(off,on,out/f'{prefix}-{pose}-{label}-pair.png')
                     delta=ImageChops.difference(on.convert('L'),off.convert('L'))
+
+                    core_mask=mask(size,[[k[0]+24,k[1]+24,k[2]-24,k[3]-24]])
+                    core_rgb=ImageChops.difference(on,off);cb=core_rgb.split()
+                    core_max=ImageChops.lighter(ImageChops.lighter(cb[0],cb[1]),cb[2])
+                    ch=core_max.histogram(mask=core_mask.convert('L'))
+                    check(f'{prefix}.{pose}.{label}_core_difference',sum(ch[1:])/max(1,sum(ch))*100,0,0,'%')
+                    if label=='carrier':
+                        hist=delta.histogram(mask=rm.convert('L'));den=max(1,sum(hist))
+                        check(f'{prefix}.{pose}.seam_delta',sum(hist[8:])/den*100,25,60,'% R')
+                        rgbdiff=ImageChops.difference(on,off)
+                        bands=rgbdiff.split();maximum=ImageChops.lighter(ImageChops.lighter(bands[0],bands[1]),bands[2])
+                        dh=maximum.histogram(mask=dm.convert('L'))
+                        check(f'{prefix}.{pose}.detail_delta',sum(dh[3:])/max(1,sum(dh))*100,12,35,'% D')
+                        signed=[a-b for a,b,m in zip(on.convert('L').getdata(),off.convert('L').getdata(),rm.getdata()) if m]
+                        check(f'{prefix}.{pose}.glow_peak',max(signed),6,18,'/255')
+                        if ident==samples[0] and pose=='neutral':
+                            pair(off,on,out/f'{tag}-carrier-pair.png');pair(off.convert('L'),on.convert('L'),out/f'{tag}-carrier-gray-pair.png')
                     if label=='all':
                         # Core in neutral projection inset 24px avoids perspective edges.
                         core=mask(size,[[k[0]+24,k[1]+24,k[2]-24,k[3]-24]])
@@ -112,10 +147,17 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
                         check(f'{prefix}.{pose}.seam_8_24',sum(hist[8:25])/den*100,20,45,'% R')
                         check(f'{prefix}.{pose}.seam_over24',sum(hist[25:])/den*100,0,5,'% R')
                         if ident==samples[0] and pose=='neutral':
-                            on.save(out/f'{tag}-detail.png');pair(off,on,out/f'{tag}-carrier-pair.png');pair(off.convert('L'),on.convert('L'),out/f'{tag}-carrier-gray-pair.png')
+                            on.save(out/f'{tag}-detail.png')
                     if ident==samples[0] and pose=='neutral' and label=='texture':
                         check(tag+'.texture_blank_delta',ImageStat.Stat(delta.crop(tuple(map(round,blank)))).mean[0],6,14,'/255')
                 page.evaluate('team20.ablate([])')
+        perf=page.evaluate('''async()=>{team20.showPage(0);let intervals=[],last=performance.now();for(let i=0;i<60;i++){await new Promise(requestAnimationFrame);let now=performance.now();intervals.push(now-last);last=now}let start=performance.now();team20.showPage(1);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));let switchMs=performance.now()-start;team20.showPage(0);return {intervals,switchMs,overviewFaces:[...document.querySelectorAll('.overview-face')].filter(e=>e.shadowRoot.querySelector('.hcard')).length}}''')
+        result['evidence'][tag+'.performance']=perf
+        check(tag+'.mounted_overview_faces',perf['overviewFaces'],10,10)
+        # Only the detail host installs pointer / keyboard material handlers.
+        overview_pose=page.evaluate('''()=>[...document.querySelectorAll('.overview-face')].map(e=>{let f=e.shadowRoot.querySelector('.hcard');return f.style.cssText})''')
+        page.mouse.move(100,350);barrier(page)
+        check(tag+'.overview_pointer_unchanged',int(overview_pose==page.evaluate('''()=>[...document.querySelectorAll('.overview-face')].map(e=>e.shadowRoot.querySelector('.hcard').style.cssText)''')),1,1)
         # Interaction accepts only the one mounted full face.
         check(tag+'.interactive_cards',page.locator('#card-host .hcard').count(),1,1)
         check(tag+'.proxy_animations',page.eval_on_selector_all('.team-proxy','es=>es.reduce((n,e)=>n+e.getAnimations({subtree:true}).length,0)'),0,0)
@@ -206,3 +248,8 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
         sheet.paste(shot,(i*240+(240-shot.width)//2,50+(110-shot.height)//2));draw.text((i*240+112,16),f'{i+1:02}',fill=220)
     sheet.save(out/'classification-components-gray.png')
     (out/'classification-key.json').write_text(json.dumps({'order':[x[0] for x in ordered],'styles':component_styles,'status':'待人工判定；只提供現行元件形狀對照，沒有玩家分類數據。'},ensure_ascii=False,indent=2),encoding='utf-8')
+
+
+if __name__ == '__main__':
+    from check_map20 import main
+    raise SystemExit(main())

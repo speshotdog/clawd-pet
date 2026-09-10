@@ -76,3 +76,60 @@ body[data-screen=team] #open-team{display:none}
 @media(max-width:350px){.team-grid{grid-template-columns:repeat(3,76px)}.capacity-row{grid-template-columns:155px 48px 1fr;font-size:13px}.card-host{width:240px}.team-detail{padding:16px}.skill-slot{font-size:12px!important}}
 @media(max-width:700px){.team-heading{height:68px}.team-detail{top:84px}}
 @media(min-width:701px) and (max-width:1250px){.team-work{grid-template-columns:minmax(0,1fr) 320px}}
+/* Round 2: a quiet card collection, scoped away from the map. */
+body[data-screen=team]{background:#101115;color:#ecece6}
+#team-screen{--page:#101115;--ink:#ecece6;--muted:#949690;--line:#303239;--team-ink:#949690;--base:#101115;--plate:#101115;--edge:#303239;background:var(--page);padding:12px 20px;gap:12px}
+#team-screen button{background:transparent;border:1px solid var(--line);box-shadow:none;color:var(--ink)}
+#team-screen button:hover{border-color:var(--muted)}
+.team-heading{height:56px;background:var(--page);border-bottom:1px solid var(--line);padding:0 4px}
+.team-heading h1{font-size:26px;font-weight:500;letter-spacing:.1em}
+.team-work{grid-template-columns:minmax(0,1fr) 376px;gap:24px}
+.team-main{gap:8px}.team-rail{border:0;background:var(--page)}
+.capacity{padding:8px 0;border-bottom:1px solid var(--line)}
+#capacity-rows{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.capacity-row{grid-template-columns:168px 54px 1fr;height:30px}
+.segments i{border-color:#62645f;background:#101115}.segments i.filled{background:#949690}
+.team-roster{padding:6px 0;overflow:hidden;display:flex;flex-direction:column;scrollbar-gutter:auto}
+.team-roster-head{margin:0 0 6px;height:30px;flex:none}.roster-scroll{overflow:auto;min-height:0;flex:1;overscroll-behavior:contain}
+.team-grid{grid-template-columns:repeat(5,180px);grid-template-rows:repeat(2,274px);gap:10px;justify-content:center;padding:6px}
+.team-proxy[hidden]{display:none}.proxy-image{border:0;background:transparent}
+.overview-face{position:absolute;inset:0;display:block;pointer-events:none}
+.proxy-index{top:auto;bottom:-22px;left:0;background:transparent;color:var(--muted);font-size:12px;line-height:18px}
+.proxy-symbol{display:none}.proxy-name{height:22px;padding-left:38px;color:var(--muted);font-size:12px;line-height:18px}
+.team-marker{border-left:2px solid var(--muted);color:var(--muted)}
+.team-proxy[aria-selected=true] .proxy-image{outline:1px solid var(--muted);outline-offset:4px}
+.roster-pages{display:flex;align-items:center;justify-content:center;gap:20px;height:28px;flex:none;font:12px monospace}
+.roster-pages button{padding:2px 12px!important;font-size:12px!important}.roster-pages button:disabled{opacity:.3}
+.team-skills{padding:8px 0;border-top:1px solid var(--line)}.team-skills-label{margin-bottom:6px}.skill-slot small{color:var(--muted)}
+.team-detail{height:100%;max-height:none;padding:16px 4px;gap:12px;border-left:1px solid var(--line)}
+.team-detail-header{padding:0 20px}.team-detail-header small{color:var(--muted)}
+.card-host{width:320px;box-shadow:none}
+.carrier-board{padding:12px;background:transparent}
+.card-slot{padding:12px;background:transparent;box-shadow:none}
+.card-slot::before{inset:-10px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--accent-card) 8%,#101115),color-mix(in srgb,var(--accent-card) 8%,#101115));box-shadow:0 16px 16px #0009;clip-path:polygon(0 0,28% 0,28% 100%,0 100%,0 0,72% 0,100% 0,100% 100%,72% 100%,72% 0)}
+.team-detail-note,.team-detail-actions{margin-left:20px;margin-right:20px;align-self:stretch}
+.team-detail-note{color:var(--muted)}
+.team-texture{background-image:repeating-linear-gradient(0deg,#94969018 0 1px,transparent 1px 5px);opacity:.4}
+.team-roster>.team-texture,.capacity>.team-texture,.team-skills>.team-texture{display:none}
+.team-dialog{background:#101115;color:#949690;border-color:#303239}
+@media(min-width:701px) and (max-width:1250px){#team-screen{padding:12px}.team-work{grid-template-columns:minmax(0,1fr) 332px;gap:12px}.team-grid{grid-template-columns:repeat(5,118px);grid-template-rows:repeat(2,187.2px)}.card-host{width:280px}#capacity-rows{display:block}.capacity-row{grid-template-columns:174px 58px 1fr}.team-detail{height:100%;padding:8px 0}.team-detail-header{padding:0 12px}}
+@media(max-width:700px){#team-screen{padding:8px}.team-heading{height:60px}.team-heading h1{font-size:24px}.team-work{display:block}#capacity-rows{display:block}.capacity-row{grid-template-columns:168px 55px 1fr;height:28px}.team-grid{grid-template-columns:repeat(5,120px);grid-template-rows:repeat(2,190px);justify-content:start;width:max-content}.team-roster{padding:6px 0}.team-detail{top:80px;left:8px;right:8px;padding:16px 4px;height:650px;max-height:calc(100dvh - 88px);border:1px solid var(--line);background:#101115;box-shadow:0 0 0 100vmax #101115d9}.card-host{width:280px}.team-detail-header{padding:0 16px}.team-skills{padding:8px 0}.team-detail-actions{margin-top:auto}.skill-slot{height:64px}.team-skills-label small{font-size:11px}.team-dialog button{background:#101115}}
+@media(min-width:1251px){.team-heading{height:48px}#team-screen{gap:8px}.capacity{padding:4px 0}.team-roster-head{height:26px}.team-skills .skill-slot{height:56px}.team-skills{padding:4px 0}.team-grid{grid-template-rows:repeat(2,274px)}}
+.capacity-row .digits{white-space:nowrap}.capacity-row{grid-template-columns:168px 66px 1fr}
+.roster-pages{flex-direction:row;gap:16px}.roster-pages button{flex:none}
+#team-screen small{color:var(--muted)}
+/* Contact plane is strictly outside the card, including in ablations. */
+.carrier-board::before{content:'';position:absolute;inset:0;border-radius:12px;background:color-mix(in srgb,var(--accent-card) 3.5%,#101115);clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,24px 24px,24px calc(100% - 24px),calc(100% - 24px) calc(100% - 24px),calc(100% - 24px) 24px,24px 24px);pointer-events:none}
+.card-slot::before{inset:-12px;background:color-mix(in srgb,var(--accent-card) 8%,#101115);box-shadow:0 14px 16px #0009;clip-path:polygon(evenodd,0 22%,24px 22%,24px 78%,0 78%,0 22%,calc(100% - 24px) 22%,100% 22%,100% 78%,calc(100% - 24px) 78%,calc(100% - 24px) 22%)}
+.no-team-carrier .carrier-board::before{visibility:hidden}
+.team-detail-header h2{color:var(--ink)}
+@media(min-width:701px) and (max-width:1250px){#capacity-rows{display:grid;grid-template-columns:1fr 1fr;gap:0 4px}.capacity-row{grid-template-columns:168px 66px 1fr;gap:4px;font-size:13px;padding:0 2px}}
+@media(min-width:1251px){.team-work{grid-template-columns:minmax(0,1fr) 392px}.carrier-board{padding:16px}.carrier-board::before{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,28px 28px,28px calc(100% - 28px),calc(100% - 28px) calc(100% - 28px),calc(100% - 28px) 28px,28px 28px)}}
+@media(min-width:701px) and (max-width:1250px){#team-screen{gap:8px}.team-heading{height:48px}.capacity{padding:4px 0}.capacity-row{height:24px}.team-grid{grid-template-columns:repeat(5,142px);grid-template-rows:repeat(2,220.8px);justify-content:start;width:max-content}.team-roster{padding:0}.team-roster-head{height:26px;margin-bottom:4px}.roster-pages{height:24px}.team-skills{padding:4px 0}.skill-slot{height:56px}}
+@media(max-width:700px){.team-grid{grid-template-columns:repeat(5,130px);grid-template-rows:repeat(2,204px)}}
+@media(min-width:701px) and (max-width:1250px){.team-grid{grid-template-columns:repeat(5,143px);grid-template-rows:repeat(2,222.2px)}}
+/* Keep supporting controls compact; card names already identify the selection. */
+.team-detail-note{display:none}
+@media(max-width:1250px){.team-heading{height:40px}.team-heading small{display:none}.capacity{padding:0}.team-roster-head{height:24px}}
+@media(max-width:700px){.capacity-row{height:24px}.skill-slot{height:56px}.team-skills{padding:0}.roster-pages{height:20px}.team-heading button{padding:6px 8px}.team-heading h1{font-size:24px}}
+@media(max-width:1250px){.team-heading{height:38px}}

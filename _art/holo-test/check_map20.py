@@ -18,7 +18,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageStat
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / 'docs/clicker/shots/team-round1'
+OUT = ROOT / 'docs/clicker/shots/team-round2'
 URL = (ROOT / '_art/holo-test/map20.html').as_uri()
 RESULT = {'checks': {}, 'evidence': {}, 'manual': ['灰階圖的 C 結構辨識須人工判讀，未以像素差冒充玩家辨識率。']}
 
