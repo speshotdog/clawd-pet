@@ -112,7 +112,7 @@ ghost 角：3 卡型 × 2 viewport × 3 時點 = 18 個狀態，每個 ghost **4
 | 原有 1097 PASS 逐項維持；體積修正後 ≥1098 | ✅ **1098**，舊 PASS 退步 0 |
 | 既有 FAIL 最多保留 6 條；新增 FAIL 0 | ✅ 恰好六條（`protected_files_changed`＝demo.html 字型 bytes、`overview_pointer_unchanged`、proxy／automatic animations ×2 尺寸） |
 | 2 NEEDS_DEVICE 不改 PASS；GPU／Tauri 缺口分列 | ✅ 仍 2；Tauri 實機未驗（第五節） |
-| 必測狀態覆蓋缺口 0；合法 SKIP 有原因 | ✅ 每 DPR 42 狀態、遺漏 0、零樣本必測 0；skip 逐張記 `out of viewport`／`occluded`／`not visible` |
+| 必測狀態覆蓋缺口 0；合法 SKIP 有原因 | ✅ 每 DPR 52 記錄／50 必測（v3）、遺漏 0、零樣本必測 0、ghost 缺角 0；skip 逐張記 `out of viewport`／`occluded`／`not visible` |
 | 報告列來源 SHA、命令、exit、數字、PNG、mask、JSON | ✅ `shots/picker-drag/*/summary.json`、`build/build.json`、`before/snapshot.json`；PNG 逐狀態；黑角 rows 含弧外像素數與在地背景 |
 | 不上 gh-pages、不產 exe、不擴展技能規則 | ✅ |
 
@@ -130,6 +130,22 @@ ghost 角：3 卡型 × 2 viewport × 3 時點 = 18 個狀態，每個 ghost **4
 | Edge DPR 2 負控制 56 vs 48 | 負控制數量本來就隨版面波動，門檻是 ≥1；v3 為 76 |
 | `git diff --check HEAD~5..HEAD` 8794 個尾空白（ORDER 三份 md 與 log） | 未處理：ORDER 是 Astra 產出的 markdown 雙空白換行、log 是工具輸出；等裁決要不要清 |
 | 瀏覽器在工作目錄留 `debug.log`（GPU SharedImageManager mailbox 錯誤） | 屬 Chrome 原生診斷；v3 重跑後若再出現一併移入 verify |
+
+## 五之二、Astra 第二次複驗（`VERDICT-2026-09-12-picker-drag-v2.md`）處置
+
+兩個實際覆蓋缺口判解除；剩一個驗收邏輯漏洞：`required` 仍在 `drag_done` 為空時把 30 個拖曳必測整批拿掉（Astra 用 AST 取判定式做記憶體反例：移除全部拖曳記錄仍 ok=true）。
+處置（v4）：
+- `required = REQUIRED_STATES + drag_required()` **無條件**；`ghost_gap` 再加「每個拖曳畫面 ghost 恰好一張」。
+- 負控制：把 `scan_drag` 換成不跑任何拖曳 → **缺 30、FAIL**（`corners-negctl-nodrag/`）。正式 Chromium v4 → 52／50、缺 0、OK（`corners-chromium-v4/`）。
+- 自檢補「ghost 壓住鄰卡 TR 角」案例：該角記 `occluded by drag ghost`、不判紅、ghost 自己四角照量 → **13/13**（`corner-selftest-3/`）。
+- Astra 點出的 6 個「只碰到角落方塊內卡體」的保守過度排除保留原規則（它明說不列阻擋）；REPORT 第四節殘留的 42 已改 52／50。
+- Chrome／Edge GPU 以 v4 判定式重跑：`corners-chrome-v4/`、`corners-edge-v4/`（見下）。
+
+| v4 | renderer | DPR | 記錄／必測 | 缺 | 零樣本 | ghost 缺角 | 乾淨黑角 | 負控制紅 |
+|---|---|---|---|---|---|---|---|---|
+| Chromium（SwiftShader） | 軟體 | 1 | 52／50 | 0 | 0 | 0 | **0** | 48 |
+| Chrome 152 D3D11 | RTX 3080 Ti | 1／1.25／1.5／2 | 52／50 ×4 | 0 | 0 | 0 | **0** | 48／48／48／56 |
+| Edge 151 D3D11 | RTX 3080 Ti | 1／1.25／1.5／2 | 52／50 ×4 | 0 | 0 | 0 | **0** | 48×4 |
 
 ## 六、未完成／待裁決
 

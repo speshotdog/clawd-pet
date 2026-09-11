@@ -1,0 +1,55 @@
+browser 149.0.7827.55 renderer ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)
+d1-pool-static                               cards= 65 valid=148 skip= 28 invalid=  0 bad=  0 PASS
+d1-pool-hover                                cards= 65 valid=148 skip= 28 invalid=  0 bad=  0 PASS
+d1-pool-standalone-static                    cards= 65 valid=148 skip= 28 invalid=  0 bad=  0 PASS
+d1-gacha-pack                                cards= 10 valid=  0 skip= 10 invalid=  0 bad=  0 SKIP
+d1-gacha-reveal-face                         cards= 10 valid=  4 skip=  9 invalid=  0 bad=  0 PASS
+d1-gacha-results                             cards= 10 valid= 18 skip=  0 invalid= 22 bad=  0 PASS
+d1-gacha-results-hover                       cards= 10 valid= 18 skip=  0 invalid= 22 bad=  0 PASS
+d1-gacha-results-click                       cards= 10 valid= 18 skip=  0 invalid= 22 bad=  0 PASS
+d1-gacha-standalone-results                  cards= 10 valid= 18 skip=  0 invalid= 22 bad=  0 PASS
+d1-team-desk-overview                        cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-team-desk-selected                        cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-team-desk-hover                           cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-team-desk-detail                          cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-team-desk-picker-skill                    cards= 35 valid= 60 skip= 20 invalid=  0 bad=  0 PASS
+d1-team-desk-picker-add                      cards= 35 valid= 60 skip= 20 invalid=  0 bad=  0 PASS
+d1-team-desk-picker-replace                  cards= 35 valid= 60 skip= 20 invalid=  0 bad=  0 PASS
+d1-team-tablet-overview                      cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-team-tablet-selected                      cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-team-phone-overview                       cards= 10 valid= 36 skip=  1 invalid=  0 bad=  0 PASS
+d1-team-phone-selected                       cards= 11 valid= 40 skip=  1 invalid=  0 bad=  0 PASS
+d1-team-phone-picker-skill                   cards= 35 valid= 24 skip= 29 invalid=  0 bad=  0 PASS
+d1-drag-desk-depth-drag-start                cards= 12 valid= 42 skip=  0 invalid=  6 bad=  0 PASS ghost=4/4
+d1-drag-desk-depth-drag-mid                  cards= 12 valid= 44 skip=  0 invalid=  4 bad=  0 PASS ghost=4/4
+d1-drag-desk-depth-drag-over-slot            cards= 12 valid= 46 skip=  0 invalid=  2 bad=  0 PASS ghost=4/4
+d1-drag-desk-depth-drop-first-raf            cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-desk-depth-drop-stable               cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-desk-framed-drag-start               cards= 12 valid= 42 skip=  0 invalid=  6 bad=  0 PASS ghost=4/4
+d1-drag-desk-framed-drag-mid                 cards= 12 valid= 44 skip=  0 invalid=  4 bad=  0 PASS ghost=4/4
+d1-drag-desk-framed-drag-over-slot           cards= 12 valid= 46 skip=  0 invalid=  2 bad=  0 PASS ghost=4/4
+d1-drag-desk-framed-drop-first-raf           cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-desk-framed-drop-stable              cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-desk-flat-drag-start                 cards= 12 valid= 42 skip=  0 invalid=  6 bad=  0 PASS ghost=4/4
+d1-drag-desk-flat-drag-mid                   cards= 12 valid= 44 skip=  0 invalid=  4 bad=  0 PASS ghost=4/4
+d1-drag-desk-flat-drag-over-slot             cards= 12 valid= 46 skip=  0 invalid=  2 bad=  0 PASS ghost=4/4
+d1-drag-desk-flat-drop-first-raf             cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-desk-flat-drop-stable                cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-tablet-depth-drag-start              cards= 12 valid= 42 skip=  0 invalid=  6 bad=  0 PASS ghost=4/4
+d1-drag-tablet-depth-drag-mid                cards= 12 valid= 44 skip=  0 invalid=  4 bad=  0 PASS ghost=4/4
+d1-drag-tablet-depth-drag-over-slot          cards= 12 valid= 45 skip=  0 invalid=  3 bad=  0 PASS ghost=4/4
+d1-drag-tablet-depth-drop-first-raf          cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-tablet-depth-drop-stable             cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-tablet-framed-drag-start             cards= 12 valid= 42 skip=  0 invalid=  6 bad=  0 PASS ghost=4/4
+d1-drag-tablet-framed-drag-mid               cards= 12 valid= 43 skip=  0 invalid=  5 bad=  0 PASS ghost=4/4
+d1-drag-tablet-framed-drag-over-slot         cards= 12 valid= 45 skip=  0 invalid=  3 bad=  0 PASS ghost=4/4
+d1-drag-tablet-framed-drop-first-raf         cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-tablet-framed-drop-stable            cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-tablet-flat-drag-start               cards= 12 valid= 42 skip=  0 invalid=  6 bad=  0 PASS ghost=4/4
+d1-drag-tablet-flat-drag-mid                 cards= 12 valid= 44 skip=  0 invalid=  4 bad=  0 PASS ghost=4/4
+d1-drag-tablet-flat-drag-over-slot           cards= 12 valid= 45 skip=  0 invalid=  3 bad=  0 PASS ghost=4/4
+d1-drag-tablet-flat-drop-first-raf           cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-drag-tablet-flat-drop-stable              cards= 11 valid= 44 skip=  0 invalid=  0 bad=  0 PASS
+d1-negative-control-pool                     cards= 65 valid=148 skip= 28 invalid=  0 bad= 48 FAIL
+== dpr 1.0: 狀態 52 缺 0 零樣本必測 0 ghost缺角 0 乾淨黑角 0 負控制紅 48 拖曳有 → OK
+>>> PASS

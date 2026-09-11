@@ -247,13 +247,15 @@ def run_all(out: Path, channel, gpu, dprs):
             scan_pool(br, sc, dpr); scan_gacha(br, sc, dpr); scan_team(br, sc, dpr)
             drag_done = scan_drag(br, sc, dpr)
             neg = negative_control(br, sc, dpr)
+            # 拖曳功能已落地：30 個拖曳狀態無條件必測，整批沒跑（drag API 不在、fixture 全失敗）就是缺口，不能假綠
             has_drag = bool(drag_done)
-            required = list(REQUIRED_STATES) + (drag_required() if has_drag else [])
+            required = list(REQUIRED_STATES) + drag_required()
             names = {s['state'] for s in sc.states}
             missing = [s for s in required if s not in names]
             zero_valid = [s['state'] for s in sc.states if s['required'] and s['state'] in required and s['samples'] == 0]
             # 拖曳三個時點（成立／中途／目標上方）：ghost 自己要有 4 個有效角，不拿別的卡充數
-            ghost_gap = [s['state'] for s in sc.states if s['state'].startswith('drag-') and s['state'].endswith(('-drag-start', '-drag-mid', '-drag-over-slot')) and s.get('ghost_valid', 0) < 4]
+            # 每個拖曳畫面 ghost 恰好一張且四角有效；缺記錄的時點由 missing 抓
+            ghost_gap = [s['state'] for s in sc.states if s['state'].startswith('drag-') and s['state'].endswith(('-drag-start', '-drag-mid', '-drag-over-slot')) and (s.get('ghost_cards', 0) != 1 or s.get('ghost_valid', 0) < 4)]
             clean_bad = sum(s['bad'] for s in sc.states if not s['inject'])
             run = dict(dpr=dpr, states=sc.states, required=required, missing=missing, zero_valid_required=zero_valid, ghost_gap=ghost_gap,
                        clean_bad=clean_bad, negative_control_bad=neg['bad'], drag_covered=has_drag,
@@ -293,7 +295,7 @@ def self_test(out: Path):
     fresh(out, 'selftest.json')
     results = []
 
-    def case(name, html, dpr=1.0, expect_bad=None, expect_status=None, expect_skip_reason=None):
+    def case(name, html, dpr=1.0, expect_bad=None, expect_status=None, expect_skip_reason=None, expect_note=None):
         with sync_playwright() as p:
             br = p.chromium.launch(); pg = br.new_page(viewport={'width': 900, 'height': 800}, device_scale_factor=dpr)
             pg.set_content(html); pg.wait_for_timeout(200); pg.evaluate(RAF2)
@@ -308,6 +310,7 @@ def self_test(out: Path):
         if expect_bad is not None: ok &= (bad_corners == sorted(expect_bad))
         if expect_status is not None: ok &= (m['status'] == expect_status)
         if expect_skip_reason is not None: ok &= any(expect_skip_reason in s[1] for s in m['skipped'])
+        if expect_note is not None: ok &= any(expect_note in (r.get('note') or '') for r in m['rows'])
         results.append(dict(case=name, dpr=dpr, status=m['status'], bad=bad_corners, samples=m['samples'], skipped=m['skipped'],
                             worst=sorted([r for r in m['rows'] if r['much_darker_pct'] is not None], key=lambda r: -r['much_darker_pct'])[:2], ok=ok))
         print(f"{name:34s} dpr={dpr:<4} status={m['status']:4s} samples={m['samples']} bad={bad_corners} skipped={[s[1] for s in m['skipped']]} → {'OK' if ok else 'FAIL'}")
@@ -327,6 +330,11 @@ def self_test(out: Path):
     case('tilted-clean', self_page(tilt=True), expect_bad=[], expect_status='PASS')
     case('tilted-single-TL', self_page(blk='TL', tilt=True), expect_bad=['TL'])
     case('tilted-single-BR-dpr1.5', self_page(blk='BR', tilt=True), dpr=1.5, expect_bad=['BR'])
+    # 6. ghost 遮擋：#drag-layer 裡一張黑底 ghost 壓住鄰卡 TR 角 → 該角記 occluded by drag ghost，不得判紅；ghost 自己四角照量
+    ghost_html = self_page() + ('<div id="drag-layer" style="position:fixed;inset:0;pointer-events:none">'
+                                '<div class="drag-ghost" style="position:absolute;left:560px;top:80px;width:200px;height:280px">'
+                                '<div class="hcard" style="background:#000"></div></div></div>')
+    case('ghost-occludes-neighbor', ghost_html, expect_bad=[], expect_status='PASS', expect_note='occluded by drag ghost')
 
     ok = all(r['ok'] for r in results)
     (out / 'selftest.json').write_text(json.dumps(dict(ok=ok, cases=results), ensure_ascii=False, indent=1), encoding='utf-8')

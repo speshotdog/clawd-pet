@@ -1,0 +1,176 @@
+{
+ "cards": [
+  {
+   "x": 200,
+   "y": 120,
+   "w": 400,
+   "h": 560,
+   "cw": 400,
+   "ch": 560,
+   "occluders": [
+    [
+     560,
+     80,
+     760,
+     360
+    ]
+   ],
+   "quad": [
+    [
+     200,
+     120
+    ],
+    [
+     600,
+     120
+    ],
+    [
+     200,
+     680
+    ],
+    [
+     600,
+     680
+    ]
+   ],
+   "radius": 12,
+   "cls": "hcard",
+   "vis": true,
+   "occluded": false,
+   "id": "",
+   "ghost": false
+  },
+  {
+   "x": 560,
+   "y": 80,
+   "w": 200,
+   "h": 280,
+   "cw": 200,
+   "ch": 280,
+   "occluders": [],
+   "quad": [
+    [
+     560,
+     80
+    ],
+    [
+     760,
+     80
+    ],
+    [
+     560,
+     360
+    ],
+    [
+     760,
+     360
+    ]
+   ],
+   "radius": 12,
+   "cls": "hcard",
+   "vis": true,
+   "occluded": false,
+   "id": "",
+   "ghost": true
+  }
+ ],
+ "rows": [
+  {
+   "card": 0,
+   "cls": "hcard",
+   "corner": "TL",
+   "local_ref": 244.0,
+   "darkest": 236.0,
+   "outside_px": 23,
+   "outside_median": 241.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  },
+  {
+   "card": 0,
+   "cls": "hcard",
+   "corner": "TR",
+   "local_ref": null,
+   "darkest": null,
+   "near_black_pct": null,
+   "much_darker_pct": null,
+   "note": "occluded by drag ghost"
+  },
+  {
+   "card": 0,
+   "cls": "hcard",
+   "corner": "BL",
+   "local_ref": 201.0,
+   "darkest": 181.0,
+   "outside_px": 23,
+   "outside_median": 192.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  },
+  {
+   "card": 0,
+   "cls": "hcard",
+   "corner": "BR",
+   "local_ref": 201.0,
+   "darkest": 181.0,
+   "outside_px": 23,
+   "outside_median": 192.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  },
+  {
+   "card": 1,
+   "cls": "hcard",
+   "corner": "TL",
+   "local_ref": 244.0,
+   "darkest": 236.0,
+   "outside_px": 23,
+   "outside_median": 241.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  },
+  {
+   "card": 1,
+   "cls": "hcard",
+   "corner": "TR",
+   "local_ref": 244.0,
+   "darkest": 236.0,
+   "outside_px": 23,
+   "outside_median": 241.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  },
+  {
+   "card": 1,
+   "cls": "hcard",
+   "corner": "BL",
+   "local_ref": 21.16,
+   "darkest": 18.37,
+   "outside_px": 23,
+   "outside_median": 20.16,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  },
+  {
+   "card": 1,
+   "cls": "hcard",
+   "corner": "BR",
+   "local_ref": 201.0,
+   "darkest": 181.0,
+   "outside_px": 23,
+   "outside_median": 192.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  }
+ ],
+ "skipped": [],
+ "samples": 7,
+ "bad": 0,
+ "status": "PASS",
+ "thresholds": {
+  "fraction": 8,
+  "darkest": 12,
+  "dpr": 1.0,
+  "ring": 8
+ }
+}
