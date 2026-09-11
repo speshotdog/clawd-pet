@@ -1,0 +1,1029 @@
+{
+ "suite": "picker",
+ "checks": 102,
+ "failed": 0,
+ "fails": [],
+ "ok": true,
+ "all": [
+  {
+   "name": "1440x900.overview.page0.visible",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.overview.page0.faces",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.overview.page1.visible",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.overview.page1.faces",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.overview.union",
+   "value": 20,
+   "expect": [
+    20,
+    20
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.skill.buttons",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.skill.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.skill.leftover_imgs",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.skill.reachable",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.skill.closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.skill.picker_faces_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.skill.picker_dom_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.add.buttons",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.add.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.add.leftover_imgs",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.add.reachable",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.add.closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.add.picker_faces_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.add.picker_dom_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.replace.buttons",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.replace.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.replace.leftover_imgs",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.replace.reachable",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.replace.closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.replace.picker_faces_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.replace.picker_dom_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.cycle20.observers_delta",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.cycle20.picker_faces",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.cycle20.picker_dom",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.cycle20.overview_faces",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.cycle20.overview_hcards",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.setScreen.picker_closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.setScreen.picker_faces",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.errors",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "1024x768.overview.page0.visible",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.overview.page0.faces",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.overview.page1.visible",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.overview.page1.faces",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.overview.union",
+   "value": 20,
+   "expect": [
+    20,
+    20
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.skill.buttons",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.skill.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.skill.leftover_imgs",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.skill.reachable",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.skill.closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.skill.picker_faces_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.skill.picker_dom_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.add.buttons",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.add.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.add.leftover_imgs",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.add.reachable",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.add.closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.add.picker_faces_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.add.picker_dom_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.replace.buttons",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.replace.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.replace.leftover_imgs",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.replace.reachable",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.replace.closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.replace.picker_faces_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.replace.picker_dom_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.cycle20.observers_delta",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.cycle20.picker_faces",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.cycle20.picker_dom",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.cycle20.overview_faces",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.cycle20.overview_hcards",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.setScreen.picker_closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.setScreen.picker_faces",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.errors",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "390x844.overview.page0.visible",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.overview.page0.faces",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.overview.page1.visible",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.overview.page1.faces",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.overview.union",
+   "value": 20,
+   "expect": [
+    20,
+    20
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.skill.buttons",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.skill.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.skill.leftover_imgs",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.skill.reachable",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.skill.closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.skill.picker_faces_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.skill.picker_dom_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.add.buttons",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.add.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.add.leftover_imgs",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.add.reachable",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.add.closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.add.picker_faces_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.add.picker_dom_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.replace.buttons",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.replace.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.replace.leftover_imgs",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.replace.reachable",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.replace.closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.replace.picker_faces_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.replace.picker_dom_after_close",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.cycle20.observers_delta",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.cycle20.picker_faces",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.cycle20.picker_dom",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.cycle20.overview_faces",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.cycle20.overview_hcards",
+   "value": 10,
+   "expect": [
+    10,
+    10
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.setScreen.picker_closed",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.setScreen.picker_faces",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.errors",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": "[]"
+  }
+ ]
+}

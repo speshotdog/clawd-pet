@@ -1,0 +1,91 @@
+{
+  "diff-check": {
+    "exit": 0,
+    "lines": 0
+  },
+  "diff-check-commits": {
+    "exit": 2,
+    "lines": 26367
+  },
+  "diff-name-only": {
+    "exit": 0,
+    "lines": 0
+  },
+  "diff-name-only-commits": {
+    "exit": 0,
+    "lines": 2628
+  },
+  "non_evidence_files": [
+    "_art/holo-test/cards-remade-standalone.html",
+    "_art/holo-test/cards-remade.html",
+    "_art/holo-test/check_card_corner_states.py",
+    "_art/holo-test/check_card_corners.py",
+    "_art/holo-test/check_map20.py",
+    "_art/holo-test/check_picker_drag.py",
+    "_art/holo-test/check_team20.py",
+    "_art/holo-test/deluxe-gacha-b-standalone.html",
+    "_art/holo-test/deluxe-gacha-b-test-standalone.html",
+    "_art/holo-test/deluxe-gacha-b-test.html",
+    "_art/holo-test/deluxe-gacha-b.html",
+    "_art/holo-test/demo-standalone.html",
+    "_art/holo-test/demo.html",
+    "_art/holo-test/map20.html",
+    "_art/holo-test/map20.template.html",
+    "_art/holo-test/picker_drag_suites.py",
+    "_art/holo-test/round4_noto_sans_data.woff2",
+    "_art/holo-test/round4_noto_serif_data.woff2",
+    "_art/holo-test/team20.css",
+    "_art/holo-test/team20.js",
+    "docs/clicker/BRIEF-2026-09-12-picker-drag.md",
+    "docs/clicker/ORDER-2026-09-12-picker-drag.md",
+    "docs/clicker/REPORT-2026-09-12-picker-drag.md"
+  ],
+  "fonts": {
+    "round4_noto_sans_data.woff2": {
+      "before_bytes": 240556,
+      "current_bytes": 240448,
+      "cmap": [
+        739,
+        739
+      ],
+      "glyphs": [
+        1056,
+        1056
+      ],
+      "different_tables": [
+        "head",
+        "GPOS",
+        "GSUB"
+      ],
+      "glyph_order_equal": true
+    },
+    "round4_noto_serif_data.woff2": {
+      "before_bytes": 325088,
+      "current_bytes": 325236,
+      "cmap": [
+        739,
+        739
+      ],
+      "glyphs": [
+        1056,
+        1056
+      ],
+      "different_tables": [
+        "head",
+        "GPOS",
+        "GSUB"
+      ],
+      "glyph_order_equal": true
+    }
+  },
+  "html": {
+    "_art/holo-test/cards-remade-standalone.html": true,
+    "_art/holo-test/cards-remade.html": true,
+    "_art/holo-test/deluxe-gacha-b-standalone.html": true,
+    "_art/holo-test/deluxe-gacha-b-test-standalone.html": true,
+    "_art/holo-test/deluxe-gacha-b-test.html": true,
+    "_art/holo-test/deluxe-gacha-b.html": true,
+    "_art/holo-test/demo-standalone.html": true,
+    "_art/holo-test/demo.html": true
+  }
+}

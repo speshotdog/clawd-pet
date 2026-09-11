@@ -1,0 +1,1493 @@
+{
+  "corners-chromium": [
+    {
+      "dpr": 1.0,
+      "over_slot": [
+        {
+          "state": "drag-desk-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-desk-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        },
+        {
+          "state": "drag-tablet-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-tablet-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        }
+      ]
+    }
+  ],
+  "corners-chrome": [
+    {
+      "dpr": 1.0,
+      "over_slot": [
+        {
+          "state": "drag-desk-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-desk-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        },
+        {
+          "state": "drag-tablet-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-tablet-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        }
+      ]
+    },
+    {
+      "dpr": 1.25,
+      "over_slot": [
+        {
+          "state": "drag-desk-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-desk-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        },
+        {
+          "state": "drag-tablet-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-tablet-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        }
+      ]
+    },
+    {
+      "dpr": 1.5,
+      "over_slot": [
+        {
+          "state": "drag-desk-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-desk-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        },
+        {
+          "state": "drag-tablet-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-tablet-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        }
+      ]
+    },
+    {
+      "dpr": 2.0,
+      "over_slot": [
+        {
+          "state": "drag-desk-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-desk-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        },
+        {
+          "state": "drag-tablet-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-tablet-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        }
+      ]
+    }
+  ],
+  "corners-edge": [
+    {
+      "dpr": 1.0,
+      "over_slot": [
+        {
+          "state": "drag-desk-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-desk-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        },
+        {
+          "state": "drag-tablet-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-tablet-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        }
+      ]
+    },
+    {
+      "dpr": 1.25,
+      "over_slot": [
+        {
+          "state": "drag-desk-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-desk-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        },
+        {
+          "state": "drag-tablet-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-tablet-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        }
+      ]
+    },
+    {
+      "dpr": 1.5,
+      "over_slot": [
+        {
+          "state": "drag-desk-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-desk-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        },
+        {
+          "state": "drag-tablet-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-tablet-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        }
+      ]
+    },
+    {
+      "dpr": 2.0,
+      "over_slot": [
+        {
+          "state": "drag-desk-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-desk-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 289.75,
+            "y": 715,
+            "w": 180,
+            "h": 252,
+            "cw": 180,
+            "ch": 252,
+            "quad": [
+              [
+                289.75,
+                715
+              ],
+              [
+                469.75,
+                715
+              ],
+              [
+                289.75,
+                967
+              ],
+              [
+                469.75,
+                967
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        },
+        {
+          "state": "drag-tablet-depth-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-depth gem-faceted scene",
+            "vis": true,
+            "occluded": false,
+            "id": "rocketdog"
+          }
+        },
+        {
+          "state": "drag-tablet-framed-drag-over-slot",
+          "skipped": [
+            [
+              11,
+              "out of viewport (incl. background ring)"
+            ]
+          ],
+          "ghost": {
+            "x": 177.25,
+            "y": 609.0140380859375,
+            "w": 143,
+            "h": 200,
+            "cw": 143,
+            "ch": 200,
+            "quad": [
+              [
+                177.25,
+                609.0140380859375
+              ],
+              [
+                320.25,
+                609.0140380859375
+              ],
+              [
+                177.25,
+                809.0140380859375
+              ],
+              [
+                320.25,
+                809.0140380859375
+              ]
+            ],
+            "radius": 12,
+            "cls": "hcard r-mythic kind-framed gem-faceted",
+            "vis": true,
+            "occluded": false,
+            "id": "liulangyueshou"
+          }
+        }
+      ]
+    }
+  ]
+}

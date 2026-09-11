@@ -1,0 +1,50 @@
+{
+ "suite": "negative-sub",
+ "checks": 2,
+ "failed": 2,
+ "fails": [
+  {
+   "name": "drag.label2_assigns_index1",
+   "value": null,
+   "expect": [
+    "alienkitty",
+    "alienkitty"
+   ],
+   "ok": false,
+   "note": ""
+  },
+  {
+   "name": "drag.others_none",
+   "value": "[null, \"alienkitty\", null]",
+   "expect": [
+    "[null, null, null]",
+    "[null, null, null]"
+   ],
+   "ok": false,
+   "note": ""
+  }
+ ],
+ "ok": false,
+ "all": [
+  {
+   "name": "drag.label2_assigns_index1",
+   "value": null,
+   "expect": [
+    "alienkitty",
+    "alienkitty"
+   ],
+   "ok": false,
+   "note": ""
+  },
+  {
+   "name": "drag.others_none",
+   "value": "[null, \"alienkitty\", null]",
+   "expect": [
+    "[null, null, null]",
+    "[null, null, null]"
+   ],
+   "ok": false,
+   "note": ""
+  }
+ ]
+}

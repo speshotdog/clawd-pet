@@ -1,0 +1,26 @@
+[
+  {
+    "name": "identity",
+    "command": "python -c \"import check_card_identity as c,json; from pathlib import Path; r=c.measure(); p=Path('../../docs/clicker/shots/picker-drag/verify/identity'); p.mkdir(); (p/'identity.json').write_text(json.dumps(r,indent=2),encoding='utf-8'); print('PASS' if c.valid(r) else 'FAIL',sum(map(len,r.values())),'embedded card layers'); raise SystemExit(0 if c.valid(r) else 1)\"",
+    "exit": 0,
+    "seconds": 1.23
+  },
+  {
+    "name": "parity-report",
+    "command": "python check_card_parity_report.py --input ../../docs/clicker/shots/parity/parity-picker-drag.json --reference gacha-test",
+    "exit": 0,
+    "seconds": 6.63
+  },
+  {
+    "name": "assets",
+    "command": "python check_card_assets.py --input ../../docs/clicker/shots/parity/parity-picker-drag.json --output ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\assets\\asset-layers.json",
+    "exit": 0,
+    "seconds": 2.25
+  },
+  {
+    "name": "sabotage",
+    "command": "python check_card_parity_sabotage.py --input ../../docs/clicker/shots/parity/parity-picker-drag.json --out ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\sabotage",
+    "exit": 0,
+    "seconds": 218.42
+  }
+]

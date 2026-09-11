@@ -1,0 +1,14 @@
+--- before
+
++++ current
+
+@@ -5,7 +5,7 @@
+
+     <!-- Most of this table will be recalculated by the compiler -->
+     <tableVersion value="1.0"/>
+     <fontRevision value="2.02"/>
+-    <checkSumAdjustment value="0xd88101cb"/>
++    <checkSumAdjustment value="0x734dd609"/>
+     <magicNumber value="0x5f0f3cf5"/>
+     <flags value="00001000 00000011"/>
+     <unitsPerEm value="1000"/>

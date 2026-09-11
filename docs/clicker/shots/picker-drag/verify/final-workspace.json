@@ -1,0 +1,14 @@
+{
+  "final-diff-check": {
+    "exit": 0,
+    "output": ""
+  },
+  "final-diff-name-only": {
+    "exit": 0,
+    "output": ""
+  },
+  "final-status": {
+    "exit": 0,
+    "output": "?? docs/clicker/VERDICT-2026-09-12-picker-drag.md\n?? docs/clicker/shots/picker-drag/verify/\n"
+  }
+}

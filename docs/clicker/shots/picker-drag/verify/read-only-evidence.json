@@ -1,0 +1,103 @@
+{
+  "pixels": {
+    "source": "docs\\clicker\\shots\\picker-drag\\pixels\\summary.json",
+    "sha256": "572b30fa0c7203583f593b92a797a5a47c5141345e09c4ee1986c1d94ca0abfd",
+    "suite": "pixels",
+    "checks": 1599,
+    "failed": 0,
+    "fails": [],
+    "ok": true
+  },
+  "entry-pixels": {
+    "source": "docs\\clicker\\shots\\picker-drag\\entry-pixels\\summary.json",
+    "sha256": "defb04be619caf28d95ea64c88d8a2b43936ba65f71791b18e5e44412bd82d10",
+    "suite": "entry-pixels",
+    "checks": 208,
+    "failed": 0,
+    "fails": [],
+    "ok": true,
+    "runs": [
+      {
+        "viewport": "1440x1200",
+        "card": "rocketdog",
+        "gateExit": 0,
+        "pixelExit": 0
+      },
+      {
+        "viewport": "1440x1200",
+        "card": "chaichai",
+        "gateExit": 0,
+        "pixelExit": 0
+      },
+      {
+        "viewport": "1440x1200",
+        "card": "mieshi",
+        "gateExit": 0,
+        "pixelExit": 0
+      },
+      {
+        "viewport": "1024x900",
+        "card": "rocketdog",
+        "gateExit": 0,
+        "pixelExit": 0
+      },
+      {
+        "viewport": "1024x900",
+        "card": "chaichai",
+        "gateExit": 0,
+        "pixelExit": 0
+      },
+      {
+        "viewport": "1024x900",
+        "card": "mieshi",
+        "gateExit": 0,
+        "pixelExit": 0
+      },
+      {
+        "viewport": "390x844",
+        "card": "rocketdog",
+        "gateExit": 0,
+        "pixelExit": 0
+      },
+      {
+        "viewport": "390x844",
+        "card": "chaichai",
+        "gateExit": 0,
+        "pixelExit": 0
+      },
+      {
+        "viewport": "390x844",
+        "card": "mieshi",
+        "gateExit": 0,
+        "pixelExit": 0
+      }
+    ],
+    "scope": [
+      "gacha",
+      "gacha-standalone",
+      "gacha-test",
+      "gacha-test-standalone",
+      "pool",
+      "pool-standalone",
+      "team"
+    ]
+  },
+  "parity": {
+    "source": "docs\\clicker\\shots\\parity\\parity-picker-drag.json",
+    "sha256": "9bab09c195cc76ff7134cc8942af8a2e5975e7c5d309e03d636bf6674e9e59bb",
+    "keys": [
+      "label",
+      "root",
+      "viewports",
+      "expectedPoolIds",
+      "expectedTeamIds",
+      "fixtureIds",
+      "sourceHashes",
+      "inject",
+      "entries",
+      "chromium",
+      "assetIdentity",
+      "artifactsUnchanged"
+    ]
+  }
+}

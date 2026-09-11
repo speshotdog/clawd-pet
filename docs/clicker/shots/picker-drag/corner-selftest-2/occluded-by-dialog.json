@@ -1,0 +1,53 @@
+{
+ "cards": [
+  {
+   "x": 200,
+   "y": 120,
+   "w": 400,
+   "h": 560,
+   "cw": 400,
+   "ch": 560,
+   "occluders": [],
+   "quad": [
+    [
+     200,
+     120
+    ],
+    [
+     600,
+     120
+    ],
+    [
+     200,
+     680
+    ],
+    [
+     600,
+     680
+    ]
+   ],
+   "radius": 12,
+   "cls": "hcard",
+   "vis": true,
+   "occluded": true,
+   "id": "",
+   "ghost": false
+  }
+ ],
+ "rows": [],
+ "skipped": [
+  [
+   0,
+   "occluded by open dialog"
+  ]
+ ],
+ "samples": 0,
+ "bad": 0,
+ "status": "SKIP",
+ "thresholds": {
+  "fraction": 8,
+  "darkest": 12,
+  "dpr": 1.0,
+  "ring": 8
+ }
+}

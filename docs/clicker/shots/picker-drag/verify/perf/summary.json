@@ -1,0 +1,231 @@
+{
+ "suite": "perf",
+ "checks": 22,
+ "failed": 0,
+ "fails": [],
+ "ok": true,
+ "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3080 Ti (0x00002208) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+ "note": "58/55 是新功能門檻；單機單次路徑取樣，不跨機器比較",
+ "all": [
+  {
+   "name": "1440x900@1.25.drag.samples_ge_60",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "[89, 89, 89]"
+  },
+  {
+   "name": "1440x900@1.25.drag.fps_mean",
+   "value": 60.0,
+   "expect": [
+    58.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": "[60.0, 60.0, 60.0]"
+  },
+  {
+   "name": "1440x900@1.25.drag.fps_min",
+   "value": 60.0,
+   "expect": [
+    55.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900@1.25.baseline.fps_mean",
+   "value": 60.0,
+   "expect": [
+    58.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": "[60.0, 60.0, 60.0]"
+  },
+  {
+   "name": "1440x900@1.25.drag.regression_pct",
+   "value": 0.0,
+   "expect": [
+    -1000000000.0,
+    5.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900@1.25.ghost_writes_le_frames",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "[(90, 89), (90, 89), (90, 89)]"
+  },
+  {
+   "name": "1440x900@1.25.idle.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768@1.25.drag.samples_ge_60",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "[89, 89, 89]"
+  },
+  {
+   "name": "1024x768@1.25.drag.fps_mean",
+   "value": 60.0,
+   "expect": [
+    58.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": "[60.0, 60.0, 60.0]"
+  },
+  {
+   "name": "1024x768@1.25.drag.fps_min",
+   "value": 60.0,
+   "expect": [
+    55.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768@1.25.baseline.fps_mean",
+   "value": 58.8,
+   "expect": [
+    58.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": "[56.3, 60.0, 60.0]"
+  },
+  {
+   "name": "1024x768@1.25.drag.regression_pct",
+   "value": -2.1,
+   "expect": [
+    -1000000000.0,
+    5.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768@1.25.ghost_writes_le_frames",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "[(90, 89), (90, 89), (90, 89)]"
+  },
+  {
+   "name": "1024x768@1.25.idle.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "picker-1440x900@1.25.top.fps_mean",
+   "value": 60.0,
+   "expect": [
+    58.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": "[60.0, 60.0, 60.0]"
+  },
+  {
+   "name": "picker-1440x900@1.25.top.fps_min",
+   "value": 60.0,
+   "expect": [
+    55.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "picker-1440x900@1.25.bottom.fps_mean",
+   "value": 60.0,
+   "expect": [
+    58.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": "[60.0, 60.0, 60.0]"
+  },
+  {
+   "name": "picker-1440x900@1.25.bottom.fps_min",
+   "value": 60.0,
+   "expect": [
+    55.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "picker-390x844@3.top.fps_mean",
+   "value": 60.0,
+   "expect": [
+    58.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": "[60.0, 60.0, 60.0]"
+  },
+  {
+   "name": "picker-390x844@3.top.fps_min",
+   "value": 60.0,
+   "expect": [
+    55.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "picker-390x844@3.bottom.fps_mean",
+   "value": 60.0,
+   "expect": [
+    58.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": "[60.0, 60.0, 60.0]"
+  },
+  {
+   "name": "picker-390x844@3.bottom.fps_min",
+   "value": 60.0,
+   "expect": [
+    55.0,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

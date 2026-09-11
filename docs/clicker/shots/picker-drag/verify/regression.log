@@ -1,0 +1,83 @@
+{
+  "status": "FAIL",
+  "counts": {
+    "PASS": 1098,
+    "FAIL": 6,
+    "NEEDS_DEVICE": 2,
+    "BASELINE": 1
+  },
+  "failed": {
+    "team.protected_files_changed": {
+      "values": [
+        1
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "files",
+      "status": "FAIL",
+      "note": ""
+    },
+    "team-1440x900.overview_pointer_unchanged": {
+      "values": [
+        0
+      ],
+      "range": [
+        1,
+        1
+      ],
+      "unit": "",
+      "status": "FAIL",
+      "note": ""
+    },
+    "team-1440x900.proxy_animations": {
+      "values": [
+        1
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "FAIL",
+      "note": ""
+    },
+    "team-1440x900.automatic_animations": {
+      "values": [
+        1
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "FAIL",
+      "note": ""
+    },
+    "team-1024x768.proxy_animations": {
+      "values": [
+        1
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "FAIL",
+      "note": ""
+    },
+    "team-1024x768.automatic_animations": {
+      "values": [
+        1
+      ],
+      "range": [
+        0,
+        0
+      ],
+      "unit": "",
+      "status": "FAIL",
+      "note": ""
+    }
+  }
+}

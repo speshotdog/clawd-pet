@@ -1,0 +1,1141 @@
+{
+ "suite": "drag",
+ "checks": 113,
+ "failed": 0,
+ "fails": [],
+ "ok": true,
+ "desktop_assign_ok": 160,
+ "desktop_assign_total": 160,
+ "all": [
+  {
+   "name": "1440x900.roster",
+   "value": 20,
+   "expect": [
+    20,
+    20
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.slot0.label_matches_data_slot",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "['0', '獨立技能 1']"
+  },
+  {
+   "name": "1440x900.slot1.label_matches_data_slot",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "['1', '獨立技能 2']"
+  },
+  {
+   "name": "1440x900.slot2.label_matches_data_slot",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "['2', '獨立技能 3']"
+  },
+  {
+   "name": "1440x900.slot3.label_matches_data_slot",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "['3', '獨立技能 4']"
+  },
+  {
+   "name": "1440x900.under8.detail_open",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.under8.selected",
+   "value": "alienkitty",
+   "expect": [
+    "alienkitty",
+    "alienkitty"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.under8.skills",
+   "value": "[null, null, null, null]",
+   "expect": [
+    "[null, null, null, null]",
+    "[null, null, null, null]"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.at8.active",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.at8.ghost",
+   "value": 1,
+   "expect": [
+    1,
+    1
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.nontarget.skills",
+   "value": "[null, null, null, null]",
+   "expect": [
+    "[null, null, null, null]",
+    "[null, null, null, null]"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.nontarget.message",
+   "value": "已取消，技能未變更",
+   "expect": [
+    "已取消，技能未變更",
+    "已取消，技能未變更"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.nontarget.detail_not_opened",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.nontarget.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.nontarget.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.nontarget.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.nontarget.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.nextclick.detail_open",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.escape.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.escape.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.escape.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.escape.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.showPage.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.showPage.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.showPage.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.showPage.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.openPicker.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.openPicker.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.openPicker.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.openPicker.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.setScreen.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.setScreen.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.setScreen.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.setScreen.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.blur.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.blur.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.blur.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.blur.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.pointercancel.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.pointercancel.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.pointercancel.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.pointercancel.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.roster_unchanged",
+   "value": "[\"rocketdog\", \"liulangyueshou\", \"alienkitty\", \"foxfriend\", \"jiaotou\", \"jinggou\", \"astronaut\", \"fluffdog\", \"bianbiancaihua\", \"bingyang\", \"chengtiregou\", \"gebugou\", \"alu\", \"chaichai\", \"guanjiu\", \"jiaochi\", \"jiaolan\", \"manhua\", \"miepupu\", \"miepuxiong\"]",
+   "expect": [
+    "[\"rocketdog\", \"liulangyueshou\", \"alienkitty\", \"foxfriend\", \"jiaotou\", \"jinggou\", \"astronaut\", \"fluffdog\", \"bianbiancaihua\", \"bingyang\", \"chengtiregou\", \"gebugou\", \"alu\", \"chaichai\", \"guanjiu\", \"jiaochi\", \"jiaolan\", \"manhua\", \"miepupu\", \"miepuxiong\"]",
+    "[\"rocketdog\", \"liulangyueshou\", \"alienkitty\", \"foxfriend\", \"jiaotou\", \"jinggou\", \"astronaut\", \"fluffdog\", \"bianbiancaihua\", \"bingyang\", \"chengtiregou\", \"gebugou\", \"alu\", \"chaichai\", \"guanjiu\", \"jiaochi\", \"jiaolan\", \"manhua\", \"miepupu\", \"miepuxiong\"]"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.mythic.available",
+   "value": 2,
+   "expect": [
+    2,
+    99
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.mythic.first",
+   "value": "rocketdog",
+   "expect": [
+    "rocketdog",
+    "rocketdog"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.mythic.second_rejected",
+   "value": null,
+   "expect": [
+    null,
+    null
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.mythic.reject_message_visible",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "神話技能最多 1 張；請先替換原神話技能"
+  },
+  {
+   "name": "1440x900.mythic.replace_same_slot",
+   "value": "liulangyueshou",
+   "expect": [
+    "liulangyueshou",
+    "liulangyueshou"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.selection.text_empty",
+   "value": "",
+   "expect": [
+    "",
+    ""
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.selection.roi_diff_fraction",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.001
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.selection.assigned",
+   "value": "alienkitty",
+   "expect": [
+    "alienkitty",
+    "alienkitty"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x900.errors",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "1024x768.roster",
+   "value": 20,
+   "expect": [
+    20,
+    20
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.slot0.label_matches_data_slot",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "['0', '獨立技能 1']"
+  },
+  {
+   "name": "1024x768.slot1.label_matches_data_slot",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "['1', '獨立技能 2']"
+  },
+  {
+   "name": "1024x768.slot2.label_matches_data_slot",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "['2', '獨立技能 3']"
+  },
+  {
+   "name": "1024x768.slot3.label_matches_data_slot",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "['3', '獨立技能 4']"
+  },
+  {
+   "name": "1024x768.under8.detail_open",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.under8.selected",
+   "value": "alienkitty",
+   "expect": [
+    "alienkitty",
+    "alienkitty"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.under8.skills",
+   "value": "[null, null, null, null]",
+   "expect": [
+    "[null, null, null, null]",
+    "[null, null, null, null]"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.at8.active",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.at8.ghost",
+   "value": 1,
+   "expect": [
+    1,
+    1
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.nontarget.skills",
+   "value": "[null, null, null, null]",
+   "expect": [
+    "[null, null, null, null]",
+    "[null, null, null, null]"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.nontarget.message",
+   "value": "已取消，技能未變更",
+   "expect": [
+    "已取消，技能未變更",
+    "已取消，技能未變更"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.nontarget.detail_not_opened",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.nontarget.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.nontarget.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.nontarget.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.nontarget.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.nextclick.detail_open",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.escape.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.escape.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.escape.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.escape.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.showPage.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.showPage.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.showPage.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.showPage.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.openPicker.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.openPicker.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.openPicker.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.openPicker.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.setScreen.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.setScreen.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.setScreen.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.setScreen.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.blur.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.blur.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.blur.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.blur.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.pointercancel.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.pointercancel.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.pointercancel.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.pointercancel.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.roster_unchanged",
+   "value": "[\"rocketdog\", \"liulangyueshou\", \"alienkitty\", \"foxfriend\", \"jiaotou\", \"jinggou\", \"astronaut\", \"fluffdog\", \"bianbiancaihua\", \"bingyang\", \"chengtiregou\", \"gebugou\", \"alu\", \"chaichai\", \"guanjiu\", \"jiaochi\", \"jiaolan\", \"manhua\", \"miepupu\", \"miepuxiong\"]",
+   "expect": [
+    "[\"rocketdog\", \"liulangyueshou\", \"alienkitty\", \"foxfriend\", \"jiaotou\", \"jinggou\", \"astronaut\", \"fluffdog\", \"bianbiancaihua\", \"bingyang\", \"chengtiregou\", \"gebugou\", \"alu\", \"chaichai\", \"guanjiu\", \"jiaochi\", \"jiaolan\", \"manhua\", \"miepupu\", \"miepuxiong\"]",
+    "[\"rocketdog\", \"liulangyueshou\", \"alienkitty\", \"foxfriend\", \"jiaotou\", \"jinggou\", \"astronaut\", \"fluffdog\", \"bianbiancaihua\", \"bingyang\", \"chengtiregou\", \"gebugou\", \"alu\", \"chaichai\", \"guanjiu\", \"jiaochi\", \"jiaolan\", \"manhua\", \"miepupu\", \"miepuxiong\"]"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.mythic.available",
+   "value": 2,
+   "expect": [
+    2,
+    99
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.mythic.first",
+   "value": "rocketdog",
+   "expect": [
+    "rocketdog",
+    "rocketdog"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.mythic.second_rejected",
+   "value": null,
+   "expect": [
+    null,
+    null
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.mythic.reject_message_visible",
+   "value": true,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": true,
+   "note": "神話技能最多 1 張；請先替換原神話技能"
+  },
+  {
+   "name": "1024x768.mythic.replace_same_slot",
+   "value": "liulangyueshou",
+   "expect": [
+    "liulangyueshou",
+    "liulangyueshou"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.selection.text_empty",
+   "value": "",
+   "expect": [
+    "",
+    ""
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.selection.roi_diff_fraction",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.001
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.selection.assigned",
+   "value": "alienkitty",
+   "expect": [
+    "alienkitty",
+    "alienkitty"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x768.errors",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "desktop.assign.correct",
+   "value": 160,
+   "expect": [
+    160,
+    160
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "desktop.assign.total",
+   "value": 160,
+   "expect": [
+    160,
+    160
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "phone.tap_slot_opens_picker",
+   "value": 4,
+   "expect": [
+    4,
+    4
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "phone.touch_drag_skills_unchanged",
+   "value": "[null, null, null, null]",
+   "expect": [
+    "[null, null, null, null]",
+    "[null, null, null, null]"
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "phone.touch.ghosts",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "phone.touch.targets",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "phone.touch.rafPending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "phone.touch.pending",
+   "value": false,
+   "expect": [
+    false,
+    false
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "phone.errors",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": "[]"
+  }
+ ]
+}

@@ -12,9 +12,8 @@
 | commit | 內容 |
 |---|---|
 | `5b8deba` | 簡報與 ORDER |
-| `8cfcbff` | 命令 2–3：驗收輸出隔離、施工前快照、黑角儀器改弧外＋投影幾何＋自檢 |
-| `2517754` | 命令 4：產品碼（挑選器卡面、拖曳、訊息）＋六組套件 |
-| （本報告 commit） | 命令 5–9 正式建置與證據、報告 |
+| `8cfcbff`…`dcccdb0` | 命令 2–9 施工、建置、證據、第一版報告 |
+| （本 commit） | Astra 第一次 VERDICT（EXIT 1）＋掃描器修正 v3＋重掃證據＋報告修正 |
 
 命令 1 現場：ORDER 基準 `928d5ed`；施工實際從 `5b8deba` 起（差一個純文件 commit，內容無程式）。
 施工前工作區乾淨（我先前跑 `check_team20.py` 覆寫過 `shots/team-round3/*.png` 352 個檔，已 `git checkout` 還原，未帶進任何 commit）。
@@ -47,7 +46,7 @@ HEAD `5b8deba`、髒檔 3（皆為本輪新文件）。**歷史 `team-round3/acc
 `check_card_corners.py cards-remade.html --viewport 1440x4200`：乾淨 **0/148**；`--inject-bug` **48/148 FAIL**；`map20.html`（地圖面無卡）**SKIP exit 2**。自檢 12/12。
 
 ### 命令 5 建置（十步各 exit 0）
-`build/build.json`：`html_bytes` **11,687,285**（1～20,000,000）、terrain **94**、記錄 SHA `6abfd111…` 與實體一致。
+`build/build.json`（最終版，技能訊息移入標籤列後重建）：`html_bytes` **11,687,635**（1～20,000,000）、terrain **94**、記錄 SHA `2b55224b…` 與實體一致。第一次建置為 11,687,285／`6abfd111…`，已被覆蓋。
 ⚠ 重建改到的非 map20 產物：cards-remade×2、deluxe×4、demo×2、兩個 woff2——**全部只差內嵌字型子集 bytes**：Sans 240,556→**240,448**、Serif 325,088→**325,236**（後者正是 `HANDOFF-2026-09-11` 記載的權威值；HEAD 上 commit 的產物反而偏離文件）。用 fontTools 比對：cmap 皆 **739**、glyf 皆 **1056**、字元集完全相同，只有 WOFF2 壓縮輸出不同。`demo.html` 在禁改清單，這是建置器（`build_round4_fonts.py`）的正常衍生更新，不是手改；照 ORDER「先停下列 diff」記在這裡，未自行接受為新基準——**留給 Astra 裁**。
 
 ### 命令 6 功能與像素
@@ -63,17 +62,22 @@ HEAD `5b8deba`、髒檔 3（皆為本輪新文件）。**歷史 `team-round3/acc
 pixels 第一版兩個測試端假紅已修：(1) 總覽卡被 modal `<dialog>` 與 `::backdrop` 蓋住；(2) fixed 定位的卡仍在 grid 堆疊序裡，後面的隊員名字透上來。都改成沿用 parity 的全頁 ISOLATE（所有 root `visibility:hidden`，只留目標卡，背景 `#0e121a`）。
 
 ### 命令 7 多狀態黑角
-`check_card_corner_states.py --suite all`，每個 DPR **42 個狀態**（卡冊靜態／hover／standalone、揭卡卡包／卡面翻開途中／results／hover／click／standalone results、編隊三尺寸總覽／選取／hover／詳情／三種挑選模式、拖曳 depth／framed／flat × desk／tablet × 成立／中途／目標上方／放下第一 rAF／雙 rAF 穩定），另加每 DPR 一個注入負控制。
 
-| 瀏覽器 | renderer | DPR | 必測遺漏 | 零樣本必測 | 乾淨黑角 | 負控制紅 |
-|---|---|---|---|---|---|---|
-| bundled Chromium（SwiftShader） | 軟體 | 1 | 0 | 0 | **0** | 48 |
-| Chrome 152 `--headless=new --use-angle=d3d11` | **RTX 3080 Ti D3D11** | 1／1.25／1.5／2 | 0 | 0 | **0** | 48／48／48／76 |
-| Edge 151（WebView2 同核） | **RTX 3080 Ti D3D11** | 1／1.25／1.5／2 | 0 | 0 | **0** | 48×4 |
+**Astra 第一次複驗（VERDICT）判 EXIT 1，抓到兩個掃描器漏洞，已修並重跑：**
+1. `scan_drag()` 只從 roster 前 10 張找卡型，**flat 從未被拖過**，而必測清單又由實際跑到的反推 → 缺 10 個狀態／DPR 卻報 missing 0。改成固定矩陣（3 卡型 × 2 viewport × 5 時點）、flat 以同稀有度 `team20.add()` 換入。
+2. over-slot 時 ghost 下緣出視窗被整張 SKIP，卻靠同畫面其他 11 張卡的 44 角讓「非零樣本」過關。改成抓取點放在卡 88% 高（ghost 懸在技能格上仍留在視窗內），並以 **ghost 自己 ≥4 有效角** 判三個拖曳時點的覆蓋（`ghost_valid`）。
+補上 flat 後第一次掃出 3 個「黑角」（desk mid／over-slot、tablet over-slot），切圖看是 **flat 卡滿版插畫的黑描邊蓋在鄰卡角上**——ghost 遮擋沒被排除。再補：角落方塊或背景環與非自身 ghost 矩形相交 → 該角記 `occluded by drag ghost` 不判（ghost 是 `pointer-events:none`，`elementsFromPoint` 看不到，只能用矩形）。自檢仍 12/12。
 
-ghost 拖曳角：每 DPR 3 卡型 × 2 viewport × 3 時點，`drag-start`／`drag-mid` 各 48 有效角、`over-slot` 44（技能格附近一張被遮）。`gacha-pack` 沒有卡面，記錄但不列必測。
-掃描器第一版兩個工具缺陷已修：`dialog.contains()` 穿不過 shadow root 把挑選器卡全標成遮擋；`gacha-pack` 誤列必測。
-**Edge 通過不等於 Tauri 實機通過**；D3D11 renderer 字串已存進 `summary.json`。
+`check_card_corner_states.py --suite all`（v3），每個 DPR **52 個記錄／50 個必測**（20 一般 + 30 拖曳；`gacha-pack` 無卡面只留紀錄、注入負控制另計）：
+
+| 瀏覽器 | renderer | DPR | 必測遺漏 | 零樣本必測 | ghost 缺角 | 乾淨黑角 | 負控制紅 |
+|---|---|---|---|---|---|---|---|
+| bundled Chromium（SwiftShader） | 軟體 | 1 | 0 | 0 | 0 | **0** | 48 |
+| Chrome 152 `--headless=new --use-angle=d3d11` | RTX 3080 Ti D3D11 | 1／1.25／1.5／2 | 0 | 0 | 0 | **0** | 48×4 |
+| Edge 151（WebView2 同核） | RTX 3080 Ti D3D11 | 1／1.25／1.5／2 | 0 | 0 | 0 | **0** | 48／48／48／76 |
+
+ghost 角：3 卡型 × 2 viewport × 3 時點 = 18 個狀態，每個 ghost **4/4** 有效角（72/72／DPR）。被 ghost 壓住的鄰卡角 Chromium 76 個，逐角記原因，不算 PASS 也不算 FAIL。
+**Edge 通過不等於 Tauri 實機通過**；renderer 字串存在 `summary.json`。第一版（v1，缺 flat）與 v2 證據移到 `superseded/run1`、`run2`。
 
 ### 命令 8 效能
 `--suite perf --channel chrome`（RTX 3080 Ti D3D11）**22/22**。暖機一輪丟棄，正式 3 次，每次 89–90 個 rAF 間隔（取前 60）：
@@ -89,7 +93,7 @@ ghost 拖曳角：每 DPR 3 卡型 × 2 viewport × 3 時點，`drag-start`／`d
 ### 命令 9 既有回歸與七入口一致性
 | 命令 | 結果 |
 |---|---|
-| `check_team20.py --out regression --build-evidence build/build.json --protected-before before/protected-before.json` | exit **1**（預期）：**1098 PASS／6 FAIL／2 NEEDS_DEVICE／1 BASELINE**。六條 FAIL＝第四節允許保留的六條；`html_bytes` 轉 PASS（11,687,635 ≤ 20,000,000）；對照施工前快照：舊 PASS 退步 **0**、缺斷言 **0**；`protected_changed` 只有 `demo.html`（命令 5 的字型 bytes） |
+| `check_team20.py --out regression --build-evidence build/build.json --protected-before before/protected-before.json` | exit **1**（預期）：**1098 PASS／6 FAIL／2 NEEDS_DEVICE／1 BASELINE**。六條 FAIL＝第四節允許保留的六條；`html_bytes` 轉 PASS（11,687,635 ≤ 20,000,000）；缺斷言 **0**。基準要分開講：相對施工前**實跑**（HEAD 928d5ed：1097 PASS／7 FAIL）舊 PASS 退步 0；相對 `before/snapshot.json` 保存的**歷史** acceptance（無損前，1104 PASS）有 6 個 PASS→FAIL，正是允許清單那六條，允許清單以外退步 0。`protected_changed` 只有 `demo.html`（命令 5 的字型 bytes） |
 | 中途一次：`#skill-status` 佔一行時 `visible_noncard_ui_area` 30.3／31.8／32.6（>30）、手機 `visible_card_area` 43.8（<45）→ 沒放寬門檻，改把訊息放進標籤列（absolute），回到 28.5／29.8／29.9 與 46.2 | |
 | `check_card_identity.py` | exit 0，**454** 層 PASS（`identical/identity.json` 內容不變） |
 | `check_card_parity.py --label picker-drag --fixture auto --shots --entries …7 入口` | exit 0 |
@@ -114,7 +118,20 @@ ghost 拖曳角：每 DPR 3 卡型 × 2 viewport × 3 時點，`drag-start`／`d
 
 七條基線處置：`build.html_bytes` 依 lossless 裁決改 20MB 上限→PASS；`protected_files_changed` 歷史 1（demo.html）保留、本輪 manifest 也只抓到 demo.html 且原因是建置字型 bytes（第五節第 2 點）；其餘四條原值保留 FAIL，animation 來源仍是既有總覽互動，不是新功能殘留（拖曳中 ghost 只在 `#drag-layer`，量測時沒有拖曳）。
 
-## 五、未完成／待裁決
+## 五、Astra 第一次複驗（`VERDICT-2026-09-12-picker-drag.md`）處置
+
+| 裁決 | 處置 |
+|---|---|
+| EXIT 1：flat 漏測 10 狀態／DPR | 已修（固定矩陣＋flat fixture），v3 三瀏覽器 9 組 DPR 全 52 狀態 |
+| EXIT 1：over-slot ghost 整張 SKIP 卻靠他卡過關 | 已修（抓點 88% 高＋`ghost_valid` ≥4 才算覆蓋） |
+| 命令 5 字型 bytes：接受重建產物為新基準；不更新歷史 manifest、`protected_files_changed=1` 不改 PASS | 照辦（本輪沒動 manifest） |
+| REPORT 建置舊值 11,687,285／6abfd111 | 已改為 11,687,635／2b55224b |
+| 「舊 PASS 退步 0」基準混寫 | 已分開寫實跑基準與歷史快照基準 |
+| Edge DPR 2 負控制 56 vs 48 | 負控制數量本來就隨版面波動，門檻是 ≥1；v3 為 76 |
+| `git diff --check HEAD~5..HEAD` 8794 個尾空白（ORDER 三份 md 與 log） | 未處理：ORDER 是 Astra 產出的 markdown 雙空白換行、log 是工具輸出；等裁決要不要清 |
+| 瀏覽器在工作目錄留 `debug.log`（GPU SharedImageManager mailbox 錯誤） | 屬 Chrome 原生診斷；v3 重跑後若再出現一併移入 verify |
+
+## 六、未完成／待裁決
 
 1. **使用者黑角回報未結案**：需醒後提供畫面、卡名、截圖、DPR、Tauri 或瀏覽器。Edge 不代替 Tauri 實機。
 2. 命令 5 字型子集 bytes 差異（上述）等 Astra 裁：接受重建產物為新基準，或改回 HEAD bytes。

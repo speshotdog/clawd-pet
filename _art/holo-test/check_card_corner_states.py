@@ -63,9 +63,13 @@ class Scanner:
                    invalid=[r for r in m['rows'] if r['much_darker_pct'] is None],
                    bad_rows=[r for r in m['rows'] if r['much_darker_pct'] is not None and r['much_darker_pct'] >= self.fraction and r['darkest'] <= self.darkest],
                    worst=sorted([r for r in m['rows'] if r['much_darker_pct'] is not None], key=lambda r: -r['much_darker_pct'])[:3],
-                   geometry=cards, png=path.name)
+                   geometry=cards, png=path.name,
+                   ghost_cards=sum(1 for c in cards if c.get('ghost')),
+                   ghost_valid=sum(1 for r in m['rows'] if r['much_darker_pct'] is not None and cards[r['card']].get('ghost')),
+                   ghost_skipped=[(i, why) for i, why in m['skipped'] if cards[i].get('ghost')])
         self.states.append(rec)
-        print(f"{full:44s} cards={len(cards):3d} valid={m['samples']:3d} skip={len(m['skipped']):3d} invalid={len(rec['invalid']):3d} bad={m['bad']:3d} {m['status']}")
+        g = f" ghost={rec['ghost_valid']}/{rec['ghost_cards']*4}" if rec['ghost_cards'] else ''
+        print(f"{full:44s} cards={len(cards):3d} valid={m['samples']:3d} skip={len(m['skipped']):3d} invalid={len(rec['invalid']):3d} bad={m['bad']:3d} {m['status']}{g}")
         return rec
 
 
@@ -157,35 +161,54 @@ def scan_team(br, sc, dpr):
         pg.close()
 
 
+DRAG_KINDS = ['depth', 'framed', 'flat']
+DRAG_VIEWPORTS = [(1440, 900, 'desk'), (1024, 768, 'tablet')]
+
+
+def drag_required():
+    """固定必測矩陣：3 卡型 × 2 桌面 viewport × 5 時點，不由實際跑到的清單反推。"""
+    return [f'drag-{vt}-{k}-{st}' for _, _, vt in DRAG_VIEWPORTS for k in DRAG_KINDS for st in DRAG_STATES_PER_KIND]
+
+
 def scan_drag(br, sc, dpr):
-    """拖曳：depth／framed／flat 各一張 × 兩桌面 viewport × 成立／中途／目標上方；放下後第一個 rAF 與雙 rAF 穩定畫面。"""
+    """拖曳：depth／framed／flat 各一張 × 兩桌面 viewport × 成立／中途／目標上方；放下後第一個 rAF 與雙 rAF 穩定畫面。
+
+    ghost 的覆蓋以 ghost 本身的有效角判（rec['ghost_valid']），不用同畫面其他卡的樣本充數。
+    抓取點放在卡面偏下（88% 高），ghost 懸在技能格上時整張留在視窗內，否則背景環出界會被整張 SKIP。
+    """
     done = []
-    for vw, vh, vt in [(1440, 900, 'desk'), (1024, 768, 'tablet')]:
+    for vw, vh, vt in DRAG_VIEWPORTS:
         pg = br.new_page(viewport={'width': vw, 'height': vh}, device_scale_factor=dpr)
         open_team(pg)
-        has = pg.evaluate("()=>!!(window.team20&&window.team20.drag)")
-        if not has:
+        if not pg.evaluate("()=>!!(window.team20&&window.team20.drag)"):
             pg.close(); return done
-        kinds = pg.evaluate("""()=>{const t=window.team20;const seen={};const out=[];
-          for(const id of t.roster.slice(0,10)){const c=t.cards.find(x=>x.id===id);const k=c.kind||(c.scene?'depth':(c.bleed?'flat':'framed'));
-            if(!seen[k]){seen[k]=1;out.push({id,kind:k})}}return out}""")
-        for k in kinds:
-            pg.evaluate("()=>window.team20.reset()"); pg.wait_for_timeout(400)
-            src = pg.evaluate("(id)=>{const b=document.querySelector(`#team-grid .team-proxy[data-id=\"${id}\"]`).getBoundingClientRect();return {x:b.x+b.width/2,y:b.y+b.height/2}}", k['id'])
+        for kind in DRAG_KINDS:
+            pg.evaluate("()=>window.team20.reset()"); pg.wait_for_timeout(300)
+            # fixture：該卡型若不在 roster，以同稀有度成員換入（公開 API），再翻到它所在的頁
+            cid = pg.evaluate("""(kind)=>{const t=window.team20;const K=c=>c.kind||(c.scene?'depth':(c.bleed?'flat':'framed'));
+              let c=t.roster.map(id=>t.cards.find(x=>x.id===id)).find(c=>K(c)===kind);
+              if(!c){c=t.cards.find(x=>K(x)===kind);if(!c)return null;
+                const same=t.roster.find(r=>t.cards.find(y=>y.id===r).rarity===c.rarity);if(!same||!t.add(c.id,same))return null}
+              const i=t.roster.indexOf(c.id);t.showPage(Math.floor(i/10));return c.id}""", kind)
+            if not cid:
+                print(f'   !! {vt} 找不到可拖的 {kind} 卡'); continue
+            pg.wait_for_timeout(300)
+            pg.evaluate("(id)=>document.querySelector('#team-grid .team-proxy[data-id=\"'+id+'\"]')?.scrollIntoView({block:'nearest'})", cid)
+            src = pg.evaluate("(id)=>{const b=document.querySelector('#team-grid .team-proxy[data-id=\"'+id+'\"] .proxy-image').getBoundingClientRect();return {x:b.x+b.width/2,y:b.y+b.height*.88}}", cid)
             slot = pg.evaluate("()=>{const b=document.querySelector('.skill-slot[data-slot=\"1\"]').getBoundingClientRect();return {x:b.x+b.width/2,y:b.y+b.height/2}}")
             pg.mouse.move(src['x'], src['y']); pg.mouse.down()
             pg.mouse.move(src['x'] + 12, src['y'] + 6, steps=3); pg.wait_for_timeout(120)
-            sc.shoot(pg, f"drag-{vt}-{k['kind']}-drag-start", freeze=False)
+            sc.shoot(pg, f'drag-{vt}-{kind}-drag-start', freeze=False)
             pg.mouse.move((src['x'] + slot['x']) / 2, (src['y'] + slot['y']) / 2, steps=8); pg.wait_for_timeout(120)
-            sc.shoot(pg, f"drag-{vt}-{k['kind']}-drag-mid", freeze=False)
+            sc.shoot(pg, f'drag-{vt}-{kind}-drag-mid', freeze=False)
             pg.mouse.move(slot['x'], slot['y'], steps=8); pg.wait_for_timeout(120)
-            sc.shoot(pg, f"drag-{vt}-{k['kind']}-drag-over-slot", freeze=False)
+            sc.shoot(pg, f'drag-{vt}-{kind}-drag-over-slot', freeze=False)
             pg.mouse.up()
             pg.evaluate("()=>new Promise(r=>requestAnimationFrame(r))")
-            sc.shoot(pg, f"drag-{vt}-{k['kind']}-drop-first-raf", freeze=False)
+            sc.shoot(pg, f'drag-{vt}-{kind}-drop-first-raf', freeze=False)
             pg.wait_for_timeout(400)
-            sc.shoot(pg, f"drag-{vt}-{k['kind']}-drop-stable")
-            done.append((vt, k['kind']))
+            sc.shoot(pg, f'drag-{vt}-{kind}-drop-stable')
+            done.append((vt, kind))
         pg.close()
     return done
 
@@ -224,20 +247,20 @@ def run_all(out: Path, channel, gpu, dprs):
             scan_pool(br, sc, dpr); scan_gacha(br, sc, dpr); scan_team(br, sc, dpr)
             drag_done = scan_drag(br, sc, dpr)
             neg = negative_control(br, sc, dpr)
-            required = list(REQUIRED_STATES)
             has_drag = bool(drag_done)
-            if has_drag:
-                for vt, kind in drag_done:
-                    required += [f'drag-{vt}-{kind}-{s}' for s in DRAG_STATES_PER_KIND]
+            required = list(REQUIRED_STATES) + (drag_required() if has_drag else [])
             names = {s['state'] for s in sc.states}
             missing = [s for s in required if s not in names]
             zero_valid = [s['state'] for s in sc.states if s['required'] and s['state'] in required and s['samples'] == 0]
+            # 拖曳三個時點（成立／中途／目標上方）：ghost 自己要有 4 個有效角，不拿別的卡充數
+            ghost_gap = [s['state'] for s in sc.states if s['state'].startswith('drag-') and s['state'].endswith(('-drag-start', '-drag-mid', '-drag-over-slot')) and s.get('ghost_valid', 0) < 4]
             clean_bad = sum(s['bad'] for s in sc.states if not s['inject'])
-            run = dict(dpr=dpr, states=sc.states, required=required, missing=missing, zero_valid_required=zero_valid,
+            run = dict(dpr=dpr, states=sc.states, required=required, missing=missing, zero_valid_required=zero_valid, ghost_gap=ghost_gap,
                        clean_bad=clean_bad, negative_control_bad=neg['bad'], drag_covered=has_drag,
-                       ok=(not missing and not zero_valid and clean_bad == 0 and neg['bad'] >= 1))
+                       ok=(not missing and not zero_valid and not ghost_gap and clean_bad == 0 and neg['bad'] >= 1))
             summary['runs'].append(run)
-            print(f"== dpr {dpr}: 狀態 {len(sc.states)} 缺 {len(missing)} 零樣本必測 {len(zero_valid)} 乾淨黑角 {clean_bad} 負控制紅 {neg['bad']} 拖曳{'有' if has_drag else '無'} → {'OK' if run['ok'] else 'FAIL'}")
+            print(f"== dpr {dpr}: 狀態 {len(sc.states)} 缺 {len(missing)} 零樣本必測 {len(zero_valid)} ghost缺角 {len(ghost_gap)} 乾淨黑角 {clean_bad} 負控制紅 {neg['bad']} 拖曳{'有' if has_drag else '無'} → {'OK' if run['ok'] else 'FAIL'}")
+            if ghost_gap: print('   ghost 缺角:', ghost_gap)
             if missing: print('   缺:', missing)
             if zero_valid: print('   零樣本必測:', zero_valid)
         br.close()

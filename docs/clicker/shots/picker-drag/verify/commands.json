@@ -1,0 +1,50 @@
+[
+  {
+    "name": "picker",
+    "command": "python check_picker_drag.py --suite picker --out ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\picker",
+    "exit": 0,
+    "seconds": 52.5
+  },
+  {
+    "name": "drag",
+    "command": "python check_picker_drag.py --suite drag --out ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\drag",
+    "exit": 0,
+    "seconds": 197.32
+  },
+  {
+    "name": "negative",
+    "command": "python check_picker_drag.py --suite negative --out ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\negative",
+    "exit": 0,
+    "seconds": 19.16
+  },
+  {
+    "name": "perf",
+    "command": "python check_picker_drag.py --suite perf --channel chrome --out ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\perf",
+    "exit": 0,
+    "seconds": 79.33
+  },
+  {
+    "name": "corners-chromium",
+    "command": "python check_card_corner_states.py --suite all --out ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\corners-chromium",
+    "exit": 0,
+    "seconds": 94.79
+  },
+  {
+    "name": "regression",
+    "command": "python check_team20.py --build-evidence ../../docs/clicker/shots/picker-drag/build/build.json --protected-before ../../docs/clicker/shots/picker-drag/before/protected-before.json --out ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\regression",
+    "exit": 1,
+    "seconds": 244.42
+  },
+  {
+    "name": "corners-chrome",
+    "command": "python check_card_corner_states.py --suite all --channel chrome --gpu d3d11 --dprs 1,1.25,1.5,2 --out ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\corners-chrome",
+    "exit": 0,
+    "seconds": 466.5
+  },
+  {
+    "name": "corners-edge",
+    "command": "python check_card_corner_states.py --suite all --channel msedge --gpu d3d11 --dprs 1,1.25,1.5,2 --out ..\\..\\docs\\clicker\\shots\\picker-drag\\verify\\corners-edge",
+    "exit": 0,
+    "seconds": 443.46
+  }
+]

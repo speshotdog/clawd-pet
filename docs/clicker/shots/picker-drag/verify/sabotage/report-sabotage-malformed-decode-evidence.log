@@ -1,0 +1,3 @@
+FAIL schema: gacha@1440x1200: valid decoded image dimensions
+FAIL schema: gacha@1440x1200: unique decoded image indices
+FAIL schema errors: 2

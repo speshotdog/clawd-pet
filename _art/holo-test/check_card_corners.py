@@ -44,9 +44,11 @@ GEOMETRY_JS = r"""(sel)=>{
       d.style.cssText=`position:absolute;left:${px*100}%;top:${py*100}%;width:0;height:0;margin:0;padding:0;border:0;pointer-events:none`;
       e.appendChild(d);const r=d.getBoundingClientRect();d.remove();return [r.left,r.top]});
     const rr=parseFloat(cs.borderTopLeftRadius);
-    out.push({x:b.x,y:b.y,w:b.width,h:b.height,cw:e.clientWidth||b.width,ch:e.clientHeight||b.height,
+    // 會蓋住別張卡的浮層：拖曳 ghost（pointer-events:none，elementsFromPoint 看不到，只能用矩形判）
+    const occ=[...document.querySelectorAll('#drag-layer .drag-ghost')].filter(g=>!within(e,g)).map(g=>{const r=g.getBoundingClientRect();return [r.left,r.top,r.right,r.bottom]});
+    out.push({x:b.x,y:b.y,w:b.width,h:b.height,cw:e.clientWidth||b.width,ch:e.clientHeight||b.height,occluders:occ,
       quad:probes,radius:Number.isFinite(rr)&&rr>0?rr:12,cls:String(e.className).slice(0,60),
-      vis:visible(e),occluded:!!(dlg&&!within(e,dlg)),id:e.dataset.id||''});
+      vis:visible(e),occluded:!!(dlg&&!within(e,dlg)),id:e.dataset.id||'',ghost:!!(document.getElementById('drag-layer')&&within(e,document.getElementById('drag-layer')))});
   });
   return out;}"""
 
@@ -136,6 +138,18 @@ def measure_corners(img, cards, fraction=8, darkest_limit=12, dpr=1.0, ring=8):
             bg = (~inside_card) & (lx >= -ring) & (lx <= cw + ring) & (ly >= -ring) & (ly <= ch + ring) & \
                  (((lx < 0) if sx < 0 else (lx > cw)) | ((ly < 0) if sy < 0 else (ly > ch))) & \
                  ((lx <= cx1 + ring) if sx < 0 else (lx >= cx0 - ring)) & ((ly <= cy1 + ring) if sy < 0 else (ly >= cy0 - ring))
+            # 角落方塊（含背景環）若被別張卡的 ghost 矩形壓到，這個角沒有鑑別力：記原因、不判
+            sq_pts = np.stack([np.where(sq | bg)[1] + xs[0], np.where(sq | bg)[0] + ys[0]]) if (sq | bg).any() else None
+            occluded = False
+            if sq_pts is not None:
+                px0, py0 = sq_pts.min(axis=1); px1, py1 = sq_pts.max(axis=1)
+                for ox0, oy0, ox1, oy1 in c.get('occluders') or []:
+                    ox0, oy0, ox1, oy1 = ox0 * dpr, oy0 * dpr, ox1 * dpr, oy1 * dpr
+                    if px0 <= ox1 and px1 >= ox0 and py0 <= oy1 and py1 >= oy0:
+                        occluded = True; break
+            if occluded:
+                rows.append(dict(card=i, cls=c['cls'][:40], corner=name, local_ref=None, darkest=None,
+                                 near_black_pct=None, much_darker_pct=None, note='occluded by drag ghost')); continue
             o = patch[outside_arc]; b = patch[bg]
             if o.size < 4 or b.size < 4:
                 rows.append(dict(card=i, cls=c['cls'][:40], corner=name, local_ref=None, darkest=None,

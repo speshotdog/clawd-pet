@@ -1,0 +1,143 @@
+{
+  "corners-chromium": [
+    {
+      "dpr": 1.0,
+      "missing_flat_states": [
+        "drag-desk-flat-drag-start",
+        "drag-desk-flat-drag-mid",
+        "drag-desk-flat-drag-over-slot",
+        "drag-desk-flat-drop-first-raf",
+        "drag-desk-flat-drop-stable",
+        "drag-tablet-flat-drag-start",
+        "drag-tablet-flat-drag-mid",
+        "drag-tablet-flat-drag-over-slot",
+        "drag-tablet-flat-drop-first-raf",
+        "drag-tablet-flat-drop-stable"
+      ]
+    }
+  ],
+  "corners-chrome": [
+    {
+      "dpr": 1.0,
+      "missing_flat_states": [
+        "drag-desk-flat-drag-start",
+        "drag-desk-flat-drag-mid",
+        "drag-desk-flat-drag-over-slot",
+        "drag-desk-flat-drop-first-raf",
+        "drag-desk-flat-drop-stable",
+        "drag-tablet-flat-drag-start",
+        "drag-tablet-flat-drag-mid",
+        "drag-tablet-flat-drag-over-slot",
+        "drag-tablet-flat-drop-first-raf",
+        "drag-tablet-flat-drop-stable"
+      ]
+    },
+    {
+      "dpr": 1.25,
+      "missing_flat_states": [
+        "drag-desk-flat-drag-start",
+        "drag-desk-flat-drag-mid",
+        "drag-desk-flat-drag-over-slot",
+        "drag-desk-flat-drop-first-raf",
+        "drag-desk-flat-drop-stable",
+        "drag-tablet-flat-drag-start",
+        "drag-tablet-flat-drag-mid",
+        "drag-tablet-flat-drag-over-slot",
+        "drag-tablet-flat-drop-first-raf",
+        "drag-tablet-flat-drop-stable"
+      ]
+    },
+    {
+      "dpr": 1.5,
+      "missing_flat_states": [
+        "drag-desk-flat-drag-start",
+        "drag-desk-flat-drag-mid",
+        "drag-desk-flat-drag-over-slot",
+        "drag-desk-flat-drop-first-raf",
+        "drag-desk-flat-drop-stable",
+        "drag-tablet-flat-drag-start",
+        "drag-tablet-flat-drag-mid",
+        "drag-tablet-flat-drag-over-slot",
+        "drag-tablet-flat-drop-first-raf",
+        "drag-tablet-flat-drop-stable"
+      ]
+    },
+    {
+      "dpr": 2.0,
+      "missing_flat_states": [
+        "drag-desk-flat-drag-start",
+        "drag-desk-flat-drag-mid",
+        "drag-desk-flat-drag-over-slot",
+        "drag-desk-flat-drop-first-raf",
+        "drag-desk-flat-drop-stable",
+        "drag-tablet-flat-drag-start",
+        "drag-tablet-flat-drag-mid",
+        "drag-tablet-flat-drag-over-slot",
+        "drag-tablet-flat-drop-first-raf",
+        "drag-tablet-flat-drop-stable"
+      ]
+    }
+  ],
+  "corners-edge": [
+    {
+      "dpr": 1.0,
+      "missing_flat_states": [
+        "drag-desk-flat-drag-start",
+        "drag-desk-flat-drag-mid",
+        "drag-desk-flat-drag-over-slot",
+        "drag-desk-flat-drop-first-raf",
+        "drag-desk-flat-drop-stable",
+        "drag-tablet-flat-drag-start",
+        "drag-tablet-flat-drag-mid",
+        "drag-tablet-flat-drag-over-slot",
+        "drag-tablet-flat-drop-first-raf",
+        "drag-tablet-flat-drop-stable"
+      ]
+    },
+    {
+      "dpr": 1.25,
+      "missing_flat_states": [
+        "drag-desk-flat-drag-start",
+        "drag-desk-flat-drag-mid",
+        "drag-desk-flat-drag-over-slot",
+        "drag-desk-flat-drop-first-raf",
+        "drag-desk-flat-drop-stable",
+        "drag-tablet-flat-drag-start",
+        "drag-tablet-flat-drag-mid",
+        "drag-tablet-flat-drag-over-slot",
+        "drag-tablet-flat-drop-first-raf",
+        "drag-tablet-flat-drop-stable"
+      ]
+    },
+    {
+      "dpr": 1.5,
+      "missing_flat_states": [
+        "drag-desk-flat-drag-start",
+        "drag-desk-flat-drag-mid",
+        "drag-desk-flat-drag-over-slot",
+        "drag-desk-flat-drop-first-raf",
+        "drag-desk-flat-drop-stable",
+        "drag-tablet-flat-drag-start",
+        "drag-tablet-flat-drag-mid",
+        "drag-tablet-flat-drag-over-slot",
+        "drag-tablet-flat-drop-first-raf",
+        "drag-tablet-flat-drop-stable"
+      ]
+    },
+    {
+      "dpr": 2.0,
+      "missing_flat_states": [
+        "drag-desk-flat-drag-start",
+        "drag-desk-flat-drag-mid",
+        "drag-desk-flat-drag-over-slot",
+        "drag-desk-flat-drop-first-raf",
+        "drag-desk-flat-drop-stable",
+        "drag-tablet-flat-drag-start",
+        "drag-tablet-flat-drag-mid",
+        "drag-tablet-flat-drag-over-slot",
+        "drag-tablet-flat-drop-first-raf",
+        "drag-tablet-flat-drop-stable"
+      ]
+    }
+  ]
+}

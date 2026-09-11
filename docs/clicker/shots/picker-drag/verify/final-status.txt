@@ -1,0 +1,2 @@
+?? docs/clicker/VERDICT-2026-09-12-picker-drag.md
+?? docs/clicker/shots/picker-drag/verify/

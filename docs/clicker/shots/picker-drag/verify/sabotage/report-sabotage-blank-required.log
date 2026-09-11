@@ -1,0 +1,51 @@
+FAIL schema: pool@1440x1200/0: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/0: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/0: geometry rarityRange
+FAIL schema: pool@1440x1200/1: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/1: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/1: geometry rarityRange
+FAIL schema: pool@1440x1200/2: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/2: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/2: geometry rarityRange
+FAIL schema: pool@1440x1200/3: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/3: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/3: geometry rarityRange
+FAIL schema: pool@1440x1200/4: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/4: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/4: geometry rarityRange
+FAIL schema: pool@1440x1200/5: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/5: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/5: geometry rarityRange
+FAIL schema: pool@1440x1200/6: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/6: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/6: geometry rarityRange
+FAIL schema: pool@1440x1200/7: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/7: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/7: geometry rarityRange
+FAIL schema: pool@1440x1200/8: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/8: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/8: geometry rarityRange
+FAIL schema: pool@1440x1200/9: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/9: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/9: geometry rarityRange
+FAIL schema: pool@1440x1200/10: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/10: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/10: geometry rarityRange
+FAIL schema: pool@1440x1200/11: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/11: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/11: geometry rarityRange
+FAIL schema: pool@1440x1200/12: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/12: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/12: geometry rarityRange
+FAIL schema: pool@1440x1200/13: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/13: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/13: geometry rarityRange
+FAIL schema: pool@1440x1200/14: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/14: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/14: geometry rarityRange
+FAIL schema: pool@1440x1200/15: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/15: finite positive CSS rarityFsVar
+FAIL schema: pool@1440x1200/15: geometry rarityRange
+FAIL schema: pool@1440x1200/16: finite positive CSS nameFsVar
+FAIL schema: pool@1440x1200/16: finite positive CSS rarityFsVar
+FAIL schema errors: 1134

@@ -1,0 +1,578 @@
+{
+  "corners-chromium": {
+    "browser": "149.0.7827.55",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "runs": [
+      {
+        "dpr": 1.0,
+        "recorded_states": 42,
+        "scanner_missing": [],
+        "scanner_zero_valid_required": [],
+        "order_missing": [
+          "drag-desk-flat-drag-start",
+          "drag-desk-flat-drag-mid",
+          "drag-desk-flat-drag-over-slot",
+          "drag-desk-flat-drop-first-raf",
+          "drag-desk-flat-drop-stable",
+          "drag-tablet-flat-drag-start",
+          "drag-tablet-flat-drag-mid",
+          "drag-tablet-flat-drag-over-slot",
+          "drag-tablet-flat-drop-first-raf",
+          "drag-tablet-flat-drop-stable"
+        ],
+        "clean_bad": 0,
+        "negative_control_bad": 48,
+        "over_slot_skips": [
+          {
+            "state": "drag-desk-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-desk-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "corners-chrome": {
+    "browser": "152.0.7977.84",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3080 Ti (0x00002208) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "runs": [
+      {
+        "dpr": 1.0,
+        "recorded_states": 42,
+        "scanner_missing": [],
+        "scanner_zero_valid_required": [],
+        "order_missing": [
+          "drag-desk-flat-drag-start",
+          "drag-desk-flat-drag-mid",
+          "drag-desk-flat-drag-over-slot",
+          "drag-desk-flat-drop-first-raf",
+          "drag-desk-flat-drop-stable",
+          "drag-tablet-flat-drag-start",
+          "drag-tablet-flat-drag-mid",
+          "drag-tablet-flat-drag-over-slot",
+          "drag-tablet-flat-drop-first-raf",
+          "drag-tablet-flat-drop-stable"
+        ],
+        "clean_bad": 0,
+        "negative_control_bad": 48,
+        "over_slot_skips": [
+          {
+            "state": "drag-desk-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-desk-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "dpr": 1.25,
+        "recorded_states": 42,
+        "scanner_missing": [],
+        "scanner_zero_valid_required": [],
+        "order_missing": [
+          "drag-desk-flat-drag-start",
+          "drag-desk-flat-drag-mid",
+          "drag-desk-flat-drag-over-slot",
+          "drag-desk-flat-drop-first-raf",
+          "drag-desk-flat-drop-stable",
+          "drag-tablet-flat-drag-start",
+          "drag-tablet-flat-drag-mid",
+          "drag-tablet-flat-drag-over-slot",
+          "drag-tablet-flat-drop-first-raf",
+          "drag-tablet-flat-drop-stable"
+        ],
+        "clean_bad": 0,
+        "negative_control_bad": 48,
+        "over_slot_skips": [
+          {
+            "state": "drag-desk-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-desk-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "dpr": 1.5,
+        "recorded_states": 42,
+        "scanner_missing": [],
+        "scanner_zero_valid_required": [],
+        "order_missing": [
+          "drag-desk-flat-drag-start",
+          "drag-desk-flat-drag-mid",
+          "drag-desk-flat-drag-over-slot",
+          "drag-desk-flat-drop-first-raf",
+          "drag-desk-flat-drop-stable",
+          "drag-tablet-flat-drag-start",
+          "drag-tablet-flat-drag-mid",
+          "drag-tablet-flat-drag-over-slot",
+          "drag-tablet-flat-drop-first-raf",
+          "drag-tablet-flat-drop-stable"
+        ],
+        "clean_bad": 0,
+        "negative_control_bad": 48,
+        "over_slot_skips": [
+          {
+            "state": "drag-desk-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-desk-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "dpr": 2.0,
+        "recorded_states": 42,
+        "scanner_missing": [],
+        "scanner_zero_valid_required": [],
+        "order_missing": [
+          "drag-desk-flat-drag-start",
+          "drag-desk-flat-drag-mid",
+          "drag-desk-flat-drag-over-slot",
+          "drag-desk-flat-drop-first-raf",
+          "drag-desk-flat-drop-stable",
+          "drag-tablet-flat-drag-start",
+          "drag-tablet-flat-drag-mid",
+          "drag-tablet-flat-drag-over-slot",
+          "drag-tablet-flat-drop-first-raf",
+          "drag-tablet-flat-drop-stable"
+        ],
+        "clean_bad": 0,
+        "negative_control_bad": 76,
+        "over_slot_skips": [
+          {
+            "state": "drag-desk-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-desk-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "corners-edge": {
+    "browser": "151.0.4129.101",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3080 Ti (0x00002208) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "runs": [
+      {
+        "dpr": 1.0,
+        "recorded_states": 42,
+        "scanner_missing": [],
+        "scanner_zero_valid_required": [],
+        "order_missing": [
+          "drag-desk-flat-drag-start",
+          "drag-desk-flat-drag-mid",
+          "drag-desk-flat-drag-over-slot",
+          "drag-desk-flat-drop-first-raf",
+          "drag-desk-flat-drop-stable",
+          "drag-tablet-flat-drag-start",
+          "drag-tablet-flat-drag-mid",
+          "drag-tablet-flat-drag-over-slot",
+          "drag-tablet-flat-drop-first-raf",
+          "drag-tablet-flat-drop-stable"
+        ],
+        "clean_bad": 0,
+        "negative_control_bad": 48,
+        "over_slot_skips": [
+          {
+            "state": "drag-desk-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-desk-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "dpr": 1.25,
+        "recorded_states": 42,
+        "scanner_missing": [],
+        "scanner_zero_valid_required": [],
+        "order_missing": [
+          "drag-desk-flat-drag-start",
+          "drag-desk-flat-drag-mid",
+          "drag-desk-flat-drag-over-slot",
+          "drag-desk-flat-drop-first-raf",
+          "drag-desk-flat-drop-stable",
+          "drag-tablet-flat-drag-start",
+          "drag-tablet-flat-drag-mid",
+          "drag-tablet-flat-drag-over-slot",
+          "drag-tablet-flat-drop-first-raf",
+          "drag-tablet-flat-drop-stable"
+        ],
+        "clean_bad": 0,
+        "negative_control_bad": 48,
+        "over_slot_skips": [
+          {
+            "state": "drag-desk-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-desk-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "dpr": 1.5,
+        "recorded_states": 42,
+        "scanner_missing": [],
+        "scanner_zero_valid_required": [],
+        "order_missing": [
+          "drag-desk-flat-drag-start",
+          "drag-desk-flat-drag-mid",
+          "drag-desk-flat-drag-over-slot",
+          "drag-desk-flat-drop-first-raf",
+          "drag-desk-flat-drop-stable",
+          "drag-tablet-flat-drag-start",
+          "drag-tablet-flat-drag-mid",
+          "drag-tablet-flat-drag-over-slot",
+          "drag-tablet-flat-drop-first-raf",
+          "drag-tablet-flat-drop-stable"
+        ],
+        "clean_bad": 0,
+        "negative_control_bad": 48,
+        "over_slot_skips": [
+          {
+            "state": "drag-desk-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-desk-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "dpr": 2.0,
+        "recorded_states": 42,
+        "scanner_missing": [],
+        "scanner_zero_valid_required": [],
+        "order_missing": [
+          "drag-desk-flat-drag-start",
+          "drag-desk-flat-drag-mid",
+          "drag-desk-flat-drag-over-slot",
+          "drag-desk-flat-drop-first-raf",
+          "drag-desk-flat-drop-stable",
+          "drag-tablet-flat-drag-start",
+          "drag-tablet-flat-drag-mid",
+          "drag-tablet-flat-drag-over-slot",
+          "drag-tablet-flat-drop-first-raf",
+          "drag-tablet-flat-drop-stable"
+        ],
+        "clean_bad": 0,
+        "negative_control_bad": 56,
+        "over_slot_skips": [
+          {
+            "state": "drag-desk-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-desk-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-depth-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          },
+          {
+            "state": "drag-tablet-framed-drag-over-slot",
+            "samples": 44,
+            "skipped": [
+              [
+                11,
+                "out of viewport (incl. background ring)"
+              ]
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

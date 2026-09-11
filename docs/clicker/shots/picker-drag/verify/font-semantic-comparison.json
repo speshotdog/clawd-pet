@@ -1,0 +1,16 @@
+{
+  "round4_noto_sans_data.woff2": {
+    "sha256": [
+      "5747175376afa5549be8578662ccfa7f912f447e60f24083ee4d61575f7b06cc",
+      "010428f5358c96c9d32e4dc4504124f460e6fba3809377a947f2e6e679a776f3"
+    ],
+    "all_tables_XML_equal_except_checkSumAdjustment": true
+  },
+  "round4_noto_serif_data.woff2": {
+    "sha256": [
+      "92eb632f365fd92adb77c3dbb58b68acf1f79d9c97d413dd22767d5d24bf3eff",
+      "81b066d69c9926182880090f5f50976ab647c6963bbfa04e2b969bd2142ae358"
+    ],
+    "all_tables_XML_equal_except_checkSumAdjustment": true
+  }
+}
