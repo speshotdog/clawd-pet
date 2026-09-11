@@ -1,0 +1,56 @@
+[
+  {
+    "viewport": "1440x1200",
+    "card": "rocketdog",
+    "gateExit": 0,
+    "pixelExit": 0
+  },
+  {
+    "viewport": "1440x1200",
+    "card": "chaichai",
+    "gateExit": 0,
+    "pixelExit": 0
+  },
+  {
+    "viewport": "1440x1200",
+    "card": "mieshi",
+    "gateExit": 0,
+    "pixelExit": 0
+  },
+  {
+    "viewport": "1024x900",
+    "card": "rocketdog",
+    "gateExit": 0,
+    "pixelExit": 0
+  },
+  {
+    "viewport": "1024x900",
+    "card": "chaichai",
+    "gateExit": 0,
+    "pixelExit": 0
+  },
+  {
+    "viewport": "1024x900",
+    "card": "mieshi",
+    "gateExit": 0,
+    "pixelExit": 0
+  },
+  {
+    "viewport": "390x844",
+    "card": "rocketdog",
+    "gateExit": 0,
+    "pixelExit": 0
+  },
+  {
+    "viewport": "390x844",
+    "card": "chaichai",
+    "gateExit": 0,
+    "pixelExit": 0
+  },
+  {
+    "viewport": "390x844",
+    "card": "mieshi",
+    "gateExit": 0,
+    "pixelExit": 0
+  }
+]

@@ -1,0 +1,57 @@
+{
+  "gacha": {
+    "file": "deluxe-gacha-b.html",
+    "oldBytes": 2115132,
+    "bytes": 14842177,
+    "oldLimit": null,
+    "newLimit": null
+  },
+  "gacha-standalone": {
+    "file": "deluxe-gacha-b-standalone.html",
+    "oldBytes": 5207072,
+    "bytes": 16333843,
+    "oldLimit": null,
+    "newLimit": null
+  },
+  "gacha-test": {
+    "file": "deluxe-gacha-b-test.html",
+    "oldBytes": 2115164,
+    "bytes": 14842209,
+    "oldLimit": null,
+    "newLimit": null
+  },
+  "gacha-test-standalone": {
+    "file": "deluxe-gacha-b-test-standalone.html",
+    "oldBytes": 5207104,
+    "bytes": 16333875,
+    "oldLimit": null,
+    "newLimit": null
+  },
+  "pool": {
+    "file": "cards-remade.html",
+    "oldBytes": 2024154,
+    "bytes": 14751143,
+    "oldLimit": null,
+    "newLimit": null
+  },
+  "pool-standalone": {
+    "file": "cards-remade-standalone.html",
+    "oldBytes": 5223641,
+    "bytes": 15923037,
+    "oldLimit": null,
+    "newLimit": null
+  },
+  "team": {
+    "file": "map20.html",
+    "oldBytes": 5984408,
+    "bytes": 11679652,
+    "oldLimit": 6000000,
+    "newLimit": 20000000
+  },
+  "demo-standalone-build-only": {
+    "file": "demo-standalone.html",
+    "bytes": 5155290,
+    "oldLimit": 15728640,
+    "newLimit": 15728640
+  }
+}

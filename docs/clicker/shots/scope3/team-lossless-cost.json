@@ -1,0 +1,148 @@
+{
+  "currentHtmlBytes": 5984408,
+  "losslessDeltaBytes": 5588172,
+  "estimatedLosslessHtmlBytes": 11572580,
+  "existingLimitBytes": 6000000,
+  "images": [
+    {
+      "key": "layer-rocketdog-subject.png",
+      "current": 116447,
+      "lossless": 664407
+    },
+    {
+      "key": "layer-rocketdog-background.png",
+      "current": 55851,
+      "lossless": 605735
+    },
+    {
+      "key": "card-liulangyueshou.png",
+      "current": 68187,
+      "lossless": 181815
+    },
+    {
+      "key": "card-mieshi.png",
+      "current": 109855,
+      "lossless": 471455
+    },
+    {
+      "key": "card-qinghua.png",
+      "current": 158447,
+      "lossless": 521055
+    },
+    {
+      "key": "layer-alienkitty-subject.png",
+      "current": 36283,
+      "lossless": 124343
+    },
+    {
+      "key": "layer-alienkitty-background.png",
+      "current": 104287,
+      "lossless": 667823
+    },
+    {
+      "key": "card-foxfriend.png",
+      "current": 66695,
+      "lossless": 87687
+    },
+    {
+      "key": "card-jiaotou.png",
+      "current": 65575,
+      "lossless": 169031
+    },
+    {
+      "key": "card-jinggou.png",
+      "current": 38423,
+      "lossless": 67367
+    },
+    {
+      "key": "card-jintianwoshengri.png",
+      "current": 34911,
+      "lossless": 93871
+    },
+    {
+      "key": "card-lksphinx.png",
+      "current": 55179,
+      "lossless": 152799
+    },
+    {
+      "key": "layer-astronaut-subject.png",
+      "current": 44063,
+      "lossless": 171547
+    },
+    {
+      "key": "layer-astronaut-background.png",
+      "current": 79183,
+      "lossless": 610595
+    },
+    {
+      "key": "layer-fluffdog-subject.png",
+      "current": 81495,
+      "lossless": 639287
+    },
+    {
+      "key": "layer-fluffdog-background.png",
+      "current": 54719,
+      "lossless": 652011
+    },
+    {
+      "key": "card-bianbiancaihua.png",
+      "current": 47279,
+      "lossless": 86359
+    },
+    {
+      "key": "card-bingyang.png",
+      "current": 79631,
+      "lossless": 191667
+    },
+    {
+      "key": "card-chengtiregou.png",
+      "current": 45135,
+      "lossless": 76047
+    },
+    {
+      "key": "card-gebugou.png",
+      "current": 68035,
+      "lossless": 270435
+    },
+    {
+      "key": "card-alu.png",
+      "current": 35143,
+      "lossless": 32599
+    },
+    {
+      "key": "card-chaichai.png",
+      "current": 76023,
+      "lossless": 184783
+    },
+    {
+      "key": "card-guanjiu.png",
+      "current": 37423,
+      "lossless": 64375
+    },
+    {
+      "key": "card-jiaochi.png",
+      "current": 27655,
+      "lossless": 40183
+    },
+    {
+      "key": "card-jiaolan.png",
+      "current": 39055,
+      "lossless": 85567
+    },
+    {
+      "key": "card-manhua.png",
+      "current": 68487,
+      "lossless": 223051
+    },
+    {
+      "key": "card-miepupu.png",
+      "current": 52151,
+      "lossless": 121135
+    },
+    {
+      "key": "card-miepuxiong.png",
+      "current": 57799,
+      "lossless": 134559
+    }
+  ]
+}

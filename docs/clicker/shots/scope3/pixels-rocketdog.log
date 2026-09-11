@@ -1,0 +1,16 @@
+gacha                    260.0×364.0 -> rocketdog-gacha-260px.png
+gacha-standalone         260.0×364.0 -> rocketdog-gacha-standalone-260px.png
+gacha-test               260.0×364.0 -> rocketdog-gacha-test-260px.png
+gacha-test-standalone    260.0×364.0 -> rocketdog-gacha-test-standalone-260px.png
+pool                     260.0×364.0 -> rocketdog-pool-260px.png
+pool-standalone          260.0×364.0 -> rocketdog-pool-standalone-260px.png
+team                     260.0×364.0 -> rocketdog-team-260px.png
+
+並排圖：docs\clicker\shots\scope3\controlled\rocketdog-all-entries-260px.png（7 個入口）
+PIXEL gacha mean 0.0 PASS
+PIXEL gacha-standalone mean 4.158001373626374 FAIL
+PIXEL gacha-test mean 0.0 PASS
+PIXEL gacha-test-standalone mean 4.158001373626374 FAIL
+PIXEL pool mean 2.6415891800507184e-05 PASS
+PIXEL pool-standalone mean 3.575987954353339 FAIL
+PIXEL team mean 2.30624207523246 FAIL

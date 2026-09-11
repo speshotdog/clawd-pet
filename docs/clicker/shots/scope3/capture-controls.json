@@ -1,0 +1,11 @@
+{
+  "clean": true,
+  "internalTransform": {
+    "art": "matrix(1, 0, 0, 1, 0, -20.7488)",
+    "gem": "matrix3d(0.707107, 0.707107, 0, 0, -0.707107, 0.707107, 0, 0, 0, 0, 1, 0, 0, 0, 42, 1)"
+  },
+  "decodeFailureRecorded": true,
+  "refitFailureRecorded": true,
+  "callerRejectsFailure": true,
+  "pass": true
+}

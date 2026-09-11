@@ -1,0 +1,7 @@
+{
+  "rawBytes": 173747406,
+  "gzipBytes": 6151768,
+  "rawSha256": "ed51d16a8af5c26e380d761a254543bd16bf92ffa9d46743e06fec5f68dc3689",
+  "gzipSha256": "39e82d0e55747d38bb150612e7e03b0cf68d4b2965386d7a00312102254ee26e",
+  "roundTripExact": true
+}

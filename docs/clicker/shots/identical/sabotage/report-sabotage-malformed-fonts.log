@@ -1,0 +1,4 @@
+FAIL schema: gacha@1440x1200/0: platform fonts object
+FAIL schema: gacha@1440x1200/0: font evidence name
+FAIL schema: gacha@1440x1200/0: font evidence rarity
+FAIL schema errors: 3

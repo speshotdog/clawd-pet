@@ -1,186 +1,99 @@
-# -*- coding: utf-8 -*-
-"""素材與效果層的一致性：卡內每一層的幾何／混色／遮罩要一致，
-素材可以換傳輸方式（檔案 vs data URI），但**解析度與實際畫面**要能追溯到建置參數。
+"""Compare every neutral front-face instance from the same full collection artifact.
 
-背景（2026-09-11）：同尺寸中性姿態下 computed style 與幾何都是 0 差異，
-但截圖還是差像素。診斷結果不是箔面相位（`diag_foil_phase.py` 證明三個時點都沒有後續寫入），
-而是兩件事：
-  1. 幾個 standalone 建置會**重新編碼、甚至縮圖**素材
-     （`build_cards_remade_standalone.py` 的 `uri(box=(420,588), quality=84)`）。
-  2. 截圖裁切落在非整數像素上，會產生 1px 對位誤差。
-
-所以這支把「層的樣式與幾何」與「素材本身的解析度」分開驗：
-  - 層的幾何／transform／背景尺寸／混色／遮罩／濾鏡：**必須完全一致**。
-  - 素材的內在解析度：允許不同，但要列出來並對得上建置參數，不能默默不同。
-
-用法：
-    python check_card_assets.py [--card rocketdog] [--viewport 1440x1200]
+The collector is check_card_parity.py --label scope3 --fixture auto --shots.
+No missing entry, viewport, role, card, descendant or pseudo-element can pass.
+Image natural dimensions are reported separately; all existing layer constraints remain strict.
 """
-from __future__ import annotations
-import argparse, json, sys, io
+import argparse,json,sys,re,ast
 from pathlib import Path
+from scope3_json import read_json,resolve_input
+from scope3_capture import SCOPE,artifact_hashes,digest
+from scope3_layers import design,LAYER_JS
+HERE=Path(__file__).resolve().parent
+VPS=('1440x1200','1024x900','390x844')
+REQUIRED=('card-lift','card-inner','card-face','face-stock','face-depth-bg','face-art','art-media',
+          'face-frame','frame-material','face-plate','face-gem','face-text','face-name','face-rarity')
+STYLE_KEYS=('transform','backgroundImage','backgroundSize','backgroundPosition','backgroundRepeat',
+            'opacity','mixBlendMode','filter','objectFit','objectPosition','borderRadius',
+            'maskImage','maskSize','maskPosition','maskRepeat','clipPath','content')
+FULL_STYLE_KEYS=ast.literal_eval(re.search(r'const keys=(\[.*?\]);',LAYER_JS,re.S)[1])
+TEXT_KEYS=('color','fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','textShadow','webkitTextFillColor')
 
-_OUT = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-sys.stdout = _OUT
-from playwright.sync_api import sync_playwright
-
-HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
-from check_card_parity import (ENTRIES, WALK, REFIT, FREEZE, SAMESIZE_JS,
-                               activate, REACH_CARD, pull_batch)
-
-# 共用卡面元件自己建立的層（card_face.js 第 61-65、80-100 行）：
-# 樣式與幾何必須完全一致，傳輸方式除外。
-COMPONENT_LAYERS = ['.face-stock', '.face-depth-bg', '.face-art', '.art-media', '.art-media img',
-                    '.subject-mask', '.face-frame', '.frame-material', '.foil-stack', '.foil-etch',
-                    '.face-plate', '.face-gem']
-# 頁面自己加的層：只回報、不判定。
-# `.card-back` 全線只有 demo.html 會建立（grep 'card-back' 的元素建立只在 demo.html 命中一次），
-# card_face.js 從頭到尾沒有建立它，所以它是實驗頁自己的翻面樣本，屬於「周邊 UI 可不同」。
-PAGE_LAYERS = ['.card-back']
-LAYERS = COMPONENT_LAYERS + PAGE_LAYERS
-STRICT = ['x', 'y', 'w', 'h', 'transform', 'backgroundSize', 'backgroundPosition',
-          'backgroundRepeat', 'opacity', 'mixBlendMode', 'filter', 'objectFit',
-          'objectPosition', 'borderRadius', 'maskSize', 'maskPosition', 'maskRepeat']
-# 這些只回報、不判定（傳輸方式與內在解析度）
-LOOSE = ['assetKind', 'naturalWidth', 'naturalHeight', 'bgKind', 'maskKind']
-
-READ = """(id) => {
-  const cs = [];
-  (function w(r){r.querySelectorAll('.hcard').forEach(c=>cs.push(c));
-    r.querySelectorAll('*').forEach(e=>{if(e.shadowRoot)w(e.shadowRoot)})})(document);
-  const c = cs.find(x => (x.dataset.id||'').replace(/^pool-/,'') === id);
-  if (!c) return null;
-  const cr = c.getBoundingClientRect();
-  const kind = u => !u ? null : (u.indexOf('data:image/webp') >= 0 ? 'data:webp'
-                : u.indexOf('data:image/png') >= 0 ? 'data:png'
-                : u.indexOf('data:') >= 0 ? 'data:other'
-                : u.indexOf('url(') >= 0 || u.indexOf('file:') >= 0 ? 'file' : 'none');
-  const out = {};
-  %s.forEach(sel => {
-    const e = c.querySelector(sel);
-    if (!e) { out[sel] = null; return; }
-    const s = getComputedStyle(e), r = e.getBoundingClientRect();
-    out[sel] = {
-      x: +((r.x - cr.x) / cr.width).toFixed(5), y: +((r.y - cr.y) / cr.height).toFixed(5),
-      w: +(r.width / cr.width).toFixed(5), h: +(r.height / cr.height).toFixed(5),
-      transform: s.transform, backgroundSize: s.backgroundSize,
-      backgroundPosition: s.backgroundPosition, backgroundRepeat: s.backgroundRepeat,
-      opacity: s.opacity, mixBlendMode: s.mixBlendMode, filter: s.filter,
-      objectFit: s.objectFit, objectPosition: s.objectPosition,
-      borderRadius: s.borderRadius,
-      maskSize: s.maskSize || s.webkitMaskSize || '',
-      maskPosition: s.maskPosition || s.webkitMaskPosition || '',
-      maskRepeat: s.maskRepeat || s.webkitMaskRepeat || '',
-      assetKind: e.tagName === 'IMG' ? kind(e.currentSrc || e.src) : null,
-      naturalWidth: e.tagName === 'IMG' ? e.naturalWidth : null,
-      naturalHeight: e.tagName === 'IMG' ? e.naturalHeight : null,
-      bgKind: kind(s.backgroundImage),
-      maskKind: kind(s.maskImage || s.webkitMaskImage),
-    };
-  });
-  return out;
-}""" % json.dumps(LAYERS)
-
+def evaluate(data,root=HERE):
+    from pool_data import pool
+    expected={c['id']:c for c in pool()}
+    team={c['id'] for c in json.loads(re.search(r'const TEAM_DATA=(\{.*?\});',(root/'map20.html').read_text(encoding='utf-8'),re.S)[1])['cards']}
+    masks=json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>',(root/'demo.html').read_text(encoding='utf-8'),re.S)[1])
+    failures=[]; comparisons=0; dimensions={}; kinds=set(); roles=set()
+    if data.get('sourceHashes') != artifact_hashes(root) or data.get('artifactsUnchanged') is not True:
+        failures.append('artifact hashes missing or stale')
+    refs={}
+    for vp,rec in data.get('entries',{}).get('gacha-test',{}).get('viewports',{}).items():
+        for c in rec.get('cards',[]):
+            if c.get('pose')=='neutral': refs[(vp,c.get('canonicalId'))]=c
+    for entry in SCOPE:
+        for vp in VPS:
+            key=entry+'@'+vp
+            rec=data.get('entries',{}).get(entry,{}).get('viewports',{}).get(vp)
+            if not isinstance(rec,dict) or rec.get('error'):
+                failures.append(key+': missing record');continue
+            samples=[c for c in rec.get('cards',[]) if c.get('pose')=='neutral']
+            required_roles=('overview','detail') if entry=='team' else (('reveal',) if entry.startswith('gacha') else ('grid',))
+            for role in required_roles:
+                subset=[c for c in samples if c.get('role')==role]
+                want=team if entry=='team' else set(expected)
+                if entry in ('gacha','gacha-standalone'):
+                    if len(subset)!=10: failures.append(key+': expected ten actual reveal slots')
+                elif {c.get('canonicalId') for c in subset} != want or len(subset)!=len(want):
+                    failures.append(key+': missing/excess cards in '+role)
+            dimensions[key]=[]
+            for c in samples:
+                # Keep the original cross-viewport constraint: a single 1440x1200
+                # reveal reference per card, not a different baseline per viewport.
+                cid=c.get('canonicalId');ref=refs.get((VPS[0],cid)); layers=c.get('layers')
+                label=key+'/'+str(cid)+'/'+str(c.get('role'))+'/'+str(c.get('instance'))
+                if c.get('role') not in required_roles: failures.append(label+': unexpected role')
+                if not ref or not isinstance(layers,list) or not layers:
+                    failures.append(label+': missing reference/layers');continue
+                spec=expected[cid];kind=spec.get('kind') or ('depth' if spec.get('scene') else 'flat' if spec.get('bleed') else 'framed')
+                maskkey='layer-'+cid+'-subject.png' if spec.get('scene') else spec['file']
+                count=31 if masks.get(maskkey) and kind!='flat' else 23
+                if len(layers)!=count: failures.append(label+': unexpected descendant count '+str(len(layers)))
+                for cls in REQUIRED:
+                    if sum(cls in str(l.get('classes','')).split() for l in layers)!=1:
+                        failures.append(label+': mandatory layer '+cls)
+                for layer in layers:
+                    required_keys=FULL_STYLE_KEYS if layer.get('classes') in ('face-name','face-rarity') else [k for k in FULL_STYLE_KEYS if k not in TEXT_KEYS]
+                    for part in ('style','before','after'):
+                        value=layer.get(part)
+                        if not isinstance(value,dict) or any(not isinstance(value.get(k),str) or not value[k] for k in required_keys):
+                            failures.append(label+': missing full styles/pseudo evidence')
+                    if layer.get('tag')=='IMG':
+                        image=layer.get('image')
+                        if not isinstance(image,dict) or any(type(image.get(k)) is not int or image[k]<=0 for k in ('width','height')):
+                            failures.append(label+': missing intrinsic image dimensions')
+                a,b=design(ref['layers']),design(layers)
+                comparisons+=1;kinds.add(kind);roles.add(c.get('role'))
+                if a!=b:
+                    for i,(x,y) in enumerate(zip(a,b)):
+                        for field in x:
+                            if x.get(field)!=y.get(field):
+                                if isinstance(x[field],dict) and isinstance(y.get(field),dict):
+                                    for prop in x[field]:
+                                        if x[field].get(prop)!=y[field].get(prop): failures.append(label+': layer%d.%s.%s %r != %r'%(i,field,prop,x[field][prop],y[field].get(prop)))
+                                else: failures.append(label+': layer%d.%s'%(i,field))
+                dimensions[key].append({'card':cid,'role':c.get('role'),'images':[l['image'] for l in layers if l.get('image')]})
+    return {'pass':not failures,'comparisons':comparisons,'differences':len(failures),'failures':failures,
+            'kinds':sorted(kinds),'roles':sorted(roles),'dimensions':dimensions}
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--card', default='rocketdog')
-    ap.add_argument('--reference', default='gacha-test')
-    ap.add_argument('--viewports', default='1440x1200,1024x900,390x844')
-    ap.add_argument('--width', type=int, default=260)
-    args = ap.parse_args()
-    VPS = [tuple(int(x) for x in v.split('x')) for v in args.viewports.split(',')]
-
-    from pool_data import pool
-    expected = {c['id']: c for c in pool()}
-    fixture_cards = [expected[args.card]] if args.card in expected else []
-
-    data = {}
-    with sync_playwright() as pw:
-        br = pw.chromium.launch()
-        for (W, H) in VPS:
-          for name0, cfg in ENTRIES.items():
-            name = '%s@%dx%d' % (name0, W, H)
-            pg = br.new_page(viewport={'width': W, 'height': H}, device_scale_factor=1)
-            try:
-                pg.add_init_script(WALK)
-                pg.goto((HERE / cfg['file']).as_uri() +
-                        ('?ceremony-test' if cfg['surface'] == 'gacha' else ''))
-                pg.evaluate(WALK)
-                if cfg['surface'] == 'gacha':
-                    # 正式版也走 ?ceremony-test 的固定序列鉤子，才能比到同一張卡；
-                    # 這只是測試環境替換結果，沒有動產品機率。
-                    pg.wait_for_timeout(500)
-                    err, _ = pull_batch(pg, fixture_cards)
-                    if err:
-                        print('%-28s 跳過：%s' % (name, err)); continue
-                else:
-                    activate(pg, cfg, [args.card], fixture_cards)
-                if cfg['surface'] == 'team':
-                    pg.evaluate(REACH_CARD, args.card)
-                    pg.wait_for_timeout(900)
-                if cfg['surface'] != 'gacha':
-                    pass
-                pg.evaluate(WALK); pg.evaluate(REFIT); pg.evaluate(FREEZE)
-                pg.evaluate(SAMESIZE_JS, args.width)
-                pg.evaluate("()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))")
-                v = pg.evaluate(READ, args.card)
-                if v is None:
-                    print('%-28s 跳過：這個入口沒有 %s' % (name, args.card)); continue
-                data[name] = v
-            except Exception as e:
-                print('%-28s 失敗：%s' % (name, str(e)[:140]))
-            finally:
-                pg.close()
-        br.close()
-
-    out = HERE.parent.parent / 'docs' / 'clicker' / 'shots' / 'parity' / 'asset-layers.json'
-    out.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding='utf-8')
-
-    ref_key = '%s@%dx%d' % (args.reference, VPS[0][0], VPS[0][1])
-    ref = data.get(ref_key)
-    if not ref:
-        print('參考入口 %s 沒有資料' % ref_key); return 2
-    fails = 0
-    print('\n== 層的樣式與幾何（必須完全一致，參考＝%s）' % args.reference)
-    for name, v in data.items():
-        if name == ref_key:
-            continue
-        bad = []
-        for sel in COMPONENT_LAYERS:
-            a, b = ref.get(sel), v.get(sel)
-            if (a is None) != (b is None):
-                bad.append((sel, '存在與否', bool(a), bool(b))); continue
-            if a is None:
-                continue
-            for k in STRICT:
-                if a.get(k) != b.get(k):
-                    bad.append((sel, k, a.get(k), b.get(k)))
-        ok = not bad
-        fails += 0 if ok else 1
-        print(('PASS ' if ok else 'FAIL ') + '%-28s 差異 %d 項 %s'
-              % (name, len(bad), [(s, k) for s, k, _, _ in bad][:4]))
-        for s, k, x, y in bad[:3]:
-            print('        %-18s %-18s %r vs %r' % (s, k, str(x)[:40], str(y)[:40]))
-
-    print('\n== 素材傳輸與內在解析度（只回報，差異要能追溯到建置參數）')
-    for name, v in data.items():
-        rows = []
-        for sel in ('.art-media img', '.foil-etch', '.frame-material', '.face-depth-bg'):
-            a = v.get(sel)
-            if not a:
-                continue
-            if a.get('assetKind') or a.get('naturalWidth'):
-                rows.append('%s=%s %sx%s' % (sel, a.get('assetKind'),
-                                             a.get('naturalWidth'), a.get('naturalHeight')))
-            elif a.get('bgKind') and a.get('bgKind') != 'none':
-                rows.append('%s bg=%s' % (sel, a.get('bgKind')))
-        print('  %-28s %s' % (name, '; '.join(rows)))
-
-    print('\n== 結果：%s' % ('層樣式與幾何全綠' if not fails else '%d 個入口有層差異' % fails))
-    return 1 if fails else 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+    ap=argparse.ArgumentParser();ap.add_argument('--input',type=Path,default=HERE.parents[1]/'docs/clicker/shots/parity/parity-scope3-final.json')
+    ap.add_argument('--output',type=Path)
+    args=ap.parse_args();args.input=resolve_input(args.input);data=read_json(args.input)
+    result=evaluate(data);result['inputSha256']=digest(args.input);result['sourceHashes']=data.get('sourceHashes')
+    out=args.output or args.input.parent/'asset-layers-scope3.json';out.write_text(json.dumps(result,ensure_ascii=False,indent=1),encoding='utf-8')
+    print('PASS' if result['pass'] else 'FAIL', 'comparisons',result['comparisons'],'differences',result['differences'])
+    for item in result['failures'][:25]: print(item)
+    print(out)
+    return 0 if result['pass'] else 1
+if __name__=='__main__': sys.exit(main())

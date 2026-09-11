@@ -1,0 +1,11 @@
+{
+  "beforeFullMean": 12.020406276415892,
+  "diagnosticTranslation": [
+    -1,
+    -1
+  ],
+  "interiorGuardPixels": 10,
+  "translatedInteriorMean": 0.0,
+  "integerAlignedFullMean": 2.6415891800507184e-05,
+  "description": "Diagnostic only: acceptance uses integer-aligned unshifted captures, never post-hoc registration."
+}

@@ -8,27 +8,21 @@ cards-remade-standalone.html 還停在舊實作（沒有 HoloCardFace）。
 先跑 build_cards_remade.py。
 """
 from base64 import b64encode
-from io import BytesIO
 from pathlib import Path
-import json, re
-from PIL import Image
+import json, re, argparse
+from card_assets import keys
 
+parser=argparse.ArgumentParser()
+parser.add_argument('--card-width',type=int,default=600)
+parser.add_argument('--output',type=Path)
+args=parser.parse_args()
+assert args.card_width == 600
 OUT = Path(__file__).parent
 SRC = OUT / 'cards-remade.html'
-DST = OUT / 'cards-remade-standalone.html'
+DST = args.output or OUT / 'cards-remade-standalone.html'
+DST.parent.mkdir(parents=True,exist_ok=True)
 page = SRC.read_text(encoding='utf-8')
 pool = json.loads(re.search(r'<script type="application/json" id="pool-data">(.*?)</script>', page, re.S).group(1))
-
-
-def uri(path: Path, box=(420, 588), quality=84) -> str:
-    with Image.open(path) as im:
-        im.load()
-        im.thumbnail(box, Image.Resampling.LANCZOS)
-        if im.mode not in ('RGB', 'RGBA'):
-            im = im.convert('RGBA' if 'A' in im.getbands() else 'RGB')
-        buf = BytesIO()
-        im.save(buf, format='WEBP', quality=quality, method=4)
-    return 'data:image/webp;base64,' + b64encode(buf.getvalue()).decode('ascii')
 
 
 # 箔紋是 CSS 直接引用的相對檔名
@@ -37,17 +31,5 @@ for tex in ('texture-fiber.png', 'texture-engraving.png'):
     page = page.replace(tex, 'data:image/png;base64,' + b64encode((OUT / tex).read_bytes()).decode('ascii'))
 
 # 卡圖經過 HoloCardFace 的 resolve()，所以只要把查表塞進頁面即可
-assets = {}
-for c in pool:
-    if c.get('scene'):
-        for layer in ('subject', 'background'):
-            key = f"layer-{c['id']}-{layer}.png"
-            assets[key] = uri(OUT / key)
-    else:
-        assets[c['file']] = uri(OUT / 'art' / c['file'])
-hook = "const POOL  = JSON.parse($('#pool-data').textContent);"
-assert hook in page, hook
-page = page.replace(hook, hook + "\nconst __A=" + json.dumps(assets, separators=(',', ':')) + ";", 1)
-
 DST.write_text(page, encoding='utf-8', newline='\n')
-print('wrote', DST.name, '%.2f MiB' % (DST.stat().st_size / 1048576), '| assets:', len(assets))
+print('wrote', DST.name, '%.2f MiB' % (DST.stat().st_size / 1048576), '| shared card layers:', sum(len(keys(c)) for c in pool))

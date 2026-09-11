@@ -1,0 +1,13 @@
+FAIL schema: gacha@1440x1200: batch IDs 0
+FAIL schema: gacha@1440x1200: batch slots 0
+FAIL schema: gacha@1440x1200: batch IDs 0
+FAIL schema: gacha@1440x1200: batch slots 0
+FAIL schema: gacha@1024x900: batch IDs 0
+FAIL schema: gacha@1024x900: batch slots 0
+FAIL schema: gacha@1024x900: batch IDs 0
+FAIL schema: gacha@1024x900: batch slots 0
+FAIL schema: gacha@390x844: batch IDs 0
+FAIL schema: gacha@390x844: batch slots 0
+FAIL schema: gacha@390x844: batch IDs 0
+FAIL schema: gacha@390x844: batch slots 0
+FAIL schema errors: 12

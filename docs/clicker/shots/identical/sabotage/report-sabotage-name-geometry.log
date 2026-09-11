@@ -1,0 +1,51 @@
+FAIL schema: team@1440x1200/0: fitted name
+FAIL schema: team@1440x1200/0: single line nameRange
+FAIL schema: team@1440x1200/0: text range contained in card dimensions
+FAIL schema: team@1440x1200/1: fitted name
+FAIL schema: team@1440x1200/1: single line nameRange
+FAIL schema: team@1440x1200/1: text range contained in card dimensions
+FAIL schema: team@1440x1200/2: fitted name
+FAIL schema: team@1440x1200/2: single line nameRange
+FAIL schema: team@1440x1200/2: text range contained in card dimensions
+FAIL schema: team@1440x1200/3: fitted name
+FAIL schema: team@1440x1200/3: single line nameRange
+FAIL schema: team@1440x1200/3: text range contained in card dimensions
+FAIL schema: team@1440x1200/4: fitted name
+FAIL schema: team@1440x1200/4: single line nameRange
+FAIL schema: team@1440x1200/4: text range contained in card dimensions
+FAIL schema: team@1440x1200/5: fitted name
+FAIL schema: team@1440x1200/5: single line nameRange
+FAIL schema: team@1440x1200/5: text range contained in card dimensions
+FAIL schema: team@1440x1200/6: fitted name
+FAIL schema: team@1440x1200/6: single line nameRange
+FAIL schema: team@1440x1200/6: text range contained in card dimensions
+FAIL schema: team@1440x1200/7: fitted name
+FAIL schema: team@1440x1200/7: single line nameRange
+FAIL schema: team@1440x1200/7: text range contained in card dimensions
+FAIL schema: team@1440x1200/8: fitted name
+FAIL schema: team@1440x1200/8: single line nameRange
+FAIL schema: team@1440x1200/8: text range contained in card dimensions
+FAIL schema: team@1440x1200/9: fitted name
+FAIL schema: team@1440x1200/9: single line nameRange
+FAIL schema: team@1440x1200/9: text range contained in card dimensions
+FAIL schema: team@1440x1200/10: fitted name
+FAIL schema: team@1440x1200/10: single line nameRange
+FAIL schema: team@1440x1200/10: text range contained in card dimensions
+FAIL schema: team@1440x1200/11: fitted name
+FAIL schema: team@1440x1200/11: single line nameRange
+FAIL schema: team@1440x1200/11: text range contained in card dimensions
+FAIL schema: team@1440x1200/12: fitted name
+FAIL schema: team@1440x1200/12: single line nameRange
+FAIL schema: team@1440x1200/12: text range contained in card dimensions
+FAIL schema: team@1440x1200/13: fitted name
+FAIL schema: team@1440x1200/13: single line nameRange
+FAIL schema: team@1440x1200/13: text range contained in card dimensions
+FAIL schema: team@1440x1200/14: fitted name
+FAIL schema: team@1440x1200/14: single line nameRange
+FAIL schema: team@1440x1200/14: text range contained in card dimensions
+FAIL schema: team@1440x1200/15: fitted name
+FAIL schema: team@1440x1200/15: single line nameRange
+FAIL schema: team@1440x1200/15: text range contained in card dimensions
+FAIL schema: team@1440x1200/16: fitted name
+FAIL schema: team@1440x1200/16: single line nameRange
+FAIL schema errors: 864

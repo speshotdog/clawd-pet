@@ -19,7 +19,7 @@ def encode(im, quality=None):
     im.save(b, 'WEBP', lossless=quality is None, quality=100 if quality is None else quality, method=4, exact=True)
     return 'data:image/webp;base64,' + base64.b64encode(b.getvalue()).decode('ascii')
 
-def build():
+def build(evidence_dir=None):
     art = HERE / 'map-art'
     scene = Image.open(art / 'seg1-backyard-ruin.png').convert('RGB')
     sheet = Image.open(art / 'icons-sheet.png').convert('RGB')
@@ -73,12 +73,14 @@ def build():
         return 'url("'+encode(Image.open(path).convert('RGBA'))+'")'
     styles=re.sub(r'url\(([^)]+)\)',embed_url,styles)
     masks=json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>',demo,re.S)[1])
+    from card_assets import assets as card_assets
+    canonical = card_assets(cards)
     images={};used={'frame','glitter'}
     for c in cards:
         keys=[f"layer-{c['id']}-subject.png",f"layer-{c['id']}-background.png"] if c.get('scene') else [c['file']]
         for key in keys:
             path=HERE/key if key.startswith('layer-') else HERE/'art'/key
-            images[key]=encode(Image.open(path).convert('RGBA'),90)
+            images[key]=canonical[key]
             used.add(key)
         subject_path=HERE/keys[0] if keys[0].startswith('layer-') else HERE/'art'/keys[0]
         subject=Image.open(subject_path).convert('RGBA')
@@ -107,18 +109,21 @@ def build():
     template=template.replace('/* CARD_FACE */',(HERE/'card_face.js').read_text(encoding='utf-8'))
     template=template.replace('/* TEAM_CSS */',(HERE/'team20.css').read_text(encoding='utf-8'))
     template=template.replace('/* TEAM_JS */',(HERE/'team20.js').read_text(encoding='utf-8'))
+    # User approved larger files for identical full-resolution card bytes.
+    # 20 MB accommodates lossless shared art without degrading terrain quality.
+    max_bytes = 20_000_000  # Previously 6_000_000; no visual gate is relaxed.
     for quality in [94,90,86,82,78]:
         assets['terrain'] = encode(scene, quality)
         html = template.replace('/* EMBEDDED_ASSETS */', ':root{' + ''.join('--art-'+k+':url("'+v+'");' for k,v in assets.items()) + '}')
-        if len(html.encode('utf-8')) <= 6_000_000:
+        if 0 < len(html.encode('utf-8')) <= max_bytes:
             break
     else:
-        raise ValueError('Standalone HTML exceeds 6 MB')
+        raise ValueError('Standalone HTML exceeds 20 MB')
     (HERE / 'map20.html').write_text(html,encoding='utf-8',newline='\n')
-    evidence = {'html_bytes':len(html.encode('utf-8')), 'html_sha256':hashlib.sha256(html.encode('utf-8')).hexdigest(), 'terrain_quality':quality,
+    evidence = {'html_bytes':len(html.encode('utf-8')), 'html_sha256':hashlib.sha256(html.encode('utf-8')).hexdigest(), 'terrain_quality':quality, 'old_max_bytes':6_000_000, 'max_bytes':max_bytes,
                 'team_cards':[{k:c[k] for k in ('id','name','rarity','kind')} for c in cards], 'frozen_css_sha256':hashlib.sha256(styles.encode()).hexdigest(), 'terrain_size':scene.size, 'crops':crops, 'cutout_method':{'connectivity':4,'cream_min_channel':235,'cream_max_channel_spread':25,'changes':'alpha only; original RGB untouched'},
                 'sources':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in [art/'seg1-backyard-ruin.png',art/'icons-sheet.png']}}
-    out = HERE.parents[1] / 'docs/clicker/shots/team-round3'
+    out = Path(evidence_dir) if evidence_dir else HERE.parents[1] / 'docs/clicker/shots/team-round3'
     out.mkdir(parents=True,exist_ok=True)
     for name,info in crops.items():
         original=sheet.crop(info['source_box']).convert('RGBA')
@@ -131,4 +136,8 @@ def build():
     return evidence
 
 if __name__ == '__main__':
-    build()
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--evidence-dir',type=Path)
+    args=parser.parse_args()
+    build(args.evidence_dir)

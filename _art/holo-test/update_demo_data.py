@@ -18,4 +18,6 @@ def update():
 
 if __name__ == '__main__':
     update()
+    from card_assets import build
+    build()
     print('demo: 43 formal pool records + 4 scenes refreshed; historical data retained')

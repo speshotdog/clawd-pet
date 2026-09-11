@@ -10,8 +10,10 @@
 from __future__ import annotations
 import argparse, copy, json, subprocess, sys, io
 from pathlib import Path
+from scope3_json import read_json,resolve_input
+from scope3_capture import digest
 
-_OUT = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+_OUT = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace', line_buffering=True)
 sys.stdout = _OUT
 HERE = Path(__file__).resolve().parent
 
@@ -129,15 +131,8 @@ def truncate_fixture(d):
 
 def clone_neutral(d):
     for vp in d['entries']['gacha']['viewports'].values():
-        first = {}
         for c in vp['cards']:
-            if c.get('pose') != 'neutral':
-                continue
-            k = c.get('canonicalId')
-            if k not in first:
-                first[k] = copy.deepcopy(c)
-        vp['cards'] = [c if c.get('pose') != 'neutral'
-                       else copy.deepcopy(first[c.get('canonicalId')]) for c in vp['cards']]
+            if c.get('pose')=='neutral':c['instance']=999
 
 
 def nan_values(d):
@@ -157,40 +152,194 @@ CASES += [
 ]
 
 
+def records(d):
+    return [r for e in d['entries'].values() for r in e['viewports'].values()]
+
+def cards(d):
+    return [c for r in records(d) for c in r['cards']]
+
+def set_errors_null(d):
+    for r in records(d): r['pageErrors']=None;r['brokenImages']=None
+
+def null_styles(d):
+    for c in cards(d):
+        c['nameStyle']['fontWeight']=None;c['rarityStyle']['fontWeight']=None;c['frame']['backgroundImage']=None
+
+def empty_text_fonts(d):
+    for c in cards(d):
+        c.pop('nameText',None);c.pop('rarityText',None)
+        for p in c['platformFonts'].values():p['fonts']=[]
+
+def absent_batch(d):
+    for c in cards(d):c.pop('batch',None)
+
+def collapse_batch(d):
+    for r in d['entries']['gacha-test']['viewports'].values():
+        for c in r['cards']:c['batch']=0
+
+def name_array(d):
+    for c in cards(d):c['nameRange']=[]
+
+def name_geometry(d):
+    for r in d['entries']['team']['viewports'].values():
+        for c in r['cards']:c['nameRange']={'w':9999,'h':9999,'lines':99};c['nameFits']='false'
+
+def css_nan(d):
+    for c in cards(d):c['rarityFsVar']='NaNpx'
+
+def one_pixel_detail(d):
+    for vp,r in d['entries']['team']['viewports'].items():
+        for c in r['cards']:
+            if c['role']=='detail' and c.get('pose','native')=='native':c['box']['y']=int(vp.split('x')[1])-1;c['inViewport']=True
+
+def mutate_layer(d,field,key,value):
+    r=next(iter(d['entries']['pool']['viewports'].values()))
+    c=next(c for c in r['cards'] if c.get('pose')=='neutral')
+    c['layers'][0][field][key]=value
+
+CASES += [
+ ('null-errors','null error arrays',set_errors_null),
+ ('null-styles','null CSS values',null_styles),
+ ('empty-text-fonts','missing text and fonts',empty_text_fonts),
+ ('missing-batch','no sample batch',absent_batch),
+ ('collapsed-batch','all samples in batch zero',collapse_batch),
+ ('name-array','geometry wrong type',name_array),
+ ('name-geometry','invalid name dimensions and fit',name_geometry),
+ ('css-nan','NaN inside CSS string',css_nan),
+ ('one-pixel-detail','only one pixel inside viewport',one_pixel_detail),
+ ('decode-failure','recorded decode failure',lambda d: records(d)[0]['captureDiagnostics'][0]['errors'].append({'stage':'decode','error':'injected'})),
+ ('refit-failure','recorded refit failure',lambda d: records(d)[0]['captureDiagnostics'][0]['errors'].append({'stage':'refit','error':'injected'})),
+ ('stale-artifact','wrong source hash',lambda d: d['sourceHashes'].update({'map20.html':'bad'})),
+ ('stale-shot','wrong screenshot hash',lambda d: records(d)[0]['screenshot'].update({'sha256':'bad'})),
+ ('empty-layers','missing component tree',lambda d: [c.update(layers=[]) for c in cards(d)]),
+ ('gradient-content','changed complete gradient',lambda d: mutate_layer(d,'style','backgroundImage','linear-gradient(red,blue)')),
+ ('mask-content','changed mask content',lambda d: mutate_layer(d,'style','maskImage','url(sha256:bad)')),
+ ('pseudo-element','changed pseudo element',lambda d: mutate_layer(d,'before','backgroundImage','linear-gradient(red,blue)')),
+ ('internal-transform','changed internal design transform',lambda d: mutate_layer(d,'style','transform','matrix(2,0,0,2,0,0)')),
+ ('bad-glyph-count','empty glyph evidence',lambda d: cards(d)[0]['platformFonts']['name']['fonts'][0].update(glyphCount=0)),
+ ('boolean-geometry','boolean instead of number',lambda d: cards(d)[0]['nameRange'].update(w=True)),
+ ('zero-name','invisible name width',lambda d: cards(d)[0]['nameRange'].update(w=0)),
+ ('slot-mismatch','duplicate batch slot',lambda d: d['entries']['gacha-test']['viewports']['1440x1200']['cards'][1].update(slot=0)),
+]
+
+
+def all_neutral(d):
+    return [c for c in cards(d) if c.get('pose')=='neutral']
+
+def drop_layer_key(d):
+    for c in all_neutral(d):
+        for layer in c['layers']:
+            layer['style'].pop('backgroundColor',None)
+
+def duplicate_pool(d):
+    r=next(iter(d['entries']['pool']['viewports'].values()))
+    for pose in ('native','neutral'):
+        r['cards'].append(copy.deepcopy(next(c for c in r['cards'] if c.get('pose','native')==pose)))
+
+def zero_image(d):
+    c=all_neutral(d)[0]
+    next(l for l in c['layers'] if l['tag']=='IMG')['image']['width']=0
+
+def mobile_gradient(d):
+    for entry in d['entries'].values():
+        for c in entry['viewports']['390x844']['cards']:
+            if c.get('pose')=='neutral':c['layers'][0]['style']['backgroundImage']='linear-gradient(red,blue)'
+
+CASES += [
+ ('drop-layer-key','missing full style key in every entry',drop_layer_key),
+ ('duplicate-pool','duplicate native and neutral sample',duplicate_pool),
+ ('zero-image','invalid intrinsic image size',zero_image),
+ ('malformed-layer','invalid layer object',lambda d: all_neutral(d)[0]['layers'].__setitem__(0,None)),
+ ('malformed-fonts','invalid font evidence object',lambda d: cards(d)[0].update(platformFonts=[])),
+ ('wrong-sample-location','sample record metadata mismatch',lambda d: cards(d)[0].update(viewport='1x1')),
+ ('assets-drop-team','asset checker: entire team entry missing',lambda d: d['entries'].pop('team')),
+ ('assets-only-reference','asset checker: only reference remains',lambda d: d.update(entries={'gacha-test':d['entries']['gacha-test']})),
+ ('assets-drop-viewport','asset checker: team viewport missing',lambda d: d['entries']['team']['viewports'].pop('1440x1200')),
+ ('assets-drop-detail','asset checker: team detail role missing',drop_detail),
+ ('malformed-decode-evidence','decoded image has no dimensions',lambda d: records(d)[0]['captureDiagnostics'][0]['decoded'].__setitem__(0,{})),
+ ('duplicate-decode-evidence','duplicate decoded image index',lambda d: records(d)[0]['captureDiagnostics'][0]['decoded'].append(copy.deepcopy(records(d)[0]['captureDiagnostics'][0]['decoded'][0]))),
+ ('wrong-controlled-width','false controlled width metadata',lambda d: all_neutral(d)[0].update(contentWidth=200)),
+ ('wrong-kind','card kind contradicts source',lambda d: cards(d)[0].update(kind='invented')),
+ ('wrong-card-id','card ID contradicts canonical ID',lambda d: cards(d)[0].update(id='invented')),
+ ('mobile-gradient','all mobile entries drift together',mobile_gradient),
+ ('oversized-fitting-name','impossible name range marked fitting',lambda d: [c.update(nameRange={'w':9999,'h':9999,'lines':1},nameFits='true') for c in cards(d)]),
+]
+
+
+def different_encoding(d):
+    # Different lossless encoding: decoded pixels are EXACTLY equal, bytes are not.
+    import base64, hashlib, io
+    from PIL import Image
+    from card_assets import assets
+    row=d['assetIdentity']['pool'][0]
+    raw=base64.b64decode(assets()[row['key']].split(',',1)[1])
+    im=Image.open(io.BytesIO(raw)).convert('RGBA')
+    buf=io.BytesIO();im.save(buf,'PNG')
+    assert Image.open(io.BytesIO(buf.getvalue())).convert('RGBA').tobytes()==im.tobytes()
+    row.update(sha256=hashlib.sha256(buf.getvalue()).hexdigest(), identical=False, pixelsEqual=True)
+
+CASES.extend([
+    ('different-encoding-identical-pixels','different encoded bytes even with zero pixel error',different_encoding),
+    ('missing-asset-identity','missing byte identity evidence',lambda d:d.pop('assetIdentity')),
+])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--input', required=True)
+    ap.add_argument('--out',type=Path)
     ap.add_argument('--reference', default='gacha-test')
+    ap.add_argument('--worker', choices=['clean']+[label for label,_,_ in CASES], help=argparse.SUPPRESS)
     args = ap.parse_args()
     src_path = Path(args.input)
-    src = json.loads(src_path.read_text(encoding='utf-8'))
-    out_dir = src_path.parent
+    out_dir = args.out or src_path.parent
+    out_dir.mkdir(parents=True,exist_ok=True)
+    if args.worker:
+        # Every child loads the unchanged source independently. Only the selected
+        # counterexample mutates it; the actual report main determines process exit.
+        src = read_json(src_path)
+        if args.worker != 'clean':
+            next(fn for label,_,fn in CASES if label==args.worker)(src)
+        if args.worker.startswith('assets-'):
+            from check_card_assets import evaluate
+            result=evaluate(src)
+            print('PASS' if result['pass'] else 'FAIL','asset checker',result['comparisons'],'comparisons',result['differences'],'differences')
+            return 0 if result['pass'] else 1
+        from check_card_parity_report import main as report
+        return report(['--input',str(src_path),'--reference',args.reference],data=src)
 
-    def run(d, label):
-        f = out_dir / ('parity-sabotage-%s.json' % label)
-        f.write_text(json.dumps(d, ensure_ascii=False), encoding='utf-8')
-        r = subprocess.run([sys.executable, str(HERE / 'check_card_parity_report.py'),
-                            '--input', str(f), '--reference', args.reference],
+    def run(label):
+        r = subprocess.run([sys.executable, str(Path(__file__).resolve()),
+                            '--input', str(src_path), '--reference', args.reference,'--worker',label],
                            capture_output=True)
         text = r.stdout.decode('utf-8', 'replace')
+        if r.stderr: text += '\nSTDERR: '+r.stderr.decode('utf-8','replace')
         (out_dir / ('report-sabotage-%s.log' % label)).write_text(text, encoding='utf-8')
         return r.returncode, sum(1 for l in text.splitlines() if l.startswith('FAIL '))
 
-    rc0, n0 = run(copy.deepcopy(src), 'clean')
+    source_hash=digest(resolve_input(src_path))
+    rc0, n0 = run('clean')
     print('%-18s %-28s exit=%d FAIL=%d  %s' % ('clean', '未破壞的對照', rc0, n0,
                                                'OK' if rc0 == 0 else '⚠ 乾淨的就不過，先修這個'))
+    if rc0 != 0 or n0 != 0:
+        print('FAIL clean control failed; sabotage results would not be valid')
+        return 1
     bad = []
+    results=[]
     for label, desc, fn in CASES:
-        d = copy.deepcopy(src)
-        fn(d)
-        rc, n = run(d, label)
-        ok = rc != 0
+        rc, n = run(label)
+        ok = rc == 1 and n > 0 and n0 == 0
         if not ok:
             bad.append(label)
+        results.append({'case':label,'exit':rc,'failAssertions':n,'pass':ok})
         print('%-18s %-28s exit=%d FAIL=%d  %s' % (label, desc, rc, n, 'OK' if ok else '⚠ 假通過'))
     print()
     print('結果：%d/%d 種破壞被擋下' % (len(CASES) - len(bad), len(CASES)))
-    return 0 if (rc0 == 0 and not bad) else 1
+    unchanged=source_hash==digest(resolve_input(src_path))
+    summary={'cleanExit':rc0,'sourceSha256':source_hash,'sourceUnchanged':unchanged,'cases':results,
+             'pass':rc0==0 and not bad and unchanged}
+    (out_dir/'sabotage-summary-scope3.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
+    return 0 if summary['pass'] else 1
 
 
 if __name__ == '__main__':

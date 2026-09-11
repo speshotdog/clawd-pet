@@ -114,5 +114,7 @@ page = (HTML.replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encodi
             .replace('__CARD_CSS__', '\n'.join(styles))
             .replace('__MASKS__', json.dumps(masks, separators=(',', ':')))
             .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':'))))
+from card_assets import assets
+page = page.replace("const POOL  = JSON.parse($('#pool-data').textContent);", "const POOL  = JSON.parse($('#pool-data').textContent);\nconst __A=" + json.dumps(assets(cards), separators=(',', ':')) + ';')
 (OUT / 'cards-remade.html').write_text(page, encoding='utf-8', newline='\n')
 print('wrote cards-remade.html :', len(cards), 'cards, %.2f MiB' % ((OUT / 'cards-remade.html').stat().st_size / 1048576))

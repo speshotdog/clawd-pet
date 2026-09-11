@@ -1,0 +1,7 @@
+{
+  "jsonBytes": 173501765,
+  "gzipBytes": 6896047,
+  "jsonSha256": "5433dd10be71481c85cca37dc21310c6238acf82897eaa6466545c5b93f03cd8",
+  "gzipSha256": "3407386fdb0c2b10a29f4e7124a7ccf0ecd436ae4daf444fea01ac82abf7c508",
+  "roundTripVerified": true
+}

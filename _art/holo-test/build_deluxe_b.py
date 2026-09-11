@@ -124,5 +124,7 @@ if TEST:
     page=page.replace("const RATE=[['mythic',.005],['legendary',.04],['epic',.15],['rare',.40],['common',.405]];", "const RATE=[['mythic',.25],['legendary',.35],['epic',.25],['rare',.10],['common',.05]];")
     page=page.replace("const ticketPolicy={unlimited:false,label:''};", "const ticketPolicy={unlimited:true,label:'測試版 · 高機率 · 無限抽'};")
 target=OUT/('deluxe-gacha-b-test.html' if TEST else 'deluxe-gacha-b.html')
+from card_assets import assets
+page = page.replace('function path(n){', 'const __CARD_ASSETS=' + json.dumps(assets(cards), separators=(',', ':')) + ';\nfunction path(n){ if(__CARD_ASSETS[n]) return __CARD_ASSETS[n];')
 target.write_text(page, encoding='utf-8', newline='\n')
 print('wrote', target.name, 'cards:', len(cards), ' %.2f MiB' % (target.stat().st_size / 1048576))

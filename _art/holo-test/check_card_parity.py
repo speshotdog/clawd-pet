@@ -14,11 +14,12 @@ from __future__ import annotations
 import argparse, hashlib, json, sys, io
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace', line_buffering=True)
 from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
+from scope3_capture import SCOPE, artifact_hashes, digest
 
 # ---------------------------------------------------------------- 頁面清單
 ENTRIES = {
@@ -86,14 +87,14 @@ COLLECT = r"""
     const r = document.createRange(); r.selectNodeContents(el);
     const list = [...r.getClientRects()];
     const b = r.getBoundingClientRect();
-    return {w:+b.width.toFixed(3), h:+b.height.toFixed(3), lines:list.length};
+    return {w:b.width, h:b.height, lines:list.length};
   };
   const box = el => { if(!el) return null; const r = el.getBoundingClientRect();
     return {x:+r.x.toFixed(3), y:+r.y.toFixed(3), w:+r.width.toFixed(3), h:+r.height.toFixed(3)}; };
 
   const seen = {};
   window.__nodes = [];
-  return P.cards().map(c => {
+  return P.cards().map((c, slot) => {
     const id = c.dataset.id || '(no-id)';
     const key = id + '@' + P.path(c);
     seen[key] = (seen[key] || 0) + 1;
@@ -126,7 +127,7 @@ COLLECT = r"""
       gemOverlap = +(ox*oy).toFixed(3);
     }
     return {
-      id, canonicalId: id.replace(/^pool-/, ''), rarity: c.dataset.rarity || null, kind: (c.className.match(/kind-(\w+)/)||[])[1] || null,
+      slot, id, canonicalId: id.replace(/^pool-/, ''), rarity: c.dataset.rarity || null, kind: (c.className.match(/kind-(\w+)/)||[])[1] || null,
       shadowPath: P.path(c), instance: seen[key] - 1,
       classes: [...c.classList].sort().join(' '),
       contentWidth: +cw.toFixed(3), box: cbox,
@@ -167,6 +168,18 @@ COLLECT = r"""
 }
 """
 
+from scope3_layers import LAYER_JS, normalize_layers
+from scope3_transfer import collect_compact
+COLLECT = COLLECT.replace('      slot, id,', '      layers: (' + LAYER_JS + ')(c), slot, id,')
+
+def collect(pg, cdp=None, target_id=None):
+    from pool_data import pool
+    ids={c['id'] for c in pool()}
+    rows=[c for c in collect_compact(pg,COLLECT,target_id) if c['canonicalId'] in ids]
+    if cdp is not None: cdp.send('DOM.getDocument', {'depth':0,'pierce':True})
+    return rows
+
+
 REFIT = r"""
 async () => {
   const P = window.__parity;
@@ -176,9 +189,19 @@ async () => {
     root.querySelectorAll('img').forEach(i => imgs.push(i));
     root.querySelectorAll('*').forEach(e => { if (e.shadowRoot) walk(e.shadowRoot) });
   })(document);
-  await Promise.all(imgs.map(i => i.complete ? null : i.decode().catch(()=>{})));
-  P.cards().forEach(c => { try { window.HoloCardFace && HoloCardFace.refit(c) } catch(e){} });
+  const errors=[], decoded=[];
+  await Promise.all(imgs.map(async (i,index) => {
+    i.loading='eager';
+    try { await i.decode(); if(!i.naturalWidth) throw Error('zero naturalWidth');
+      decoded.push({index,width:i.naturalWidth,height:i.naturalHeight});
+    } catch(e) { errors.push({stage:'decode',index,src:i.src.slice(0,120),error:String(e)}); }
+  }));
+  P.cards().forEach(c => { try { if(!window.HoloCardFace) throw Error('missing HoloCardFace');
+    HoloCardFace.refit(c); } catch(e){errors.push({stage:'refit',id:c.dataset.id,error:String(e)})} });
+  const result={decoded,errors};
+  (window.__captureDiagnostics ||= []).push(result);
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  return result;
 }
 """
 
@@ -202,7 +225,6 @@ def platform_fonts(cdp, index):
     """objectId -> nodeId，精準對應到指定元素；沒有筆數上限，錯誤不吞掉。"""
     try:
         # requestNode 需要先建立節點對應表，且要 pierce 進 shadow root
-        cdp.send("DOM.getDocument", {"depth": -1, "pierce": True})
         ro = cdp.send("Runtime.evaluate", {"expression": "window.__nodes[%d]" % index})
         oid = ro.get("result", {}).get("objectId")
         if not oid:
@@ -344,36 +366,41 @@ REACH_CARD = """(id)=>{
 SAMESIZE_JS = """(w)=>{
   const cs=[]; (function walk(r){r.querySelectorAll('.hcard').forEach(c=>cs.push(c));
     r.querySelectorAll('*').forEach(e=>{if(e.shadowRoot)walk(e.shadowRoot)})})(document);
-  const roots=new Set(cs.map(c=>c.getRootNode()));
-  roots.add(document);
+  // Only neutralize card ancestors and interaction carriers. Preserve all inner design transforms.
+  const ancestors=new Set();
+  cs.forEach(c=>{let e=c;while(e){ancestors.add(e);e=e.parentElement || (e.getRootNode().host || null)}});
+  ancestors.forEach(e=>{if(!e.hasAttribute('data-parity-prev'))e.setAttribute('data-parity-prev',e.getAttribute('style')||'');
+    for(const k of ['transform','scale','rotate','translate','transition','animation'])e.style.setProperty(k,'none','important');});
+  const roots=new Set(cs.map(c=>c.getRootNode())); roots.add(document);
   roots.forEach(r=>{const s=document.createElement('style');s.className='__samesize';
-    // 祖先的 transform（例如編隊 1.04 選取放大掛在外層）也要一起關掉，
-    // 只關卡片自己的話投影倍率還在，量到的 Range 仍然差 4%。
-    // 選取放大是 CSS 的 scale 屬性（team20.css:142），不是 transform，
-    // 只關 transform 關不掉；rotate/translate 同一組獨立屬性也一起關。
-    s.textContent='*{transform:none !important;scale:none !important;'+
-                  'rotate:none !important;translate:none !important;'+
-                  'transition:none !important;animation:none !important;'+
-                  'perspective:none !important}';
+    s.textContent='.hcard,.hcard *{transition:none !important;animation:none !important;user-select:none !important}';
     (r.head||r).appendChild(s)});
-  cs.forEach(c=>{c.dataset.prevStyle=c.getAttribute('style')||'';
-    c.style.width=w+'px';c.style.height=(w*7/5)+'px';c.style.boxSizing='content-box'});
-  cs.forEach(c=>{try{HoloCardFace.refit(c)}catch(e){}});
+  cs.forEach(c=>{c.dataset.prevStyle=c.getAttribute('data-parity-prev')||c.getAttribute('style')||'';
+    c.style.width=w+'px';c.style.height=(w*7/5)+'px';c.style.boxSizing='content-box';
+    for(const [k,v] of Object.entries({position:'fixed',left:'0px',top:'0px',margin:'0px'}))c.style.setProperty(k,v,'important');});
+  // Keep all neutral measurements at one small viewport origin. Large document
+  // offsets lose float precision in transformed DOMRects; hidden nodes also have
+  // zero viewport rectangles. Do not compensate by loosening any comparison.
+  cs.forEach(c=>{const r=c.getBoundingClientRect();
+    c.style.setProperty('left',(40-r.x)+'px','important');
+    c.style.setProperty('top',(40-r.y)+'px','important');});
+  cs.forEach(c=>{try{HoloCardFace.refit(c)}catch(e){(window.__captureDiagnostics ||= []).push({errors:[{stage:'refit',id:c.dataset.id,error:String(e)}]})}});
   // 箔面／光影是靠 paint(card, rarity, x, y) 的指標座標決定的，凍結 WAAPI 動畫關不掉。
   // 統一 paint 到「指標在正中央、不傾斜」，每張卡才在同一個相位上，
   // 否則同尺寸截圖比像素會被箔面相位主導（2026-09-11 實測到平均差 51/255）。
-  cs.forEach(c=>{try{HoloCardFace.paint(c, c.dataset.rarity, 0, 0, {tilt:false})}catch(e){}});
+  cs.forEach(c=>{try{HoloCardFace.paint(c, c.dataset.rarity, 0, 0, {tilt:false})}catch(e){(window.__captureDiagnostics ||= []).push({errors:[{stage:'paint',id:c.dataset.id,error:String(e)}]})}});
   return cs.length;
 }"""
 
 SAMESIZE_RESTORE = """()=>{
   const cs=[]; (function walk(r){r.querySelectorAll('.hcard').forEach(c=>cs.push(c));
     r.querySelectorAll('*').forEach(e=>{if(e.shadowRoot)walk(e.shadowRoot)});
-    r.querySelectorAll('.__samesize').forEach(s=>s.remove())})(document);
+    r.querySelectorAll('.__samesize').forEach(s=>s.remove());
+    r.querySelectorAll('[data-parity-prev]').forEach(e=>{e.setAttribute('style',e.getAttribute('data-parity-prev'));e.removeAttribute('data-parity-prev')})})(document);
   cs.forEach(c=>{const prev=c.dataset.prevStyle;
     if(prev)c.setAttribute('style',prev);else c.removeAttribute('style');
     delete c.dataset.prevStyle;});
-  cs.forEach(c=>{try{HoloCardFace.refit(c)}catch(e){}});
+  cs.forEach(c=>{try{HoloCardFace.refit(c)}catch(e){(window.__captureDiagnostics ||= []).push({errors:[{stage:'refit',id:c.dataset.id,error:String(e)}]})}});
 }"""
 
 
@@ -406,8 +433,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--root', default=str(HERE))
     ap.add_argument('--out', default=str(REPO / 'docs' / 'clicker' / 'shots' / 'parity'))
-    ap.add_argument('--entries', default=','.join(ENTRIES))
-    ap.add_argument('--viewports', default='1440x900,1024x900,390x844')
+    ap.add_argument('--entries', default=','.join(SCOPE))
+    ap.add_argument('--viewports', default='1440x1200,1024x900,390x844')
     ap.add_argument('--label', default='run')
     ap.add_argument('--fixture', default='beachball,chaichai,zhenpete,rocketdog,alienkitty')
     ap.add_argument('--shots', action='store_true')
@@ -447,8 +474,7 @@ def main():
             __import__('re').search(r'const TEAM_DATA=(\{.*?\});',
                                     (root / 'map20.html').read_text(encoding='utf-8'), __import__('re').S)),
         'fixtureIds': fixture_ids,
-        'sourceHashes': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()[:16]
-                         for p in sorted(root.glob('*.html'))},
+        'sourceHashes': artifact_hashes(root),
         'inject': args.inject,
         'entries': {},
     }
@@ -512,7 +538,7 @@ def main():
                             pg.wait_for_timeout(300)
                             pg.evaluate(REFIT)
                         anims = max(anims, pg.evaluate(FREEZE))
-                        got = pg.evaluate(COLLECT)
+                        got = collect(pg, cdp)
                         for c in got:
                             c['role'] = role_of(c, act.get('role'))
                             c['entry'] = name
@@ -527,19 +553,20 @@ def main():
                             # 詳情浮層這時還沒開，card-host 裡的卡是「未開啟」狀態，
                             # 不是有效樣本；逐卡打開之後才收。
                             got = [c for c in got if 'card-host' not in (c.get('shadowPath') or '')]
+                        for c in got: c.pop('layers',None)
                         cards.extend(got)
                         if args.samesize:
                             n = pg.evaluate(SAMESIZE_JS, args.samesize)
                             pg.evaluate("()=>new Promise(r=>requestAnimationFrame("
                                         "()=>requestAnimationFrame(r)))")
-                            for d in pg.evaluate(COLLECT):
+                            for d in collect(pg, cdp):
                                 if (cfg['surface'] == 'team'
                                         and 'card-host' in (d.get('shadowPath') or '')):
                                     continue      # 同上：詳情浮層還沒開
                                 d['role'] = role_of(d, act.get('role'))
                                 d['entry'] = name; d['viewport'] = vp; d['batch'] = bi
                                 d['pose'] = 'neutral'; d['sameSizeWidth'] = args.samesize
-                                d['platformFonts'] = {}
+                                d['platformFonts'] = {part: platform_fonts(cdp, d['nodeIndex'][part]) for part in ('name','rarity')}
                                 cards.append(d)
                             pg.evaluate(SAMESIZE_RESTORE)
                             pg.evaluate(REFIT)
@@ -578,7 +605,8 @@ def main():
                                               'error': 'detail overlay never laid out'})
                                 continue
                             pg.evaluate(WALK); pg.evaluate(REFIT); pg.evaluate(FREEZE)
-                            for d in pg.evaluate(COLLECT):
+                            current_keys=set()
+                            for d in collect(pg, cdp, cid):
                                 if d['id'] != cid or d['shadowPath'] == 'document':
                                     continue
                                 role = role_of(d, 'detail')
@@ -586,8 +614,10 @@ def main():
                                 if inst_key in seen_roles:
                                     continue
                                 seen_roles.add(inst_key)
+                                current_keys.add(inst_key)
                                 d['role'] = role; d['entry'] = name; d['viewport'] = vp
                                 d['reach'] = how
+                                d.pop('layers',None)
                                 d['platformFonts'] = {}
                                 for part in ('name', 'rarity'):
                                     i = d['nodeIndex'][part]
@@ -598,13 +628,14 @@ def main():
                                 pg.evaluate(SAMESIZE_JS, args.samesize)
                                 pg.evaluate("()=>new Promise(r=>requestAnimationFrame("
                                             "()=>requestAnimationFrame(r)))")
-                                for d in pg.evaluate(COLLECT):
+                                for d in collect(pg, cdp, cid):
                                     if d['id'] != cid or d['shadowPath'] == 'document':
                                         continue
                                     d['role'] = role_of(d, 'detail')
+                                    if (cid,d['role'],d['shadowPath'],d.get('instance',0)) not in current_keys: continue
                                     d['entry'] = name; d['viewport'] = vp
                                     d['pose'] = 'neutral'; d['sameSizeWidth'] = args.samesize
-                                    d['platformFonts'] = {}
+                                    d['platformFonts'] = {part: platform_fonts(cdp, d['nodeIndex'][part]) for part in ('name','rarity')}
                                     cards.append(d)
                                 pg.evaluate(SAMESIZE_RESTORE)
                                 pg.evaluate(REFIT)
@@ -614,12 +645,15 @@ def main():
                         r.querySelectorAll('*').forEach(e=>{if(e.shadowRoot)w(e.shadowRoot)})})(document);
                       return out}""")
                     rec = {'activation': act, 'animationsFrozen': anims, 'cards': cards,
-                           'pageErrors': page_errors, 'brokenImages': broken}
+                           'pageErrors': page_errors, 'brokenImages': broken,
+                           'captureDiagnostics': pg.evaluate('()=>window.__captureDiagnostics || []')}
                     if args.shots and cards:
                         sd = out / 'shots' / args.label / name
                         sd.mkdir(parents=True, exist_ok=True)
                         try:
-                            pg.screenshot(path=str(sd / ('%s.png' % vp)))
+                            shot=sd / ('%s.png' % vp)
+                            pg.screenshot(path=str(shot))
+                            rec['screenshot']={'path':str(shot),'sha256':digest(shot)}
                         except Exception as e:
                             rec['shotError'] = str(e)[:120]
                     result['entries'][name]['viewports'][vp] = rec
@@ -634,10 +668,14 @@ def main():
                     pg.close()
         br.close()
 
+    from check_card_identity import measure
+    result['assetIdentity'] = measure()
+    result['artifactsUnchanged'] = result['sourceHashes'] == artifact_hashes(root)
     p = out / ('parity-%s.json' % args.label)
     p.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding='utf-8')
     print('\n寫出 %s' % p)
-    return 0
+    failed=not result['artifactsUnchanged'] or any(e.get('error') or any(r.get('error') or r.get('pageErrors') or r.get('brokenImages') or any(d.get('errors') for d in r.get('captureDiagnostics',[])) for r in e.get('viewports',{}).values()) for e in result['entries'].values())
+    return 1 if failed else 0
 
 
 if __name__ == '__main__':

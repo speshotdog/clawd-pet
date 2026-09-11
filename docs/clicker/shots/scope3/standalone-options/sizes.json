@@ -1,0 +1,105 @@
+{
+  "artifacts": [
+    {
+      "entry": "pool-standalone",
+      "setting": "current",
+      "width": 420,
+      "height": 588,
+      "quality": 84,
+      "bytes": 5223641,
+      "sha256": "37f81745f1d4c7e2be9c75b9893b39b0401d0b62600f280352b7611c91cfe228",
+      "path": "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\current\\cards-remade-standalone.html"
+    },
+    {
+      "entry": "gacha-standalone",
+      "setting": "current",
+      "width": 360,
+      "height": 504,
+      "quality": 82,
+      "bytes": 5207072,
+      "sha256": "1ddc7470b3cedbcd629548392d43a974430bb3589d1a446ab53e27621532a512",
+      "path": "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\current\\deluxe-gacha-b-standalone.html"
+    },
+    {
+      "entry": "gacha-test-standalone",
+      "setting": "current",
+      "width": 360,
+      "height": 504,
+      "quality": 82,
+      "bytes": 5207104,
+      "sha256": "0c1482510a4cd3a5d3b155241b80a756560e0b6773f1258e26b8c63f43247c72",
+      "path": "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\current\\deluxe-gacha-b-test-standalone.html"
+    },
+    {
+      "entry": "pool-standalone",
+      "setting": "520",
+      "width": 520,
+      "height": 728,
+      "quality": 84,
+      "bytes": 5814729,
+      "sha256": "cac2a124516dc9fb8962eb2ae6a8ae5b3c65be13e1a4ba27f90258a2fb6b95df",
+      "path": "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\520\\cards-remade-standalone.html"
+    },
+    {
+      "entry": "gacha-standalone",
+      "setting": "520",
+      "width": 520,
+      "height": 728,
+      "quality": 82,
+      "bytes": 6104604,
+      "sha256": "4c6d5a954c1de247d1c08425e1f34f14bcabd2934ecb5008121e08b4ecca4a54",
+      "path": "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\520\\deluxe-gacha-b-standalone.html"
+    },
+    {
+      "entry": "gacha-test-standalone",
+      "setting": "520",
+      "width": 520,
+      "height": 728,
+      "quality": 82,
+      "bytes": 6104636,
+      "sha256": "2b728eec0a19c1e0c728d5c0a9dc6f860c8160a7e5aa4a163cf1846b45c37e31",
+      "path": "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\520\\deluxe-gacha-b-test-standalone.html"
+    },
+    {
+      "entry": "pool-standalone",
+      "setting": "600",
+      "width": 600,
+      "height": 840,
+      "quality": 84,
+      "bytes": 6150157,
+      "sha256": "14f6380490c40b655a7c6142d4da81c59c86084045ca97a681ff2a9bef59c73f",
+      "path": "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\600\\cards-remade-standalone.html"
+    },
+    {
+      "entry": "gacha-standalone",
+      "setting": "600",
+      "width": 600,
+      "height": 840,
+      "quality": 82,
+      "bytes": 6415540,
+      "sha256": "8e1cadff988b2b9514c30baa7735c6d084f7c7a4e34a2b67b3fe5effde364a70",
+      "path": "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\600\\deluxe-gacha-b-standalone.html"
+    },
+    {
+      "entry": "gacha-test-standalone",
+      "setting": "600",
+      "width": 600,
+      "height": 840,
+      "quality": 82,
+      "bytes": 6415572,
+      "sha256": "7fc54850de50c901f2558d1be238e5b610f92f69a3e0a0a2c74c6185dcf1aa86",
+      "path": "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\600\\deluxe-gacha-b-test-standalone.html"
+    }
+  ],
+  "comparisonSheets": [
+    "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\rocketdog-pool-standalone-options.png",
+    "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\chaichai-pool-standalone-options.png",
+    "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\mieshi-pool-standalone-options.png",
+    "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\rocketdog-gacha-standalone-options.png",
+    "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\chaichai-gacha-standalone-options.png",
+    "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\mieshi-gacha-standalone-options.png",
+    "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\rocketdog-gacha-test-standalone-options.png",
+    "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\chaichai-gacha-test-standalone-options.png",
+    "D:\\claude\\clawd-pet-50\\docs\\clicker\\shots\\scope3\\standalone-options\\mieshi-gacha-test-standalone-options.png"
+  ]
+}

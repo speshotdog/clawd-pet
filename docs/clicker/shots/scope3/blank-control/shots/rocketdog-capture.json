@@ -1,0 +1,28 @@
+{
+  "sourceHashes": {
+    "cards-remade-standalone.html": "28376f4c9031a193a4c3ca6fcc709747931652c0e88a0739df3447be3eb5cf40"
+  },
+  "toolHashes": {
+    "scope3_capture.py": "fdd3f56648a238b308f03ca0a130f3df4cda7ed3072b51d3e305187c0474f9fa",
+    "scope3_layers.py": "1c910ec77732aee469ea5f025a903025d15aeb3719b738e9ca7643b095da0a1b",
+    "scope3_transfer.py": "62af47d8642f07beca937eeae399dfe163428a7b4871001c04ba56c463eac0f8",
+    "check_card_parity.py": "3d99d15e2f43fadcfd07c30feaf5ea49ae7a1d8c3a68497dd552f4c68acb0a8f",
+    "shoot_card_parity_samesize.py": "8a2f2cac8bad362573806a07511aebb7384bf511ca515a4c6b931cc16828f952",
+    "check_shot_determinism.py": "98ded89fd178d3850513629f88d912dceb6162a8109aee88000201076555a5dc"
+  },
+  "cards": {},
+  "errors": [
+    {
+      "entry": "pool-standalone",
+      "error": "blank or incorrectly sized card capture"
+    }
+  ],
+  "teamRole": "overview",
+  "chromium": "136.0.7103.25",
+  "dpr": 2,
+  "viewport": {
+    "width": 1440,
+    "height": 1200
+  },
+  "artifactsUnchanged": true
+}

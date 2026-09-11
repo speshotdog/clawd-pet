@@ -1,0 +1,5918 @@
+{
+  "gacha": [
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-subject.png",
+      "sha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "authoritySha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "bytes": 523460,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-background.png",
+      "sha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "authoritySha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "bytes": 464192,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-subject.png",
+      "sha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "authoritySha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "bytes": 94676,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-background.png",
+      "sha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "authoritySha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "bytes": 508810,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-subject.png",
+      "sha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "authoritySha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "bytes": 133762,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-background.png",
+      "sha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "authoritySha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "bytes": 468786,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-subject.png",
+      "sha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "authoritySha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "bytes": 491838,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-background.png",
+      "sha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "authoritySha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "bytes": 491990,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "liulangyueshou",
+      "key": "card-liulangyueshou.png",
+      "sha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "authoritySha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "bytes": 126702,
+      "size": [
+        600,
+        506
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mieshi",
+      "key": "card-mieshi.png",
+      "sha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "authoritySha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "bytes": 355142,
+      "size": [
+        509,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qinghua",
+      "key": "card-qinghua.png",
+      "sha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "authoritySha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "bytes": 413530,
+      "size": [
+        600,
+        575
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-subject.png",
+      "sha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "authoritySha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "bytes": 199098,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-background.png",
+      "sha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "authoritySha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "bytes": 204892,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwumythic",
+      "key": "card-wanwumythic.png",
+      "sha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "authoritySha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "bytes": 116862,
+      "size": [
+        509,
+        490
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yueyuexian",
+      "key": "card-yueyuexian.png",
+      "sha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "authoritySha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "bytes": 158208,
+      "size": [
+        561,
+        569
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-subject.png",
+      "sha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "authoritySha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "bytes": 163758,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-background.png",
+      "sha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "authoritySha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "bytes": 82244,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-subject.png",
+      "sha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "authoritySha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "bytes": 83072,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-background.png",
+      "sha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "authoritySha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "bytes": 41586,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-subject.png",
+      "sha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "authoritySha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "bytes": 124832,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-background.png",
+      "sha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "authoritySha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "bytes": 601570,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxfriend",
+      "key": "card-foxfriend.png",
+      "sha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "authoritySha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "bytes": 67634,
+      "size": [
+        566,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaotou",
+      "key": "card-jiaotou.png",
+      "sha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "authoritySha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "bytes": 129646,
+      "size": [
+        582,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jinggou",
+      "key": "card-jinggou.png",
+      "sha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "authoritySha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "bytes": 53176,
+      "size": [
+        535,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jintianwoshengri",
+      "key": "card-jintianwoshengri.png",
+      "sha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "authoritySha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "bytes": 73088,
+      "size": [
+        482,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lksphinx",
+      "key": "card-lksphinx.png",
+      "sha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "authoritySha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "bytes": 127360,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiyi",
+      "key": "card-shiyi.png",
+      "sha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "authoritySha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "bytes": 45666,
+      "size": [
+        600,
+        526
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwu",
+      "key": "card-wanwu.png",
+      "sha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "authoritySha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "bytes": 62030,
+      "size": [
+        600,
+        483
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuefeimo",
+      "key": "card-yuefeimo.png",
+      "sha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "authoritySha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "bytes": 67486,
+      "size": [
+        600,
+        419
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuesong",
+      "key": "card-yuesong.png",
+      "sha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "authoritySha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "bytes": 192976,
+      "size": [
+        591,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbush",
+      "key": "card-zhenbush.png",
+      "sha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "authoritySha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "bytes": 78802,
+      "size": [
+        579,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenfang",
+      "key": "card-zhenfang.png",
+      "sha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "authoritySha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "bytes": 86340,
+      "size": [
+        600,
+        545
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenmoss",
+      "key": "card-zhenmoss.png",
+      "sha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "authoritySha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "bytes": 85020,
+      "size": [
+        600,
+        507
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bianbiancaihua",
+      "key": "card-bianbiancaihua.png",
+      "sha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "authoritySha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "bytes": 64466,
+      "size": [
+        600,
+        536
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bingyang",
+      "key": "card-bingyang.png",
+      "sha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "authoritySha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "bytes": 148120,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chengtiregou",
+      "key": "card-chengtiregou.png",
+      "sha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "authoritySha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "bytes": 59842,
+      "size": [
+        449,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxmoney",
+      "key": "card-foxmoney.png",
+      "sha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "authoritySha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "bytes": 65780,
+      "size": [
+        600,
+        357
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebugou",
+      "key": "card-gebugou.png",
+      "sha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "authoritySha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "bytes": 209858,
+      "size": [
+        600,
+        548
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "geimieqianhaoma",
+      "key": "card-geimieqianhaoma.png",
+      "sha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "authoritySha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "bytes": 102028,
+      "size": [
+        600,
+        345
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lkreal",
+      "key": "card-lkreal.png",
+      "sha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "authoritySha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "bytes": 88196,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mianhua",
+      "key": "card-mianhua.png",
+      "sha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "authoritySha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "bytes": 38790,
+      "size": [
+        600,
+        538
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qipupu",
+      "key": "card-qipupu.png",
+      "sha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "authoritySha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "bytes": 104308,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaochouyue",
+      "key": "card-xiaochouyue.png",
+      "sha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "authoritySha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "bytes": 69466,
+      "size": [
+        600,
+        482
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaojiaojiao",
+      "key": "card-xiaojiaojiao.png",
+      "sha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "authoritySha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "bytes": 58570,
+      "size": [
+        510,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangpu",
+      "key": "card-yangpu.png",
+      "sha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "authoritySha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "bytes": 13812,
+      "size": [
+        305,
+        334
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuetrumpet",
+      "key": "card-yuetrumpet.png",
+      "sha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "authoritySha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "bytes": 30398,
+      "size": [
+        583,
+        422
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuexiong",
+      "key": "card-yuexiong.png",
+      "sha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "authoritySha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "bytes": 40794,
+      "size": [
+        600,
+        471
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbing",
+      "key": "card-zhenbing.png",
+      "sha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "authoritySha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "bytes": 120678,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhencao",
+      "key": "card-zhencao.png",
+      "sha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "authoritySha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "bytes": 20544,
+      "size": [
+        500,
+        372
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenpete",
+      "key": "card-zhenpete.png",
+      "sha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "authoritySha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "bytes": 128224,
+      "size": [
+        600,
+        462
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ababa",
+      "key": "card-ababa.png",
+      "sha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "authoritySha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "bytes": 64088,
+      "size": [
+        600,
+        375
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alu",
+      "key": "card-alu.png",
+      "sha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "authoritySha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "bytes": 25020,
+      "size": [
+        554,
+        562
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chaichai",
+      "key": "card-chaichai.png",
+      "sha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "authoritySha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "bytes": 117012,
+      "size": [
+        600,
+        487
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebuyang",
+      "key": "card-gebuyang.png",
+      "sha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "authoritySha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "bytes": 52872,
+      "size": [
+        600,
+        360
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "guanjiu",
+      "key": "card-guanjiu.png",
+      "sha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "authoritySha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "bytes": 54430,
+      "size": [
+        600,
+        552
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaochi",
+      "key": "card-jiaochi.png",
+      "sha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "authoritySha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "bytes": 31248,
+      "size": [
+        543,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaolan",
+      "key": "card-jiaolan.png",
+      "sha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "authoritySha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "bytes": 67340,
+      "size": [
+        497,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "manhua",
+      "key": "card-manhua.png",
+      "sha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "authoritySha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "bytes": 121298,
+      "size": [
+        600,
+        447
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepupu",
+      "key": "card-miepupu.png",
+      "sha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "authoritySha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "bytes": 97240,
+      "size": [
+        600,
+        543
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepuxiong",
+      "key": "card-miepuxiong.png",
+      "sha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "authoritySha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "bytes": 103814,
+      "size": [
+        578,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "pufayueyue",
+      "key": "card-pufayueyue.png",
+      "sha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "authoritySha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "bytes": 41478,
+      "size": [
+        600,
+        481
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "salamander",
+      "key": "card-salamander.png",
+      "sha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "authoritySha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "bytes": 90856,
+      "size": [
+        600,
+        405
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "seal",
+      "key": "card-seal.png",
+      "sha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "authoritySha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "bytes": 51284,
+      "size": [
+        600,
+        431
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiwang",
+      "key": "card-shiwang.png",
+      "sha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "authoritySha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "bytes": 45484,
+      "size": [
+        447,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "waisongmiege",
+      "key": "card-waisongmiege.png",
+      "sha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "authoritySha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "bytes": 57552,
+      "size": [
+        600,
+        418
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangtuo",
+      "key": "card-yangtuo.png",
+      "sha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "authoritySha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "bytes": 82798,
+      "size": [
+        534,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjpg",
+      "key": "card-zhenjpg.png",
+      "sha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "authoritySha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "bytes": 35858,
+      "size": [
+        568,
+        546
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenwang",
+      "key": "card-zhenwang.png",
+      "sha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "authoritySha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "bytes": 78790,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ballyellow",
+      "key": "toy-ballyellow.png",
+      "sha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "authoritySha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "bytes": 6940,
+      "size": [
+        328,
+        269
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "beachball",
+      "key": "toy-beachball.png",
+      "sha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "authoritySha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "bytes": 10640,
+      "size": [
+        284,
+        284
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "dino",
+      "key": "toy-dino.png",
+      "sha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "authoritySha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "bytes": 24408,
+      "size": [
+        600,
+        356
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    }
+  ],
+  "gacha-standalone": [
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-subject.png",
+      "sha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "authoritySha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "bytes": 523460,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-background.png",
+      "sha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "authoritySha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "bytes": 464192,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-subject.png",
+      "sha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "authoritySha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "bytes": 94676,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-background.png",
+      "sha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "authoritySha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "bytes": 508810,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-subject.png",
+      "sha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "authoritySha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "bytes": 133762,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-background.png",
+      "sha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "authoritySha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "bytes": 468786,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-subject.png",
+      "sha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "authoritySha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "bytes": 491838,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-background.png",
+      "sha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "authoritySha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "bytes": 491990,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "liulangyueshou",
+      "key": "card-liulangyueshou.png",
+      "sha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "authoritySha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "bytes": 126702,
+      "size": [
+        600,
+        506
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mieshi",
+      "key": "card-mieshi.png",
+      "sha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "authoritySha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "bytes": 355142,
+      "size": [
+        509,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qinghua",
+      "key": "card-qinghua.png",
+      "sha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "authoritySha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "bytes": 413530,
+      "size": [
+        600,
+        575
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-subject.png",
+      "sha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "authoritySha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "bytes": 199098,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-background.png",
+      "sha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "authoritySha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "bytes": 204892,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwumythic",
+      "key": "card-wanwumythic.png",
+      "sha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "authoritySha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "bytes": 116862,
+      "size": [
+        509,
+        490
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yueyuexian",
+      "key": "card-yueyuexian.png",
+      "sha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "authoritySha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "bytes": 158208,
+      "size": [
+        561,
+        569
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-subject.png",
+      "sha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "authoritySha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "bytes": 163758,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-background.png",
+      "sha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "authoritySha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "bytes": 82244,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-subject.png",
+      "sha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "authoritySha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "bytes": 83072,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-background.png",
+      "sha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "authoritySha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "bytes": 41586,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-subject.png",
+      "sha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "authoritySha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "bytes": 124832,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-background.png",
+      "sha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "authoritySha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "bytes": 601570,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxfriend",
+      "key": "card-foxfriend.png",
+      "sha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "authoritySha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "bytes": 67634,
+      "size": [
+        566,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaotou",
+      "key": "card-jiaotou.png",
+      "sha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "authoritySha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "bytes": 129646,
+      "size": [
+        582,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jinggou",
+      "key": "card-jinggou.png",
+      "sha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "authoritySha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "bytes": 53176,
+      "size": [
+        535,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jintianwoshengri",
+      "key": "card-jintianwoshengri.png",
+      "sha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "authoritySha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "bytes": 73088,
+      "size": [
+        482,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lksphinx",
+      "key": "card-lksphinx.png",
+      "sha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "authoritySha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "bytes": 127360,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiyi",
+      "key": "card-shiyi.png",
+      "sha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "authoritySha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "bytes": 45666,
+      "size": [
+        600,
+        526
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwu",
+      "key": "card-wanwu.png",
+      "sha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "authoritySha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "bytes": 62030,
+      "size": [
+        600,
+        483
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuefeimo",
+      "key": "card-yuefeimo.png",
+      "sha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "authoritySha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "bytes": 67486,
+      "size": [
+        600,
+        419
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuesong",
+      "key": "card-yuesong.png",
+      "sha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "authoritySha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "bytes": 192976,
+      "size": [
+        591,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbush",
+      "key": "card-zhenbush.png",
+      "sha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "authoritySha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "bytes": 78802,
+      "size": [
+        579,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenfang",
+      "key": "card-zhenfang.png",
+      "sha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "authoritySha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "bytes": 86340,
+      "size": [
+        600,
+        545
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenmoss",
+      "key": "card-zhenmoss.png",
+      "sha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "authoritySha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "bytes": 85020,
+      "size": [
+        600,
+        507
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bianbiancaihua",
+      "key": "card-bianbiancaihua.png",
+      "sha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "authoritySha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "bytes": 64466,
+      "size": [
+        600,
+        536
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bingyang",
+      "key": "card-bingyang.png",
+      "sha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "authoritySha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "bytes": 148120,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chengtiregou",
+      "key": "card-chengtiregou.png",
+      "sha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "authoritySha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "bytes": 59842,
+      "size": [
+        449,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxmoney",
+      "key": "card-foxmoney.png",
+      "sha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "authoritySha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "bytes": 65780,
+      "size": [
+        600,
+        357
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebugou",
+      "key": "card-gebugou.png",
+      "sha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "authoritySha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "bytes": 209858,
+      "size": [
+        600,
+        548
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "geimieqianhaoma",
+      "key": "card-geimieqianhaoma.png",
+      "sha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "authoritySha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "bytes": 102028,
+      "size": [
+        600,
+        345
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lkreal",
+      "key": "card-lkreal.png",
+      "sha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "authoritySha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "bytes": 88196,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mianhua",
+      "key": "card-mianhua.png",
+      "sha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "authoritySha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "bytes": 38790,
+      "size": [
+        600,
+        538
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qipupu",
+      "key": "card-qipupu.png",
+      "sha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "authoritySha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "bytes": 104308,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaochouyue",
+      "key": "card-xiaochouyue.png",
+      "sha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "authoritySha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "bytes": 69466,
+      "size": [
+        600,
+        482
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaojiaojiao",
+      "key": "card-xiaojiaojiao.png",
+      "sha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "authoritySha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "bytes": 58570,
+      "size": [
+        510,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangpu",
+      "key": "card-yangpu.png",
+      "sha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "authoritySha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "bytes": 13812,
+      "size": [
+        305,
+        334
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuetrumpet",
+      "key": "card-yuetrumpet.png",
+      "sha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "authoritySha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "bytes": 30398,
+      "size": [
+        583,
+        422
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuexiong",
+      "key": "card-yuexiong.png",
+      "sha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "authoritySha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "bytes": 40794,
+      "size": [
+        600,
+        471
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbing",
+      "key": "card-zhenbing.png",
+      "sha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "authoritySha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "bytes": 120678,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhencao",
+      "key": "card-zhencao.png",
+      "sha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "authoritySha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "bytes": 20544,
+      "size": [
+        500,
+        372
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenpete",
+      "key": "card-zhenpete.png",
+      "sha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "authoritySha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "bytes": 128224,
+      "size": [
+        600,
+        462
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ababa",
+      "key": "card-ababa.png",
+      "sha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "authoritySha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "bytes": 64088,
+      "size": [
+        600,
+        375
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alu",
+      "key": "card-alu.png",
+      "sha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "authoritySha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "bytes": 25020,
+      "size": [
+        554,
+        562
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chaichai",
+      "key": "card-chaichai.png",
+      "sha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "authoritySha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "bytes": 117012,
+      "size": [
+        600,
+        487
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebuyang",
+      "key": "card-gebuyang.png",
+      "sha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "authoritySha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "bytes": 52872,
+      "size": [
+        600,
+        360
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "guanjiu",
+      "key": "card-guanjiu.png",
+      "sha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "authoritySha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "bytes": 54430,
+      "size": [
+        600,
+        552
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaochi",
+      "key": "card-jiaochi.png",
+      "sha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "authoritySha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "bytes": 31248,
+      "size": [
+        543,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaolan",
+      "key": "card-jiaolan.png",
+      "sha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "authoritySha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "bytes": 67340,
+      "size": [
+        497,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "manhua",
+      "key": "card-manhua.png",
+      "sha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "authoritySha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "bytes": 121298,
+      "size": [
+        600,
+        447
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepupu",
+      "key": "card-miepupu.png",
+      "sha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "authoritySha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "bytes": 97240,
+      "size": [
+        600,
+        543
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepuxiong",
+      "key": "card-miepuxiong.png",
+      "sha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "authoritySha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "bytes": 103814,
+      "size": [
+        578,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "pufayueyue",
+      "key": "card-pufayueyue.png",
+      "sha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "authoritySha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "bytes": 41478,
+      "size": [
+        600,
+        481
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "salamander",
+      "key": "card-salamander.png",
+      "sha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "authoritySha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "bytes": 90856,
+      "size": [
+        600,
+        405
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "seal",
+      "key": "card-seal.png",
+      "sha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "authoritySha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "bytes": 51284,
+      "size": [
+        600,
+        431
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiwang",
+      "key": "card-shiwang.png",
+      "sha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "authoritySha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "bytes": 45484,
+      "size": [
+        447,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "waisongmiege",
+      "key": "card-waisongmiege.png",
+      "sha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "authoritySha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "bytes": 57552,
+      "size": [
+        600,
+        418
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangtuo",
+      "key": "card-yangtuo.png",
+      "sha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "authoritySha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "bytes": 82798,
+      "size": [
+        534,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjpg",
+      "key": "card-zhenjpg.png",
+      "sha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "authoritySha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "bytes": 35858,
+      "size": [
+        568,
+        546
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenwang",
+      "key": "card-zhenwang.png",
+      "sha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "authoritySha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "bytes": 78790,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ballyellow",
+      "key": "toy-ballyellow.png",
+      "sha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "authoritySha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "bytes": 6940,
+      "size": [
+        328,
+        269
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "beachball",
+      "key": "toy-beachball.png",
+      "sha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "authoritySha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "bytes": 10640,
+      "size": [
+        284,
+        284
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "dino",
+      "key": "toy-dino.png",
+      "sha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "authoritySha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "bytes": 24408,
+      "size": [
+        600,
+        356
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    }
+  ],
+  "gacha-test": [
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-subject.png",
+      "sha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "authoritySha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "bytes": 523460,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-background.png",
+      "sha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "authoritySha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "bytes": 464192,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-subject.png",
+      "sha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "authoritySha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "bytes": 94676,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-background.png",
+      "sha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "authoritySha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "bytes": 508810,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-subject.png",
+      "sha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "authoritySha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "bytes": 133762,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-background.png",
+      "sha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "authoritySha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "bytes": 468786,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-subject.png",
+      "sha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "authoritySha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "bytes": 491838,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-background.png",
+      "sha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "authoritySha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "bytes": 491990,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "liulangyueshou",
+      "key": "card-liulangyueshou.png",
+      "sha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "authoritySha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "bytes": 126702,
+      "size": [
+        600,
+        506
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mieshi",
+      "key": "card-mieshi.png",
+      "sha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "authoritySha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "bytes": 355142,
+      "size": [
+        509,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qinghua",
+      "key": "card-qinghua.png",
+      "sha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "authoritySha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "bytes": 413530,
+      "size": [
+        600,
+        575
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-subject.png",
+      "sha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "authoritySha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "bytes": 199098,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-background.png",
+      "sha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "authoritySha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "bytes": 204892,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwumythic",
+      "key": "card-wanwumythic.png",
+      "sha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "authoritySha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "bytes": 116862,
+      "size": [
+        509,
+        490
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yueyuexian",
+      "key": "card-yueyuexian.png",
+      "sha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "authoritySha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "bytes": 158208,
+      "size": [
+        561,
+        569
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-subject.png",
+      "sha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "authoritySha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "bytes": 163758,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-background.png",
+      "sha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "authoritySha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "bytes": 82244,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-subject.png",
+      "sha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "authoritySha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "bytes": 83072,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-background.png",
+      "sha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "authoritySha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "bytes": 41586,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-subject.png",
+      "sha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "authoritySha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "bytes": 124832,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-background.png",
+      "sha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "authoritySha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "bytes": 601570,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxfriend",
+      "key": "card-foxfriend.png",
+      "sha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "authoritySha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "bytes": 67634,
+      "size": [
+        566,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaotou",
+      "key": "card-jiaotou.png",
+      "sha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "authoritySha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "bytes": 129646,
+      "size": [
+        582,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jinggou",
+      "key": "card-jinggou.png",
+      "sha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "authoritySha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "bytes": 53176,
+      "size": [
+        535,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jintianwoshengri",
+      "key": "card-jintianwoshengri.png",
+      "sha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "authoritySha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "bytes": 73088,
+      "size": [
+        482,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lksphinx",
+      "key": "card-lksphinx.png",
+      "sha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "authoritySha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "bytes": 127360,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiyi",
+      "key": "card-shiyi.png",
+      "sha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "authoritySha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "bytes": 45666,
+      "size": [
+        600,
+        526
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwu",
+      "key": "card-wanwu.png",
+      "sha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "authoritySha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "bytes": 62030,
+      "size": [
+        600,
+        483
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuefeimo",
+      "key": "card-yuefeimo.png",
+      "sha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "authoritySha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "bytes": 67486,
+      "size": [
+        600,
+        419
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuesong",
+      "key": "card-yuesong.png",
+      "sha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "authoritySha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "bytes": 192976,
+      "size": [
+        591,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbush",
+      "key": "card-zhenbush.png",
+      "sha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "authoritySha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "bytes": 78802,
+      "size": [
+        579,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenfang",
+      "key": "card-zhenfang.png",
+      "sha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "authoritySha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "bytes": 86340,
+      "size": [
+        600,
+        545
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenmoss",
+      "key": "card-zhenmoss.png",
+      "sha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "authoritySha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "bytes": 85020,
+      "size": [
+        600,
+        507
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bianbiancaihua",
+      "key": "card-bianbiancaihua.png",
+      "sha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "authoritySha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "bytes": 64466,
+      "size": [
+        600,
+        536
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bingyang",
+      "key": "card-bingyang.png",
+      "sha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "authoritySha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "bytes": 148120,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chengtiregou",
+      "key": "card-chengtiregou.png",
+      "sha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "authoritySha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "bytes": 59842,
+      "size": [
+        449,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxmoney",
+      "key": "card-foxmoney.png",
+      "sha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "authoritySha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "bytes": 65780,
+      "size": [
+        600,
+        357
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebugou",
+      "key": "card-gebugou.png",
+      "sha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "authoritySha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "bytes": 209858,
+      "size": [
+        600,
+        548
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "geimieqianhaoma",
+      "key": "card-geimieqianhaoma.png",
+      "sha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "authoritySha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "bytes": 102028,
+      "size": [
+        600,
+        345
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lkreal",
+      "key": "card-lkreal.png",
+      "sha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "authoritySha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "bytes": 88196,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mianhua",
+      "key": "card-mianhua.png",
+      "sha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "authoritySha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "bytes": 38790,
+      "size": [
+        600,
+        538
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qipupu",
+      "key": "card-qipupu.png",
+      "sha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "authoritySha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "bytes": 104308,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaochouyue",
+      "key": "card-xiaochouyue.png",
+      "sha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "authoritySha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "bytes": 69466,
+      "size": [
+        600,
+        482
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaojiaojiao",
+      "key": "card-xiaojiaojiao.png",
+      "sha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "authoritySha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "bytes": 58570,
+      "size": [
+        510,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangpu",
+      "key": "card-yangpu.png",
+      "sha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "authoritySha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "bytes": 13812,
+      "size": [
+        305,
+        334
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuetrumpet",
+      "key": "card-yuetrumpet.png",
+      "sha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "authoritySha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "bytes": 30398,
+      "size": [
+        583,
+        422
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuexiong",
+      "key": "card-yuexiong.png",
+      "sha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "authoritySha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "bytes": 40794,
+      "size": [
+        600,
+        471
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbing",
+      "key": "card-zhenbing.png",
+      "sha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "authoritySha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "bytes": 120678,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhencao",
+      "key": "card-zhencao.png",
+      "sha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "authoritySha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "bytes": 20544,
+      "size": [
+        500,
+        372
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenpete",
+      "key": "card-zhenpete.png",
+      "sha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "authoritySha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "bytes": 128224,
+      "size": [
+        600,
+        462
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ababa",
+      "key": "card-ababa.png",
+      "sha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "authoritySha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "bytes": 64088,
+      "size": [
+        600,
+        375
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alu",
+      "key": "card-alu.png",
+      "sha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "authoritySha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "bytes": 25020,
+      "size": [
+        554,
+        562
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chaichai",
+      "key": "card-chaichai.png",
+      "sha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "authoritySha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "bytes": 117012,
+      "size": [
+        600,
+        487
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebuyang",
+      "key": "card-gebuyang.png",
+      "sha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "authoritySha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "bytes": 52872,
+      "size": [
+        600,
+        360
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "guanjiu",
+      "key": "card-guanjiu.png",
+      "sha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "authoritySha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "bytes": 54430,
+      "size": [
+        600,
+        552
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaochi",
+      "key": "card-jiaochi.png",
+      "sha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "authoritySha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "bytes": 31248,
+      "size": [
+        543,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaolan",
+      "key": "card-jiaolan.png",
+      "sha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "authoritySha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "bytes": 67340,
+      "size": [
+        497,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "manhua",
+      "key": "card-manhua.png",
+      "sha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "authoritySha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "bytes": 121298,
+      "size": [
+        600,
+        447
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepupu",
+      "key": "card-miepupu.png",
+      "sha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "authoritySha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "bytes": 97240,
+      "size": [
+        600,
+        543
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepuxiong",
+      "key": "card-miepuxiong.png",
+      "sha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "authoritySha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "bytes": 103814,
+      "size": [
+        578,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "pufayueyue",
+      "key": "card-pufayueyue.png",
+      "sha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "authoritySha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "bytes": 41478,
+      "size": [
+        600,
+        481
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "salamander",
+      "key": "card-salamander.png",
+      "sha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "authoritySha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "bytes": 90856,
+      "size": [
+        600,
+        405
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "seal",
+      "key": "card-seal.png",
+      "sha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "authoritySha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "bytes": 51284,
+      "size": [
+        600,
+        431
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiwang",
+      "key": "card-shiwang.png",
+      "sha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "authoritySha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "bytes": 45484,
+      "size": [
+        447,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "waisongmiege",
+      "key": "card-waisongmiege.png",
+      "sha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "authoritySha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "bytes": 57552,
+      "size": [
+        600,
+        418
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangtuo",
+      "key": "card-yangtuo.png",
+      "sha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "authoritySha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "bytes": 82798,
+      "size": [
+        534,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjpg",
+      "key": "card-zhenjpg.png",
+      "sha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "authoritySha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "bytes": 35858,
+      "size": [
+        568,
+        546
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenwang",
+      "key": "card-zhenwang.png",
+      "sha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "authoritySha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "bytes": 78790,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ballyellow",
+      "key": "toy-ballyellow.png",
+      "sha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "authoritySha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "bytes": 6940,
+      "size": [
+        328,
+        269
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "beachball",
+      "key": "toy-beachball.png",
+      "sha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "authoritySha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "bytes": 10640,
+      "size": [
+        284,
+        284
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "dino",
+      "key": "toy-dino.png",
+      "sha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "authoritySha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "bytes": 24408,
+      "size": [
+        600,
+        356
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    }
+  ],
+  "gacha-test-standalone": [
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-subject.png",
+      "sha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "authoritySha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "bytes": 523460,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-background.png",
+      "sha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "authoritySha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "bytes": 464192,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-subject.png",
+      "sha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "authoritySha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "bytes": 94676,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-background.png",
+      "sha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "authoritySha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "bytes": 508810,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-subject.png",
+      "sha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "authoritySha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "bytes": 133762,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-background.png",
+      "sha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "authoritySha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "bytes": 468786,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-subject.png",
+      "sha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "authoritySha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "bytes": 491838,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-background.png",
+      "sha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "authoritySha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "bytes": 491990,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "liulangyueshou",
+      "key": "card-liulangyueshou.png",
+      "sha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "authoritySha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "bytes": 126702,
+      "size": [
+        600,
+        506
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mieshi",
+      "key": "card-mieshi.png",
+      "sha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "authoritySha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "bytes": 355142,
+      "size": [
+        509,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qinghua",
+      "key": "card-qinghua.png",
+      "sha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "authoritySha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "bytes": 413530,
+      "size": [
+        600,
+        575
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-subject.png",
+      "sha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "authoritySha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "bytes": 199098,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-background.png",
+      "sha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "authoritySha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "bytes": 204892,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwumythic",
+      "key": "card-wanwumythic.png",
+      "sha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "authoritySha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "bytes": 116862,
+      "size": [
+        509,
+        490
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yueyuexian",
+      "key": "card-yueyuexian.png",
+      "sha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "authoritySha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "bytes": 158208,
+      "size": [
+        561,
+        569
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-subject.png",
+      "sha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "authoritySha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "bytes": 163758,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-background.png",
+      "sha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "authoritySha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "bytes": 82244,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-subject.png",
+      "sha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "authoritySha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "bytes": 83072,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-background.png",
+      "sha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "authoritySha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "bytes": 41586,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-subject.png",
+      "sha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "authoritySha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "bytes": 124832,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-background.png",
+      "sha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "authoritySha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "bytes": 601570,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxfriend",
+      "key": "card-foxfriend.png",
+      "sha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "authoritySha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "bytes": 67634,
+      "size": [
+        566,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaotou",
+      "key": "card-jiaotou.png",
+      "sha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "authoritySha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "bytes": 129646,
+      "size": [
+        582,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jinggou",
+      "key": "card-jinggou.png",
+      "sha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "authoritySha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "bytes": 53176,
+      "size": [
+        535,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jintianwoshengri",
+      "key": "card-jintianwoshengri.png",
+      "sha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "authoritySha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "bytes": 73088,
+      "size": [
+        482,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lksphinx",
+      "key": "card-lksphinx.png",
+      "sha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "authoritySha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "bytes": 127360,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiyi",
+      "key": "card-shiyi.png",
+      "sha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "authoritySha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "bytes": 45666,
+      "size": [
+        600,
+        526
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwu",
+      "key": "card-wanwu.png",
+      "sha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "authoritySha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "bytes": 62030,
+      "size": [
+        600,
+        483
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuefeimo",
+      "key": "card-yuefeimo.png",
+      "sha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "authoritySha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "bytes": 67486,
+      "size": [
+        600,
+        419
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuesong",
+      "key": "card-yuesong.png",
+      "sha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "authoritySha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "bytes": 192976,
+      "size": [
+        591,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbush",
+      "key": "card-zhenbush.png",
+      "sha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "authoritySha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "bytes": 78802,
+      "size": [
+        579,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenfang",
+      "key": "card-zhenfang.png",
+      "sha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "authoritySha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "bytes": 86340,
+      "size": [
+        600,
+        545
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenmoss",
+      "key": "card-zhenmoss.png",
+      "sha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "authoritySha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "bytes": 85020,
+      "size": [
+        600,
+        507
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bianbiancaihua",
+      "key": "card-bianbiancaihua.png",
+      "sha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "authoritySha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "bytes": 64466,
+      "size": [
+        600,
+        536
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bingyang",
+      "key": "card-bingyang.png",
+      "sha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "authoritySha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "bytes": 148120,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chengtiregou",
+      "key": "card-chengtiregou.png",
+      "sha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "authoritySha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "bytes": 59842,
+      "size": [
+        449,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxmoney",
+      "key": "card-foxmoney.png",
+      "sha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "authoritySha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "bytes": 65780,
+      "size": [
+        600,
+        357
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebugou",
+      "key": "card-gebugou.png",
+      "sha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "authoritySha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "bytes": 209858,
+      "size": [
+        600,
+        548
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "geimieqianhaoma",
+      "key": "card-geimieqianhaoma.png",
+      "sha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "authoritySha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "bytes": 102028,
+      "size": [
+        600,
+        345
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lkreal",
+      "key": "card-lkreal.png",
+      "sha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "authoritySha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "bytes": 88196,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mianhua",
+      "key": "card-mianhua.png",
+      "sha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "authoritySha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "bytes": 38790,
+      "size": [
+        600,
+        538
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qipupu",
+      "key": "card-qipupu.png",
+      "sha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "authoritySha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "bytes": 104308,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaochouyue",
+      "key": "card-xiaochouyue.png",
+      "sha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "authoritySha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "bytes": 69466,
+      "size": [
+        600,
+        482
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaojiaojiao",
+      "key": "card-xiaojiaojiao.png",
+      "sha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "authoritySha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "bytes": 58570,
+      "size": [
+        510,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangpu",
+      "key": "card-yangpu.png",
+      "sha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "authoritySha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "bytes": 13812,
+      "size": [
+        305,
+        334
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuetrumpet",
+      "key": "card-yuetrumpet.png",
+      "sha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "authoritySha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "bytes": 30398,
+      "size": [
+        583,
+        422
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuexiong",
+      "key": "card-yuexiong.png",
+      "sha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "authoritySha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "bytes": 40794,
+      "size": [
+        600,
+        471
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbing",
+      "key": "card-zhenbing.png",
+      "sha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "authoritySha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "bytes": 120678,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhencao",
+      "key": "card-zhencao.png",
+      "sha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "authoritySha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "bytes": 20544,
+      "size": [
+        500,
+        372
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenpete",
+      "key": "card-zhenpete.png",
+      "sha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "authoritySha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "bytes": 128224,
+      "size": [
+        600,
+        462
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ababa",
+      "key": "card-ababa.png",
+      "sha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "authoritySha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "bytes": 64088,
+      "size": [
+        600,
+        375
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alu",
+      "key": "card-alu.png",
+      "sha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "authoritySha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "bytes": 25020,
+      "size": [
+        554,
+        562
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chaichai",
+      "key": "card-chaichai.png",
+      "sha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "authoritySha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "bytes": 117012,
+      "size": [
+        600,
+        487
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebuyang",
+      "key": "card-gebuyang.png",
+      "sha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "authoritySha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "bytes": 52872,
+      "size": [
+        600,
+        360
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "guanjiu",
+      "key": "card-guanjiu.png",
+      "sha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "authoritySha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "bytes": 54430,
+      "size": [
+        600,
+        552
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaochi",
+      "key": "card-jiaochi.png",
+      "sha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "authoritySha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "bytes": 31248,
+      "size": [
+        543,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaolan",
+      "key": "card-jiaolan.png",
+      "sha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "authoritySha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "bytes": 67340,
+      "size": [
+        497,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "manhua",
+      "key": "card-manhua.png",
+      "sha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "authoritySha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "bytes": 121298,
+      "size": [
+        600,
+        447
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepupu",
+      "key": "card-miepupu.png",
+      "sha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "authoritySha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "bytes": 97240,
+      "size": [
+        600,
+        543
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepuxiong",
+      "key": "card-miepuxiong.png",
+      "sha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "authoritySha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "bytes": 103814,
+      "size": [
+        578,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "pufayueyue",
+      "key": "card-pufayueyue.png",
+      "sha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "authoritySha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "bytes": 41478,
+      "size": [
+        600,
+        481
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "salamander",
+      "key": "card-salamander.png",
+      "sha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "authoritySha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "bytes": 90856,
+      "size": [
+        600,
+        405
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "seal",
+      "key": "card-seal.png",
+      "sha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "authoritySha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "bytes": 51284,
+      "size": [
+        600,
+        431
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiwang",
+      "key": "card-shiwang.png",
+      "sha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "authoritySha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "bytes": 45484,
+      "size": [
+        447,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "waisongmiege",
+      "key": "card-waisongmiege.png",
+      "sha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "authoritySha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "bytes": 57552,
+      "size": [
+        600,
+        418
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangtuo",
+      "key": "card-yangtuo.png",
+      "sha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "authoritySha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "bytes": 82798,
+      "size": [
+        534,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjpg",
+      "key": "card-zhenjpg.png",
+      "sha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "authoritySha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "bytes": 35858,
+      "size": [
+        568,
+        546
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenwang",
+      "key": "card-zhenwang.png",
+      "sha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "authoritySha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "bytes": 78790,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ballyellow",
+      "key": "toy-ballyellow.png",
+      "sha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "authoritySha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "bytes": 6940,
+      "size": [
+        328,
+        269
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "beachball",
+      "key": "toy-beachball.png",
+      "sha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "authoritySha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "bytes": 10640,
+      "size": [
+        284,
+        284
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "dino",
+      "key": "toy-dino.png",
+      "sha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "authoritySha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "bytes": 24408,
+      "size": [
+        600,
+        356
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    }
+  ],
+  "pool": [
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-subject.png",
+      "sha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "authoritySha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "bytes": 523460,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-background.png",
+      "sha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "authoritySha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "bytes": 464192,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-subject.png",
+      "sha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "authoritySha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "bytes": 94676,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-background.png",
+      "sha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "authoritySha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "bytes": 508810,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-subject.png",
+      "sha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "authoritySha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "bytes": 133762,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-background.png",
+      "sha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "authoritySha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "bytes": 468786,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-subject.png",
+      "sha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "authoritySha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "bytes": 491838,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-background.png",
+      "sha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "authoritySha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "bytes": 491990,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "liulangyueshou",
+      "key": "card-liulangyueshou.png",
+      "sha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "authoritySha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "bytes": 126702,
+      "size": [
+        600,
+        506
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mieshi",
+      "key": "card-mieshi.png",
+      "sha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "authoritySha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "bytes": 355142,
+      "size": [
+        509,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qinghua",
+      "key": "card-qinghua.png",
+      "sha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "authoritySha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "bytes": 413530,
+      "size": [
+        600,
+        575
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-subject.png",
+      "sha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "authoritySha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "bytes": 199098,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-background.png",
+      "sha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "authoritySha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "bytes": 204892,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwumythic",
+      "key": "card-wanwumythic.png",
+      "sha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "authoritySha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "bytes": 116862,
+      "size": [
+        509,
+        490
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yueyuexian",
+      "key": "card-yueyuexian.png",
+      "sha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "authoritySha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "bytes": 158208,
+      "size": [
+        561,
+        569
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-subject.png",
+      "sha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "authoritySha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "bytes": 163758,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-background.png",
+      "sha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "authoritySha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "bytes": 82244,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-subject.png",
+      "sha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "authoritySha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "bytes": 83072,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-background.png",
+      "sha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "authoritySha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "bytes": 41586,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-subject.png",
+      "sha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "authoritySha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "bytes": 124832,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-background.png",
+      "sha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "authoritySha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "bytes": 601570,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxfriend",
+      "key": "card-foxfriend.png",
+      "sha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "authoritySha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "bytes": 67634,
+      "size": [
+        566,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaotou",
+      "key": "card-jiaotou.png",
+      "sha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "authoritySha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "bytes": 129646,
+      "size": [
+        582,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jinggou",
+      "key": "card-jinggou.png",
+      "sha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "authoritySha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "bytes": 53176,
+      "size": [
+        535,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jintianwoshengri",
+      "key": "card-jintianwoshengri.png",
+      "sha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "authoritySha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "bytes": 73088,
+      "size": [
+        482,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lksphinx",
+      "key": "card-lksphinx.png",
+      "sha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "authoritySha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "bytes": 127360,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiyi",
+      "key": "card-shiyi.png",
+      "sha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "authoritySha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "bytes": 45666,
+      "size": [
+        600,
+        526
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwu",
+      "key": "card-wanwu.png",
+      "sha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "authoritySha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "bytes": 62030,
+      "size": [
+        600,
+        483
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuefeimo",
+      "key": "card-yuefeimo.png",
+      "sha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "authoritySha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "bytes": 67486,
+      "size": [
+        600,
+        419
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuesong",
+      "key": "card-yuesong.png",
+      "sha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "authoritySha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "bytes": 192976,
+      "size": [
+        591,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbush",
+      "key": "card-zhenbush.png",
+      "sha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "authoritySha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "bytes": 78802,
+      "size": [
+        579,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenfang",
+      "key": "card-zhenfang.png",
+      "sha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "authoritySha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "bytes": 86340,
+      "size": [
+        600,
+        545
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenmoss",
+      "key": "card-zhenmoss.png",
+      "sha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "authoritySha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "bytes": 85020,
+      "size": [
+        600,
+        507
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bianbiancaihua",
+      "key": "card-bianbiancaihua.png",
+      "sha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "authoritySha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "bytes": 64466,
+      "size": [
+        600,
+        536
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bingyang",
+      "key": "card-bingyang.png",
+      "sha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "authoritySha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "bytes": 148120,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chengtiregou",
+      "key": "card-chengtiregou.png",
+      "sha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "authoritySha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "bytes": 59842,
+      "size": [
+        449,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxmoney",
+      "key": "card-foxmoney.png",
+      "sha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "authoritySha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "bytes": 65780,
+      "size": [
+        600,
+        357
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebugou",
+      "key": "card-gebugou.png",
+      "sha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "authoritySha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "bytes": 209858,
+      "size": [
+        600,
+        548
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "geimieqianhaoma",
+      "key": "card-geimieqianhaoma.png",
+      "sha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "authoritySha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "bytes": 102028,
+      "size": [
+        600,
+        345
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lkreal",
+      "key": "card-lkreal.png",
+      "sha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "authoritySha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "bytes": 88196,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mianhua",
+      "key": "card-mianhua.png",
+      "sha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "authoritySha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "bytes": 38790,
+      "size": [
+        600,
+        538
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qipupu",
+      "key": "card-qipupu.png",
+      "sha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "authoritySha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "bytes": 104308,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaochouyue",
+      "key": "card-xiaochouyue.png",
+      "sha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "authoritySha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "bytes": 69466,
+      "size": [
+        600,
+        482
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaojiaojiao",
+      "key": "card-xiaojiaojiao.png",
+      "sha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "authoritySha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "bytes": 58570,
+      "size": [
+        510,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangpu",
+      "key": "card-yangpu.png",
+      "sha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "authoritySha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "bytes": 13812,
+      "size": [
+        305,
+        334
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuetrumpet",
+      "key": "card-yuetrumpet.png",
+      "sha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "authoritySha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "bytes": 30398,
+      "size": [
+        583,
+        422
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuexiong",
+      "key": "card-yuexiong.png",
+      "sha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "authoritySha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "bytes": 40794,
+      "size": [
+        600,
+        471
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbing",
+      "key": "card-zhenbing.png",
+      "sha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "authoritySha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "bytes": 120678,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhencao",
+      "key": "card-zhencao.png",
+      "sha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "authoritySha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "bytes": 20544,
+      "size": [
+        500,
+        372
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenpete",
+      "key": "card-zhenpete.png",
+      "sha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "authoritySha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "bytes": 128224,
+      "size": [
+        600,
+        462
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ababa",
+      "key": "card-ababa.png",
+      "sha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "authoritySha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "bytes": 64088,
+      "size": [
+        600,
+        375
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alu",
+      "key": "card-alu.png",
+      "sha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "authoritySha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "bytes": 25020,
+      "size": [
+        554,
+        562
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chaichai",
+      "key": "card-chaichai.png",
+      "sha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "authoritySha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "bytes": 117012,
+      "size": [
+        600,
+        487
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebuyang",
+      "key": "card-gebuyang.png",
+      "sha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "authoritySha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "bytes": 52872,
+      "size": [
+        600,
+        360
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "guanjiu",
+      "key": "card-guanjiu.png",
+      "sha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "authoritySha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "bytes": 54430,
+      "size": [
+        600,
+        552
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaochi",
+      "key": "card-jiaochi.png",
+      "sha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "authoritySha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "bytes": 31248,
+      "size": [
+        543,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaolan",
+      "key": "card-jiaolan.png",
+      "sha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "authoritySha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "bytes": 67340,
+      "size": [
+        497,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "manhua",
+      "key": "card-manhua.png",
+      "sha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "authoritySha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "bytes": 121298,
+      "size": [
+        600,
+        447
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepupu",
+      "key": "card-miepupu.png",
+      "sha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "authoritySha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "bytes": 97240,
+      "size": [
+        600,
+        543
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepuxiong",
+      "key": "card-miepuxiong.png",
+      "sha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "authoritySha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "bytes": 103814,
+      "size": [
+        578,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "pufayueyue",
+      "key": "card-pufayueyue.png",
+      "sha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "authoritySha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "bytes": 41478,
+      "size": [
+        600,
+        481
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "salamander",
+      "key": "card-salamander.png",
+      "sha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "authoritySha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "bytes": 90856,
+      "size": [
+        600,
+        405
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "seal",
+      "key": "card-seal.png",
+      "sha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "authoritySha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "bytes": 51284,
+      "size": [
+        600,
+        431
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiwang",
+      "key": "card-shiwang.png",
+      "sha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "authoritySha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "bytes": 45484,
+      "size": [
+        447,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "waisongmiege",
+      "key": "card-waisongmiege.png",
+      "sha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "authoritySha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "bytes": 57552,
+      "size": [
+        600,
+        418
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangtuo",
+      "key": "card-yangtuo.png",
+      "sha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "authoritySha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "bytes": 82798,
+      "size": [
+        534,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjpg",
+      "key": "card-zhenjpg.png",
+      "sha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "authoritySha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "bytes": 35858,
+      "size": [
+        568,
+        546
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenwang",
+      "key": "card-zhenwang.png",
+      "sha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "authoritySha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "bytes": 78790,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ballyellow",
+      "key": "toy-ballyellow.png",
+      "sha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "authoritySha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "bytes": 6940,
+      "size": [
+        328,
+        269
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "beachball",
+      "key": "toy-beachball.png",
+      "sha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "authoritySha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "bytes": 10640,
+      "size": [
+        284,
+        284
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "dino",
+      "key": "toy-dino.png",
+      "sha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "authoritySha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "bytes": 24408,
+      "size": [
+        600,
+        356
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    }
+  ],
+  "pool-standalone": [
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-subject.png",
+      "sha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "authoritySha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "bytes": 523460,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-background.png",
+      "sha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "authoritySha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "bytes": 464192,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-subject.png",
+      "sha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "authoritySha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "bytes": 94676,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-background.png",
+      "sha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "authoritySha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "bytes": 508810,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-subject.png",
+      "sha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "authoritySha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "bytes": 133762,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-background.png",
+      "sha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "authoritySha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "bytes": 468786,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-subject.png",
+      "sha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "authoritySha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "bytes": 491838,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-background.png",
+      "sha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "authoritySha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "bytes": 491990,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "liulangyueshou",
+      "key": "card-liulangyueshou.png",
+      "sha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "authoritySha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "bytes": 126702,
+      "size": [
+        600,
+        506
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mieshi",
+      "key": "card-mieshi.png",
+      "sha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "authoritySha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "bytes": 355142,
+      "size": [
+        509,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qinghua",
+      "key": "card-qinghua.png",
+      "sha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "authoritySha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "bytes": 413530,
+      "size": [
+        600,
+        575
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-subject.png",
+      "sha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "authoritySha256": "1461708a2e1177efce34fd7c41a13d724263e0fceb535bbf0967ee4418d03135",
+      "bytes": 199098,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shabaolingzhu",
+      "key": "layer-shabaolingzhu-background.png",
+      "sha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "authoritySha256": "86bc6fdeaeb3ff9f539fb7b00144c17718e4c0b8f70c1fca5f2441dc28c4fa5a",
+      "bytes": 204892,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwumythic",
+      "key": "card-wanwumythic.png",
+      "sha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "authoritySha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+      "bytes": 116862,
+      "size": [
+        509,
+        490
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yueyuexian",
+      "key": "card-yueyuexian.png",
+      "sha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "authoritySha256": "4fdfda3a462294297179e4518ecdd8274775067ba243a53b9f03c397ef44bc61",
+      "bytes": 158208,
+      "size": [
+        561,
+        569
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-subject.png",
+      "sha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "authoritySha256": "2f7a649df95de27e21ef88f7dcc3b24a435c6924266883ce751df2766e713dcb",
+      "bytes": 163758,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjunyue",
+      "key": "layer-zhenjunyue-background.png",
+      "sha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "authoritySha256": "f570785db617495c01ef7ed90fcdd19a7bbba004f034d69ab149612ea27a8d95",
+      "bytes": 82244,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-subject.png",
+      "sha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "authoritySha256": "585bbe4de3c66a6ebfc313b336280787d0632f1a4493fb99813113d9e7f7cca2",
+      "bytes": 83072,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenqiqiu",
+      "key": "layer-zhenqiqiu-background.png",
+      "sha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "authoritySha256": "8c57471046a2b3413e772088c99f745597c604ac04d22ea7915e2d638f4c01e0",
+      "bytes": 41586,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-subject.png",
+      "sha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "authoritySha256": "1428de488d32e4684774f92579e5d5014aedac06d667bd0b9637c49565142881",
+      "bytes": 124832,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenzhen",
+      "key": "layer-zhenzhen-background.png",
+      "sha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "authoritySha256": "fadf81e06fb746c37b48d28ebc3a1f4bede04082f71659cba7cce5d6400dd2bf",
+      "bytes": 601570,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxfriend",
+      "key": "card-foxfriend.png",
+      "sha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "authoritySha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "bytes": 67634,
+      "size": [
+        566,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaotou",
+      "key": "card-jiaotou.png",
+      "sha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "authoritySha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "bytes": 129646,
+      "size": [
+        582,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jinggou",
+      "key": "card-jinggou.png",
+      "sha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "authoritySha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "bytes": 53176,
+      "size": [
+        535,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jintianwoshengri",
+      "key": "card-jintianwoshengri.png",
+      "sha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "authoritySha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "bytes": 73088,
+      "size": [
+        482,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lksphinx",
+      "key": "card-lksphinx.png",
+      "sha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "authoritySha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "bytes": 127360,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiyi",
+      "key": "card-shiyi.png",
+      "sha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "authoritySha256": "4b4df29f116b0139aa2cd45f7d67c5157321c30dee6cbfd4da9d1206486a1aa1",
+      "bytes": 45666,
+      "size": [
+        600,
+        526
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "wanwu",
+      "key": "card-wanwu.png",
+      "sha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "authoritySha256": "bee707516dee1741b81fab0bfac68004a999ad75c6a0942ac01a043363b04f86",
+      "bytes": 62030,
+      "size": [
+        600,
+        483
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuefeimo",
+      "key": "card-yuefeimo.png",
+      "sha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "authoritySha256": "798cabdf4d65d094f7065955afca9d808d515df9b0f6c5a0fb26d1684ab1c327",
+      "bytes": 67486,
+      "size": [
+        600,
+        419
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuesong",
+      "key": "card-yuesong.png",
+      "sha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "authoritySha256": "270207878e466c3fa4ff21a9d54eabf3e11348771386fde4074b46c6f5637f74",
+      "bytes": 192976,
+      "size": [
+        591,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbush",
+      "key": "card-zhenbush.png",
+      "sha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "authoritySha256": "945b1d59de1dfe12456e465fe08c88734883711cc5be0850e28aad0c90fbd86a",
+      "bytes": 78802,
+      "size": [
+        579,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenfang",
+      "key": "card-zhenfang.png",
+      "sha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "authoritySha256": "a8936a248e138e8f08a9e9ad2b028176de729ec107fe88a6230ca32cb60368b8",
+      "bytes": 86340,
+      "size": [
+        600,
+        545
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenmoss",
+      "key": "card-zhenmoss.png",
+      "sha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "authoritySha256": "5690a54e545be1089b4f2b093aaa42333974e4197ae44f2d2bdaba9572b98cf0",
+      "bytes": 85020,
+      "size": [
+        600,
+        507
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bianbiancaihua",
+      "key": "card-bianbiancaihua.png",
+      "sha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "authoritySha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "bytes": 64466,
+      "size": [
+        600,
+        536
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bingyang",
+      "key": "card-bingyang.png",
+      "sha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "authoritySha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "bytes": 148120,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chengtiregou",
+      "key": "card-chengtiregou.png",
+      "sha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "authoritySha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "bytes": 59842,
+      "size": [
+        449,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxmoney",
+      "key": "card-foxmoney.png",
+      "sha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "authoritySha256": "d5f40ddbe51692424eda8c6aa4784276216c701fd213b46cf3f5df01e3817feb",
+      "bytes": 65780,
+      "size": [
+        600,
+        357
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebugou",
+      "key": "card-gebugou.png",
+      "sha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "authoritySha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "bytes": 209858,
+      "size": [
+        600,
+        548
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "geimieqianhaoma",
+      "key": "card-geimieqianhaoma.png",
+      "sha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "authoritySha256": "70ae34a0a73553e7b4c28300bdb6301d00a862e151a083dc520fec711c5905ae",
+      "bytes": 102028,
+      "size": [
+        600,
+        345
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lkreal",
+      "key": "card-lkreal.png",
+      "sha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "authoritySha256": "bf7f656a52f79864ea3dcc9c1b2e005892e6db59e1aa6dae792fe528940a5061",
+      "bytes": 88196,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mianhua",
+      "key": "card-mianhua.png",
+      "sha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "authoritySha256": "a28df7715d31ece01cc150ee13218c3577881c8040749fd9536fd5f29cf2fc3c",
+      "bytes": 38790,
+      "size": [
+        600,
+        538
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qipupu",
+      "key": "card-qipupu.png",
+      "sha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "authoritySha256": "49988da7743ef9c050b993d49b4620fb0f648ffdefb4f6151e325a9b2ec545f5",
+      "bytes": 104308,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaochouyue",
+      "key": "card-xiaochouyue.png",
+      "sha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "authoritySha256": "6acae5dabf9f8c0e97c731c7bcb341e819a36568ddc31aa5373d281557b2459b",
+      "bytes": 69466,
+      "size": [
+        600,
+        482
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "xiaojiaojiao",
+      "key": "card-xiaojiaojiao.png",
+      "sha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "authoritySha256": "2a29edb8086e79c226159707137ab959f60cf6b4d328a362d11a2d1131a627a0",
+      "bytes": 58570,
+      "size": [
+        510,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangpu",
+      "key": "card-yangpu.png",
+      "sha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "authoritySha256": "cdc9b79867e72dbbc3389db4428f88183f2f8d2ab1476d41fec62035de68a2d0",
+      "bytes": 13812,
+      "size": [
+        305,
+        334
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuetrumpet",
+      "key": "card-yuetrumpet.png",
+      "sha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "authoritySha256": "ecfa4b4ec5d902835f1e84f22bd64090958c0d8f7c77560eb0444eb0513f841a",
+      "bytes": 30398,
+      "size": [
+        583,
+        422
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yuexiong",
+      "key": "card-yuexiong.png",
+      "sha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "authoritySha256": "6d006b538332e7ae912df0a7c6724b3272a145b4c65f3df163fba6050c316ca7",
+      "bytes": 40794,
+      "size": [
+        600,
+        471
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenbing",
+      "key": "card-zhenbing.png",
+      "sha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "authoritySha256": "71003906ff3a10a4264ac15e53253919752f5ded7b8b53878f50e0f2b9503bb6",
+      "bytes": 120678,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhencao",
+      "key": "card-zhencao.png",
+      "sha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "authoritySha256": "fbbd6a4dee82a8ab9868ce9ce96833d4cde4ea8de811dcb417c53ef0d3431e51",
+      "bytes": 20544,
+      "size": [
+        500,
+        372
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenpete",
+      "key": "card-zhenpete.png",
+      "sha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "authoritySha256": "62c8b410760cbca79d19536550f894e424cfa19f67715e34f24e036057d35f48",
+      "bytes": 128224,
+      "size": [
+        600,
+        462
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ababa",
+      "key": "card-ababa.png",
+      "sha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "authoritySha256": "85f9084d4cfd31cc7bcdacfd5d4876b262ab6ff43c973562066694e631f3c550",
+      "bytes": 64088,
+      "size": [
+        600,
+        375
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alu",
+      "key": "card-alu.png",
+      "sha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "authoritySha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "bytes": 25020,
+      "size": [
+        554,
+        562
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chaichai",
+      "key": "card-chaichai.png",
+      "sha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "authoritySha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "bytes": 117012,
+      "size": [
+        600,
+        487
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebuyang",
+      "key": "card-gebuyang.png",
+      "sha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "authoritySha256": "a5bce878a79212dc28d291cb355fa8048d2d5e9957c7ba094aff2e25de214d47",
+      "bytes": 52872,
+      "size": [
+        600,
+        360
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "guanjiu",
+      "key": "card-guanjiu.png",
+      "sha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "authoritySha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "bytes": 54430,
+      "size": [
+        600,
+        552
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaochi",
+      "key": "card-jiaochi.png",
+      "sha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "authoritySha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "bytes": 31248,
+      "size": [
+        543,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaolan",
+      "key": "card-jiaolan.png",
+      "sha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "authoritySha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "bytes": 67340,
+      "size": [
+        497,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "manhua",
+      "key": "card-manhua.png",
+      "sha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "authoritySha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "bytes": 121298,
+      "size": [
+        600,
+        447
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepupu",
+      "key": "card-miepupu.png",
+      "sha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "authoritySha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "bytes": 97240,
+      "size": [
+        600,
+        543
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepuxiong",
+      "key": "card-miepuxiong.png",
+      "sha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "authoritySha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "bytes": 103814,
+      "size": [
+        578,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "pufayueyue",
+      "key": "card-pufayueyue.png",
+      "sha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "authoritySha256": "07d988e26aadbb06ffed810d4630164f2edbdc36d8f9df95a8bb9d129e425649",
+      "bytes": 41478,
+      "size": [
+        600,
+        481
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "salamander",
+      "key": "card-salamander.png",
+      "sha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "authoritySha256": "4a8f3e9d0d92edec8131086c60439b7d9870e31630502bc2a73009764701c3aa",
+      "bytes": 90856,
+      "size": [
+        600,
+        405
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "seal",
+      "key": "card-seal.png",
+      "sha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "authoritySha256": "2d6d496c723cf27fb2c987111e41e36467cda4f3ae59c3147c5ae29db992e3b3",
+      "bytes": 51284,
+      "size": [
+        600,
+        431
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "shiwang",
+      "key": "card-shiwang.png",
+      "sha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "authoritySha256": "199628b4f35ac11b17c679c9e46bfb6030b46a1faa1ab3a86e0b63154699bfa9",
+      "bytes": 45484,
+      "size": [
+        447,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "waisongmiege",
+      "key": "card-waisongmiege.png",
+      "sha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "authoritySha256": "360417878b7750e33d6b02ac6e0e3fc6bad83974bbf456a528f917cc20274f40",
+      "bytes": 57552,
+      "size": [
+        600,
+        418
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "yangtuo",
+      "key": "card-yangtuo.png",
+      "sha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "authoritySha256": "69efb85d2125d2688adaab1e09530917b1aa7a091463518c4eba050f51ca59e1",
+      "bytes": 82798,
+      "size": [
+        534,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenjpg",
+      "key": "card-zhenjpg.png",
+      "sha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "authoritySha256": "4d63d1e182089e6cbe8ef92e67e442d48596fea8ca63d707e43c648298bc02c0",
+      "bytes": 35858,
+      "size": [
+        568,
+        546
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "zhenwang",
+      "key": "card-zhenwang.png",
+      "sha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "authoritySha256": "e01fcf46ca3d5e1db2129e63c42d0206a9dc12d54529029242a58a9cdaf1ca61",
+      "bytes": 78790,
+      "size": [
+        600,
+        495
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "ballyellow",
+      "key": "toy-ballyellow.png",
+      "sha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "authoritySha256": "41d6b554cfc3b49d97dc17580f421e6407c0f39ae06995c3dfda33ec4addb691",
+      "bytes": 6940,
+      "size": [
+        328,
+        269
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "beachball",
+      "key": "toy-beachball.png",
+      "sha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "authoritySha256": "9b3d8365a171832862ee3b71b3ab386749ce3e844c6db92543a4e3aa57e6d9f5",
+      "bytes": 10640,
+      "size": [
+        284,
+        284
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "dino",
+      "key": "toy-dino.png",
+      "sha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "authoritySha256": "9e58de1f85cd552414204e24cf013d3aee493dcdbbad1a1b3398ec2b432cf438",
+      "bytes": 24408,
+      "size": [
+        600,
+        356
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    }
+  ],
+  "team": [
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-subject.png",
+      "sha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "authoritySha256": "153d74266f266c9dba1f3b376a3a711abd10ab7b33f472085a9fdd4caec4ccd1",
+      "bytes": 523460,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "rocketdog",
+      "key": "layer-rocketdog-background.png",
+      "sha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "authoritySha256": "8b1700b70382297314ea496b0c08c273ecb7fd6a9a6e2435f9847e7b2adbc94a",
+      "bytes": 464192,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "liulangyueshou",
+      "key": "card-liulangyueshou.png",
+      "sha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "authoritySha256": "3e6a3f39207eff96955a974b08ad6e1dcfe180e898f0eabacac9edd966f352de",
+      "bytes": 126702,
+      "size": [
+        600,
+        506
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "mieshi",
+      "key": "card-mieshi.png",
+      "sha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "authoritySha256": "733bc9dc3ee6445411ed5df453f5ef54690517a6f741ae8ef0e99944b0e7dcf8",
+      "bytes": 355142,
+      "size": [
+        509,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "qinghua",
+      "key": "card-qinghua.png",
+      "sha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "authoritySha256": "8e82a841108bdce6ff740e5ae4c4b3bd204d60bfadec2fc7e83e8e4c90f0b081",
+      "bytes": 413530,
+      "size": [
+        600,
+        575
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-subject.png",
+      "sha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "authoritySha256": "930734baecfd85774184e0e565c6c48b1ced1ea5bc2f199d7af806a65aa837c2",
+      "bytes": 94676,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alienkitty",
+      "key": "layer-alienkitty-background.png",
+      "sha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "authoritySha256": "c47ad87cc85a84ef996fc03b809998f0d56cddc19de2a48531c814bbc4d43619",
+      "bytes": 508810,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "foxfriend",
+      "key": "card-foxfriend.png",
+      "sha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "authoritySha256": "543b7c28eb0eccbefc8c150da4b3697136da3d3837dc570de170f4d9e3c6a2c5",
+      "bytes": 67634,
+      "size": [
+        566,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaotou",
+      "key": "card-jiaotou.png",
+      "sha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "authoritySha256": "0a164f648409d85c0bb0f95318f5dd25a19d751d6bf553b08b888b859c414f6f",
+      "bytes": 129646,
+      "size": [
+        582,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jinggou",
+      "key": "card-jinggou.png",
+      "sha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "authoritySha256": "598d5ae17b145df10a6687605a878b70d70d8774bafde675b8007d16a1b8b33b",
+      "bytes": 53176,
+      "size": [
+        535,
+        515
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jintianwoshengri",
+      "key": "card-jintianwoshengri.png",
+      "sha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "authoritySha256": "8f4ec9fe802ef50e934c41f4ee43480c02ec4dfa862663b55e36638d06b27a91",
+      "bytes": 73088,
+      "size": [
+        482,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "lksphinx",
+      "key": "card-lksphinx.png",
+      "sha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "authoritySha256": "36bb490ffc1222d773afed8b9aaafcd3d5736264b6db8ea2d3f3a685aaeccce8",
+      "bytes": 127360,
+      "size": [
+        600,
+        492
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-subject.png",
+      "sha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "authoritySha256": "b26908bdc4107d914850e9d86ef77aee16ecc24453106fb5c238ebd066ce184c",
+      "bytes": 133762,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "astronaut",
+      "key": "layer-astronaut-background.png",
+      "sha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "authoritySha256": "64819fd2d08b48e0cb29b76d306fd09e43c54716c1dd4bed210ade78f90652e7",
+      "bytes": 468786,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-subject.png",
+      "sha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "authoritySha256": "481d3239e47428fd6a8c609e593094e7c5bd4695668e4148de405855f371b6fd",
+      "bytes": 491838,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "fluffdog",
+      "key": "layer-fluffdog-background.png",
+      "sha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "authoritySha256": "2dc7d8742632e5a0364c95d532a225d7e8b298fa33cadd24d46e79e6b06cd64a",
+      "bytes": 491990,
+      "size": [
+        600,
+        840
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bianbiancaihua",
+      "key": "card-bianbiancaihua.png",
+      "sha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "authoritySha256": "2f2fc9642d580ee3a1ff388322937f13ac95748fcb57d847276d6e6a2ffb4b7f",
+      "bytes": 64466,
+      "size": [
+        600,
+        536
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "bingyang",
+      "key": "card-bingyang.png",
+      "sha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "authoritySha256": "36cd8d4f3bd9ef411d81e360e8aaa2b51477c61a48544c8c9b6196609a5eeda0",
+      "bytes": 148120,
+      "size": [
+        600,
+        520
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chengtiregou",
+      "key": "card-chengtiregou.png",
+      "sha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "authoritySha256": "7b88039612f22799c94e7d767b134c331f23672127bb05b846c80c58f6331ec3",
+      "bytes": 59842,
+      "size": [
+        449,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "gebugou",
+      "key": "card-gebugou.png",
+      "sha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "authoritySha256": "38df12590bb726a8b4419f47f3984fbfd7c690aa30aa8304459277d15107aab1",
+      "bytes": 209858,
+      "size": [
+        600,
+        548
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "alu",
+      "key": "card-alu.png",
+      "sha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "authoritySha256": "f316c04a33179f5c9f4dfe22507d5d921bd2e08a2a904da68fc65e86d6133d32",
+      "bytes": 25020,
+      "size": [
+        554,
+        562
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "chaichai",
+      "key": "card-chaichai.png",
+      "sha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "authoritySha256": "7a2563e901c08325df619e48691eb47d2cc7f8876a378a43b14617b4408859d3",
+      "bytes": 117012,
+      "size": [
+        600,
+        487
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "guanjiu",
+      "key": "card-guanjiu.png",
+      "sha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "authoritySha256": "7e3c0a306bde96848f4d8cdb7a89c72e1939e7fb3d2fa2df738a85b35147724a",
+      "bytes": 54430,
+      "size": [
+        600,
+        552
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaochi",
+      "key": "card-jiaochi.png",
+      "sha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "authoritySha256": "6ad5e9b4de503821399a8f66c20776fa5aa643ac0c3dd5acceaeb927481f53e6",
+      "bytes": 31248,
+      "size": [
+        543,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "jiaolan",
+      "key": "card-jiaolan.png",
+      "sha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "authoritySha256": "81347d3b7a657f0d0197f4bd07a9ef93d72d44f1c63c2a104a0077875cfd2311",
+      "bytes": 67340,
+      "size": [
+        497,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "manhua",
+      "key": "card-manhua.png",
+      "sha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "authoritySha256": "eb8da7ecca40633ab9a03ac4933f9be830595071fdc580c0a2fae64cee5850e5",
+      "bytes": 121298,
+      "size": [
+        600,
+        447
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepupu",
+      "key": "card-miepupu.png",
+      "sha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "authoritySha256": "bc20e9d0a1b3284c0777c018668397ab6f7758435fbafe11d16fc0adce8cbabf",
+      "bytes": 97240,
+      "size": [
+        600,
+        543
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    },
+    {
+      "card": "miepuxiong",
+      "key": "card-miepuxiong.png",
+      "sha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "authoritySha256": "a0f82404180d3545b258d4d7727dac2cd9e4e5c50c51f5cd82b538f87ef6bb88",
+      "bytes": 103814,
+      "size": [
+        578,
+        580
+      ],
+      "identical": true,
+      "pixelsEqual": true
+    }
+  ]
+}

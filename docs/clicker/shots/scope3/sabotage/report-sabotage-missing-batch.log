@@ -1,0 +1,51 @@
+FAIL schema: gacha@1440x1200: batch integer
+FAIL schema: gacha@1440x1200: batch coverage
+FAIL schema: gacha@1440x1200: batch IDs 0
+FAIL schema: gacha@1440x1200: batch integer
+FAIL schema: gacha@1440x1200: batch coverage
+FAIL schema: gacha@1440x1200: batch IDs 0
+FAIL schema: gacha@1024x900: batch integer
+FAIL schema: gacha@1024x900: batch coverage
+FAIL schema: gacha@1024x900: batch IDs 0
+FAIL schema: gacha@1024x900: batch integer
+FAIL schema: gacha@1024x900: batch coverage
+FAIL schema: gacha@1024x900: batch IDs 0
+FAIL schema: gacha@390x844: batch integer
+FAIL schema: gacha@390x844: batch coverage
+FAIL schema: gacha@390x844: batch IDs 0
+FAIL schema: gacha@390x844: batch integer
+FAIL schema: gacha@390x844: batch coverage
+FAIL schema: gacha@390x844: batch IDs 0
+FAIL schema: gacha-standalone@1440x1200: batch integer
+FAIL schema: gacha-standalone@1440x1200: batch coverage
+FAIL schema: gacha-standalone@1440x1200: batch IDs 0
+FAIL schema: gacha-standalone@1440x1200: batch integer
+FAIL schema: gacha-standalone@1440x1200: batch coverage
+FAIL schema: gacha-standalone@1440x1200: batch IDs 0
+FAIL schema: gacha-standalone@1024x900: batch integer
+FAIL schema: gacha-standalone@1024x900: batch coverage
+FAIL schema: gacha-standalone@1024x900: batch IDs 0
+FAIL schema: gacha-standalone@1024x900: batch integer
+FAIL schema: gacha-standalone@1024x900: batch coverage
+FAIL schema: gacha-standalone@1024x900: batch IDs 0
+FAIL schema: gacha-standalone@390x844: batch integer
+FAIL schema: gacha-standalone@390x844: batch coverage
+FAIL schema: gacha-standalone@390x844: batch IDs 0
+FAIL schema: gacha-standalone@390x844: batch integer
+FAIL schema: gacha-standalone@390x844: batch coverage
+FAIL schema: gacha-standalone@390x844: batch IDs 0
+FAIL schema: gacha-test@1440x1200: batch integer
+FAIL schema: gacha-test@1440x1200: batch coverage
+FAIL schema: gacha-test@1440x1200: batch IDs 0
+FAIL schema: gacha-test@1440x1200: batch IDs 1
+FAIL schema: gacha-test@1440x1200: batch IDs 2
+FAIL schema: gacha-test@1440x1200: batch IDs 3
+FAIL schema: gacha-test@1440x1200: batch IDs 4
+FAIL schema: gacha-test@1440x1200: batch IDs 5
+FAIL schema: gacha-test@1440x1200: batch IDs 6
+FAIL schema: gacha-test@1440x1200: batch integer
+FAIL schema: gacha-test@1440x1200: batch coverage
+FAIL schema: gacha-test@1440x1200: batch IDs 0
+FAIL schema: gacha-test@1440x1200: batch IDs 1
+FAIL schema: gacha-test@1440x1200: batch IDs 2
+FAIL schema errors: 144

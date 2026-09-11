@@ -17,6 +17,7 @@
 from __future__ import annotations
 import argparse, json, sys, io
 from pathlib import Path
+from scope3_json import read_json
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
@@ -39,11 +40,11 @@ GEOM_EPS = 0.011
 # 這一段刻意不看輸入資料裡有什麼，而是從資料來源（卡池、編隊全集）與入口定義反推
 # 「應該收到哪些樣本」。2026-09-11 Astra 示範過：預期清單若取自輸入自己，
 # 刪掉整個 pool 入口、刪掉某張卡、刪掉全部手機詳情，驗收器都還是 EXIT 0。
-ALL_ENTRIES = ['demo', 'demo-standalone', 'pool', 'pool-standalone', 'gacha',
-               'gacha-standalone', 'gacha-test', 'gacha-test-standalone', 'team']
+from scope3_capture import SCOPE
+ALL_ENTRIES = list(SCOPE)
 FIXTURE_ENTRIES = ['gacha-test', 'gacha-test-standalone']
 RANDOM_ENTRIES = ['gacha', 'gacha-standalone']
-POOL_ENTRIES = ['demo', 'demo-standalone', 'pool', 'pool-standalone']
+POOL_ENTRIES = ['pool', 'pool-standalone']
 REQUIRED = ['nameStyle', 'rarityStyle', 'plate', 'gem', 'frame',
             'rarityRange', 'nameRange', 'rarityClear', 'nameClear', 'contentWidth']
 
@@ -79,7 +80,7 @@ def expected_manifest(pool_ids, team_ids):
 
 def finite(v):
     """NaN／Infinity 不是合格的量測值。Python 的 json 預設會接受它們，所以要自己擋。"""
-    return isinstance(v, (int, float)) and v == v and v not in (float('inf'), float('-inf'))
+    return type(v) in (int, float) and v == v and v not in (float('inf'), float('-inf'))
 
 
 def bad_numbers(obj, path=''):
@@ -98,7 +99,8 @@ def bad_numbers(obj, path=''):
 
 def px(v):
     try:
-        return float(str(v).removesuffix('px'))
+        n = float(str(v).removesuffix('px'))
+        return n if finite(n) else None
     except Exception:
         return None
 
@@ -135,7 +137,7 @@ class Report:
         self.notes.append(msg)
 
 
-def main():
+def main(argv=None, data=None):
     ap = argparse.ArgumentParser()
     ap.add_argument('--input', required=True)
     ap.add_argument('--reference', default='gacha-test')
@@ -143,10 +145,22 @@ def main():
     ap.add_argument('--expect-viewports', default=None)
     ap.add_argument('--root', default=str(Path(__file__).resolve().parent),
                     help='原始碼目錄，預期清單從這裡讀')
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
 
-    data = json.loads(Path(args.input).read_text(encoding='utf-8'))
+    if data is None:
+        data = read_json(args.input)
     R = Report()
+    from scope3_schema import validate
+    schema_errors = validate(data, args.root, TEXT_SAMESIZE, BOX_SAMESIZE)
+    if schema_errors:
+        for error in schema_errors[:50]:
+            R.chk(False, 'schema: ' + error)
+        print('FAIL schema errors: %d' % len(schema_errors))
+        return 1
+    from check_card_assets import evaluate
+    layer_result=evaluate(data,Path(args.root))
+    R.chk(layer_result['pass'], 'complete component layers: %d comparisons, %d differences' % (layer_result['comparisons'],layer_result['differences']))
+    for error in layer_result['failures'][:5]: print('  '+error)
     entries = data['entries']
     fixture = data.get('fixtureIds', [])
 
@@ -162,7 +176,7 @@ def main():
     man = expected_manifest(pool_ids_src, team_ids_src)
     want = (args.expect_entries.split(',') if args.expect_entries else ALL_ENTRIES)
     want_vps = (args.expect_viewports.split(',') if args.expect_viewports
-                else ['1440x900', '1024x900', '390x844'])
+                else ['1440x1200', '1024x900', '390x844'])
     R.chk(bool(pool_ids_src) and bool(team_ids_src),
           '預期清單來自原始碼：卡池 %d 張、編隊 %d 張（不是讀待驗 JSON 的欄位）'
           % (len(pool_ids_src), len(team_ids_src)))
@@ -454,7 +468,10 @@ def main():
 
     # ------------------------------------------------ 5. 同尺寸幾何（原始 px）
     print('\n== 5. 同尺寸中性姿態的幾何（原始 px，門檻 %.3fpx）' % GEOM_EPS)
-    GEOM = [('rarityRange.w', lambda x: (x.get('rarityRange') or {}).get('w')),
+    GEOM = [('nameRange.w', lambda x: x['nameRange']['w']),
+            ('nameRange.h', lambda x: x['nameRange']['h']),
+            ('nameRange.lines', lambda x: x['nameRange']['lines']),
+            ('rarityRange.w', lambda x: (x.get('rarityRange') or {}).get('w')),
             ('rarityRange.h', lambda x: (x.get('rarityRange') or {}).get('h')),
             ('rarityRange.lines', lambda x: (x.get('rarityRange') or {}).get('lines')),
             ('lineGap', lambda x: x.get('lineGap')),

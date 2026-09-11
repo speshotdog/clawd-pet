@@ -1,0 +1,10 @@
+{
+  "pass": true,
+  "exit": 1,
+  "errors": [
+    {
+      "entry": "pool-standalone",
+      "error": "blank or incorrectly sized card capture"
+    }
+  ]
+}

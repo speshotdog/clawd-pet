@@ -1,0 +1,46 @@
+{
+  "entries": {
+    "gacha": {
+      "1440x1200": 20,
+      "1024x900": 20,
+      "390x844": 20
+    },
+    "gacha-standalone": {
+      "1440x1200": 20,
+      "1024x900": 20,
+      "390x844": 20
+    },
+    "gacha-test": {
+      "1440x1200": 126,
+      "1024x900": 126,
+      "390x844": 126
+    },
+    "gacha-test-standalone": {
+      "1440x1200": 126,
+      "1024x900": 126,
+      "390x844": 126
+    },
+    "pool": {
+      "1440x1200": 126,
+      "1024x900": 126,
+      "390x844": 126
+    },
+    "pool-standalone": {
+      "1440x1200": 126,
+      "1024x900": 126,
+      "390x844": 126
+    },
+    "team": {
+      "1440x1200": 96,
+      "1024x900": 96,
+      "390x844": 96
+    }
+  },
+  "cards": 1920,
+  "fontSamples": 3840,
+  "unexpectedFonts": [],
+  "pageErrors": [],
+  "maxRawRarityHeightDifference": 0.0,
+  "chromium": "136.0.7103.25",
+  "artifactsUnchanged": true
+}

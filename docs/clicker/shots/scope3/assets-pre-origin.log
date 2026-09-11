@@ -1,0 +1,27 @@
+FAIL comparisons 960 differences 4922
+gacha@1024x900/beachball/reveal/0: layer5.rect.x -2.38846 != -1.63498
+gacha@1024x900/beachball/reveal/0: layer5.rect.y -1.2676 != -0.902
+gacha@1024x900/beachball/reveal/0: layer24.rect.w 1.0247 != 1.02469
+gacha@1024x900/ballyellow/reveal/0: layer5.rect.x -2.38846 != -1.63498
+gacha@1024x900/ballyellow/reveal/0: layer5.rect.y -1.2676 != -0.902
+gacha@1024x900/ballyellow/reveal/0: layer24.rect.w 1.0247 != 1.02469
+gacha@1024x900/seal/reveal/0: layer5.rect.x -2.38846 != -1.63498
+gacha@1024x900/seal/reveal/0: layer5.rect.y -1.2676 != -0.902
+gacha@1024x900/seal/reveal/0: layer24.rect.w 1.0247 != 1.02469
+gacha@1024x900/dino/reveal/0: layer5.rect.x -2.38846 != -1.63498
+gacha@1024x900/dino/reveal/0: layer5.rect.y -1.2676 != -0.902
+gacha@1024x900/dino/reveal/0: layer24.rect.w 1.0247 != 1.02469
+gacha@1024x900/zhencao/reveal/0: layer5.rect.x -2.38846 != -1.63498
+gacha@1024x900/zhencao/reveal/0: layer5.rect.y -1.2676 != -0.902
+gacha@1024x900/zhencao/reveal/0: layer24.rect.w 1.0247 != 1.02469
+gacha@1024x900/dino/reveal/1: layer5.rect.x -2.38846 != -1.63498
+gacha@1024x900/dino/reveal/1: layer5.rect.y -1.2676 != -0.902
+gacha@1024x900/dino/reveal/1: layer24.rect.w 1.0247 != 1.02469
+gacha@1024x900/salamander/reveal/0: layer5.rect.x -2.38846 != -1.63498
+gacha@1024x900/salamander/reveal/0: layer5.rect.y -1.2676 != -0.902
+gacha@1024x900/salamander/reveal/0: layer24.rect.w 1.0247 != 1.02469
+gacha@1024x900/fluffdog/reveal/0: layer24.rect.w 1.0247 != 1.02469
+gacha@1024x900/dino/reveal/2: layer5.rect.x -2.38846 != -1.63498
+gacha@1024x900/dino/reveal/2: layer5.rect.y -1.2676 != -0.902
+gacha@1024x900/dino/reveal/2: layer24.rect.w 1.0247 != 1.02469
+D:\claude\clawd-pet-50\docs\clicker\shots\parity\asset-layers-scope3.json

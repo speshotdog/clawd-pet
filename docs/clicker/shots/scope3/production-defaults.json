@@ -1,0 +1,20 @@
+[
+  {
+    "file": "cards-remade-standalone.html",
+    "productionSha256": "37f81745f1d4c7e2be9c75b9893b39b0401d0b62600f280352b7611c91cfe228",
+    "currentOptionSha256": "37f81745f1d4c7e2be9c75b9893b39b0401d0b62600f280352b7611c91cfe228",
+    "identical": true
+  },
+  {
+    "file": "deluxe-gacha-b-standalone.html",
+    "productionSha256": "1ddc7470b3cedbcd629548392d43a974430bb3589d1a446ab53e27621532a512",
+    "currentOptionSha256": "1ddc7470b3cedbcd629548392d43a974430bb3589d1a446ab53e27621532a512",
+    "identical": true
+  },
+  {
+    "file": "deluxe-gacha-b-test-standalone.html",
+    "productionSha256": "0c1482510a4cd3a5d3b155241b80a756560e0b6773f1258e26b8c63f43247c72",
+    "currentOptionSha256": "0c1482510a4cd3a5d3b155241b80a756560e0b6773f1258e26b8c63f43247c72",
+    "identical": true
+  }
+]

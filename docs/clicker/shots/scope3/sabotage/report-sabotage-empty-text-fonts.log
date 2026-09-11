@@ -1,0 +1,51 @@
+FAIL schema: gacha@1440x1200/0: source name text
+FAIL schema: gacha@1440x1200/0: source rarity text
+FAIL schema: gacha@1440x1200/0: nonempty fonts
+FAIL schema: gacha@1440x1200/0: nonempty fonts
+FAIL schema: gacha@1440x1200/1: source name text
+FAIL schema: gacha@1440x1200/1: source rarity text
+FAIL schema: gacha@1440x1200/1: nonempty fonts
+FAIL schema: gacha@1440x1200/1: nonempty fonts
+FAIL schema: gacha@1440x1200/2: source name text
+FAIL schema: gacha@1440x1200/2: source rarity text
+FAIL schema: gacha@1440x1200/2: nonempty fonts
+FAIL schema: gacha@1440x1200/2: nonempty fonts
+FAIL schema: gacha@1440x1200/3: source name text
+FAIL schema: gacha@1440x1200/3: source rarity text
+FAIL schema: gacha@1440x1200/3: nonempty fonts
+FAIL schema: gacha@1440x1200/3: nonempty fonts
+FAIL schema: gacha@1440x1200/4: source name text
+FAIL schema: gacha@1440x1200/4: source rarity text
+FAIL schema: gacha@1440x1200/4: nonempty fonts
+FAIL schema: gacha@1440x1200/4: nonempty fonts
+FAIL schema: gacha@1440x1200/5: source name text
+FAIL schema: gacha@1440x1200/5: source rarity text
+FAIL schema: gacha@1440x1200/5: nonempty fonts
+FAIL schema: gacha@1440x1200/5: nonempty fonts
+FAIL schema: gacha@1440x1200/6: source name text
+FAIL schema: gacha@1440x1200/6: source rarity text
+FAIL schema: gacha@1440x1200/6: nonempty fonts
+FAIL schema: gacha@1440x1200/6: nonempty fonts
+FAIL schema: gacha@1440x1200/7: source name text
+FAIL schema: gacha@1440x1200/7: source rarity text
+FAIL schema: gacha@1440x1200/7: nonempty fonts
+FAIL schema: gacha@1440x1200/7: nonempty fonts
+FAIL schema: gacha@1440x1200/8: source name text
+FAIL schema: gacha@1440x1200/8: source rarity text
+FAIL schema: gacha@1440x1200/8: nonempty fonts
+FAIL schema: gacha@1440x1200/8: nonempty fonts
+FAIL schema: gacha@1440x1200/9: source name text
+FAIL schema: gacha@1440x1200/9: source rarity text
+FAIL schema: gacha@1440x1200/9: nonempty fonts
+FAIL schema: gacha@1440x1200/9: nonempty fonts
+FAIL schema: gacha@1440x1200/10: source name text
+FAIL schema: gacha@1440x1200/10: source rarity text
+FAIL schema: gacha@1440x1200/10: nonempty fonts
+FAIL schema: gacha@1440x1200/10: nonempty fonts
+FAIL schema: gacha@1440x1200/11: source name text
+FAIL schema: gacha@1440x1200/11: source rarity text
+FAIL schema: gacha@1440x1200/11: nonempty fonts
+FAIL schema: gacha@1440x1200/11: nonempty fonts
+FAIL schema: gacha@1440x1200/12: source name text
+FAIL schema: gacha@1440x1200/12: source rarity text
+FAIL schema errors: 7680

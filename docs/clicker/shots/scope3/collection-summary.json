@@ -1,0 +1,19 @@
+{
+  "entryCount": 7,
+  "viewportRecords": 21,
+  "records": 1920,
+  "fontRoleSamples": 3840,
+  "unexpectedFallbackRoles": 0,
+  "pageErrors": 0,
+  "artifactsUnchanged": true,
+  "sourceArtifactCount": 358,
+  "perEntryRecords": {
+    "gacha": 60,
+    "gacha-standalone": 60,
+    "gacha-test": 378,
+    "gacha-test-standalone": 378,
+    "pool": 378,
+    "pool-standalone": 378,
+    "team": 288
+  }
+}

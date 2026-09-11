@@ -1,0 +1,13 @@
+FAIL schema: gacha-test@1440x1200: batch coverage
+FAIL schema: gacha-test@1440x1200: batch coverage
+FAIL schema: gacha-test@1024x900: batch coverage
+FAIL schema: gacha-test@1024x900: batch coverage
+FAIL schema: gacha-test@390x844: batch coverage
+FAIL schema: gacha-test@390x844: batch coverage
+FAIL schema: gacha-test-standalone@1440x1200: batch coverage
+FAIL schema: gacha-test-standalone@1440x1200: batch coverage
+FAIL schema: gacha-test-standalone@1024x900: batch coverage
+FAIL schema: gacha-test-standalone@1024x900: batch coverage
+FAIL schema: gacha-test-standalone@390x844: batch coverage
+FAIL schema: gacha-test-standalone@390x844: batch coverage
+FAIL schema errors: 12

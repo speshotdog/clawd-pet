@@ -1,0 +1,252 @@
+{
+  "html_bytes": 5984408,
+  "html_sha256": "56b723cf70352a6e1c0aed9c4112ac350af0d78c72afaa5cec969bb2ab356d96",
+  "terrain_quality": 94,
+  "team_cards": [
+    {
+      "id": "rocketdog",
+      "name": "宇宙冒險羊",
+      "rarity": "mythic",
+      "kind": "depth"
+    },
+    {
+      "id": "liulangyueshou",
+      "name": "流浪玥手",
+      "rarity": "mythic",
+      "kind": "framed"
+    },
+    {
+      "id": "mieshi",
+      "name": "滅世珍獸",
+      "rarity": "mythic",
+      "kind": "flat"
+    },
+    {
+      "id": "qinghua",
+      "name": "青花膠",
+      "rarity": "mythic",
+      "kind": "framed"
+    },
+    {
+      "id": "alienkitty",
+      "name": "天外膠膠",
+      "rarity": "legendary",
+      "kind": "depth"
+    },
+    {
+      "id": "foxfriend",
+      "name": "摯友之狐",
+      "rarity": "legendary",
+      "kind": "framed"
+    },
+    {
+      "id": "jiaotou",
+      "name": "膠頭燃額",
+      "rarity": "legendary",
+      "kind": "framed"
+    },
+    {
+      "id": "jinggou",
+      "name": "警狗",
+      "rarity": "legendary",
+      "kind": "framed"
+    },
+    {
+      "id": "jintianwoshengri",
+      "name": "今天我生日",
+      "rarity": "legendary",
+      "kind": "framed"
+    },
+    {
+      "id": "lksphinx",
+      "name": "獅身ㄌㄎ",
+      "rarity": "legendary",
+      "kind": "framed"
+    },
+    {
+      "id": "astronaut",
+      "name": "玥面探索者",
+      "rarity": "epic",
+      "kind": "depth"
+    },
+    {
+      "id": "fluffdog",
+      "name": "居家珍獸",
+      "rarity": "epic",
+      "kind": "depth"
+    },
+    {
+      "id": "bianbiancaihua",
+      "name": "扁扁彩華",
+      "rarity": "epic",
+      "kind": "framed"
+    },
+    {
+      "id": "bingyang",
+      "name": "冰羊咩",
+      "rarity": "epic",
+      "kind": "framed"
+    },
+    {
+      "id": "chengtiregou",
+      "name": "成體熱狗",
+      "rarity": "epic",
+      "kind": "framed"
+    },
+    {
+      "id": "gebugou",
+      "name": "哥不狗",
+      "rarity": "epic",
+      "kind": "framed"
+    },
+    {
+      "id": "alu",
+      "name": "阿漉",
+      "rarity": "rare",
+      "kind": "framed"
+    },
+    {
+      "id": "chaichai",
+      "name": "柴柴",
+      "rarity": "rare",
+      "kind": "framed"
+    },
+    {
+      "id": "guanjiu",
+      "name": "罐酒",
+      "rarity": "rare",
+      "kind": "framed"
+    },
+    {
+      "id": "jiaochi",
+      "name": "膠齒",
+      "rarity": "rare",
+      "kind": "framed"
+    },
+    {
+      "id": "jiaolan",
+      "name": "膠頭爛額",
+      "rarity": "rare",
+      "kind": "framed"
+    },
+    {
+      "id": "manhua",
+      "name": "滿花",
+      "rarity": "rare",
+      "kind": "framed"
+    },
+    {
+      "id": "miepupu",
+      "name": "咩噗噗噗",
+      "rarity": "rare",
+      "kind": "framed"
+    },
+    {
+      "id": "miepuxiong",
+      "name": "咩噗熊",
+      "rarity": "rare",
+      "kind": "framed"
+    }
+  ],
+  "frozen_css_sha256": "a0fe59cb97c6cfd3272c102a1179111066adb21511a164a394b0510cd788818b",
+  "terrain_size": [
+    971,
+    1619
+  ],
+  "crops": {
+    "check": {
+      "cell": [
+        0,
+        0,
+        627,
+        627
+      ],
+      "source_box": [
+        112,
+        132,
+        516,
+        506
+      ],
+      "size": [
+        404,
+        374
+      ],
+      "lossless": true,
+      "retained_pixels": 63790,
+      "removed_pixels": 87306
+    },
+    "lock": {
+      "cell": [
+        627,
+        0,
+        1254,
+        627
+      ],
+      "source_box": [
+        804,
+        105,
+        1129,
+        521
+      ],
+      "size": [
+        325,
+        416
+      ],
+      "lossless": true,
+      "retained_pixels": 102054,
+      "removed_pixels": 33146
+    },
+    "paw": {
+      "cell": [
+        0,
+        627,
+        627,
+        1254
+      ],
+      "source_box": [
+        109,
+        744,
+        506,
+        1119
+      ],
+      "size": [
+        397,
+        375
+      ],
+      "lossless": true,
+      "retained_pixels": 96639,
+      "removed_pixels": 52236
+    },
+    "gate": {
+      "cell": [
+        627,
+        627,
+        1254,
+        1254
+      ],
+      "source_box": [
+        682,
+        738,
+        1219,
+        1142
+      ],
+      "size": [
+        537,
+        404
+      ],
+      "lossless": true,
+      "retained_pixels": 151289,
+      "removed_pixels": 65659
+    }
+  },
+  "cutout_method": {
+    "connectivity": 4,
+    "cream_min_channel": 235,
+    "cream_max_channel_spread": 25,
+    "changes": "alpha only; original RGB untouched"
+  },
+  "sources": {
+    "seg1-backyard-ruin.png": "d12fc0cb883c850c3943239a95fce6d4550af828907e758e9c80fb62f7996cce",
+    "icons-sheet.png": "8f11911e0642075a7536671faa64d5806e0083efb8a3a8b975488fa3a8c0eb31"
+  }
+}
