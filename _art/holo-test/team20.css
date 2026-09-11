@@ -141,3 +141,18 @@ body[data-screen=team]{background:#101115;color:#ecece6}
 #team-grid .overview-face{transition:scale 180ms ease-out}
 #team-grid .team-proxy:hover .overview-face,#team-grid .team-proxy[aria-selected=true] .overview-face{scale:1.04}
 #team-grid .team-proxy:hover,#team-grid .team-proxy[aria-selected=true]{position:relative;z-index:1}
+/* 2026-09-12 技能挑選卡片化＋拖曳（ORDER-2026-09-12-picker-drag.md 第 2.2／2.3 節） */
+#team-grid,.picker-grid,.team-skills{user-select:none;-webkit-user-select:none}
+.team-proxy img,.drag-ghost img{-webkit-user-drag:none}
+.picker-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+.picker-grid .team-proxy{max-width:132px}
+.skill-slot{position:relative}
+.skill-slot.drop-target{outline:2px solid var(--accent-card,#bcc3b3);outline-offset:2px;background:color-mix(in srgb,var(--accent-card,#bcc3b3) 14%,transparent)!important}
+.skill-status{font-size:13px;line-height:18px;min-height:18px;margin:6px 0 0;color:var(--muted,#bcc3b3)}
+#drag-layer{position:fixed;inset:0;pointer-events:none;z-index:60}
+.drag-ghost{position:absolute;left:0;top:0;pointer-events:none;will-change:translate;filter:drop-shadow(0 12px 18px #0009)}
+.drag-ghost .proxy-image{display:block;position:relative;width:100%;height:100%;aspect-ratio:auto;border:0;background:transparent}
+.dragging #team-grid .team-proxy:hover .overview-face{scale:1}
+.dragging #team-grid .team-proxy.drag-source .overview-face{opacity:.55}
+.dragging,.dragging *{cursor:grabbing;user-select:none;-webkit-user-select:none}
+@media(min-width:701px){#team-grid .team-proxy{cursor:grab}}
