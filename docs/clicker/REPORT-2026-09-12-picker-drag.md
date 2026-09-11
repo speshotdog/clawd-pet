@@ -154,3 +154,12 @@ ghost 角：3 卡型 × 2 viewport × 3 時點 = 18 個狀態，每個 ghost **4
 2. 命令 5 字型子集 bytes 差異：Astra 第一次 VERDICT **已裁接受重建產物為新基準**（fontTools 解 XML 除 checkSumAdjustment 外全同）；不更新歷史 manifest、`protected_files_changed=1` 不改 PASS。
 3. 手機（≤700px／touch）**沒有**拖曳（ORDER 2.2 決定），走原本點格開挑選器。
 4. 技能來源／效果／戰力／持久化未定義（不代決）。
+
+## 七、證據入庫範圍（推送前裁剪）
+
+第一次 push 被 GitHub pre-receive 拒絕：`shots/parity/parity-picker-drag.json` 168 MB 超過 100 MB；且 `shots/picker-drag/` 追蹤了 5.1 GB／4,682 檔。
+處置（本地未推 commit 以 `filter-branch` 改寫，訊息不變；改寫前打了 tag `pre-prune-20260912`）：
+- JSON／log／txt 全部入庫（每個掃描的 `summary.json` 含逐張幾何與逐角數字）。
+- PNG 只入庫：`corners-chromium-v4/`（最終判定式的完整 52 狀態）、`corner-selftest-3/`、`negative/`、`drag/`、`picker/`、`build/`。
+- GPU 組（chrome／edge 各版）、regression、pixels、entry-pixels、superseded、verify* 的 PNG 留在本機 `D:\claude研究\clawd-pet-50`，`.gitignore` 排除；要看原圖到這台機器或重跑對應命令。
+- parity 大 JSON 改存 `parity-picker-drag.json.gz`（用法同 HANDOFF-2026-09-11 第 28 行）。

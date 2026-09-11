@@ -82,3 +82,13 @@ docs/clicker/shots/round33/**/measure-gacha-after.json
 !docs/clicker/shots/round33/dev-D-entry.png
 !docs/clicker/shots/round33/dev-D-keyboard-focus.png
 !docs/clicker/shots/round33/portable-A-1024-mythic-450.png
+
+# 2026-09-12 picker-drag 證據：PNG 只入庫關鍵組，其餘留本機（5GB 推不上 GitHub）；parity 大 JSON 走 .gz
+docs/clicker/shots/picker-drag/**/*.png
+!docs/clicker/shots/picker-drag/corners-chromium-v4/*.png
+!docs/clicker/shots/picker-drag/corner-selftest-3/*.png
+!docs/clicker/shots/picker-drag/negative/**/*.png
+!docs/clicker/shots/picker-drag/drag/*.png
+!docs/clicker/shots/picker-drag/picker/*.png
+!docs/clicker/shots/picker-drag/build/*.png
+docs/clicker/shots/parity/parity-picker-drag.json
