@@ -3,7 +3,8 @@
 執行：Claude。指揮：Astra（`ORDER-2026-09-12-picker-drag.md`）。簡報：`BRIEF-2026-09-12-picker-drag.md`。
 使用者入睡前指示：「持續 LOOP 工作，把已經規劃好的東西一路建設下去」。**沒有上線、沒有出 exe。**
 
-> 兩項結論分開：**新功能已照 ORDER 驗收**；**使用者的黑角回報仍未結案**（本輪環境掃不到，等使用者醒後提供畫面／卡名／DPR／執行環境）。
+> Astra 三次複驗：v1 EXIT 1（flat 漏測、ghost 充數）→ v2 EXIT 1（整批取消必測）→ **v3 EXIT 0**。
+> 兩項結論分開：**新功能已照 ORDER 驗收（Astra v3 EXIT 0）**；**使用者的黑角回報仍未結案**（本輪環境掃不到，等使用者醒後提供畫面／卡名／DPR／執行環境）。
 
 ---
 
@@ -150,6 +151,6 @@ ghost 角：3 卡型 × 2 viewport × 3 時點 = 18 個狀態，每個 ghost **4
 ## 六、未完成／待裁決
 
 1. **使用者黑角回報未結案**：需醒後提供畫面、卡名、截圖、DPR、Tauri 或瀏覽器。Edge 不代替 Tauri 實機。
-2. 命令 5 字型子集 bytes 差異（上述）等 Astra 裁：接受重建產物為新基準，或改回 HEAD bytes。
+2. 命令 5 字型子集 bytes 差異：Astra 第一次 VERDICT **已裁接受重建產物為新基準**（fontTools 解 XML 除 checkSumAdjustment 外全同）；不更新歷史 manifest、`protected_files_changed=1` 不改 PASS。
 3. 手機（≤700px／touch）**沒有**拖曳（ORDER 2.2 決定），走原本點格開挑選器。
 4. 技能來源／效果／戰力／持久化未定義（不代決）。

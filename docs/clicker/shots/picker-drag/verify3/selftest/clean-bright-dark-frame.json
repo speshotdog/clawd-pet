@@ -1,0 +1,93 @@
+{
+ "cards": [
+  {
+   "x": 200,
+   "y": 120,
+   "w": 400,
+   "h": 560,
+   "cw": 400,
+   "ch": 560,
+   "occluders": [],
+   "quad": [
+    [
+     200,
+     120
+    ],
+    [
+     600,
+     120
+    ],
+    [
+     200,
+     680
+    ],
+    [
+     600,
+     680
+    ]
+   ],
+   "radius": 12,
+   "cls": "hcard",
+   "vis": true,
+   "occluded": false,
+   "id": "",
+   "ghost": false
+  }
+ ],
+ "rows": [
+  {
+   "card": 0,
+   "cls": "hcard",
+   "corner": "TL",
+   "local_ref": 244.0,
+   "darkest": 236.0,
+   "outside_px": 23,
+   "outside_median": 241.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  },
+  {
+   "card": 0,
+   "cls": "hcard",
+   "corner": "TR",
+   "local_ref": 244.0,
+   "darkest": 236.0,
+   "outside_px": 23,
+   "outside_median": 241.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  },
+  {
+   "card": 0,
+   "cls": "hcard",
+   "corner": "BL",
+   "local_ref": 201.0,
+   "darkest": 181.0,
+   "outside_px": 23,
+   "outside_median": 192.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  },
+  {
+   "card": 0,
+   "cls": "hcard",
+   "corner": "BR",
+   "local_ref": 201.0,
+   "darkest": 181.0,
+   "outside_px": 23,
+   "outside_median": 192.0,
+   "near_black_pct": 0.0,
+   "much_darker_pct": 0.0
+  }
+ ],
+ "skipped": [],
+ "samples": 4,
+ "bad": 0,
+ "status": "PASS",
+ "thresholds": {
+  "fraction": 8,
+  "darkest": 12,
+  "dpr": 1.0,
+  "ring": 8
+ }
+}
