@@ -1,0 +1,12 @@
+  FAIL picker.visible_buttons: 23 (expect 24..24) 
+>>> negative-sub: 1/2 斷言通過 → FAIL
+  FAIL pixels.name.mean: 63.51612132791975 (expect 0.0..1.0) 
+  FAIL pixels.name.over32: 0.5276649948252528 (expect 0.0..0.01) 
+  FAIL pixels.name.ink_same: False (expect True..True) 
+>>> negative-sub: 0/3 斷言通過 → FAIL
+  FAIL drag.label2_assigns_index1: None (expect alienkitty..alienkitty) 
+  FAIL drag.others_none: [null, "alienkitty", null] (expect [null, null, null]..[null, null, null]) 
+>>> negative-sub: 0/2 斷言通過 → FAIL
+  FAIL selection.roi_diff_fraction: 0.6863339751818571 (expect 0.0..0.001) 真實選區覆色必須被差分抓到
+>>> negative-sub: 0/1 斷言通過 → FAIL
+>>> negative: 4/4 斷言通過 → PASS

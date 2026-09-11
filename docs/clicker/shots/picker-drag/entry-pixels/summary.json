@@ -1,0 +1,2154 @@
+{
+ "suite": "entry-pixels",
+ "checks": 208,
+ "failed": 0,
+ "fails": [],
+ "ok": true,
+ "runs": [
+  {
+   "viewport": "1440x1200",
+   "card": "rocketdog",
+   "gateExit": 0,
+   "pixelExit": 0
+  },
+  {
+   "viewport": "1440x1200",
+   "card": "chaichai",
+   "gateExit": 0,
+   "pixelExit": 0
+  },
+  {
+   "viewport": "1440x1200",
+   "card": "mieshi",
+   "gateExit": 0,
+   "pixelExit": 0
+  },
+  {
+   "viewport": "1024x900",
+   "card": "rocketdog",
+   "gateExit": 0,
+   "pixelExit": 0
+  },
+  {
+   "viewport": "1024x900",
+   "card": "chaichai",
+   "gateExit": 0,
+   "pixelExit": 0
+  },
+  {
+   "viewport": "1024x900",
+   "card": "mieshi",
+   "gateExit": 0,
+   "pixelExit": 0
+  },
+  {
+   "viewport": "390x844",
+   "card": "rocketdog",
+   "gateExit": 0,
+   "pixelExit": 0
+  },
+  {
+   "viewport": "390x844",
+   "card": "chaichai",
+   "gateExit": 0,
+   "pixelExit": 0
+  },
+  {
+   "viewport": "390x844",
+   "card": "mieshi",
+   "gateExit": 0,
+   "pixelExit": 0
+  }
+ ],
+ "scope": [
+  "gacha",
+  "gacha-standalone",
+  "gacha-test",
+  "gacha-test-standalone",
+  "pool",
+  "pool-standalone",
+  "team"
+ ],
+ "all": [
+  {
+   "name": "1440x1200.rocketdog.gate",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.pixels",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha-standalone.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha-test.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha-test.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha-test.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha-test-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha-test-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.gacha-test-standalone.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.pool.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.pool.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.pool.std",
+   "value": 87.25858413352987,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.pool-standalone.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.pool-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.pool-standalone.std",
+   "value": 87.25858413352987,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.team.mean",
+   "value": 0.08597051986475063,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.team.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.rocketdog.team.std",
+   "value": 87.26801153935935,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gate",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.pixels",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha-standalone.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha-test.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha-test.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha-test.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha-test-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha-test-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.gacha-test-standalone.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.pool.mean",
+   "value": 2.113271344040575e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.pool.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.pool.std",
+   "value": 59.38627140668261,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.pool-standalone.mean",
+   "value": 2.113271344040575e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.pool-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.pool-standalone.std",
+   "value": 59.38627140668261,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.team.mean",
+   "value": 0.049461115807269654,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.team.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.chaichai.team.std",
+   "value": 59.390546650602914,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gate",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.pixels",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha-standalone.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha-test.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha-test.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha-test.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha-test-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha-test-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.gacha-test-standalone.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.pool.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.pool.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.pool.std",
+   "value": 79.36782023417432,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.pool-standalone.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.pool-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.pool-standalone.std",
+   "value": 79.36782023417432,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.team.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.team.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1440x1200.mieshi.team.std",
+   "value": 79.36782023417432,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gate",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.pixels",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha-standalone.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha-test.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha-test.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha-test.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha-test-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha-test-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.gacha-test-standalone.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.pool.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.pool.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.pool.std",
+   "value": 87.25858413352987,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.pool-standalone.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.pool-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.pool-standalone.std",
+   "value": 87.25858413352987,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.team.mean",
+   "value": 0.08597051986475063,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.team.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.rocketdog.team.std",
+   "value": 87.26801153935935,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gate",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.pixels",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha-standalone.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha-test.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha-test.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha-test.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha-test-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha-test-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.gacha-test-standalone.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.pool.mean",
+   "value": 2.113271344040575e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.pool.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.pool.std",
+   "value": 59.38627140668261,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.pool-standalone.mean",
+   "value": 2.113271344040575e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.pool-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.pool-standalone.std",
+   "value": 59.38627140668261,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.team.mean",
+   "value": 0.049461115807269654,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.team.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.chaichai.team.std",
+   "value": 59.390546650602914,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gate",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.pixels",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha-standalone.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha-test.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha-test.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha-test.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha-test-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha-test-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.gacha-test-standalone.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.pool.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.pool.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.pool.std",
+   "value": 79.36782023417432,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.pool-standalone.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.pool-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.pool-standalone.std",
+   "value": 79.36782023417432,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.team.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.team.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "1024x900.mieshi.team.std",
+   "value": 79.36782023417432,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gate",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.pixels",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha-standalone.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha-test.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha-test.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha-test.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha-test-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha-test-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.gacha-test-standalone.std",
+   "value": 87.2585865314902,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.pool.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.pool.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.pool.std",
+   "value": 87.25858413352987,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.pool-standalone.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.pool-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.pool-standalone.std",
+   "value": 87.25858413352987,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.team.mean",
+   "value": 0.08597051986475063,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.team.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.rocketdog.team.std",
+   "value": 87.26801153935935,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gate",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.pixels",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha-standalone.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha-test.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha-test.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha-test.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha-test-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha-test-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.gacha-test-standalone.std",
+   "value": 59.38627507055427,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.pool.mean",
+   "value": 2.113271344040575e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.pool.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.pool.std",
+   "value": 59.38627140668261,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.pool-standalone.mean",
+   "value": 2.113271344040575e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.pool-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.pool-standalone.std",
+   "value": 59.38627140668261,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.team.mean",
+   "value": 0.049461115807269654,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.team.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.chaichai.team.std",
+   "value": 59.390546650602914,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gate",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.pixels",
+   "value": 0,
+   "expect": [
+    0,
+    0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha-standalone.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha-test.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha-test.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha-test.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha-test-standalone.mean",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha-test-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.gacha-test-standalone.std",
+   "value": 79.36782266240684,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.pool.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.pool.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.pool.std",
+   "value": 79.36782023417432,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.pool-standalone.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.pool-standalone.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.pool-standalone.std",
+   "value": 79.36782023417432,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.team.mean",
+   "value": 2.6415891800507184e-05,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.team.over32",
+   "value": 0.0,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "390x844.mieshi.team.std",
+   "value": 79.36782023417432,
+   "expect": [
+    8.0001,
+    1000000000.0
+   ],
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "gates",
+   "value": 9,
+   "expect": [
+    9,
+    9
+   ],
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

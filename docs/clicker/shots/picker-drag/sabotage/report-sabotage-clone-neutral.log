@@ -1,0 +1,4 @@
+FAIL schema: gacha@1440x1200: exact native/neutral multiplicity
+FAIL schema: gacha@1024x900: exact native/neutral multiplicity
+FAIL schema: gacha@390x844: exact native/neutral multiplicity
+FAIL schema errors: 3

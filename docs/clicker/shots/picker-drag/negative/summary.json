@@ -1,0 +1,55 @@
+{
+ "suite": "negative",
+ "checks": 4,
+ "failed": 0,
+ "fails": [],
+ "ok": true,
+ "results": {
+  "fewer-cards": 1,
+  "wrong-rank-ink": 1,
+  "wrong-slot": 1,
+  "real-selection": 1
+ },
+ "all": [
+  {
+   "name": "negative.fewer-cards.rejected",
+   "value": 1,
+   "expect": [
+    1,
+    1
+   ],
+   "ok": true,
+   "note": "子案例必須 exit 1"
+  },
+  {
+   "name": "negative.wrong-rank-ink.rejected",
+   "value": 1,
+   "expect": [
+    1,
+    1
+   ],
+   "ok": true,
+   "note": "子案例必須 exit 1"
+  },
+  {
+   "name": "negative.wrong-slot.rejected",
+   "value": 1,
+   "expect": [
+    1,
+    1
+   ],
+   "ok": true,
+   "note": "子案例必須 exit 1"
+  },
+  {
+   "name": "negative.real-selection.rejected",
+   "value": 1,
+   "expect": [
+    1,
+    1
+   ],
+   "ok": true,
+   "note": "子案例必須 exit 1"
+  }
+ ]
+}

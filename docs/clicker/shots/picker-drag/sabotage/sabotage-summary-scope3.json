@@ -1,0 +1,344 @@
+{
+  "cleanExit": 0,
+  "sourceSha256": "9bab09c195cc76ff7134cc8942af8a2e5975e7c5d309e03d636bf6674e9e59bb",
+  "sourceUnchanged": true,
+  "cases": [
+    {
+      "case": "drop-entry",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "drop-card",
+      "exit": 1,
+      "failAssertions": 8,
+      "pass": true
+    },
+    {
+      "case": "drop-detail",
+      "exit": 1,
+      "failAssertions": 7,
+      "pass": true
+    },
+    {
+      "case": "blank-required",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "shrink-manifest",
+      "exit": 1,
+      "failAssertions": 9,
+      "pass": true
+    },
+    {
+      "case": "hollow-geometry",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "clone-one-slot",
+      "exit": 1,
+      "failAssertions": 13,
+      "pass": true
+    },
+    {
+      "case": "zero-complete",
+      "exit": 1,
+      "failAssertions": 3,
+      "pass": true
+    },
+    {
+      "case": "detail-offscreen",
+      "exit": 1,
+      "failAssertions": 3,
+      "pass": true
+    },
+    {
+      "case": "drop-error-fields",
+      "exit": 1,
+      "failAssertions": 43,
+      "pass": true
+    },
+    {
+      "case": "drop-instance",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "drop-design-keys",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "truncate-fixture",
+      "exit": 1,
+      "failAssertions": 13,
+      "pass": true
+    },
+    {
+      "case": "clone-neutral",
+      "exit": 1,
+      "failAssertions": 4,
+      "pass": true
+    },
+    {
+      "case": "nan-values",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "null-errors",
+      "exit": 1,
+      "failAssertions": 43,
+      "pass": true
+    },
+    {
+      "case": "null-styles",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "empty-text-fonts",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "missing-batch",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "collapsed-batch",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "name-array",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "name-geometry",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "css-nan",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "one-pixel-detail",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "decode-failure",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "refit-failure",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "stale-artifact",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "stale-shot",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "empty-layers",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "gradient-content",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "mask-content",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "pseudo-element",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "internal-transform",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "bad-glyph-count",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "boolean-geometry",
+      "exit": 1,
+      "failAssertions": 4,
+      "pass": true
+    },
+    {
+      "case": "zero-name",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "slot-mismatch",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "drop-layer-key",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "duplicate-pool",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "zero-image",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "malformed-layer",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "malformed-fonts",
+      "exit": 1,
+      "failAssertions": 4,
+      "pass": true
+    },
+    {
+      "case": "wrong-sample-location",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "assets-drop-team",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "assets-only-reference",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "assets-drop-viewport",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "assets-drop-detail",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "malformed-decode-evidence",
+      "exit": 1,
+      "failAssertions": 3,
+      "pass": true
+    },
+    {
+      "case": "duplicate-decode-evidence",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "wrong-controlled-width",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "wrong-kind",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "wrong-card-id",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "mobile-gradient",
+      "exit": 1,
+      "failAssertions": 1,
+      "pass": true
+    },
+    {
+      "case": "oversized-fitting-name",
+      "exit": 1,
+      "failAssertions": 51,
+      "pass": true
+    },
+    {
+      "case": "different-encoding-identical-pixels",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    },
+    {
+      "case": "missing-asset-identity",
+      "exit": 1,
+      "failAssertions": 2,
+      "pass": true
+    }
+  ],
+  "pass": true
+}

@@ -1,0 +1,30 @@
+{
+ "suite": "negative-sub",
+ "checks": 1,
+ "failed": 1,
+ "fails": [
+  {
+   "name": "selection.roi_diff_fraction",
+   "value": 0.674393809727571,
+   "expect": [
+    0.0,
+    0.001
+   ],
+   "ok": false,
+   "note": "真實選區覆色必須被差分抓到"
+  }
+ ],
+ "ok": false,
+ "all": [
+  {
+   "name": "selection.roi_diff_fraction",
+   "value": 0.674393809727571,
+   "expect": [
+    0.0,
+    0.001
+   ],
+   "ok": false,
+   "note": "真實選區覆色必須被差分抓到"
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+ "suite": "negative-sub",
+ "checks": 3,
+ "failed": 3,
+ "fails": [
+  {
+   "name": "pixels.name.mean",
+   "value": 63.51612132791975,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": false,
+   "note": ""
+  },
+  {
+   "name": "pixels.name.over32",
+   "value": 0.5276649948252528,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": false,
+   "note": ""
+  },
+  {
+   "name": "pixels.name.ink_same",
+   "value": false,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": false,
+   "note": ""
+  }
+ ],
+ "ok": false,
+ "all": [
+  {
+   "name": "pixels.name.mean",
+   "value": 63.51612132791975,
+   "expect": [
+    0.0,
+    1.0
+   ],
+   "ok": false,
+   "note": ""
+  },
+  {
+   "name": "pixels.name.over32",
+   "value": 0.5276649948252528,
+   "expect": [
+    0.0,
+    0.01
+   ],
+   "ok": false,
+   "note": ""
+  },
+  {
+   "name": "pixels.name.ink_same",
+   "value": false,
+   "expect": [
+    true,
+    true
+   ],
+   "ok": false,
+   "note": ""
+  }
+ ]
+}

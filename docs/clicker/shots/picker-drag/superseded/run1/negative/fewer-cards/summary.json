@@ -1,0 +1,40 @@
+{
+ "suite": "negative-sub",
+ "checks": 2,
+ "failed": 1,
+ "fails": [
+  {
+   "name": "picker.visible_buttons",
+   "value": 23,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": false,
+   "note": ""
+  }
+ ],
+ "ok": false,
+ "all": [
+  {
+   "name": "picker.visible_buttons",
+   "value": 23,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": false,
+   "note": ""
+  },
+  {
+   "name": "picker.one_face_each",
+   "value": 24,
+   "expect": [
+    24,
+    24
+   ],
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

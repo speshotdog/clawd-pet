@@ -1,0 +1,59 @@
+clean              未破壞的對照                       exit=0 FAIL=0  OK
+drop-entry         刪掉整個 pool 入口                 exit=1 FAIL=2  OK
+drop-card          刪掉 pool 的 rocketdog          exit=1 FAIL=8  OK
+drop-detail        刪掉編隊全部手機詳情                   exit=1 FAIL=7  OK
+blank-required     pool 全標不可見＋清必填               exit=1 FAIL=51  OK
+shrink-manifest    連 JSON 自帶的預期清單一起改小           exit=1 FAIL=9  OK
+hollow-geometry    幾何物件在、內層欄位掏空                 exit=1 FAIL=51  OK
+clone-one-slot     十連變成同一槽複製十份                  exit=1 FAIL=13  OK
+zero-complete      固定抽卡 complete 改成 0           exit=1 FAIL=3  OK
+detail-offscreen   詳情全部標成視窗外                    exit=1 FAIL=3  OK
+drop-error-fields  錯誤採集欄位整個消失                   exit=1 FAIL=43  OK
+drop-instance      實例序號消失                       exit=1 FAIL=51  OK
+drop-design-keys   必驗設計欄位消失                     exit=1 FAIL=51  OK
+truncate-fixture   固定揭卡證據只剩第一批                  exit=1 FAIL=13  OK
+clone-neutral      中性姿態全換成第一筆複本                 exit=1 FAIL=4  OK
+nan-values         幾何值改成 NaN                    exit=1 FAIL=51  OK
+null-errors        null error arrays            exit=1 FAIL=43  OK
+null-styles        null CSS values              exit=1 FAIL=51  OK
+empty-text-fonts   missing text and fonts       exit=1 FAIL=51  OK
+missing-batch      no sample batch              exit=1 FAIL=51  OK
+collapsed-batch    all samples in batch zero    exit=1 FAIL=51  OK
+name-array         geometry wrong type          exit=1 FAIL=51  OK
+name-geometry      invalid name dimensions and fit exit=1 FAIL=51  OK
+css-nan            NaN inside CSS string        exit=1 FAIL=51  OK
+one-pixel-detail   only one pixel inside viewport exit=1 FAIL=51  OK
+decode-failure     recorded decode failure      exit=1 FAIL=2  OK
+refit-failure      recorded refit failure       exit=1 FAIL=2  OK
+stale-artifact     wrong source hash            exit=1 FAIL=2  OK
+stale-shot         wrong screenshot hash        exit=1 FAIL=2  OK
+empty-layers       missing component tree       exit=1 FAIL=51  OK
+gradient-content   changed complete gradient    exit=1 FAIL=1  OK
+mask-content       changed mask content         exit=1 FAIL=1  OK
+pseudo-element     changed pseudo element       exit=1 FAIL=1  OK
+internal-transform changed internal design transform exit=1 FAIL=1  OK
+bad-glyph-count    empty glyph evidence         exit=1 FAIL=2  OK
+boolean-geometry   boolean instead of number    exit=1 FAIL=4  OK
+zero-name          invisible name width         exit=1 FAIL=2  OK
+slot-mismatch      duplicate batch slot         exit=1 FAIL=2  OK
+drop-layer-key     missing full style key in every entry exit=1 FAIL=1  OK
+duplicate-pool     duplicate native and neutral sample exit=1 FAIL=1  OK
+zero-image         invalid intrinsic image size exit=1 FAIL=1  OK
+malformed-layer    invalid layer object         exit=1 FAIL=2  OK
+malformed-fonts    invalid font evidence object exit=1 FAIL=4  OK
+wrong-sample-location sample record metadata mismatch exit=1 FAIL=2  OK
+assets-drop-team   asset checker: entire team entry missing exit=1 FAIL=1  OK
+assets-only-reference asset checker: only reference remains exit=1 FAIL=1  OK
+assets-drop-viewport asset checker: team viewport missing exit=1 FAIL=1  OK
+assets-drop-detail asset checker: team detail role missing exit=1 FAIL=1  OK
+malformed-decode-evidence decoded image has no dimensions exit=1 FAIL=3  OK
+duplicate-decode-evidence duplicate decoded image index exit=1 FAIL=2  OK
+wrong-controlled-width false controlled width metadata exit=1 FAIL=2  OK
+wrong-kind         card kind contradicts source exit=1 FAIL=2  OK
+wrong-card-id      card ID contradicts canonical ID exit=1 FAIL=2  OK
+mobile-gradient    all mobile entries drift together exit=1 FAIL=1  OK
+oversized-fitting-name impossible name range marked fitting exit=1 FAIL=51  OK
+different-encoding-identical-pixels different encoded bytes even with zero pixel error exit=1 FAIL=2  OK
+missing-asset-identity missing byte identity evidence exit=1 FAIL=2  OK
+
+結果：56/56 種破壞被擋下

@@ -1,0 +1,4 @@
+FAIL schema: gacha@1440x1200/0: finite nameRange.w
+FAIL schema: gacha@1440x1200/0: positive nameRange.w
+FAIL schema: gacha@1440x1200/0: text range contained in card dimensions
+FAIL schema errors: 3
