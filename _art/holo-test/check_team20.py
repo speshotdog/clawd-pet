@@ -14,7 +14,7 @@ from PIL import Image, ImageChops, ImageStat, ImageDraw
 
 
 def run_corner_regression(page,result,out,check,go,freeze):
-    from check_card_corners import measure_corners
+    from check_card_corners import measure_corners, collect_geometry
     result['evidence']['corner_regression']={}
     page.set_viewport_size({'width':1440,'height':900})
     for screen in ['team','map']:
@@ -35,7 +35,7 @@ def run_corner_regression(page,result,out,check,go,freeze):
                     raise RuntimeError('Corner negative control did not reach card faces')
             page.evaluate("()=>[document,...[...document.querySelectorAll('*')].filter(e=>e.shadowRoot).map(e=>e.shadowRoot)].forEach(root=>root.getAnimations().forEach(a=>{a.pause();a.currentTime=0}))")
             freeze(page,0)
-            geometry=page.eval_on_selector_all('.hcard','''es=>es.map(e=>{let b=e.getBoundingClientRect(),s=getComputedStyle(e);return {x:b.x,y:b.y,w:b.width,h:b.height,radius:parseFloat(s.borderTopLeftRadius)||12,cls:e.className}})''')
+            geometry=collect_geometry(page)  # 2026-09-12：投影四角點＋遮擋標記，與 check_card_corner_states.py 同一套
             shot=out/f'{screen}-corners-{state}.png';page.screenshot(path=str(shot))
             measured=measure_corners(Image.open(shot),geometry,fraction=5,darkest_limit=6)
             states[state]=measured
@@ -45,7 +45,7 @@ def run_corner_regression(page,result,out,check,go,freeze):
     (out/'corners.json').write_text(json.dumps(result['evidence']['corner_regression'],ensure_ascii=False,indent=2),encoding='utf-8')
 
 
-def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, pair, contrast, landmarks):
+def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, pair, contrast, landmarks, protected_before=None):
     root=Path(__file__).resolve().parents[2]
     def rects(page, selector):
         # Unlike the map-only helper, the roster has an independent clipping
@@ -59,7 +59,7 @@ def run_team(page, result, out, check, go, freeze, barrier, mask, area, rects, p
         '待人工判定：主要角色輪廓面積 45–70%；flat 無獨立角色遮罩，不能把整幅背景或透明框面積冒充輪廓。',
         'common 暫定併入精良；技能來源尚未定案，本輪不定義技能戰力。'])
     run_corner_regression(page,result,out,check,go,freeze)
-    baseline=json.loads((out/'protected-before.json').read_text(encoding='utf-8'))
+    baseline=json.loads(Path(protected_before or out/'protected-before.json').read_text(encoding='utf-8'))
     changed=[p for p,h in baseline.items() if hashlib.sha256((root/p).read_bytes()).hexdigest()!=h]
     check('team.protected_files_changed',len(changed),0,0,'files');result['evidence']['protected_changed']=changed
     requests=[]

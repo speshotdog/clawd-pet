@@ -19,6 +19,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/clicker/shots/team-round3'
+BUILD_EVIDENCE = OUT / 'build.json'
 URL = (ROOT / '_art/holo-test/map20.html').as_uri()
 RESULT = {'checks': {}, 'evidence': {}, 'manual': ['灰階圖的 C 結構辨識須人工判讀，未以像素差冒充玩家辨識率。']}
 
@@ -181,8 +182,10 @@ def round2(page):
     Whole landmark boxes also serve as conservative core masks: zero overlap
     proves core protection without inventing smaller, favorable core regions.
     """
-    build=json.loads((OUT/'build.json').read_text(encoding='utf-8'))
-    check('build.html_bytes',(ROOT/'_art/holo-test/map20.html').stat().st_size,0,6_000_000,'bytes')
+    build=json.loads(BUILD_EVIDENCE.read_text(encoding='utf-8'))
+    # 2026-09-12：無損編碼裁決（DECISION-2026-09-12-lossless.md）後 map20.html 為 11.6MB；
+    # 上限對齊 build_map20.py 既有的 20MB 預算，不是本輪新放寬。
+    check('build.html_bytes',(ROOT/'_art/holo-test/map20.html').stat().st_size,0,20_000_000,'bytes')
     RESULT['evidence']['build']=build
     RESULT['evidence']['landmark_source_boxes']=LANDMARKS
     RESULT['evidence']['area_method']='Full viewport denominator; current seg1b bounding boxes. Background/border paint and resampled RGBA motif alpha masks; exclude hollow-node interiors and contain letterboxing. SVG routes/brackets sampled at <=1 source px; stroke width rounded up to device pixels. All positive-alpha UI counted in overlap; only alpha=1 subtracted from visible terrain. Whole landmark boxes used for stricter core test.'
@@ -345,8 +348,22 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--headed',action='store_true',help='Run the real tab-hide check in an interactive browser.')
     parser.add_argument('--channel',choices=['chrome','msedge'],help='Installed browser; omit for bundled Chromium.')
+    parser.add_argument('--out',type=Path,help='Evidence directory; default keeps the historical team-round3 folder.')
+    parser.add_argument('--build-evidence',type=Path,help='build.json to read; default <out>/build.json.')
+    parser.add_argument('--protected-before',type=Path,help='protected-before.json to compare; default <out>/protected-before.json.')
     args=parser.parse_args()
+    global OUT
+    if args.out: OUT=args.out.resolve()
     OUT.mkdir(parents=True,exist_ok=True)
+    build_evidence=(args.build_evidence or OUT/'build.json').resolve()
+    protected_before=(args.protected_before or OUT/'protected-before.json').resolve()
+    if not build_evidence.exists():
+        build_evidence=(ROOT/'docs/clicker/shots/team-round3/build.json').resolve()
+    if not protected_before.exists():
+        protected_before=(ROOT/'docs/clicker/shots/team-round3/protected-before.json').resolve()
+    RESULT['evidence']['inputs']={'out':str(OUT),'build_evidence':str(build_evidence),'protected_before':str(protected_before)}
+    global BUILD_EVIDENCE
+    BUILD_EVIDENCE=build_evidence
     errors=[]
     with sync_playwright() as p:
         browser=p.chromium.launch(headless=not args.headed,channel=args.channel)
@@ -509,7 +526,7 @@ def main():
         round3(page)
         (OUT/'map-regression.json').write_text(json.dumps(RESULT,ensure_ascii=False,indent=2),encoding='utf-8')
         from check_team20 import run_team
-        run_team(page, RESULT, OUT, check, go, freeze, barrier, mask, area, rects, pair_images, contrast, LANDMARKS)
+        run_team(page, RESULT, OUT, check, go, freeze, barrier, mask, area, rects, pair_images, contrast, LANDMARKS, protected_before=protected_before)
         check('runtime.errors',len(errors),0,0);RESULT['evidence']['errors']=errors
         browser.close()
     old=json.loads((ROOT/'docs/clicker/shots/map-round3/acceptance.json').read_text(encoding='utf-8'))['checks']
