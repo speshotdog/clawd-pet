@@ -71,7 +71,7 @@ def snapshot(out: Path):
     }
     (out / 'snapshot.json').write_text(json.dumps(snap, ensure_ascii=False, indent=2), encoding='utf-8')
     # 本輪自己的受保護 manifest：歷史 baseline 的檔 + 本輪禁改來源，全部取施工前的現值
-    manifest = {**protected_now, **forbidden}
+    manifest = {k.replace(chr(92), '/'): v for k, v in {**protected_now, **forbidden}.items()}  # 路徑統一斜線，避免同檔算兩次
     (out / 'protected-before.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     print(json.dumps({'head': snap['head'], 'branch': snap['branch'], 'dirty': len(snap['status_short']),
                       'protected_changed_vs_baseline': snap['protected_changed_vs_baseline'],

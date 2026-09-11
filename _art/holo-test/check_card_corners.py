@@ -33,6 +33,8 @@ GEOMETRY_JS = r"""(sel)=>{
   const visible=e=>{let p=e;while(p){const s=getComputedStyle(p);
     if(s.display==='none'||s.visibility==='hidden'||parseFloat(s.opacity)===0)return false;p=up(p)}return true};
   const dlg=document.querySelector('dialog[open]');
+  // contains() 穿不過 shadow root，遮擋判定要沿 host 往上走
+  const within=(e,a)=>{let p=e;while(p){if(p===a)return true;p=up(p)}return false};
   const out=[];
   cs.forEach(e=>{
     const b=e.getBoundingClientRect(); if(b.width<=0||b.height<=0)return;
@@ -44,7 +46,7 @@ GEOMETRY_JS = r"""(sel)=>{
     const rr=parseFloat(cs.borderTopLeftRadius);
     out.push({x:b.x,y:b.y,w:b.width,h:b.height,cw:e.clientWidth||b.width,ch:e.clientHeight||b.height,
       quad:probes,radius:Number.isFinite(rr)&&rr>0?rr:12,cls:String(e.className).slice(0,60),
-      vis:visible(e),occluded:!!(dlg&&!dlg.contains(e)),id:e.dataset.id||''});
+      vis:visible(e),occluded:!!(dlg&&!within(e,dlg)),id:e.dataset.id||''});
   });
   return out;}"""
 

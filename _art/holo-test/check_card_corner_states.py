@@ -27,7 +27,7 @@ RENDERER_JS = ("()=>{const gl=document.createElement('canvas').getContext('webgl
 # 必測狀態（缺一即覆蓋缺口）。拖曳狀態在功能落地前由 suite 依 team20.drag 是否存在決定是否必測。
 REQUIRED_STATES = [
     'pool-static', 'pool-hover', 'pool-standalone-static',
-    'gacha-pack', 'gacha-reveal-face', 'gacha-results', 'gacha-results-hover', 'gacha-results-click',
+    'gacha-reveal-face', 'gacha-results', 'gacha-results-hover', 'gacha-results-click',
     'gacha-standalone-results',
     'team-desk-overview', 'team-desk-selected', 'team-desk-hover', 'team-desk-detail',
     'team-desk-picker-skill', 'team-desk-picker-add', 'team-desk-picker-replace',
@@ -104,7 +104,7 @@ def scan_gacha(br, sc, dpr):
         # 真實控制器：等 openPack 接受（entryPhase=waiting）才算到卡包畫面
         pg.wait_for_function("()=>__ceremony.state().entryPhase==='waiting'", timeout=20000)
         if tag == 'gacha':
-            sc.shoot(pg, f'{tag}-pack', freeze=False)
+            sc.shoot(pg, f'{tag}-pack', freeze=False, required=False)  # 卡包畫面沒有卡面，只留紀錄
         pg.evaluate("()=>__ceremony.openPack()")
         # 演出時點：第一張卡面翻開（commitFaceVisible）之後 350ms
         pg.evaluate("""()=>new Promise(res=>{const t0=Date.now();(function poll(){const s=document.querySelector('.slot.is-revealing');const f=s&&s.querySelector('.hcard');

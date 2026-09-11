@@ -1,0 +1,788 @@
+<meta charset="utf-8"><base href="file:///D:/claude%E7%A0%94%E7%A9%B6/clawd-pet-50/src/"><style>@font-face { font-family:'Huninn'; src:url('fonts/jf-openhuninn-2.1.ttf') format('truetype'); font-display:block; }
+:root { font: 14px/1.4 'Huninn', 'Microsoft JhengHei', sans-serif; color: #54382b; --cream: #fff2d5; --brass: #d9b25a; --wood: #54382b; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; user-select: none; background: transparent; }
+[hidden] { display: none !important; }
+button, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 2px solid #694936; border-radius: 9px; background: #fff6e5; padding: 6px 10px; box-shadow: 0 2px 0 #694936; }
+button:hover:enabled { background: #ffe6ad; }
+button:active:enabled { transform: translateY(2px); box-shadow: none; }
+button:disabled { cursor: default; opacity: .52; box-shadow: none; }
+button:focus-visible, select:focus-visible { outline: 3px solid #0070dd; outline-offset: 3px; }
+img, svg { -webkit-user-drag: none; pointer-events: none; }
+h1, h2, p { margin: 0; } h2 { font-size: 17px; } small { font-size: 11px; } b, progress { font-variant-numeric: tabular-nums; }
+#zoomer { position: absolute; transform-origin: 0 0; }
+#game { position: relative; width: 960px; height: 640px; overflow: hidden; background: #E9D6B4 url('clicker-ui-kraft.png') repeat; border-radius: 16px; }
+.topbar { position: absolute; left: 16px; top: 12px; width: 928px; height: 48px; display: flex; align-items: center; gap: 16px; cursor: move; padding: 0 8px; }
+h1 { font-size: 23px; letter-spacing: .08em; display: flex; align-items: baseline; gap: 12px; } h1 small { letter-spacing: .06em; font-weight: normal; }
+.wallet { margin-left: auto; display: flex; align-items: center; gap: 7px; min-width: 130px; } .wallet img { height: 32px; width: auto; } .wallet b { font-size: 25px; letter-spacing: -.03em; }
+.rates { display: flex; flex-direction: column; min-width: 100px; font-size: 12px; font-variant-numeric: tabular-nums; }
+#stage { position: absolute; left: 16px; top: 72px; width: 608px; height: 360px; border: 2px solid #aa8560; border-radius: 18px; background: #fff4df70; overflow: hidden; }
+#tutorial { position: absolute; top: 14px; left: 18px; right: 18px; font-size: 12px; text-align: center; } #tutorial b { margin-left: 10px; }
+#hero-position { position: absolute; left: 184px; top: 3px; width: 240px; height: 256px; pointer-events: none; }
+#hero { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; }
+#hero { z-index: 2; transform-origin: 50% 90%; }
+#hero > svg { height: 190px !important; width: auto; margin: 0 !important; filter: none !important; transform-origin: 50% 85%; }
+#tap { position: absolute; left: 184px; top: 20px; width: 240px; height: 240px; z-index: 5; background: transparent; border: 0; box-shadow: none; border-radius: 30%; touch-action: manipulation; }
+#tap:hover:enabled { background: transparent; } #tap:active:enabled { transform: none; }
+#bag { position: absolute; left: 340px; top: 174px; z-index: 4; pointer-events: none; }
+#bag-image { display: block; height: 150px; width: auto; }
+.package-meter { position: absolute; bottom: 27px; left: 20px; right: 20px; display: flex; align-items: center; gap: 10px; font-size: 11px; }
+progress { height: 10px; flex: 1; accent-color: #aa6c42; } #package-number { min-width: 94px; text-align: right; }
+#package-result { position: absolute; bottom: 5px; left: 20px; font-size: 11px; }
+#floaters { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+.floater { position: absolute; display: flex; align-items: center; gap: 3px; color: #5e3720; font-size: 22px; font-weight: bold; text-shadow: 0 2px #fff7e9; } .floater img { height: 23px; width: auto; }
+#shop { position: absolute; left: 640px; top: 72px; width: 304px; height: 360px; display: flex; flex-direction: column; gap: 10px; }
+.upgrade, .recruit { border: 2px solid #96714f; border-radius: 12px; background: #fff7e5cf; padding: 9px 12px; display: grid; grid-template-columns: 42px 1fr; column-gap: 10px; }
+.upgrade { height: 98px; flex: none; padding: 8px 12px; grid-template-rows: 36px 41px; }
+.upgrade > img { height: 36px; width: auto; max-width: 45px; align-self: center; } .upgrade h2 small { font-size: 11px; font-weight: normal; } .upgrade p { font-size: 12px; margin-top: 2px; }
+.purchase { grid-column: 1 / -1; display: flex; gap: 8px; margin-top: 5px; } .purchase button { flex: 1; font-size: 11px; line-height: 13px; padding: 2px 6px; white-space: pre-line; }
+.recruit { height: 144px; flex: none; align-content: start; padding: 6px 12px; grid-template-rows: 36px 40px auto auto auto; } .recruit > img { height: 36px; width: auto; justify-self: center; } .recruit p, .recruit > small, .recruit > button { grid-column: 1 / -1; text-align: center; } #pity { font-size: 11px; margin-top: 3px; } #single-note { color: #86533e; font-size: 9px; } #single-note:empty { display: none; }
+.text-button { background: transparent; border: 0; box-shadow: none; text-decoration: underline; text-underline-offset: 3px; font-size: 11px; padding: 2px 4px; }
+#team { position: absolute; left: 16px; top: 448px; width: 928px; height: 132px; display: flex; gap: 12px; }
+#slots { display: flex; gap: 10px; flex: 1; } .skill-slot { flex: 1; min-width: 0; border: 2px solid #96714f; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; background: #fff7e5c9; }
+.skill-slot select { width: 100%; background: #fff7e5; border: 0; border-bottom: 1px solid #bba184; font-size: 12px; padding: 2px; } .skill-slot button { font-size: 12px; padding: 5px 1px; } .skill-slot small { text-align: center; font-size: 10px; }
+.team-summary { width: 216px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 9px; }
+footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px; display: flex; align-items: center; gap: 20px; padding: 0 8px; font-size: 11px; } #save-status { margin-left: auto; } #retry-save { padding: 2px 6px; font-size: 11px; }
+#recruit-layer { position: absolute; inset: 0; z-index: 40; background: #172239; color: #fff0cc; overflow: hidden; }
+#recruit-layer button { background: #f6dfac; color: #503724; } #recruit-topbar { position: absolute; left: 20px; right: 20px; top: 15px; z-index: 40; display: flex; align-items: center; gap: 16px; } #recruit-topbar b { margin-right: auto; } #mode-select { background: #27334b; border: 1px solid #bc9d64; border-radius: 6px; padding: 5px; color: #ffe6b6; }
+#recruit-entry { position: absolute; inset: 95px 100px 80px; text-align: center; z-index: 20; } #recruit-entry > img { height: 210px; width: auto; transform: rotate(-5deg); margin: 15px; } #recruit-entry h2 { font-size: 22px; } #recruit-entry p { margin: 15px 0; } #recruit-entry button { padding:3px 7px; margin: 0 8px; min-width: 150px; white-space: pre-line; }
+.dim { position: absolute; inset: 0; z-index: 8; pointer-events: none; opacity: 0; background: #160c08c9; transition: opacity 120ms; } .dim.on { opacity: 1; }
+.flash { position: absolute; inset: 0; z-index: 24; pointer-events: none; background: #fff5d7; opacity: 0; } .flash.on { animation: clicker-flash 450ms ease-out; } @keyframes clicker-flash { from { opacity: .8; } to { opacity: 0; } }
+.fx { position: absolute; inset: 0; z-index: 15; pointer-events: none; } .fx-under { z-index: 9; } .mode-root { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+.reveal-controls { position: absolute; bottom: 48px; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; z-index: 35; } #collect { font-size: 19px; padding: 10px 40px; } #recruit-hint { position: absolute; bottom: 18px; left: 30px; right: 30px; text-align: center; z-index: 35; font-size: 12px; }
+.pack { position: absolute; left: 480px; top: 320px; margin: -107px 0 0 -75px; width: 150px; height: 214px; background: url('gacha-pack.png') center / contain no-repeat; } .pack.tearing { animation: clicker-pack-tear 430ms ease-out both; } .pack.burst { opacity: 0; } @keyframes clicker-pack-tear { 30% { transform: rotate(-5deg); } 70% { transform: rotate(5deg); } }
+.panel, .small-panel { position: absolute; z-index: 60; border: 3px solid #694936; border-radius: 16px; background: #fff1d5; box-shadow: 0 12px 0 #54382b28; padding: 17px; }
+.panel { inset: 75px 20px 42px; } .panel header { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; } .panel header span { font-size: 12px; flex: 1; } #roster-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.roster-character { min-width: 0; text-align: center; border: 1px solid #be9b76; border-radius: 9px; padding: 7px 3px; } .roster-character svg { display: block; margin: 0 auto 5px !important; height: 80px !important; width: auto; filter: none !important; } .roster-character.locked svg { opacity: .25; filter: grayscale(1) !important; } .roster-character b, .roster-character small { display: block; } .roster-character .stars { height: 16px; display: flex; justify-content: center; align-items: center; margin: 3px 0; } .stars img { height: 14px; width: auto; } .roster-character small { font-size: 10px; }
+.small-panel { left: 220px; top: 180px; width: 520px; padding: 25px; } .small-panel h2 { font-size: 25px; margin: 8px 0 16px; } .small-panel p { margin-bottom: 20px; } .small-panel button { margin-top: 14px; } #stats-body { line-height: 2; }
+#notice { position: absolute; z-index: 75; top: 66px; left: 180px; right: 180px; padding: 10px 18px; background: #54382b; color: #fff3d7; border-radius: 9px; text-align: center; pointer-events: none; }
+#raw-save { width: 100%; height: 140px; user-select: text; margin-top: 15px; } #save-error { z-index: 90; top: 100px; } #fatal { position: absolute; z-index: 85; inset: 70px 40px auto; padding: 20px; color: #7c281f; background: #fff3df; border: 2px solid #7c281f; white-space: pre-wrap; }
+@media (prefers-reduced-motion: reduce) { #game *, #game *::before, #game *::after { animation-duration: .01s !important; transition-duration: .01s !important; } }
+
+/* 傳說揭曉整桌震：與演示區 gacha.css 相同的 keyframes */
+.table.shake { animation: clicker-shake .5s cubic-bezier(.36,.07,.19,.97) both; }
+.table.shake-soft { animation: clicker-shake-soft .3s ease-out both; }
+@keyframes clicker-shake {
+  10%, 90% { transform: translate(-3px, 2px); }
+  20%, 80% { transform: translate(3px, -2px); }
+  30%, 50%, 70% { transform: translate(calc(-1 * var(--boss-shake,6px)), 3px) rotate(-.3deg); }
+  40%, 60% { transform: translate(var(--boss-shake,6px), -3px) rotate(.3deg); }
+}
+@keyframes clicker-shake-soft {
+  25% { transform: translate(2px, -1px); }
+  50% { transform: translate(-2px, 1px); }
+  75% { transform: translate(1px, 0); }
+}
+/* Paper textures supply all nine slices, including the center. */
+#game { --ink:#30251F; --text-secondary:#735E4E; --paper:#FFF6E6; --paper-edge:#B69B78; --pink:#EF8E8E; --tape:#EF8E8E; --gold:#E9B94E; color:var(--ink); font-variant-numeric:tabular-nums; }
+#game-content button, #roster button { border:3px solid var(--ink); border-radius:9px; box-shadow:0 4px 0 var(--ink); background:var(--paper); transition:background 80ms,transform 80ms; }
+#game-content button:hover:enabled, #roster button:hover:enabled { background:#F8DFAD; }
+#game-content button:active:enabled, #roster button:active:enabled { transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+#game button:disabled { opacity:1; color:#8B7D6C; background:#DED4C3; cursor:default; }
+#game-content h1 { font-size:24px; line-height:30px; letter-spacing:0; gap:8px; }
+#game-content h1 small { font-size:11px; }
+.upgrade, .recruit, #team { border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; }
+.wallet { padding:4px 16px; min-width:160px; height:48px; }
+.wallet b { font-size:32px; line-height:36px; font-weight:800; }
+.rates { font-size:13px; line-height:18px; }
+#stage { border:0; background:transparent; border-radius:0; overflow:visible; }
+.desk-mat { position:absolute; inset:0; border-image:url('clicker-ui-mat.png') 88 fill / 24px stretch; pointer-events:none; }
+.stage-flag { position:absolute; left:24px; top:48px; width:64px; height:80px; object-fit:contain; }
+.tape { position:absolute; width:64px; height:24px; object-fit:contain; pointer-events:none; z-index:3; }
+.stage-tape { right:18px; top:-4px; transform:rotate(5deg); }
+.team-tape { left:200px; top:-9px; transform:rotate(-4deg); }
+#tutorial { left:20px; top:12px; width:568px; height:28px; font-size:13px; line-height:28px; background:var(--paper); border-radius:5px; }
+.contact { position:absolute; background:#9AA887; border-radius:50%; pointer-events:none; }
+.hero-contact { left:258px; top:248px; width:92px; height:12px; }
+.bag-contact { left:347px; top:290px; width:82px; height:10px; }
+#game-content #tap { background:transparent; border:0; box-shadow:none; }
+#game-content #tap:active { transform:none; }
+#bag { left:311px; top:130px; width:154px; height:176px; }
+#bag-image { width:154px; height:176px; transform-origin:50% 93.75%; }
+#parasite-label { position:absolute; left:150px; top:120px; width:116px; height:32px; z-index:10; display:flex; align-items:center; gap:3px; background:var(--paper); border:2px solid var(--ink); border-radius:5px; font-size:11px; pointer-events:none; }
+#parasite-label svg { width:24px!important; height:24px!important; margin:0!important; filter:none!important; }
+#parasite-label { transition: width 200ms cubic-bezier(.2,.9,.3,1); overflow:hidden; white-space:nowrap; }
+#parasite-label.compact { width:32px; justify-content:center; }
+#parasite-label.compact span { display:none; }
+.package-meter { left:244px; top:328px; bottom:auto; right:auto; width:340px; height:24px; gap:8px; padding:2px 6px; border:2px solid var(--ink); background:var(--paper); clip-path:polygon(0 0,100% 0,99% 50%,100% 100%,0 100%,1% 50%); }
+#package-label { width:48px; flex:none; white-space:nowrap; overflow:hidden; }
+#package-number { width:128px; min-width:0; white-space:nowrap; }
+#package-progress { appearance:none; height:8px; width:124px; flex:none; border:1px solid #735E4E; background:transparent; }
+#package-progress::-webkit-progress-bar { background:repeating-linear-gradient(90deg,transparent 0 11px,#735E4E 11px 12px); }
+#package-progress::-webkit-progress-value { background:repeating-linear-gradient(90deg,var(--pink) 0 11px,#735E4E 11px 12px); }
+#package-result { left:110px; bottom:10px; }
+#click-fx { position:absolute; inset:0; z-index:6; pointer-events:none; }
+#floaters { z-index:7; }
+.floater { font-size:20px; color:var(--ink); text-shadow:none; }
+.floater img { height:18px; }
+.upgrade { padding:6px 16px; grid-template-columns:40px 1fr; grid-template-rows:42px 40px; }
+.upgrade > img { width:40px; height:40px; object-fit:contain; }
+#shop h2, .buddy-header h2, .skills-heading { font-size:18px; line-height:24px; border-image:url('clicker-ui-label.png') 80 110 fill / 10px 14px stretch; padding:1px 8px; white-space:nowrap; }
+/* 標題帶 9-slice：切片要蓋過整個圓端與硬陰影（實測 pink 端 ~80px、purple ~70、green ~125），否則中段拉伸會把圓端的一截拉成出框的淡色帶（2560 實測） */
+#shop .upgrade:nth-child(2) h2, .skills-heading { border-image:url('clicker-ui-label-green.png') 110 158 fill / 14px 20px stretch; }
+#shop .recruit h2 { border-image:url('clicker-ui-label-purple.png') 78 108 fill / 10px 14px stretch; }
+.upgrade p { font-size:13px; line-height:18px; margin:0; }
+.purchase { margin-top:4px; }
+.purchase button { font-size:15px; line-height:16px; height:36px; padding:0 4px; }
+.purchase button small { display:block; font-size:11px; line-height:12px; }
+#game-content .purchase button:first-child { background:#9BAF6B; }
+#game-content .purchase button:disabled { background:#D9CCBB; }
+.upgrade .purchase button:first-child { flex:0 0 176px; }
+.recruit { padding:6px 16px; grid-template-rows:42px 40px auto auto auto; }
+.recruit small { font-size:11px; }
+#single-note { font-size:11px; }
+#game-content .text-button { border:0; box-shadow:none; background:transparent; }
+#team { display:block; }
+.buddy-header { position:absolute; left:12px; top:6px; width:520px; height:24px; display:flex; align-items:center; gap:4px; }
+.buddy-header h2 { width:112px; flex:none; }
+.buddy-header nav { margin-left:auto; display:flex; align-items:center; gap:5px; white-space:nowrap; }
+#game-content .buddy-header button { font-size:11px; padding:0 4px; height:22px; border-width:2px; box-shadow:0 2px 0 var(--ink); }
+#buddy-page { font-size:11px; }
+#buddies { position:absolute; left:12px; top:32px; width:520px; height:88px; display:flex; gap:8px; align-items:center; font-size:13px; }
+#game-content .buddy { position:relative; flex:0 0 80px; height:88px; padding:0; border:0; border-radius:0; border-bottom:4px solid var(--rarity); background:transparent; box-shadow:none; display:flex; flex-direction:column; align-items:center; font-size:12px; line-height:16px; }
+#game-content .buddy:hover { background:#E9D6B4; }
+.buddy-portrait { display:flex; align-items:center; justify-content:center; width:50px; height:50px; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
+.buddy-portrait svg { width:40px!important; height:40px!important; margin:0!important; filter:none!important; }
+.slot-stamp, .parasite-stamp { position:absolute; right:0; top:0; height:16px; width:28px; font-size:11px; line-height:14px; border:1px solid var(--ink); border-radius:3px; background:var(--paper); }
+.parasite-stamp { top:30px; background:#EF8E8E; }
+#team::after { content:''; position:absolute; left:548px; top:16px; height:100px; border-left:2px solid var(--paper-edge); }
+.skills-heading { position:absolute; left:564px; top:6px; width:100px; }
+#slots { position:absolute; left:564px; top:32px; display:flex; gap:8px; }
+.skill-slot { width:112px; height:88px; flex:none; border:0; background:transparent; padding:0 8px; gap:4px; }
+#game-content .slot-pick { display:flex; align-items:center; justify-content:center; gap:4px; width:96px; height:24px; padding:0; font-size:12px; border:0; box-shadow:none; background:transparent; }
+.slot-pick svg { width:24px!important; height:24px!important; margin:0!important; filter:none!important; }
+#game-content .skill-use { width:96px; height:28px; padding:0; font-size:13px; line-height:20px; background:#9BAF6B; }
+.skill-slot small { font-size:12px; line-height:16px; white-space:nowrap; }
+#notice { position:absolute; left:116px; top:1px; right:auto; max-width:240px; padding:2px 6px; font-size:11px; background:var(--paper); color:var(--ink); border-radius:3px; overflow:hidden; white-space:nowrap; z-index:8; }
+#join-flight { position:absolute; inset:0; z-index:45; pointer-events:none; }
+.joining-portrait { position:absolute; width:64px; height:64px; }
+.joining-portrait svg { width:64px!important; height:64px!important; margin:0!important; filter:none!important; }
+#roster { top:65px; bottom:30px; }
+#roster-grid { gap:8px; }
+.roster-character { cursor:pointer; }
+.roster-character svg { height:60px!important; }
+.roster-character.selected { outline:3px solid var(--ink); background:#F0D7AE; }
+#roster-detail { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:12px; }
+#roster-detail b { flex:1; }
+#roster-detail button { font-size:12px; }
+#roster-detail .target-slot { outline:2px solid #9BAF6B; outline-offset:3px; }
+
+.slot-pick span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#parasite-label { white-space:nowrap; overflow:hidden; }
+#parasite-label svg { flex:none; }
+#recruit-entry button small { display:block; }
+
+#tutorial { z-index:3; }
+
+#game-content h1 { border-image:url('clicker-ui-label.png') 70 fill / 10px stretch; padding:4px 10px; }
+/* Round 3: artwork includes the ink edge and hard shadow. */
+#game::after { content:''; position:absolute; inset:0; border-image:url('clicker-ui-frame.png') 96 / 16px stretch; pointer-events:none; z-index:100; }
+#game button, #game select, #game .save-plate { --button-bg:#FBEED0; border:3px solid #30251F; border-radius:12px; background:var(--button-bg); box-shadow:0 4px 0 #30251F; outline:2px dashed #FFF6E6AA; outline-offset:-6px; color:#30251F; text-decoration:none; font-weight:800; }
+#game button:hover:enabled { background:var(--button-bg); transform:translateY(-1px); box-shadow:0 5px 0 #30251F; filter:brightness(1.035); }
+#game button:active:enabled { transform:translateY(3px); box-shadow:0 1px 0 #30251F; }
+#game button:disabled { --button-bg:#D9CCBB; background:#D9CCBB; color:#30251F; }
+#game #tap, #game .buddy, #game .slot-pick { border-image:none; border:0; box-shadow:none; outline:none; background:transparent; }
+#game #tap:active { transform:none; clip-path:none; }
+#game #tap { border-radius:0; }
+#game .buddy { border-bottom:4px solid var(--rarity); }
+#game .skill-use, #game #click-one, #game #training-one { --button-bg:#8D9C5B; }
+#game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-bg:#B48CCB; }
+#game #reveal-all { --button-bg:#FA776B; }
+#game h1, #game h2, #game b, #game .rates { font-weight:800; }
+#game-content h1 { width:250px; height:52px; display:flex; justify-content:center; align-items:center; border-image:url('clicker-ui-title-tape.png') 107 171 fill / 16px stretch; padding:6px 18px; }
+.topbar { top:14px; height:50px; gap:12px; }
+.wallet { position:absolute; left:356px; width:220px; height:52px; justify-content:center; padding:6px 24px; border-image:url('clicker-ui-coinplate.png') 70 120 84 96 fill / 12px 20px 14px 16px stretch; }
+.wallet img { width:32px; height:32px; object-fit:contain; }
+.wallet b { display:inline-block; }
+.rates { margin-left:auto; margin-right:12px; }
+#mute { min-width:70px; height:38px; } #close { width:38px; height:38px; }
+#hero-position, #tap { left:120px; }
+.hero-contact { left:194px; }
+#bag { left:392px; top:150px; }
+.bag-contact { left:428px; top:313px; }
+
+.package-meter { left:359px; width:220px; top:327px; display:grid; grid-template-columns:48px 1fr; gap:2px 6px; height:28px; padding:2px 8px; }
+#package-progress { grid-column:2; grid-row:2; width:148px; }
+#package-number { grid-column:2; grid-row:1; width:auto; font-size:11px; line-height:11px; }
+#package-label { grid-row:1 / 3; }
+#package-progress::-webkit-progress-bar { background:#FFF6E6; }
+#package-progress::-webkit-progress-value { background:#EF8E8E; }
+#shop { gap:10px; }
+.upgrade { height:104px; padding:5px 9px; grid-template-rows:42px 40px; }
+.recruit { height:132px; padding:5px 9px; grid-template-rows:42px 38px auto auto auto; }
+#shop .upgrade:nth-child(2) h2 { border-image:url('clicker-ui-label.png') 80 110 fill / 10px 14px stretch; }
+.purchase { border-top:2px dashed #735E4E; padding-top:5px; gap:5px; align-items:center; margin-top:2px; }
+#shop .purchase button { flex:1; height:32px; font-size:15px; line-height:16px; padding:0 4px 3px; white-space:nowrap; }
+#shop #click-max, #shop #training-max { flex:0 0 43px; font-size:11px; padding:0 1px 3px; }
+.price-ticket { display:flex; align-items:center; justify-content:center; gap:3px; height:31px; min-width:92px; padding:3px 9px; border-image:url('clicker-ui-ticket.png') 57 70 fill / 8px 10px stretch; font-size:16px; }
+.price-ticket img { width:22px; height:22px; object-fit:contain; }
+#shop #draw-five { font-size:11px; }
+#shop .purchase small { display:none; }
+#shop #recruit-open { justify-self:center; padding:1px 12px 3px; font-size:11px; height:21px; }
+#pity { line-height:14px; margin:0; }
+#single-note { position:absolute; top:100%; right:0; font-size:10px; }
+.badge { width:24px; height:24px; object-fit:contain; vertical-align:middle; flex:none; }
+.buddy-header h2 { width:auto; min-width:146px; display:flex; align-items:center; gap:3px; padding:0 12px 0 8px; }
+footer { gap:10px; padding:0 8px; height:34px; }
+footer button, .save-plate { display:flex; align-items:center; justify-content:center; gap:5px; height:34px; padding:1px 9px 4px; min-width:96px; }
+.save-plate { margin-left:auto; min-width:144px; }
+#save-status { margin:0; }
+#next-goal { max-width:200px; }
+#recruit-topbar { top:14px; gap:12px; height:54px; padding:2px 9px; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; color:#30251F; }
+#recruit-topbar > b { border-image:url('clicker-ui-title-tape.png') 100 160 fill / 12px stretch; padding:8px 30px; font-size:20px; }
+#recruit-topbar button, #mode-select { height:34px; padding:1px 9px 4px; }
+#mode-select { color:#30251F; }
+#recruit-entry h2, #recruit-entry p, #recruit-hint { color:#30251F; background:#FFF6E6; width:fit-content; margin:12px auto; padding:3px 12px; }
+#recruit-hint { left:0; right:0; } #recruit-hint:empty, #recruit-entry p:empty { display:none; }
+.rates > span, .upgrade p { position:relative; }
+.rates > span > span, .upgrade p > span { display:inline-block; }
+.rate-old { position:absolute; left:0; top:0; pointer-events:none; }
+#game small, #single-note { color:#30251F; }
+
+/* Round 4: rounded handwriting, one full-width partner shelf, Super Art. */
+#game, #game button, #game select, #game textarea, #game .card { font-family:'Huninn','Microsoft JhengHei',sans-serif; font-weight:400; }
+#game h1, #game h2, #game b, #game .rates { font-weight:400; }
+#game h1, #game h2, #game .wallet b, #game button { -webkit-text-stroke:.6px currentColor; }
+#game small, #game p, #game .rates, #game .floater b { -webkit-text-stroke:0; }
+#game-content h1 { font-size:26px; }
+.wallet b { font-size:34px; }
+.rates, .upgrade p, .recruit small, #tutorial { font-size:14px; }
+#game button { transition:transform 120ms cubic-bezier(.2,1.4,.4,1),filter 120ms; }
+#game button:hover:enabled { transform:translateY(-1px); filter:brightness(1.06); }
+#game button:active:enabled { transform:translateY(3px); clip-path:inset(0 0 3px); }
+#game button:disabled img, #game button:disabled svg { filter:grayscale(1)!important; }
+#game #tap:hover { transform:none; filter:none; }
+#shop .purchase button { font-size:16px; padding-left:4px; padding-right:4px; }
+#shop #draw-five { font-size:16px; }
+#shop #click-max, #shop #training-max { font-size:14px; flex-basis:40px; }
+.price-ticket { min-width:80px; font-size:16px; padding:3px 7px; }
+.price-ticket img { width:18px; height:18px; }
+#pity { font-size:14px; }
+#single-note { font-size:14px; }
+#shop #recruit-open { font-size:14px; padding:1px 10px 3px; height:23px; }
+/* 紙纖維只鋪在牛皮紙底與面板上：放在舞台之下，不再蓋到珍母讓她看起來髒 */
+#game::before { content:''; position:absolute; inset:0; background:url('clicker-fx-paper-grain.png') repeat; background-size:256px; opacity:.5; pointer-events:none; z-index:0; }
+.buddy-header { width:900px; }
+#buddies { width:900px; gap:10px; }
+#team::after { display:none; }
+#notice { left:170px; max-width:480px; }
+#slots { left:28px; top:auto; bottom:20px; gap:16px; z-index:9; }
+.skill-slot { position:relative; width:64px; height:64px; padding:0; }
+#game .skill-use { position:relative; display:flex; align-items:center; justify-content:center; width:64px; height:64px; padding:0; border-image:none; border:0; box-shadow:none; outline:none; border-radius:50%; background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; font-size:30px; }
+#game .skill-use svg { width:40px!important; height:40px!important; margin:0!important; filter:none; }
+.skill-slot[data-state="empty"] .skill-use, .skill-slot[data-state="unavailable"] .skill-use { filter:grayscale(1); }
+.skill-slot[data-state="cooldown"] .skill-use::after { content:''; position:absolute; inset:7px; border-radius:50%; background:conic-gradient(from 0deg, #30251fa6 0deg var(--cooldown),transparent var(--cooldown) 360deg); pointer-events:none; }
+.skill-name, .skill-slot small { position:absolute; right:-5px; top:-8px; background:#FFF6E6; border:1px solid #735E4E; border-radius:3px; padding:1px 3px; font-size:11px; line-height:14px; pointer-events:none; transform:rotate(4deg); }
+.skill-slot small { top:auto; bottom:-5px; right:1px; transform:rotate(-4deg); }
+.skill-slot small:empty { display:none; }
+#tutorial { top:-3px; left:90px; width:420px; height:32px; line-height:32px; border-radius:0; background:#FFF6E6e8; transform:rotate(-1deg); box-shadow:0 2px 2px #30251f22; }
+#tutorial::before, #tutorial::after { content:''; position:absolute; width:45px; height:24px; background:url('clicker-ui-tape-0.png') center/contain no-repeat; top:-5px; left:-18px; transform:rotate(-18deg); }
+#tutorial::after { left:auto; right:-18px; transform:rotate(22deg); }
+#package-result { left:388px; top:134px; bottom:auto; width:150px; text-align:center; opacity:0; border-image:url('clicker-ui-ticket.png') 57 70 fill / 8px 10px; padding:4px 10px; color:#30251F; z-index:5; }
+#package-progress::-webkit-progress-value { transition:background-color 200ms; }
+#package-progress.meter-full::-webkit-progress-value { background:#E9B94E; }
+.small-impact { position:absolute; width:130px; height:130px; pointer-events:none; }
+#effect-label { position:absolute; left:138px; top:48px; padding:4px 12px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 8px 12px; z-index:10; pointer-events:none; }
+.panel, .small-panel { border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; }
+.panel:not([hidden]), .small-panel:not([hidden]) { animation:paper-panel-in 140ms ease-out; }
+.panel h2, .small-panel h2 { border-image:url('clicker-ui-title-tape.png') 100 160 fill / 12px 20px; padding:8px 22px; width:fit-content; font-size:26px; }
+#game .panel button, #game .small-panel button { font-size:16px; --button-bg:#FBEED0; padding:3px 11px 6px; }
+.roster-character small { font-size:12px; }
+.panel header span { font-size:14px; }
+#roster-detail { font-size:14px; }
+@keyframes paper-panel-in { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+#cutin { position:absolute; inset:0; z-index:30; pointer-events:none; overflow:hidden; --skill:#E9B94E; }
+#cutin-dim { position:absolute; inset:0; background:#160c08d1; }
+#cutin:not([data-phase="hit-stop"]) #cutin-dim { mask-image:radial-gradient(circle 130px at var(--focus-x) 248px,transparent 70%,#000 100%); }
+#cutin-halftone { position:absolute; inset:0; background:url('clicker-fx-halftone-tile.png') repeat; background-size:180px; opacity:.12; }
+#cutin-focus { position:absolute; width:260px; height:260px; left:calc(var(--focus-x) - 130px); top:118px; border-radius:50%; background:radial-gradient(circle,transparent 60%,#FFF6E610); }
+.cutin-mask { position:absolute; background:var(--skill); mask-size:100% 100%; mask-repeat:no-repeat; }
+/* 速度線以焦點為中心、鋪到 1600×1067，焦點偏左時右側也不會露出硬邊 */
+#cutin-speedlines { left:calc(var(--focus-x) - 800px); top:calc(248px - 533px); width:1600px; height:1067px; }
+#cutin-ring { left:calc(var(--focus-x) - 160px); top:88px; width:320px; height:320px; background:#FFF6E6; }
+.cutin-letterbox { position:absolute; left:16px; width:608px; height:56px; background:#30251F; }
+#cutin-bar-top { top:72px; border-bottom:2px solid #FFF6E6; }
+#cutin-bar-bottom { top:376px; border-top:2px solid #FFF6E6; }
+#cutin-trail { left:0; top:136px; width:780px; height:300px; background:white; }
+#cutin-exit-trail { left:180px; top:136px; width:780px; height:300px; background:white; }
+#cutin-flash { position:absolute; inset:0; background:#FFF6E6; opacity:0; mix-blend-mode:screen; }
+#cutin-panel { position:absolute; left:76px; top:146px; width:520px; height:300px; background:var(--skill); border:4px solid #30251F; transform:skewX(-6deg); box-shadow:8px 9px 0 #160c0870; }
+#cutin-panel.from-right { left:112px; }
+#cutin-stripes { position:absolute; inset:0; background:var(--stripe) url('clicker-fx-stripe-tile.png') repeat; background-size:120px; mix-blend-mode:multiply; opacity:.18; }
+#cutin-ink { left:-65px; top:-28px; width:350px; height:320px; background:color-mix(in srgb,var(--skill),white 55%); }
+#cutin-actor { position:absolute; left:-55px; top:-48px; width:280px; height:340px; display:flex; justify-content:center; align-items:flex-end; }
+#cutin-actor svg { height:340px!important; width:auto!important; max-width:none; margin:0!important; filter:none!important; transform:skewX(6deg); }
+#cutin-banner { left:170px; top:58px; width:365px; height:150px; background:#FFF6E6; transform-origin:left center; }
+#cutin-name { position:absolute; left:193px; top:77px; width:310px; font-size:48px; line-height:1.04; letter-spacing:.06em; color:#30251F; -webkit-text-stroke:.6px currentColor; transform-origin:center; }
+#cutin-subtitle { position:absolute; left:196px; top:213px; width:220px; font-size:16px; line-height:1.3; color:#30251F; }
+#cutin-stamp { position:absolute; right:-16px; bottom:-12px; width:90px; height:90px; background:url('clicker-fx-stamp.png') center/contain no-repeat; display:flex; justify-content:center; align-items:center; color:#B63329; font-size:26px; }
+#cutin-impact { position:absolute; left:28px; top:85px; width:180px; height:180px; }
+@media (prefers-reduced-motion:reduce) {
+  #game button { transition:none; }
+  #game button:hover:enabled, #game button:active:enabled { transform:none; }
+  .panel:not([hidden]), .small-panel:not([hidden]) { animation:none; }
+  #cutin-panel { transform:none; }
+  #cutin-actor svg { transform:none; }
+}
+
+.wallet { left:340px; width:260px; padding:6px 20px; }
+.wallet b { white-space:nowrap; }
+#game button.skill-use:disabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; border-image:none; border:0; box-shadow:none; outline:none; }
+#cutin-actor { left:-20px; }
+#cutin-actor svg { max-width:340px; }
+
+.skill-name { left:50%; right:auto; top:auto; bottom:calc(100% - 4px); transform:translateX(-50%) rotate(-3deg); width:max-content; max-width:96px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+
+#cutin-name { white-space:pre-line; }
+
+#shop #draw-five { display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:12px; font-size:13px; padding:2px 6px 5px; }
+.draw-five-price { font-size:11px; line-height:11px; -webkit-text-stroke:0; }
+
+.stage-frozen #join-flight { z-index:7; }
+
+#cutin-name { top:105px; }
+#cutin-panel.from-right #cutin-name { top:77px; }
+#cutin-subtitle { background:#FFF6E6ed; padding:3px 6px; }
+
+/* Round 5: inset sticker diorama; the original mat edge stays above the scene. */
+#clicker-scene { position:absolute; inset:0; z-index:1; clip-path:inset(24px round 5px); pointer-events:none; background:var(--scene-mat); }
+.scene-layer { position:absolute; inset:0; pointer-events:none; }
+.scene-layer img { position:absolute; max-width:none; transform-origin:50% 100%; }
+.desk-mat::after { content:''; position:absolute; inset:0; z-index:12; border-image:url('clicker-ui-mat.png') 88 / 24px stretch; }
+#hero-position { z-index:2; }
+.contact { z-index:2; }
+.hero-contact { background:#36583880; }
+.bag-contact { background:#4d493d60; }
+.stage-flag { z-index:2; }
+#game #music { height:24px; padding:2px 8px 5px; font-size:12px; min-width:60px; }
+#tutorial, .package-meter { z-index:13; }
+
+/* Round 6: quieter watercolor scenery and legible paper controls. */
+#clicker-scene { filter:saturate(.78) contrast(.92) brightness(1.04); }
+[data-layer="far"] { opacity:.85; }
+[data-layer="grass"], [data-layer="flowers"] { filter:saturate(.85); }
+#hero-position, #tap { left:184px; }
+.hero-contact { left:258px; }
+
+#hero-light { position:absolute; left:154px; top:39px; width:300px; height:220px; z-index:2; pointer-events:none; background:radial-gradient(ellipse, #FFF6E6cc 0%, #FFF6E600 70%); }
+#hero > svg { filter:drop-shadow(2px 0 0 #FFF6E6) drop-shadow(-2px 0 0 #FFF6E6) drop-shadow(0 2px 0 #FFF6E6) drop-shadow(0 -2px 0 #FFF6E6)!important; }
+.floater { font-size:26px; color:#FFF6E6; text-shadow:0 2px 0 #30251F; }
+#game .floater b { -webkit-text-stroke:1.2px #30251F; paint-order:stroke fill; }
+.floater img { width:22px; height:22px; }
+.package-meter { left:24px; top:308px; width:560px; height:40px; padding:6px 12px; display:grid; grid-template-columns:72px minmax(0,1fr) 150px; gap:10px; border:0; border-image:url('clicker-ui-ticket.png') 57 70 fill / 8px 12px stretch; background:transparent; clip-path:none; }
+#package-label { grid-column:1; grid-row:1; width:72px; font-size:18px; }
+#package-progress { grid-column:2; grid-row:1; width:100%; height:14px; border-radius:7px; overflow:hidden; }
+#package-number { grid-column:3; grid-row:1; width:150px; font-size:16px; line-height:22px; text-align:right; }
+#package-progress::-webkit-progress-value { background:linear-gradient(90deg,#EF8E8E,#E9B94E); }
+#slots { bottom:72px; }
+.topbar { z-index:30; }
+.audio-controls { position:relative; }
+#game #audio-toggle { width:38px; height:38px; font-size:22px; }
+#audio-panel { position:absolute; right:0; top:44px; width:220px; height:auto; padding:4px 7px; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; cursor:default; }
+#audio-panel .audio-row { display:grid; grid-template-columns:26px minmax(0,1fr) 40px; grid-template-rows:20px 30px; column-gap:4px; align-items:center; font-size:13px; }
+#game #audio-panel button { grid-row:1 / 3; min-width:0; width:26px; height:26px; padding:0; font-size:14px; }
+#audio-panel button[aria-pressed="true"] { opacity:.5; text-decoration:line-through; }
+#audio-panel .audio-row > span { grid-column:2 / 4; }
+#audio-panel output { grid-column:3; grid-row:2; text-align:right; font-size:12px; font-variant-numeric:tabular-nums; }
+#audio-panel input { grid-column:2; grid-row:2; appearance:none; box-sizing:border-box; width:100%; height:10px; margin:0; border:2px solid var(--ink); border-radius:6px; background:linear-gradient(90deg,var(--tape) var(--p,0%),#E9D6B4 var(--p,0%)); cursor:pointer; }
+#audio-panel input::-webkit-slider-thumb { appearance:none; box-sizing:border-box; width:24px; height:24px; border:2px solid var(--ink); border-radius:50%; background:#FFF3DC; box-shadow:2px 2px 0 var(--ink); }
+#audio-panel input::-moz-range-thumb { box-sizing:border-box; width:24px; height:24px; border:2px solid var(--ink); border-radius:50%; background:#FFF3DC; box-shadow:2px 2px 0 var(--ink); }
+
+/* 舞台內只有點擊熱區與技能鍵吃指標；其他一切（教學便條、量尺、標籤、光、場景）都穿透，杜絕透明層擋住連點 */
+#stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag):not(#boss-view) { pointer-events:none; }   /* :not(#id) 特異度 (3,0,0)，可點的元素都要列在這裡 */
+#slots > :not(.skill-slot) { pointer-events:none; }
+/* 滑鼠點擊不顯示焦點框（藍色框線）；鍵盤操作仍保留其他按鈕的 focus-visible */
+#tap, #tap:focus, #tap:focus-visible, .skill-use:focus, .skill-use:focus-visible { outline:none !important; box-shadow:none; }
+#tap { -webkit-tap-highlight-color: transparent; }
+.roster-character .skill-desc { font-size:11px; line-height:14px; color:#735E4E; white-space:normal; padding:0 6px; }
+/* 名冊：標題與「裝備至槽」列固定，格子區可捲動；卡片加了技能說明後不再把裝備列擠出面板 */
+#roster { display:flex; flex-direction:column; }
+#roster header { flex:none; }
+#roster-grid { flex:1 1 auto; min-height:0; overflow-y:auto; align-content:start; padding-right:4px; }
+#roster-detail { flex:none; }
+.roster-character svg { height:64px !important; margin-bottom:3px !important; }
+.roster-character .skill-desc { font-size:10px; line-height:12px; }
+
+/* 標題帶、錢包、票券帶的圓角比 9-slice 邊寬大，填色會露到框外，所以不填（縫線在這些元件上看不出來） */
+.scene-outgoing { position:absolute; inset:0; z-index:1; clip-path:inset(24px round 5px); pointer-events:none; filter:saturate(.78) contrast(.92) brightness(1.04); }
+#stage > #boss-challenge { pointer-events:auto; position:absolute; left:470px; top:40px; width:120px; height:48px; z-index:12; transform:rotate(-3deg); border:0; border-image:none; box-shadow:none; outline:none; background:transparent url('clicker-ui-boss-btn.png') center/100% 100% no-repeat; padding:4px; font-size:16px; }
+#boss-view { position:absolute; left:330px; top:60px; width:260px; height:300px; z-index:13; transform-origin:50% 100%; }
+#boss-image { width:260px; height:300px; object-fit:contain; }
+#boss-health { position:absolute; left:-20px; bottom:-16px; width:300px; height:14px; background:#745E4A; border:2px solid #FFF6E6; border-radius:6px; }
+#boss-health i { display:block; height:100%; background:#E9B94E; border-radius:4px; }
+#boss-health b { position:absolute; top:-21px; left:0; width:100%; text-align:center; font-size:14px; color:#54382B; text-shadow:0 1px #FFF6E6; }
+#boss-timer { position:absolute; left:24px; top:28px; width:560px; height:16px; z-index:14; background:#745E4A66; }
+#boss-timer i { display:block; width:100%; height:100%; transform-origin:left; background:url('clicker-ui-boss-tape.png') center/100% 100%; }
+#boss-timer.urgent i { filter:saturate(1.6) brightness(1.05); }
+#boss-timer b { position:absolute; left:0; right:0; top:-3px; text-align:center; font-size:13px; }
+#boss-flash { position:absolute; inset:0; background:#FFF6E6; z-index:20; }
+#boss-banner { position:absolute; width:520px; height:70px; left:44px; top:140px; z-index:21; background:transparent url('clicker-ui-title-tape.png') center/100% 100%; display:grid; place-items:center; font-size:30px; }
+#boss-cracks, #shell-rings, #boss-shells { position:absolute; inset:0; pointer-events:none; }
+#boss-cracks img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+#shell-rings img, #boss-shells img { position:absolute; left:0; width:100%; height:24%; object-fit:fill; }
+.shell-hit-overlay { position:absolute; left:0; width:100%; height:24%; object-fit:fill; pointer-events:none; }
+/* 罐頭（bagSkin 1）：容器改成罐頭比例 132×212、底部對齊同一個接地陰影；硬殼環與罐頭同畫布（319×512），整張疊上去再依序位移，不用 24% 分段 */
+#bag[data-skin="1"] { width:132px; height:212px; margin-left:11px; margin-top:-40px; }
+#bag[data-skin="1"] #bag-image { width:132px; height:212px; transform-origin:50% 95.7%; }
+#bag[data-skin="1"] #shell-rings img, #bag[data-skin="1"] .shell-hit-overlay { top:0; height:100%; object-fit:contain; }
+.blocked img { animation:shell-breathe 1.2s ease-in-out infinite; }
+@keyframes shell-breathe { 0%,100% {filter:brightness(1) drop-shadow(0 0 0 #FFF6E6);} 50% {filter:brightness(1.22) drop-shadow(0 0 6px #FFF6E6);} }   /* 1.5 會把金屬環亮成白紙帶，像破圖 */
+#shell-hint { position:absolute; left:-6px; top:16px; translate:-100% 0; white-space:nowrap; padding:2px 8px; font-size:12px; color:#54382B; background:var(--paper,#FDF3DF); border:2px solid var(--ink,#54382B); border-radius:5px; rotate:-3deg; box-shadow:2px 2px 0 #54382B40; }
+#stage.boss-shake { animation:clicker-shake var(--boss-shake-time) linear; }
+.affinity-flag { position:absolute; left:0; top:0; padding:2px 5px; font-size:10px; background:#E9B94E url('clicker-ui-flag.png') center/100% 100%; }
+#scenes { left:150px; top:100px; width:660px; }
+#scene-tickets { display:grid; grid-template-columns:300px 300px; gap:12px; }
+#game #scenes .scene-ticket { width:300px; height:64px; margin:0; padding:5px 9px; display:flex; gap:10px; align-items:center; text-align:left; border:0; border-radius:0; border-image:url('clicker-ui-ticket.png') 60 fill / 12px; background:#FAEBC9; font-size:16px; }
+.scene-ticket > span:last-child { flex:1; min-width:0; }
+.scene-ticket b,.scene-ticket small { display:block; }
+.scene-ticket small { font-size:10px; line-height:13px; }
+.scene-ticket:disabled { filter:grayscale(.7); opacity:.65; }
+.scene-thumb { width:96px; height:54px; flex-shrink:0; overflow:hidden; }
+.scene-thumb img { width:96px; height:54px; object-fit:cover; }
+#stage[data-scene="kitchen"] .desk-mat { filter:grayscale(1) sepia(.45); }
+@media (prefers-reduced-motion:reduce) { .blocked img {animation:none;filter:brightness(1.2);} #stage.boss-shake {animation:none;} }
+
+/* Round 9: paper chain tape, affinity flags and recipe tickets. */
+#chain-tape { position:absolute; width:120px; height:18px; z-index:10; background:#76543b; color:#fff0cc; font-size:12px; line-height:18px; text-align:center; transform:rotate(-3deg); opacity:0; pointer-events:none; transition:opacity 200ms; clip-path:polygon(3% 0,100% 5%,97% 100%,0 95%); }
+#chain-tape.visible { opacity:1; }
+#chain-tape[data-count="2"] { color:#ffdc69; }
+#chain-tape[data-count="3"] { color:#ffaac5; }
+#slots { overflow:visible; }
+.skill-use { position:relative; }
+.affinity-flag { position:absolute!important; top:0!important; right:0!important; left:auto!important; width:18px!important; height:18px!important; background:url('clicker-ui-flag.png') center/contain no-repeat!important; border:0!important; padding:0!important; }
+.buddy .slot-stamp { right:18px; }
+#cutin-chain-stamp { position:absolute; right:-1px; bottom:-72px; width:60px; height:60px; background:url('clicker-fx-stamp.png') center/contain no-repeat; display:grid; place-items:center; color:#B63329; font-size:15px; font-weight:bold; }
+.skill-use[data-tooltip]:hover::before, .skill-use[data-tooltip]:focus-visible::before { content:attr(data-tooltip); position:absolute; bottom:calc(100% + 30px); left:0; width:290px; white-space:pre-line; font-size:12px; line-height:1.5; text-align:left; padding:10px; color:#30251f; background:#fff0d6; border:2px solid #76543b; border-radius:6px; box-shadow:3px 4px 0 #30251f33; z-index:20; pointer-events:none; }
+.roster-character .skill-desc { white-space:pre-line; }
+.bond-row { margin-top:5px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; min-height:40px; border-top:1px dashed #be9b76; padding-top:4px; }
+.roster-character .bond-row svg { width:24px!important; height:24px!important; margin:0!important; }
+.bond-row small { width:100%; font-size:10px; }
+.bond-row.inactive { filter:grayscale(1); opacity:.55; }
+.bond-chain, .bond-chain img { width:24px; height:24px; }
+/* 四張 280px 的票券排一列 = 1120px，比卡冊紙面還寬，第四張會穿出去看不到
+   （2026-09-08 使用者回報）。改成可換行，並給高度上限＋自己捲，才不會把下面的書擠出版面。 */
+#recommendations { flex:none; display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; max-height:140px; overflow-y:auto; }
+#roster .recommend-ticket { box-sizing:border-box; width:280px; height:64px; padding:3px 8px; border:10px solid transparent; border-image:url('clicker-ui-ticket.png') 24 fill / 10px; border-radius:0; box-shadow:none; background:transparent; text-align:left; }
+.recommend-ticket b { font-size:13px; }
+.recommend-ticket small { display:block; font-size:9px; white-space:nowrap; }
+.recommend-portraits { display:flex; float:right; }
+.recommend-portraits svg { width:24px!important; height:24px!important; }
+.recommend-portraits .character-png, .bond-row .character-png, .slot-pick .character-png, #parasite-label .character-png { width:24px; height:24px; margin:0; }
+.buddy-portrait .character-png, #game .skill-use .character-png { width:40px; height:40px; margin:0; }
+.joining-portrait .character-png, .roster-character > .character-png { width:64px; height:64px; }
+.dust-row .character-png { width:28px; height:28px; }
+#cutin-actor .character-png { width:100%; height:100%; object-fit:contain; transform:skewX(6deg); }
+#cutin.mythic #cutin-panel { background:linear-gradient(115deg,#ffc6ec,#fff0b6,#c3f5e7,#d7cbff); }
+#cutin.mythic #cutin-stripes { background:var(--stripe); opacity:.5; }
+.album-card.locked .face-art .character-png { opacity:.3; }
+.mythic-stars { background:var(--mythic-rainbow); border-radius:5px; }
+.mythic-stars img { mix-blend-mode:luminosity; }
+@media (prefers-reduced-motion:reduce) { #cutin-actor .character-png { transform:none; } }
+.recommend-portraits .missing { filter:grayscale(1); opacity:.35; }
+
+/* Round 10: 夥伴卡冊、展示頁、粉塵罐、更衣室 */
+#roster.album { display:flex; flex-direction:column; }
+#roster.album header { margin-bottom:8px; }
+#roster.album header span { font-size:12px; }
+#game .dust-jar { display:flex; align-items:center; gap:4px; padding:2px 10px 4px; }
+.dust-jar img { width:26px; height:26px; object-fit:contain; }
+#album-book { position:relative; flex:1 1 auto; min-height:0; display:flex; gap:0; padding:26px 44px 22px; border-image:url('clicker-ui-album.png') 120 fill / 60px stretch; }
+.album-page[data-can-flip="true"] { cursor:pointer; }
+.album-page { cursor:default; min-width:0; flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:6px 4px; padding:0 14px; transform-origin:center; }
+#album-left { transform-origin:right center; padding-left:58px; } #album-right { transform-origin:left center; padding-right:58px; }
+#game .album-slot { min-width:0; position:relative; width:auto; height:auto; padding:0; border:0; border-image:none; box-shadow:none; outline:none; background:transparent; display:flex; flex-direction:column; align-items:center; gap:2px; overflow:visible; }
+#game .album-slot:hover:enabled { transform:none; filter:none; } #game .album-slot:active:enabled { transform:none; clip-path:none; }
+.album-slot .card { position:relative; left:auto; top:auto; width:150px; height:210px; margin:0; transform:scale(.6); transform-origin:center top; opacity:1; transition:none; pointer-events:none; }
+.album-slot .card-wrap { height:126px; }
+.album-slot .card { margin-bottom:-84px; }
+.album-card.locked .card-face { filter:grayscale(1) brightness(.75); }
+.album-card.locked .face-art svg { opacity:.3; }
+.album-unknown { position:absolute; left:50%; top:42%; transform:translate(-50%,-50%); font-size:64px; color:#FFF6E6; text-shadow:0 3px 0 #30251F; z-index:5; pointer-events:none; }
+.album-card.awakened .card-face { box-shadow:0 0 0 3px #E9B94E inset, 0 0 14px #E9B94E88; }
+.album-card.awakened .face-sheen { opacity:.55; animation:album-sheen 4s linear infinite; }
+@keyframes album-sheen { from { transform:translateX(-120%) rotate(12deg); } to { transform:translateX(120%) rotate(12deg); } }
+.album-meta small { white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; height:13px; flex-shrink:0; }
+.album-meta { max-width:100%; display:flex; flex-direction:column; align-items:center; gap:1px; font-size:11px; line-height:13px; color:#30251F; }
+.star-row { width:fit-content; display:flex; gap:1px; height:14px; align-items:center; }
+.star-row img { height:13px; width:auto; }
+.album-slot .slot-stamp { position:absolute; right:8px; top:6px; font-style:normal; z-index:6; }
+#game .page-corner { position:absolute; top:50%; width:52px; height:52px; padding:0; transform:translateY(-50%); font-size:34px; font-weight:800; color:#30251F; --button-bg:#FBEED0; }
+#game #album-next { right:10px; } #game #album-prev { left:10px; }
+#game .page-corner:hover:enabled { transform:translateY(calc(-50% - 2px)); }
+#game .page-corner:active:enabled { transform:translateY(-50%); }
+#game .page-corner:disabled { opacity:.3; }
+.album-pageno { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); font-size:12px; color:#735E4E; }
+#album-detail, #dust-shop { position:absolute; inset:52px 20px 20px; z-index:5; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; padding:13px 17px; display:flex; gap:18px; overflow:hidden; }
+.detail-left { width:220px; flex:none; display:flex; align-items:flex-start; justify-content:center; padding-top:16px; }
+.detail-card.card { position:relative; left:auto; top:auto; margin:0; opacity:1; transform:scale(1.15); transform-origin:center top; transition:none; pointer-events:auto; }
+.detail-card .face-art svg { animation:album-breathe 3.4s ease-in-out infinite; transform-origin:50% 100%; }
+@keyframes album-breathe { 0%,100% { transform:scale(1,1); } 50% { transform:scale(1.015,1.03); } }
+.detail-right { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; font-size:13px; line-height:17px; }
+.detail-right h3 { margin:0; font-size:22px; }
+.detail-tier { font-size:12px; color:#735E4E; }
+.detail-info { flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:4px; padding-right:4px; }
+.detail-info p { display:grid; grid-template-columns:52px 1fr; gap:6px; white-space:pre-line; }
+.detail-info b { color:#B63329; }
+.detail-buttons, .detail-grow { display:flex; gap:6px; flex-wrap:wrap; }
+#game .detail-buttons button, #game .detail-grow button, #game .detail-back { font-size:13px; padding:3px 10px 6px; }
+#game .grow-btn.promote { --button-bg:#B48CCB; }
+#game .grow-btn.transcend { --button-bg:#FBEED0; color:#2A4A8A; }
+#game .detail-back { align-self:flex-end; }
+.detail-flash { position:absolute; inset:0; background:#FFF6E6; pointer-events:none; z-index:9; }
+#dust-shop { flex-direction:column; gap:8px; }
+#dust-shop h3 { margin:0; font-size:20px; } #dust-shop p { font-size:12px; color:#735E4E; }
+.dust-list { flex:1; min-height:0; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; }
+.dust-row { display:grid; grid-template-columns:30px 60px 1fr auto auto; align-items:center; gap:5px; font-size:12px; }
+.dust-row svg { width:28px!important; height:28px!important; margin:0!important; filter:none!important; }
+#game .dust-row button { font-size:11px; padding:1px 6px 3px; }
+#game #dust-shop > button:last-child { align-self:flex-end; }
+#wardrobe { left:592px; right:16px; top:72px; bottom:56px; inset:auto; width:352px; height:auto; position:absolute; padding:9px 11px; display:flex; flex-direction:column; }
+#wardrobe header { margin-bottom:6px; gap:8px; } #wardrobe header span { font-size:12px; }
+/* 2026-09-08：更衣室改成商店，改「先選分類、再看該分類」的兩層 UI（比照場景票券）。
+   分類頁是一排大票券；進去之後 #wardrobe-body 只顯示被選中的那一欄，所以撐滿整個面板。 */
+/* 商店分類：置中的懸浮卡片（2026-09-08 使用者要求重新設計）。
+   原本用票券的 9-slice 邊框 + 固定 88px 高，字一多就整個溢出框外——
+   票券素材的框是畫死的，撐不開。改成照第十九輪的按鈕語彙用 CSS 畫：
+   3px 描邊、硬陰影、內虛線，高度由內容決定，整組在面板裡置中浮著。 */
+#shop-cats { flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center;
+  align-items:center; gap:14px; overflow-y:auto; padding:8px 0; }
+#game .shop-cat { width:min(420px, 100%); margin:0; padding:14px 18px; border:3px solid #30251F;
+  border-radius:16px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F33;
+  outline-offset:-8px; display:grid; grid-template-columns:52px 1fr auto; align-items:center;
+  column-gap:14px; text-align:left; font-size:16px; transition:transform .12s, box-shadow .12s; }
+#game .shop-cat:hover, #game .shop-cat:focus-visible { transform:translateY(-2px); box-shadow:0 6px 0 #30251F; }
+#game .shop-cat:active { transform:translateY(2px); box-shadow:0 2px 0 #30251F; }
+.shop-cat .shop-cat-icon { width:52px; height:52px; border-radius:50%; border:3px solid #30251F;
+  background:#FBEED0; display:grid; place-items:center; font-size:26px; line-height:1; }
+.shop-cat .shop-cat-text { min-width:0; }
+.shop-cat .shop-cat-text b { display:block; font-size:19px; line-height:1.25; }
+.shop-cat .shop-cat-text small { display:block; font-size:12.5px; line-height:1.35; color:#735E4E; }
+.shop-cat .shop-cat-count { font-size:13px; line-height:1.3; text-align:right; white-space:nowrap;
+  color:#735E4E; font-variant-numeric:tabular-nums; }
+.shop-cat .shop-cat-count b { font-size:17px; color:#30251F; }
+#wardrobe-body { flex:1; min-height:0; display:grid; grid-template-columns:1fr; gap:8px; }
+.wardrobe-col[hidden] { display:none; }
+.wardrobe-col { min-width:0; min-height:0; display:flex; flex-direction:column; gap:3px; overflow-y:auto; }
+.wardrobe-col > div:last-child { display:grid; grid-template-columns:1fr 1fr; gap:4px 10px; align-content:start; }
+.wardrobe-col h4 { margin:0 0 2px; font-size:13px; border-bottom:2px dashed #735E4E; }
+#game .wardrobe-item { min-width:0; display:grid; grid-template-columns:22px minmax(0,1fr); grid-template-rows:auto auto; column-gap:4px; align-items:center; text-align:left; font-size:12px; line-height:14px; padding:2px 6px 4px; }
+.wardrobe-icon { grid-row:1 / 3; font-size:18px; text-align:center; }
+.wardrobe-item small { font-size:10px; color:#735E4E; }
+.wardrobe-item.wearing { --button-bg:#8D9C5B; }
+.wardrobe-item:not(.owned) { opacity:.85; }
+.wardrobe-hint { font-size:11px; color:#735E4E; margin-top:6px; }
+.buddy-transcend { color:#3D7BE0; }
+#game .badge { width:24px; height:24px; }
+
+/* Round 13: 換桌布、印記商店、電動手指、夥伴訓練、桌面裝飾 */
+#prestige { display:flex; flex-direction:column; }
+#prestige > header { flex-shrink:0; }
+#prestige-body { min-height:0; overflow-y:auto; padding:4px; }
+#prestige header span { font-size:12px; }
+.prestige-tabs { display:flex; gap:6px; margin-bottom:10px; }
+#game .prestige-tabs button.active { --button-bg:#8D9C5B; }
+.prestige-note { font-size:13px; line-height:18px; }
+.prestige-note p { margin:0 0 8px; }
+.prestige-cols { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 10px; }
+.prestige-cols ul { margin:4px 0 0; padding-left:18px; }
+.prestige-actions { display:flex; gap:8px; margin-top:auto; }
+#game #prestige-go { --button-bg:#B48CCB; font-size:16px; padding:6px 18px 9px; }
+.mark-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+#game .mark-ticket { display:grid; grid-template-columns:34px 1fr auto; gap:8px; align-items:center; text-align:left; padding:6px 12px 8px; border-image:url('clicker-ui-ticket.png') 50 70 fill / 8px 12px stretch; background:#FAEBC9; background-clip:padding-box; }
+.mark-ticket img { width:32px; height:32px; object-fit:contain; }
+.mark-ticket small { display:block; font-size:10px; line-height:12px; color:#735E4E; -webkit-text-stroke:0; }
+.mark-ticket i { font-style:normal; color:#3D7BE0; }
+.mark-ticket.owned i { color:#8B9B5A; }
+.mark-stamp { position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); z-index:70; display:flex; flex-direction:column; align-items:center; gap:4px; pointer-events:none; }
+.mark-stamp img { width:140px; height:140px; }
+.mark-stamp b { font-size:28px; color:#3D7BE0; -webkit-text-stroke:1px #30251F; text-shadow:0 2px 0 #FFF6E6; }
+#game #prestige-hint { position:absolute; left:24px; top:40px; z-index:12; pointer-events:auto; font-size:12px; padding:4px 12px 6px; transform:rotate(-2deg); }
+#auto-finger { position:absolute; right:-6px; top:60px; width:48px; height:48px; object-fit:contain; transform-origin:20% 90%; z-index:3; pointer-events:none; }
+#deco-layer { position:absolute; inset:0; z-index:2; pointer-events:none; }
+#deco-layer .deco { position:absolute; height:44px; width:auto; max-width:88px; object-fit:contain; object-position:bottom center; transform:translate(-50%,-100%); }
+#deco-layer .deco-fallback { font-size:11px; background:#FFF6E6; border:1px solid #30251F; border-radius:4px; padding:1px 4px; height:auto; }
+#game .grow-btn.train { --button-bg:#8D9C5B; }
+#wardrobe { width:352px; }
+#wardrobe-body { grid-template-columns:1fr; }
+#wardrobe-decor-price { font-size:10px; color:#735E4E; }
+#game #prestige-open { font-size:13px; }
+
+/* 屋頂星空（印記商店桌布）：借後院層次上夜色 */
+#stage[data-scene="rooftop"] #clicker-scene { filter:saturate(.6) brightness(.55) hue-rotate(200deg) contrast(1.05); }
+#stage[data-scene="rooftop"] .desk-mat { filter:brightness(.7) hue-rotate(200deg); }
+#stage[data-scene="rooftop"] #hero-light { opacity:.7; }
+/* Round 11: 便利商店三連包、工廠輸送帶、夜市限時大禮包 */
+/* 舞台內只有珍母熱區、技能鍵與 #targets 裡的子包／禮包熱區吃指標；其他一律穿透 */
+#stage > :not(#tap):not(#slots):not(#targets):not(#boss-challenge):not(#daily-bag):not(#boss-view) { pointer-events:none; }
+#targets { position:absolute; inset:0; z-index:6; pointer-events:none; }
+#targets > button { pointer-events:auto; position:absolute; }
+#game .sub-hot, #game #gift-hot, #game .sub-hot:hover:enabled, #game #gift-hot:hover:enabled, #game .sub-hot:active:enabled, #game #gift-hot:active:enabled { border:0; border-image:none; box-shadow:none; outline:none; background:transparent; transform:none; clip-path:none; filter:none; border-radius:0; }
+.sub-hot { top:186px; width:100px; height:120px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.sub-hot[data-sub="0"] { left:330px; } .sub-hot[data-sub="1"] { left:392px; } .sub-hot[data-sub="2"] { left:454px; }
+#gift-hot { left:28px; top:108px; width:104px; height:136px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+/* 三連包：三個 100×120 的小包並排在 x 330／392／454 */
+#triple { position:absolute; left:330px; top:186px; width:224px; height:120px; z-index:4; }
+.sub-pack { position:absolute; top:0; width:100px; height:120px; object-fit:contain; transform-origin:50% 100%; }
+.sub-pack[data-sub="0"] { left:0; } .sub-pack[data-sub="1"] { left:62px; } .sub-pack[data-sub="2"] { left:124px; }
+.sweep-stamp { display:inline-block; margin-left:4px; padding:0 5px; font-size:14px; line-height:18px; color:#B63329; background:#FFF6E6; border:2px solid #B63329; border-radius:4px; transform:rotate(-8deg); -webkit-text-stroke:0; }
+/* 輸送帶：帶面 40px/s 捲動（JS 推 background-position），警示燈剩 5 秒 2Hz 閃紅，包裝 ±2px 8Hz 抖 */
+#belt { position:absolute; left:322px; top:282px; width:266px; height:40px; z-index:3; }
+#belt-track { position:absolute; inset:0; background:url('clicker-belt-track.png') 0 0 / auto 40px repeat-x; border-radius:4px; }
+#belt-lamp { position:absolute; left:234px; top:-58px; height:60px; width:auto; transform-origin:50% 100%; }
+#belt-lamp.warn { animation:belt-lamp-blink 500ms steps(2,jump-none) infinite; }
+@keyframes belt-lamp-blink { from { filter:brightness(1); } to { filter:brightness(1.7) saturate(1.6) drop-shadow(0 0 8px #FF5A5A); } }
+#belt-timer { position:absolute; left:214px; top:-80px; width:80px; text-align:center; font-size:14px; line-height:18px; color:#30251F; background:#FFF6E6; border:2px solid #30251F; border-radius:4px; }
+#belt-timer.warn { color:#B63329; }
+#bag.shiver { animation:belt-shiver 125ms linear infinite; }
+@keyframes belt-shiver { 0%,100% { translate:0 0; } 25% { translate:2px 0; } 75% { translate:-2px 0; } }
+.floater.miss { color:#9A9A9A; }
+/* 夜市禮包：老闆從攤位後探出（clip 遮住下半身）、禮包丟到桌左（技能槽上方，不與熱區重疊）、膠帶倒數縮成 60% */
+#gift-clip { position:absolute; left:470px; top:40px; width:96px; height:150px; overflow:hidden; z-index:3; }
+#gift-boss { position:absolute; left:4px; top:0; height:150px; width:auto; }
+#gift-bag { position:absolute; left:36px; top:116px; width:88px; height:122px; object-fit:contain; z-index:4; transform-origin:50% 100%; }
+#gift-timer { position:absolute; left:16px; top:98px; width:128px; height:10px; z-index:5; background:#745E4A66; }
+#gift-timer i { display:block; width:100%; height:100%; transform-origin:left; background:url('clicker-ui-boss-tape.png') center/100% 100%; }
+#gift-timer.urgent i { filter:saturate(1.6) brightness(1.05); }
+#gift-timer b { position:absolute; left:0; right:0; top:-16px; text-align:center; font-size:12px; line-height:14px; }
+/* 王包本體依場景換圖與尺寸（--boss-w／--boss-h），底邊仍貼桌面、中心預設 x 460（寬王可用 --boss-cx 左移，不出舞台） */
+#boss-view { left:calc(var(--boss-cx,460px) - var(--boss-w,260px) / 2); top:calc(360px - var(--boss-h,300px)); width:var(--boss-w,260px); height:var(--boss-h,300px); }
+/* 滅世珍獸是「整張圖就是王」，鋪滿整個版面。z-index 要降到技能槽（9）底下，
+   不然技能鍵、夥伴圓鈕全被王的圖蓋住點不到（第二十二輪 Playwright 驗收抓到的）。 */
+#boss-view.full-board { z-index:8; }
+/* 神話技能只用 stage.motion 驅動；與整版王同層、後插入，低於技能槽（9）。 */
+.mythic-fx { position:absolute; z-index:8; pointer-events:none; }
+.mythic-fx * { pointer-events:none; }
+.mythic-beam-layer { inset:0; overflow:hidden; }
+.mythic-flash { position:absolute; inset:0; background:#fffef0; opacity:0; }
+.mythic-beam { position:absolute; left:430px; top:120px; width:560px; height:60px; transform-origin:0 50%; opacity:0; border-radius:40% 12% 12% 40%; background:linear-gradient(0deg,transparent 0%,#edb62680 18%,#ffe58c 36%,#fffef5 47%,#fff 50%,#fffef5 53%,#ffe58c 64%,#edb62680 82%,transparent 100%); box-shadow:0 0 24px 8px #ffd45499; }
+.mythic-bloom { width:176px; height:176px; opacity:0; border:2px solid #a6dcff; border-radius:50%; background:radial-gradient(circle,transparent 34%,#e8f8ff55 48%,#428bd255 61%,transparent 71%); box-shadow:0 0 18px #9edbff88,inset 0 0 16px #dff5ff88; }
+.mythic-petal { position:absolute; left:calc(50% - 13px); top:calc(50% - 25px); width:26px; height:50px; border:1px solid #679acb; border-radius:70% 30% 65% 35%; background:radial-gradient(ellipse at 50% 28%,#fff 8%,#edfaff 38%,#8cc5ef 66%,#2864a5 100%); box-shadow:0 0 7px #e0f6ff99; }
+/* 玥來玥閒「躺著也會贏」：懶洋洋的暖橘金漣漪＋打瞌睡的 Z */
+.mythic-ripple { width:150px; height:150px; opacity:0; border:3px solid #F5C26B; border-radius:50%; background:radial-gradient(circle,transparent 58%,#F5C26B44 70%,transparent 80%); box-shadow:0 0 16px #F5C26B66; }
+.mythic-zzz { width:0; height:0; opacity:0; font:800 26px/1 system-ui,sans-serif; font-style:normal; color:#F7D89A; text-shadow:0 2px 0 #9A6B23,0 0 10px #F5C26B99; display:grid; place-items:center; }
+/* 玩物就玩物「捧在手心」：往上托起的粉色柔光＋六顆愛心 */
+.mythic-cradle { width:132px; height:132px; opacity:0; border:2px solid #F2A0B4; border-radius:50%; background:radial-gradient(circle,#FFF0F4 20%,#F7C2D0aa 55%,transparent 74%); box-shadow:0 0 18px #F7C2D099,inset 0 0 14px #FFF0F4aa; }
+.mythic-heart { width:18px; height:18px; opacity:0; background:#F27D9B; border:1px solid #C2496B; transform-origin:50% 50%; clip-path:path('M9 17S1 11.2 1 6.1A4.6 4.6 0 0 1 9 3a4.6 4.6 0 0 1 8 3.1C17 11.2 9 17 9 17Z'); box-shadow:0 0 8px #F7C2D0aa; }
+#boss-image { width:100%; height:100%; }
+/* 會動的王：橫向 N 幀的 strip 當背景，steps(N) 逐幀播。
+   background-size 放大 N 倍寬，position-x 由 0% 跑到 100%，steps(N) 剛好落在每一幀的起點。 */
+#boss-image.sprite { background-image:var(--boss-sprite); background-repeat:no-repeat;
+  background-size:calc(var(--boss-frames,4) * 100%) 100%; background-position-x:0%;
+  animation:boss-frames calc(var(--boss-frames,4) * 130ms) steps(var(--boss-frames,4), jump-none) infinite; }
+/* ⚠ 一定要 jump-none。background-position-x 的百分比是「(容器寬 − 背景寬) × 百分比」，
+   0% 是第一幀、100% 才是最後一幀，中間要平均落在 1/(n−1)。普通的 steps(n) 給的是
+   0、1/n、2/n…，每一幀都差了 1/n 個身位，畫面上就會看到幀跟幀的接縫。
+   jump-none 給的正好是 0/(n−1)…(n−1)/(n−1)，剛好對齊每一幀。 */
+@keyframes boss-frames { from { background-position-x:0%; } to { background-position-x:100%; } }
+@media (prefers-reduced-motion: reduce) { #boss-image.sprite { animation:none; background-position-x:0%; } }
+#boss-health { width:calc(var(--boss-w,260px) + 40px); }
+#stage > #boss-challenge.long { font-size:13px; line-height:15px; white-space:normal; padding:2px 8px; }
+#stage[data-scene="nightmarket"] .desk-mat { filter:brightness(.72) saturate(.8); }
+#stage[data-scene="factory"] .desk-mat { filter:grayscale(.6); }
+@media (prefers-reduced-motion:reduce) { #belt-lamp.warn { animation:none; filter:brightness(1.5); } #bag.shiver { animation:none; } }
+/* Round 12: 深夜冰箱（藍色調＋霜層＋回升標）、今日限定包、里程碑徽章牆、分享卡、匯出匯入 */
+.scene-tint { position:absolute; inset:0; pointer-events:none; z-index:60; }
+#stage[data-scene="fridge"] #clicker-scene, #stage[data-scene="fridge"] .scene-outgoing { filter:saturate(.82) brightness(1.05) contrast(.95); }   /* 冰箱有自己的冷色素材了，不再 hue-rotate 廚房圖（會把藍轉成粉） */
+#stage[data-scene="fridge"] .desk-mat { filter:saturate(.5) brightness(1.05); }
+#stage[data-scene="fridge"] #hero-light { background:radial-gradient(ellipse, #DFF3FFb8 0%, #DFF3FF00 70%); }
+.scene-toy { z-index:2; filter:drop-shadow(0 2px 0 #30251F55); }
+#stage > #regen-tag { position:absolute; left:296px; top:330px; height:22px; display:flex; align-items:center; gap:2px; z-index:13; padding:0 6px 2px 3px; font-size:11px; line-height:14px; color:#2A4A66; background:#DFF3FF; border:2px solid #30251F; border-radius:4px; pointer-events:none; }
+#regen-tag img { width:16px; height:16px; object-fit:contain; }
+#frost { position:absolute; inset:0; z-index:2; pointer-events:none; opacity:var(--frost,0); -webkit-mask:var(--frost-mask) center/100% 100% no-repeat; mask:var(--frost-mask) center/100% 100% no-repeat;
+  background:linear-gradient(180deg,#FFFFFF 0%,#DFF3FFcc 35%,#FFFFFF88 60%,#F4FBFF 100%); }
+#frost::after { content:''; position:absolute; inset:0; background:url('clicker-fx-snow.png') 12% 18%/26px no-repeat, url('clicker-fx-snow.png') 70% 40%/20px no-repeat, url('clicker-fx-snow.png') 30% 70%/22px no-repeat, url('clicker-fx-snow.png') 78% 82%/18px no-repeat; opacity:.9; }
+#frost[data-level="1"]::after { opacity:.35; } #frost[data-level="2"]::after { opacity:.65; }
+#frost .frost-image { position:absolute; inset:0; width:100%; height:100%; object-fit:fill; }
+#stage > #daily-bag { pointer-events:auto; position:absolute; z-index:6; border:0; border-image:none; box-shadow:none; outline:none; background:transparent; padding:0; transform-origin:50% 100%; }
+#game #daily-bag:hover:enabled { filter:brightness(1.06); transform:translateY(-2px); } #game #daily-bag:active:enabled { transform:translateY(1px) scale(.98); clip-path:none; }
+#daily-bag .daily-image { position:absolute; left:0; top:0; width:100%; height:100%; object-fit:contain; transform-origin:50% 100%; filter:drop-shadow(0 3px 0 #30251F44); }
+#daily-bag .daily-tape { position:absolute; left:8px; top:-6px; width:64px; height:22px; object-fit:contain; transform:rotate(-8deg); filter:hue-rotate(-20deg) saturate(1.6) brightness(1.15); }
+#daily-bag .daily-star { position:absolute; right:-10px; top:-12px; width:30px; height:30px; object-fit:contain; animation:daily-twinkle 1.6s ease-in-out infinite; }
+@keyframes daily-twinkle { 0%,100% { transform:scale(1) rotate(0); } 50% { transform:scale(1.25) rotate(18deg); } }
+#daily-bag .daily-label { position:absolute; left:50%; bottom:-4px; transform:translateX(-50%) rotate(-3deg); padding:0 5px; font-size:10px; line-height:14px; white-space:nowrap; background:#E9B94E; color:#30251F; border:1.5px solid #30251F; border-radius:3px; }
+#daily-bag .daily-meter { position:absolute; left:4px; right:4px; bottom:-14px; height:6px; background:#FFF6E6; border:1.5px solid #30251F; border-radius:3px; overflow:hidden; }
+#daily-bag .daily-meter b { display:block; height:100%; width:0; background:linear-gradient(90deg,#E9B94E,#EF8E8E); }
+#stage > #badge-pop { position:absolute; left:50%; top:38%; translate:-50% -50%; z-index:22; display:flex; flex-direction:column; align-items:center; gap:4px; pointer-events:none; }
+#badge-pop b { padding:2px 10px; font-size:16px; background:#FDECCB; border:2px solid #30251F; border-radius:5px; box-shadow:2px 3px 0 #30251F44; }
+.badge-icon { position:relative; display:inline-block; width:var(--size,64px); height:var(--size,64px); }
+.badge-icon .badge-art, .badge-icon .badge-base { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+.badge-icon .badge-star { position:absolute; right:-8%; top:-10%; width:42%; height:42%; object-fit:contain; }
+.badge-icon b { position:absolute; left:50%; top:52%; translate:-50% -50%; font-size:calc(var(--size,64px) * .26); line-height:1; color:#30251F; -webkit-text-stroke:0; padding:1px 4px; background:#FFF6E6e6; border-radius:4px; white-space:nowrap; }
+#team #share-offer { position:absolute; left:604px; top:0; height:24px; z-index:9; padding:1px 10px 3px; font-size:11px; --button-bg:#FA776B; }
+.extra-floater { white-space:nowrap; }
+#stats.badge-wall header { margin-bottom:8px; } #stats.badge-wall header h2 { display:flex; align-items:center; gap:4px; } #stats.badge-wall header h2 b { font-size:14px; margin-left:4px; }
+#stats.badge-wall header span { font-size:11px; line-height:14px; }
+#badge-grid { display:grid; grid-template-columns:repeat(9,1fr); gap:6px 4px; padding:7px 3px; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; }
+.badge-cell { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:10px; line-height:12px; text-align:center; }
+.badge-cell:not(.earned) .badge-icon { filter:grayscale(1) brightness(.85); opacity:.42; }
+.badge-cell.earned .badge-icon { animation:badge-settle 220ms cubic-bezier(.2,1.4,.4,1) backwards; }
+@keyframes badge-settle { from { transform:scale(0) rotate(-12deg); } 70% { transform:scale(1.18) rotate(3deg); } to { transform:scale(1) rotate(0); } }
+#stats-tools { display:flex; gap:8px; margin-top:8px; } #game #stats-tools button { font-size:13px; padding:3px 12px 6px; }
+#save-io, #rescue { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+#io-text, #rescue-text { width:100%; height:64px; font-size:11px; font-family:monospace; user-select:text; resize:none; background:#FFF6E6; border:2px solid #735E4E; border-radius:6px; padding:4px 6px; word-break:break-all; }
+.io-row { display:flex; align-items:center; gap:8px; } .io-row span { flex:1; font-size:12px; line-height:15px; }
+#game .io-row button { font-size:12px; padding:2px 10px 5px; }
+#share.share-panel { display:flex; flex-direction:column; gap:10px; } #share.share-panel header { margin-bottom:0; }
+#share-canvas { width:auto; max-width:100%; aspect-ratio:16/9; height:auto; flex:0 1 auto; min-height:0; max-height:calc(100% - 96px); align-self:center; border:3px solid #30251F; border-radius:6px; background:#E9D6B4; box-shadow:4px 5px 0 #30251F33; }
+#game #share .io-row { justify-content:center; } #game #share .io-row button { font-size:15px; padding:4px 18px 7px; }
+#pick100.pick-panel header span { font-size:12px; }
+#pick100-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+#game .pick-card { display:flex; flex-direction:column; align-items:center; gap:2px; height:150px; padding:6px 4px; font-size:13px; }
+.pick-card svg { height:88px !important; width:auto; margin:0 !important; filter:none !important; }
+.pick-card small { font-size:10px; color:#735E4E; }
+@media (prefers-reduced-motion:reduce) { #daily-bag .daily-star { animation:none; } .badge-cell.earned .badge-icon { animation:none; } }
+
+/* 卡冊修正：紙上不發光、hover 不傾斜（GachaCard 的 live 只留給展示頁大卡） */
+.album-slot .card-glow, .detail-card .card-glow { display:none; }
+.album-slot .card .card-lift, .album-slot .card:hover .card-lift { transform:none !important; }
+.album-slot .card:hover .face-holo, .album-slot .card:hover .face-glare { opacity:0; }
+#game .album-slot:hover:enabled .card { filter:brightness(1.04); }
+.album-slot .card { will-change:auto; }
+/* 粉塵罐：字放大、列拉高、鍵用紫色貼圖 */
+#dust-shop h3 { font-size:22px; } #dust-shop > p { font-size:13px; }
+.dust-row { grid-template-columns:34px 68px 1fr auto auto; gap:6px; font-size:14px; min-height:44px; }
+.dust-row small { font-size:13px; }
+#game .dust-row button { font-size:13px; padding:3px 10px 5px; --button-bg:#B48CCB; color:#30251F; }
+#game .dust-row button:disabled { --button-bg:#D9CCBB; background:var(--button-bg); }
+#game .album-slot:hover:enabled, #game .album-slot:active:enabled { background:transparent; filter:none; transform:none; }
+#album-detail, #dust-shop { z-index:20; }
+#stage > #boss-challenge { background-size:100% 100%; }
+#stage > #boss-challenge { padding:4px 6px 6px 32px; text-align:left; font-size:14px; line-height:16px; }
+
+/* 王包本體也是熱區（點珍母或點罐頭都算打王） */
+#stage > #boss-view { pointer-events:auto; cursor:pointer; }
+#boss-view > * { pointer-events:none; }
+
+/* 點擊粒子與浮字要壓在王包／禮包／今日包之上（stage 沒有 z-index，裡面的 z 13 會直接壓過 canvas 的 6） */
+#click-fx { z-index:25; }
+#floaters { z-index:26; }
+#daily-done-text { font-size:18px; line-height:30px; }
+
+.wardrobe-item b, .wardrobe-item small { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#wardrobe-decor-price { white-space:normal; }
+#boss-banner.final-win { font-size:24px; }
+#game #snack-thief { left:506px; top:184px; width:90px; height:110px; padding:0; border:0; border-image:none; box-shadow:none; outline:none; background:transparent; z-index:8; }
+#snack-thief img { width:100%; height:100%; object-fit:contain; animation:thief-bob 1.2s ease-in-out infinite; }
+#snack-thief span { position:absolute; right:5px; bottom:15px; }
+@keyframes thief-bob { 50% { translate:0 -6px; } }
+@media (prefers-reduced-motion:reduce) { #snack-thief img { animation:none; } }
+
+#roster #train-all { flex:none; white-space:nowrap; font-size:12px; padding:5px 9px; }
+
+/* 貼圖熱區、圓貼紙與票券保留自己的輪廓。 */
+#game :is(#tap, .buddy, .slot-pick, .skill-use, #boss-challenge, .scene-ticket, .recommend-ticket, .album-slot, .mark-ticket, .sub-hot, #gift-hot, #daily-bag, #snack-thief):is(:hover, :active, :disabled),
+#game :is(#boss-challenge, .scene-ticket, .recommend-ticket, .mark-ticket) { box-shadow:none; outline:none; }
+#game :is(#tap, .buddy, .slot-pick, .album-slot):hover:enabled { background:transparent; }
+#game .skill-use:hover:enabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
+#game .mark-ticket { border:0; border-radius:0; }
+#game :is(button, select):focus-visible { outline:3px solid #0070dd; outline-offset:3px; }
+#game :is(.text-button, #audio-panel button[aria-pressed]) { background:transparent; border:0; box-shadow:none; outline:none; }
+#game :is(.scene-ticket, .mark-ticket):hover:enabled { background:#FAEBC9; }
+#game #roster .recommend-ticket:hover:enabled { background:transparent; }
+#game #prestige-go { padding:3px 15px 6px; }
+
+/* 第二十輪：被動浮字與每秒收益關卡票券。 */
+#game .floater.passive { font-size:18px; font-weight:bold; color:#E9B94E; -webkit-text-stroke:.6px #30251F; paint-order:stroke fill; text-shadow:none; opacity:.9; white-space:nowrap; }
+.rate-stamp { position:absolute; left:50%; top:42%; z-index:27; padding:16px 24px; border:3px solid #30251F; border-radius:10px; background:#FBEED0; color:#A34C50; box-shadow:4px 4px 0 #30251F; outline:1px dashed #A34C50; outline-offset:-8px; font-size:26px; font-weight:bold; transform:translate(-50%,-50%) rotate(-4deg); pointer-events:none; }
+</style><div id="game"><button style="margin:30px">返回地圖</button></div>
