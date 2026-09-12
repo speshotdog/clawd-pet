@@ -557,7 +557,7 @@ window.Clicker = (() => {
     extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin });
     dragUI = window.ClickerDrag.create({ $, store, commit, changed, notice, sound, card, E, Pool });   // v3：夥伴列拖到技能槽
     teamUI = window.ClickerTeamUI.create({ $, store, commit, changed, action, notice, sound, card, E, B, Pool, format });
-    apocUI = window.ClickerApoc.create({ $, store, commit, changed, notice, sound }); apocUI.refresh();
+    apocUI = window.ClickerApoc.create({ $, store, commit, changed, notice }); apocUI.refresh();
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     ready = true; gacha.setReady(); stage.setPartners(store.state);
@@ -669,7 +669,7 @@ window.Clicker = (() => {
     if (album?.escape()) return true;
     if (!$('prestige').hidden) { $('prestige-close').click(); return true; }
     if (!$('team-editor').hidden) { $('team-close').click(); return true; }
-    if (!$('apoc').hidden) { $('apoc-close').click(); return true; }
+    if (!$('apoc').hidden) { apocUI.close(); return true; }
     if (extras?.escape()) return true;
     for (const id of ['scenes', 'roster', 'stats', 'receipt']) if (!$(id).hidden) { $(`${id}-close`).click(); return true; }
     return false;
@@ -709,5 +709,5 @@ window.Clicker = (() => {
   main().catch((err) => { $('fatal').hidden = false; $('fatal').textContent = `珍母點點初始化失敗：${err.message}`; });
   // repaired：這次載入有沒有自動修復過（{applied:[重置了哪些], reason:原本的錯誤}）。
   // 浮動訊息 1.4 秒就消失，驗收與客服要問「到底修了什麼」得看這裡。
-  return { get state() { return store.state; }, get extras() { return extras; }, get repaired() { return store.repaired; }, get drag() { return dragUI?.state; } };
+  return { get state() { return store.state; }, get extras() { return extras; }, get repaired() { return store.repaired; }, get drag() { return dragUI?.state; }, get apocReady() { return !!apocUI?.ready; } };
 })();

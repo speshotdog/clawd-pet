@@ -595,22 +595,17 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 
 /* Round 13: 換桌布、印記商店、電動手指、夥伴訓練、桌面裝飾 */
 #prestige { display:flex; flex-direction:column; }
-/* v3 末世入口殼 */
-#apoc { display:flex; flex-direction:column; z-index:35; padding:8px 10px; }
-#apoc > header { flex-shrink:0; margin-bottom:6px; gap:10px; }
-.apoc-tabs { display:flex; gap:6px; flex:1; }
-.apoc-tabs button.active { background:#dff3e4; }
-.apoc-body { position:relative; flex:1; min-height:0; border:2px solid #96714f; border-radius:12px; overflow:hidden; background:#101115; }
-.apoc-body iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#101115; }
-.apoc-body iframe.off { visibility:hidden; pointer-events:none; }
-.apoc-empty { position:absolute; inset:0; margin:0; display:grid; place-items:center; color:#ecece6; font-size:16px; }
-#apoc-coach { position:absolute; inset:0; background:rgba(0,0,0,.45); display:grid; place-items:end center; padding:16px; z-index:5; }
+/* v3 末世模式：蓋滿整個 960×640 遊戲框（含頂欄、底欄） */
+#apoc { position:absolute; inset:0; z-index:35; background:#242723; }
+#apoc iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#242723; }
+#apoc-coach { position:absolute; inset:0; background:rgba(0,0,0,.45); display:grid; place-items:end center; padding:16px 16px 72px; z-index:5; }
 .coach-bubble { max-width:520px; background:#fff7e5; border:3px solid #96714f; border-radius:16px; padding:12px 16px; box-shadow:0 8px 24px rgba(0,0,0,.35); }
 .coach-bubble small { color:#7a5a3a; font-size:11px; letter-spacing:.08em; }
 .coach-bubble h3 { margin:2px 0 6px; font-size:18px; }
 .coach-bubble p { margin:0 0 10px; font-size:14px; line-height:1.5; }
 .coach-actions { display:flex; justify-content:flex-end; gap:8px; }
 #apoc-coach-next { font-weight:700; }
+body[data-mode="apoc"] #topbar, body[data-mode="apoc"] footer { visibility:hidden; }
 #apoc-open.new { animation:challenge-glow 1.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { #apoc-open.new { animation:none; } }
 /* v3 編隊畫面 */

@@ -217,14 +217,35 @@ body[data-screen=team]{background:#101115;color:#ecece6}
 .dragging,.dragging *{cursor:grabbing;user-select:none;-webkit-user-select:none}
 @media(min-width:701px){#team-grid .team-proxy{cursor:grab}}
 </style>
-<div class="shell"><header class="mast" data-ui><i class="wear"></i><div><small>災後行動 / 路線記錄 02</small><h1>末世地圖</h1></div><div class="meta">單一路線 · 五個封鎖區<br><span id="total" class="digits"></span> 站已通行</div></header><main class="board"><nav class="rail-zone" data-ui data-rail aria-label="區段"><i class="wear"></i><i class="wear wear-right"></i><i class="wear wear-foot"></i></nav><section class="map-window" aria-label="二十站線性地圖"><div class="route"><div class="terrain" aria-hidden="true"></div><svg class="route-lines" aria-hidden="true"></svg></div></section><aside class="inspector rail-zone" data-ui data-rail aria-label="關卡摘要"><i class="wear"></i><i class="wear wear-right"></i><i class="wear wear-foot"></i><small id="section"></small><h2 id="title"></h2><div class="status" id="status" aria-live="polite"></div><hr><p id="description"></p><p class="next" id="next"></p><div class="actions"><button id="advance">記錄通關</button><button id="fail">記錄失敗</button></div><button id="back">返回目前站</button><p id="art-note"></p><p class="footer-note">道路仍在。逐站確認，繼續前進。</p></aside></main></div>
+<style>
+.apoc-top{position:fixed;left:0;right:0;top:0;height:56px;z-index:20;display:flex;align-items:center;gap:14px;padding:0 16px;background:#1b1e1a;border-bottom:2px solid var(--edge);color:var(--ink);font-family:inherit}
+.apoc-top h1{margin:0;font-size:20px;letter-spacing:.06em}
+.apoc-top .apoc-coins{margin-left:auto;display:flex;align-items:baseline;gap:8px;font-variant-numeric:tabular-nums}
+.apoc-top .apoc-coins i{font-style:normal;font-size:12px;color:var(--label)}
+.apoc-top .apoc-coins b{font-size:22px}
+.apoc-top .apoc-tickets{display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--label)}.apoc-top .apoc-tickets b{font-size:16px;color:var(--ink)}
+.apoc-top button,.apoc-nav button{background:#373d35;color:var(--ink);border:1px solid var(--edge);border-radius:6px;padding:8px 14px;font-size:14px;cursor:pointer}
+.apoc-nav{position:fixed;left:0;right:0;bottom:0;height:56px;z-index:20;display:flex;gap:6px;padding:6px 10px;background:#1b1e1a;border-top:2px solid var(--edge)}
+.apoc-nav button{flex:1}.apoc-nav button[aria-current=true]{background:var(--focus);color:#1b1e1a;font-weight:700}
+body{padding-top:56px;padding-bottom:56px}
+#open-team,#return-map{display:none}
+#gacha-screen{position:fixed;left:0;right:0;top:56px;bottom:56px;z-index:10;background:#101115}#gacha-screen iframe{width:100%;height:100%;border:0}
+.team-collect{margin-top:12px}.team-collect .collect-grid{display:flex;gap:12px;flex-wrap:wrap;padding:12px}
+.team-collect .collect-card{width:120px;aspect-ratio:5/7;border:2px solid var(--edge);border-radius:8px;background:#101115 center/cover;cursor:pointer;position:relative;padding:0}
+.team-collect .collect-card b{position:absolute;left:0;right:0;bottom:0;padding:4px;background:rgba(0,0,0,.55);color:#ffd6ea;font-size:12px}
+.team-collect .collect-empty{padding:12px;color:var(--label);font-size:13px}
+#collect-view{position:fixed;inset:56px 0;z-index:15;background:#101115}#collect-view iframe{width:100%;height:100%;border:0}#collect-view button{position:absolute;right:12px;top:12px;z-index:2}
+</style><div class="apoc-top"><h1>末世</h1><span class="apoc-tickets">末世券 <b id="apoc-tickets">0</b></span><span class="apoc-coins"><i>末世金幣</i><b id="apoc-coins">0</b></span><button id="apoc-back">返回 1.0</button></div>
+<div class="apoc-nav" role="navigation" aria-label="末世分頁"><button data-go="map" aria-current="true">地圖</button><button data-go="team">編隊</button><button data-go="gacha">精裝招募</button><button data-go="collect">卡冊・收藏卡</button></div>
+<section id="gacha-screen" hidden><iframe title="精裝招募" loading="lazy"></iframe></section>
+<div id="collect-view" hidden><button id="collect-close">返回</button><iframe title="收藏卡" loading="lazy"></iframe></div><div class="shell"><header class="mast" data-ui><i class="wear"></i><div><small>災後行動 / 路線記錄 02</small><h1>末世地圖</h1></div><div class="meta">單一路線 · 五個封鎖區<br><span id="total" class="digits"></span> 站已通行</div></header><main class="board"><nav class="rail-zone" data-ui data-rail aria-label="區段"><i class="wear"></i><i class="wear wear-right"></i><i class="wear wear-foot"></i></nav><section class="map-window" aria-label="二十站線性地圖"><div class="route"><div class="terrain" aria-hidden="true"></div><svg class="route-lines" aria-hidden="true"></svg></div></section><aside class="inspector rail-zone" data-ui data-rail aria-label="關卡摘要"><i class="wear"></i><i class="wear wear-right"></i><i class="wear wear-foot"></i><small id="section"></small><h2 id="title"></h2><div class="status" id="status" aria-live="polite"></div><hr><p id="description"></p><p class="next" id="next"></p><div class="actions"><button id="advance">記錄通關</button><button id="fail">記錄失敗</button></div><button id="back">返回目前站</button><p id="art-note"></p><p class="footer-note">道路仍在。逐站確認，繼續前進。</p></aside></main></div>
 <button id="open-team">編隊 →</button>
 <section id="team-screen" aria-label="編隊收藏">
 <header class="team-heading" data-team-ui><div><h1>編隊收藏</h1><small>原型子集 · 24 / 63 張</small></div><button id="return-map">返回地圖</button></header>
 <div class="team-work"><div class="team-main">
 <section class="capacity team-rail" data-team-ui data-team-rail aria-label="四條累加上限"><i class="team-texture"></i><div id="capacity-rows"></div><div id="capacity-errors" class="capacity-errors" role="status"></div></section>
 <section class="team-roster team-rail" data-team-ui data-team-rail aria-label="隊伍成員"><i class="team-texture"></i><div class="team-roster-head"><span>隊伍 <b id="roster-count" class="digits"></b></span><button id="add-member">＋ 新增成員</button></div><div class="roster-scroll"><div id="team-grid" class="team-grid"></div></div><nav class="roster-pages" aria-label="隊伍分頁"><button id="roster-prev">上一頁</button><span id="roster-page"></span><button id="roster-next">下一頁</button></nav></section>
-<section class="team-skills team-rail" data-team-ui data-team-rail><i class="team-texture"></i><div class="team-skills-label"><span>獨立技能</span><small>來源尚未定案 · 神話最多 1 張</small><span id="skill-status" class="skill-status" role="status"></span></div><div id="skill-grid" class="skill-grid"></div></section></div>
+<section class="team-skills team-rail" data-team-ui data-team-rail><i class="team-texture"></i><div class="team-skills-label"><span>獨立技能</span><small>來源尚未定案 · 神話最多 1 張</small><span id="skill-status" class="skill-status" role="status"></span></div><div id="skill-grid" class="skill-grid"></div></section><section class="team-rail team-collect" data-team-ui data-team-rail aria-label="收藏卡"><i class="team-texture"></i><div class="team-skills-label"><span>收藏卡</span><small>末世限定 · 純收藏，不編隊</small></div><div id="collect-grid" class="collect-grid"></div></section></div>
 <aside id="team-detail" class="team-detail team-rail" data-team-ui data-team-rail aria-label="完整卡片詳情"><button id="detail-close" class="detail-close">返回隊伍</button><header class="team-detail-header"><span id="detail-number" class="team-marker"></span><div><h2 id="detail-name"></h2><small id="detail-rarity"></small></div></header><div class="carrier-board"><i class="team-texture"></i><div class="card-slot"><div id="card-host" class="card-host" tabindex="0" aria-label="完整卡面，方向鍵調整角度"></div></div></div><p class="team-detail-note">選取成員，檢視完整卡面。</p><div class="team-detail-actions"><span id="detail-operation" class="team-marker"></span><button id="replace-member">替換</button><button id="remove-member">移出隊伍</button></div></aside></div>
 <dialog id="team-picker" class="team-dialog"><div class="picker-heading"><h2 id="picker-title"></h2><button id="picker-close">關閉</button></div><div id="picker-grid" class="picker-grid"></div><p id="picker-status" class="picker-status" role="status"></p><button id="picker-confirm" class="picker-confirm" disabled>確認加入</button></dialog>
 </section>
@@ -256,7 +277,7 @@ $('#advance').onclick=advance;$('#fail').onclick=()=>{if(selected!==progress||bu
 
 document.body.classList.toggle('no-terrain',q.get('terrain')==='off');
 document.body.classList.toggle('no-texture',q.get('wear')==='off');
-function terrainLayout(){if(document.body.dataset.screen==='team')return;if(!$('.route').clientWidth&&innerWidth>=700)return;/* v3 iframe 殼：還沒佈局時先跳過 */const w=innerWidth<700?480:Math.min($('.route').clientWidth,1040),h=w*1619/971,offset=innerWidth<700?-100:innerWidth<1101?-50:-140;$('.terrain').innerHTML=Array.from({length:Math.ceil((3744-offset)/h)},(_,i)=>`<div class="terrain-tile" data-tile="${i}" style="top:${offset+i*h}px"></div>`).join('')}
+function terrainLayout(){if(document.body.dataset.screen==='team')return;const w=innerWidth<700?480:Math.min($('.route').clientWidth,1040),h=w*1619/971,offset=innerWidth<700?-100:innerWidth<1101?-50:-140;$('.terrain').innerHTML=Array.from({length:Math.ceil((3744-offset)/h)},(_,i)=>`<div class="terrain-tile" data-tile="${i}" style="top:${offset+i*h}px"></div>`).join('')}
 // Fixed irregular edge chips: long scrapes at pressure corners and clustered nicks.
 all('.wear').forEach((e,i)=>{const horizontal=e.closest('.mast')||e.classList.contains('wear-foot');e.innerHTML=horizontal?`<svg preserveAspectRatio="none" viewBox="0 0 1000 16"><path d="M0 2H73l9 2h42l8-2h36l5 3h24M209 1h18m7 2h11M293 2h89l13 3h44M507 1h16m27 2h67M718 2h51l8 3h35M907 2h93M2 5v8m994-9v9"/></svg>`:`<svg preserveAspectRatio="none" viewBox="0 0 18 700"><path d="M2 0v83l3 7v29M1 153v17m3 11v9M2 246v59l3 9v42M1 443v17m3 11v31M2 584v73l3 9v34M5 2h10M5 695h12"/></svg>`});
 new ResizeObserver(terrainLayout).observe($('.route'));terrainLayout();
@@ -610,4 +631,26 @@ $('#team-grid').addEventListener('click',e=>{if(suppressClick){e.stopPropagation
 window.team20={showPage,cards,notify,get drag(){return {threshold:DRAG_THRESHOLD,active:!!(drag&&drag.active),pending:!!drag,ghosts:dragLayer.childElementCount,rafPending:!!(drag&&drag.raf),targets:$$('.skill-slot.drop-target').length,pickerFaces:pickerFaces.size,overviewFaces:overviewFaces.size}},counts,violations,add,select,preview,assignSkill,pose,setScreen,openPicker,get roster(){return [...roster]},get skills(){return [...skills]},get face(){return face},get state(){return {...state}},get generation(){return generation},reset(){cancelDrag();clearOperation();roster=[...initial];skills=[null,null,null,null];selected=roster[0];renderRoster();detail()},ablate(flags=[]){for(const name of ['carrier','texture','selection'])screen.classList.toggle('no-team-'+name,flags.includes(name))}};
 document.body.dataset.screen='map';if(new URLSearchParams(location.search).get('screen')==='team')setScreen('team');
 })();
-</script></html>
+</script><script>
+(()=>{'use strict';
+const $=s=>document.querySelector(s);
+const COLLECT={mohuashaonv:{name:'魔花少女',thumb:'../card-mohuashaonv.png',page:'mohuashaonv.html'}};
+let state={coins:0,tickets:0,collectibles:[]};
+function fmt(n){return n>=1e8?(n/1e8).toFixed(2)+'億':n>=1e4?(n/1e4).toFixed(n>=1e6?0:1)+'萬':Math.floor(n).toLocaleString('zh-TW')}
+function renderTop(){$('#apoc-coins').textContent=fmt(state.coins||0);$('#apoc-tickets').textContent=state.tickets||0}
+function renderCollect(){const g=$('#collect-grid');g.replaceChildren();const ids=(state.collectibles||[]).filter(id=>COLLECT[id]);
+ if(!ids.length){const p=document.createElement('p');p.className='collect-empty';p.textContent='還沒有收藏卡。';g.append(p);return}
+ for(const id of ids){const b=document.createElement('button');b.className='collect-card';b.style.backgroundImage=`url("${COLLECT[id].thumb}")`;b.innerHTML=`<b>${COLLECT[id].name}</b>`;b.title=COLLECT[id].name+'・點開看精裝卡';b.onclick=()=>{const v=$('#collect-view');v.querySelector('iframe').src=COLLECT[id].page;v.hidden=false};g.append(b)}}
+$('#collect-close').onclick=()=>{const v=$('#collect-view');v.hidden=true;v.querySelector('iframe').src='about:blank'};
+function go(tab){for(const b of document.querySelectorAll('.apoc-nav button'))b.setAttribute('aria-current',String(b.dataset.go===tab));
+ $('#gacha-screen').hidden=tab!=='gacha';if(tab==='gacha'){const f=$('#gacha-screen iframe');if(!f.src||f.src==='about:blank')f.src='gacha.html'}
+ if(tab==='map')window.team20?.setScreen('map');if(tab==='team'||tab==='collect'){window.team20?.setScreen('team');if(tab==='collect')setTimeout(()=>$('.team-collect')?.scrollIntoView({behavior:'smooth',block:'start'}),60)}
+ parent.postMessage({type:'apoc-tab',tab},'*')}
+document.querySelectorAll('.apoc-nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
+$('#apoc-back').onclick=()=>parent.postMessage({type:'apoc-back'},'*');
+addEventListener('message',e=>{const d=e.data||{};if(d.type==='apoc-state'){state={...state,...d.state};renderTop();renderCollect()}else if(d.type==='apoc-go')go(d.tab)});
+renderTop();renderCollect();parent.postMessage({type:'apoc-ready'},'*');
+window.apocShell={go,get state(){return state}};
+})();
+</script>
+</html>

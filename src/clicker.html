@@ -74,16 +74,10 @@
   <section id="scenes" class="small-panel" role="dialog" aria-modal="true" aria-label="場景票券" hidden><h2>下一站，在哪拆？</h2><div id="scene-tickets"></div><button id="scenes-close">回到桌邊</button></section>
   <!-- v3 大掃除結算頁：老玩家第一次載入看到一次；透明本身就是補償（DESIGN-2026-09-12-content-architecture §11.4） -->
   <section id="cleanup" class="panel cleanup" role="dialog" aria-modal="true" aria-label="珍母大掃除" hidden><header><h2>珍母大掃除</h2><span>末世快來了，舊桌布收進相簿</span></header><div id="cleanup-body"></div><div class="cleanup-actions"><button id="cleanup-why">這是怎麼算的？</button><button id="cleanup-reset">從零開始（拿魔花少女＋徽章）</button><button id="cleanup-ok">保留進度</button></div></section>
-  <!-- v3 末世（2.0）入口殼：iframe 嵌自包含頁＋新手引導 -->
-  <section id="apoc" class="panel apoc" role="dialog" aria-modal="true" aria-label="末世地圖" hidden>
-    <header><h2>末世地圖</h2><nav class="apoc-tabs"><button id="apoc-tab-map" class="active">地圖</button><button id="apoc-tab-team">編隊</button><button id="apoc-tab-gacha">精裝招募</button><button id="apoc-tab-collect">收藏卡</button></nav><button id="apoc-close">返回 1.0</button></header>
-    <div class="apoc-body">
-      <iframe id="apoc-frame-map" title="末世地圖" hidden></iframe>
-      <iframe id="apoc-frame-gacha" title="精裝招募" hidden></iframe>
-      <iframe id="apoc-frame-collect" title="收藏卡" hidden></iframe>
-      <p id="apoc-collect-empty" class="apoc-empty" hidden>還沒有收藏卡。</p>
-      <div id="apoc-coach" hidden><div class="coach-bubble"><small id="apoc-coach-step">1 / 6</small><h3 id="apoc-coach-title"></h3><p id="apoc-coach-text"></p><div class="coach-actions"><button id="apoc-coach-skip">跳過教學</button><button id="apoc-coach-next">下一步</button></div></div></div>
-    </div>
+  <!-- v3 末世（2.0）模式：整個遊戲框切換（覆蓋頂欄／底欄），內容是 apoc/index.html（map20＋team20＋末世殼），外加新手引導 -->
+  <section id="apoc" class="apoc-mode" role="region" aria-label="末世" hidden>
+    <iframe id="apoc-frame" title="末世"></iframe>
+    <div id="apoc-coach" hidden><div class="coach-bubble"><small id="apoc-coach-step">1 / 6</small><h3 id="apoc-coach-title"></h3><p id="apoc-coach-text"></p><div class="coach-actions"><button id="apoc-coach-skip">跳過教學</button><button id="apoc-coach-next">下一步</button></div></div></div>
   </section>
   <!-- v3 編隊畫面 -->
   <section id="team-editor" class="panel team-editor" role="dialog" aria-modal="true" aria-label="編隊" hidden><header><h2>編隊</h2><span id="team-count">0 / 20</span><button id="team-auto">自動編隊</button><button id="team-close">返回</button></header>
