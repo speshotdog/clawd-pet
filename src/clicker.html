@@ -79,11 +79,19 @@
     <iframe id="apoc-frame" title="末世"></iframe>
     <div id="apoc-coach" hidden><div class="coach-bubble"><small id="apoc-coach-step">1 / 6</small><h3 id="apoc-coach-title"></h3><p id="apoc-coach-text"></p><div class="coach-actions"><button id="apoc-coach-skip">跳過教學</button><button id="apoc-coach-next">下一步</button></div></div></div>
   </section>
-  <!-- v3 編隊畫面 -->
-  <section id="team-editor" class="panel team-editor" role="dialog" aria-modal="true" aria-label="編隊" hidden><header><h2>編隊</h2><span id="team-count">0 / 20</span><button id="team-auto">自動編隊</button><button id="team-close">返回</button></header>
-    <div class="team-body"><div class="team-left"><div id="team-caps" class="team-caps"></div><div id="team-grid" class="team-grid"></div><div id="team-slots" class="team-slots"></div></div>
-    <div class="team-right"><h3>候選（隊外不產錢，可派遣）</h3><div id="team-candidates" class="team-candidates"></div></div></div>
-    <p id="team-why" class="team-why" role="status"></p></section>
+  <!-- v3 編隊畫面：與末世 team20 同一套結構（累加上限列／隊伍網格／獨立技能格／詳情面板／挑選器） -->
+  <section id="team-editor" class="panel team-editor" role="dialog" aria-modal="true" aria-label="編隊" hidden>
+    <header><h2>編隊</h2><span>隊伍 <b id="t20-count">0 / 20</b></span><button id="team-auto">自動編隊</button><button id="team-close">返回</button></header>
+    <div class="team-work">
+      <div class="team-main">
+        <section class="t20-rail capacity" aria-label="四條累加上限"><div id="t20-caps"></div><div id="t20-errors" class="capacity-errors" role="status"></div></section>
+        <section class="t20-rail roster" aria-label="隊伍成員"><div class="team-roster-head"><span>隊伍成員</span><span class="pager"><button id="t20-prev" aria-label="上一頁">‹</button><b id="t20-page">1 / 1</b><button id="t20-next" aria-label="下一頁">›</button></span><button id="t20-add">＋ 新增成員</button></div><div id="t20-grid" class="team-grid"></div></section>
+        <section class="t20-rail skills" aria-label="技能槽"><div class="team-skills-label"><span>技能槽</span><small>點格子挑，或直接從隊伍拖過來</small></div><div id="t20-skills" class="skill-grid"></div></section>
+      </div>
+      <aside id="t20-detail" class="t20-rail team-detail" aria-label="成員詳情"><button id="t20-detail-close" class="detail-close">返回隊伍</button><header><span id="t20-detail-number" class="detail-number">—</span><h3 id="t20-detail-name">尚未編入</h3><small id="t20-detail-rarity"></small></header><div id="t20-card" class="t20-card"></div><p id="t20-detail-op" class="detail-operation">選擇成員以編入</p><div class="detail-actions"><button id="t20-replace">替換目前成員</button><button id="t20-remove">移除</button></div></aside>
+    </div>
+    <dialog id="t20-picker" class="team-dialog"><div class="picker-heading"><h2 id="t20-picker-title"></h2><button id="t20-picker-close">關閉</button></div><div id="t20-picker-grid" class="picker-grid"></div><p id="t20-picker-status" class="picker-status" role="status"></p><div class="picker-actions"><button id="t20-picker-confirm" disabled>確認</button></div></dialog>
+  </section>
   <!-- v3 從零開始的獎勵視窗與舊時代相簿（進度快照，回味用） -->
   <section id="reward" class="panel reward" role="dialog" aria-modal="true" aria-label="獲得獎勵" hidden><header><h2>獲得獎勵</h2><span>舊桌布收進相簿了。這兩樣是給從零開始的你。</span></header>
     <div class="reward-body"><div class="reward-item"><img src="card-mohuashaonv.png" alt="魔花少女" class="reward-card" /><b>魔花少女・精裝收藏卡</b><small>在末世的卡冊・收藏卡</small></div><div class="reward-item"><div id="reward-badge"></div><b>徽章「舊時代的珍母」</b><small>徽章牆</small></div></div>
