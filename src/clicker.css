@@ -196,6 +196,11 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 .wallet img { width:32px; height:32px; object-fit:contain; }
 .wallet b { display:inline-block; }
 .rates { margin-left:auto; margin-right:12px; }
+/* 統計／場景搬上頂欄，一邊一個夾著錢幣盤。錢幣盤本身是絕對定位的（見下面 .wallet left:340px; width:260px），
+   所以這兩顆也要絕對定位貼著它，不然會被 flex 推到標題旁邊。 */
+#game .topbar-side { position:absolute; height:38px; padding:1px 8px 4px; gap:4px; }
+#game #stats-open { right:600px; }
+#game #scene-open { left:608px; }
 #mute { min-width:70px; height:38px; } #close { width:38px; height:38px; }
 #hero-position, #tap { left:120px; }
 .hero-contact { left:194px; }
@@ -988,6 +993,9 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
   .topbar { position:static; width:auto; height:60px; flex:none; gap:10px; padding:0 12px;
     background:var(--paper); border:2px solid var(--paper-edge); border-radius:11px; cursor:default; }
   #game #topbar h1 { display:none; }
+  /* 直式的頂欄只有 390 寬，統計／場景收成純圖示，還是一邊一個夾著幣數 */
+  #game .topbar-side { position:static; height:38px; width:38px; padding:0; }
+  #game .topbar-side span { display:none; }
   #game .wallet { position:static; left:auto; top:auto; width:auto; height:auto; min-width:0;
     margin:0; padding:0; border-image:none; border:0; background:none;
     flex:1; min-width:0; justify-content:flex-start; gap:6px; }

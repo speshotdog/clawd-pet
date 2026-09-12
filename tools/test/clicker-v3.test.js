@@ -151,3 +151,19 @@ test('D 路神器：7 條線第 r 級收 r 枚、各有頂；效果進 rates／�
   s.bossWins = ['backyard']; s.runWins = ['backyard']; const r = P.prestige(s, 0, () => .5); assert.equal(r.state.universalDust, 3 + 1);
   const capped = P.prestige({ ...s, marksClaimed: 99 }, 0, () => .5); assert.equal(capped.gained, 1, '總量上限 100');
 });
+
+test('v3 小王不鎖招募：路障擋著也能抽，抽出來的 pending 存得進去', () => {
+  let s = seed({ collection: { yueyue2: 1 }, dust: { yueyue2: 1 } });
+  s.package = E.newPackage('backyard', 10); s.package.progress = E.requirement(10) - 1;
+  s = E.click(s, 1000).state; assert.ok(s.boss && s.boss.gate === 10, '前提：路障小王開打中');
+  const drawn = E.purchaseDraw(s, 5, 2000, Pool);
+  assert.ok(drawn.boss && drawn.pending, '小王在場也抽得動');
+  // 舊版的存檔驗證禁止「王＋待收下」共存，commit 會失敗 → 消費鎖住、招募層停在沒有按鈕的死畫面
+  assert.doesNotThrow(() => S.validate(E.clone(drawn), Pool));
+  const done = E.collect(drawn, drawn.pending.draw.id, 3000);
+  assert.ok(done.accepted && done.state.boss, '收下之後小王還在');
+  assert.doesNotThrow(() => S.validate(E.clone(done.state), Pool));
+  // 大王仍然互斥
+  const big = { ...s, boss: { ...s.boss }, pending: drawn.pending }; delete big.boss.gate;
+  assert.throws(() => S.validate(E.clone(big), Pool), /王包/);
+});

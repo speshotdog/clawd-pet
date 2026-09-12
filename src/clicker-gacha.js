@@ -40,7 +40,7 @@ window.ClickerGacha = (() => {
       $('recruit-mute').textContent = s.settings.muted ? '音效關' : '音效開';
     }
     function open() {
-      if (!store.state || !ready || store.state.boss || !canOpen()) return;
+      if (!store.state || !ready || (store.state.boss && store.state.boss.gate === undefined) || !canOpen()) return;   // v3：路障小王不鎖招募（重開時也要進得來收下 pending）
       previousFocus = document.activeElement; layer.hidden = false; $('game-content').inert = true;
       pauseStage(); window.GachaFx.init($('fx'), $('fx-under')); $('mode-select').focus(); render();
     }
@@ -132,14 +132,15 @@ window.ClickerGacha = (() => {
         $('recruit-hint').textContent = `新夥伴・${item.entry.name}`;
       }));
     }
-    async function start(count) {
+    // 回傳這一輪有沒有真的開演——「收下並繼續五連」靠它判斷要不要把總覽畫面收回來
+    function start(count) {
       const s = store.state;
-      if (!ready || !canOpen() || busy || store.blocked || (s.boss && s.boss.gate === undefined) || s.pending || !window.GachaModes[s.settings.mode].counts.includes(count)) return;   // v3：路障小王不鎖招募
+      if (!ready || !canOpen() || busy || store.blocked || (s.boss && s.boss.gate === undefined) || s.pending || !window.GachaModes[s.settings.mode].counts.includes(count)) return false;   // v3：路障小王不鎖招募
       busy = true;
       try {
         const next = E.purchaseDraw(s, count, Date.now(), window.GachaPool);
         // 唯一寫入包含扣款、抽數、保底及 pending。成功以前沒有演出。
-        if (!commit(next)) return;
+        if (!commit(next)) return false;
         const ticket = $('draw-ticket'); ticket.getAnimations().forEach(a=>a.cancel());
         if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ticket.animate([{transform:'scale(1)'},{transform:'scale(.96)',offset:.5},{transform:'scale(1)'}],{duration:140});
         open(); $('recruit-entry').hidden = true; $('collect').hidden = true; $('skip').hidden = false;
@@ -149,7 +150,8 @@ window.ClickerGacha = (() => {
         }
         mode = window.GachaModes[s.settings.mode].create(run.ctx);
         run.run(mode.open(store.state.pending.draw));
-      } catch (err) { notice(err.message); }
+        return true;
+      } catch (err) { notice(err.message); return false; }
       finally { busy = false; changed(); render(); }
     }
     function collect(stay = false) {
@@ -169,7 +171,12 @@ window.ClickerGacha = (() => {
         const result = E.collect(store.state, currentId, Date.now());
         if (!result.accepted || !commit(result.state)) return;
         summaryReady = false; currentId = null; changed();
-        if (stay) { pendingJoins.push(...entries); $('collect').hidden = $('collect-again').hidden = true; busy = false; start(5); return; }
+        if (stay) {
+          pendingJoins.push(...entries); $('collect').hidden = $('collect-again').hidden = true; busy = false;
+          // 下一輪起不來（存檔鎖住、冒出大王⋯⋯）就正常收尾，不然會停在一個沒有任何按鈕的死畫面
+          if (!start(5)) { close(); joined(dedupe([...pendingJoins.splice(0)])); }
+          return;
+        }
         close(); joined(dedupe([...pendingJoins.splice(0), ...entries]));
       } catch (err) { notice(err.message); }
       finally { busy = false; render(); }

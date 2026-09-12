@@ -191,9 +191,10 @@
       check(E.unlocked(s,id) && integer(p.index) && p.index>=1 && Number.isFinite(E.requirement(p.index,id)), '場景進度'); pack(p,id);
     }
     if (s.thief !== undefined) check(object(s.thief) && !!scenes[s.settings.scene].thief && !s.boss && typeof s.thief.active === 'boolean' && number(s.thief.remainingMs) && s.thief.remainingMs <= (s.thief.active ? 12600 : 120000) && integer(s.thief.hits) && s.thief.hits < 5, '零食小偷');
+    // v3：路障小王不鎖招募，所以小王＋待收下的抽卡結果是合法的；大王仍然互斥
     if (s.boss) {
       const b=s.boss, cfg=scenes[s.settings.scene].boss;
-      check(object(b) && b.scene===s.settings.scene && (b.gate !== undefined ? integer(b.gate) && s.package.gate?.index === b.gate : (b.scene === 'city' || !(s.runWins || []).includes(b.scene))) && !s.pending && number(b.need) && b.need>0 && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===(cfg.seconds+(s.markShop?.bossTime ? 10 : 0))*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
+      check(object(b) && b.scene===s.settings.scene && (b.gate !== undefined ? integer(b.gate) && s.package.gate?.index === b.gate : (b.scene === 'city' || !(s.runWins || []).includes(b.scene))) && (b.gate !== undefined || !s.pending) && number(b.need) && b.need>0 && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===(cfg.seconds+(s.markShop?.bossTime ? 10 : 0))*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
       pack({...b,progress:b.dealt},b.scene,b.need,true);
     }
     if (s.pending !== null) {
