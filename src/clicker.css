@@ -190,7 +190,7 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #game #draw-one, #game #draw-five, #game #recruit-one, #game #recruit-five, #game #collect { --button-bg:#B48CCB; }
 #game #reveal-all { --button-bg:#FA776B; }
 #game h1, #game h2, #game b, #game .rates { font-weight:800; }
-#game-content h1 { width:250px; height:52px; display:flex; justify-content:center; align-items:center; border-image:url('clicker-ui-title-tape.png') 107 171 fill / 16px stretch; padding:6px 18px; }
+#game-content h1 { width:224px; height:52px; display:flex; justify-content:center; align-items:center; border-image:url('clicker-ui-title-tape.png') 107 171 fill / 16px stretch; padding:6px 18px; }
 .topbar { top:14px; height:50px; gap:12px; }
 .wallet { position:absolute; left:356px; width:220px; height:52px; justify-content:center; padding:6px 24px; border-image:url('clicker-ui-coinplate.png') 70 120 84 96 fill / 12px 20px 14px 16px stretch; }
 .wallet img { width:32px; height:32px; object-fit:contain; }
@@ -198,9 +198,10 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 .rates { margin-left:auto; margin-right:12px; }
 /* 統計／場景搬上頂欄，一邊一個夾著錢幣盤。錢幣盤本身是絕對定位的（見下面 .wallet left:340px; width:260px），
    所以這兩顆也要絕對定位貼著它，不然會被 flex 推到標題旁邊。 */
-#game .topbar-side { position:absolute; height:38px; padding:1px 8px 4px; gap:4px; }
-#game #stats-open { right:600px; }
-#game #scene-open { left:608px; }
+#game .topbar-side { position:absolute; display:flex; align-items:center; justify-content:center; gap:5px;
+  width:78px; height:38px; padding:1px 0 4px; }
+#game #stats-open { right:600px; }   /* 右緣 328 */
+#game #scene-open { left:612px; }    /* 錢幣盤是 340..600，兩邊各留 12 才對稱 */
 #mute { min-width:70px; height:38px; } #close { width:38px; height:38px; }
 #hero-position, #tap { left:120px; }
 .hero-contact { left:194px; }
