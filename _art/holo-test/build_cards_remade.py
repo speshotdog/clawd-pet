@@ -19,6 +19,7 @@ tpl = re.search(r'<template id="baseline-css">.*?</template>', demo, re.S)
 styles = [m.group(0) for m in re.finditer(r'<style[^>]*>.*?</style>', demo, re.S)
           if not (tpl.start() <= m.start() < tpl.end())]
 masks = json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>', demo, re.S).group(1))
+masks.update(json.loads((OUT / 'masks-5.0.json').read_text(encoding='utf-8')))
 styles.append('<style>' + (OUT / 'card-position.css').read_text(encoding='utf-8') + '</style>')
 manifest = json.loads((OUT / 'art' / 'manifest.json').read_text(encoding='utf-8'))
 
@@ -50,7 +51,7 @@ h2{font-size:16px;letter-spacing:.05em;margin:34px 0 4px}
 
 <h1>卡池重製 · 全部照場景卡規格</h1>
 <p class="lede"><b style="color:#ffd76a">滑鼠移到卡片上可以傾斜</b>，看箔面與景深；移開回正。</p>
-<p class="lede">63 張精裝研究卡依卡型呈現原插畫與背景，顏色取自每張角色圖的實際像素（<code>art/palette.json</code>），
+<p class="lede">__CARD_COUNT__ 張精裝研究卡依卡型呈現原插畫與背景，顏色取自每張角色圖的實際像素（<code>art/palette.json</code>），
 所以背景跟角色同調而不是所有卡共用一層深色。版型維持已定案的：滿版圖窗、人物置中、
 文字框帶階級寶石與名字。背景是 CSS 圖層，不是一張一張畫出來的圖。</p>
 <h2>平面滿版：滅世珍獸</h2>
@@ -110,7 +111,7 @@ if(mieshi){
 </script>
 '''
 
-page = (HTML.replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))
+page = (HTML.replace('__CARD_COUNT__', str(len(cards))).replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))
             .replace('__CARD_CSS__', '\n'.join(styles))
             .replace('__MASKS__', json.dumps(masks, separators=(',', ':')))
             .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':'))))

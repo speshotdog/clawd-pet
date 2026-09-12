@@ -565,5 +565,59 @@
   "hue": 0.8569,
   "sat": 0.15,
   "val": 0.714
+ },
+ "card-tiandianaini.png": {
+  "base": "#faa192",
+  "glow": "#faa192",
+  "accent": "#faa192",
+  "ink": "#080c17"
+ },
+ "card-xiawujiaojiao.png": {
+  "base": "#d1b1ac",
+  "glow": "#d1b1ac",
+  "accent": "#d1b1ac",
+  "ink": "#080c17"
+ },
+ "card-danngaomie.png": {
+  "base": "#fff7f3",
+  "glow": "#fff7f3",
+  "accent": "#fff7f3",
+  "ink": "#080c17"
+ },
+ "card-wangyuanmie.png": {
+  "base": "#5f6063",
+  "glow": "#5f6063",
+  "accent": "#5f6063",
+  "ink": "#080c17"
+ },
+ "card-xingyejiao.png": {
+  "base": "#222b45",
+  "glow": "#222b45",
+  "accent": "#222b45",
+  "ink": "#080c17"
+ },
+ "card-tilanxing.png": {
+  "base": "#2f586d",
+  "glow": "#2f586d",
+  "accent": "#2f586d",
+  "ink": "#080c17"
+ },
+ "card-shanqiulong.png": {
+  "base": "#2b7a9b",
+  "glow": "#2b7a9b",
+  "accent": "#2b7a9b",
+  "ink": "#080c17"
+ },
+ "card-jiujixiaochouyueyue.png": {
+  "base": "#b4a4a3",
+  "glow": "#b4a4a3",
+  "accent": "#b4a4a3",
+  "ink": "#080c17"
+ },
+ "card-aomijiapaoxiaoshou.png": {
+  "base": "#ac8f64",
+  "glow": "#ac8f64",
+  "accent": "#ac8f64",
+  "ink": "#080c17"
  }
 }

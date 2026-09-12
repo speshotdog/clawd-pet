@@ -59,6 +59,22 @@ EXTRA_CARDS = [
 # 來源圖檔名是**不可變的**，跟顯示名分開。
 # 2026-09-10 珍珍改名成本草珍目時，resolve_source() 還在用顯示名組檔名，
 # 整支 check_new_cards_round32.py 在 import 期就死掉——所以規則只留這一份。
+CARDS_5_0 = [
+    {'id': ident, 'name': name, 'rarity': rarity, 'kind': kind, 'file': f'card-{ident}.png',
+     **({'scene': True} if kind == 'depth' else {})}
+    for ident, name, rarity, kind in [
+        ('tiandianaini', '甜點愛牛', 'epic', 'depth'),
+        ('xiawujiaojiao', '下午膠膠', 'rare', 'depth'),
+        ('danngaomie', '蛋糕分咩一口', 'epic', 'depth'),
+        ('wangyuanmie', '咩有看錯星', 'epic', 'depth'),
+        ('xingyejiao', '今晚不睡膠', 'rare', 'depth'),
+        ('tilanxing', '提籃摘星獸', 'epic', 'depth'),
+        ('shanqiulong', '星願龍總欸', 'legendary', 'depth'),
+        ('jiujixiaochouyueyue', '究極小丑玥玥', 'mythic', 'framed'),
+        ('aomijiapaoxiaoshou', '奧米加咆嘯獸', 'mythic', 'depth'),
+    ]
+]
+
 SOURCE_STEM = {'zhenzhen': '珍珍 神話'}
 
 RARITY_LABEL = {'rare': '精良', 'epic': '史詩', 'legendary': '傳說', 'mythic': '神話'}
@@ -104,7 +120,7 @@ def palettes():
 
 
 def pool(with_scenes=True, with_palette=True, sort_by_rarity=True):
-    cards = catalog() + [dict(c) for c in EXTRA_CARDS]
+    cards = catalog() + [dict(c) for c in EXTRA_CARDS + CARDS_5_0]
     if with_palette:
         pal = palettes()
         for c in cards:

@@ -236,7 +236,7 @@ function revealOne(s,fast=false){if(s.work)return s.work;if(s.run!==generation)r
   s.work=performReveal(s,fast);return s.work;}
 // Round 31 user decision: only common/rare/epic remain neutral before first sight.
 async function chargeHigh(s){
- const mythic=s.data.rarity==='mythic',duration=mythic?1300:900,contraction=mythic?160:120;
+ const mythic=s.data.rarity==='mythic',duration=mythic?900:700,contraction=mythic?160:120;
  if(!mythic&&s.data.rarity!=='legendary')return true;
  const glow=node('div','rarity-fx charge-glow');s.el.prepend(glow);
  glow.style.setProperty('--charge-color',mythic?'218,241,255':'255,194,104');
@@ -258,7 +258,7 @@ async function beginReveal(s){const run=s.run;s.revealed=true;s.el.classList.add
  const start=slotTransform(s);s.el.style.setProperty('--cw',focusWidth()+'px');HoloCardFace.refit(s.face);
  s.focus=A(s.el,[{transform:start},{transform:start+' translateY(-6px)'}],{duration:500,easing:'cubic-bezier(.2,.7,.2,1)'});
  if(!await chargeHigh(s))return false;
- if(!await wait(140,run))return false;
+ if(!await wait(80,run))return false;
  sound('flip',s);
  const flip=A(s.flip,[{transform:'rotateY(0deg)'},{transform:'rotateY(90deg)'}],{duration:180,easing:'ease-in'});
  if(!await wait(180,run))return false;flip.cancel();return true;
@@ -283,8 +283,10 @@ function flakes(s,count,delay,duration,name='fx-flake'){
  for(let i=0;i<count;i++){const angle=(i*137.508+32)*Math.PI/180,corner=i%4;const x=(corner%2?1:-1)*focusWidth()*.52,y=(corner<2?-1:1)*focusWidth()*.72;
  const dist=24+(i%5)*10;fx(s,name,delay,duration,{width:3+i%4,height:12+(i%4)*6,frames:[{opacity:0,transform:`translate(${x}px,${y}px) rotate(${i*31}deg)`},{opacity:.72,offset:24/duration},{opacity:0,transform:`translate(${x+Math.cos(angle)*dist}px,${y+Math.sin(angle)*dist}px) rotate(${i*31+54}deg)`}]});}
 }
-const READ={common:300,rare:420,epic:640,legendary:1400,mythic:1900};
-const RETURN={common:220,rare:240,epic:280,legendary:320,mythic:360};
+// 2026-09-13 使用者：銜接下一張太慢，對照 1.0 流星投遞（一般卡翻 580ms＋間隔 80ms≈660ms、傳說多蓄力 1.1s）。
+// 一般卡 80+180+READ+RETURN ≈ 660；傳說≈1.9s、神話≈2.3s。
+const READ={common:220,rare:220,epic:260,legendary:760,mythic:960};
+const RETURN={common:180,rare:180,epic:200,legendary:240,mythic:260};
 function runRarityFx(s){const r=s.data.rarity,u=unit();
  const sweepDuration={common:220,rare:300,epic:420,legendary:520,mythic:560}[r];
  mark('fx-start',s,{effect:'foil-sweep',duration:sweepDuration});if(r==='mythic'){sweep(s,920,false,1,true);later(()=>mark('fx-end',s,{effect:'foil-sweep'}),560,s.run);}else sweep(s,sweepDuration).then(ok=>{if(ok)mark('fx-end',s,{effect:'foil-sweep'});});

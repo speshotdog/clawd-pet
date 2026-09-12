@@ -1,0 +1,302 @@
+{
+  "source_files_unchanged": 4,
+  "original_rgb_checks": 9,
+  "entries": [
+    {
+      "entry": "cards-remade.html",
+      "total_cards": 72,
+      "new_cards_loaded": 9,
+      "console_errors": 0,
+      "failed_requests": 0,
+      "cards": [
+        {
+          "id": "tiandianaini",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "xiawujiaojiao",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "danngaomie",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "wangyuanmie",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "xingyejiao",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "tilanxing",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "shanqiulong",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "jiujixiaochouyueyue",
+          "images": [
+            {
+              "width": 578,
+              "height": 580,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "aomijiapaoxiaoshou",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        }
+      ]
+    },
+    {
+      "entry": "cards-remade-standalone.html",
+      "total_cards": 72,
+      "new_cards_loaded": 9,
+      "console_errors": 0,
+      "failed_requests": 0,
+      "cards": [
+        {
+          "id": "tiandianaini",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "xiawujiaojiao",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "danngaomie",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "wangyuanmie",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "xingyejiao",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "tilanxing",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "shanqiulong",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "jiujixiaochouyueyue",
+          "images": [
+            {
+              "width": 578,
+              "height": 580,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        },
+        {
+          "id": "aomijiapaoxiaoshou",
+          "images": [
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            },
+            {
+              "width": 600,
+              "height": 840,
+              "ok": true
+            }
+          ],
+          "subject_masks": 1
+        }
+      ]
+    }
+  ]
+}
