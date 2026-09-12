@@ -17,30 +17,61 @@ window.ClickerGacha = (() => {
     //（它是照分頁分批的，第二次查的時候頁面已經翻到別批了）→ getBoundingClientRect of null。
     const dedupe = (list) => { const seen = new Set(); return list.filter(e => !seen.has(e.id) && seen.add(e.id)); };
     const layer = $('recruit-layer');
+    // 兩個主系統共用這一層：差別只有「錢是什麼」「卡池是什麼」「落帳寫到哪」。
+    const A = () => window.ApocEconomy;
+    const apoc = () => store.state?.settings.world === 'apoc';
+    const W = () => apoc() ? {
+      pending: () => store.state.apoc?.pending || null,
+      cost: (n) => Math.max(0, n),                        // 末世：一張卡一張券
+      wallet: () => A().normalize(store.state.apoc).tickets,
+      unit: '券',
+      label: (n) => `${n === 1 ? '單抽' : '十連'} · ${n} 券`,
+      counts: [1, 10],
+      purchase: (n, now) => { const next = E.clone(store.state); next.apoc = A().purchaseDraw(A().normalize(next.apoc), n, now); return next; },
+      collect: (id, now) => { const next = E.clone(store.state); const r = A().collectDraw(A().normalize(next.apoc), id, now); next.apoc = r.state; return { state: next, accepted: r.accepted }; },
+      blocked: () => false,
+    } : {
+      pending: () => store.state?.pending || null,
+      cost: (n) => E.drawCost(store.state, Math.max(0, n - (store.state.freeDraws || 0))),
+      wallet: () => store.state.coins,
+      unit: '幣',
+      label: (n) => `${n === 1 ? '單抽' : '五連'} · ${format(E.drawCost(store.state, Math.max(0, n - (store.state.freeDraws || 0))))}`,
+      counts: [1, 5],
+      purchase: (n, now) => E.purchaseDraw(store.state, n, now, window.GachaPool),
+      collect: (id, now) => { const r = E.collect(store.state, id, now); return { state: r.state, accepted: r.accepted }; },
+      blocked: () => !!(store.state.boss && store.state.boss.gate === undefined),
+    };
+    const packSize = () => apoc() ? 10 : 5;
     function priceButton(el, count, s, supported) {
-      const cost = E.drawCost(s, Math.max(0,count-(s.freeDraws || 0))), missing = Math.max(0, Math.ceil(cost - s.coins));
-      el.textContent = el.id === 'draw-one' ? '招募！' : el.id === 'draw-five' ? '五連' : `${count === 1 ? '單抽' : '五連'} · ${format(cost)}`; el.title = String(cost);
-        if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price'; price.textContent = s.freeDraws ? `免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}` : format(cost); el.append(price); }
-      if (s.freeDraws && el.id.startsWith('recruit-')) el.textContent=`${count===1?'單抽':'五連'} · 免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}`;
-      if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)}`; el.append(note); }
-      el.disabled = !ready || !canOpen() || store.blocked || (!!s.boss && s.boss.gate === undefined) || !!s.pending || !supported || missing > 0 || busy;   // v3：路障小王不鎖招募
+      const w = W(), cost = w.cost(count), missing = Math.max(0, Math.ceil(cost - w.wallet()));
+      const many = packSize();
+      el.replaceChildren();
+      el.textContent = el.id === 'draw-one' ? '招募！' : el.id === 'draw-five' ? (apoc() ? '十連' : '五連') : w.label(count);
+      el.title = String(cost);
+      if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price';
+        price.textContent = apoc() ? `${many} 券` : (s.freeDraws ? `免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}` : format(cost)); el.append(price); }
+      if (!apoc() && s.freeDraws && el.id.startsWith('recruit-')) el.textContent=`${count===1?'單抽':'五連'} · 免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}`;
+      if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)} ${w.unit}`; el.append(note); }
+      el.disabled = !ready || !canOpen() || store.blocked || w.blocked() || !!w.pending() || !supported || missing > 0 || busy;
     }
     function render() {
       const s = store.state; if (!s) return;
-      $('draw-price').textContent = s.freeDraws ? `免費 ×${s.freeDraws}` : format(E.drawCost(s, 1)); $('draw-ticket').title = String(E.drawCost(s, Math.max(0,1-s.freeDraws)));
+      const w = W(), many = packSize();
+      if (!apoc()) { $('draw-price').textContent = s.freeDraws ? `免費 ×${s.freeDraws}` : format(E.drawCost(s, 1)); $('draw-ticket').title = String(E.drawCost(s, Math.max(0,1-s.freeDraws))); }
       const supported = window.GachaModes[s.settings.mode].counts.includes(1);
-      const note = supported ? '' : '此演出只支援五連；單抽請選流星或拆包桌面。';
+      const note = supported ? '' : `此演出只支援${apoc() ? '十' : '五'}連；單抽請選流星或拆包桌面。`;
       for (const id of ['draw-one', 'recruit-one']) priceButton($(id), 1, s, supported);
-      for (const id of ['draw-five', 'recruit-five']) priceButton($(id), 5, s, true);
-      for (const id of ['pity', 'recruit-pity']) $(id).textContent = `最多再 ${40 - s.pity.sinceLegendary} 抽必得傳說`;
-      $('single-note').textContent = supported ? '' : '此模式限五連；單抽請切換演出。'; $('recruit-note').textContent = note;
-      $('mode-select').value = s.settings.mode; $('mode-select').disabled = !!s.pending || store.blocked;
-      $('recruit-close').disabled = !!s.pending;
+      for (const id of ['draw-five', 'recruit-five']) priceButton($(id), many, s, true);
+      for (const id of ['pity', 'recruit-pity']) $(id).textContent = apoc()
+        ? `神話 0.25%・傳說 4%・史詩 20%` : `最多再 ${40 - s.pity.sinceLegendary} 抽必得傳說`;
+      $('single-note').textContent = supported ? '' : '此模式限多連；單抽請切換演出。'; $('recruit-note').textContent = note;
+      $('mode-select').value = s.settings.mode; $('mode-select').disabled = !!w.pending() || store.blocked;
+      $('recruit-close').disabled = !!w.pending();
       $('collect').disabled = store.blocked || busy;
       $('recruit-mute').textContent = s.settings.muted ? '音效關' : '音效開';
     }
     function open() {
-      if (!store.state || !ready || (store.state.boss && store.state.boss.gate === undefined) || !canOpen()) return;   // v3：路障小王不鎖招募（重開時也要進得來收下 pending）
+      if (!store.state || !ready || W().blocked() || (!apoc() && !canOpen())) return;   // v3：路障小王不鎖招募（重開時也要進得來收下 pending）
       previousFocus = document.activeElement; layer.hidden = false; $('game-content').inert = true;
       pauseStage(); window.GachaFx.init($('fx'), $('fx-under')); $('mode-select').focus(); render();
     }
@@ -51,7 +82,7 @@ window.ClickerGacha = (() => {
       $('flash').classList.remove('on'); layer.classList.remove('charging-mode');
     }
     function close() {
-      if (store.state?.pending) return;
+      if (W().pending()) return;
       cleanup(); layer.hidden = true; $('game-content').inert = false; $('recruit-entry').hidden = false;
       $('collect').hidden = $('collect-again').hidden = $('skip').hidden = $('reveal-all').hidden = true;
       resumeStage(); previousFocus?.focus();
@@ -60,11 +91,12 @@ window.ClickerGacha = (() => {
     function summary() {
       summaryReady = true; $('collect').hidden = false; $('skip').hidden = $('reveal-all').hidden = true;
       // 錢是抽的當下就扣掉的，所以現在的 state 拿來算「還抽不抽得起下一次」是準的
-      const s = store.state, again = $('collect-again');
-      const cost = E.drawCost(s, Math.max(0, 5 - (s.freeDraws || 0)));
-      const affordable = cost <= s.coins && window.GachaModes[s.settings.mode].counts.includes(5);
+      const s = store.state, again = $('collect-again'), w = W(), many = packSize();
+      const cost = w.cost(many);
+      const affordable = cost <= w.wallet() && window.GachaModes[s.settings.mode].counts.includes(apoc() ? 5 : many);
       again.hidden = !affordable;
-      again.textContent = s.freeDraws ? `收下並繼續五連 · 免費 ×${Math.min(5, s.freeDraws)}` : `收下並繼續五連 · ${format(cost)}`;
+      again.textContent = apoc() ? `收下並繼續十連 · ${many} 券`
+        : (s.freeDraws ? `收下並繼續五連 · 免費 ×${Math.min(many, s.freeDraws)}` : `收下並繼續五連 · ${format(cost)}`);
       $('recruit-hint').textContent = affordable
         ? '結果已儲存。收下後夥伴就會開始幫忙，或直接再抽一次。'
         : '結果已儲存，收下後夥伴就會開始幫忙。';
@@ -86,6 +118,15 @@ window.ClickerGacha = (() => {
         cardsEl: $('cards'), dim: $('dim'), card, mode: name,
         layout(i, count) {
           if (count === 1) return { x: mid.x, y: mid.y, rot: 0 };
+          // 末世是十連：五張一排、兩排，整體縮到 .76 才塞得下（原本只寫了 1 與 5，
+          // 第 6～10 張會直接排到畫面外——跟直式那次踩的是同一個坑）
+          if (count > 5) {
+            const per = P ? 2 : 5, col = i % per, row = Math.floor(i / per), rows = Math.ceil(count / per);
+            const gapX = P ? 176 : 172, gapY = P ? 150 : 218, scale = P ? .62 : .76;
+            const n = col - (per - 1) / 2;
+            return { x: mid.x + n * gapX * scale * (P ? 1 : 1.28), y: mid.y + (row - (rows - 1) / 2) * gapY * scale,
+                     rot: n * 2, scale };
+          }
           if (P) {
             // 直式 2+3：上排兩張（i=0,1）、下排三張（i=2,3,4）。
             // 卡片 150 寬、半寬 75：下排最外側中心 ±172 → 邊緣落在 33／527，560 的框裡放得下。
@@ -112,7 +153,7 @@ window.ClickerGacha = (() => {
       return runtime;
     }
     function skip() {
-      if (!runtime || !store.state?.pending) return;
+      if (!runtime || !W().pending()) return;
       mode?.skip(); runtime.skip();
     }
     // 「快轉」：掃過去，但沒抽過的卡會停下來把翻牌演出播完。
@@ -120,8 +161,8 @@ window.ClickerGacha = (() => {
     // 這樣五種演出模式（含 rip／stage 那兩個自己跑時間軸的）行為一致，
     // 也不必去拆各家模式的 skip 語意：按下快轉的當下，那一套劇場本來就結束了。
     function fastForward() {
-      if (!runtime || !store.state?.pending || fastForwarding) return;
-      const run = makeRuntime(store.state.pending.draw);
+      if (!runtime || !W().pending() || fastForwarding) return;
+      const run = makeRuntime(W().pending().draw);
       // ⚠ 順序：makeRuntime() 內部會跑 cleanup()，而 cleanup() 會把旗標與按鈕字樣重置，
       //   所以這兩行一定要排在它後面，不然按下去馬上又變回「略過演出」。
       fastForwarding = true;
@@ -134,22 +175,24 @@ window.ClickerGacha = (() => {
     }
     // 回傳這一輪有沒有真的開演——「收下並繼續五連」靠它判斷要不要把總覽畫面收回來
     function start(count) {
-      const s = store.state;
-      if (!ready || !canOpen() || busy || store.blocked || (s.boss && s.boss.gate === undefined) || s.pending || !window.GachaModes[s.settings.mode].counts.includes(count)) return false;   // v3：路障小王不鎖招募
+      const s = store.state, w = W();
+      const modeCounts = window.GachaModes[s.settings.mode].counts;
+      const ok = count === 1 ? modeCounts.includes(1) : modeCounts.includes(apoc() ? 5 : count);   // 末世十連借五連的演出排版
+      if (!ready || (!apoc() && !canOpen()) || busy || store.blocked || w.blocked() || w.pending() || !ok) return false;
       busy = true;
       try {
-        const next = E.purchaseDraw(s, count, Date.now(), window.GachaPool);
+        const next = w.purchase(count, Date.now());
         // 唯一寫入包含扣款、抽數、保底及 pending。成功以前沒有演出。
         if (!commit(next)) return false;
         const ticket = $('draw-ticket'); ticket.getAnimations().forEach(a=>a.cancel());
         if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ticket.animate([{transform:'scale(1)'},{transform:'scale(.96)',offset:.5},{transform:'scale(1)'}],{duration:140});
         open(); $('recruit-entry').hidden = true; $('collect').hidden = true; $('skip').hidden = false;
-        $('recruit-hint').textContent = ''; const run = makeRuntime(store.state.pending.draw);
+        $('recruit-hint').textContent = ''; const run = makeRuntime(W().pending().draw);
         if (s.settings.mode === 'hearthstone') {
           const pack = document.createElement('div'); pack.className = 'pack'; $('mode-root').append(pack);
         }
         mode = window.GachaModes[s.settings.mode].create(run.ctx);
-        run.run(mode.open(store.state.pending.draw));
+        run.run(mode.open(W().pending().draw));
         return true;
       } catch (err) { notice(err.message); return false; }
       finally { busy = false; changed(); render(); }
@@ -163,18 +206,18 @@ window.ClickerGacha = (() => {
         // clicker-stage.js 的 join() 用同一套映射算落點，兩邊一致才不會飛歪。
         const jf = $('join-flight'), jr = jf.getBoundingClientRect();
         const zoom = jf.clientWidth ? jr.width / jf.clientWidth : 1, cards = [...$('cards').children];
-        const entries = store.state.pending.draw.entries.map((item,i) => {
+        const entries = W().pending().draw.entries.map((item,i) => {
           const r = cards[i]?.getBoundingClientRect();
           return {id:item.entry.id, origin:r ? {x:(r.left+r.width/2-jr.left)/zoom,y:(r.top+r.height/2-jr.top)/zoom}
                                              : {x:jf.clientWidth/2,y:jf.clientHeight/2}};
         });
-        const result = E.collect(store.state, currentId, Date.now());
+        const result = W().collect(currentId, Date.now());
         if (!result.accepted || !commit(result.state)) return;
         summaryReady = false; currentId = null; changed();
         if (stay) {
           pendingJoins.push(...entries); $('collect').hidden = $('collect-again').hidden = true; busy = false;
           // 下一輪起不來（存檔鎖住、冒出大王⋯⋯）就正常收尾，不然會停在一個沒有任何按鈕的死畫面
-          if (!start(5)) { close(); joined(dedupe([...pendingJoins.splice(0)])); }
+          if (!start(packSize())) { close(); joined(dedupe([...pendingJoins.splice(0)])); }
           return;
         }
         close(); joined(dedupe([...pendingJoins.splice(0), ...entries]));
@@ -182,13 +225,13 @@ window.ClickerGacha = (() => {
       finally { busy = false; render(); }
     }
     function restore() {
-      if (!store.state.pending || !ready) return;
+      if (!W().pending() || !ready) return;
       open(); $('recruit-entry').hidden = true;
       // pending 保留 veil；沿用重開直接總覽，由 runtime 將卡面還原真實色階。
-      makeRuntime(store.state.pending.draw).skip();
+      makeRuntime(W().pending().draw).skip();
     }
     $('draw-one').onclick = $('recruit-one').onclick = () => start(1);
-    $('draw-five').onclick = $('recruit-five').onclick = () => start(5);
+    $('draw-five').onclick = $('recruit-five').onclick = () => start(packSize());
     $('recruit-open').onclick = open; $('recruit-close').onclick = close;
     // ⚠ 不能寫 onclick = collect：DOM 會把事件物件當成第一個參數傳進去，stay 就變成 truthy
     $('collect').onclick = () => collect(false);
@@ -197,7 +240,7 @@ window.ClickerGacha = (() => {
     $('skip').onclick = () => (fastForwarding ? skip() : fastForward());
     $('reveal-all').onclick = () => runtime?.all();
     $('mode-select').onchange = () => {
-      if (store.blocked || store.state.pending) { render(); return; }
+      if (store.blocked || W().pending()) { render(); return; }
       const s = E.settle(store.state, Date.now()).state; s.settings.mode = $('mode-select').value;
       commit(s); render();
     };

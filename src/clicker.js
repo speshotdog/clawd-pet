@@ -99,7 +99,7 @@ window.Clicker = (() => {
     const hinted = window.ClickerPrestige?.hint(result.state, P, new Date().toDateString(), P > 0 ? need / P : 0);
     if (before && !result.state.boss) { if (!commit(result.state)) return; } else store.stage(result.state);
     stage?.render(result.state, { completed: result.completed });
-    if (result.state.bossResult?.apocUnlocked && !apocOpened) { apocOpened = true; setTimeout(() => { notice('末世地圖解鎖！'); apocUI?.open(true); }, 3400); }   // v3：打完滅世珍獸 → 演出結束後直接帶進末世（新手引導）
+    if (result.state.bossResult?.apocUnlocked && !apocOpened) { apocOpened = true; setTimeout(() => notice('末世解鎖了！到「場景」就能過去'), 3400); }   // v3：兩個主系統都從場景面板切
     if (!hiddenNow()) {
       stage?.floatPassive(result.earned);
       if (result.chest) { notice(`寶箱包！＋${format(result.chest)} 幣`); sound('boss-win'); }
@@ -289,7 +289,11 @@ window.Clicker = (() => {
 
     });
   }
-  function changed() { numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); extras?.tick(); apocUI?.refresh(); }
+  const apocMode = () => store.state?.settings.world === 'apoc';
+  function changed() {
+    if (apocMode()) { apocUI?.render(); gacha?.render(); album?.refresh(); return; }   // 末世：同一組節點，另一套資料
+    numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); extras?.tick();
+  }
   function action(fn) {
     if (store.blocked || !ready || hiddenNow()) { if (hiddenNow()) jlog(`action blocked: visible=${visible} document.hidden=${document.hidden} suspended=${suspended}`); return; }
     try { fn(); } catch (err) { notice(err.message); slotsKey = ''; renderSlots(); }
@@ -298,6 +302,7 @@ window.Clicker = (() => {
   function tap(point, target) {
     action(() => {
       if (gacha.active || !$('roster').hidden || !$('wardrobe').hidden || !$('prestige').hidden || !$('receipt').hidden || !$('stats').hidden) return;
+      if (apocMode()) { apocUI.tap(); return; }   // 末世：同一個點擊區，打的是怪
       const time = performance.now(); inputTimes = inputTimes.filter((t) => time - t < 1000); if (inputTimes.length >= 8) return;
       inputTimes.push(time);
       const result = E.click(store.state, Date.now(), target);
@@ -366,7 +371,10 @@ window.Clicker = (() => {
   }
   function startTimers() {
     if (hiddenNow() || suspended || tickTimer || !ready) return;
-    tickTimer = setInterval(() => { settle(); autoTick(); apocUI?.tick(); changed(); }, 1000);
+    tickTimer = setInterval(() => {
+      if (apocMode()) { apocUI?.tick(); return; }   // 末世不跑 1.0 的拆包結算
+      settle(); autoTick(); changed();
+    }, 1000);
     saveTimer = setInterval(() => { if (!store.blocked) commit(); }, 5000);
     if (!gacha.active) stage.start();
   }
@@ -584,7 +592,9 @@ window.Clicker = (() => {
     extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin });
     dragUI = window.ClickerDrag.create({ $, store, commit, changed, notice, sound, card, E, Pool });   // v3：夥伴列拖到技能槽
     teamUI = window.ClickerTeamUI.create({ $, store, commit, changed, action, notice, sound, card, E, B, Pool, format, drag: dragUI });
-    apocUI = window.ClickerApoc.create({ $, store, commit, changed, notice }); apocUI.refresh();
+    apocUI = window.ClickerApocUI.create({ $, store, commit, changed, notice, format, card, sound,
+      openRoster: (id) => showRoster(id), openTeam: () => teamUI?.open() });
+    if (store.state.settings.world === 'apoc') apocUI.enter();
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     ready = true; gacha.setReady(); stage.setPartners(store.state);
@@ -630,7 +640,10 @@ window.Clicker = (() => {
       };
     }
     $('tap').onkeyup = (e) => { if (e.code === 'Space' || e.code === 'Enter') e.preventDefault(); };
-    for (const type of ['click', 'training']) { $(`${type}-one`).onclick = () => upgrade(type, false); $(`${type}-max`).onclick = () => upgrade(type, true); }
+    for (const type of ['click', 'training']) {
+      $(`${type}-one`).onclick = () => { if (apocMode()) return type === 'click' ? apocUI.buyTicket() : teamUI?.open(); upgrade(type, false); };
+      $(`${type}-max`).onclick = () => { if (apocMode()) return; upgrade(type, true); };
+    }
     $('mute').onclick = $('recruit-mute').onclick = () => action(() => {
       const s = E.settle(store.state, Date.now()).state; s.settings.muted = !s.settings.muted;
       if (commit(s)) { muteAudio(); changed(); }
@@ -654,7 +667,7 @@ window.Clicker = (() => {
     }
     $('retry-save').onclick = () => { if (commit()) { settle(); changed(); } };
     $('roster-open').onclick = () => showRoster();
-    $('boss-challenge').onclick = () => action(()=>{ if (stage.bossBusy || cutin.active || gacha.active) return; const now=Date.now(), p=E.bossPreview(store.state,now); if (!p) return; if (commit(p.kind==='gate' ? E.startGate(store.state,now) : E.startBoss(store.state,now))) changed(); });
+    $('boss-challenge').onclick = () => action(()=>{ if (apocMode()) { apocUI.fight(); return; } if (stage.bossBusy || cutin.active || gacha.active) return; const now=Date.now(), p=E.bossPreview(store.state,now); if (!p) return; if (commit(p.kind==='gate' ? E.startGate(store.state,now) : E.startBoss(store.state,now))) changed(); });
     $('scene-open').title='選擇場景';
     $('scene-open').onclick = () => action(()=>{
       if (store.state.boss || stage.bossBusy || cutin.active) return;
@@ -666,12 +679,39 @@ window.Clicker = (() => {
         const text=document.createElement('span'), name=document.createElement('b'), status=document.createElement('small'); name.textContent=scene.name;
         const available=E.unlocked(store.state,id), current=store.state.settings.scene===id, markLocked=scene.requiresMark && !store.state.markShop?.[scene.requiresMark];
         status.textContent=current?'目前':available?'已解鎖':markLocked?'印記商店 5 印記解鎖':`${window.ClickerScenes[scene.unlock.boss].name}拆滿 ${scene.unlock.packages} 包並打贏${window.ClickerScenes[scene.unlock.boss].boss?.name || '大罐頭'}${scene.available===false?'（後續開放）':''}`;
-        text.append(name,status); ticket.append(thumb,text); ticket.disabled=!available || current;
-        ticket.onclick=()=>action(()=>{if(commit(E.switchScene(store.state,id,Date.now()))) {window.ClickerScene.mount(id); $('scenes-close').click(); changed();}});
+        text.append(name,status); ticket.append(thumb,text);
+        ticket.disabled=!available || (current && store.state.settings.world!=='apoc');
+        ticket.onclick=()=>action(()=>{
+          if (store.state.settings.world==='apoc') { setWorld('home', id); return; }
+          if(commit(E.switchScene(store.state,id,Date.now()))) {window.ClickerScene.mount(id); $('scenes-close').click(); changed();}
+        });
         $('scene-tickets').append(ticket);
       });
+      // v3：末世是第二個主系統，跟七個場景並排在同一張票券牆上——選了哪個，那個就是現在在玩的
+      if (store.state.apoc?.unlocked) {
+        const t=document.createElement('button'); t.className='scene-ticket apoc-ticket'; t.dataset.scene='apoc';
+        const thumb=document.createElement('span'); thumb.className='scene-thumb';
+        const img=document.createElement('img'); img.src='clicker-boss7-mieshi.png'; img.alt=''; img.onerror=()=>{img.hidden=true;}; thumb.append(img);
+        const text=document.createElement('span'), name=document.createElement('b'), status=document.createElement('small');
+        name.textContent='末世'; const inApoc=store.state.settings.world==='apoc';
+        status.textContent=inApoc?'目前':'精裝卡的世界・另一套進度';
+        text.append(name,status); t.append(thumb,text); t.disabled=inApoc;
+        t.onclick=()=>action(()=>setWorld('apoc'));
+        $('scene-tickets').append(t);
+      }
       $('scenes').hidden=false; $('game-content').inert=true; $('scenes-close').focus();
     });
+    // 兩個主系統的唯一切換點。切過去等同「重新整理」：面板全關、舞台重掛、存檔記住選的那個。
+    function setWorld(world, scene) {
+      const next = E.clone(store.state); next.settings = { ...next.settings, world };
+      if (world === 'home' && scene && scene !== next.settings.scene) Object.assign(next, E.switchScene(next, scene, Date.now()));
+      if (!commit(next)) return;
+      for (const id of ['scenes','roster','stats','wardrobe','prestige','team-editor','share','pick100']) $(id).hidden = true;
+      album?.close?.(); $('game-content').inert = false;
+      if (world === 'apoc') { stage.stop(); apocUI.enter(); }
+      else { apocUI.leave(); window.ClickerScene.mount(store.state.settings.scene); stage.start(); }
+      changed(); $('tap').focus();
+    }
     $('scenes-close').onclick=()=>{$('scenes').hidden=true; $('game-content').inert=gacha.active; $('scene-open').focus();};
     for (const id of ['roster', 'stats', 'receipt', 'wardrobe', 'prestige']) $(`${id}-close`).onclick = () => { if (id === 'roster') album.close(); $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('prestige-open').onclick = () => { if (!cutin.active) prestigeUI.open(); };
@@ -700,7 +740,7 @@ window.Clicker = (() => {
     if (!$('team-editor').hidden) { $('team-close').click(); return true; }
     if (!$('memento').hidden) { $('memento-close').click(); return true; }
     if (!$('reward').hidden) { $('reward-ok').click(); return true; }
-    if (!$('apoc').hidden) { apocUI.close(); return true; }
+
     if (extras?.escape()) return true;
     for (const id of ['scenes', 'roster', 'stats', 'receipt']) if (!$(id).hidden) { $(`${id}-close`).click(); return true; }
     return false;
@@ -740,5 +780,5 @@ window.Clicker = (() => {
   main().catch((err) => { console.error(err); $('fatal').hidden = false; $('fatal').textContent = `珍母點點初始化失敗：${err.message}`; });
   // repaired：這次載入有沒有自動修復過（{applied:[重置了哪些], reason:原本的錯誤}）。
   // 浮動訊息 1.4 秒就消失，驗收與客服要問「到底修了什麼」得看這裡。
-  return { get state() { return store.state; }, get extras() { return extras; }, get repaired() { return store.repaired; }, get drag() { return dragUI?.state; }, get apocReady() { return !!apocUI?.ready; } };
+  return { get state() { return store.state; }, get extras() { return extras; }, get repaired() { return store.repaired; }, get drag() { return dragUI?.state; }, get apocReady() { return !!apocUI; }, get world() { return store.state?.settings.world; } };
 })();

@@ -616,20 +616,12 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .memento-cell .card { position:relative; left:auto; top:auto; width:150px; height:210px; margin:0 0 -84px; transform:scale(.6); transform-origin:center top; opacity:1; transition:none; pointer-events:none; }
 .memento-cell { min-height:150px; }
 /* v3 末世模式：蓋滿整個 960×640 遊戲框（含頂欄、底欄） */
-#apoc { position:absolute; inset:0; z-index:35; background:#242723; }
 /* 末世畫面（team20／精裝招募）是照 1280 寬設計的，塞進 960×640 太擠：用 1280×853 畫、等比縮 0.75 顯示（使用者 09-13：為了觀賞性等比例縮小） */
-#apoc { --apoc-scale:.75; --apoc-width:1280px; }
-#apoc iframe { position:absolute; left:0; top:0; width:var(--apoc-width); height:calc(100% / var(--apoc-scale)); transform:scale(var(--apoc-scale)); transform-origin:0 0; border:0; background:#242723; }
-#apoc-coach { position:absolute; inset:0; background:rgba(0,0,0,.45); display:grid; place-items:end center; padding:16px 16px 72px; z-index:5; }
 .coach-bubble { max-width:520px; background:#fff7e5; border:3px solid #96714f; border-radius:16px; padding:12px 16px; box-shadow:0 8px 24px rgba(0,0,0,.35); }
 .coach-bubble small { color:#7a5a3a; font-size:11px; letter-spacing:.08em; }
 .coach-bubble h3 { margin:2px 0 6px; font-size:18px; }
 .coach-bubble p { margin:0 0 10px; font-size:14px; line-height:1.5; }
 .coach-actions { display:flex; justify-content:flex-end; gap:8px; }
-#apoc-coach-next { font-weight:700; }
-body[data-mode="apoc"] #topbar, body[data-mode="apoc"] footer { visibility:hidden; }
-#apoc-open.new { animation:challenge-glow 1.2s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { #apoc-open.new { animation:none; } }
 /* v3 編隊畫面：結構照 team20.css（累加上限列／隊伍網格／技能格／詳情／挑選器），配色照 1.0 */
 #team-editor { display:flex; flex-direction:column; }
 #team-editor > header { flex-shrink:0; margin-bottom:8px; }
@@ -1224,3 +1216,87 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
   #game .panel header span { display:none; }
   #game .panel h2, #game .small-panel h2 { font-size:15px; padding:4px 10px; }
 }
+
+/* ============================================================
+   末世（2.0）＝1.0 的版面換色票（使用者 2026-09-13：
+   「1.0 的版本比較好，乾脆把 1.0 的 UI 介面稍微調色拿來用就好」）。
+   只改顏色與少數紙質貼圖，版面節點與尺寸完全共用，所以不會有新的裁切風險。
+   ============================================================ */
+body[data-world="apoc"] #game {
+  --ink:#0C1119; --text-secondary:#8FA3BE; --paper:#22304A; --paper-edge:#4A628A;
+  --pink:#5C7CB8; --tape:#5C7CB8; --gold:#E0B33C;
+  color:#DDE6F4;
+}
+body[data-world="apoc"] #game,
+body[data-world="apoc"] .desk-mat { background:#0E1520; }
+body[data-world="apoc"] .desk-mat { border-image:none; box-shadow:inset 0 0 0 3px #1B2739; }
+body[data-world="apoc"] .desk-mat::after { display:none; }
+/* 紙質貼圖在深色下會變成一塊土黃，換成純色板（同一個尺寸，不動版面） */
+body[data-world="apoc"] #game-content h1,
+body[data-world="apoc"] .wallet,
+body[data-world="apoc"] .upgrade, body[data-world="apoc"] .recruit,
+body[data-world="apoc"] #team, body[data-world="apoc"] .panel, body[data-world="apoc"] .small-panel {
+  border-image:none !important; background:var(--paper); border:3px solid var(--paper-edge); border-radius:12px;
+}
+body[data-world="apoc"] #game-content h1 { color:#DDE6F4; }
+body[data-world="apoc"] #game-content button,
+body[data-world="apoc"] #roster button { --button-bg:#31425F; background:#31425F; color:#E8F0FF; border-color:#0C1119; }
+body[data-world="apoc"] #game button:disabled { --button-bg:#1C2637; background:#1C2637; color:#7C8CA5; }
+body[data-world="apoc"] #game h1, body[data-world="apoc"] #game h2,
+body[data-world="apoc"] #game .wallet b, body[data-world="apoc"] #game button { -webkit-text-stroke:0; }
+body[data-world="apoc"] .tape, body[data-world="apoc"] .stage-flag,
+body[data-world="apoc"] #hero-position, body[data-world="apoc"] #hero-light,
+body[data-world="apoc"] #bag, body[data-world="apoc"] #triple, body[data-world="apoc"] #belt,
+body[data-world="apoc"] #gift-clip, body[data-world="apoc"] #gift-bag, body[data-world="apoc"] #gift-timer,
+body[data-world="apoc"] #gate-block, body[data-world="apoc"] #boss-view, body[data-world="apoc"] #boss-timer,
+body[data-world="apoc"] #tutorial, body[data-world="apoc"] #deco-layer,
+body[data-world="apoc"] #prestige-open, body[data-world="apoc"] .save-plate { display:none !important; }
+/* 怪：站在 1.0 零食包的位置（同一個中心），王關大一號 */
+/* 末世的舞台：拿掉 1.0 的場景美術，換成一塊暗底；怪站在原本零食包的位置（#bag left:392 top:150 154×176）*/
+body[data-world="apoc"] #clicker-scene, body[data-world="apoc"] .scene-layer, body[data-world="apoc"] .scene-outgoing { display:none !important; }
+body[data-world="apoc"] #stage { background:radial-gradient(120% 90% at 50% 30%, #1B2739 0%, #0E1520 70%); border-radius:14px; overflow:hidden; }
+body[data-world="apoc"] #stage-fit { filter:none; }
+#apoc-enemy { position:absolute; left:469px; top:238px; width:140px; max-height:160px;
+  transform:translate(-50%,-50%); object-fit:contain; pointer-events:none; z-index:4;
+  filter:drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
+#apoc-enemy.boss { width:210px; max-height:210px; top:230px; }
+/* 紙票券的貼圖在深色下是一塊土黃，全部換成純色板（尺寸不動） */
+body[data-world="apoc"] .package-meter, body[data-world="apoc"] .price-ticket,
+body[data-world="apoc"] #notice, body[data-world="apoc"] .buddy-header h2,
+body[data-world="apoc"] .scene-ticket, body[data-world="apoc"] #shop h2 {
+  border-image:none !important; background:#1B2739; border:2px solid #4A628A; border-radius:8px; color:#DDE6F4; }
+body[data-world="apoc"] .package-meter { background:#16203088; }
+body[data-world="apoc"] #package-number, body[data-world="apoc"] #package-label { color:#DDE6F4; }
+body[data-world="apoc"] #package-progress::-webkit-progress-bar { background:#0E1520; }
+body[data-world="apoc"] #package-progress::-webkit-progress-value { background:#C9524A; }
+body[data-world="apoc"] #recruit-open { display:none; }
+body[data-world="apoc"] #shop h2 { color:#DDE6F4; }
+body[data-world="apoc"] #shop h2 small { color:#8FA3BE; }
+body[data-world="apoc"] .recruit small, body[data-world="apoc"] .upgrade p { color:#9FB3CE; }
+/* 十連的價格在 1.0 是絕對定位疊在鍵上；末世的鍵比較窄，改成排在字後面 */
+body[data-world="apoc"] .draw-five-price { position:static; display:inline; margin-left:6px; }
+/* 技能名字的小紙片、槽章：換深色 */
+body[data-world="apoc"] .skill-name, body[data-world="apoc"] .skill-slot small,
+body[data-world="apoc"] .slot-stamp, body[data-world="apoc"] .parasite-stamp {
+  background:#0E1520; border-color:#5C7CB8; color:#DDE6F4; }
+/* 末世的點擊區＝怪本身（1.0 的 #tap 是珍母的位置，末世沒有珍母） */
+body[data-world="apoc"] #tap { left:392px; top:150px; width:154px; height:190px; border-radius:16px; }
+body[data-world="apoc"] #tap:hover:enabled { background:#FFFFFF10; }
+body[data-world="apoc"] #buddies .buddy { background:#22304A; }
+body[data-world="apoc"] #completed { display:none; }
+/* 招募層在末世也要換色（同一層兩個世界共用） */
+body[data-world="apoc"] #recruit-layer { background:#0E1520; }
+body[data-world="apoc"] #recruit-topbar { background:#22304A; border-color:#0C1119; color:#DDE6F4; outline-color:#4A628A88; }
+body[data-world="apoc"] #recruit-topbar > b { border-image:none; background:#31425F; border-radius:8px; color:#DDE6F4; }
+body[data-world="apoc"] #recruit-layer button { background:#31425F; color:#E8F0FF; }
+body[data-world="apoc"] #recruit-layer button:disabled { background:#1C2637; color:#7C8CA5; }
+body[data-world="apoc"] #mode-select { background:#31425F; border-color:#4A628A; color:#E8F0FF; }
+body[data-world="apoc"] #recruit-hint { color:#C6D4E8; }
+body[data-world="apoc"] #recruit-entry h2, body[data-world="apoc"] #recruit-entry p { color:#DDE6F4; }
+/* 技能槽：末世的技能名字比 1.0 長，只留一行並省略，避免裁切 */
+body[data-world="apoc"] .skill-slot { background:#22304A; border-color:#4A628A; }
+body[data-world="apoc"] .skill-name { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+body[data-world="apoc"] .package-meter { background:#16203000; border-color:#4A628A; color:#DDE6F4; }
+body[data-world="apoc"] #effect-label { background:#22304A; border-color:#4A628A; color:#DDE6F4; }
+body[data-world="apoc"] #effect-label.broken { background:#E0B33C; color:#0C1119; border-color:#0C1119; }
+body[data-world="apoc"] .slot-empty { font-size:26px; color:#5C7CB8; }

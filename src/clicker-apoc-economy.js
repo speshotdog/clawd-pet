@@ -47,7 +47,7 @@
   //   原本每次都重建一個 71 筆的物件；快取起來，卡池換了才重算。
   let poolCache = null, poolCacheSrc = null;
   const poolById = () => { const src = root.ApocPool || []; if (src !== poolCacheSrc) { poolCacheSrc = src; poolCache = Object.fromEntries(src.map(c => [c.id, c])); } return poolCache; };
-  function fresh() { return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0, ticketsBought: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1 } }; }
+  function fresh() { return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0, ticketsBought: 0, pending: null, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1 } }; }
   function normalize(a) {
     const f = fresh(); a = { ...f, ...(a || {}) };
     if (!a.collection || typeof a.collection !== 'object') a.collection = {};
@@ -58,6 +58,7 @@
     if (a.stage && (typeof a.stage.hp !== 'number' || a.stage.index !== a.progress)) a.stage = null;
     if (a.stage && a.stage.boss && !a.stage.shield) { a.stage = { ...a.stage, shield: freshShield(0), breakUntil: 0 }; }   // 舊存檔的王關補上護盾
     a.ticketsBought = Math.max(0, Math.floor(Number(a.ticketsBought) || 0));
+    if (!a.pending || !a.pending.draw || !Array.isArray(a.pending.draw.entries)) a.pending = null;
     a.skillCd = [0, 1, 2, 3].map(i => Number(a.skillCd?.[i]) || 0);
     a.fx = { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, ...(a.fx || {}) };
     return a;
@@ -146,9 +147,38 @@
     skills = (skills || a.skills).map(id => (id && roster.includes(id)) ? id : null); while (skills.length < 4) skills.push(null);
     return { ...a, roster, skills: skills.slice(0, 4) };
   }
+  // 末世的抽卡：卡池是 ApocPool，貨幣是末世券，但**產出的 draw 形狀跟 1.0 的 rollPack 完全一樣**，
+  // 所以招募層、五種演出、收下流程全部共用（使用者：兩邊邏輯不要差太多）。
+  const RATES = [['mythic', .0025], ['legendary', .04], ['epic', .20], ['rare', .7575]];
+  function rollPack(a, count, rng = Math.random, id = `apoc-${Date.now().toString(36)}-${Math.floor(rng() * 1e6).toString(36)}`) {
+    const pool = {}; for (const c of (root.ApocPool || [])) (pool[c.rarity === 'common' ? 'rare' : c.rarity] ||= []).push(c);
+    const owned = { ...a.collection };
+    const entries = [];
+    for (let i = 0; i < count; i++) {
+      let r = rng(), acc = 0, rarity = 'rare';
+      for (const [name, p] of RATES) { acc += p; if (r < acc) { rarity = name; break; } }
+      const list = pool[rarity] && pool[rarity].length ? pool[rarity] : pool.rare;
+      const entry = list[Math.floor(rng() * list.length)];
+      const had = owned[entry.id] || 0; owned[entry.id] = had + 1;
+      entries.push(Object.freeze({ key: `${id}:${i}`, entry: Object.freeze({ ...entry }), dup: had > 0, owned: had }));
+    }
+    return Object.freeze({ id, entries: Object.freeze(entries), visualSeed: Math.floor(rng() * 2 ** 31) });
+  }
+  function purchaseDraw(a, count, now, rng) {
+    if (a.pending) throw new Error('還有沒收下的結果');
+    if (a.tickets < count) throw new Error(`末世券不足（還有 ${a.tickets} 張）`);
+    return { ...a, tickets: a.tickets - count, pending: { draw: rollPack(a, count, rng) } };
+  }
+  function collectDraw(a, drawId, now) {
+    if (!a.pending || a.pending.draw.id !== drawId) return { state: a, accepted: false };
+    const ids = a.pending.draw.entries.map(e => e.entry.id);
+    const next = drawn({ ...a, tickets: a.tickets + ids.length, pending: null }, ids);   // drawn() 自己會扣券
+    const newIds = [...new Set(ids.filter(id => !a.collection[id]))];
+    return { state: next, accepted: true, newIds };
+  }
   const view = (a, now) => ({ coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
-    skillCd: a.skillCd, fx: a.fx, now,
+    skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null,
     skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < RULES.STATIONS ? need(a.progress) : 0, ticketCost: ticketCost(a, 1), roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS });
-  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, fight, settle, tap, buyTicket, drawn, setTeam, rosterCounts, rosterViolations, view, ticketCost, skillOf, canSkill, useSkill, powerMul };
+  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, fight, settle, tap, buyTicket, drawn, setTeam, rosterCounts, rosterViolations, view, ticketCost, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

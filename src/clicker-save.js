@@ -16,7 +16,7 @@
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
       // v3（DESIGN-balance-v3）：編隊、本輪王勝／包數、本輪當家、派遣、寶箱種子、大掃除封存
       roster: [], runWins: [], runPacks: 0, runGates: 0, champions: [], artifacts: {}, collectibles: [], apoc: { unlocked: false, tutorial: 0 }, dispatch: [], dispatchDay: null, dispatchHalf: {}, chestSeed: Math.floor((now * 2654435761) % 4294967296), legacy: null,
-      settings: { clickSound:'soft', clickFx:'shard', muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8, autoChallenge: true } };
+      settings: { clickSound:'soft', clickFx:'shard', muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8, autoChallenge: true, world: 'home' } };
   }
   const object = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
   const number = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
@@ -160,6 +160,8 @@
     }
     check(object(s.settings) && typeof s.settings.muted === 'boolean' && B.modes.includes(s.settings.mode), '設定');
     s.settings.scene ??= 'backyard'; s.settings.music ??= true;
+    // v3：兩個主系統（1.0 桌邊／2.0 末世），場景面板切換，選到的那個就是當前主系統
+    if (s.settings.world !== 'apoc') s.settings.world = 'home';
     s.settings.musicVolume ??= .6; s.settings.sfxVolume ??= .8;
     check(['musicVolume','sfxVolume'].every(k => number(s.settings[k]) && s.settings[k] <= 1), '音量');
     const scenes = node ? require('./clicker-scene.js').scenes : root.ClickerScenes;
@@ -217,7 +219,8 @@
     s.artifacts ??= {}; s.collectibles ??= [];
     s.apoc ??= { unlocked: false, tutorial: 0 }; s.apoc.unlocked ??= false; s.apoc.tutorial ??= 0;
     if (globalThis.ApocEconomy) s.apoc = globalThis.ApocEconomy.normalize(s.apoc);   // v3 末世經濟欄位（coins／tickets／progress／collection／roster／stage）
-    if (Array.isArray(s.bossWins) && s.bossWins.includes('city')) s.apoc.unlocked = true;   // 打過滅世珍獸的舊存檔直接開門
+    if (Array.isArray(s.bossWins) && s.bossWins.includes('city')) s.apoc.unlocked = true;
+    if (s.settings.world === 'apoc' && !s.apoc.unlocked) s.settings.world = 'home';   // 還沒打贏滅世珍獸就回到桌邊   // 打過滅世珍獸的舊存檔直接開門
     check(object(s.apoc) && typeof s.apoc.unlocked === 'boolean' && integer(s.apoc.tutorial) && (s.apoc.coins === undefined || (number(s.apoc.coins) && s.apoc.coins >= 0 && integer(s.apoc.tickets) && s.apoc.tickets >= 0 && integer(s.apoc.progress) && s.apoc.progress >= 0 && s.apoc.progress <= 20)), '末世');
     { const PoolRef = pool || (node ? require('./gacha-pool.js') : root.GachaPool); check(Array.isArray(s.collectibles) && new Set(s.collectibles).size === s.collectibles.length && s.collectibles.every(id => PoolRef.COLLECTIBLE_IDS.includes(id)), '收藏卡'); }
     check(object(s.artifacts) && Object.entries(s.artifacts).every(([id, r]) => B.ARTIFACTS.some(a => a.id === id && a.id !== 'blessing' && integer(r) && r <= a.max)), '神器');
