@@ -158,10 +158,18 @@ window.Clicker = (() => {
     }
     lastNumbers = time;
     const s = store.state, { D, P } = E.rates(s);
-    const challenge=$('boss-challenge'), show=E.canBoss(s,Date.now()), bossName=window.ClickerScene.resolve(s.settings.scene).boss?.name || '大罐頭';
+    // v3：面前是路障小王還是站尾大王；輸過的小王不自動再打，鍵要一直在（DESIGN-balance-v3 §十三、§14.2）
+    const now=Date.now(), challenge=$('boss-challenge'), preview=E.bossPreview(s,now), sceneBoss=window.ClickerScene.resolve(s.settings.scene).boss?.name || '大罐頭';
+    const bossName=preview?.kind==='gate' ? '路障小王' : sceneBoss, show=!!preview && (preview.kind==='gate' ? !!s.package.gate : preview.ready);
     if (challenge.dataset.boss!==bossName) { challenge.dataset.boss=bossName; challenge.textContent=`挑戰${bossName}！`; challenge.classList.toggle('long',bossName.length>4); }
     if (show && challenge.hidden) { pulse(challenge,[{transform:'rotate(-3deg) scale(0)'},{transform:'rotate(-3deg) scale(1.1)',offset:.7},{transform:'rotate(-3deg) scale(1)'}],260); sound('upgrade'); }
-    challenge.hidden=!show; challenge.disabled=store.blocked || !!cutin?.active || !!gacha?.active || !!stage?.bossBusy;
+    const cooling=preview && !preview.ready && preview.cooldownUntil>now;
+    challenge.hidden=!show; challenge.disabled=store.blocked || !!cutin?.active || !!gacha?.active || !!stage?.bossBusy || !!cooling;
+    challenge.classList.toggle('glow', !!preview && preview.ratio>=.9 && !cooling);
+    const est=$('boss-estimate'); est.hidden=!show;
+    if (show) { const pct=Math.min(999,Math.round(preview.ratio*100)); est.querySelector('span').textContent=cooling ? `冷卻 ${Math.ceil((preview.cooldownUntil-now)/1000)} 秒` : `≈ ${pct}%`; est.querySelector('i').style.width=`${Math.min(100,pct)}%`; est.classList.toggle('ok',pct>=100); est.classList.toggle('near',pct>=90 && pct<100); }
+    const gateBlock=$('gate-block'); gateBlock.hidden=!(preview?.kind==='gate' && !s.boss);
+    if (!gateBlock.hidden) $('gate-label').innerHTML=`第 ${preview.index} 包路障${preview.lost ? '<br><small>守住了，準備好再點「挑戰」</small>' : ''}`;
     $('scene-open').disabled=!!s.boss || !!stage?.bossBusy; $('recruit-open').disabled=!!s.boss;
     balance(s.coins); rate($('click-rate'), `每次 ${format(D)}`, String(D)); rate($('passive-rate'), `每秒 ${format(P)}`, String(P));
     $('tutorial-progress').textContent = `${Math.min(50, s.manualClicks)} / 50`;
@@ -573,7 +581,7 @@ window.Clicker = (() => {
     }
     $('retry-save').onclick = () => { if (commit()) { settle(); changed(); } };
     $('roster-open').onclick = () => showRoster();
-    $('boss-challenge').onclick = () => action(()=>{ if (stage.bossBusy || cutin.active || gacha.active) return; if (commit(E.startBoss(store.state,Date.now()))) changed(); });
+    $('boss-challenge').onclick = () => action(()=>{ if (stage.bossBusy || cutin.active || gacha.active) return; const now=Date.now(), p=E.bossPreview(store.state,now); if (!p) return; if (commit(p.kind==='gate' ? E.startGate(store.state,now) : E.startBoss(store.state,now))) changed(); });
     $('scene-open').title='選擇場景';
     $('scene-open').onclick = () => action(()=>{
       if (store.state.boss || stage.bossBusy || cutin.active) return;

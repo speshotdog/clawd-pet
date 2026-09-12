@@ -29,6 +29,7 @@ window.ClickerStage = (() => {
     let fx = null, page = 0, teamState = null, teamKey = '', clickChain = 0, fxClickAt = -Infinity, joining = false;
     let soundTimes = [];
     let bossKey=null, resultKey=null, bossBusy=false, bossEntering=false, heartbeat=-1, shellTarget=null, struckRing=null;
+    const GATE_SVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 200"><g stroke="#3b2a1a" stroke-width="6" stroke-linejoin="round"><rect x="20" y="70" width="180" height="34" rx="8" fill="#ffb347"/><rect x="20" y="120" width="180" height="34" rx="8" fill="#ffb347"/><line x1="50" y1="55" x2="50" y2="190"/><line x1="170" y1="55" x2="170" y2="190"/></g><g fill="#3b2a1a"><rect x="44" y="70" width="20" height="34" transform="skewX(-20)"/><rect x="98" y="70" width="20" height="34" transform="skewX(-20)"/><rect x="152" y="70" width="20" height="34" transform="skewX(-20)"/><rect x="71" y="120" width="20" height="34" transform="skewX(-20)"/><rect x="125" y="120" width="20" height="34" transform="skewX(-20)"/><rect x="179" y="120" width="20" height="34" transform="skewX(-20)"/></g><circle cx="110" cy="30" r="16" fill="#ff4d4d" stroke="#3b2a1a" stroke-width="5"/><circle cx="70" cy="32" r="5" fill="#3b2a1a"/><circle cx="150" cy="32" r="5" fill="#3b2a1a"/></svg>';
     // 第十一輪：三連包子包狀態、輸送帶、夜市禮包的演出狀態
     let subStates=[0,0,0], tripleBusy=false, lastMissed=null, beltTime=0, beltWarned=false, beltTicked=null;
     let giftKey=null, giftResultKey=null, giftLanded=false;
@@ -530,7 +531,7 @@ window.ClickerStage = (() => {
       if(key && key!==bossKey) {
         bossKey=key;bossBusy=true;bossEntering=true;heartbeat=-1;cracks(s.boss.crack);
         // 王包本體依場景換圖與尺寸；三連包場景滑出的是整組子包
-        const cfg=window.ClickerScene.resolve(s.boss.scene).boss, pk=packEl(s);
+        let cfg=window.ClickerScene.resolve(s.boss.scene).boss; const pk=packEl(s);
         const bossImg=$('boss-image');
         if (cfg.sprite) {
           // 會動的怪：img 本身放一張透明像素，真正的圖交給 CSS 背景 + steps() 逐幀播
@@ -544,6 +545,10 @@ window.ClickerStage = (() => {
           bossImg.src=cfg.image || 'clicker-boss-can.png';
         }
         bossImg.alt=cfg.name || '大罐頭';
+        // v3 小王：先用路障 SVG 當佔位（使用者 2026-09-13：先用簡單 SVG 排版面，之後優化），尺寸比大王小一號
+        const gate=s.boss.gate!==undefined; $('boss-view').classList.toggle('gate',gate);
+        if (gate) { bossImg.classList.remove('sprite'); bossImg.style.removeProperty('--boss-sprite'); bossImg.src='data:image/svg+xml;utf8,'+encodeURIComponent(GATE_SVG); bossImg.alt='路障小王'; }
+        if (gate) cfg={...cfg,size:[220,200],center:cfg.center || 460};
         $('boss-view').style.setProperty('--boss-w',`${cfg.size?.[0] || 260}px`); $('boss-view').style.setProperty('--boss-h',`${cfg.size?.[1] || 300}px`); $('boss-view').style.setProperty('--boss-cx',`${cfg.center || 460}px`);
         $('boss-view').classList.toggle('full-board', (cfg.size?.[0] || 260) >= 600);
         $('boss-timer').hidden=false;$('boss-view').hidden=false;
@@ -575,7 +580,9 @@ window.ClickerStage = (() => {
             // 於是「換桌布／場景」鍵一直是 disabled，要重整才會好（2026-09-08 使用者回報）。
             // 改成看 r.next 有沒有解得開，不要再認場景名字。
             const nextScene = r.next && window.ClickerScenes[r.next];
-            const banner=$('boss-banner');banner.textContent=nextScene ? `${nextScene.name} 解鎖！` : '全站破關！珍母的零食櫃清空了';banner.classList.toggle('final-win',!nextScene);banner.hidden=false;
+            const banner=$('boss-banner');
+            // v3：路障打通與大王都給一次性獎金（C 路），橫幅直接寫金額——「錢就是為了這一刻」
+            banner.textContent=r.gate!==undefined ? `路障打通！＋${format(r.bonus||0)}` : nextScene ? `${nextScene.name} 解鎖！＋${format(r.bonus||0)}` : '全站破關！珍母的零食櫃清空了';banner.classList.toggle('final-win',!nextScene && r.gate===undefined);banner.hidden=false;
             motion(banner,[{transform:'scale(.8)'},{transform:'scale(1)'}],200);
             later(()=>motion(banner,[{transform:'translateX(0)',opacity:1},{transform:'translateX(-600px)',opacity:0}],220,()=>{
               banner.hidden=true;
@@ -590,7 +597,7 @@ window.ClickerStage = (() => {
               motion(pk,[{transform:'translateX(200px)'},{transform:'translateX(0)'}],220,()=>{bossBusy=false;render(latestState);});
             });
           });
-          notice(`差一點！裂痕 ${Math.round(r.crack*100)}%，30 秒後再來`);
+          notice(r.gate!==undefined ? '小王守住了。30 秒冷卻後，準備好再點「挑戰」' : `差一點！裂痕 ${Math.round(r.crack*100)}%，30 秒後再來`);
         }
       } else if(instant && !s.boss) {resultKey=rk;if(window.ClickerScene.current!==window.ClickerScene.resolve(s.settings.scene)) window.ClickerScene.mount(s.settings.scene);}
     }

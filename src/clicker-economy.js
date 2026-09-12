@@ -313,6 +313,17 @@
     if (s.gift) endGift(s, now, false);
     delete s.thief; s.bossResult = null; return s;
   }
+  // UI 用：現在面前是哪一隻王（路障小王或站尾大王）、血量多少、玩家「30 秒火力」大約幾成（DESIGN-balance-v3 §14.2）
+  // 火力＝被動 30 秒＋連點 6 下/秒（模擬器同一個假設），不含技能——玩家可以賭技能，所以低於 100% 也能按
+  function capacity30(s) { const r = rates(s); return (r.P + r.D * 6) * 30; }
+  function bossPreview(s, now) {
+    if (s.boss) return null;
+    if (s.package.gate) { const need = gateNeed(s, s.package.gate.index); return { kind: 'gate', index: s.package.gate.index, need, ratio: capacity30(s) / need, ready: canGate(s, now), lost: !!s.package.gate.lost, cooldownUntil: s.package.gate.cooldownUntil || 0 }; }
+    const scene = s.settings.scene, cfg = Scenes(scene).boss;
+    if (!cfg || bossPackages(scene) == null) return null;
+    const need = (B.V3.BOSS_K[scene] ?? B.V3.BOSS_MUL) * requirement(bossPackages(scene) + 1, scene) * cfg.mul;
+    return { kind: 'boss', need, ratio: capacity30(s) / need, ready: canBoss(s, now), cooldownUntil: s.bossCooldownUntil || 0 };
+  }
   function startGate(state, now) {
     const s = settle(state, now).state;
     if (!canGate(s, now)) throw new Error('沒有待打的小王');
@@ -605,7 +616,7 @@
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
   const api = { medianPartnerLevel, exchangeRate, PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, blessMul, decoMul,
-    thiefHit, newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene, autoGate,
+    thiefHit, newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene, autoGate, bossPreview, capacity30,
     art, skillArt, cdArt, rosterOf, rosterCounts, rosterViolations, setRoster, autoRoster, dispatched, dispatch, recall, champion, bossPackagesFor, runWon, canGate, startGate, gateNeed, isChest, chestRate,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

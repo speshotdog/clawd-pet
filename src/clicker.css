@@ -778,6 +778,18 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .wardrobe-item b, .wardrobe-item small { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #wardrobe-decor-price { white-space:normal; }
 #boss-banner.final-win { font-size:24px; }
+/* v3：火力預估（王血條旁）、路障佔位、挑戰鍵發光 */
+#stage > #boss-estimate { position:absolute; left:470px; top:92px; width:120px; z-index:12; display:grid; grid-template-columns:1fr; gap:2px; font-size:11px; color:#5b4632; background:rgba(255,248,236,.9); border:2px solid #d9c3a3; border-radius:8px; padding:4px 6px; transform:rotate(-3deg); }
+#boss-estimate b { font-weight:700; }
+#boss-estimate i { display:block; height:6px; border-radius:3px; background:#e0453a; max-width:100%; transition:width .3s; }
+#boss-estimate.near i { background:#f2b233; } #boss-estimate.ok i { background:#2fae72; }
+#boss-estimate span { font-variant-numeric:tabular-nums; font-weight:700; }
+#stage > #boss-challenge.glow { animation:challenge-glow 1.2s ease-in-out infinite; }
+@keyframes challenge-glow { 0%,100% { filter:drop-shadow(0 0 0 #ffd76a); } 50% { filter:drop-shadow(0 0 10px #ffd76a); } }
+#stage > #gate-block { position:absolute; left:330px; top:170px; width:200px; z-index:9; display:grid; justify-items:center; gap:2px; font-size:14px; line-height:1.2; text-align:center; color:#3b2a1a; text-shadow:0 1px 0 #fff, 0 0 4px #fff; }
+#gate-block small { font-size:11px; color:#7a5a3a; }
+#boss-view.gate #boss-image { transform:translateY(40px); }
+@media (prefers-reduced-motion: reduce) { #stage > #boss-challenge.glow { animation:none; } }
 #game #snack-thief { left:506px; top:184px; width:90px; height:110px; padding:0; border:0; border-image:none; box-shadow:none; outline:none; background:transparent; z-index:8; }
 #snack-thief img { width:100%; height:100%; object-fit:contain; animation:thief-bob 1.2s ease-in-out infinite; }
 #snack-thief span { position:absolute; right:5px; bottom:15px; }
