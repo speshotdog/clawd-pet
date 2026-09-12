@@ -10,18 +10,17 @@ TEA = SRC / '悠閒時光系列 拆三張卡.jpg'
 STAR = SRC / 'star-frame-120.png'        # ffmpeg 抽第 120 幀（2.000 秒），同 Astra 選的那一格
 OMEGA = SRC / '奧米加咆嘯獸 神話.png'
 # 2026-09-13 第二次退回：「甜點系列放大一點、以角色的臉為主置中、龍總拉更近；尾巴裁掉可以，臉一定在卡中間」
-# id → (來源, 臉的中心 (x,y), 視窗高度＝來源像素)。臉放在卡寬 50%、卡高 42%（下方名字框佔約 22%）。
+# id → (來源, 臉的中心 (x,y), 視窗高度＝來源像素)。臉放在卡寬 50%、卡高 40%。
 CARDS = {
     'tiandianaini': (TEA, (750, 830), 1150),
     'xiawujiaojiao': (TEA, (380, 1500), 1000),
     'danngaomie': (TEA, (730, 1740), 1150),
     'wangyuanmie': (STAR, (300, 1180), 620),
-    'xingyejiao': (STAR, (630, 1200), 520),
-    'tilanxing': (STAR, (880, 1180), 600),
+    'xingyejiao': (STAR, (755, 1190), 900),   # 2026-09-13 使用者：今晚不睡膠＋提籃摘星獸併成一張（兩隻臉的中點）
     'shanqiulong': (STAR, (790, 905), 420),
     'aomijiapaoxiaoshou': (OMEGA, (2280, 990), 1900),
 }
-FACE_X, FACE_Y = .5, .42
+FACE_X, FACE_Y = .5, .40   # 文字框上緣在卡高 80%（bottom 4%＋height 16%），「卡頂到文字框上緣」那塊的中心＝40%
 def window(size, face, ch):
     W, H = size; fx, fy = face
     ch = min(ch, H); cw = ch * 5 / 7

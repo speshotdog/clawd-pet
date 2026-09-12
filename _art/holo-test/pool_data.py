@@ -69,10 +69,9 @@ CARDS_5_0 = [
         ('xiawujiaojiao', '玥下午茶', 'epic', 'flat'),
         ('danngaomie', '蛋糕分咩一口', 'epic', 'flat'),
         ('wangyuanmie', '咩有看錯星', 'mythic', 'flat'),
-        ('xingyejiao', '今晚不睡膠', 'epic', 'flat'),
-        ('tilanxing', '提籃摘星獸', 'epic', 'flat'),
+        ('xingyejiao', '今晚不睡膠', 'mythic', 'flat'),
         ('shanqiulong', '星願龍總欸', 'legendary', 'flat'),
-        ('jiujixiaochouyueyue', '究極小丑玥玥', 'mythic', 'framed'),
+        ('jiujixiaochouyueyue', '究極小丑玥玥', 'legendary', 'framed'),
         ('aomijiapaoxiaoshou', '奧米加咆嘯獸', 'mythic', 'flat'),
     ]
 ]
