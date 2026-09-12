@@ -55,6 +55,11 @@ window.ClickerAlbum = (() => {
       const s = store.state; if (!s) return;
       refreshTrainAll();
       $('dust-count').textContent = s.universalDust || 0;
+      // v3 編隊摘要：隊伍 n/20 與前綴上限（出身算層）；派遣到期就出「收回」鍵
+      const team = E.rosterOf(s), counts = E.rosterCounts(team), lim = B.V3.ROSTER_LIMITS, due = (s.dispatch || []).filter(d => d.until <= Date.now()).length;
+      $('team-summary').innerHTML = `隊伍 <b>${team.length}/20</b>（神 ${counts[0]}/${lim[0]}・傳 ${counts[1]}/${lim[1]}・史 ${counts[2]}/${lim[2]}）${s.roster?.length ? '' : '・自動編隊'}`;
+      $('team-summary').title = '只有隊伍裡的夥伴產錢；上限用出身算（升階不改層）；隊外的夥伴可以派遣 4 小時換粉塵';
+      $('recall-all').hidden = !due; $('recall-all').textContent = `收回派遣（${due}）`;
       const sh = sheet(), n = sheets();
       $('album-page').textContent = `${sh + 1} / ${n}`;
       $('album-prev').disabled = sh === 0; $('album-next').disabled = sh + 1 >= n;
@@ -72,6 +77,9 @@ window.ClickerAlbum = (() => {
           meta.append(starRow(s, id));
           const line = document.createElement('small'); line.textContent = s.collection[id] ? nextStep(s, id) : '？？？'; meta.append(line);
           if (s.skillSlots.includes(id)) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${s.skillSlots.indexOf(id) + 1}`; slot.append(stamp); }
+          else if (team.includes(id)) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp team-stamp'; stamp.textContent = '隊'; slot.append(stamp); }
+          else if (E.dispatched(s, id)) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp away-stamp'; stamp.textContent = '派'; slot.append(stamp); }
+          if (E.champion(s, id)) { const flag = document.createElement('i'); flag.className = 'champ-flag'; flag.textContent = '本輪當家'; slot.append(flag); }
           slot.append(meta); slot.onclick = () => openDetail(id);
           el.append(slot);
         });
@@ -131,13 +139,17 @@ window.ClickerAlbum = (() => {
       for (const bond of B.bonds.filter(b => b.pair.includes(id))) rows.push(['羈絆', bond.pair.every(k => s.collection[k]) ? `${bond.name}・已生效` : `${bond.name}・需要 ${bond.pair.filter(k => !s.collection[k]).map(k => Pool.byId[k].name).join('、')}`]);
       const home = Object.entries(window.ClickerScenes).filter(([, sc]) => (sc.affinity || []).includes(id)).map(([, sc]) => sc.name);
       if (home.length) rows.push(['當家', `${home.join('、')}：收益 ×1.5、冷卻 −20%`]);
+      if (E.champion(s, id)) rows.push(['本輪當家', '這一輪收益 ×1.5、冷卻 −20%；換桌布會重抽']);
+      const inTeam = E.rosterOf(s).includes(id), away = E.dispatched(s, id), job = (s.dispatch || []).find(d => d.id === id);
+      if (owned) rows.push(['編隊', inTeam ? '在隊伍裡（產錢、可裝技能）' : away ? `派遣中，${Math.max(0, Math.ceil((job.until - Date.now()) / 60000))} 分鐘後回來` : '不在隊伍（不產錢；可以派遣）']);
       for (const [k, v] of rows) { const r = document.createElement('p'); const b = document.createElement('b'); b.textContent = k; const span = document.createElement('span'); span.textContent = v; r.append(b, span); info.append(r); }
       right.append(info);
       const buttons = document.createElement('div'); buttons.className = 'detail-buttons';
       for (let i = 0; i < s.skillSlots.length; i++) {
         const btn = document.createElement('button'), occupied = s.skillSlots.indexOf(id);
         btn.textContent = i >= E.slotCount(s) ? `槽${i + 1} 未開` : occupied === i ? `已在槽 ${i + 1}` : `裝備至槽 ${i + 1}`;
-        btn.disabled = !owned || i >= E.slotCount(s) || occupied >= 0 || store.blocked;
+        btn.disabled = !owned || i >= E.slotCount(s) || occupied >= 0 || store.blocked || !inTeam;
+        if (owned && !inTeam && occupied < 0) btn.title = '要先編入隊伍';
         btn.classList.toggle('target-slot', targetSlot === i);
         btn.onclick = () => action(() => { if (commit(E.equip(store.state, i, id, Date.now()))) { changed(); notice(`${Pool.byId[id].name} 裝備至槽 ${i + 1}，等待 30 秒`); openDetail(id); renderBook(); } });
         buttons.append(btn);
@@ -166,8 +178,30 @@ window.ClickerAlbum = (() => {
       const trainMax = document.createElement('button'); trainMax.className = 'grow-btn train'; trainMax.textContent = '最多'; trainMax.disabled = train.disabled;
       trainMax.onclick = () => action(() => { const r = P.train(store.state, id, Date.now(), true); if (commit(r.state)) { changed(); sound('upgrade'); notice(`${Pool.byId[id].name} 訓練 +${r.levels} 級`); openDetail(id); } });
       grow.append(train, trainMax);
+      // v3：編入／移出隊伍、派遣／收回（DESIGN-balance-v3 §三、§六）
+      const teamRow = document.createElement('div'); teamRow.className = 'detail-grow team-row';
+      const teamBtn = document.createElement('button'); teamBtn.className = 'grow-btn team';
+      teamBtn.textContent = !owned ? '編隊（招募後）' : inTeam ? '移出隊伍' : away ? '派遣中' : '編入隊伍';
+      teamBtn.disabled = !owned || away || store.blocked;
+      if (owned && !inTeam && !away && E.rosterViolations([...E.rosterOf(s), id]).length && E.rosterOf(s).length < 20) teamBtn.title = '這個階級的格子滿了（上限用出身算），先移出一張';
+      teamBtn.onclick = () => action(() => {
+        const cur = E.rosterOf(store.state); let next;
+        if (inTeam) next = cur.filter(x => x !== id);
+        else { next = [...cur, id]; if (next.length > 20 || E.rosterViolations(next).length) { notice(next.length > 20 ? '隊伍已滿 20 張，先移出一張' : '這個階級的格子滿了，先移出一張'); return; } }
+        if (commit(E.setRoster(store.state, next, Date.now()))) { changed(); notice(inTeam ? `${Pool.byId[id].name} 離開隊伍` : `${Pool.byId[id].name} 編入隊伍`); openDetail(id); renderBook(); }
+      });
+      const goBtn = document.createElement('button'); goBtn.className = 'grow-btn dispatch';
+      const slotsUsed = (s.dispatch || []).length, V = B.V3;
+      goBtn.textContent = !owned ? '派遣（招募後）' : away ? (job.until <= Date.now() ? '回來了・收回' : '派遣中') : inTeam ? '派遣（要先離隊）' : `派遣 4 小時（${slotsUsed}/${V.DISPATCH_SLOTS}）`;
+      goBtn.disabled = !owned || inTeam || (away && job.until > Date.now()) || (!away && slotsUsed >= V.DISPATCH_SLOTS) || store.blocked;
+      goBtn.title = '回來給這位夥伴的粉塵 1 顆（傳說／神話半顆）＋萬用粉塵 1 顆；每天最多收 9 次';
+      goBtn.onclick = () => action(() => {
+        if (away) { const r = E.recall(store.state, Date.now()); if (commit(r.state)) { changed(); sound('transcend'); notice(`收回派遣：${r.rewards.filter(x => !x.capped).length} 位帶粉塵回來${r.rewards.some(x => x.capped) ? '（今天已達 9 次上限）' : ''}`); openDetail(id); renderBook(); } }
+        else if (commit(E.dispatch(store.state, id, Date.now()))) { changed(); notice(`${Pool.byId[id].name} 出發了，4 小時後回來`); openDetail(id); renderBook(); }
+      });
+      teamRow.append(teamBtn, goBtn); grow.after(teamRow);
       if (owned) rows.push(['訓練', `Lv.${L}・被動 +${5 * L}%${ms ? `・下一里程碑 ${ms}` : ''}`]);
-      right.append(buttons, grow);
+      right.append(buttons, grow, teamRow);
       for (const [dir,label] of [[-1,'上一位'],[1,'下一位']]) { const nav = document.createElement('button'), index = IDS.indexOf(id)+dir; nav.textContent = label; nav.disabled = index < 0 || index >= IDS.length; nav.onclick = () => openDetail(IDS[index]); buttons.append(nav); }
       const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); right.append(back);
       root.append(left, right);
@@ -335,6 +369,7 @@ window.ClickerAlbum = (() => {
       if (!e.target.closest('.album-slot, .page-corner')) flip(dir);
     };
     $('album-prev').onclick = () => flip(-1); $('album-next').onclick = () => flip(1);
+    $('recall-all').onclick = () => action(() => { const r = E.recall(store.state, Date.now()); if (commit(r.state)) { changed(); sound('transcend'); notice(`收回派遣：${r.rewards.filter(x => !x.capped).length} 位帶粉塵回來${r.rewards.some(x => x.capped) ? '（今天已達 9 次上限）' : ''}`); renderBook(); } });
     $('train-all').onclick = () => action(() => {
       const r = window.ClickerPrestige.trainAll(store.state, Date.now());
       if (commit(r.state)) {

@@ -791,6 +791,13 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .wardrobe-item b, .wardrobe-item small { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #wardrobe-decor-price { white-space:normal; }
 #boss-banner.final-win { font-size:24px; }
+/* v3 卡冊：隊／派 章、本輪當家旗、編隊與派遣鍵 */
+.album-slot .team-stamp { background:#dff3e4; border-color:#2f5a3a; color:#2f5a3a; }
+.album-slot .away-stamp { background:#e9e4f7; border-color:#5a4a8a; color:#5a4a8a; }
+.album-slot .champ-flag { position:absolute; left:6px; top:6px; z-index:6; font-style:normal; font-size:10px; line-height:14px; padding:0 5px; border-radius:3px; background:#ffd76a; border:1px solid #8a6a1a; color:#5a4310; }
+.team-row .grow-btn.team { background:#dff3e4; } .team-row .grow-btn.dispatch { background:#e9e4f7; }
+#team-summary b { font-size:13px; }
+#recall-all { background:#e9e4f7; }
 /* v3 換桌布面板：本輪帳、神器格 */
 .run-ledger { list-style:none; margin:6px 0 10px; padding:0; display:grid; grid-template-columns:repeat(3,1fr); gap:4px 12px; font-size:13px; }
 .run-ledger li { display:flex; justify-content:space-between; gap:6px; color:#8a7560; border-bottom:1px dashed #d9c3a3; }
