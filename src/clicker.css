@@ -937,6 +937,8 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
 #gate-block small { font-size:11px; color:#7a5a3a; }
 #boss-view.gate #boss-image { transform:translateY(40px); }
 @media (prefers-reduced-motion: reduce) { #stage > #boss-challenge.glow { animation:none; } }
+/* 冷卻中：一眼看得出不能按（灰、半透明、not-allowed），鍵面寫倒數 */
+#stage > #boss-challenge:disabled, #stage > #boss-challenge.cooling { filter:grayscale(.85); opacity:.6; cursor:not-allowed; animation:none; }
 #game #snack-thief { left:506px; top:184px; width:90px; height:110px; padding:0; border:0; border-image:none; box-shadow:none; outline:none; background:transparent; z-index:8; }
 #snack-thief img { width:100%; height:100%; object-fit:contain; animation:thief-bob 1.2s ease-in-out infinite; }
 #snack-thief span { position:absolute; right:5px; bottom:15px; }

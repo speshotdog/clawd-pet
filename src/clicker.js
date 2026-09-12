@@ -163,9 +163,13 @@ window.Clicker = (() => {
     // v3：面前是路障小王還是站尾大王；輸過的小王不自動再打，鍵要一直在（DESIGN-balance-v3 §十三、§14.2）
     const now=Date.now(), challenge=$('boss-challenge'), preview=E.bossPreview(s,now), sceneBoss=window.ClickerScene.resolve(s.settings.scene).boss?.name || '大罐頭';
     const bossName=preview?.kind==='gate' ? '路障小王' : sceneBoss, show=!!preview && (preview.kind==='gate' ? !!s.package.gate : preview.ready);
-    if (challenge.dataset.boss!==bossName) { challenge.dataset.boss=bossName; challenge.textContent=`挑戰${bossName}！`; challenge.classList.toggle('long',bossName.length>4); }
-    if (show && challenge.hidden) { pulse(challenge,[{transform:'rotate(-3deg) scale(0)'},{transform:'rotate(-3deg) scale(1.1)',offset:.7},{transform:'rotate(-3deg) scale(1)'}],260); sound('upgrade'); }
     const cooling=preview && !preview.ready && preview.cooldownUntil>now;
+    // 冷卻中的挑戰鍵會被 disabled，但以前長得跟可按的一模一樣，玩家以為「有東西擋住」（使用者 09-13 回報）→ 鍵面直接寫倒數
+    const label=cooling ? `冷卻 ${Math.ceil((preview.cooldownUntil-now)/1000)} 秒` : `挑戰${bossName}！`;
+    if (challenge.dataset.boss!==bossName) { challenge.dataset.boss=bossName; challenge.classList.toggle('long',bossName.length>4); }
+    if (challenge.textContent!==label) challenge.textContent=label;
+    challenge.classList.toggle('cooling',!!cooling);
+    if (show && challenge.hidden) { pulse(challenge,[{transform:'rotate(-3deg) scale(0)'},{transform:'rotate(-3deg) scale(1.1)',offset:.7},{transform:'rotate(-3deg) scale(1)'}],260); sound('upgrade'); }
     challenge.hidden=!show; challenge.disabled=store.blocked || !!cutin?.active || !!gacha?.active || !!stage?.bossBusy || !!cooling;
     challenge.classList.toggle('glow', !!preview && preview.ratio>=.9 && !cooling);
     const est=$('boss-estimate'); est.hidden=!show;
