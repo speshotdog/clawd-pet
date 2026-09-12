@@ -1,6 +1,8 @@
 // 第十三輪：輪迴、印記商店、電動手指、夥伴訓練、桌面裝飾
 const test = require('node:test'), assert = require('node:assert');
 const E = require('../../src/clicker-economy.js'), S = require('../../src/clicker-save.js'), B = require('../../src/clicker-balance.js'), P = require('../../src/clicker-prestige.js'), Pool = require('../../src/gacha-pool.js');
+// v3：夥伴訓練成長旋鈕 PARTNER_G 預設 1.02（兩週日曆掃描定的）；這幾條測的是 v2 的基礎公式，把旋鈕歸 1 再量
+require('../../src/clicker-balance.js').V3.PARTNER_G = 1;
 const seed = (over = {}) => { const s = S.fresh(0); Object.assign(s, over); return s; };
 const own = (s, id, n = 1) => { s.collection[id] = n; s.dust[id] = n; return s; };
 // v3（2026-09-12）：印記不再是 √生涯幣，改成「本輪做到的事」——大王每隻 1、100／300 包各 1、滅世珍獸 +3，每輪上限 12；

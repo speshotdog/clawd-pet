@@ -33,14 +33,14 @@ test('v3 小王：關掉自動挑戰就停在路障；第 50 包是 area 王 ×1
   t = E.click(t, 1000).state; assert.equal(t.package.gate, undefined, '第 90 包是夜市的門檻，不出小王'); assert.ok(E.canBoss(t, 1000));
 });
 test('v3 大王：血量是門檻包的函數；每輪可重打；通關章門檻減半；runWins 進印記', () => {
-  let s = seed(); s.package.index = 51; s = E.startBoss(s, 0); near(s.boss.need, V.BOSS_MUL * E.requirement(51) * 1.25);
+  let s = seed(); s.package.index = 51; s = E.startBoss(s, 0); near(s.boss.need, V.BOSS_K.backyard * E.requirement(51) * 1.25);
   s.boss.dealt = s.boss.need - 1; s = E.click(s, 1).state;
   assert.deepEqual(s.bossWins, ['backyard']); assert.deepEqual(s.runWins, ['backyard']); assert.equal(s.universalDust, 3);
   near(s.bossResult.bonus, E.requirement(51) * 1.25 * V.BOSS_REWARD);
   assert.equal(P.marksTotal(s), 1); assert.equal(P.canPrestige(s), null);
   const r = P.prestige(s, 10, () => .5).state; assert.deepEqual(r.runWins, []); assert.deepEqual(r.bossWins, ['backyard']);
   assert.equal(E.bossPackagesFor(r, 'backyard'), 25, '贏過的站門檻減半');
-  r.package.index = 26; assert.ok(E.canBoss(r, 10)); const again = E.startBoss(r, 10); near(again.boss.need, V.BOSS_MUL * E.requirement(51) * 1.25, 1e-9);
+  r.package.index = 26; assert.ok(E.canBoss(r, 10)); const again = E.startBoss(r, 10); near(again.boss.need, V.BOSS_K.backyard * E.requirement(51) * 1.25, 1e-9);
   again.boss.dealt = again.boss.need - 1; const w = E.click(again, 11).state;
   assert.deepEqual(w.runWins, ['backyard']); assert.equal(w.universalDust, 3 + 3, '輪迴給 3、首勝獎勵不重發'); assert.equal(w.freeDraws, 5);
   S.validate(JSON.parse(JSON.stringify(w)), Pool);

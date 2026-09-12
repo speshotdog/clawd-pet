@@ -1,5 +1,7 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const E = require('../../src/clicker-economy.js'), S = require('../../src/clicker-save.js'), P = require('../../src/clicker-prestige.js'), Pool = require('../../src/gacha-pool.js');
+// v3：夥伴訓練成長旋鈕 PARTNER_G 預設 1.02（兩週日曆掃描定的）；這幾條測的是 v2 的基礎公式，把旋鈕歸 1 再量
+require('../../src/clicker-balance.js').V3.PARTNER_G = 1;
 const seed = () => { const s=S.fresh(0); s.collection={lk:1}; s.partnerLevels={lk:3}; s.marks=s.marksClaimed=30; return s; };
 
 test('round20: five costs 135 seconds, training pricing has half the exponent', () => {

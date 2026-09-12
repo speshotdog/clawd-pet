@@ -38,9 +38,9 @@ test('round8 boss: appearance threshold and cooldown guards',()=>{
 // v3（2026-09-12）：王血量改成關卡函數 K×門檻包需求×站係數，不再讀 P／D——跟自己掛鉤的王永遠不是牆（DESIGN-balance-v3 §二）
 test('round8 boss v3: need = BOSS_MUL × requirement(門檻+1) × cfg.mul, deadline and saved crack seed',()=>{
   const s=S.fresh(0);s.package.index=51;s.bossCracks.backyard=.4;const b=E.startBoss(s,100).boss;
-  near(b.need,B.V3.BOSS_MUL*E.requirement(51)*1.25);near(b.dealt,b.need*.4);assert.equal(b.endsAt,30100);
+  near(b.need,B.V3.BOSS_K.backyard*E.requirement(51)*1.25);near(b.dealt,b.need*.4);assert.equal(b.endsAt,30100);
   const t=S.fresh(0);t.package.index=80;t.collection={zhenmu:16};t.trainingLevel=40;
-  near(E.startBoss(t,0).boss.need,B.V3.BOSS_MUL*E.requirement(51)*1.25);   // 玩家再強、衝到第 80 包，王的血量仍是門檻那一包的函數
+  near(E.startBoss(t,0).boss.need,B.V3.BOSS_K.backyard*E.requirement(51)*1.25);   // 玩家再強、衝到第 80 包，王的血量仍是門檻那一包的函數
 });
 test('round8 boss: all sources earn coins into boss, normal package paused',()=>{
   let s=boss();s.collection={fox:1};s.skillSlots[0]='fox';const p=structuredClone(s.package);

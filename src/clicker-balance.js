@@ -159,9 +159,10 @@
     // C 路（2026-09-12 使用者拍）：王是「賺大錢的時刻」——打贏小王給 requirement×GATE_REWARD、大王給門檻包需求×BOSS_REWARD 的幣（一次性、只進錢包）
     GATE_REWARD: 8, BOSS_REWARD: 40,
     // 成長側實驗旋鈕（模擬器 A/B 用；1／1／1.15 就是 v2 原值）：夥伴訓練每級再乘 PARTNER_G^L、全隊訓練價 ×TRAIN_COST_MUL、夥伴訓練價 ×PARTNER_COST_MUL
-    PARTNER_G: 1, TRAIN_COST_MUL: 2.5, PARTNER_COST_MUL: 1.15, PARTNER_CAP: 200,
+    // 2026-09-13 兩週日曆掃描定案（REPORT §二之三）：PARTNER_G 1.02、每站 K 遞減；一個小數點就是一天與一週的差別，改之前先跑 tools/sim/clicker-v3.js
+    PARTNER_G: 1.02, TRAIN_COST_MUL: 2.5, PARTNER_COST_MUL: 1.15, PARTNER_CAP: 200,
     // 每站各自的大王 K（缺的用 BOSS_MUL）：前段大、後段小，讓第一次離線那筆錢沖不過前四站（DESIGN-balance-v3 §十四）
-    BOSS_K: {} };
+    BOSS_K: { backyard: 10, kitchen: 8, market: 6, factory: 5, nightmarket: 8, fridge: 8, city: 2 } };
   // D 路（2026-09-13 使用者拍，照 Sakura Clicker）：祝福從一條線拆成 7 個「神器」線，第 r 級收 r 枚印記、各有頂，
   // 玩家要選先升哪個。收益祝福沿用舊欄位 s.blessing；其餘存 s.artifacts[id]。總量上限 MARKS_TOTAL_CAP（Sakura 是 350）。
   const ARTIFACTS = [

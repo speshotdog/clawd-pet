@@ -35,7 +35,7 @@ function maybePrestige() {
   const avail=P.marksAvailable(s);
   if(P.canPrestige(s)) return;
   const stuck=stuckSince!==null && now-stuckSince>=SESSION;
-  if(!(avail>=8 || (stuck && avail>=3))) return;
+  if(!(stuck && avail>=3)) return;   // D 路真人模型：只有卡住才換桌布（不會沒事重來）
   s=P.prestige(s,now,rng).state; prestiges++; stuckSince=null;
   for(const item of [...B.marks].sort((a,b)=>a.cost-b.cost)) { try{ s=P.buyMark(s,item.id,now); }catch{} }
   buyArtifacts();
