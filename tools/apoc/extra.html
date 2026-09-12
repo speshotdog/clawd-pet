@@ -30,6 +30,17 @@ body{padding-top:56px;padding-bottom:56px}
 #apoc-battle #apoc-tap:active{transform:scale(.97)}
 #apoc-battle button:disabled{opacity:.45;cursor:not-allowed}
 #apoc-battle .power{font-size:12px;color:var(--label)}
+.proxy-star{position:absolute;top:3px;right:3px;background:#373d35;color:#ffd27a;font:12px/18px Consolas,monospace;padding:0 5px;border-left:0;min-width:0}
+#apoc-battle .shieldbar{height:12px;border:1px solid var(--edge);background:#101115;border-radius:4px;overflow:hidden}
+#apoc-battle .shieldbar i{display:block;height:100%;width:0;background:#6f8fd0;transition:width .12s}
+#apoc-battle .shieldbar.broken i{background:#e0b33c;width:100%!important}
+#apoc-battle .shieldtext{font:12px monospace;color:var(--label)}
+#apoc-skills{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+#apoc-skills button{padding:6px 4px;font-size:12px;line-height:1.3;border-radius:6px;min-height:44px}
+#apoc-skills button b{display:block;font-size:12px}
+#apoc-skills button small{display:block;color:var(--label);font-size:11px}
+#apoc-skills button[data-ready=true]{background:var(--focus);color:#1b1e1a;font-weight:700}
+#apoc-skills button[data-ready=true] small{color:#1b1e1a}
 #collect-view{position:fixed;inset:56px 0;z-index:15;background:#101115}#collect-view iframe{width:100%;height:100%;border:0}#collect-view button{position:absolute;right:12px;top:12px;z-index:2}
 </style>
 <!-- APOC_TOP -->
@@ -44,12 +55,12 @@ body{padding-top:56px;padding-bottom:56px}
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
 const COLLECT={mohuashaonv:{name:'魔花少女',thumb:'../card-mohuashaonv.png',page:'mohuashaonv.html'}};
-let state={coins:0,tickets:0,collectibles:[],progress:0,stage:null,power:0,canFight:false,need:0,ticketCost:1000,roster:null,skills:null,owned:null,cooldownUntil:0};
+let state={coins:0,tickets:0,collectibles:[],progress:0,stage:null,power:0,canFight:false,need:0,ticketCost:1000,roster:null,skills:null,owned:null,cooldownUntil:0,collection:null,skillDefs:[null,null,null,null],skillCd:[0,0,0,0]};
 let teamKey='';
 function fmt(n){return n>=1e8?(n/1e8).toFixed(2)+'億':n>=1e4?(n/1e4).toFixed(n>=1e6?0:1)+'萬':Math.floor(n).toLocaleString('zh-TW')}
 function renderTop(){$('#apoc-coins').textContent=fmt(state.coins||0);$('#apoc-tickets').textContent=state.tickets||0;$('#apoc-buy').disabled=(state.coins||0)<(state.ticketCost||1000);$('#apoc-buy').textContent=`換券 ${state.ticketCost||1000}`}
 // ---- 戰鬥 HUD：掛在地圖右側面板（取代原型的「記錄通關／記錄失敗」）
-function battleBox(){let b=$('#apoc-battle');if(b)return b;b=document.createElement('div');b.id='apoc-battle';b.innerHTML='<div class="hpbar"><i></i></div><div class="hptext"><span id="apoc-hp"></span><span id="apoc-timer"></span></div><button id="apoc-fight">開戰</button><button id="apoc-tap" hidden>攻擊！</button><small class="power"></small>';$('#next').after(b);
+function battleBox(){let b=$('#apoc-battle');if(b)return b;b=document.createElement('div');b.id='apoc-battle';b.innerHTML='<div class="hpbar"><i></i></div><div class="hptext"><span id="apoc-hp"></span><span id="apoc-timer"></span></div><div class="shieldbar" id="apoc-shield" hidden><i></i></div><small class="shieldtext" id="apoc-shieldtext" hidden></small><button id="apoc-fight">開戰</button><button id="apoc-tap" hidden>攻擊！</button><div id="apoc-skills"></div><small class="power"></small>';$('#next').after(b);
  $('#apoc-fight').onclick=()=>parent.postMessage({type:'apoc-fight'},'*');
  $('#apoc-tap').addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;e.preventDefault();parent.postMessage({type:'apoc-tap'},'*');const i=$('#apoc-tap');i.animate([{transform:'scale(.95)'},{transform:'scale(1)'}],{duration:120})});
  return b}
@@ -59,10 +70,22 @@ function renderBattle(){const b=battleBox(),st=state.stage,now=Date.now();const 
  const onCurrent=!m||m.selected===state.progress;b.hidden=!onCurrent||state.progress>=20;
  $('#apoc-fight').hidden=!!st;$('#apoc-tap').hidden=!st;
  if(st){const pct=Math.max(0,st.hp/st.need*100);b.querySelector('.hpbar i').style.width=pct+'%';$('#apoc-hp').textContent=`血量 ${fmt(Math.max(0,st.hp))} / ${fmt(st.need)}`;$('#apoc-timer').textContent=st.deadline?`剩 ${Math.max(0,Math.ceil((st.deadline-now)/1000))} 秒`:''}
- else{b.querySelector('.hpbar i').style.width='100%';$('#apoc-hp').textContent=state.need?`血量 ${fmt(state.need)}`:'';const cd=Math.max(0,Math.ceil(((state.cooldownUntil||0)-now)/1000));$('#apoc-timer').textContent=cd&&!state.canFight?`冷卻 ${cd} 秒`:'';$('#apoc-fight').disabled=!state.canFight||!(state.power>0);$('#apoc-fight').textContent=state.power>0?(state.progress%4===3?'挑戰王關（60 秒）':'開戰'):'先去編隊'}
- if(onCurrent){const st0=$('#status');if(st0&&st0.textContent.includes('記錄'))st0.textContent='目前位置';const nx=$('#next');if(nx)nx.textContent=st?(st.deadline?'王關：60 秒內打倒，失敗冷卻 3 分鐘':'戰鬥中：點「攻擊！」，放著隊伍也會打'):(state.canFight?'按「開戰」開始；打不死就過不去，沒有其他懲罰':'')}
+ else{b.querySelector('.hpbar i').style.width='100%';$('#apoc-hp').textContent=state.need?`血量 ${fmt(state.need)}`:'';const cd=Math.max(0,Math.ceil(((state.cooldownUntil||0)-now)/1000));$('#apoc-timer').textContent=cd&&!state.canFight?`冷卻 ${cd} 秒`:'';$('#apoc-fight').disabled=!state.canFight||!(state.power>0);$('#apoc-fight').textContent=state.power>0?(state.progress%4===3?'挑戰王關':'開戰'):'先去編隊'}
+ if(onCurrent){const st0=$('#status');if(st0&&st0.textContent.includes('記錄'))st0.textContent='目前位置';const nx=$('#next');if(nx)nx.textContent=st?(st.deadline?'王關：時間內打倒。護盾要靠點擊破，破防那幾秒全傷害 ×2':'戰鬥中：點「攻擊！」，放著隊伍也會打'):(state.canFight?'按「開戰」開始；打不死就過不去，沒有其他懲罰':'')}
+ renderShield(st,now);renderSkills(now);
  b.querySelector('.power').textContent=`隊伍每秒戰力 ${fmt(state.power||0)}・點一下 ${fmt((state.power||0)*.5)}・放置每秒 +${((state.power||0)*.01).toFixed(1)} 金幣`}
-function syncTeam(){const t=window.team20;if(!t||!state.owned)return;const cc=$('#apoc-collection-count');if(cc)cc.textContent=`收藏 ${state.owned.length} / ${t.cards.length} 張`;const key=JSON.stringify([state.owned,state.roster,state.skills]);if(key===teamKey)return;teamKey=key;t.setOwned(state.owned);t.setRoster(state.roster||[]);t.setSkills(state.skills||[])}
+// 王關的護盾與節奏：護盾在場時放置只剩三成五，點擊照常並累積破盾進度；破防 8 秒全傷害 ×2
+function renderShield(st,now){const bar=$('#apoc-shield'),txt=$('#apoc-shieldtext'),on=!!(st&&st.boss);bar.hidden=txt.hidden=!on;if(!on)return;
+ const broken=now<(st.breakUntil||0);bar.classList.toggle('broken',broken);
+ if(broken){txt.textContent=`破防！全傷害 ×2・剩 ${Math.max(0,Math.ceil((st.breakUntil-now)/1000))} 秒`;return}
+ const sh=st.shield||{taps:0,need:1};bar.querySelector('i').style.width=Math.min(100,sh.taps/sh.need*100)+'%';
+ txt.textContent=`護盾：再點 ${Math.max(0,sh.need-sh.taps)} 下破盾（護盾在場時放置只有三成五）`}
+function renderSkills(now){const box=$('#apoc-skills'),defs=state.skillDefs||[null,null,null,null],cds=state.skillCd||[0,0,0,0];
+ if(box.children.length!==4){box.replaceChildren();for(let i=0;i<4;i++){const b=document.createElement('button');b.dataset.slot=i;b.onclick=()=>parent.postMessage({type:'apoc-skill',slot:i},'*');box.append(b)}}
+ for(let i=0;i<4;i++){const b=box.children[i],d=defs[i],left=Math.max(0,Math.ceil(((cds[i]||0)-now)/1000)),ready=!!d&&!left&&!!state.stage;
+  b.innerHTML=d?`<b>${d.name}</b><small>${left?left+' 秒':d.text}</small>`:`<b>技能 ${i+1}</b><small>未指派</small>`;
+  b.disabled=!ready;b.dataset.ready=String(ready);b.title=d?`${d.card}・${d.text}`:'到編隊把卡放進獨立技能格'}}
+function syncTeam(){const t=window.team20;if(!t||!state.owned)return;const cc=$('#apoc-collection-count');if(cc)cc.textContent=`收藏 ${state.owned.length} / ${t.cards.length} 張`;const key=JSON.stringify([state.owned,state.roster,state.skills,state.collection]);if(key===teamKey)return;teamKey=key;t.setOwned(state.owned);t.setStars?.(state.collection||{});t.setRoster(state.roster||[]);t.setSkills(state.skills||[])}
 window.onTeamChange=()=>{const t=window.team20;if(!t)return;teamKey='';parent.postMessage({type:'apoc-team',roster:t.roster,skills:t.skills},'*')};
 function syncGacha(){const f=$('#gacha-screen iframe');if(f&&f.contentWindow)try{f.contentWindow.postMessage({type:'apoc-tickets',tickets:state.tickets||0},'*')}catch{}}
 $('#apoc-buy').onclick=()=>parent.postMessage({type:'apoc-buy-ticket',n:1},'*');

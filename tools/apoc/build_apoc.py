@@ -116,7 +116,12 @@ def build(evidence_dir=None):
     team_js=patch(team_js,"let roster=[...initial],","let owned=null;let roster=[...initial],",'owned var')
     team_js=patch(team_js,"roster=next;selected=id;renderRoster();detail();return true}","roster=next;selected=id;renderRoster();detail();window.onTeamChange?.();return true}",'add hook')
     team_js=patch(team_js,"function remove(){clearOperation();roster=roster.filter(id=>id!==selected);selected=roster[0];renderRoster();detail();","function remove(){clearOperation();roster=roster.filter(id=>id!==selected);selected=roster[0];renderRoster();detail();window.onTeamChange?.();",'remove hook')
-    team_js=patch(team_js,"get roster(){return [...roster]},","get roster(){return [...roster]},setOwned(ids){owned=new Set(ids)},setRoster(ids){roster=ids.filter(id=>byId.has(id));if(!roster.includes(selected))selected=roster[0];renderRoster();detail()},setSkills(ids){skills=[0,1,2,3].map(i=>byId.has(ids[i])?ids[i]:null);renderSkills()},",'team api')
+    # v3：末世星數（＝同一張卡的張數，每張 +25% 戰力）畫在卡面右下
+    team_js=patch(team_js,
+        '<span class="proxy-symbol">${symbols[rank[c.rarity]]}</span>',
+        '<span class="proxy-symbol">${symbols[rank[c.rarity]]}</span>${window.apocStars?.[c.id]?`<span class="proxy-star team-marker">★${window.apocStars[c.id]}</span>`:``}',
+        'star badge')
+    team_js=patch(team_js,"get roster(){return [...roster]},","get roster(){return [...roster]},setOwned(ids){owned=new Set(ids)},setRoster(ids){roster=ids.filter(id=>byId.has(id));if(!roster.includes(selected))selected=roster[0];renderRoster();detail()},setSkills(ids){skills=[0,1,2,3].map(i=>byId.has(ids[i])?ids[i]:null);renderSkills()},setStars(map){window.apocStars=map||{};renderRoster();renderSkills()},",'team api')
     template=template.replace('/* TEAM_JS */',team_js)
     template=template.replace('<small>原型子集 · 24 / 63 張</small>','<small id="apoc-collection-count">收藏 0 / %d 張</small>' % len(cards))
     template=template.replace('來源尚未定案 · 神話最多 1 張','神話技能最多 1 張')

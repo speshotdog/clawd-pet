@@ -33,8 +33,10 @@ with sync_playwright() as p:
     fr = pg.frame_locator('#apoc-frame')
     check(fr.locator('#apoc-tickets').text_content().strip() == '10', '頂欄末世券 10')
     check(fr.locator('#apoc-fight').is_visible() and not fr.locator('#apoc-fight').is_disabled(), '地圖面板有「開戰」且可按')
+    # 正式數值下第 1 站要打 4 分鐘（tools/sim/apoc.js 掃出來的），這支是接線測試，把血量壓小再打
+    pg.evaluate("()=>{ApocEconomy.RULES.BASE_NEED=3000;}")
     fr.locator('#apoc-fight').click(); pg.wait_for_timeout(500)
-    st = pg.evaluate("()=>Clicker.state.apoc.stage"); check(st and st['index'] == 0 and st['need'] == 3000, '開戰：第 1 站血量 3000 ' + str(st))
+    st = pg.evaluate("()=>Clicker.state.apoc.stage"); check(st and st['index'] == 0 and st['need'] == 3000 and st['shield'] is None, '開戰：第 1 站血量 3000、一般關沒有護盾 ' + str(st))
     check(fr.locator('#apoc-tap').is_visible(), '「攻擊！」鍵出現')
     pg.screenshot(path=str(OUT / '1-fight.png'))
     hp0 = pg.evaluate("()=>Clicker.state.apoc.stage.hp")
@@ -43,7 +45,7 @@ with sync_playwright() as p:
         if pg.evaluate("()=>Clicker.state.apoc.progress") >= 1: break
     pg.wait_for_timeout(1500)
     a = pg.evaluate("()=>Clicker.state.apoc")
-    check(a['progress'] == 1 and a['stage'] is None and a['coins'] >= 300, '點到 0 → 通關、進度 1、金幣 ≥300 ' + str({'progress': a['progress'], 'coins': int(a['coins'])}))
+    check(a['progress'] == 1 and a['stage'] is None and a['coins'] >= 60, '點到 0 → 通關、進度 1、拿到獎勵 ' + str({'progress': a['progress'], 'coins': int(a['coins'])}))
     check(pg.evaluate(f"()=>{FRAME}.map20.progress") == 1, '地圖進度同步 1')
     pg.screenshot(path=str(OUT / '2-won.png'))
     # 換券
@@ -67,15 +69,42 @@ with sync_playwright() as p:
     n = pg.evaluate(f"()=>{FRAME}.document.querySelectorAll('#picker-grid .team-proxy').length")
     check(n == len(a['collection']), '挑選器只列擁有的卡 %d' % n)
     pg.evaluate(f"()=>{FRAME}.document.getElementById('picker-close')?.click()"); pg.wait_for_timeout(300)
+    # 末世星數（＝張數）畫在卡面：先塞一張重複卡再看
+    dup = pg.evaluate("()=>{const a=Clicker.state.apoc,id=a.roster[0]; a.collection[id]=3; return id;}"); pg.wait_for_timeout(1500)
+    star = pg.evaluate(f"()=>{FRAME}.document.querySelector('#team-grid .team-proxy[data-id=\"{dup}\"] .proxy-star')?.textContent")
+    check(star == '★3', '卡面畫出星數 ★3（實際 %s）' % star)
     pg.screenshot(path=str(OUT / '4-team.png'))
-    # 王關：進度跳到 3，開戰後把 deadline 拉到過去 → 失敗、冷卻
+    # 王關：護盾＋節奏（沒有時限；節奏用點擊次數）
     pg.evaluate(f"()=>{FRAME}.apocShell.go('map')"); pg.evaluate("()=>{Clicker.state.apoc.progress=3;}"); pg.wait_for_timeout(1500)
-    check(fr.locator('#apoc-fight').text_content().startswith('挑戰王關'), '第 4 站是王關：鍵面「挑戰王關（60 秒）」')
-    fr.locator('#apoc-fight').click(); pg.wait_for_timeout(400)
-    pg.evaluate("()=>{Clicker.state.apoc.stage.deadline=Date.now()-1; Clicker.state.apoc.stage.hp=1e9;}"); pg.wait_for_timeout(1800)
-    a = pg.evaluate("()=>Clicker.state.apoc")
-    check(a['stage'] is None and a['cooldownUntil'] > 0 and a['progress'] == 3, '王關逾時 → 失敗、冷卻 3 分鐘、進度不動')
-    check(fr.locator('#apoc-fight').is_disabled() and '冷卻' in fr.locator('#apoc-timer').text_content(), '冷卻中不能再打：' + fr.locator('#apoc-timer').text_content())
-    pg.screenshot(path=str(OUT / '5-boss-cooldown.png'))
+    check(fr.locator('#apoc-fight').text_content().startswith('挑戰王關'), '第 4 站是王關：鍵面「挑戰王關」')
+    fr.locator('#apoc-fight').click(); pg.wait_for_timeout(500)
+    st = pg.evaluate("()=>Clicker.state.apoc.stage")
+    check(st and st['boss'] and st['deadline'] is None and st['shield']['need'] == 15, '王關進場：帶護盾、沒有時限 ' + str(st.get('shield')))
+    check(fr.locator('#apoc-shield').is_visible() and '破盾' in fr.locator('#apoc-shieldtext').text_content(), '護盾條與說明出現：' + fr.locator('#apoc-shieldtext').text_content())
+    for _ in range(15):
+        fr.locator('#apoc-tap').dispatch_event('pointerdown', {'button': 0, 'pointerType': 'mouse'}); pg.wait_for_timeout(25)
+    pg.wait_for_timeout(600)
+    st = pg.evaluate("()=>Clicker.state.apoc.stage")
+    check(st['breakUntil'] > 0, '點滿 15 下 → 破防 ' + str({'taps': st['shield']['taps'], 'breakUntil': bool(st['breakUntil'])}))
+    check('破防' in fr.locator('#apoc-shieldtext').text_content(), '破防提示：' + fr.locator('#apoc-shieldtext').text_content())
+    pg.screenshot(path=str(OUT / '5-boss-shield.png'))
+    # 獨立技能格：放一張神話進去 → 按鍵亮、按下去接下來的點擊變 ×10
+    # 十連不一定抽得到神話（0.25%），直接發一張再測，不要讓驗收看運氣
+    mythic = pg.evaluate("""()=>{const a=Clicker.state.apoc,p=Object.fromEntries(ApocPool.map(c=>[c.id,c]));
+        let id=Object.keys(a.collection).find(x=>p[x]&&p[x].rarity==='mythic');
+        if(!id){id=ApocPool.find(c=>c.rarity==='mythic').id; a.collection[id]=1;}
+        return id;}""")
+    if mythic:
+        pg.evaluate("(id)=>{const a=Clicker.state.apoc; if(!a.roster.includes(id))a.roster=[id,...a.roster.filter(x=>x!==id)].slice(0,20); a.skills=[id,null,null,null];}", mythic)
+        pg.wait_for_timeout(1500)
+        btn = fr.locator('#apoc-skills button').first
+        check(not btn.is_disabled(), '技能格 1 可按：' + ' '.join(btn.inner_text().split()))
+        btn.click(); pg.wait_for_timeout(600)
+        fx = pg.evaluate("()=>Clicker.state.apoc.fx")
+        check(fx['clickLeft'] == 10 and fx['clickMul'] == 10, '按下神話技能 → 接下來 10 下 ×10 ' + str(fx))
+        check(fr.locator('#apoc-skills button').first.is_disabled(), '技能進冷卻')
+    else:
+        check(False, '存檔裡沒有神話卡可以測技能（十連運氣）')
+    pg.screenshot(path=str(OUT / '6-skills.png'))
     check(not errors, '頁面錯誤 0：' + '; '.join(errors)[:200]); b.close()
 print('\n%d FAIL' % len(fails) if fails else '\nALL OK'); sys.exit(1 if fails else 0)

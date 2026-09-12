@@ -9,16 +9,45 @@
     POWER: { mythic: 100, legendary: 85, epic: 72, rare: 60, common: 50 },
     STAR_MUL: .25,           // 每多一張同卡 +25%
     CLICK_SHARE: .5,         // 一下＝每秒戰力的一半
-    BASE_NEED: 3000, GROWTH: 1.22, BOSS_MUL: 6,
-    REWARD_SHARE: .1,        // 通關獎勵＝血量 ×0.1 末世金幣
+    // 2026-09-13 之後這一輪定案：用 tools/sim/apoc.js 掃出來的（目標＝一天三段 20 分鐘、20 站 3～5 天）。
+    // 量到的形狀：第 1 站 4 分鐘 → 第 20 站 33 分鐘，累計遊玩 202 分鐘、第 4 天全線通行、抽 210 次、收集 46/71。
+    // ⚠ 末世沒有離線收益，所以「幾天」＝「玩了幾段」，不是掛機天數。
+    BASE_NEED: 600000, GROWTH: 1.20, BOSS_MUL: 2.5,
+    REWARD_SHARE: .02,       // 通關獎勵＝血量 ×0.02 末世金幣
     IDLE_COINS: .01,         // 放置產出＝每秒戰力 ×0.01
-    TICKET_COST: 1000, STATIONS: 20,
-    BOSS_TIME: 60000, BOSS_COOLDOWN: 180000,
+    // 券價隨「已經買過幾張」往上走（同 1.0 的招募費用），不然放置金幣是跟戰力一起指數長的，
+    // 戰力→金幣→抽卡→戰力 會直接跑掉：模擬器量到一輪 20 站可以抽到一千七百次。
+    TICKET_COST: 1000, TICKET_GROWTH: 1.02, STATIONS: 20,
+    // 王關**沒有時限**（BOSS_TIME 0 就是關掉）。模擬器量過：後段一站本來就要幾分鐘，
+    // 再壓一個 60／120 秒的限時，王關一定是一道硬牆——一輪 20 站可以失敗八百多次。
+    // 王的難度改由護盾承擔：要人在場一直點，不能純掛機。時限與冷卻的程式留著，數字歸零。
+    BOSS_TIME: 0, BOSS_COOLDOWN: 60000,
+    // 王關機制（使用者 2026-09-13：護盾＋節奏，節奏用「點擊次數」而不是計時器，而且不要太嚴苛）：
+    //   王有護盾，護盾在場時放置傷害只剩三成五（不是零，放著還是會動）；
+    //   累積 TAPS 下點擊破盾 → BREAK_MS 毫秒破防，全部傷害 ×2；破防結束重新起盾，需要的點擊數 ×GROWTH。
+    //   一般關完全不受影響。
+    SHIELD: { TAPS: 15, GROWTH: 1.25, IDLE_MUL: .35, BREAK_MS: 8000, BREAK_MUL: 2 },
+    // 獨立技能格 4 格：沿用 1.0 的語意（點擊倍率／全隊加成／冷卻縮短），技能由卡的稀有度決定
+    SKILLS: {
+      mythic:    { name: '一口氣開封', kind: 'clickMul', value: 10, uses: 10, cd: 60000, text: '接下來 10 次點擊 ×10' },
+      legendary: { name: '尾巴節拍',   kind: 'clickMul', value: 3,  uses: 15, cd: 45000, text: '接下來 15 次點擊 ×3' },
+      epic:      { name: '全隊加訓',   kind: 'powerMul', value: 1.5, ms: 20000, cd: 60000, text: '全隊戰力 ×1.5，20 秒' },
+      rare:      { name: '重整',       kind: 'cool',     value: 8000, cd: 45000, text: '其他技能冷卻 −8 秒' },
+      common:    { name: '重整',       kind: 'cool',     value: 8000, cd: 45000, text: '其他技能冷卻 −8 秒' },
+    },
     GIFT: { card: 'pufayueyue', tickets: 10 },   // 開門禮：普發玥玥＋一次十連
   };
   const isBoss = i => i % 4 === 3;
-  const poolById = () => Object.fromEntries((root.ApocPool || []).map(c => [c.id, c]));
-  function fresh() { return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0 }; }
+  const freshShield = cycle => ({ taps: 0, need: Math.round(RULES.SHIELD.TAPS * RULES.SHIELD.GROWTH ** cycle), cycle });
+  // 王關傷害倍率：破防中 ×2、護盾在場的放置 ×0.35（點擊不受罰，點擊才是破盾的手段）
+  const bossMul = (st, now, byTap) => !st?.boss ? 1 : now < (st.breakUntil || 0) ? RULES.SHIELD.BREAK_MUL : byTap ? 1 : RULES.SHIELD.IDLE_MUL;
+  const skillOf = (a, slot) => { const id = a.skills?.[slot]; const c = id ? poolById()[id] : null; return c ? { slot, id, card: c, ...RULES.SKILLS[c.rarity] } : null; };
+  const powerMul = (a, now) => (a.fx && now < (a.fx.powerUntil || 0)) ? (a.fx.powerMul || 1) : 1;
+  // ⚠ 這個表每次點擊都會被查好幾十次（power() → cardPower() → poolById()），
+  //   原本每次都重建一個 71 筆的物件；快取起來，卡池換了才重算。
+  let poolCache = null, poolCacheSrc = null;
+  const poolById = () => { const src = root.ApocPool || []; if (src !== poolCacheSrc) { poolCacheSrc = src; poolCache = Object.fromEntries(src.map(c => [c.id, c])); } return poolCache; };
+  function fresh() { return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0, ticketsBought: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1 } }; }
   function normalize(a) {
     const f = fresh(); a = { ...f, ...(a || {}) };
     if (!a.collection || typeof a.collection !== 'object') a.collection = {};
@@ -27,6 +56,10 @@
     a.roster = a.roster.filter(id => a.collection[id] > 0);
     a.skills = a.skills.map(id => (id && a.roster.includes(id)) ? id : null);
     if (a.stage && (typeof a.stage.hp !== 'number' || a.stage.index !== a.progress)) a.stage = null;
+    if (a.stage && a.stage.boss && !a.stage.shield) { a.stage = { ...a.stage, shield: freshShield(0), breakUntil: 0 }; }   // 舊存檔的王關補上護盾
+    a.ticketsBought = Math.max(0, Math.floor(Number(a.ticketsBought) || 0));
+    a.skillCd = [0, 1, 2, 3].map(i => Number(a.skillCd?.[i]) || 0);
+    a.fx = { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, ...(a.fx || {}) };
     return a;
   }
   function gift(a) {
@@ -43,24 +76,57 @@
   function fight(a, now) {
     if (!canFight(a, now)) throw new Error(a.progress >= RULES.STATIONS ? '全線已通行' : a.stage ? '戰鬥中' : '王關冷卻中');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
-    const i = a.progress; return { ...a, stage: { index: i, hp: need(i), need: need(i), boss: isBoss(i), startedAt: now, deadline: isBoss(i) ? now + RULES.BOSS_TIME : null } };
+    const i = a.progress, boss = isBoss(i);
+    return { ...a, stage: { index: i, hp: need(i), need: need(i), boss, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, shield: boss ? freshShield(0) : null, breakUntil: 0 } };
   }
   // 結算：回傳 { state, events:[{type:'win'|'fail', index}] }
   function settle(a, now, dt) {
     const events = []; let s = { ...a };
-    const p = power(s);
+    if (s.fx && s.fx.powerUntil && now >= s.fx.powerUntil) s.fx = { ...s.fx, powerUntil: 0, powerMul: 1 };
+    const p = power(s) * powerMul(s, now);
     if (dt > 0) s.coins += p * RULES.IDLE_COINS * dt;
     if (s.stage) {
-      const st = { ...s.stage };
-      if (dt > 0) st.hp -= p * dt;
+      let st = { ...s.stage };
+      // 破防時間到 → 重新起盾，下一輪要的點擊數 ×GROWTH
+      if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0, shield: freshShield((st.shield?.cycle || 0) + 1) };
+      if (dt > 0) st.hp -= p * dt * bossMul(st, now, false);
       if (st.hp <= 0) { s.coins += reward(st.index); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null; events.push({ type: 'win', index: st.index, reward: reward(st.index) }); }
       else if (st.deadline && now >= st.deadline) { s.stage = null; s.cooldownUntil = now + RULES.BOSS_COOLDOWN; events.push({ type: 'fail', index: st.index }); }
       else s.stage = st;
     }
     return { state: s, events };
   }
-  function tap(a, now) { if (!a.stage) return a; const st = { ...a.stage, hp: a.stage.hp - power(a) * RULES.CLICK_SHARE }; return { ...a, stage: st }; }
-  function buyTicket(a, n = 1) { const cost = RULES.TICKET_COST * n; if (a.coins < cost) throw new Error(`末世金幣不足，一張券 ${RULES.TICKET_COST}`); return { ...a, coins: a.coins - cost, tickets: a.tickets + n }; }
+  function tap(a, now) {
+    if (!a.stage) return a;
+    // 次數型增益（尾巴節拍／一口氣開封）在這裡消耗一格
+    let fx = { ...a.fx }, boost = 1;
+    if (fx.clickLeft > 0) { boost = fx.clickMul || 1; fx.clickLeft -= 1; if (!fx.clickLeft) fx.clickMul = 1; }
+    let st = { ...a.stage };
+    if (st.boss && !(now < (st.breakUntil || 0))) {
+      // 護盾在場：這一下算進破盾進度；點滿就破防
+      const sh = { ...(st.shield || freshShield(0)) }; sh.taps += 1;
+      st.shield = sh; if (sh.taps >= sh.need) st.breakUntil = now + RULES.SHIELD.BREAK_MS;
+    }
+    st.hp -= power(a) * powerMul(a, now) * RULES.CLICK_SHARE * boost * bossMul(a.stage, now, true);
+    return { ...a, stage: st, fx };
+  }
+  function canSkill(a, slot, now) { return !!skillOf(a, slot) && now >= (a.skillCd?.[slot] || 0); }
+  function useSkill(a, slot, now) {
+    const def = skillOf(a, slot); if (!def) throw new Error('這格還沒放卡');
+    if (now < (a.skillCd?.[slot] || 0)) throw new Error('技能冷卻中');
+    let fx = { ...a.fx }, cd = [...(a.skillCd || [0, 0, 0, 0])];
+    if (def.kind === 'clickMul') { fx.clickMul = def.value; fx.clickLeft = def.uses; }
+    else if (def.kind === 'powerMul') { fx.powerMul = def.value; fx.powerUntil = now + def.ms; }
+    else if (def.kind === 'cool') cd = cd.map((t, i) => i === slot ? t : Math.max(now, t - def.value));
+    cd[slot] = now + def.cd;
+    return { ...a, fx, skillCd: cd };
+  }
+  const ticketCost = (a, n = 1) => { let sum = 0; for (let i = 0; i < n; i++) sum += Math.round(RULES.TICKET_COST * RULES.TICKET_GROWTH ** ((a.ticketsBought || 0) + i)); return sum; };
+  function buyTicket(a, n = 1) {
+    const cost = ticketCost(a, n);
+    if (a.coins < cost) throw new Error(`末世金幣不足，下一張券 ${ticketCost(a, 1)}`);
+    return { ...a, coins: a.coins - cost, tickets: a.tickets + n, ticketsBought: (a.ticketsBought || 0) + n };
+  }
   // 招募頁抽完回報卡片 id：券在這裡扣（頁面只是演出）
   function drawn(a, ids) {
     const pool = poolById(); ids = ids.filter(id => pool[id]);
@@ -80,6 +146,9 @@
     skills = (skills || a.skills).map(id => (id && roster.includes(id)) ? id : null); while (skills.length < 4) skills.push(null);
     return { ...a, roster, skills: skills.slice(0, 4) };
   }
-  const view = (a, now) => ({ coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a), canFight: canFight(a, now), need: a.progress < RULES.STATIONS ? need(a.progress) : 0, ticketCost: RULES.TICKET_COST, roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS });
-  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, fight, settle, tap, buyTicket, drawn, setTeam, rosterCounts, rosterViolations, view };
+  const view = (a, now) => ({ coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
+    skillCd: a.skillCd, fx: a.fx, now,
+    skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < RULES.STATIONS ? need(a.progress) : 0, ticketCost: ticketCost(a, 1), roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS });
+  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, fight, settle, tap, buyTicket, drawn, setTeam, rosterCounts, rosterViolations, view, ticketCost, skillOf, canSkill, useSkill, powerMul };
+  if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
