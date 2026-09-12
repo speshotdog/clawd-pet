@@ -27,8 +27,10 @@ with sync_playwright() as p:
 
     # yuelegend 移除
     check(pg.evaluate("!window.GachaPool.byId.yuelegend && !window.ClickerBalance.characters.yuelegend"), 'yuelegend 已移除')
-    check(pg.evaluate("window.GachaPool.CHARACTER_IDS.length") == 21, '角色 21 隻')
-    check('/ 21' in pg.locator('#owned-count').inner_text(), f"名冊計數 {pg.locator('#owned-count').inner_text()}")
+    # 基準重寫（v3 卡池從 21 隻長到 52 隻）：不再寫死數字，改成「名冊計數＝卡池角色數」這條不變式
+    n = pg.evaluate("window.GachaPool.CHARACTER_IDS.length")
+    check(n >= 21, f'卡池角色數 {n}')
+    check(f'/ {n}' in pg.locator('#owned-count').inner_text(), f"名冊計數 {pg.locator('#owned-count').inner_text()}（卡池 {n}）")
 
     # 卡冊箭頭鍵
     pg.locator('#roster-open').click(); pg.wait_for_timeout(600)
@@ -45,7 +47,15 @@ with sync_playwright() as p:
     check(all(c[0] > prev['x'] + prev['width'] - 2 and c[1] < nxt['x'] + 2 for c in cards), '卡片與箭頭不重疊')
     pg.screenshot(path=str(OUT / 'r16-album.png'))
     # 神話展示頁：星星列彩虹條寬度
-    pg.locator('.album-slot[aria-label*="玥來玥閒"]').first.click(); pg.wait_for_timeout(800)
+    # 基準重寫：卡池長到 52 張之後「玥來玥閒」不一定在目前跨頁上，改成翻頁找出任何一張神話
+    myth = pg.evaluate("()=>GachaPool.CHARACTER_IDS.find(id=>GachaPool.byId[id].rarity==='mythic' && Clicker.state.collection[id])")
+    found = False
+    for _ in range(12):
+        if pg.locator(f'.album-slot[data-id="{myth}"]').count():
+            pg.locator(f'.album-slot[data-id="{myth}"]').first.click(); pg.wait_for_timeout(800); found = True; break
+        if pg.evaluate("()=>document.getElementById('album-next').disabled"): break
+        pg.eval_on_selector('#album-next', 'el=>el.click()'); pg.wait_for_timeout(450)
+    check(found, f'卡冊裡翻得到已擁有的神話卡（{myth}）')
     sw = pg.evaluate("(()=>{const r=document.querySelector('#album-detail .star-row'); if(!r) return null; const b=r.getBoundingClientRect(); const d=document.getElementById('album-detail').getBoundingClientRect(); return [b.width, d.width];})()")
     check(sw and sw[0] < sw[1] * 0.4, f'神話星星列寬度 {sw}')
     pg.screenshot(path=str(OUT / 'r16-detail.png'))

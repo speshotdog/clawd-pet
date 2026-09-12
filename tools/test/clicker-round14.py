@@ -20,6 +20,17 @@ with sync_playwright() as p:
         else: r.fulfill(status=404, body='missing')
     ctx.route('**/*', route)
     pg = ctx.new_page(); errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
+    # 面板高度會隨卡池／分類而變，「畫面外的空白」不能再寫死 (640, 855)——
+    # 掃出一個不落在任何面板上的點（基準重寫，2026-09-13 之後這一輪）
+    def click_outside():
+        pt = pg.evaluate('''()=>{for(let y=innerHeight-4;y>0;y-=8)for(let x=6;x<innerWidth-6;x+=16){
+            const e=document.elementFromPoint(x,y);
+            if(e&&!e.closest('.panel,.small-panel,#album-detail,#dust-shop,#recruit-layer,.audio-controls'))return[x,y];}
+          return null;}''')
+        if pt: pg.mouse.click(pt[0], pt[1])
+        pg.wait_for_timeout(400)
+        return pt
+
     pg.goto('http://clicker.test/clicker.html'); pg.wait_for_function('window.Clicker?.state')
     pg.evaluate(SEED); pg.reload()
     pg.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled'); pg.wait_for_timeout(1000)
@@ -29,48 +40,76 @@ with sync_playwright() as p:
     check(pg.evaluate("document.body.innerText.includes('手勁')") is False, '畫面上沒有「手勁」')
 
     # 1. 卡冊：點頁面空白翻頁
-    pg.locator('#roster-open').click(); pg.wait_for_timeout(600)
+    pg.eval_on_selector('#roster-open', 'el=>el.click()'); pg.wait_for_timeout(600)
     pageno = lambda: pg.locator('#album-page').inner_text()
     check(pageno().startswith('1 /'), f'卡冊初始頁 {pageno()}')
-    box = pg.locator('#album-right').bounding_box()
-    pg.mouse.click(box['x'] + box['width'] / 2, box['y'] + box['height'] - 12); pg.wait_for_timeout(500)
+    # v3 起右頁下緣被「隊伍摘要」佔掉了，不能再寫死「底部往上 12px」——改成掃出一個真的落在右頁、
+    # 又不是卡片或翻頁角的點（基準重寫，2026-09-13 之後這一輪）
+    blank = pg.evaluate('''()=>{const r=document.getElementById('album-right').getBoundingClientRect();
+      for(let y=r.bottom-6;y>r.top;y-=6)for(let x=r.left+10;x<r.right-10;x+=14){
+        const el=document.elementFromPoint(x,y);
+        if(el&&el.closest('#album-right')&&!el.closest('.album-slot,.page-corner'))return[x,y];}
+      return null;}''')
+    check(blank, '右頁上找得到可點的空白')
+    if blank:
+        pg.mouse.click(blank[0], blank[1]); pg.wait_for_timeout(500)
     check(pageno().startswith('2 /'), f'點右頁空白翻到 {pageno()}')
     pg.screenshot(path=str(OUT / 'r14-album-p2.png'))
-    box = pg.locator('#album-left').bounding_box()
-    pg.mouse.click(box['x'] + box['width'] / 2, box['y'] + box['height'] - 12); pg.wait_for_timeout(500)
-    check(pageno().startswith('1 /'), f'點左頁空白翻回 {pageno()}')
-    pg.mouse.click(box['x'] + box['width'] / 2, box['y'] + box['height'] - 12); pg.wait_for_timeout(400)
-    check(pageno().startswith('1 /'), '第一頁點左頁不動')
+    def blank_in(page_id):
+        return pg.evaluate('''(id)=>{const r=document.getElementById(id).getBoundingClientRect();
+          for(let y=r.bottom-6;y>r.top;y-=6)for(let x=r.left+10;x<r.right-10;x+=14){
+            const el=document.elementFromPoint(x,y);
+            if(el&&el.closest('#'+id)&&!el.closest('.album-slot,.page-corner'))return[x,y];}
+          return null;}''', page_id)
+    left = blank_in('album-left')
+    check(left, '左頁上找得到可點的空白')
+    if left:
+        pg.mouse.click(left[0], left[1]); pg.wait_for_timeout(500)
+        check(pageno().startswith('1 /'), f'點左頁空白翻回 {pageno()}')
+        left = blank_in('album-left') or left
+        pg.mouse.click(left[0], left[1]); pg.wait_for_timeout(400)
+        check(pageno().startswith('1 /'), '第一頁點左頁不動')
     # 4. meta 單行
     hs = pg.evaluate("[...document.querySelectorAll('#album-book .album-meta small')].map(e=>e.getBoundingClientRect().height)")
     check(hs and max(hs) - min(hs) < 1 and max(hs) <= 22, f'卡片 meta 高度一致且單行 {hs[:4]}')
     pg.screenshot(path=str(OUT / 'r14-album.png'))
-    # 2. 點空白關卡冊
-    pg.mouse.click(640, 855); pg.wait_for_timeout(400)
+    # 2. 點空白關卡冊（面板高度會隨卡池變，座標從 #roster 的實際位置算，不要寫死 855）
+    out = pg.evaluate('''()=>{const b=document.getElementById('roster').getBoundingClientRect();
+      return [b.left+b.width/2, Math.min(innerHeight-2, b.bottom+(innerHeight-b.bottom)/2)];}''')
+    pg.mouse.click(out[0], out[1]); pg.wait_for_timeout(400)
     check(pg.evaluate("document.getElementById('roster').hidden"), '點面板外空白關掉卡冊')
     check(pg.evaluate("!document.getElementById('game-content').inert"), '關掉後主畫面恢復')
 
     # 5. 更衣室定價
-    pg.locator('#wardrobe-open').click(); pg.wait_for_timeout(500)
-    wp = pg.locator('#wardrobe-price').inner_text(); dp = pg.locator('#wardrobe-decor-price').inner_text()
+    pg.eval_on_selector('#wardrobe-open', 'el=>el.click()'); pg.wait_for_timeout(500)
+    # v3 起商店先出分類頁（音效／特效／擺飾），價格文案要進分類才有——基準重寫
+    check(pg.locator('#shop-cats .shop-cat').count() >= 3, '商店先出分類頁 %d 類' % pg.locator('#shop-cats .shop-cat').count())
+    pg.eval_on_selector('#shop-cats .shop-cat[data-cat="sounds"]', 'el=>el.click()'); pg.wait_for_timeout(400)
+    wp = pg.locator('#wardrobe-price').inner_text()
+    pg.eval_on_selector('#shop-back', 'el=>el.click()'); pg.wait_for_timeout(300)
+    pg.eval_on_selector('#shop-cats .shop-cat[data-cat="decor"]', 'el=>el.click()'); pg.wait_for_timeout(400)
+    dp = pg.locator('#wardrobe-decor-price').inner_text()
     print('   更衣室文案:', wp, '|', dp)
     check('2萬' in wp or '20000' in wp or '2.00萬' in wp, '音效／特效每件 2 萬')
     price = pg.evaluate("window.ClickerEconomy.wardrobePrice(window.Clicker.state)"); check(price == 20000, f'wardrobePrice = {price}')
     dprice = pg.evaluate("window.ClickerPrestige.decoPrice(window.Clicker.state)"); n = pg.evaluate("window.Clicker.state.deco.length")
     check(abs(dprice - round(50000 * 1.5 ** n)) <= 1, f'decoPrice(擁有 {n}) = {dprice}')
     pg.screenshot(path=str(OUT / 'r14-wardrobe.png'))
-    pg.mouse.click(640, 855); pg.wait_for_timeout(400)
-    check(pg.evaluate("document.getElementById('wardrobe').hidden"), '點空白關掉更衣室')
+    # v3 起商店在分類內時，第一下空白是「退回分類頁」，再一下才關掉整個商店（clicker-album.js escape()）
+    click_outside()
+    check(not pg.evaluate("document.getElementById('wardrobe').hidden") and not pg.evaluate("document.getElementById('shop-cats').hidden"), '分類內點空白先退回分類頁')
+    click_outside()
+    check(pg.evaluate("document.getElementById('wardrobe').hidden"), '分類頁再點空白關掉商店')
 
     # 2b. 場景票券／徽章牆
     for open_id, panel in [('scene-open', 'scenes'), ('stats-open', 'stats'), ('prestige-open', 'prestige')]:
         if pg.evaluate(f"(()=>{{const e=document.getElementById('{open_id}');return !!e && !e.disabled}})()"):
-            pg.locator(f'#{open_id}').click(); pg.wait_for_timeout(500)
+            pg.eval_on_selector(f'#{open_id}', 'el=>el.click()'); pg.wait_for_timeout(500)
             check(pg.evaluate(f"!document.getElementById('{panel}').hidden"), f'{panel} 打開')
-            pg.mouse.click(640, 855); pg.wait_for_timeout(400)
+            click_outside()
             check(pg.evaluate(f"document.getElementById('{panel}').hidden"), f'點空白關掉 {panel}')
     # 點面板內部不該關
-    pg.locator('#stats-open').click(); pg.wait_for_timeout(400)
+    pg.eval_on_selector('#stats-open', 'el=>el.click()'); pg.wait_for_timeout(400)
     pg.mouse.click(640, 300); pg.wait_for_timeout(300)
     check(pg.evaluate("!document.getElementById('stats').hidden"), '點徽章牆內部不關')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)

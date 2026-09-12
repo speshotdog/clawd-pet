@@ -26,7 +26,8 @@ def run(width, height, tag):
         pg.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled'); pg.wait_for_timeout(1000)
         if tag == 'main':
             # 新卡與排序
-            check(pg.evaluate("window.GachaPool.CHARACTER_IDS.length") == 25, '角色 25 隻')
+            # 基準重寫（v3 卡池已長到 52 隻）：只驗「這四張新卡還在」，不再釘總數
+            check(pg.evaluate("window.GachaPool.CHARACTER_IDS.length") >= 25, '卡池角色數 %d（>=25）' % pg.evaluate("window.GachaPool.CHARACTER_IDS.length"))
             check(pg.evaluate("['jiaotou','jinggou','gebugou','zhenjpg'].every(id=>window.GachaPool.byId[id]&&window.ClickerBalance.characters[id])"), '四張新卡在目錄與數值表')
             check(pg.evaluate("window.ClickerBalance.characters.jiaotou.trait?.clickMul === 1.5"), '膠頭燃額 trait clickMul 1.5')
             check(pg.evaluate("window.ClickerBalance.autoClickMax") == 10, '電動手指上限 10')
@@ -59,10 +60,15 @@ def run(width, height, tag):
             check(r[0] is False and r[1] is True, f'冰箱拆滿 99 包不可挑戰、100 包可挑戰 {r}')
             check(not errs, f'無 JS 錯誤 {errs[:3]}')
         # 更衣室欄寬（兩種解析度）
-        pg.locator('#wardrobe-open').click(); pg.wait_for_timeout(500)
-        cols = pg.evaluate("[...document.querySelectorAll('.wardrobe-col')].map(c=>Math.round(c.getBoundingClientRect().width))")
+        pg.eval_on_selector('#wardrobe-open', 'el=>el.click()'); pg.wait_for_timeout(500)
+        # v3 起商店先出分類頁，擺飾欄要進「擺飾」分類才會渲染——基準重寫
+        pg.eval_on_selector('#shop-cats .shop-cat[data-cat="decor"]', 'el=>el.click()'); pg.wait_for_timeout(450)
+        # v3 改成一次只顯示一個分類，「三欄等寬」不再成立；改驗「選到的那一欄自己撐滿、其他欄收起來」
+        cols = pg.evaluate("[...document.querySelectorAll('.wardrobe-col')].map(c=>[c.dataset.cat, c.hidden, Math.round(c.getBoundingClientRect().width)])")
+        body = pg.evaluate("Math.round(document.getElementById('wardrobe-body').getBoundingClientRect().width)")
+        shown = [c for c in cols if not c[1]]
         wrap = pg.evaluate("[...document.querySelectorAll('#wardrobe-decor .wardrobe-item')].map(e=>e.querySelector('small').getBoundingClientRect().height / e.querySelector('b').getBoundingClientRect().height)")
-        check(cols and max(cols) - min(cols) < 8, f'{tag} 更衣室三欄等寬 {cols}')
+        check(len(shown) == 1 and shown[0][0] == 'decor' and abs(shown[0][2] - body) <= 8, f'{tag} 只顯示選到的那一欄且撐滿 {cols} / body {body}')
         check(wrap and max(wrap) <= 1.3, f'{tag} 「已放上桌」單行（狀態／名稱高度比 {round(max(wrap),2) if wrap else None}）')
         pg.screenshot(path=str(OUT / f'r17-wardrobe-{tag}.png'))
         b.close()

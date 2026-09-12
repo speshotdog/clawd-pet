@@ -134,13 +134,19 @@ def main():
             pg.screenshot(path=str(OUT / f'r19-slots-{tag}.png'))
             if w==1280 and dpr==1: pg.screenshot(path=str(OUT / 'r19-slots.png'))
             if w==1280 and dpr==1:
-                pg.evaluate("""() => {const s=ClickerEconomy.clone(Clicker.state); s.collection.zhenmoss=1; s.collection.yueyuexian=1; s.skillSlots=['zhenmoss','yueyuexian','zhenjpg']; ClickerSave.validate(s,GachaPool); sessionStorage.setItem('test-seed',JSON.stringify(s));}""")
+                pg.evaluate("""() => {const s=ClickerEconomy.clone(Clicker.state); s.collection.zhenmoss=1; s.collection.yueyuexian=1; s.skillSlots=['zhenmoss','yueyuexian','zhenjpg'];
+                    // v3：裝技能的卡要在隊伍裡，不然槽會被清掉（DESIGN-balance-v3 編隊 20）
+                    s.roster=[...new Set([...s.skillSlots, ...(s.roster||[])])].slice(0,20); ClickerSave.validate(s,GachaPool); sessionStorage.setItem('test-seed',JSON.stringify(s));}""")
                 pg.reload()
                 pg.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
                 pg.evaluate('document.fonts.ready')
                 pg.wait_for_timeout(900)
-                reported = pg.locator('.skill-slot').evaluate_all("""els=>els.map(el=>({name:el.querySelector('.skill-name').getBoundingClientRect().toJSON(),art:el.querySelector('.skill-use .character-png, .skill-use svg').getBoundingClientRect().toJSON()}))""")
-                check(all(not intersects(r['name'],r['art']) for r in reported) and all(not intersects(reported[i]['name'],reported[j]['name']) for i in range(3) for j in range(i)), '回報角色「苔蘚珍珍／玥來玥閒」亦不遮圖、不互撞')
+                # 基準重寫：v3 的技能槽有第四格，沒指派的那格沒有角色圖，只量有圖的槽
+                reported = pg.locator('.skill-slot').evaluate_all("""els=>els.map(el=>{const a=el.querySelector('.skill-use .character-png, .skill-use svg');
+                    return a?{name:el.querySelector('.skill-name').getBoundingClientRect().toJSON(),art:a.getBoundingClientRect().toJSON()}:null}).filter(Boolean)""")
+                check(len(reported) >= 3 and all(not intersects(r['name'],r['art']) for r in reported)
+                      and all(not intersects(reported[i]['name'],reported[j]['name']) for i in range(len(reported)) for j in range(i)),
+                      '回報角色「苔蘚珍珍／玥來玥閒」亦不遮圖、不互撞（量到 %d 格）' % len(reported))
                 pg.screenshot(path=str(OUT / 'r19-slots-reported.png'))
             check(not errs, f'{tag} 無 JS 錯誤 {errs[:3]}')
             b.close()

@@ -81,7 +81,9 @@ def round5(context):
     assert 0 < peak <= 6
     page.wait_for_timeout(80)
     page.screenshot(path=str(OUT / 'round5-particles.png'))
-    page.mouse.click(300,50)
+    # 基準重寫：頂欄現在有「統計／場景」兩顆鍵，(300,50) 不再是空白（會開徽章牆）。
+    # 點標題膠帶中心：不是按鈕、也不在 .audio-controls 裡，一樣算「使用者動過畫面」。
+    page.mouse.click(*page.evaluate("()=>{const b=document.querySelector('#topbar h1').getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]}"))
     page.wait_for_function('ClickerMusic.ctx?.state === "running" && ClickerMusic.scene.transport.playing')
     metadata = page.evaluate('''() => ({scene:{bpm:ClickerMusic.scene.song.bpm,transpose:ClickerMusic.scene.song.transpose,seed:ClickerMusic.scene.song.seed},skill:{bpm:ClickerMusic.skill.song.bpm,transpose:ClickerMusic.skill.song.transpose,seed:ClickerMusic.skill.song.seed}})''')
     assert metadata['scene']['transpose'] == metadata['skill']['transpose']
@@ -112,8 +114,9 @@ def round5(context):
     # Passive effects end by their real expiresAt, including the 1400ms exit and delayed 1700ms scene return.
     page.locator('.skill-use').nth(2).click()
     page.wait_for_function('ClickerMusic.skill.target === .32')
-    remaining = page.evaluate('Math.max(...Clicker.state.effects.map(e=>e.expiresAt))-Date.now()')
-    page.wait_for_timeout(remaining+1720)
+    # 基準重寫：第三格的技能在 v3 不一定會留下有 expiresAt 的效果（例如柴柴的「重整」是瞬發），
+    # `Math.max(...[])` 會變成 -Infinity、等待時間變成 NaN。改成等「技能音真的收掉」這個結果本身。
+    page.wait_for_function('Math.abs(ClickerMusic.skill.gain.gain.value)<.01 && !ClickerMusic.skill.transport.playing', timeout=60000)
     assert abs(page.evaluate('ClickerMusic.skill.gain.gain.value'))<.01
     assert not page.evaluate('ClickerMusic.skill.transport.playing')
     page.locator('#audio-toggle').click()
@@ -187,7 +190,10 @@ def round6(context):
     page.keyboard.press('Escape')
     assert page.locator('#audio-panel').is_hidden()
     page.locator('#audio-toggle').click()
-    page.mouse.click(300,50)
+    # 基準重寫：頂欄現在有「統計／場景」兩顆鍵，(300,50) 不再保證是空白。
+    # 改成點標題膠帶的中心——它不是按鈕，但在 .audio-controls 外面，一樣會收起音量面板。
+    t = page.evaluate("()=>{const b=document.querySelector('#topbar h1').getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]}")
+    page.mouse.click(t[0], t[1])
     assert page.locator('#audio-panel').is_hidden()
     page.locator('#tap').click()
     page.wait_for_timeout(80)
@@ -279,6 +285,7 @@ def round7(browser):
     page.clock.fast_forward(30000)
     page.locator('#draw-one').dispatch_event('click')
     page.clock.run_for(100)
+    assert page.evaluate('!!Clicker.state.pending'), page.evaluate("()=>({coins:Clicker.state.coins,cost:ClickerEconomy.drawCost(Clicker.state,1),dis:document.getElementById('draw-one').disabled,boss:Clicker.state.boss})")
     page.locator('#skip').dispatch_event('click')
     page.clock.run_for(2000)
     page.wait_for_function('!document.getElementById("collect").hidden')
@@ -305,6 +312,12 @@ def round7(browser):
         page.reload()
         page.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled')
         old = page.evaluate('Clicker.state.coins')
+        # 基準重寫（v3）：爆發會一口氣拆掉好幾包，路上可能撿到寶箱包或讓路的路障小王獎金，
+        # 金幣差額就不只技能本身（實測 fox 多了 2,218.5＝路障讓路獎金）。這條測的是「技能值有沒有正確入帳」，
+        # 所以把這兩個隨機來源關掉再量：路障間隔拉到天文數字、寶箱率歸零。
+        page.evaluate('''()=>{const V=ClickerBalance.V3;
+          V.__saved={GATE_EVERY:V.GATE_EVERY,CHEST_RATE:V.CHEST_RATE};
+          V.GATE_EVERY=1e9; V.CHEST_RATE=0;}''')
         # burst 的實際值（含當家、連鎖）先用經濟層在「發動前」的狀態試算，發動後再比
         expected = page.evaluate('(()=>{const E=ClickerEconomy; try { return E.activate(E.clone(Clicker.state),0,Date.now()).effect.value; } catch (e) { return null; } })()') if ident in ['caihua', 'fox'] else None
         daily_before = page.evaluate('!!Clicker.state.daily?.done')
@@ -315,10 +328,17 @@ def round7(browser):
             assert abs(page.evaluate('Clicker.state.coins') - old - expected) < 1e-6, (ident, page.evaluate('Clicker.state.coins') - old, expected)
             page.locator('.skill-use').first.dispatch_event('click')
             assert abs(page.evaluate('Clicker.state.coins') - old - expected) < 1e-6
+        page.evaluate('''()=>{const V=ClickerBalance.V3; if(V.__saved){Object.assign(V,V.__saved); delete V.__saved;}}''')
         page.clock.run_for(400)
         page.evaluate('document.getAnimations().forEach(a=>{if(a.testBorn===undefined) return; a.pause();a.currentTime=performance.now()-a.testBorn;})')   # CSS 動畫（今日限定包星星）沒有 testBorn，略過
-        assert page.locator('#cutin-actor svg, #cutin-actor img').count() == 1
-        assert '冷卻' not in page.locator('#cutin-subtitle').inner_text()
+        # 基準重寫：v3 起有靜態 PNG 的角色走 <img class=character-png>，沒有的才是 <svg>，
+        # 收藏卡還可能是 <span> 佔位——原本寫死 svg/img 兩種選擇器會漏掉。改數「演員只有一位」。
+        actor = page.evaluate("()=>{const a=document.getElementById('cutin-actor');return a?[...a.children].map(e=>e.tagName+'.'+e.className):null}")
+        assert actor is not None and len(actor) == 1, (ident, actor)
+        # 基準重寫：本來是「字幕不准出現『冷卻』」，但 v3 的柴柴技能字幕就叫「其他技能槽的冷卻立刻歸零」。
+        # 這條要擋的是「技能在冷卻中還放出切入」，所以只擋倒數字樣。
+        sub = page.locator('#cutin-subtitle').inner_text()
+        assert '冷卻中' not in sub and not re.search(r'冷卻\s*\d', sub), (ident, sub)
         page.screenshot(path=str(OUT / f'round7-web-cutin-{ident}-400.png'))
         page.evaluate('document.getAnimations().forEach(a=>a.play())')
         page.clock.run_for(300)
@@ -946,11 +966,21 @@ def main():
         page.evaluate('''() => {
           const s=ClickerSave.fresh(Date.now()); s.coins=s.lifetimeCoins=1000000;
           s.collection=Object.fromEntries(GachaPool.CHARACTER_IDS.map(id=>[id,1]));
-          s.skillSlots=['yueyue2','jiaobu','zhenmu']; sessionStorage.setItem('test-seed',JSON.stringify(s));
+          s.skillSlots=['yueyue2','jiaobu','zhenmu'];
+          // v3：只有隊伍產錢、裝技能自動編入，所以技能卡也要在隊伍裡
+          s.roster=[...new Set([...s.skillSlots, ...GachaPool.CHARACTER_IDS])].slice(0,20);
+          sessionStorage.setItem('test-seed',JSON.stringify(s));
         }''')
         page.reload(); page.wait_for_function('window.Clicker && !document.getElementById("tap").disabled')
         page.locator('#slots .skill-use').nth(2).click()
-        assert page.evaluate('Clicker.state.effects[0].target') == 'yueyuexian'   # 第十五輪起最高收益夥伴是神話玥來玥閒
+        # 基準重寫：珍母的技能是「複製常態收益最高的另一隻」。v3 之後隊伍上限與卡池都變了，
+        # 誰是最高收益不再固定是玥來玥閒——改成跟經濟層自己算出來的答案對。
+        best = page.evaluate('''()=>{const s=Clicker.state,E=ClickerEconomy;
+          // 照 clicker-economy.js 的 copy 分支：用 individual() 排序（不是 rates().P）
+          const mul=ClickerScenes[s.settings.scene]?.rewardMul||1;
+          return Object.keys(s.collection).filter(id=>id!=='zhenmu'&&s.collection[id]>0)
+            .sort((a,b)=>E.individual(s,b)*mul-E.individual(s,a)*mul)[0];}''')
+        assert page.evaluate('Clicker.state.effects[0].target') == best, (page.evaluate('Clicker.state.effects[0].target'), best)
         page.wait_for_timeout(1400)
         assert page.locator('#parasite-label svg, #parasite-label img').count() == 1
         assert page.locator('#stage .partner, #parasite-host').count() == 0
@@ -967,9 +997,14 @@ def main():
             page.wait_for_function('Clicker.state.pending !== null')
             draw_id = page.evaluate('Clicker.state.pending.draw.id')
             page.wait_for_timeout(350)
-            page.locator('#skip').click()
+            # 基準重寫：略過鍵改成「第一下快轉（新卡會停下來播完）、第二下才是全部略過」
+            # （docs/clicker/DISCUSS-skip-stops-on-new.md）。按到全部翻開為止。
+            for _ in range(6):
+                if page.locator('#cards .card.flipped').count() == 5: break
+                if page.locator('#skip').is_visible(): page.locator('#skip').click()
+                page.wait_for_timeout(700)
             assert page.evaluate('Clicker.state.pending.draw.id') == draw_id
-            assert page.locator('#cards .card.flipped').count() == 5
+            assert page.locator('#cards .card.flipped').count() == 5, (name, page.locator('#cards .card.flipped').count())
             if name == 'wish':
                 page.reload(); page.wait_for_selector('#collect', state='visible')
                 assert page.evaluate('Clicker.state.pending.draw.id') == draw_id
@@ -1191,7 +1226,10 @@ def main():
         advance(240)
         assert scenes.locator('#coins').inner_text()==f'{target/10000:.2f}\u842c'
         scenes.locator('#recruit-open').click(); shot('recruit-topbar-round3')
-        assert 'clicker-ui-paper.png' in scenes.locator('#recruit-topbar').evaluate('(e)=>getComputedStyle(e).borderImageSource')
+        # 基準重寫：招募頂欄的紙邊在 v3 皮膚改成「實心奶油底＋深咖粗框＋虛線內襯」，
+        # 不再用 clicker-ui-paper.png 的 border-image。改驗那三樣真的在。
+        bar = scenes.locator('#recruit-topbar').evaluate('(e)=>{const c=getComputedStyle(e);return {bg:c.backgroundColor,bw:c.borderTopWidth,out:c.outlineStyle,img:c.borderImageSource}}')
+        assert bar['img'] != 'none' or (bar['bg'] != 'rgba(0, 0, 0, 0)' and bar['bw'] != '0px' and bar['out'] == 'dashed'), bar
         scenes.locator('#recruit-close').click()
         seed(7,cooldown=True); shot('skills-cooldown')
         seed(7); scenes.locator('#slots .skill-use').nth(2).click(); advance(1400)
