@@ -6,21 +6,28 @@ window.ClickerPrestigeUI = (() => {
     let tab = 'prestige';
     function render() {
       const s = store.state, body = $('prestige-body'); body.replaceChildren();
-      $('prestige-summary').textContent = `印記 ${s.marks}（累計 ${s.marksClaimed}，永久倍率 ×${E.markMul(s).toFixed(2)}）・已換 ${s.prestiges} 次`;
+      $('prestige-summary').textContent = `印記 ${s.marks}（累計 ${s.marksClaimed} / ${B.MARKS_TOTAL_CAP}）・本輪已拿 ${P.marksTotal(s)} / ${B.V3.MARKS_PER_RUN}・已換 ${s.prestiges} 次`;
       const tabs = document.createElement('div'); tabs.className = 'prestige-tabs';
-      for (const [id, name] of [['prestige', '換桌布'], ['marks', '印記商店'], ['finger', '電動手指']]) {
+      for (const [id, name] of [['prestige', '換桌布'], ['marks', '神器與商店'], ['finger', '電動手指']]) {
         const b = document.createElement('button'); b.textContent = name; b.classList.toggle('active', tab === id); b.onclick = () => { tab = id; render(); }; tabs.append(b);
       }
       body.append(tabs);
       if (tab === 'prestige') renderPrestige(s, body); else if (tab === 'marks') renderMarks(s, body); else renderFinger(s, body);
     }
     function renderPrestige(s, body) {
-      const why = P.canPrestige(s), gained = P.marksAvailable(s), next = (P.marksTotal(s) + 1) ** 2 * P.THRESHOLD;
+      // v3 D 路（DESIGN-balance-v3 §十五）：印記＝本輪做到的事，不看幣；畫面要讓玩家看懂「這輪拿了幾枚、還能拿幾枚、下一輪會快多少」
+      const why = P.canPrestige(s), gained = P.marksAvailable(s), wins = (s.runWins || []), packs = s.runPacks || 0;
+      const scenes = window.ClickerScenes, order = ['backyard','kitchen','market','factory','nightmarket','fridge','city'];
+      const ledger = order.map(id => `<li class="${wins.includes(id) ? 'done' : ''}">${scenes[id]?.boss?.name || id} <b>${wins.includes(id) ? (id === 'city' ? '+4' : '+1') : '—'}</b></li>`).join('')
+        + `<li class="${packs >= 100 ? 'done' : ''}">本輪拆滿 100 包（${Math.min(packs,100)}/100）<b>${packs >= 100 ? '+1' : '—'}</b></li><li class="${packs >= 300 ? 'done' : ''}">本輪拆滿 300 包（${Math.min(packs,300)}/300）<b>${packs >= 300 ? '+1' : '—'}</b></li>`;
+      const halved = (s.bossWins || []).filter(id => id !== 'city').length;
       const note = document.createElement('div'); note.className = 'prestige-note';
-      note.innerHTML = `<p>生涯收入 <b>${format(s.lifetimeCoins)}</b> 幣。可領印記 <b>${gained}</b> 顆（下一顆在 ${format(next)} 幣）。換桌布後永久倍率 ×${(1 + .05 * (s.marksClaimed + gained)).toFixed(2)}。</p>
+      note.innerHTML = `<p>本輪可領印記 <b>${gained}</b> / ${B.V3.MARKS_PER_RUN} 顆（累計上限 ${B.MARKS_TOTAL_CAP}，已領 ${s.marksClaimed}）。</p>
+        <ul class="run-ledger">${ledger}</ul>
+        <p class="prestige-faster">下一輪會更快：贏過的 ${halved} 站門檻減半，神器加成照算，夥伴、粉塵、卡片全部帶著走。</p>
         <div class="prestige-cols"><div><b>會清除</b><ul><li>錢幣、攻擊力、全隊訓練</li><li>電動手指、夥伴訓練</li><li>當輪包數，回到後院草地</li><li>王包裂痕、技能效果與冷卻</li></ul></div>
-        <div><b>會保留</b><ul><li>夥伴、粉塵、升階、超越</li><li>保底與抽數、王的勝利紀錄</li><li>徽章、更衣室、桌面裝飾</li><li>印記與印記商店</li></ul></div></div>
-        <p>換桌布另送萬用粉塵 3 顆${s.markShop?.starter5 ? '，以及開局五連' : ''}。</p>`;
+        <div><b>會保留</b><ul><li>夥伴、粉塵、升階、超越、編隊</li><li>保底與抽數、王的勝利紀錄</li><li>徽章、更衣室、桌面裝飾、派遣</li><li>印記、神器、商店</li></ul></div></div>
+        <p>換桌布另送萬用粉塵 ${3 + (s.artifacts?.dust || 0)} 顆${s.markShop?.starter5 ? '，以及開局五連' : ''}；本輪當家會重抽。</p>`;
       body.append(note);
       const row = document.createElement('div'); row.className = 'prestige-actions';
       const go = document.createElement('button'); go.id = 'prestige-go'; go.textContent = why || `換桌布（領 ${gained} 顆印記）`; go.disabled = !!why || store.blocked;
@@ -28,6 +35,18 @@ window.ClickerPrestigeUI = (() => {
       row.append(go); body.append(row);
     }
     function renderMarks(s, body) {
+      // v3 D 路：七條神器線，第 r 級收 r 枚、各有頂（照 Sakura Clicker）
+      const heading = document.createElement('h3'); heading.textContent = '神器（每級價＝下一級的等級）'; body.append(heading);
+      const arts = document.createElement('div'); arts.className = 'mark-list artifacts';
+      for (const a of B.ARTIFACTS) {
+        const level = a.id === 'blessing' ? (s.blessing || 0) : (s.artifacts?.[a.id] || 0), full = level >= a.max, cost = level + 1;
+        const t = document.createElement('button'); t.className = 'mark-ticket artifact'; t.dataset.item = a.id; t.classList.toggle('owned', full);
+        t.innerHTML = `<img src="clicker-ui-stamp-transcend.png" alt="" /><span><b>${a.name} Lv.${level} / ${a.max}</b><small>${a.per}</small><em class="art-pips">${Array.from({length:a.max},(_,i)=>`<i class="${i<level?'on':''}"></i>`).join('')}</em></span><i>${full ? '滿級' : `下一級 ${cost} 印記`}</i>`;
+        t.disabled = full || s.marks < cost || store.blocked;
+        t.onclick = () => action(() => { if (commit(P.buyArtifact(store.state, a.id, Date.now()))) { sound('upgrade'); changed(); notice(`${a.name} Lv.${level + 1}`); render(); } });
+        arts.append(t);
+      }
+      body.append(arts);
       const permanent = document.createElement('h3'); permanent.textContent = '永久'; body.append(permanent);
       const list = document.createElement('div'); list.className = 'mark-list';
       for (const item of B.marks) {
@@ -39,19 +58,15 @@ window.ClickerPrestigeUI = (() => {
         list.append(t);
       }
       body.append(list);
-      const heading = document.createElement('h3'); heading.textContent = '祝福'; body.append(heading);
+      const heading2 = document.createElement('h3'); heading2.textContent = '兌換'; body.append(heading2);
       const repeat = document.createElement('div'); repeat.className = 'mark-list';
-      for (const item of B.blessings) {
-        for (const n of item.id === 'dustTrade' ? [1,10] : [1]) {
-          const cost = item.id === 'blessing' ? (s.blessing || 0) + 1 : item.id === 'dustTrade' ? P.dustTradeCost(s, n) : item.cost * n;
+      for (const item of B.blessings.filter(b => b.id === 'dustTrade')) {
+        for (const n of [1,10]) {
+          const cost = P.dustTradeCost(s, n);
           const t = document.createElement('button'); t.className = 'mark-ticket'; t.dataset.item = item.id; t.dataset.quantity = n;
-          const title = item.id === 'blessing' ? `${item.name} Lv.${s.blessing || 0}（×${E.blessMul(s).toFixed(2)}）` : item.id === 'dustTrade' ? `${item.name}${n > 1 ? ' ×10' : ''}（已換 ${s.dustTrades || 0} 次 → +${P.DUST_PER_TRADE * n} 粉塵）` : `${item.name}${n > 1 ? ' ×10' : ''}`;
-          t.innerHTML = `<img src="clicker-ui-stamp-transcend.png" alt="" /><span><b>${title}</b><small>${item.desc}</small></span><i>${item.id === 'blessing' ? '下一級 ' : ''}${cost} 印記</i>`;
+          t.innerHTML = `<img src="clicker-ui-stamp-transcend.png" alt="" /><span><b>${item.name}${n > 1 ? ' ×10' : ''}（已換 ${s.dustTrades || 0} 次 → +${P.DUST_PER_TRADE * n} 粉塵）</b><small>${item.desc}</small></span><i>${cost} 印記</i>`;
           t.disabled = s.marks < cost || store.blocked;
-          t.onclick = () => action(() => {
-            const next = item.id === 'blessing' ? P.buyBlessing(store.state, Date.now()) : item.id === 'dustTrade' ? P.tradeDust(store.state, n, Date.now()) : P.buyDrawTicket(store.state, n, Date.now());
-            if (commit(next)) { sound('upgrade'); changed(); notice(`${item.name}${n > 1 ? ' ×10' : ''}`); render(); }
-          });
+          t.onclick = () => action(() => { if (commit(P.tradeDust(store.state, n, Date.now()))) { sound('upgrade'); changed(); notice(`${item.name}${n > 1 ? ' ×10' : ''}`); render(); } });
           repeat.append(t);
         }
       }
