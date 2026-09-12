@@ -17,9 +17,12 @@ test('v3 小王：第 10 包拆完擋路，拆包力只進錢包；自動挑戰�
   assert.ok(lost.coins > coins, '打王期間的被動照樣進錢包'); assert.equal(lost.package.progress, 0, '路障期間不推包');
   assert.equal(lost.bossResult.gate, 10); assert.equal(lost.bossResult.won, false);
   assert.throws(() => E.startGate(lost, lost.settledAt), /沒有待打/);
-  const retry = E.settle(lost, lost.package.gate.cooldownUntil).state; assert.ok(retry.boss, '冷卻到了自動再打');
-  const won = E.click({ ...retry, clickLevel: 200 }, retry.settledAt + 1).state;   // 一擊打穿
+  assert.equal(lost.package.gate.lost, true);
+  const idle = E.settle(lost, lost.package.gate.cooldownUntil + 5000).state; assert.equal(idle.boss, null, '輸過一次就不自動再打，等玩家點挑戰');
+  const retry = E.startGate(idle, idle.settledAt); assert.ok(retry.boss);
+  const c0 = retry.coins, won = E.click({ ...retry, clickLevel: 200 }, retry.settledAt + 1).state;   // 一擊打穿
   assert.equal(won.boss, null); assert.equal(won.package.gate, undefined); assert.equal(won.runGates, 1); assert.equal(won.bossResult.won, true);
+  near(won.bossResult.bonus, E.requirement(10) * V.GATE_REWARD); assert.ok(won.coins - c0 >= won.bossResult.bonus, 'C 路：小王給一次性大錢');
   const after = E.click(won, won.settledAt + 1).state; assert.ok(after.package.progress > 0 || after.package.index > 11, '放行後恢復推包');
 });
 test('v3 小王：關掉自動挑戰就停在路障；第 50 包是 area 王 ×1.5；門檻包之後交給大王', () => {
@@ -33,6 +36,7 @@ test('v3 大王：血量是門檻包的函數；每輪可重打；通關章門�
   let s = seed(); s.package.index = 51; s = E.startBoss(s, 0); near(s.boss.need, V.BOSS_MUL * E.requirement(51) * 1.25);
   s.boss.dealt = s.boss.need - 1; s = E.click(s, 1).state;
   assert.deepEqual(s.bossWins, ['backyard']); assert.deepEqual(s.runWins, ['backyard']); assert.equal(s.universalDust, 3);
+  near(s.bossResult.bonus, E.requirement(51) * 1.25 * V.BOSS_REWARD);
   assert.equal(P.marksTotal(s), 1); assert.equal(P.canPrestige(s), null);
   const r = P.prestige(s, 10, () => .5).state; assert.deepEqual(r.runWins, []); assert.deepEqual(r.bossWins, ['backyard']);
   assert.equal(E.bossPackagesFor(r, 'backyard'), 25, '贏過的站門檻減半');

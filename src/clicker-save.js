@@ -177,7 +177,7 @@
         }
         if (E.timerFor(id)) { p.deadline ??= null; check(p.deadline === null || number(p.deadline), '輸送帶時限'); }
       }
-      if (!boss && p.gate !== undefined) check(object(p.gate) && integer(p.gate.index) && p.gate.index % B.V3.GATE_EVERY === 0 && p.gate.index === p.index - 1 && number(p.gate.cooldownUntil), '小王');
+      if (!boss && p.gate !== undefined) check(object(p.gate) && integer(p.gate.index) && p.gate.index % B.V3.GATE_EVERY === 0 && p.gate.index === p.index - 1 && number(p.gate.cooldownUntil) && (p.gate.lost === undefined || p.gate.lost === true), '小王');
       const allowed=scenes[id].enemy?.shell || [];
       check(Array.isArray(p.shells) && p.shells.every((v,i)=>allowed.includes(v) && (!i || p.shells[i-1]>v)) && integer(p.shellHp) && p.shellHp>=1 && p.shellHp<=3 && number(p.blocked), '硬殼');
       check(number(p.progress) && p.progress<need && (!p.shells.length || p.progress<=need*(1-p.shells[0])+need*1e-12), '硬殼進度');

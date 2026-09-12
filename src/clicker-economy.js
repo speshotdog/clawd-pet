@@ -6,13 +6,13 @@
   // 手勁：每級固定點擊力 ×1.15、價 ×1.35（翻倍約 ×4 價）；原本 1.18／1.30 翻倍只要 ×3 價，前十分鐘點擊力就超過被動
   const clickCost = (l) => Math.ceil(10 * 1.35 ** l);
   // 2026-09-06 數值重整（參考 Cookie Clicker）：全隊訓練每級 ×1.25、價 ×2.5（一次翻倍約 ×17 價；CC 升級品每步約 ×10～×100）
-  const trainingCost = (t) => Math.ceil(2500 * 2.5 ** t);
+  const trainingCost = (t) => Math.ceil(2500 * B.V3.TRAIN_COST_MUL ** t);
   // 招募價釘在「全員視為中位數等級的每秒收益」：單抽 30 秒、五連 135 秒，招募只計一半全隊訓練倍率的被動收益（下限 150／700），後期永遠抽得起
   const DRAW_SECONDS = { single: 30, five: 135 }, DRAW_FLOOR = { single: 150, five: 700 };
   const drawCost = (s, count = 1) => { const P = rates(s, { partnerLevel: medianPartnerLevel(s), trainingLevel: s.trainingLevel / 2 }).P; return count >= 5 ? Math.max(DRAW_FLOOR.five, Math.ceil(DRAW_SECONDS.five * P)) : count * Math.max(DRAW_FLOOR.single, Math.ceil(DRAW_SECONDS.single * P)); };
   // 夥伴訓練＝CC 的建築：每級 +1 倍（線性），10／25／50／100／150／200 級各 ×2（CC 的建築升級品節奏）
   const PARTNER_MILESTONES = [10, 25, 50, 100, 150, 200];
-  const partnerMul = (L) => (1 + L) * 2 ** PARTNER_MILESTONES.filter(m => L >= m).length;
+  const partnerMul = (L) => (1 + L) * B.V3.PARTNER_G ** L * 2 ** PARTNER_MILESTONES.filter(m => L >= m).length;
   function medianPartnerLevel(s) {
     const levels = Object.keys(s.collection).filter(id => s.collection[id] > 0).map(id => s.partnerLevels?.[id] || 0).sort((a,b) => a-b);
     return levels.length ? levels[Math.floor((levels.length-1)/2)] : 0;
@@ -302,6 +302,8 @@
   // v3 §二 小王：借用王包的整套結算（分段、硬殼、計時），差別只有 gate 旗標與結束處理
   const gateNeed = (s, index) => B.V3.GATE_MUL * requirement(index, s.settings.scene) * (index % (B.V3.GATE_EVERY * 5) === 0 ? B.V3.AREA_MUL : 1);
   const canGate = (s, now) => !s.boss && !s.pending && !!s.package.gate && now >= (s.package.gate.cooldownUntil || 0);
+  // 自動挑戰只在第一次遇到小王時開打；輸過一次就等玩家自己點「挑戰」（使用者 2026-09-12）
+  const autoGate = (s, now) => s.settings?.autoChallenge !== false && !s.package.gate?.lost && canGate(s, now);
   function startGateInPlace(s, now) {
     const g = s.package.gate;
     s.boss = { scene: s.settings.scene, gate: g.index, need: gateNeed(s, g.index), dealt: 0, startedAt: now, endsAt: now + (B.V3.GATE_SECONDS + (s.markShop?.bossTime ? 10 : 0)) * 1000, crack: 0, shells: [], shellHp: 3, blocked: 0 };
@@ -379,7 +381,7 @@
   function settle(state, now, options = {}) {
     const s = clone(state), elapsed = Math.max(0, now - s.settledAt), duration = Math.min(elapsed, s.markShop?.offline12 ? 12 * 3600000 : B.offlineMs);
     if (options.offline && s.boss) finishBoss(s,false,s.settledAt);
-    if (!options.offline && s.settings?.autoChallenge !== false && canGate(s, s.settledAt)) startGateInPlace(s, s.settledAt);   // v3：自動挑戰小王
+    if (!options.offline && autoGate(s, s.settledAt)) startGateInPlace(s, s.settledAt);   // v3：自動挑戰小王（只有第一次）
     // Split at the deadline, so no damage after the 30-second boundary can win.
     if (s.boss && now > s.boss.endsAt) {
       const first=settle(s,s.boss.endsAt), rest=settle(first.state,now,options);
@@ -417,7 +419,7 @@
     tickGift(s, now, options);
     tickThief(s, state.boss ? 0 : elapsed, options);
     s.effects = s.effects.filter((e) => e.expiresAt > s.settledAt && (e.remaining === undefined || e.remaining > 0));
-    if (!options.offline && s.settings?.autoChallenge !== false && canGate(s, s.settledAt)) startGateInPlace(s, s.settledAt);   // v3：這一段結算裡拆到路障就立刻開打
+    if (!options.offline && autoGate(s, s.settledAt)) startGateInPlace(s, s.settledAt);   // v3：這一段結算裡拆到路障就立刻開打
     return { state: s, earned, completed, elapsed, duration };
   }
   // target：三連包的子包 0..2、'gift' 打禮包；undefined = 點珍母（三連包平均分配、禮包不受影響）
@@ -451,7 +453,7 @@
       s.claimedMilestones.push('tutorial50');
       if (!s.skillSlots[0]) s.skillSlots[0] = 'yueyue2';
     }
-    if (!options.offline && s.settings?.autoChallenge !== false && canGate(s, now)) startGateInPlace(s, now);
+    if (!options.offline && autoGate(s, now)) startGateInPlace(s, now);
     return { ...result, amount, multiplier, tutorial, sweep, giftHit, target };
   }
   function upgrade(state, type, max, now) {
@@ -577,7 +579,8 @@
     const b=s.boss;
     if (b.gate !== undefined) {   // 小王：贏了拆掉路障，輸了 30 秒冷卻，沒有裂痕
       s.boss=null; s.bossResult={scene:b.scene,gate:b.gate,won,crack:0,at:now,next:undefined};
-      if (won) { delete s.package.gate; s.runGates=(s.runGates || 0)+1; } else s.package.gate.cooldownUntil=now+B.V3.GATE_COOLDOWN*1000;
+      if (won) { delete s.package.gate; s.runGates=(s.runGates || 0)+1; const bonus=requirement(b.gate,b.scene)*B.V3.GATE_REWARD; s.coins+=bonus; s.lifetimeCoins+=bonus; s.bossResult.bonus=bonus; }
+      else { s.package.gate.cooldownUntil=now+B.V3.GATE_COOLDOWN*1000; s.package.gate.lost=true; }
       stampDeadline(s, now, true); return;
     }
     const cfg=Scenes(b.scene).boss;
@@ -585,6 +588,7 @@
     s.bossCracks ||= {}; s.bossCracks[b.scene]=crack; s.boss=null;
     s.bossResult={scene:b.scene,won,crack,at:now,next:nextScene(b.scene)};
     if (won) {
+      const bonus=requirement(bossPackages(b.scene)+1,b.scene)*cfg.mul*B.V3.BOSS_REWARD; s.coins+=bonus; s.lifetimeCoins+=bonus; s.bossResult.bonus=bonus;   // C 路：大王＝賺大錢的時刻
       s.runWins ||= []; if (!s.runWins.includes(b.scene)) s.runWins.push(b.scene);
       s.bossWins ||= []; if (!s.bossWins.includes(b.scene)) { s.bossWins.push(b.scene); s.universalDust=(s.universalDust || 0)+3; s.freeDraws=(s.freeDraws || 0)+cfg.reward.freeDraws; }
       s.bossCooldownUntil=b.scene === 'city' ? now+cfg.cooldown*1000 : 0;   // 終點站可重複挑戰，要有冷卻
@@ -596,7 +600,7 @@
     const s=clone(state); if (s.boss) finishBoss(s,false,now); return s;
   }
   const api = { medianPartnerLevel, exchangeRate, PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, blessMul, decoMul,
-    thiefHit, newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
+    thiefHit, newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene, autoGate,
     rosterOf, rosterCounts, rosterViolations, setRoster, autoRoster, dispatched, dispatch, recall, champion, bossPackagesFor, runWon, canGate, startGate, gateNeed, isChest, chestRate,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

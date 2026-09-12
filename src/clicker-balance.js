@@ -155,7 +155,11 @@
   // v3 常數集中放這裡讓模擬器 A/B（DESIGN-balance-v3）
   const V3 = { GATE_EVERY: 10, GATE_MUL: 2, AREA_MUL: 1.5, BOSS_MUL: 4, GATE_SECONDS: 30, GATE_COOLDOWN: 30,
     ROSTER_LIMITS: [2, 6, 12, 20], CHAMPIONS: 2, CHAMPION_MUL: 1.5, DISPATCH_SLOTS: 3, DISPATCH_MS: 4 * 3600000, DISPATCH_DAILY: 9,
-    CHEST_RATE: .03, CHEST_MUL: 8, CHEST_MILESTONE: 150, MARKS_PER_RUN: 12 };
+    CHEST_RATE: .03, CHEST_MUL: 8, CHEST_MILESTONE: 150, MARKS_PER_RUN: 12,
+    // C 路（2026-09-12 使用者拍）：王是「賺大錢的時刻」——打贏小王給 requirement×GATE_REWARD、大王給門檻包需求×BOSS_REWARD 的幣（一次性、只進錢包）
+    GATE_REWARD: 8, BOSS_REWARD: 40,
+    // 成長側實驗旋鈕（模擬器 A/B 用；1／1／1.15 就是 v2 原值）：夥伴訓練每級再乘 PARTNER_G^L、全隊訓練價 ×TRAIN_COST_MUL、夥伴訓練價 ×PARTNER_COST_MUL
+    PARTNER_G: 1, TRAIN_COST_MUL: 2.5, PARTNER_COST_MUL: 1.15, PARTNER_CAP: 200 };
   const blessings = [
     { id:'blessing', name:'收益祝福', desc:'全隊每秒收益與攻擊力，每級 +10%（上限 Lv.20）' },
     { id:'dustTrade', name:'粉塵兌換', cost:1, desc:'換 5 萬用粉塵；每換一次下一次就貴 1 印記' },

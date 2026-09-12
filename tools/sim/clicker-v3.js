@@ -74,6 +74,14 @@ function shop() {
     if(o.k==='click'||o.k==='training') s=E.upgrade(s,o.k,false,now).state; else if(o.k==='partner') s=P.train(s,o.id,now).state; else s=P.buyAutoClick(s,now).state; buys[o.k]++;
   }
 }
+// 輸過的小王不會自動再打：真人覺得「差不多了」才按挑戰——30 秒容量（含點擊）≥ 血量 80%，每 2 分鐘最多試一次
+let lastGateTry=0;
+function retryGate() {
+  if(!s.package.gate?.lost || !E.canGate(s,now) || now-lastGateTry<120000) return;
+  const r=E.rates(s), cap=(r.P+r.D*CPS)*30;
+  if(cap < E.gateNeed(s,s.package.gate.index)*.8) return;
+  lastGateTry=now; try{ s=E.startGate(s,now); }catch{}
+}
 function fight() {
   // 王：連點 6/s ＋ 技能全放；失敗就等冷卻再打
   const scene=s.settings.scene; let tries=0, start=now;
@@ -111,7 +119,7 @@ while(now<DAYS*86400000) {
     if(s.package.gate) gateStall[s.settings.scene]=(gateStall[s.settings.scene]||0)+dt;
     const before=s.package.index; s=E.click(s,now).state;
     if(s.package.index>before) { packLog.push({scene:s.settings.scene,pkg:before,sec:(now-lastPkgAt)/1000}); lastPkgAt=now; }
-    if(Math.round(now/dt)%(CPS*5)===0) { shop(); maybeSwitchScene(); }
+    if(Math.round(now/dt)%(CPS*5)===0) { shop(); maybeSwitchScene(); retryGate(); }
     if(now>=skipUntil && E.canBoss(s,now)) { fight(); lastPkgAt=now; }
     recordDust(); active+=dt;
   }

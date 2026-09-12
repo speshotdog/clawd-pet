@@ -95,9 +95,9 @@
     s.autoRemainder = total - n; return n;
   }
   // 夥伴訓練價＝CC 建築：基礎價 200×base（回本 200 秒；CC 游標 150 秒、農場 137 秒、礦坑 255 秒），每級 ×1.15；效果在 economy.partnerMul（線性＋里程碑 ×2）
-  const PARTNER_CAP = 200;
+  const PARTNER_CAP = B.V3.PARTNER_CAP;
   // 里程碑那一級（→10／25／50／100／150／200）價 ×10：CC 的建築升級品是另外買的、約十倍建築價，這裡併進那一級
-  const trainCost = (L, id) => Math.ceil(200 * B.characters[id].base * 1.15 ** L);   // 2026-09-08 使用者定：里程碑那一級不再 ×10 價（只保留 ×2 倍率），免得 25 隻夥伴都卡在 49 級
+  const trainCost = (L, id) => Math.ceil(200 * B.characters[id].base * B.V3.PARTNER_COST_MUL ** L);   // 2026-09-08 使用者定：里程碑那一級不再 ×10 價（只保留 ×2 倍率），免得 25 隻夥伴都卡在 49 級
   function train(state, id, now, max = false) {
     const s = E.settle(state, now).state;
     if (!s.collection[id]) throw new Error('尚未招募');
