@@ -949,8 +949,8 @@ const LABEL={common:'普通',rare:'精良',epic:'史詩',legendary:'傳說',myth
 const TILT ={common:6,rare:8,epic:10,legendary:12,mythic:14};
 const ZLIFT={common:24,rare:32,epic:40,legendary:48,mythic:56};
 const SURGE={common:'#9fb0c8',rare:'#6fd8ff',epic:'#c39dff',legendary:'#ffd45c',mythic:'#ff7ad0'};
-// 試抽用的假機率，經濟層還沒定案（DESIGN-deluxe-gacha.md 第 9 節），不要當成正式數字
-const RATE=[['mythic',.005],['legendary',.04],['epic',.15],['rare',.40],['common',.405]];
+// 2026-09-12 使用者定案（DESIGN-2026-09-12-content-architecture.md §3.2）：神話 0.25%／傳說 4%／史詩 20%／精良 75.75%，沒有普通、沒有保底
+const RATE=[['mythic',.0025],['legendary',.04],['epic',.20],['rare',.7575]];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
 const byRarity={};
