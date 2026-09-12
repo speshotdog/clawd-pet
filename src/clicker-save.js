@@ -50,7 +50,7 @@
       const ids = Object.keys(s.collection || {}).filter(id => known(id) && s.collection[id] > 0).sort();
       let h = Math.floor((s.lifetimeCoins || 0) % 2147483647) >>> 0; s.champions = [];
       while (ids.length && s.champions.length < B.V3.CHAMPIONS) { h = (Math.imul(h, 1664525) + 1013904223) >>> 0; s.champions.push(ids.splice(h % ids.length, 1)[0]); }
-      if (prestiges >= 1) s.collectibles = [...new Set([...(s.collectibles || []), 'mohuashaonv'])];   // 補償：魔花少女收藏卡（絕版）
+      // 補償（魔花少女＋徽章）不在這裡發：要玩家在大掃除頁選「從零開始」才給（使用者 2026-09-13）
       s.version = 3;
     }
     check(object(s) && s.version === 3 && s.balanceVersion === 1, '版本（本版不降級或重置）');

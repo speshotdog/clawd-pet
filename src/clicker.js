@@ -450,16 +450,27 @@ window.Clicker = (() => {
     const tidy = [`印記 ${L.marksClaimed.toLocaleString('zh-TW')} → ${(s.marksClaimed).toLocaleString('zh-TW')}（新版印記照「每輪做到的事」算，每輪最多 ${B.V3.MARKS_PER_RUN} 枚）`,
       `收益祝福 Lv.${L.blessing.toLocaleString('zh-TW')} → Lv.${s.blessing}（已用 ${artsSpent} 枚幫你買到；手上還有 ${s.marks} 枚可以投其他神器）`,
       `永久倍率：拿掉（以前是 ×${(1 + .5 * Math.sqrt(L.marksClaimed)).toFixed(0)}，所有王都變成秒殺）`];
-    const gifts = L.prestiges >= 1 ? ['徽章「舊時代的珍母」', '魔花少女・收藏卡（絕版，之後沒有任何取得方式；在卡冊最後一頁）'] : ['（沒換過桌布的存檔不需要補償）'];
+    const gifts = ['徽章「舊時代的珍母」', '魔花少女・精裝收藏卡（末世的收藏卡分頁）', '⚠ 只有選「從零開始」才拿得到：夥伴、粉塵、徽章、幣全部歸零']; 
     const why = `新印記 ＝ 換桌布次數 ${L.prestiges} × 每輪上限 ${B.V3.MARKS_PER_RUN} ＝ ${L.prestiges * B.V3.MARKS_PER_RUN} 枚（反推不到的一律給上界，寧可多給）。祝福第 L 級收 L 枚，先幫你買到買不起為止。永久倍率的根因：它跟生涯幣掛鉤、又乘回幣上，兩條互餵沒有頂；新版換成有頂的神器。`;
     $('cleanup-body').innerHTML = `<div class="cleanup-cols">
       <div><b>保留</b><ul>${kept.map(t => `<li>${t}</li>`).join('')}</ul></div>
       <div><b>整理</b><ul>${tidy.map(t => `<li>${t}</li>`).join('')}</ul></div>
       <div><b>補償</b><ul>${gifts.map(t => `<li>${t}</li>`).join('')}</ul></div></div>
-      <p id="cleanup-explain" hidden>${why}</p>`;
+      <p id="cleanup-explain" hidden>${why}</p>
+      <p class="cleanup-choice">兩條路選一條：<b>保留進度</b>（照上面「整理」的數字繼續玩）或 <b>從零開始</b>（放棄全部進度，換魔花少女精裝收藏卡與徽章）。</p>`;
     $('cleanup').hidden = false; $('game-content').inert = true; $('cleanup-ok').focus();
     $('cleanup-why').onclick = () => { const el = $('cleanup-explain'); el.hidden = !el.hidden; };
-    $('cleanup-ok').onclick = () => { const next = E.clone(store.state); next.legacy = { ...next.legacy, seen: Date.now() }; if (commit(next)) { $('cleanup').hidden = true; $('game-content').inert = gacha?.active || false; changed(); } };
+    $('cleanup-ok').onclick = () => { const next = E.clone(store.state); next.legacy = { ...next.legacy, seen: Date.now(), reset: false }; if (commit(next)) { $('cleanup').hidden = true; $('game-content').inert = gacha?.active || false; changed(); } };
+    // 從零開始：新存檔＋封存的 legacy（reset:true）＋收藏卡；要按兩次
+    const resetBtn = $('cleanup-reset'); resetBtn.dataset.armed = '';
+    resetBtn.onclick = () => {
+      if (resetBtn.dataset.armed !== '1') { resetBtn.dataset.armed = '1'; resetBtn.textContent = '確定放棄全部進度？再按一次'; return; }
+      const fresh = window.ClickerSave.fresh(Date.now());
+      fresh.settings = { ...fresh.settings, muted: s.settings.muted, music: s.settings.music, musicVolume: s.settings.musicVolume, sfxVolume: s.settings.sfxVolume };
+      fresh.legacy = { ...L, seen: Date.now(), reset: true }; fresh.collectibles = ['mohuashaonv'];
+      const checked = window.ClickerExtras.checkBadges ? window.ClickerExtras.checkBadges(fresh).state : fresh;
+      if (commit(checked)) { $('cleanup').hidden = true; $('game-content').inert = false; reload(); notice('從零開始。魔花少女與徽章已入袋'); }
+    };
   }
   // 第十二輪：匯入存檔後整個畫面照新狀態重來（場景、夥伴列、舞台、待收下的招募）
   function reload() {
