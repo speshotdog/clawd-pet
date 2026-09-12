@@ -10,7 +10,7 @@ DEST = ROOT / 'dist-web'
 
 def main():
     files = set()
-    for pattern in ['clicker*.*', 'chipforge/**', 'fonts/**', 'gacha-audio.js',
+    for pattern in ['clicker*.*', 'apoc/**', 'chipforge/**', 'fonts/**', 'gacha-audio.js',
                     'gacha-fx.js', 'gacha-card.js', 'gacha-card.css',
                     'gacha-mode-runtime.js', 'gacha-mode-*.js', 'gacha-pool.js',
                     'character-config.js', 'gacha-*.png', 'gacha-*.jpg', 'toy-*.png', 'card-*.png', 'monster-*.png']:

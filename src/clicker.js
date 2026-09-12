@@ -99,6 +99,7 @@ window.Clicker = (() => {
     const hinted = window.ClickerPrestige?.hint(result.state, P, new Date().toDateString(), P > 0 ? need / P : 0);
     if (before && !result.state.boss) { if (!commit(result.state)) return; } else store.stage(result.state);
     stage?.render(result.state, { completed: result.completed });
+    if (result.state.bossResult?.apocUnlocked && !apocOpened) { apocOpened = true; setTimeout(() => { notice('末世地圖解鎖！'); apocUI?.open(true); }, 3400); }   // v3：打完滅世珍獸 → 演出結束後直接帶進末世（新手引導）
     if (!hiddenNow()) {
       stage?.floatPassive(result.earned);
       if (result.chest) { notice(`寶箱包！＋${format(result.chest)} 幣`); sound('boss-win'); }
@@ -284,7 +285,7 @@ window.Clicker = (() => {
 
     });
   }
-  function changed() { numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); extras?.tick(); }
+  function changed() { numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); extras?.tick(); apocUI?.refresh(); }
   function action(fn) {
     if (store.blocked || !ready || hiddenNow()) { if (hiddenNow()) jlog(`action blocked: visible=${visible} document.hidden=${document.hidden} suspended=${suspended}`); return; }
     try { fn(); } catch (err) { notice(err.message); slotsKey = ''; renderSlots(); }
@@ -439,7 +440,7 @@ window.Clicker = (() => {
     $('zoomer').style.left = `${(innerWidth - 960 * z) / 2}px`;
     $('zoomer').style.top = `${(innerHeight - 640 * z) / 2}px`;
   }
-  let album = null, prestigeUI = null, extras = null, dragUI = null, teamUI = null;
+  let album = null, prestigeUI = null, extras = null, dragUI = null, teamUI = null, apocUI = null, apocOpened = false;
   // v3 大掃除結算頁：v2→v3 遷移過（legacy 存在）而且還沒看過就整頁顯示一次；玩家自己按「收下」才關。
   // 匯入存檔到另一台機器第一次載入也會看到（legacy.seen 存在存檔裡）。
   function cleanupPage() {
@@ -556,6 +557,7 @@ window.Clicker = (() => {
     extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin });
     dragUI = window.ClickerDrag.create({ $, store, commit, changed, notice, sound, card, E, Pool });   // v3：夥伴列拖到技能槽
     teamUI = window.ClickerTeamUI.create({ $, store, commit, changed, action, notice, sound, card, E, B, Pool, format });
+    apocUI = window.ClickerApoc.create({ $, store, commit, changed, notice, sound }); apocUI.refresh();
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     ready = true; gacha.setReady(); stage.setPartners(store.state);
@@ -667,6 +669,7 @@ window.Clicker = (() => {
     if (album?.escape()) return true;
     if (!$('prestige').hidden) { $('prestige-close').click(); return true; }
     if (!$('team-editor').hidden) { $('team-close').click(); return true; }
+    if (!$('apoc').hidden) { $('apoc-close').click(); return true; }
     if (extras?.escape()) return true;
     for (const id of ['scenes', 'roster', 'stats', 'receipt']) if (!$(id).hidden) { $(`${id}-close`).click(); return true; }
     return false;

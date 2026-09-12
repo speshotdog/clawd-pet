@@ -617,6 +617,7 @@
       const bonus=requirement(bossPackages(b.scene)+1,b.scene)*cfg.mul*B.V3.BOSS_REWARD; s.coins+=bonus; s.lifetimeCoins+=bonus; s.bossResult.bonus=bonus;   // C 路：大王＝賺大錢的時刻；獎金不吃 K，K 只決定牆多厚
       s.runWins ||= []; if (!s.runWins.includes(b.scene)) s.runWins.push(b.scene);
       s.bossWins ||= []; if (!s.bossWins.includes(b.scene)) { s.bossWins.push(b.scene); s.universalDust=(s.universalDust || 0)+3; s.freeDraws=(s.freeDraws || 0)+cfg.reward.freeDraws; }
+      if (b.scene === 'city') { s.apoc ||= { unlocked: false, tutorial: 0 }; if (!s.apoc.unlocked) { s.apoc.unlocked = true; s.bossResult.apocUnlocked = true; } }   // v3：打完滅世珍獸開末世
       s.bossCooldownUntil=b.scene === 'city' ? now+cfg.cooldown*1000 : 0;   // 終點站可重複挑戰，要有冷卻
       if (unlocked(s,s.bossResult.next)) changeScene(s,s.bossResult.next);
     } else s.bossCooldownUntil=now+cfg.cooldown*1000;

@@ -59,7 +59,7 @@
       <div id="buddies"></div>
     </section>
     <canvas id="click-fx" width="960" height="640" aria-hidden="true"></canvas><div id="floaters" aria-hidden="true"></div><div id="join-flight" aria-hidden="true"></div>
-    <footer><span id="completed">已拆 0 包</span><span id="next-goal">下一目標：50 點迎接玥玥</span><button id="stats-open"><img class="badge" src="clicker-ui-badge-star.png" alt="" />統計</button><button id="scene-open" disabled title="更多場景後續開放">場景</button><button id="wardrobe-open"><img class="badge" src="clicker-ui-hanger.png" alt="" />商店</button><button id="team-open" title="編隊：隊伍 20 張、技能槽">編隊</button><button id="prestige-open" title="換桌布（輪迴）與印記商店">換桌布</button><button id="roster-open"><img class="badge" src="clicker-ui-badge-paw.png" alt="" />名冊 <b id="owned-count">0 / 12</b></button><span class="save-plate"><img class="badge" src="clicker-ui-badge-heart.png" alt="" /><span id="save-status" role="status">尚未儲存</span></span><button id="retry-save" hidden>重試儲存</button></footer>
+    <footer><span id="completed">已拆 0 包</span><span id="next-goal">下一目標：50 點迎接玥玥</span><button id="stats-open"><img class="badge" src="clicker-ui-badge-star.png" alt="" />統計</button><button id="scene-open" disabled title="更多場景後續開放">場景</button><button id="wardrobe-open"><img class="badge" src="clicker-ui-hanger.png" alt="" />商店</button><button id="team-open" title="編隊：隊伍 20 張、技能槽">編隊</button><button id="apoc-open" title="末世地圖（2.0）" hidden>末世地圖</button><button id="prestige-open" title="換桌布（輪迴）與印記商店">換桌布</button><button id="roster-open"><img class="badge" src="clicker-ui-badge-paw.png" alt="" />名冊 <b id="owned-count">0 / 12</b></button><span class="save-plate"><img class="badge" src="clicker-ui-badge-heart.png" alt="" /><span id="save-status" role="status">尚未儲存</span></span><button id="retry-save" hidden>重試儲存</button></footer>
   </div>
   <div id="cutin" aria-hidden="true"></div>
   <section id="recruit-layer" class="table skin-af" role="dialog" aria-modal="true" aria-label="招募夥伴" hidden>
@@ -74,6 +74,17 @@
   <section id="scenes" class="small-panel" role="dialog" aria-modal="true" aria-label="場景票券" hidden><h2>下一站，在哪拆？</h2><div id="scene-tickets"></div><button id="scenes-close">回到桌邊</button></section>
   <!-- v3 大掃除結算頁：老玩家第一次載入看到一次；透明本身就是補償（DESIGN-2026-09-12-content-architecture §11.4） -->
   <section id="cleanup" class="panel cleanup" role="dialog" aria-modal="true" aria-label="珍母大掃除" hidden><header><h2>珍母大掃除</h2><span>末世快來了，舊桌布收進相簿</span></header><div id="cleanup-body"></div><div class="cleanup-actions"><button id="cleanup-why">這是怎麼算的？</button><button id="cleanup-reset">從零開始（拿魔花少女＋徽章）</button><button id="cleanup-ok">保留進度</button></div></section>
+  <!-- v3 末世（2.0）入口殼：iframe 嵌自包含頁＋新手引導 -->
+  <section id="apoc" class="panel apoc" role="dialog" aria-modal="true" aria-label="末世地圖" hidden>
+    <header><h2>末世地圖</h2><nav class="apoc-tabs"><button id="apoc-tab-map" class="active">地圖</button><button id="apoc-tab-team">編隊</button><button id="apoc-tab-gacha">精裝招募</button><button id="apoc-tab-collect">收藏卡</button></nav><button id="apoc-close">返回 1.0</button></header>
+    <div class="apoc-body">
+      <iframe id="apoc-frame-map" title="末世地圖" hidden></iframe>
+      <iframe id="apoc-frame-gacha" title="精裝招募" hidden></iframe>
+      <iframe id="apoc-frame-collect" title="收藏卡" hidden></iframe>
+      <p id="apoc-collect-empty" class="apoc-empty" hidden>還沒有收藏卡。</p>
+      <div id="apoc-coach" hidden><div class="coach-bubble"><small id="apoc-coach-step">1 / 6</small><h3 id="apoc-coach-title"></h3><p id="apoc-coach-text"></p><div class="coach-actions"><button id="apoc-coach-skip">跳過教學</button><button id="apoc-coach-next">下一步</button></div></div></div>
+    </div>
+  </section>
   <!-- v3 編隊畫面 -->
   <section id="team-editor" class="panel team-editor" role="dialog" aria-modal="true" aria-label="編隊" hidden><header><h2>編隊</h2><span id="team-count">0 / 20</span><button id="team-auto">自動編隊</button><button id="team-close">返回</button></header>
     <div class="team-body"><div class="team-left"><div id="team-caps" class="team-caps"></div><div id="team-grid" class="team-grid"></div><div id="team-slots" class="team-slots"></div></div>
@@ -104,6 +115,6 @@
 <script src="gacha-audio.js"></script><script src="gacha-fx.js"></script><script src="gacha-card.js"></script><script src="gacha-mode-runtime.js"></script>
 <script src="gacha-mode-hearthstone.js"></script><script src="gacha-mode-wish.js"></script><script src="gacha-mode-summon.js"></script><script src="gacha-mode-stage.js"></script><script src="gacha-mode-rip.js"></script>
 <script src="clicker-scene.js"></script><script type="module" src="clicker-music.js"></script>
-<script src="clicker-balance.js"></script><script src="clicker-economy.js"></script><script src="clicker-extras.js"></script><script src="clicker-save.js"></script><script src="clicker-stage.js"></script><script src="clicker-gacha.js"></script><script src="clicker-album.js"></script><script src="clicker-prestige.js"></script><script src="clicker-prestige-ui.js"></script><script src="clicker-drag.js"></script><script src="clicker-team.js"></script><script src="clicker-cutin.js"></script><script src="clicker.js"></script>
+<script src="clicker-balance.js"></script><script src="clicker-economy.js"></script><script src="clicker-extras.js"></script><script src="clicker-save.js"></script><script src="clicker-stage.js"></script><script src="clicker-gacha.js"></script><script src="clicker-album.js"></script><script src="clicker-prestige.js"></script><script src="clicker-prestige-ui.js"></script><script src="clicker-drag.js"></script><script src="clicker-team.js"></script><script src="clicker-apoc.js"></script><script src="clicker-cutin.js"></script><script src="clicker.js"></script>
 </body>
 </html>
