@@ -101,6 +101,7 @@ window.Clicker = (() => {
     stage?.render(result.state, { completed: result.completed });
     if (!hiddenNow()) {
       stage?.floatPassive(result.earned);
+      if (result.chest) { notice(`寶箱包！＋${format(result.chest)} 幣`); sound('boss-win'); }
       if (stage?.rateStamp(result.state)) {
         commit(result.state);
         pulse(document.querySelector('.wallet'), [{transform:'scale(1)'},{transform:'scale(1.08)',offset:.4},{transform:'scale(1)'}],300);
@@ -292,6 +293,7 @@ window.Clicker = (() => {
       else { store.stage(result.state); $('save-status').textContent = '等待自動儲存'; }
       stage.click(result.amount, result.multiplier >= 10, store.state, result.completed, point, result);
       stage.shell(result);
+      if (result.chest) { notice(`寶箱包！＋${format(result.chest)} 幣`); sound('boss-win'); }
       if (result.tutorial) { stage.setPartners(store.state); stage.join(store.state, [{id:'yueyue2'}]); renderSlots(); notice('教學獎勵：玥玥入隊！每秒 +4 幣，可發動尾巴節拍。'); }
       numbers(true); extras?.afterClick();
     });

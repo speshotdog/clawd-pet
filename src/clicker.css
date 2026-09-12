@@ -791,6 +791,10 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .wardrobe-item b, .wardrobe-item small { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #wardrobe-decor-price { white-space:normal; }
 #boss-banner.final-win { font-size:24px; }
+/* v3 寶箱包：金色包裝佔位（之後換素材） */
+#bag.chest #bag-image, #triple.chest img { filter:sepia(1) saturate(4) hue-rotate(-15deg) brightness(1.08) drop-shadow(0 0 8px #ffd76a); }
+#chest-tag { display:none; position:absolute; left:50%; top:-6px; transform:translateX(-50%) rotate(-6deg); font-style:normal; font-size:12px; font-weight:700; padding:2px 8px; border-radius:6px; background:#ffd76a; border:2px solid #8a6a1a; color:#5a4310; z-index:5; pointer-events:none; }
+#bag.chest #chest-tag { display:block; }
 /* v3 卡冊：隊／派 章、本輪當家旗、編隊與派遣鍵 */
 .album-slot .team-stamp { background:#dff3e4; border-color:#2f5a3a; color:#2f5a3a; }
 .album-slot .away-stamp { background:#e9e4f7; border-color:#5a4a8a; color:#5a4a8a; }

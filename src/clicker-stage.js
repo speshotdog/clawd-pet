@@ -333,7 +333,9 @@ window.ClickerStage = (() => {
       if (s.boss || bossBusy) { updateParasite(s,instant); return; }
       if (!running && !instant) { lastPackage = s.package.index; return; }
       const need = E.requirement(s.package.index, s.settings.scene);
+      const chest = !s.boss && E.isChest(s, s.package.index);   // v3 寶箱包：金色包裝（先用 CSS 濾鏡佔位）
       $('package-label').textContent = `${format(s.package.index)} 包`;
+      $('bag').classList.toggle('chest', chest); $('triple').classList.toggle('chest', chest);
       meterAmount = s.package.progress; meterNeed = need;
       meter(s.package.progress / need, s.package.index > lastPackage, instant);
       if (E.tripleFor(s.settings.scene)) { renderTriple(s, { instant, completed, manual, heavy }); lastPackage = s.package.index; updateParasite(s, instant); return; }

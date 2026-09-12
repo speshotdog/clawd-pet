@@ -425,7 +425,8 @@
     }
     s.settledAt = Math.max(s.settledAt, now);
     const kept = Math.min(earned, regen(s, duration, options.offline)); s.coins += kept; s.lifetimeCoins += kept;
-    const completed = grant(s, earned - kept, options.offline ? 'offline' : 'passive', { coinsOnly:!!options.coinsOnly });
+    const ev = { coinsOnly:!!options.coinsOnly };
+    const completed = grant(s, earned - kept, options.offline ? 'offline' : 'passive', ev);
     if (s.boss && now >= s.boss.endsAt) finishBoss(s,false,now);
     s.settledAt = Math.max(s.settledAt, now);
     if (options.offline && s.markShop?.offline15) { grant(s, earned * .5, 'offline', {coinsOnly:true}); earned *= 1.5; }
@@ -435,7 +436,7 @@
     tickThief(s, state.boss ? 0 : elapsed, options);
     s.effects = s.effects.filter((e) => e.expiresAt > s.settledAt && (e.remaining === undefined || e.remaining > 0));
     if (!options.offline && autoGate(s, s.settledAt)) startGateInPlace(s, s.settledAt);   // v3：這一段結算裡拆到路障就立刻開打
-    return { state: s, earned, completed, elapsed, duration };
+    return { state: s, earned, completed, elapsed, duration, chest: ev.chest || 0 };
   }
   // target：三連包的子包 0..2、'gift' 打禮包；undefined = 點珍母（三連包平均分配、禮包不受影響）
   function click(state, now, target, options = {}) {

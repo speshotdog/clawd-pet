@@ -84,6 +84,13 @@ window.ClickerPrestigeUI = (() => {
         row.append(b);
       }
       body.append(row);
+      // v3：路障小王第一次遇到要不要自動開打（輸過一次一律等玩家自己點挑戰）
+      const auto = document.createElement('div'); auto.className = 'prestige-note';
+      const on = s.settings.autoChallenge !== false;
+      auto.innerHTML = `<p>路障小王：<b>${on ? '第一次遇到自動開打' : '一律等我點「挑戰」'}</b>。輸過一次之後都要自己點。</p>`;
+      const toggle = document.createElement('button'); toggle.id = 'auto-challenge'; toggle.textContent = on ? '改成手動' : '改成自動';
+      toggle.onclick = () => action(() => { const next = E.clone(store.state); next.settings.autoChallenge = !on; if (commit(next)) { changed(); render(); } });
+      auto.append(toggle); body.append(auto);
     }
     function doPrestige() {
       action(() => {
