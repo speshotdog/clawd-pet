@@ -9,31 +9,29 @@ SRC = HERE / 'source-5.0'
 TEA = SRC / '悠閒時光系列 拆三張卡.jpg'
 STAR = SRC / 'star-frame-120.png'        # ffmpeg 抽第 120 幀（2.000 秒），同 Astra 選的那一格
 OMEGA = SRC / '奧米加咆嘯獸 神話.png'
-# id → (來源, 角色本體包圍盒 [l,t,r,b]；長道具不算，讓角色本體置中)
+# 2026-09-13 第二次退回：「甜點系列放大一點、以角色的臉為主置中、龍總拉更近；尾巴裁掉可以，臉一定在卡中間」
+# id → (來源, 臉的中心 (x,y), 視窗高度＝來源像素)。臉放在卡寬 50%、卡高 42%（下方名字框佔約 22%）。
 CARDS = {
-    'tiandianaini': (TEA, (245, 484, 1266, 1377)),
-    'xiawujiaojiao': (TEA, (117, 1193, 706, 1850)),
-    'danngaomie': (TEA, (378, 1468, 1172, 2457)),
-    'wangyuanmie': (STAR, (24, 1043, 524, 1369)),
-    'xingyejiao': (STAR, (488, 1109, 737, 1376)),
-    'tilanxing': (STAR, (758, 1023, 1039, 1371)),
-    'shanqiulong': (STAR, (698, 827, 961, 1018)),
-    'aomijiapaoxiaoshou': (OMEGA, (1100, 353, 2771, 1654)),
+    'tiandianaini': (TEA, (750, 830), 1150),
+    'xiawujiaojiao': (TEA, (380, 1500), 1000),
+    'danngaomie': (TEA, (730, 1740), 1150),
+    'wangyuanmie': (STAR, (300, 1180), 620),
+    'xingyejiao': (STAR, (630, 1200), 520),
+    'tilanxing': (STAR, (880, 1180), 600),
+    'shanqiulong': (STAR, (790, 905), 420),
+    'aomijiapaoxiaoshou': (OMEGA, (2280, 990), 1900),
 }
-FILL, CENTER_Y = 1.6, .44
-STAR_FILL = {'wangyuanmie': 2.0, 'xingyejiao': 2.4, 'tilanxing': 2.2, 'shanqiulong': 3.0}   # 影片裡四隻擠在一起、又小：視窗放寬，龍（191px 高）放最寬免得放大太多
-def window(size, box, fill=FILL):
-    W, H = size; l, t, r, b = box; w, h = r - l, b - t; cx, cy = (l + r) / 2, (t + b) / 2
-    ch = h * fill; cw = ch * 5 / 7
-    if cw < w * 1.12: cw = w * 1.12; ch = cw * 7 / 5
-    if ch > H: ch = H; cw = ch * 5 / 7
+FACE_X, FACE_Y = .5, .42
+def window(size, face, ch):
+    W, H = size; fx, fy = face
+    ch = min(ch, H); cw = ch * 5 / 7
     if cw > W: cw = W; ch = cw * 7 / 5
-    x0 = cx - cw / 2; y0 = cy - ch * CENTER_Y
+    x0 = fx - cw * FACE_X; y0 = fy - ch * FACE_Y
     x0 = min(max(0, x0), W - cw); y0 = min(max(0, y0), H - ch)
     return (round(x0), round(y0), round(x0 + cw), round(y0 + ch))
 def main():
-    for ident, (src, box) in CARDS.items():
-        im = Image.open(src).convert('RGBA'); win = window(im.size, box, STAR_FILL.get(ident, FILL))
+    for ident, (src, face, ch) in CARDS.items():
+        im = Image.open(src).convert('RGBA'); win = window(im.size, face, ch)
         out = im.crop(win).resize((600, 840), Image.LANCZOS)
         out.save(HERE / 'art' / f'card-{ident}.png'); print(ident, im.size, 'window', win)
 if __name__ == '__main__': main()

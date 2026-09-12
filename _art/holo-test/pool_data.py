@@ -60,16 +60,16 @@ EXTRA_CARDS = [
 # 2026-09-10 珍珍改名成本草珍目時，resolve_source() 還在用顯示名組檔名，
 # 整支 check_new_cards_round32.py 在 import 期就死掉——所以規則只留這一份。
 # 2026-09-13 使用者退回 Astra 的摳圖版：「摳不出來就不要摳、人物置中」→ 八張系列卡改 flat 滿版（prepare_5_0_flat.py 裁 5:7 視窗），
-# 只有小丑玥玥是單一角色走 framed。七張名字與稀有度仍是提案。
+# 只有小丑玥玥是單一角色走 framed。2026-09-13 使用者定案：這系列最低史詩；女僕是膠布（神話）、戴帽灰貓是玥玥；咩有看錯星神話。
 CARDS_5_0 = [
     {'id': ident, 'name': name, 'rarity': rarity, 'kind': kind, 'file': f'card-{ident}.png',
      **({'bleed': True} if kind == 'flat' else {})}
     for ident, name, rarity, kind in [
-        ('tiandianaini', '甜點愛牛', 'epic', 'flat'),
-        ('xiawujiaojiao', '下午膠膠', 'rare', 'flat'),
+        ('tiandianaini', '膠你點餐', 'mythic', 'flat'),
+        ('xiawujiaojiao', '玥下午茶', 'epic', 'flat'),
         ('danngaomie', '蛋糕分咩一口', 'epic', 'flat'),
-        ('wangyuanmie', '咩有看錯星', 'epic', 'flat'),
-        ('xingyejiao', '今晚不睡膠', 'rare', 'flat'),
+        ('wangyuanmie', '咩有看錯星', 'mythic', 'flat'),
+        ('xingyejiao', '今晚不睡膠', 'epic', 'flat'),
         ('tilanxing', '提籃摘星獸', 'epic', 'flat'),
         ('shanqiulong', '星願龍總欸', 'legendary', 'flat'),
         ('jiujixiaochouyueyue', '究極小丑玥玥', 'mythic', 'framed'),
