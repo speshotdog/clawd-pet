@@ -167,7 +167,7 @@
   // 玩家要選先升哪個。收益祝福沿用舊欄位 s.blessing；其餘存 s.artifacts[id]。總量上限 MARKS_TOTAL_CAP（Sakura 是 350）。
   const ARTIFACTS = [
     { id:'blessing', name:'收益祝福', per:'全隊每秒收益與攻擊力 +10%', max:20 },
-    { id:'tap',      name:'手勁祝福', per:'點擊拆包力 +10%', max:20 },
+    { id:'tap',      name:'攻擊力祝福', per:'攻擊力（點擊拆包力）+10%', max:20 },
     { id:'skill',    name:'技能祝福', per:'技能效果量 +5%', max:10 },
     { id:'cd',       name:'冷卻祝福', per:'技能冷卻 −2%', max:10 },
     { id:'offline',  name:'離線祝福', per:'離線收益 +10%', max:10 },
