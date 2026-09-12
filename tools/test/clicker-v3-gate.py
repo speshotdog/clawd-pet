@@ -57,7 +57,7 @@ STATE = """()=>{const s=Clicker.state; return {gate:s.package.gate||null, boss:s
 
 with sync_playwright() as p:
     b, pg, errors = open_page(p)
-    d = pg.evaluate(STATE); check(d['gate'] is None or d['boss'] is not None, '起點：載入後還沒進路障或剛開打 ' + str(d['idx']))
+    d = pg.evaluate(STATE); check(d['idx'] in (10, 11), '起點：第 10 包（或載入結算剛拆完） ' + str(d['idx']))
     pg.click('#tap'); pg.wait_for_timeout(600)
     d = pg.evaluate(STATE)
     check(d['boss'] is not None and d['boss']['gate'] == 10, '拆完第 10 包：路障小王自動開打 ' + str(d['boss']))
