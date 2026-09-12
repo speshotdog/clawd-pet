@@ -243,7 +243,8 @@ window.ClickerStage = (() => {
       }
     }
     const stateOf = s => { const r = Math.max(0, 1 - s.package.progress / E.requirement(s.package.index, s.settings.scene)); return r > .75 ? 0 : r > .5 ? 1 : r > .25 ? 2 : 3; };
-    function showBag(state) { $('bag').dataset.skin = window.ClickerScene.current.bagSkin; bagState = state; const img=$('bag-image'); img.onerror=()=>{img.style.visibility='hidden';}; const src=`${window.ClickerScene.current.bagPrefix || (window.ClickerScene.current.bagSkin===1?'clicker-can-':'clicker-bag-')}${state}.png`; if(img.getAttribute('src')!==src) {img.style.visibility=''; img.src=src;} img.alt = `包裝：${['完整','輕損','中損','重損','撕開'][state]}`; }
+    let chestNow = false;
+    function showBag(state) { $('bag').dataset.skin = window.ClickerScene.current.bagSkin; bagState = state; const img=$('bag-image'); img.onerror=()=>{img.style.visibility='hidden';}; const chestReal = chestNow && state === 0; $('bag').classList.toggle('chest-real', chestReal); const src = chestReal ? 'clicker-chest-bag-0.png' : `${window.ClickerScene.current.bagPrefix || (window.ClickerScene.current.bagSkin===1?'clicker-can-':'clicker-bag-')}${state}.png`; if(img.getAttribute('src')!==src) {img.style.visibility=''; img.src=src;} img.alt = `包裝：${['完整','輕損','中損','重損','撕開'][state]}`; }
     function bounce(heavy) {
       motion($('bag-image'), heavy ? [{transform:'scale(1)'},{transform:'scale(1.10)',offset:.35},{transform:'scale(.97)',offset:.7},{transform:'scale(1)'}] : [{transform:'scale(1)'},{transform:'scale(1.045)',offset:.5},{transform:'scale(1)'}], heavy ? 180 : 140);
     }
@@ -335,9 +336,10 @@ window.ClickerStage = (() => {
       if (s.boss || bossBusy) { updateParasite(s,instant); return; }
       if (!running && !instant) { lastPackage = s.package.index; return; }
       const need = E.requirement(s.package.index, s.settings.scene);
-      const chest = !s.boss && E.isChest(s, s.package.index);   // v3 寶箱包：金色包裝（先用 CSS 濾鏡佔位）
+      const chest = !s.boss && E.isChest(s, s.package.index);   // v3 寶箱包：完整狀態用真素材 clicker-chest-bag-0.png（Codex 生圖），撕開的階段仍套金色濾鏡
       $('package-label').textContent = `${format(s.package.index)} 包`;
-      $('bag').classList.toggle('chest', chest); $('triple').classList.toggle('chest', chest);
+      const chestChanged = chestNow !== chest; chestNow = chest;
+      $('bag').classList.toggle('chest', chest); $('triple').classList.toggle('chest', chest); if (chestChanged) showBag(bagState);
       meterAmount = s.package.progress; meterNeed = need;
       meter(s.package.progress / need, s.package.index > lastPackage, instant);
       if (E.tripleFor(s.settings.scene)) { renderTriple(s, { instant, completed, manual, heavy }); lastPackage = s.package.index; updateParasite(s, instant); return; }

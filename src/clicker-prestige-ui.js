@@ -41,7 +41,7 @@ window.ClickerPrestigeUI = (() => {
       for (const a of B.ARTIFACTS) {
         const level = a.id === 'blessing' ? (s.blessing || 0) : (s.artifacts?.[a.id] || 0), full = level >= a.max, cost = level + 1;
         const t = document.createElement('button'); t.className = 'mark-ticket artifact'; t.dataset.item = a.id; t.classList.toggle('owned', full);
-        t.innerHTML = `<img src="clicker-ui-stamp-transcend.png" alt="" /><span><b>${a.name} Lv.${level} / ${a.max}</b><small>${a.per}</small><em class="art-pips">${Array.from({length:a.max},(_,i)=>`<i class="${i<level?'on':''}"></i>`).join('')}</em></span><i>${full ? '滿級' : `下一級 ${cost} 印記`}</i>`;
+        t.innerHTML = `<img src="clicker-art-${a.id}.png" alt="" /><span><b>${a.name} Lv.${level} / ${a.max}</b><small>${a.per}</small><em class="art-pips">${Array.from({length:a.max},(_,i)=>`<i class="${i<level?'on':''}"></i>`).join('')}</em></span><i>${full ? '滿級' : `下一級 ${cost} 印記`}</i>`;
         t.disabled = full || s.marks < cost || store.blocked;
         t.onclick = () => action(() => { if (commit(P.buyArtifact(store.state, a.id, Date.now()))) { sound('upgrade'); changed(); notice(`${a.name} Lv.${level + 1}`); render(); } });
         arts.append(t);
