@@ -47,6 +47,8 @@
     const before=stars(dust(s,id)); s.dust[id]=dust(s,id);
     if (!s.collection[id]) { s.partnerLevels ||= {}; s.partnerLevels[id]=medianPartnerLevel(s); }
     s.collection[id]=(s.collection[id] || 0)+1;
+    // v3 §三：新夥伴有空位就自動入隊（撞前綴上限就留在卡冊），玩家不用先開編隊才有收益
+    if (Array.isArray(s.roster) && !s.roster.includes(id) && s.roster.length < 20 && !rosterViolations([...s.roster,id]).length) s.roster.push(id);
     if (s.transcend?.[id]===5) {
       if (origin(id)===3) { s.universalDust+=100; }   // 神話滿養重複一張＝100 萬用粉塵（與兌換價對稱）
       else { const rate=[4,2,1][origin(id)], count=(s.overflow[id] || 0)+1; s.universalDust+=Math.floor(count/rate); s.overflow[id]=count%rate; }
@@ -75,7 +77,9 @@
     }
     return s;
   }
-  const individual = (s, id, partnerLevel = s.partnerLevels?.[id] || 0) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2,5.5][tier(s,id)]/[1,1.8,3.2,5.5][origin(id)]) * (1+[.06,.09,.14,.20][origin(id)]*(s.transcend?.[id] || 0)) * 1.25 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * partnerMul(partnerLevel);
+  const individual = (s, id, partnerLevel = s.partnerLevels?.[id] || 0) => B.characters[id].base * starMultiplier(dust(s,id)) * ([1,1.8,3.2,5.5][tier(s,id)]/[1,1.8,3.2,5.5][origin(id)]) * (1+[.06,.09,.14,.20][origin(id)]*(s.transcend?.[id] || 0)) * 1.25 ** s.trainingLevel * (affinity(s,id) ? 1.5 : 1) * (champion(s,id) ? B.V3.CHAMPION_MUL : 1) * partnerMul(partnerLevel);
+  // v3 §五：本輪當家＝輪迴時隨機 2 張 ×1.5、CD −20%（跟場景親和同形狀），只在本輪
+  const champion = (s,id) => (s.champions || []).includes(id);
   // 第十三輪：印記永久倍率、桌面裝飾
   const markMul = (s) => 1 + B.MARK_MUL_COEF * Math.sqrt(s.marksClaimed || 0);
   const blessMul = (s) => 1 + .1 * (s.blessing || 0);
@@ -89,6 +93,7 @@
       if (b.effect.selfDurationMul && p.kind === 'self') p.duration *= b.effect.selfDurationMul;
     }
     if (affinity(s,id)) p.cd *= .8;
+    if (champion(s,id)) p.cd *= .8;
     // 夥伴個別訓練里程碑：25 次數+1（非次數型改持續+2s）、50 持續+2s、75 CD −5%、100 效果 ×1.1
     const L = s.partnerLevels?.[id] || 0;
     if (L >= 25) { if (['click','clickAdd'].includes(p.kind) && p.charges) p.charges += 1; else if (p.duration) p.duration += 2; }
@@ -108,12 +113,61 @@
     for (let i=0;i<slotCount(s);i++) if (desired[i] !== s.skillSlots[i]) s=equip(s,i,desired[i],now);
     return s;
   }
+  // ---- v3 §三 編隊：前綴上限用出身（原生稀有度）算層，升階不改所屬層（使用者 2026-09-12 定案 (a)）
+  // 空隊伍＝自動編隊（沒開過編隊畫面的玩家照樣有收益）；沒有 roster 欄位的舊狀態＝全部
+  const rosterOf = s => !Array.isArray(s.roster) ? Object.keys(B.characters) : s.roster.length ? s.roster.filter(id => s.collection[id] > 0) : autoRoster(s);
+  const rosterCounts = ids => B.V3.ROSTER_LIMITS.map((_,i) => ids.filter(id => (3 - origin(id)) <= i).length);   // 神話 origin 3 → 第 0 層
+  const rosterViolations = ids => rosterCounts(ids).flatMap((n,i) => n > B.V3.ROSTER_LIMITS[i] ? [i] : []);
+  const dispatched = (s,id) => (s.dispatch || []).some(d => d.id === id);
+  function setRoster(state, ids, now) {
+    const s = settle(state, now).state;
+    if (!Array.isArray(ids) || new Set(ids).size !== ids.length || ids.length > 20 || ids.some(id => !s.collection[id] || dispatched(s,id))) throw new Error('隊伍不合法');
+    if (rosterViolations(ids).length) throw new Error('超過階級上限');
+    s.roster = [...ids];
+    s.skillSlots = s.skillSlots.map(id => id && !ids.includes(id) ? null : id);   // 離隊的卡一併離開技能槽
+    return s;
+  }
+  // 自動編隊：按目前每秒收益由高到低塞，撞上限就跳過（遷移與新手用）
+  function autoRoster(s) {
+    const ids = Object.keys(s.collection).filter(id => s.collection[id] > 0 && !dispatched(s,id)).sort((a,b) => individual(s,b) - individual(s,a));
+    const out = [];
+    for (const id of ids) { if (out.length >= 20) break; if (!rosterViolations([...out,id]).length) out.push(id); }
+    return out;
+  }
+  // ---- v3 §六 派遣：只能派不在隊的卡、4 小時、回來給該角色粉塵 1（傳說／神話半顆）＋萬用 1；每日最多 9 次回收
+  const dayKey = now => Math.floor(now / 86400000);
+  function dispatch(state, id, now) {
+    const s = settle(state, now).state;
+    s.dispatch ||= [];
+    if (!s.collection[id] || rosterOf(s).includes(id) || dispatched(s,id) || s.dispatch.length >= B.V3.DISPATCH_SLOTS) throw new Error('無法派遣');
+    s.dispatch.push({ id, startedAt: s.settledAt, until: s.settledAt + B.V3.DISPATCH_MS });
+    return s;
+  }
+  function recall(state, now) {
+    const s = settle(state, now).state, done = (s.dispatch || []).filter(d => d.until <= s.settledAt);
+    if (!done.length) throw new Error('還沒回來');
+    s.dispatchDay = s.dispatchDay?.day === dayKey(s.settledAt) ? s.dispatchDay : { day: dayKey(s.settledAt), count: 0 };
+    const rewards = [];
+    for (const d of done) {
+      s.dispatch = s.dispatch.filter(x => x !== d);
+      if (s.dispatchDay.count >= B.V3.DISPATCH_DAILY) { rewards.push({ id: d.id, capped: true }); continue; }
+      s.dispatchDay.count++;
+      s.dispatchHalf ||= {};
+      if (origin(d.id) >= 2) { s.dispatchHalf[d.id] = (s.dispatchHalf[d.id] || 0) + 1; if (s.dispatchHalf[d.id] >= 2) { s.dispatchHalf[d.id] = 0; s.dust[d.id] = dust(s,d.id) + 1; } }
+      else s.dust[d.id] = dust(s,d.id) + 1;
+      s.universalDust = (s.universalDust || 0) + 1;
+      rewards.push({ id: d.id, capped: false });
+    }
+    return { state: s, rewards };
+  }
   function rates(s, options = {}) {
     if (options.trainingLevel !== undefined) s = { ...s, trainingLevel: options.trainingLevel };
-    const P = Object.keys(B.characters).reduce((sum, id) => sum + individual(s, id, options.partnerLevel), 0);
+    // v3 §三：只算隊伍裡的（沒有 roster 欄位的舊狀態＝全部，讓遷移前的驗證能過）
+    const P = rosterOf(s).reduce((sum, id) => sum + individual(s, id, options.partnerLevel), 0);
     const mul = (Scenes(s.settings?.scene).rewardMul || 1) * decoMul(s), M = markMul(s) * blessMul(s);
     const trait = (s.skillSlots || []).reduce((m,id) => m * (id && s.collection[id] ? skillAt(s,id).trait?.clickMul || 1 : 1), 1);
-    return { P: M * P * mul, D: trait * (M * 1.15 ** s.clickLevel + .05 * M * P) * mul };
+    const share = .05 * (1 + (s.markShop?.tapShare1 ? 1 : 0) + (s.markShop?.tapShare2 ? 1 : 0));   // v3 §九：5％→10％→15％
+    return { P: M * P * mul, D: trait * (M * 1.15 ** s.clickLevel + share * M * P) * mul };
   }
   function tagFor(entry, dup, owned, state) {
     if (state?.transcend?.[entry.id]===5) return {text:`萬用 +${['¼','½','1','2'][origin(entry.id)]}`,cls:'mastery'};
@@ -224,10 +278,40 @@
       if (s.boss.dealt >= s.boss.need) finishBoss(s,true,s.settledAt);
       return 0;
     }
+    if (s.package.gate) return 0;   // v3 §二：小王擋路時拆包力只進錢包，不推包
+    const from = s.package.index;
     const result = advancePackage(s.package, amount, s.settings.scene, source, target); s.package = result.package;
     Object.assign(event,{shellHit:result.shellHit,shellBroken:result.shellBroken,released:result.released});
+    if (result.completed) {
+      s.runPacks = (s.runPacks || 0) + result.completed;
+      // v3 §八 寶箱包：拆完額外 requirement×8 幣（離線不出）；用存檔種子決定，重開不會變
+      if (source !== 'offline') for (let i = from; i < from + result.completed; i++) if (isChest(s, i)) { const bonus = requirement(i, s.settings.scene) * B.V3.CHEST_MUL; s.coins += bonus; s.lifetimeCoins += bonus; event.chest = (event.chest || 0) + bonus; }
+      // v3 §二 小王：每 10 包擋一次（門檻包之後交給大王）；一口氣拆過好幾包時停在第一個路障
+      const threshold = bossPackagesFor(s, s.settings.scene);
+      for (let i = from; i < from + result.completed; i++) if (i % B.V3.GATE_EVERY === 0 && (threshold == null || i < threshold)) { s.package = { ...newPackage(s.settings.scene, i + 1), gate: { index: i, cooldownUntil: 0 } }; break; }
+    }
     stampDeadline(s, s.settledAt, result.completed > 0);
     return result.completed;
+  }
+  // 寶箱判定：(種子, 場景, 包號) 的雜湊；隊伍裡 Lv≥150 的夥伴每人 +1%
+  function chestRate(s) { return B.V3.CHEST_RATE + .01 * rosterOf(s).filter(id => (s.partnerLevels?.[id] || 0) >= B.V3.CHEST_MILESTONE).length; }
+  function isChest(s, index) {
+    let h = ((s.chestSeed || 0) ^ 0x9e3779b9) >>> 0; for (const ch of `${s.settings.scene}#${index}`) { h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193) >>> 0; }
+    return (h % 10000) / 10000 < chestRate(s);
+  }
+  // v3 §二 小王：借用王包的整套結算（分段、硬殼、計時），差別只有 gate 旗標與結束處理
+  const gateNeed = (s, index) => B.V3.GATE_MUL * requirement(index, s.settings.scene) * (index % (B.V3.GATE_EVERY * 5) === 0 ? B.V3.AREA_MUL : 1);
+  const canGate = (s, now) => !s.boss && !s.pending && !!s.package.gate && now >= (s.package.gate.cooldownUntil || 0);
+  function startGateInPlace(s, now) {
+    const g = s.package.gate;
+    s.boss = { scene: s.settings.scene, gate: g.index, need: gateNeed(s, g.index), dealt: 0, startedAt: now, endsAt: now + (B.V3.GATE_SECONDS + (s.markShop?.bossTime ? 10 : 0)) * 1000, crack: 0, shells: [], shellHp: 3, blocked: 0 };
+    if (s.gift) endGift(s, now, false);
+    delete s.thief; s.bossResult = null; return s;
+  }
+  function startGate(state, now) {
+    const s = settle(state, now).state;
+    if (!canGate(s, now)) throw new Error('沒有待打的小王');
+    return startGateInPlace(s, now);
   }
   // 輸送帶：每包進場時 deadline = 進場時刻 + timer 秒；王包期間不計時，結束後重新給一段完整時限
   function stampDeadline(s, at, fresh = false) {
@@ -295,6 +379,7 @@
   function settle(state, now, options = {}) {
     const s = clone(state), elapsed = Math.max(0, now - s.settledAt), duration = Math.min(elapsed, s.markShop?.offline12 ? 12 * 3600000 : B.offlineMs);
     if (options.offline && s.boss) finishBoss(s,false,s.settledAt);
+    if (!options.offline && s.settings?.autoChallenge !== false && canGate(s, s.settledAt)) startGateInPlace(s, s.settledAt);   // v3：自動挑戰小王
     // Split at the deadline, so no damage after the 30-second boundary can win.
     if (s.boss && now > s.boss.endsAt) {
       const first=settle(s,s.boss.endsAt), rest=settle(first.state,now,options);
@@ -332,6 +417,7 @@
     tickGift(s, now, options);
     tickThief(s, state.boss ? 0 : elapsed, options);
     s.effects = s.effects.filter((e) => e.expiresAt > s.settledAt && (e.remaining === undefined || e.remaining > 0));
+    if (!options.offline && s.settings?.autoChallenge !== false && canGate(s, s.settledAt)) startGateInPlace(s, s.settledAt);   // v3：這一段結算裡拆到路障就立刻開打
     return { state: s, earned, completed, elapsed, duration };
   }
   // target：三連包的子包 0..2、'gift' 打禮包；undefined = 點珍母（三連包平均分配、禮包不受影響）
@@ -365,6 +451,7 @@
       s.claimedMilestones.push('tutorial50');
       if (!s.skillSlots[0]) s.skillSlots[0] = 'yueyue2';
     }
+    if (!options.offline && s.settings?.autoChallenge !== false && canGate(s, now)) startGateInPlace(s, now);
     return { ...result, amount, multiplier, tutorial, sweep, giftHit, target };
   }
   function upgrade(state, type, max, now) {
@@ -385,6 +472,7 @@
     if (s.pending) throw new Error('請先收下招募');
     if (s.skillSlots[slot] === id) return s;
     if (id && s.skillSlots.includes(id)) throw new Error('角色已在其他槽位');
+    if (id && !rosterOf(s).includes(id)) throw new Error('要先編入隊伍');
     s.skillSlots[slot] = id; s.slotReadyAt[slot] = s.settledAt + 30000;
     return s;
   }
@@ -397,6 +485,10 @@
     const chainMul = [1,1.3,1.6][count-1];
     s.chain = {count,expiresAt:t+windowMs};
     const effect = { chain:count, params:{...def,desc:undefined}, source: id, kind: def.kind, startedAt: t, expiresAt: t + (def.duration || 0) * 1000 };
+    // v3 §七：重整／充能自己不打傷害，但算一次發動（連鎖窗照走）
+    if (def.kind === 'reload') { for (let k = 0; k < s.skillSlots.length; k++) { const other = s.skillSlots[k]; if (other && other !== id) { s.cooldownUntil[other] = 0; s.slotReadyAt[k] = 0; } } s.cooldownUntil[id] = t + def.cd * 1000; return { state: s, effect, completed: 0 }; }
+    if (def.kind === 'energize') { s.energized = true; s.cooldownUntil[id] = t + def.cd * 1000; return { state: s, effect, completed: 0 }; }
+    const energized = s.energized ? 2 : 1; if (s.energized) { delete s.energized; effect.energized = 2; }
     if (def.kind === 'click') Object.assign(effect, { multiplier: def.multiplier, remaining: def.charges });
     else if (def.kind === 'clickTime') effect.multiplier = def.multiplier;
     else if (def.kind === 'self') effect.value = individual(s, id) * (def.multiplier - 1) * (Scenes(s.settings.scene).rewardMul || 1);
@@ -413,11 +505,12 @@
       if (!targets.length) throw new Error('需要另一位夥伴');
       effect.target = targets[0]; effect.value = copied(effect.target) * def.copy;
     }
-    if (effect.multiplier !== undefined) effect.multiplier = 1+(effect.multiplier-1)*chainMul;
-    if (effect.value !== undefined) effect.value *= chainMul;
+    if (effect.multiplier !== undefined) effect.multiplier = 1+(effect.multiplier-1)*chainMul*energized;
+    if (effect.value !== undefined) effect.value *= chainMul*energized;
     const instant = def.kind === 'burst' || def.kind === 'bossDamage';
     const completed = instant ? grant(s, effect.value, 'skill') : 0;
-    if (!instant) s.effects.push(effect);
+    // 重整之後同一張卡可能在舊效果還沒到期時再放：新效果取代舊的（存檔規則：一個來源一個效果、冷卻對得上 startedAt）
+    if (!instant) { s.effects = s.effects.filter(e => e.source !== id); s.effects.push(effect); }
     s.cooldownUntil[id] = t + def.cd * 1000;
     return { state: s, effect, completed };
   }
@@ -445,7 +538,10 @@
   const nextScene = id => Object.keys(sceneMap()).find(key=>sceneMap()[key].unlock?.boss===id);
   const unlocked = (s,id) => Object.hasOwn(sceneMap(),id) && sceneMap()[id].available!==false && (!sceneMap()[id].requiresMark || !!s.markShop?.[sceneMap()[id].requiresMark]) && (!sceneMap()[id].unlock || (s.bossWins || []).includes(sceneMap()[id].unlock.boss));
   const bossPackages = id => Scenes(id).bossPackages ?? sceneMap()[nextScene(id)]?.unlock?.packages;
-  const canBoss = (s,now) => !s.boss && !s.pending && bossPackages(s.settings.scene) != null && (s.settings.scene === 'city' || !(s.bossWins || []).includes(s.settings.scene)) && s.package.index-1 >= bossPackages(s.settings.scene) && now >= (s.bossCooldownUntil || 0);
+  // v3 §四：大王每輪可重打（runWins 本輪、bossWins 永久解鎖）；通關章＝以前贏過的站門檻減半
+  const runWon = (s,id) => (s.runWins || []).includes(id);
+  const bossPackagesFor = (s,id) => { const n = bossPackages(id); return n == null ? null : (s.bossWins || []).includes(id) && !runWon(s,id) ? Math.ceil(n / 2) : n; };
+  const canBoss = (s,now) => !s.boss && !s.pending && !s.package.gate && bossPackages(s.settings.scene) != null && (s.settings.scene === 'city' || !runWon(s,s.settings.scene)) && s.package.index-1 >= bossPackagesFor(s,s.settings.scene) && now >= (s.bossCooldownUntil || 0);
   function switchScene(state,id,now) {
     if (state.boss || !unlocked(state,id)) throw new Error('王包中或場景尚未解鎖');
     const s=settle(state,now).state; changeScene(s,id); return s;
@@ -470,19 +566,26 @@
     // 王包血量＝玩家「現在的 30 秒容量」（被動 30 秒＋每秒 6 下點擊）× mul，下限門檻包需求：
     // 純放置約 60%、連點不用技約 80%、連點＋技能 110%↑；離線衝過門檻不會讓王變得打不動
     // 下限用「門檻那一包」而不是現在這一包：離線衝過門檻幾十包，王不能跟著變成不可能
-    const floor=requirement(bossPackages(scene)+1,scene)*(cfg.floorMul ?? 1);
-    const need=Math.max(floor, cfg.mul*(30*r.P+180*r.D));
+    // v3 §二：血量改成關卡函數（門檻包需求 × K × 站係數），不再讀 P／D——這才是牆
+    const need=B.V3.BOSS_MUL*requirement(bossPackages(scene)+1,scene)*cfg.mul;
     s.boss={scene,need,dealt:crack*need,startedAt:now,endsAt:now+(cfg.seconds+(s.markShop?.bossTime ? 10 : 0))*1000,crack,shells:shellsFor(scene).filter(v=>1-v>crack),shellHp:3,blocked:0};
     if (s.gift) endGift(s, now, false);
     delete s.thief;
     s.bossResult=null; return s;
   }
   function finishBoss(s,won,now) {
-    const b=s.boss, cfg=Scenes(b.scene).boss;
+    const b=s.boss;
+    if (b.gate !== undefined) {   // 小王：贏了拆掉路障，輸了 30 秒冷卻，沒有裂痕
+      s.boss=null; s.bossResult={scene:b.scene,gate:b.gate,won,crack:0,at:now,next:undefined};
+      if (won) { delete s.package.gate; s.runGates=(s.runGates || 0)+1; } else s.package.gate.cooldownUntil=now+B.V3.GATE_COOLDOWN*1000;
+      stampDeadline(s, now, true); return;
+    }
+    const cfg=Scenes(b.scene).boss;
     const crack=won?0:Math.min(cfg.crackMax,b.dealt/b.need*(s.markShop?.crack75 ? .75 : cfg.crackKeep));
     s.bossCracks ||= {}; s.bossCracks[b.scene]=crack; s.boss=null;
     s.bossResult={scene:b.scene,won,crack,at:now,next:nextScene(b.scene)};
     if (won) {
+      s.runWins ||= []; if (!s.runWins.includes(b.scene)) s.runWins.push(b.scene);
       s.bossWins ||= []; if (!s.bossWins.includes(b.scene)) { s.bossWins.push(b.scene); s.universalDust=(s.universalDust || 0)+3; s.freeDraws=(s.freeDraws || 0)+cfg.reward.freeDraws; }
       s.bossCooldownUntil=b.scene === 'city' ? now+cfg.cooldown*1000 : 0;   // 終點站可重複挑戰，要有冷卻
       if (unlocked(s,s.bossResult.next)) changeScene(s,s.bossResult.next);
@@ -494,6 +597,7 @@
   }
   const api = { medianPartnerLevel, exchangeRate, PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, blessMul, decoMul,
     thiefHit, newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene,
+    rosterOf, rosterCounts, rosterViolations, setRoster, autoRoster, dispatched, dispatch, recall, champion, bossPackagesFor, runWon, canGate, startGate, gateNeed, isChest, chestRate,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerEconomy = api;

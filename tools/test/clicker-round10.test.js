@@ -6,7 +6,7 @@ const own = (s, id, n) => { s.collection[id] = n; s.dust[id] = n; return s; };
 test('v1 存檔遷移：張數變粉塵、預設更衣室與穿著', () => {
   const s = seed(); s.version = 1; delete s.dust; delete s.owned; s.collection = { yueyue2: 5 }; delete s.settings.clickSound;
   const v = S.validate(JSON.parse(JSON.stringify(s)), Pool);
-  assert.equal(v.version, 2); assert.equal(v.dust.yueyue2, 5); assert.deepEqual(v.owned.wardrobe, ['sounds:soft', 'fx:shard']); assert.equal(v.settings.clickFx, 'shard');
+  assert.equal(v.version, 3); assert.equal(v.dust.yueyue2, 5);   // v3：v1→v2→v3 一路遷到現行版 assert.deepEqual(v.owned.wardrobe, ['sounds:soft', 'fx:shard']); assert.equal(v.settings.clickFx, 'shard');
 });
 test('升星門檻照粉塵（1/2/4/8/16），第 17 顆起不再有熟練', () => {
   assert.deepEqual([1, 2, 4, 8, 16, 40].map(E.stars), [1, 2, 3, 4, 5, 5]); assert.equal(E.starMultiplier(40), 2);

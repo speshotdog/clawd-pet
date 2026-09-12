@@ -68,6 +68,6 @@ test('round24: 五張新卡的稀有度、精良 trait 與 11 發', () => {
   // jiaolan 是第一張帶 trait 的精良卡，倍率要明顯低於傳說的 jiaotou（trait 是跨槽連乘的）
   assert.ok(B.characters.jiaolan.trait.clickMul < B.characters.jiaotou.trait.clickMul);
   assert.equal(B.characters.shiyi.charges, 11);
-  // seal 是第一張精良 clickAdd，要比史詩那批弱
-  assert.ok(B.characters.seal.ratio < Math.min(...['dog','yangpu','zhenpete','foxmoney'].map(id => B.characters[id].ratio)));
+  // v3 §七：seal 改成「充能」（精良＝資源與穩定度），chaichai 改成「重整」
+  assert.equal(B.characters.seal.kind, 'energize'); assert.equal(B.characters.chaichai.kind, 'reload');
 });

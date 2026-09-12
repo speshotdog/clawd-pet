@@ -21,16 +21,22 @@ test('round20: three blessings cost six marks and multiply P and D by 1.3', () =
   assert.equal(E.markMul(s),E.markMul(before)); S.validate(s,Pool);
 });
 // 2026-09-08：粉塵兌換從「固定 1 印記換 5 粉塵」改成遞增價（第 n 次要 n 印記）。
-// 招募券仍是固定價，所以這條同時守著「一個改了、另一個沒被順手改掉」。
-test('round20: repeat dust and tickets account for marks and balances', () => {
+// v3（2026-09-12）：招募券停售（印記換免費抽等於把卡池買下來）；粉塵兌換的遞增價不變。
+test('round20: repeat dust accounts for marks; draw tickets are discontinued', () => {
   let s=seed();
   s=P.tradeDust(s);        // 第 1 次：1 印記
   s=P.tradeDust(s,5);      // 第 2~6 次：2+3+4+5+6 = 20 印記
-  s=P.buyDrawTicket(s,2);  // 固定 2 印記 ×2 = 4
-  assert.equal(s.marks,30-1-20-4); assert.equal(s.universalDust,30); assert.equal(s.dustTrades,6);
-  assert.equal(s.freeDraws,10);
+  assert.throws(()=>P.buyDrawTicket(s,2),/停售/);
+  assert.equal(s.marks,30-1-20); assert.equal(s.universalDust,30); assert.equal(s.dustTrades,6);
+  assert.equal(s.freeDraws,0);
   assert.equal(s.marksClaimed,30); S.validate(s,Pool);
-  s=E.purchaseDraw(s,1,0,Pool,{id:'free',rng:()=>.5}); assert.equal(s.freeDraws,9); assert.equal(s.coins,0);
+});
+test('round20/v3: blessing caps at Lv.20 (×3.0)', () => {
+  let s=seed(); s.marks=s.marksClaimed=300;
+  for(let i=0;i<20;i++) s=P.buyBlessing(s);
+  assert.equal(s.blessing,20); assert.equal(s.marks,300-210); assert.equal(E.blessMul(s),3);
+  assert.throws(()=>P.buyBlessing(s),/滿級/); S.validate(s,Pool);
+  assert.throws(()=>S.validate({...s,blessing:21},Pool),/收益祝福/);
 });
 test('round20: 粉塵兌換是遞增價，買得越多下一次越貴', () => {
   const s=seed();
@@ -49,8 +55,8 @@ test('round20: 粉塵兌換是遞增價，買得越多下一次越貴', () => {
 });
 test('round20: insufficient marks and invalid quantities reject without mutation', () => {
   const s=S.fresh(0), before=E.clone(s);
-  for(const buy of [P.buyBlessing,P.tradeDust,P.buyDrawTicket]) assert.throws(()=>buy(s),/印記不足/);
-  for(const buy of [P.tradeDust,P.buyDrawTicket]) for(const n of [0,-1,.5,NaN,Infinity]) assert.throws(()=>buy(s,n),/數量/);
+  for(const buy of [P.buyBlessing,P.tradeDust]) assert.throws(()=>buy(s),/印記不足/);
+  for(const buy of [P.tradeDust]) for(const n of [0,-1,.5,NaN,Infinity]) assert.throws(()=>buy(s,n),/數量/);
   assert.deepEqual(s,before);
 });
 test('round20: new save fields migrate and validate, including blessing spending', () => {
@@ -61,7 +67,7 @@ test('round20: new save fields migrate and validate, including blessing spending
   assert.throws(()=>S.validate({...s,peakRateStamp:2},Pool),/關卡/);
 });
 test('round20: prestige retains blessing and clears the rate stamp', () => {
-  let s=seed(); s=P.buyBlessing(s); s.lifetimeCoins=1e12; s.peakRateStamp=4; s.peakRate=12000;
+  let s=seed(); s=P.buyBlessing(s); s.lifetimeCoins=1e12; s.peakRateStamp=4; s.peakRate=12000; s.bossWins=['backyard']; s.runWins=['backyard'];
   s=P.prestige(s,0).state;
   assert.equal(s.blessing,1); assert.equal(s.peakRateStamp,0); assert.equal(s.peakRate,0); S.validate(s,Pool);
 });

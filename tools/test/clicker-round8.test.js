@@ -1,5 +1,5 @@
 const test=require('node:test'), assert=require('node:assert/strict');
-const E=require('../../src/clicker-economy.js'), S=require('../../src/clicker-save.js'), Pool=require('../../src/gacha-pool.js');
+const B=require('../../src/clicker-balance.js'),E=require('../../src/clicker-economy.js'), S=require('../../src/clicker-save.js'), Pool=require('../../src/gacha-pool.js');
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8*Math.max(1,b),`${a} ~= ${b}`);
 const kitchen=()=>{const s=S.fresh(0);s.bossWins=['backyard'];s.settings.scene='kitchen';s.package=E.newPackage('kitchen');return s;};
 const boss=()=>{const s=S.fresh(0);s.package.index=51;return E.startBoss(s,0);};
@@ -35,11 +35,12 @@ test('round8 boss: appearance threshold and cooldown guards',()=>{
   const s=S.fresh(0);s.package.index=50;assert.equal(E.canBoss(s,0),false);s.package.index=51;assert.equal(E.canBoss(s,0),true);
   s.bossCooldownUntil=30;assert.throws(()=>E.startBoss(s,29));assert.ok(E.startBoss(s,30).boss);
 });
-test('round8 boss: need = max(門檻包需求, 1.25×30 秒容量), deadline and saved crack seed',()=>{
+// v3（2026-09-12）：王血量改成關卡函數 K×門檻包需求×站係數，不再讀 P／D——跟自己掛鉤的王永遠不是牆（DESIGN-balance-v3 §二）
+test('round8 boss v3: need = BOSS_MUL × requirement(門檻+1) × cfg.mul, deadline and saved crack seed',()=>{
   const s=S.fresh(0);s.package.index=51;s.bossCracks.backyard=.4;const b=E.startBoss(s,100).boss;
-  near(b.need,E.requirement(51));near(b.dealt,b.need*.4);assert.equal(b.endsAt,30100);   // 沒有夥伴：容量 1.25×180×1 < 門檻包
-  const t=S.fresh(0);t.package.index=80;t.collection={zhenmu:16};t.trainingLevel=40;const r=E.rates(t);
-  near(E.startBoss(t,0).boss.need,1.25*(30*r.P+180*r.D));assert.ok(1.25*(30*r.P+180*r.D)>E.requirement(80));   // 離線衝到第 80 包，下限仍是第 51 包
+  near(b.need,B.V3.BOSS_MUL*E.requirement(51)*1.25);near(b.dealt,b.need*.4);assert.equal(b.endsAt,30100);
+  const t=S.fresh(0);t.package.index=80;t.collection={zhenmu:16};t.trainingLevel=40;
+  near(E.startBoss(t,0).boss.need,B.V3.BOSS_MUL*E.requirement(51)*1.25);   // 玩家再強、衝到第 80 包，王的血量仍是門檻那一包的函數
 });
 test('round8 boss: all sources earn coins into boss, normal package paused',()=>{
   let s=boss();s.collection={fox:1};s.skillSlots[0]='fox';const p=structuredClone(s.package);

@@ -20,7 +20,9 @@ for (const id of ['caihua', 'fox', 'lk', 'zhenzhen2', 'yang', 'zhenzhen', 'dog',
     if (def.kind === 'burst') {
       const expected = id === 'caihua' ? 20 * pi : 15 * P;
       close(a.coins - s.coins, expected); close(a.lifetimeCoins - s.lifetimeCoins, expected);
-      assert.deepEqual(a.package, E.advancePackage(s.package, expected).package);
+      // v3：一口氣拆過第 10 包會被小王擋在第 11 包前（拆包力照樣全數進錢包）
+      const plain = E.advancePackage(s.package, expected);
+      assert.deepEqual(a.package, s.package.index + plain.completed > 10 ? { ...E.newPackage('backyard', 11), gate: { index: 10, cooldownUntil: 0 } } : plain.package);
       assert.equal(a.manualClicks, s.manualClicks); assert.equal(a.effects.length, 0);
     } else if (['self', 'team'].includes(def.kind)) {
       const extra = def.kind === 'self' ? pi * (def.multiplier - 1) : P * def.ratio;
@@ -200,7 +202,7 @@ test('原子寫入與失敗防護：不變更記憶體、重啟 pending、同 id
 // 「壞的是這一場的暫時狀態」改成自己修好（見 clicker-round25.test.js），
 // 「壞的是身分或養成資料」仍然一律擋住。兩邊共同的鐵律沒變：**永遠不覆蓋 clicker_save 本身**。
 test('壞 JSON、未來版本、未知 ID、異常數值都保留原文並阻擋，不偷偷重置', () => {
-  for (const alter of [() => '{invalid', (s) => { s.version = 3; }, (s) => { s.coins = -1; }, (s) => { s.collection.intruder = 1; }, (s) => { s.clickLevel = 1.5; }]) {
+  for (const alter of [() => '{invalid', (s) => { s.version = 4; }, (s) => { s.coins = -1; }, (s) => { s.collection.intruder = 1; }, (s) => { s.clickLevel = 1.5; }]) {
     const s = fresh(), modified = alter(s), raw = typeof modified === 'string' ? modified : JSON.stringify(s);
     const store = S.create({ getItem: () => raw, setItem(key) { assert.notEqual(key, S.KEY, '不可清空壞檔'); } }, { pool: Pool });
     assert.equal(store.state, null); assert.equal(store.blocked, true); assert.equal(store.raw, raw); assert.ok(store.error);

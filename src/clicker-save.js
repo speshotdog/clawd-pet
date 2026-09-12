@@ -5,7 +5,7 @@
   const X = node ? require('./clicker-extras.js') : root.ClickerExtras;   // 第十二輪：每日一包／徽章／匯出匯入
   const KEY = 'clicker_save';
   function fresh(now) {
-    return { version: 2, balanceVersion: 1, revision: 0, savedAt: now, settledAt: now,
+    return { version: 3, balanceVersion: 1, revision: 0, savedAt: now, settledAt: now,
       coins: 0, lifetimeCoins: 0, manualClicks: 0, clickLevel: 0, trainingLevel: 0,
       collection: {}, dust: {}, universalDust: 0, promotions: {}, transcend: {}, overflow: {}, awakened: {}, owned: {wardrobe:['sounds:soft','fx:shard']}, paidDraws: 0, pity: { sinceLegendary: 0 }, pending: null,
       package: E.newPackage('backyard'), claimedMilestones: [],
@@ -14,7 +14,9 @@
       marks: 0, marksClaimed: 0, prestiges: 0, markShop: {}, dustTrades: 0, autoClick: 0, autoRemainder: 0, autoClicks: 0, partnerLevels: {}, deco: [], decoShown: [], peakRate: 0, peakRateStamp: 0, blessing: 0, prestigeHintDate: null,
       missed: 0, sweep: {last:null,count:0,at:0}, gift: null, nextGiftAt: 0, giftResult: null,
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
-      settings: { clickSound:'soft', clickFx:'shard', muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8 } };
+      // v3（DESIGN-balance-v3）：編隊、本輪王勝／包數、本輪當家、派遣、寶箱種子、大掃除封存
+      roster: [], runWins: [], runPacks: 0, runGates: 0, champions: [], dispatch: [], dispatchDay: null, dispatchHalf: {}, chestSeed: Math.floor((now * 2654435761) % 4294967296), legacy: null,
+      settings: { clickSound:'soft', clickFx:'shard', muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8, autoChallenge: true } };
   }
   const object = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
   const number = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
@@ -32,7 +34,25 @@
     //（2026-09-08 使用者朋友回報：掛機一個多小時後重整就中）。這裡照場景表補回去。
     // 終點站 city 的 next 本來就是 undefined，JSON 也存不下 undefined，所以這行對新存檔是無作用的。
     if (object(s) && object(s.bossResult) && s.bossResult.next === undefined) s.bossResult.next = E.nextScene(s.bossResult.scene);
-    check(object(s) && s.version === 2 && s.balanceVersion === 1, '版本（本版不降級或重置）');
+    // ---- v3 大掃除（2→3，DESIGN-2026-09-12-content-architecture §十一）：回收膨脹、不回收努力。
+    // 只重算 marksClaimed／blessing／marks；原值封存到 legacy（補償分級要看它、日後可回溯）。
+    // 新印記＝用新規則反推：每輪上限 12 × 輪迴次數（反推不到的給上界，寧多勿少）；祝福自動買到頂、剩的留手上。
+    if (object(s) && s.version === 2) {
+      const prestiges = Number.isSafeInteger(s.prestiges) ? s.prestiges : 0;
+      s.legacy = { marksClaimed: s.marksClaimed || 0, blessing: s.blessing || 0, marks: s.marks || 0, lifetimeCoins: s.lifetimeCoins || 0, prestiges, migratedAt: Date.now() };
+      const shopSpent = Object.keys(s.markShop || {}).reduce((sum, id) => sum + (B.marks.find(m => m.id === id)?.cost || 0), 0);
+      const dustSpent = ((s.dustTrades || 0) * ((s.dustTrades || 0) + 1)) / 2;
+      let pool = prestiges * B.V3.MARKS_PER_RUN, level = 0;
+      while (level < B.BLESSING_MAX && pool >= level + 1) { pool -= level + 1; level++; }
+      s.blessing = level; s.marks = pool;
+      s.marksClaimed = prestiges * B.V3.MARKS_PER_RUN + shopSpent + dustSpent;   // 已買的商店與粉塵兌換照舊承認，不追討
+      // 本輪當家：遷移時用生涯幣當種子確定性地抽 2 張（之後每次輪迴重抽）
+      const ids = Object.keys(s.collection || {}).filter(id => known(id) && s.collection[id] > 0).sort();
+      let h = Math.floor((s.lifetimeCoins || 0) % 2147483647) >>> 0; s.champions = [];
+      while (ids.length && s.champions.length < B.V3.CHAMPIONS) { h = (Math.imul(h, 1664525) + 1013904223) >>> 0; s.champions.push(ids.splice(h % ids.length, 1)[0]); }
+      s.version = 3;
+    }
+    check(object(s) && s.version === 3 && s.balanceVersion === 1, '版本（本版不降級或重置）');
     // 移除誤植角色，也清理它可能留下的養成與技能快照。
     for (const key of ['collection','dust','promotions','transcend','partnerLevels','overflow','awakened','cooldownUntil']) {
       if (object(s[key])) delete s[key].yuelegend;
@@ -47,7 +67,7 @@
     if (object(s.bossResult)) { s.bossResult.scene = rename(s.bossResult.scene); s.bossResult.next = rename(s.bossResult.next); }
     if (object(s.boss)) s.boss.scene = rename(s.boss.scene);
     s.blessing ??= 0; s.peakRateStamp ??= 0;
-    check(integer(s.blessing), '收益祝福');
+    check(integer(s.blessing) && s.blessing <= B.BLESSING_MAX, '收益祝福');
     check(integer(s.peakRateStamp) && (s.peakRateStamp === 0 || (s.peakRateStamp >= 3 && s.peakRateStamp <= 308)), '收益關卡章');
     s.daily ??= null; s.badges ??= []; s.pick100 ??= null;
     if (s.daily !== null) { const d = s.daily; check(object(d) && /^\d{4}-\d{2}-\d{2}$/.test(d.date) && typeof d.done === 'boolean' && number(d.need) && d.need > 0 && number(d.dealt) && d.dealt <= d.need && (d.done || d.dealt < d.need) && integer(d.streak), '每日一包'); }
@@ -112,11 +132,11 @@
       if (e.params) {
         check(object(e.params) && def.kind===base.kind, '效果快照');
         // 快照可能來自任一組：星級 × 超越 × 羈絆 × 當家 × 夥伴訓練里程碑（0/25/50/75/100，與 economy.skillAt 同一套加法）
-        const variants = [0,1,2,3,4,5].flatMap(trans=>[1,2,3,4,5].flatMap(star=>[0,1,2].flatMap(bond=>[false,true].flatMap(home=>[0,25,50,75,100].map(L=>{
+        const variants = [0,1,2,3,4,5].flatMap(trans=>[1,2,3,4,5].flatMap(star=>[0,1,2].flatMap(bond=>[0,1,2].flatMap(home=>[0,25,50,75,100].map(L=>{
           const p=B.skillAt(e.source,star,trans);
           if (bond && ['click','clickAdd'].includes(p.kind)) p.charges+=bond;
           if (bond && p.kind==='self') p.duration*=1.25**bond;
-          if (home) p.cd*=.8;
+          for (let i=0;i<home;i++) p.cd*=.8;   // 場景親和 ×.8、本輪當家 ×.8、兩者都有（v3）；逐次乘才跟 economy.skillAt 的浮點結果一致
           if (L >= 25) { if (['click','clickAdd'].includes(p.kind) && p.charges) p.charges += 1; else if (p.duration) p.duration += 2; }
           if (L >= 50 && p.duration) p.duration += 2;
           if (L >= 75) p.cd *= .95;
@@ -125,7 +145,8 @@
         })))));
         check(variants.some(p=>['kind','multiplier','ratio','factor','copy','charges','duration','cd','basis'].every(k=>p[k]===def[k])), '技能快照參數');
       }
-      const mult = def.multiplier === undefined ? undefined : 1+(def.multiplier-1)*[1,1.3,1.6][e.chain-1];
+      check(e.energized === undefined || e.energized === 2, '充能快照');
+      const mult = def.multiplier === undefined ? undefined : 1+(def.multiplier-1)*[1,1.3,1.6][e.chain-1]*(e.energized || 1);
       check(def.kind && e.kind === def.kind && number(e.startedAt) && number(e.expiresAt) && Math.abs(e.expiresAt - e.startedAt - def.duration * 1000) < .001 && e.startedAt <= s.settledAt, '效果期限');
       check(Math.abs(s.cooldownUntil[e.source] - e.startedAt - def.cd * 1000) < .001, '效果冷卻');
       if (e.kind === 'click') check(e.multiplier === mult && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '次數效果');
@@ -156,6 +177,7 @@
         }
         if (E.timerFor(id)) { p.deadline ??= null; check(p.deadline === null || number(p.deadline), '輸送帶時限'); }
       }
+      if (!boss && p.gate !== undefined) check(object(p.gate) && integer(p.gate.index) && p.gate.index % B.V3.GATE_EVERY === 0 && p.gate.index === p.index - 1 && number(p.gate.cooldownUntil), '小王');
       const allowed=scenes[id].enemy?.shell || [];
       check(Array.isArray(p.shells) && p.shells.every((v,i)=>allowed.includes(v) && (!i || p.shells[i-1]>v)) && integer(p.shellHp) && p.shellHp>=1 && p.shellHp<=3 && number(p.blocked), '硬殼');
       check(number(p.progress) && p.progress<need && (!p.shells.length || p.progress<=need*(1-p.shells[0])+need*1e-12), '硬殼進度');
@@ -168,7 +190,7 @@
     if (s.thief !== undefined) check(object(s.thief) && !!scenes[s.settings.scene].thief && !s.boss && typeof s.thief.active === 'boolean' && number(s.thief.remainingMs) && s.thief.remainingMs <= (s.thief.active ? 12600 : 120000) && integer(s.thief.hits) && s.thief.hits < 5, '零食小偷');
     if (s.boss) {
       const b=s.boss, cfg=scenes[s.settings.scene].boss;
-      check(object(b) && b.scene===s.settings.scene && (b.scene === 'city' || !s.bossWins.includes(b.scene)) && !s.pending && number(b.need) && b.need>0 && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===(cfg.seconds+(s.markShop?.bossTime ? 10 : 0))*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
+      check(object(b) && b.scene===s.settings.scene && (b.gate !== undefined ? integer(b.gate) && s.package.gate?.index === b.gate : (b.scene === 'city' || !(s.runWins || []).includes(b.scene))) && !s.pending && number(b.need) && b.need>0 && number(b.dealt) && b.dealt<b.need && number(b.startedAt) && number(b.endsAt) && b.endsAt-b.startedAt===(cfg.seconds+(s.markShop?.bossTime ? 10 : 0))*1000 && number(b.crack) && b.crack<=cfg.crackMax, '王包');
       pack({...b,progress:b.dealt},b.scene,b.need,true);
     }
     if (s.pending !== null) {
@@ -187,6 +209,19 @@
       const lastLegendary = draw.entries.findLastIndex((item) => ['legendary','mythic'].includes(item.entry.rarity));
       if (lastLegendary >= 0) check(s.pity.sinceLegendary === draw.entries.length - lastLegendary - 1, 'pending 保底');
     }
+    // ---- v3 欄位：缺的補預設；隊伍／派遣不合法就靜默修正（不進 REPAIRS，那張表只准放暫時狀態）
+    s.runWins ??= []; s.runPacks ??= 0; s.runGates ??= 0; s.champions ??= []; s.dispatch ??= []; s.dispatchDay ??= null; s.dispatchHalf ??= {}; s.legacy ??= null;
+    s.chestSeed ??= Math.floor(Math.random() * 4294967296); s.settings.autoChallenge ??= true;
+    check(Array.isArray(s.runWins) && new Set(s.runWins).size === s.runWins.length && s.runWins.every(id => s.bossWins.includes(id)) && integer(s.runPacks) && integer(s.runGates), '本輪紀錄');
+    check(integer(s.chestSeed) && typeof s.settings.autoChallenge === 'boolean' && (s.legacy === null || object(s.legacy)), '寶箱種子／自動挑戰／封存');
+    check(Array.isArray(s.dispatch) && s.dispatch.length <= B.V3.DISPATCH_SLOTS && s.dispatch.every(d => object(d) && known(d.id) && s.collection[d.id] > 0 && number(d.startedAt) && number(d.until) && d.until - d.startedAt === B.V3.DISPATCH_MS) && new Set(s.dispatch.map(d => d.id)).size === s.dispatch.length, '派遣');
+    check((s.dispatchDay === null || (object(s.dispatchDay) && integer(s.dispatchDay.day) && integer(s.dispatchDay.count))) && object(s.dispatchHalf) && Object.entries(s.dispatchHalf).every(([id, n]) => known(id) && [0,1].includes(n)), '派遣帳');
+    s.champions = s.champions.filter(id => known(id) && s.collection[id] > 0).slice(0, B.V3.CHAMPIONS);
+    if (!Array.isArray(s.roster)) s.roster = [];
+    s.roster = [...new Set(s.roster.filter(id => known(id) && s.collection[id] > 0 && !E.dispatched(s, id)))];
+    while (E.rosterViolations(s.roster).length) s.roster.pop();
+    if (!s.roster.length && Object.keys(s.collection).length) s.roster = E.autoRoster(s);
+    s.skillSlots = s.skillSlots.map(id => id && !s.roster.includes(id) ? null : id);
     for (const id of Object.keys(B.characters).filter(id => !B.originalIds.includes(id))) {
       s.dust[id] ??= s.collection[id] || 0; s.promotions[id] ??= 0; s.transcend[id] ??= 0; s.partnerLevels[id] ??= 0;
     }

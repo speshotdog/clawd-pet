@@ -120,7 +120,7 @@ test('round25: 玩物就玩物是神話，走 clickAdd 補上這一族的空格'
   const def = B.characters.wanwumythic;
   assert.equal(def.kind, 'clickAdd');
   // 神話這格本來是空的：既有 clickAdd 全是史詩起跳，最高 .6
-  const others = ['dog','yangpu','zhenpete','foxmoney','seal'].map(id => B.characters[id].ratio);
+  const others = ['dog','yangpu','zhenpete','foxmoney'].map(id => B.characters[id].ratio);   // v3：seal 已改成充能
   assert.ok(def.ratio > Math.max(...others), '神話的 clickAdd 要比史詩那批強');
   // 神話的 base 要跟另外三張同一個量級
   const mythics = Pool.CATALOG.filter(x => x.rarity === 'mythic' && x.kind === 'char').map(x => B.characters[x.id].base);

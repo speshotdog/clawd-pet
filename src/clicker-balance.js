@@ -20,7 +20,9 @@
   // 三天七次輪迴就衝到 ×5.4 億（把 5% 調成 1% 只是把爆炸延一天，形狀不改沒有用）。
   // 改成開根號之後 100 枚仍是 ×6.0（跟舊值接得上），1000 枚 ×16.8、4472 枚 ×34.4。
   // 抽成常數是為了讓模擬器 A/B（MARKMUL 環境變數覆寫，economy／prestige 都是呼叫時才讀）。
-  const MARK_MUL_COEF = .5;
+  // 2026-09-12 v3：拿掉（係數 0、欄位保留）。使用者存檔實測祝福 Lv.1462（×147）× markMul ×518 ≈ ×76,000，
+  // 根因是「印記∝√幣、買到的倍率又乘在幣上」兩條無頂倍率互餵。v3 只留有頂的收益祝福（DESIGN-balance-v3 §四）。
+  const MARK_MUL_COEF = 0;
   const originalIds = Object.freeze(Object.keys(characters));
   Object.assign(characters, {
     yueyuexian: { base: 30, skill: '躺著也會贏', kind: 'team', ratio: 1.0, duration: 20, cd: 120 },
@@ -69,8 +71,8 @@
   // 第二十四輪五張新卡（桌面「新卡\2.0」補完，稀有度照檔名）
   Object.assign(characters, {
     shiwang: { base: 5, skill: '垂頭喪企', kind: 'burst', factor: 22, basis: 'individual', cd: 48 },
-    seal: { base: 5, skill: '快樂拍拍', kind: 'clickAdd', ratio: .42, charges: 18, duration: 20, cd: 95 },
-    chaichai: { base: 4, skill: '柴柴打滾', kind: 'self', multiplier: 4.8, duration: 20, cd: 105 },
+    seal: { base: 5, skill: '快樂拍拍', kind: 'energize', cd: 150 },   // v3 §七：充能，下一個技能效果 ×2（原 clickAdd .42×18）
+    chaichai: { base: 4, skill: '柴柴打滾', kind: 'reload', cd: 180 },   // v3 §七：重整，其他槽冷卻歸零（原 self ×4.8／20s）
     jiaolan: { base: 5, skill: '爛額狂點', kind: 'clickTime', multiplier: 2.8, duration: 12, cd: 82, trait: { clickMul: 1.15 } },
     shiyi: { base: 19, skill: '十一連發', kind: 'click', multiplier: 4.5, charges: 11, duration: 15, cd: 85 },
   });
@@ -88,6 +90,8 @@
     if (p.kind === 'burst') return `立即獲得${p.basis === 'individual' ? '自身' : '含全隊加成的'}每秒收益 ×${fmt(p.factor)} 的拆包力${tail}`;
     if (p.kind === 'bossDamage') return `王關中：立即對王包造成血量 ${fmt(p.share*100)}% 的傷害；不在王關時改為立即獲得每秒收益 ×${fmt(p.fallback)} 的拆包力${tail}`;
     if (p.kind === 'self') return `自身收益 ×${fmt(p.multiplier)}，持續 ${p.duration} 秒${tail}`;
+    if (p.kind === 'reload') return `其他技能槽的冷卻立刻歸零${tail}`;
+    if (p.kind === 'energize') return `下一個發動的技能效果量 ×2${tail}`;
     if (p.kind === 'team') return `全隊每秒額外 +${fmt(p.ratio*100)}% 常態收益，持續 ${p.duration} 秒${tail}`;
     return `複製含自身技能後最高夥伴收益的 ${fmt(p.copy*100)}%，持續 ${p.duration} 秒${tail}`;
   }
@@ -143,16 +147,23 @@
     { id:'starter5', name:'開局送五連', cost:1, desc:'每次換桌布後送 5 次免費招募' },
     { id:'crack75', name:'裂痕 75% 起跳', cost:2, desc:'王包失敗保留 75% 傷害' },
     { id:'rooftop', name:'新桌布「屋頂星空」', cost:5, desc:'第七場景，純外觀與 BGM' },
+    // v3 §九：點擊附加隊伍收益 5% → 10% → 15%（後期點擊不歸零，「連點＋技能才過得了王」才成立）
+    { id:'tapShare1', name:'點擊附加 +5%', cost:3, desc:'每下點擊附加的全隊收益 5% → 10%' },
+    { id:'tapShare2', name:'點擊附加再 +5%', cost:3, desc:'10% → 15%（需先買前一項）', requires:'tapShare1' },
   ];
+  const BLESSING_MAX = 20;   // v3 §四：×3.0 封頂；第 L 級收 L 枚，全滿 210
+  // v3 常數集中放這裡讓模擬器 A/B（DESIGN-balance-v3）
+  const V3 = { GATE_EVERY: 10, GATE_MUL: 2, AREA_MUL: 1.5, BOSS_MUL: 4, GATE_SECONDS: 30, GATE_COOLDOWN: 30,
+    ROSTER_LIMITS: [2, 6, 12, 20], CHAMPIONS: 2, CHAMPION_MUL: 1.5, DISPATCH_SLOTS: 3, DISPATCH_MS: 4 * 3600000, DISPATCH_DAILY: 9,
+    CHEST_RATE: .03, CHEST_MUL: 8, CHEST_MILESTONE: 150, MARKS_PER_RUN: 12 };
   const blessings = [
-    { id:'blessing', name:'收益祝福', desc:'全隊每秒收益與攻擊力，每級 +10%' },
+    { id:'blessing', name:'收益祝福', desc:'全隊每秒收益與攻擊力，每級 +10%（上限 Lv.20）' },
     { id:'dustTrade', name:'粉塵兌換', cost:1, desc:'換 5 萬用粉塵；每換一次下一次就貴 1 印記' },
-    { id:'drawTicket', name:'招募券', cost:2, desc:'2 印記 → 5 次免費單抽' },
   ];
   const autoClickMax = 10;
   const autoClickCap = s => s.markShop?.finger14 ? 14 : autoClickMax;
   const decor = ['花盆','燈串','小鼓','風鈴','貓抓板','相框','香氛蠟燭','小旗串','多肉','留聲機'].map((name,i)=>({ id:`deco${i}`, name, file:`clicker-deco-${i}.png` }));
-  const api = { originalIds, marks, blessings, autoClickMax, autoClickCap, decor, wardrobe, characters, MARK_MUL_COEF, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const api = { originalIds, marks, blessings, BLESSING_MAX, V3, autoClickMax, autoClickCap, decor, wardrobe, characters, MARK_MUL_COEF, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;

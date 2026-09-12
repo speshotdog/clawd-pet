@@ -4,19 +4,27 @@
   const node = typeof module !== 'undefined' && module.exports;
   const B = node ? require('./clicker-balance.js') : root.ClickerBalance;
   const E = node ? require('./clicker-economy.js') : root.ClickerEconomy;
-  const THRESHOLD = 1e8;
-  const marksTotal = (s) => Math.floor(Math.sqrt((s.lifetimeCoins || 0) / THRESHOLD));
-  const marksAvailable = (s) => Math.max(0, marksTotal(s) - (s.marksClaimed || 0));
+  const THRESHOLD = 1e8;   // 舊版門檻，v3 只留給遷移對照
+  // v3 §四：印記改成「本輪做到的事」的計數，不看幣——本輪打贏的大王每隻 1、本輪累計 100／300 包各 1、
+  // 本輪打贏滅世珍獸再 +3，每輪上限 12。產出線性於進度、有頂，才不會再出現 ×76,000。
+  const marksTotal = (s) => Math.min(B.V3.MARKS_PER_RUN, (s.runWins || []).length + ((s.runPacks || 0) >= 100 ? 1 : 0) + ((s.runPacks || 0) >= 300 ? 1 : 0) + ((s.runWins || []).includes('city') ? 3 : 0));
+  const marksAvailable = (s) => marksTotal(s);
   const markMul = (s) => 1 + B.MARK_MUL_COEF * Math.sqrt(s.marksClaimed || 0);
   function canPrestige(s) {
-    if ((s.lifetimeCoins || 0) < THRESHOLD) return '生涯收入到 1 億才能換桌布';
-    if (marksAvailable(s) < 1) return '目前沒有可領的印記，再賺一點';
+    if (!(s.runWins || []).length) return '本輪至少要打贏一隻王才能換桌布';
     if (s.pending) return '先收下招募';
     if (s.boss) return '王包進行中';
     return null;
   }
   // 清除：幣、手勁、訓練、電動手指、夥伴訓練、當輪包數、場景進度；保留：角色、粉塵、升階、超越、保底、王勝、徽章、更衣室、印記。
-  function prestige(state, now) {
+  // v3 §五 本輪當家：從已擁有的角色隨機抽 2 張（不夠就有幾張抽幾張）
+  function pickChampions(s, rng = Math.random) {
+    const ids = Object.keys(s.collection || {}).filter(id => s.collection[id] > 0 && Object.hasOwn(B.characters, id));
+    const out = [];
+    while (ids.length && out.length < B.V3.CHAMPIONS) out.push(ids.splice(Math.floor(rng() * ids.length), 1)[0]);
+    return out;
+  }
+  function prestige(state, now, rng = Math.random) {
     const s = E.settle(state, now).state, why = canPrestige(s);
     if (why) throw new Error(why);
     const gained = marksAvailable(s);
@@ -28,6 +36,8 @@
     s.effects = []; s.cooldownUntil = {}; s.slotReadyAt = s.slotReadyAt.map(() => 0); s.chain = { count: 1, expiresAt: 0 };
     if (s.markShop?.starter5) s.freeDraws = (s.freeDraws || 0) + 5;
     s.universalDust = (s.universalDust || 0) + 3;
+    s.runWins = []; s.runPacks = 0; s.runGates = 0; delete s.energized;
+    s.champions = pickChampions(s, rng);
     s.prestigeHintDate = null; s.peakRate = 0; s.peakRateStamp = 0;
     return { state: s, gained };
   }
@@ -36,6 +46,7 @@
     if (!item) throw new Error('印記商店沒有這項');
     s.markShop ||= {};
     if (s.markShop[id]) throw new Error('已經擁有');
+    if (item.requires && !s.markShop[item.requires]) throw new Error('要先買前一項');
     if ((s.marks || 0) < item.cost) throw new Error('印記不足');
     s.marks -= item.cost; s.markShop[id] = true;
     if (id === 'bossTime' && s.boss) s.boss.endsAt += 10000;
@@ -44,6 +55,7 @@
   }
   function buyBlessing(state, now = state.settledAt) {
     const s = E.settle(state, now).state, level = (s.blessing || 0) + 1;
+    if (level > B.BLESSING_MAX) throw new Error('收益祝福已滿級');
     if ((s.marks || 0) < level) throw new Error('印記不足');
     s.marks -= level; s.blessing = level; return s;
   }
@@ -67,12 +79,8 @@
     s.marks -= cost; s.dustTrades = (s.dustTrades || 0) + n;
     s.universalDust = (s.universalDust || 0) + DUST_PER_TRADE * n; return s;
   }
-  function buyDrawTicket(state, n = 1, now = state.settledAt) {
-    if (!Number.isSafeInteger(n) || n < 1) throw new Error('兌換數量無效');
-    const s = E.settle(state, now).state;
-    if ((s.marks || 0) < 2 * n) throw new Error('印記不足');
-    s.marks -= 2 * n; s.freeDraws = (s.freeDraws || 0) + 5 * n; return s;
-  }
+  // v3：招募券拿掉（使用者 2026-09-12）——印記換免費抽等於把整個卡池買下來
+  function buyDrawTicket() { throw new Error('招募券已停售'); }
   const autoClickCost = (L) => Math.ceil(5000 * 2.2 ** L);
   function buyAutoClick(state, now, max = false) {
     const s = E.settle(state, now).state; let levels = 0;
@@ -143,6 +151,6 @@
     s.decoShown = s.decoShown.includes(id) ? s.decoShown.filter(x => x !== id) : [...s.decoShown, id];
     return s;
   }
-  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, buyMark, buyBlessing, tradeDust, dustTradeCost, DUST_PER_TRADE, buyDrawTicket, autoClickCost, buyAutoClick, autoClicks, trainCost, train, trainAll, nextMilestone, decoPrice, buyDeco, toggleDeco, hint };
+  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, pickChampions, buyMark, buyBlessing, tradeDust, dustTradeCost, DUST_PER_TRADE, buyDrawTicket, autoClickCost, buyAutoClick, autoClicks, trainCost, train, trainAll, nextMilestone, decoPrice, buyDeco, toggleDeco, hint };
   if (node) module.exports = api; else root.ClickerPrestige = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
