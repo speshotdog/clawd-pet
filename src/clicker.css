@@ -1293,6 +1293,18 @@ body[data-world="apoc"] #recruit-layer button:disabled { background:#1C2637; col
 body[data-world="apoc"] #mode-select { background:#31425F; border-color:#4A628A; color:#E8F0FF; }
 body[data-world="apoc"] #recruit-hint { color:#C6D4E8; }
 body[data-world="apoc"] #recruit-entry h2, body[data-world="apoc"] #recruit-entry p { color:#DDE6F4; }
+/* 卡冊在末世也換深色：書本的紙貼圖換成深色板 */
+body[data-world="apoc"] #album-book, body[data-world="apoc"] .album-page,
+body[data-world="apoc"] #album-detail, body[data-world="apoc"] .collect-page {
+  border-image:none !important; background:#16202F; border:3px solid #4A628A; border-radius:14px; }
+body[data-world="apoc"] .album-page::before, body[data-world="apoc"] .album-page::after,
+body[data-world="apoc"] #album-book::before, body[data-world="apoc"] #album-book::after { display:none !important; }
+body[data-world="apoc"] .album-slot { background:#22304A; border-radius:10px; }
+body[data-world="apoc"] .album-meta small { color:#C6D4E8; }
+body[data-world="apoc"] #album-detail .detail-tier,
+body[data-world="apoc"] #album-detail dt { color:#8FA3BE; }
+body[data-world="apoc"] #album-detail dd, body[data-world="apoc"] #album-detail h3 { color:#DDE6F4; }
+body[data-world="apoc"] #team-summary { color:#C6D4E8; }
 /* 技能槽：末世的技能名字比 1.0 長，只留一行並省略，避免裁切 */
 body[data-world="apoc"] .skill-slot { background:#22304A; border-color:#4A628A; }
 body[data-world="apoc"] .skill-name { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }

@@ -4,8 +4,16 @@ window.ClickerAlbum = (() => {
   function create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations }) {
     const $ = id => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
     const CHAR_IDS = Pool.CHARACTER_IDS.filter(id => B.characters[id]).sort((a,b) => E.origin(a)-E.origin(b)), PER_PAGE = 4;
+    // 兩個主系統共用這一本卡冊：差別只有卡池與「擁有幾張」怎麼算（使用者：兩邊邏輯不要差太多）
+    const A = () => window.ApocEconomy;
+    const apoc = () => store.state?.settings.world === 'apoc';
+    const RANK = { mythic: 0, legendary: 1, epic: 2, rare: 3, common: 3 };
+    let apocIdsCache = null, apocPoolSrc = null;
+    const apocIds = () => { const p = window.ApocPool || []; if (p !== apocPoolSrc) { apocPoolSrc = p; apocIdsCache = p.map(c => c.id).sort((a, b) => RANK[byId(a).rarity] - RANK[byId(b).rarity] || a.localeCompare(b)); } return apocIdsCache; };
+    const byId = (id) => apoc() ? (window.ApocPool || []).find(c => c.id === id) || Pool.byId[id] : Pool.byId[id];
+    const have = (s, id) => apoc() ? (s.apoc?.collection?.[id] || 0) : (s.collection[id] || 0);
     // v3：收藏卡（魔花少女）擁有時排在最後一頁；沒有戰力、不編隊、不升星
-    const allIds = () => [...CHAR_IDS];   // 收藏卡不在角色頁，走「收藏卡」分頁（collectOpen）
+    const allIds = () => apoc() ? apocIds() : [...CHAR_IDS, ...((store.state?.collectibles || []).filter(id => Pool.byId[id]))];   // 收藏卡排在最後
     let IDS = allIds(); let PAGES = Math.ceil(IDS.length / PER_PAGE);
     const isCollect = id => Pool.byId[id]?.kind === 'collect';
     // 橫式一次看跨頁（兩頁），直式一次一頁。sheet 是「目前這一翻」的索引，sheets 是總翻數。
@@ -42,9 +50,12 @@ window.ClickerAlbum = (() => {
     }
     function makeCard(s, id) {
       if (isCollect(id)) { const el = card.create({ ...Pool.byId[id] }, { tag: false }); el.classList.add('flipped', 'album-card', 'collect'); return el; }
-      const el = card.create({ ...Pool.byId[id], rarity: E.rarity(s, id) }, { tag: false });
-      el.classList.add('flipped', 'album-card'); el.classList.toggle('locked', !s.collection[id]); el.classList.toggle('awakened', s.transcend?.[id] === 5);
-      if (!s.collection[id]) { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; el.append(q); }
+      const entry = byId(id);
+      const el = card.create({ ...entry, rarity: apoc() ? entry.rarity : E.rarity(s, id) }, { tag: false });
+      el.classList.add('flipped', 'album-card');
+      el.classList.toggle('locked', !have(s, id));
+      el.classList.toggle('awakened', !apoc() && s.transcend?.[id] === 5);
+      if (!have(s, id)) { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; el.append(q); }
       return el;
     }
 
@@ -59,13 +70,26 @@ window.ClickerAlbum = (() => {
     function renderBook(instant = false) {
       const s = store.state; if (!s) return;
       IDS = allIds(); PAGES = Math.ceil(IDS.length / PER_PAGE);
-      refreshTrainAll();
-      $('dust-count').textContent = s.universalDust || 0;
+      // 末世的卡冊只有「卡」這一件事：1.0 的粉塵罐、平均訓練、派遣、推薦組合都收起來
+      for (const id of ['train-all', 'dust-open', 'recommend-open', 'recall-all', 'collect-open']) $(id).hidden = apoc() || $(id).hidden;
+      if (apoc()) {
+        const a = A().normalize(s.apoc), owned = Object.keys(a.collection).filter(k => a.collection[k] > 0).length;
+        $('team-summary').innerHTML = `隊伍 <b>${a.roster.length}/20</b>・收藏 <b>${owned}/${IDS.length}</b>`;
+        $('team-summary').title = '只有隊伍裡的卡有戰力。同一張再抽到就多一星（每星 +25%）。';
+        for (const id of ['train-all', 'dust-open', 'recommend-open', 'recall-all', 'collect-open']) $(id).hidden = true;
+      } else {
+        for (const id of ['train-all', 'dust-open', 'recommend-open']) $(id).hidden = false;
+        refreshTrainAll();
+        $('dust-count').textContent = s.universalDust || 0;
+      }
       // v3 編隊摘要：隊伍 n/20 與前綴上限（出身算層）；派遣到期就出「收回」鍵
-      const team = E.rosterOf(s), counts = E.rosterCounts(team), lim = B.V3.ROSTER_LIMITS, due = (s.dispatch || []).filter(d => d.until <= Date.now()).length;
-      $('team-summary').innerHTML = `隊伍 <b>${team.length}/20</b>${s.roster?.length ? '' : '・自動'}`;
-      $('team-summary').title = `神話 ${counts[0]}/${lim[0]}・＋傳說 ${counts[1]}/${lim[1]}・＋史詩 ${counts[2]}/${lim[2]}（上限用出身算）。只有隊伍裡的夥伴產錢；隊外的可以派遣 4 小時換粉塵`;
-      $('recall-all').hidden = !due; $('recall-all').textContent = `收回派遣（${due}）`;
+      const team = apoc() ? [] : E.rosterOf(s);
+      if (!apoc()) {
+        const counts = E.rosterCounts(team), lim = B.V3.ROSTER_LIMITS, due = (s.dispatch || []).filter(d => d.until <= Date.now()).length;
+        $('team-summary').innerHTML = `隊伍 <b>${team.length}/20</b>${s.roster?.length ? '' : '・自動'}`;
+        $('team-summary').title = `神話 ${counts[0]}/${lim[0]}・＋傳說 ${counts[1]}/${lim[1]}・＋史詩 ${counts[2]}/${lim[2]}（上限用出身算）。只有隊伍裡的夥伴產錢；隊外的可以派遣 4 小時換粉塵`;
+        $('recall-all').hidden = !due; $('recall-all').textContent = `收回派遣（${due}）`;
+      }
       const sh = sheet(), n = sheets();
       $('album-page').textContent = `${sh + 1} / ${n}`;
       $('album-prev').disabled = sh === 0; $('album-next').disabled = sh + 1 >= n;
@@ -77,6 +101,19 @@ window.ClickerAlbum = (() => {
         IDS.slice(face * PER_PAGE, face * PER_PAGE + PER_PAGE).forEach(id => {
           const slot = document.createElement('button'); slot.className = 'album-slot'; slot.dataset.id = id; slot.type = 'button';
           if (isCollect(id)) { slot.setAttribute('aria-label', `${Pool.byId[id].name}・收藏卡`); slot.title = '收藏卡・絕版'; slot.append(makeCard(s, id)); const meta = document.createElement('div'); meta.className = 'album-meta'; const line = document.createElement('small'); line.textContent = '收藏卡・絕版'; meta.append(line); slot.append(meta); slot.onclick = () => openDetail(id); el.append(slot); return; }
+          if (apoc()) {
+            // 末世：一張卡只有「有幾張＝幾星」與「在不在隊上」兩件事，不要把 1.0 的粉塵／派遣搬過來
+            const a = A().normalize(s.apoc), n = have(s, id), entry = byId(id);
+            const hint = n ? `${entry.name}・★${n}・戰力 ${format(A().cardPower(a, id))}` : `${entry.name}・還沒抽到`;
+            slot.setAttribute('aria-label', hint); slot.title = hint;
+            slot.append(makeCard(s, id));
+            const meta = document.createElement('div'); meta.className = 'album-meta';
+            const line = document.createElement('small'); line.textContent = n ? `★${n}・戰力 ${format(A().cardPower(a, id))}` : '？？？'; meta.append(line);
+            const sk = (a.skills || []).indexOf(id);
+            if (sk >= 0) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${sk + 1}`; slot.append(stamp); }
+            else if ((a.roster || []).includes(id)) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp team-stamp'; stamp.textContent = '隊'; slot.append(stamp); }
+            slot.append(meta); slot.onclick = () => openDetail(id); el.append(slot); return;
+          }
           const hint = `${Pool.byId[id].name}・${s.collection[id] ? `粉塵 ${format(E.dust(s, id))} 顆・` : ''}${nextStep(s, id)}`;
           slot.setAttribute('aria-label', hint); slot.title = hint;
           slot.append(makeCard(s, id));
@@ -123,6 +160,7 @@ window.ClickerAlbum = (() => {
     // 所以開完之後要自己把 refreshKey 對齊，讓那一次多餘的重建不要發生。
     function stateKey() {
       const s = store.state;
+      if (apoc()) { const a = A().normalize(s.apoc); return JSON.stringify(['apoc', a.collection, a.roster, a.skills]); }
       return JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && !isCollect(detailId) && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
     }
     function openDetail(id, animate = true) {
@@ -131,11 +169,50 @@ window.ClickerAlbum = (() => {
       const left = document.createElement('div'); left.className = 'detail-left';
       const big = makeCard(s, id); big.classList.add('detail-card'); left.append(big);
       const right = document.createElement('div'); right.className = 'detail-right';
-      const h = document.createElement('h3'); h.textContent = Pool.byId[id].name; right.append(h);
+      const h = document.createElement('h3'); h.textContent = byId(id).name; right.append(h);
       if (isCollect(id)) {   // 收藏卡：只有說明與返回
         const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = '收藏卡'; right.append(tier);
         const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到收藏卡'; back.onclick = () => { closeDetail(true); openCollect(); }; right.append(back);
         root.append(left, right); big.style.transform = 'scale(1.15)'; refreshKey = stateKey(); return;
+      }
+      if (apoc()) {
+        const a = A().normalize(s.apoc), n = have(s, id), entry = byId(id), inTeam = a.roster.includes(id);
+        const tier = document.createElement('div'); tier.className = 'detail-tier';
+        tier.textContent = `${RAR[entry.rarity] || entry.rarity}${n ? `・★${n}` : ''}`; right.append(tier);
+        const info = document.createElement('div'); info.className = 'detail-info';
+        const add = (k, v) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; info.append(dt, dd); };
+        if (n) {
+          add('戰力', `${format(A().cardPower(a, id))}（${n} 張・每多一張 +25%）`);
+          add('編隊', inTeam ? `在隊伍裡（${a.roster.indexOf(id) + 1} / 20）` : '不在隊伍（不算戰力）');
+          const sk = (a.skills || []).indexOf(id); add('獨立技能', sk >= 0 ? `技能格 ${sk + 1}` : '沒有裝');
+        } else add('狀態', '還沒抽到');
+        right.append(info);
+        const acts = document.createElement('div'); acts.className = 'detail-actions';
+        if (n) {
+          const t = document.createElement('button'); t.textContent = inTeam ? '移出隊伍' : '編入隊伍';
+          t.onclick = () => action(() => {
+            const next = E.clone(store.state), aa = A().normalize(next.apoc);
+            const roster = inTeam ? aa.roster.filter(x => x !== id) : [...aa.roster, id];
+            next.apoc = A().setTeam(aa, roster, aa.skills);
+            if (commit(next)) { sound('upgrade'); changed(); renderBook(); openDetail(id); }
+          });
+          acts.append(t);
+          for (let i = 0; i < 4; i++) {
+            const b = document.createElement('button'); b.textContent = `裝到技能格 ${i + 1}`;
+            b.disabled = (a.skills || [])[i] === id;
+            b.onclick = () => action(() => {
+              const next = E.clone(store.state), aa = A().normalize(next.apoc);
+              const roster = aa.roster.includes(id) ? aa.roster : [...aa.roster, id];
+              const skills = [...(aa.skills || [null, null, null, null])]; skills[i] = id;
+              next.apoc = A().setTeam(aa, roster, skills);
+              if (commit(next)) { sound('upgrade'); changed(); renderBook(); openDetail(id); }
+            });
+            acts.append(b);
+          }
+        }
+        const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail();
+        acts.append(back); right.append(acts);
+        root.append(left, right); refreshKey = stateKey(); return;
       }
       const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = tierName(s, id); right.append(tier);
       right.append(starRow(s, id));
