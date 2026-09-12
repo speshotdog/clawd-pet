@@ -62,7 +62,7 @@ def main():
                                desc:B.characters[id] && B.characters[id].desc(B.characters[id])})),
             inPool:ids.filter(id=>P.GAME_POLICY.candidates.includes(id)).length};
         }""", NEW)
-        check(info['total'] == 52 and info['catalog'] == 57, f"角色 {info['total']} 隻、CATALOG {info['catalog']} 項")
+        check(info['total'] == 52 and info['catalog'] == 58, f"角色 {info['total']} 隻、CATALOG {info['catalog']} 項")   # v3：+ 收藏卡 mohuashaonv（不進池）
         check(info['inPool'] == len(NEW), f"新卡都抽得到（在 GAME_POLICY.candidates 裡的有 {info['inPool']}／{len(NEW)} 張）")
         for row in info['rows']:
             check(bool(row['name'] and row['skill'] and row['src']),

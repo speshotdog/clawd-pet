@@ -439,7 +439,7 @@ window.Clicker = (() => {
     $('zoomer').style.left = `${(innerWidth - 960 * z) / 2}px`;
     $('zoomer').style.top = `${(innerHeight - 640 * z) / 2}px`;
   }
-  let album = null, prestigeUI = null, extras = null;
+  let album = null, prestigeUI = null, extras = null, dragUI = null;
   // v3 大掃除結算頁：v2→v3 遷移過（legacy 存在）而且還沒看過就整頁顯示一次；玩家自己按「收下」才關。
   // 匯入存檔到另一台機器第一次載入也會看到（legacy.seen 存在存檔裡）。
   function cleanupPage() {
@@ -543,6 +543,7 @@ window.Clicker = (() => {
       joined(entries) { stage.join(store.state, entries); },
     });
     extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin });
+    dragUI = window.ClickerDrag.create({ $, store, commit, changed, notice, sound, card, E, Pool });   // v3：夥伴列拖到技能槽
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     ready = true; gacha.setReady(); stage.setPartners(store.state);
@@ -691,5 +692,5 @@ window.Clicker = (() => {
   main().catch((err) => { $('fatal').hidden = false; $('fatal').textContent = `珍母點點初始化失敗：${err.message}`; });
   // repaired：這次載入有沒有自動修復過（{applied:[重置了哪些], reason:原本的錯誤}）。
   // 浮動訊息 1.4 秒就消失，驗收與客服要問「到底修了什麼」得看這裡。
-  return { get state() { return store.state; }, get extras() { return extras; }, get repaired() { return store.repaired; } };
+  return { get state() { return store.state; }, get extras() { return extras; }, get repaired() { return store.repaired; }, get drag() { return dragUI?.state; } };
 })();

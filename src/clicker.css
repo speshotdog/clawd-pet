@@ -802,6 +802,16 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .team-row .grow-btn.team { background:#dff3e4; } .team-row .grow-btn.dispatch { background:#e9e4f7; }
 #team-summary b { font-size:13px; }
 #recall-all { background:#e9e4f7; }
+/* v3 拖曳：夥伴列 → 技能槽（照 team20.css） */
+#drag-layer { position:fixed; inset:0; z-index:200; pointer-events:none; }
+.drag-ghost { position:absolute; left:0; top:0; will-change:translate; filter:drop-shadow(0 6px 8px rgba(0,0,0,.35)); }
+.drag-ghost > * { width:100%; height:100%; }
+body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
+.buddy.drag-source { opacity:.45; }
+#slots .skill-slot.drop-ok { outline:2px dashed #96714f; outline-offset:2px; border-radius:12px; }
+#slots .skill-slot.drop-target { outline:3px solid #f2b233; box-shadow:0 0 12px #ffd76a; background:rgba(255,246,220,.9); }
+#buddies img { -webkit-user-drag:none; }
+.buddy .affinity-flag.champ { left:0!important; right:auto!important; width:auto!important; height:auto!important; padding:1px 4px!important; font-size:9px; line-height:12px; background:#ffd76a!important; color:#5a4310; border:1px solid #8a6a1a!important; border-radius:3px; }
 /* v3 換桌布面板：本輪帳、神器格 */
 .run-ledger { list-style:none; margin:6px 0 10px; padding:0; display:grid; grid-template-columns:repeat(3,1fr); gap:4px 12px; font-size:13px; }
 .run-ledger li { display:flex; justify-content:space-between; gap:6px; color:#8a7560; border-bottom:1px dashed #d9c3a3; }

@@ -201,9 +201,10 @@ window.ClickerStage = (() => {
     }
     function setPartners(s) {
       teamState = s; if (frozen) return;
-      const ids = Object.keys(window.ClickerBalance.characters).filter(id => s.collection[id]);
+      // v3：主畫面夥伴列只列隊伍（只有隊伍裡的產錢；隊外的在卡冊）
+      const ids = E.rosterOf(s);
       page = Math.min(page, Math.max(0, Math.ceil(ids.length / 10) - 1));
-      const key = JSON.stringify([s.settings.scene,s.collection, s.skillSlots, s.effects.find(e => e.source === 'zhenmu')?.target, page]);
+      const key = JSON.stringify([s.settings.scene, ids, s.skillSlots, s.champions, s.effects.find(e => e.source === 'zhenmu')?.target, page]);
       if (key === teamKey) return; teamKey = key;
       $('buddies').replaceChildren();
       $('buddy-page').textContent = `${page + 1}/${Math.max(1, Math.ceil(ids.length / 10))}`;
@@ -216,6 +217,7 @@ window.ClickerStage = (() => {
         const name = document.createElement('b'); name.textContent = entry.name;
         const stars = document.createElement('span'); const t = s.transcend?.[id] || 0; stars.textContent = `★${E.stars(E.dust(s,id))}${t ? `◆${t}` : ''}`; if (t) stars.className = 'buddy-transcend';
         el.append(portrait, name, stars);
+        if (E.champion(s, id)) { const flag = document.createElement('small'); flag.className = 'affinity-flag champ'; flag.title = '本輪當家：收益 ×1.5、冷卻 −20%（換桌布重抽）'; flag.textContent = '本輪'; el.append(flag); }
         if (window.ClickerScene.resolve(s.settings.scene).affinity.includes(id)) {const flag=document.createElement('small');flag.className='affinity-flag';flag.title=`${window.ClickerScene.resolve(s.settings.scene).name}當家：收益 ×1.5、冷卻 −20%`;flag.setAttribute('aria-label',flag.title);el.append(flag);}
         const slot = s.skillSlots.indexOf(id); if (slot >= 0) { const stamp = document.createElement('small'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${slot + 1}`; el.append(stamp); }
         if (s.effects.some(e => e.source === 'zhenmu' && e.target === id)) { const tag = document.createElement('small'); tag.className = 'parasite-stamp'; tag.textContent = '寄生'; el.append(tag); }
@@ -726,16 +728,17 @@ window.ClickerStage = (() => {
     function join(s, entries) {
       if (frozen) { later(()=>join(latestState, entries),32); return; }
       if (!entries.length || !running) return;
-      const ids = Object.keys(window.ClickerBalance.characters).filter(id => s.collection[id]);
+      // v3：夥伴列只列隊伍；沒進隊的新夥伴（隊滿或撞上限）飛向「名冊」鍵
+      const ids = E.rosterOf(s);
       const unique = [...new Map(entries.map(e => [e.id,e])).values()], groups = new Map();
-      unique.forEach(e => { const p = Math.floor(ids.indexOf(e.id)/10); if (!groups.has(p)) groups.set(p,[]); groups.get(p).push(e); });
+      unique.forEach(e => { const p = ids.includes(e.id) ? Math.floor(ids.indexOf(e.id)/10) : -1; if (!groups.has(p)) groups.set(p,[]); groups.get(p).push(e); });
       joining = true;
       const batches = [...groups];
       function group(index) {
         if (index >= batches.length) { joining = false; teamKey = ''; setPartners(s); return; }
-        const [p, items] = batches[index]; page = p; teamKey = ''; setPartners(s);
+        const [p, items] = batches[index]; if (p >= 0) { page = p; teamKey = ''; setPartners(s); }
         items.forEach((e,i) => later(()=>{
-          const target = document.querySelector(`.buddy[data-id="${e.id}"] .buddy-portrait`);
+          const target = p >= 0 ? document.querySelector(`.buddy[data-id="${e.id}"] .buddy-portrait`) : $('roster-open');
           if (!target) return;   // 這一批的分頁上找不到這個角色就跳過，不要整段演出被例外打斷
           // 直式的夥伴列是一條左右滑的，目標常常滑在畫面外——頭貼就會飛去畫面外面降落。
           // 先把它捲進來再量位置。橫式的夥伴列是固定的十宮格，這行是 no-op。
