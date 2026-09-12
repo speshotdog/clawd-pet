@@ -366,7 +366,7 @@ window.Clicker = (() => {
   }
   function startTimers() {
     if (hiddenNow() || suspended || tickTimer || !ready) return;
-    tickTimer = setInterval(() => { settle(); autoTick(); changed(); }, 1000);
+    tickTimer = setInterval(() => { settle(); autoTick(); apocUI?.tick(); changed(); }, 1000);
     saveTimer = setInterval(() => { if (!store.blocked) commit(); }, 5000);
     if (!gacha.active) stage.start();
   }

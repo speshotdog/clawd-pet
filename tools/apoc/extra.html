@@ -20,10 +20,20 @@ body{padding-top:56px;padding-bottom:56px}
 .team-collect .collect-card{width:120px;aspect-ratio:5/7;border:2px solid var(--edge);border-radius:8px;background:#101115 center/cover;cursor:pointer;position:relative;padding:0}
 .team-collect .collect-card b{position:absolute;left:0;right:0;bottom:0;padding:4px;background:rgba(0,0,0,.55);color:#ffd6ea;font-size:12px}
 .team-collect .collect-empty{padding:12px;color:var(--label);font-size:13px}
+#advance,#fail,.footer-note{display:none!important}
+.apoc-top .apoc-buy{padding:4px 10px;font-size:12px}
+#apoc-battle{margin:10px 0 6px;display:grid;gap:8px}
+#apoc-battle .hpbar{height:14px;border:1px solid var(--edge);background:#101115;border-radius:4px;overflow:hidden}#apoc-battle .hpbar i{display:block;height:100%;width:100%;background:#c9524a;transition:width .15s}
+#apoc-battle .hptext{font:12px monospace;color:var(--label);display:flex;justify-content:space-between}
+#apoc-battle button{padding:10px 14px;font-size:16px;font-weight:700;border-radius:8px;border:1px solid var(--edge);background:#373d35;color:var(--ink);cursor:pointer}
+#apoc-battle #apoc-tap{background:var(--focus);color:#1b1e1a;font-size:20px;padding:16px;user-select:none;touch-action:manipulation}
+#apoc-battle #apoc-tap:active{transform:scale(.97)}
+#apoc-battle button:disabled{opacity:.45;cursor:not-allowed}
+#apoc-battle .power{font-size:12px;color:var(--label)}
 #collect-view{position:fixed;inset:56px 0;z-index:15;background:#101115}#collect-view iframe{width:100%;height:100%;border:0}#collect-view button{position:absolute;right:12px;top:12px;z-index:2}
 </style>
 <!-- APOC_TOP -->
-<div class="apoc-top"><h1>末世</h1><span class="apoc-tickets">末世券 <b id="apoc-tickets">0</b></span><span class="apoc-coins"><i>末世金幣</i><b id="apoc-coins">0</b></span><button id="apoc-back">返回 1.0</button></div>
+<div class="apoc-top"><h1>末世</h1><span class="apoc-tickets">末世券 <b id="apoc-tickets">0</b></span><span class="apoc-coins"><i>末世金幣</i><b id="apoc-coins">0</b></span><button id="apoc-buy" class="apoc-buy" title="用末世金幣換券">換券 1000</button><button id="apoc-back">返回 1.0</button></div>
 <div class="apoc-nav" role="navigation" aria-label="末世分頁"><button data-go="map" aria-current="true">地圖</button><button data-go="team">編隊</button><button data-go="gacha">精裝招募</button><button data-go="collect">卡冊・收藏卡</button></div>
 <section id="gacha-screen" hidden><iframe title="精裝招募" loading="lazy"></iframe></section>
 <div id="collect-view" hidden><button id="collect-close">返回</button><iframe title="收藏卡" loading="lazy"></iframe></div>
@@ -34,9 +44,28 @@ body{padding-top:56px;padding-bottom:56px}
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
 const COLLECT={mohuashaonv:{name:'魔花少女',thumb:'../card-mohuashaonv.png',page:'mohuashaonv.html'}};
-let state={coins:0,tickets:0,collectibles:[]};
+let state={coins:0,tickets:0,collectibles:[],progress:0,stage:null,power:0,canFight:false,need:0,ticketCost:1000,roster:null,skills:null,owned:null,cooldownUntil:0};
+let teamKey='';
 function fmt(n){return n>=1e8?(n/1e8).toFixed(2)+'億':n>=1e4?(n/1e4).toFixed(n>=1e6?0:1)+'萬':Math.floor(n).toLocaleString('zh-TW')}
-function renderTop(){$('#apoc-coins').textContent=fmt(state.coins||0);$('#apoc-tickets').textContent=state.tickets||0}
+function renderTop(){$('#apoc-coins').textContent=fmt(state.coins||0);$('#apoc-tickets').textContent=state.tickets||0;$('#apoc-buy').disabled=(state.coins||0)<(state.ticketCost||1000);$('#apoc-buy').textContent=`換券 ${state.ticketCost||1000}`}
+// ---- 戰鬥 HUD：掛在地圖右側面板（取代原型的「記錄通關／記錄失敗」）
+function battleBox(){let b=$('#apoc-battle');if(b)return b;b=document.createElement('div');b.id='apoc-battle';b.innerHTML='<div class="hpbar"><i></i></div><div class="hptext"><span id="apoc-hp"></span><span id="apoc-timer"></span></div><button id="apoc-fight">開戰</button><button id="apoc-tap" hidden>攻擊！</button><small class="power"></small>';$('#next').after(b);
+ $('#apoc-fight').onclick=()=>parent.postMessage({type:'apoc-fight'},'*');
+ $('#apoc-tap').addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;e.preventDefault();parent.postMessage({type:'apoc-tap'},'*');const i=$('#apoc-tap');i.animate([{transform:'scale(.95)'},{transform:'scale(1)'}],{duration:120})});
+ return b}
+function renderBattle(){const b=battleBox(),st=state.stage,now=Date.now();const m=window.map20;
+ if(m&&!m.busy&&m.progress!==state.progress)m.setProgress(state.progress);
+ if(m){const bossIdx=Math.floor(state.progress/4)*4+3;if(bossIdx<20)m.setCooldown(bossIdx,state.cooldownUntil||0)}
+ const onCurrent=!m||m.selected===state.progress;b.hidden=!onCurrent||state.progress>=20;
+ $('#apoc-fight').hidden=!!st;$('#apoc-tap').hidden=!st;
+ if(st){const pct=Math.max(0,st.hp/st.need*100);b.querySelector('.hpbar i').style.width=pct+'%';$('#apoc-hp').textContent=`血量 ${fmt(Math.max(0,st.hp))} / ${fmt(st.need)}`;$('#apoc-timer').textContent=st.deadline?`剩 ${Math.max(0,Math.ceil((st.deadline-now)/1000))} 秒`:''}
+ else{b.querySelector('.hpbar i').style.width='100%';$('#apoc-hp').textContent=state.need?`血量 ${fmt(state.need)}`:'';const cd=Math.max(0,Math.ceil(((state.cooldownUntil||0)-now)/1000));$('#apoc-timer').textContent=cd&&!state.canFight?`冷卻 ${cd} 秒`:'';$('#apoc-fight').disabled=!state.canFight||!(state.power>0);$('#apoc-fight').textContent=state.power>0?(state.progress%4===3?'挑戰王關（60 秒）':'開戰'):'先去編隊'}
+ if(onCurrent){const st0=$('#status');if(st0&&st0.textContent.includes('記錄'))st0.textContent='目前位置';const nx=$('#next');if(nx)nx.textContent=st?(st.deadline?'王關：60 秒內打倒，失敗冷卻 3 分鐘':'戰鬥中：點「攻擊！」，放著隊伍也會打'):(state.canFight?'按「開戰」開始；打不死就過不去，沒有其他懲罰':'')}
+ b.querySelector('.power').textContent=`隊伍每秒戰力 ${fmt(state.power||0)}・點一下 ${fmt((state.power||0)*.5)}・放置每秒 +${((state.power||0)*.01).toFixed(1)} 金幣`}
+function syncTeam(){const t=window.team20;if(!t||!state.owned)return;const cc=$('#apoc-collection-count');if(cc)cc.textContent=`收藏 ${state.owned.length} / ${t.cards.length} 張`;const key=JSON.stringify([state.owned,state.roster,state.skills]);if(key===teamKey)return;teamKey=key;t.setOwned(state.owned);t.setRoster(state.roster||[]);t.setSkills(state.skills||[])}
+window.onTeamChange=()=>{const t=window.team20;if(!t)return;teamKey='';parent.postMessage({type:'apoc-team',roster:t.roster,skills:t.skills},'*')};
+function syncGacha(){const f=$('#gacha-screen iframe');if(f&&f.contentWindow)try{f.contentWindow.postMessage({type:'apoc-tickets',tickets:state.tickets||0},'*')}catch{}}
+$('#apoc-buy').onclick=()=>parent.postMessage({type:'apoc-buy-ticket',n:1},'*');
 function renderCollect(){const g=$('#collect-grid');g.replaceChildren();const ids=(state.collectibles||[]).filter(id=>COLLECT[id]);
  if(!ids.length){const p=document.createElement('p');p.className='collect-empty';p.textContent='還沒有收藏卡。';g.append(p);return}
  for(const id of ids){const b=document.createElement('button');b.className='collect-card';b.style.backgroundImage=`url("${COLLECT[id].thumb}")`;b.innerHTML=`<b>${COLLECT[id].name}</b>`;b.title=COLLECT[id].name+'・點開看精裝卡';b.onclick=()=>{const v=$('#collect-view');v.querySelector('iframe').src=COLLECT[id].page;v.hidden=false};g.append(b)}}
@@ -47,7 +76,12 @@ function go(tab){for(const b of document.querySelectorAll('.apoc-nav button'))b.
  parent.postMessage({type:'apoc-tab',tab},'*')}
 document.querySelectorAll('.apoc-nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
 $('#apoc-back').onclick=()=>parent.postMessage({type:'apoc-back'},'*');
-addEventListener('message',e=>{const d=e.data||{};if(d.type==='apoc-state'){state={...state,...d.state};renderTop();renderCollect()}else if(d.type==='apoc-go')go(d.tab)});
+addEventListener('message',e=>{const d=e.data||{};if(d.type==='apoc-state'){state={...state,...d.state};renderTop();renderCollect();renderBattle();syncTeam();syncGacha()}
+ else if(d.type==='apoc-go')go(d.tab)
+ else if(d.type==='apoc-win'){window.map20?.advance()}
+ else if(d.type==='apoc-drawn'){parent.postMessage(d,'*')}});
+$('#gacha-screen iframe').addEventListener('load',syncGacha);
+setInterval(()=>{if(document.body.dataset.screen!=='team')renderBattle()},500);
 renderTop();renderCollect();parent.postMessage({type:'apoc-ready'},'*');
 window.apocShell={go,get state(){return state}};
 })();

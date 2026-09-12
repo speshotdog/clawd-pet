@@ -63,7 +63,7 @@ with sync_playwright() as p:
     check(not pg.evaluate("()=>document.getElementById('apoc-coach').hidden") and pg.text_content('#apoc-coach-title') == '歡迎來到末世', '新手引導第 1 步：' + pg.text_content('#apoc-coach-title'))
     check(not pg.evaluate("()=>document.getElementById('apoc-open').hidden") and pg.evaluate("()=>document.getElementById('apoc-open').classList.contains('new')"), '底部「末世地圖」鍵出現、發光')
     F = "document.getElementById('apoc-frame').contentWindow"
-    check(pg.evaluate(f"()=>{F}.document.querySelector('#apoc-coins').textContent") == '0', '末世頂欄顯示末世金幣 0（不是 1.0 的幣）')
+    coins = pg.evaluate(f"()=>{F}.document.querySelector('#apoc-coins').textContent"); check(coins.isdigit() and int(coins) < 100, '末世頂欄顯示末世金幣（放置剛開始累積，不是 1.0 的幣）' + coins)
     pg.screenshot(path=str(OUT / '1-coach.png'))
     titles, screens = [], []
     for i in range(5):

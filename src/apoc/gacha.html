@@ -950,8 +950,8 @@ const LABEL={common:'普通',rare:'精良',epic:'史詩',legendary:'傳說',myth
 const TILT ={common:6,rare:8,epic:10,legendary:12,mythic:14};
 const ZLIFT={common:24,rare:32,epic:40,legendary:48,mythic:56};
 const SURGE={common:'#9fb0c8',rare:'#6fd8ff',epic:'#c39dff',legendary:'#ffd45c',mythic:'#ff7ad0'};
-// 試抽用的假機率，經濟層還沒定案（DESIGN-deluxe-gacha.md 第 9 節），不要當成正式數字
-const RATE=[['mythic',.005],['legendary',.04],['epic',.15],['rare',.40],['common',.405]];
+// 2026-09-12 使用者定案（DESIGN-2026-09-12-content-architecture.md §3.2）：神話 0.25%／傳說 4%／史詩 20%／精良 75.75%，沒有普通、沒有保底
+const RATE=[['mythic',.0025],['legendary',.04],['epic',.20],['rare',.7575]];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
 const byRarity={};
@@ -1842,7 +1842,7 @@ async function pull(n){if(busy||slots.length||(!ticketPolicy.unlimited&&tickets<
     return run===generation;
   })();
   btn.all.hidden=false;hint.textContent='準備卡片…';
-  const result=testing&&window.__ceremonyFixture?window.__ceremonyFixture.slice(0,n):draw(n);createSlots(result,run);
+  const result=testing&&window.__ceremonyFixture?window.__ceremonyFixture.slice(0,n):draw(n);createSlots(result,run);try{window.top.postMessage({type:'apoc-drawn',ids:result.map(c=>c.id)},'*')}catch{}
   ready=prepare(result,run).catch(error=>{if(run===generation){hint.textContent='素材載入失敗，請重新載入再試。';mark('asset-error',null,{message:String(error)});}return false;});
   if(!await ready||!await transition||run!==generation)return;
   entryPhase='waiting';win.dataset.entryPhase=entryPhase;mark('phase-start',null,{phase:'waiting'});
@@ -2086,7 +2086,7 @@ btn.fin.addEventListener('click',async()=>{if(btn.fin.hidden||collecting)return;
  A(fan,[{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(20px) scale(.96)'}],{duration:220});
  if(await wait(220,run)){clearRun();hint.textContent='';}
 });
-btn.p1.addEventListener('click',()=>pull(1));btn.p5.addEventListener('click',()=>pull(5));btn.p10.addEventListener('click',()=>pull(10));
+window.apocGacha={setTickets(n){tickets=Math.max(0,Math.floor(n));$('#ticket').textContent=ticketPolicy.unlimited?'∞':tickets;if(!busy&&!slots.length)for(const [b,k] of [[btn.p1,1],[btn.p5,5],[btn.p10,10]])b.disabled=!ticketPolicy.unlimited&&tickets<k}};addEventListener('message',e=>{const d=e.data||{};if(d.type==='apoc-tickets')window.apocGacha.setTickets(d.tickets)});btn.p1.addEventListener('click',()=>pull(1));btn.p5.addEventListener('click',()=>pull(5));btn.p10.addEventListener('click',()=>pull(10));
 addEventListener('keydown',e=>{if(e.key==='Escape'){if(screen==='ceremony')skipAll();else for(const s of slots)if(s.complete)s.resetPose?.();}
  if(screen==='results'&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();const d=e.key==='ArrowLeft'?-1:1;
  if(mobile())browse(d);else{selectedIndex=Math.max(0,Math.min(slots.length-1,selectedIndex+d));pageIndex=Math.floor(selectedIndex/5);relayout();slots.forEach((s,i)=>s.el.classList.toggle('selected',i===selectedIndex));}}
