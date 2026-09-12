@@ -595,6 +595,20 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 
 /* Round 13: 換桌布、印記商店、電動手指、夥伴訓練、桌面裝飾 */
 #prestige { display:flex; flex-direction:column; }
+/* v3 獎勵視窗、舊時代的相簿 */
+#reward { display:flex; flex-direction:column; z-index:45; }
+.reward-body { flex:1; display:flex; justify-content:center; align-items:center; gap:48px; }
+.reward-item { display:grid; justify-items:center; gap:6px; text-align:center; }
+.reward-card { width:180px; border-radius:12px; border:4px solid #ff7fb8; box-shadow:0 8px 24px rgba(0,0,0,.35); }
+.reward-item small { color:#7a5a3a; }
+#reward-badge { width:120px; height:120px; display:grid; place-items:center; }
+#reward-badge > * { width:110px; height:110px; }
+#memento { display:flex; flex-direction:column; }
+#memento > header span { font-size:12px; }
+.memento-grid { flex:1; min-height:0; overflow-y:auto; display:grid; grid-template-columns:repeat(5,1fr); gap:10px; align-content:start; padding:4px; }
+.memento-cell { display:grid; justify-items:center; gap:4px; font-size:11px; }
+.memento-cell .card { position:relative; left:auto; top:auto; width:150px; height:210px; margin:0 0 -84px; transform:scale(.6); transform-origin:center top; opacity:1; transition:none; pointer-events:none; }
+.memento-cell { min-height:150px; }
 /* v3 末世模式：蓋滿整個 960×640 遊戲框（含頂欄、底欄） */
 #apoc { position:absolute; inset:0; z-index:35; background:#242723; }
 #apoc iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#242723; }

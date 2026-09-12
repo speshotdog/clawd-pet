@@ -84,9 +84,14 @@
     <div class="team-body"><div class="team-left"><div id="team-caps" class="team-caps"></div><div id="team-grid" class="team-grid"></div><div id="team-slots" class="team-slots"></div></div>
     <div class="team-right"><h3>候選（隊外不產錢，可派遣）</h3><div id="team-candidates" class="team-candidates"></div></div></div>
     <p id="team-why" class="team-why" role="status"></p></section>
+  <!-- v3 從零開始的獎勵視窗與舊時代相簿（進度快照，回味用） -->
+  <section id="reward" class="panel reward" role="dialog" aria-modal="true" aria-label="獲得獎勵" hidden><header><h2>獲得獎勵</h2><span>舊桌布收進相簿了。這兩樣是給從零開始的你。</span></header>
+    <div class="reward-body"><div class="reward-item"><img src="card-mohuashaonv.png" alt="魔花少女" class="reward-card" /><b>魔花少女・精裝收藏卡</b><small>在末世的卡冊・收藏卡</small></div><div class="reward-item"><div id="reward-badge"></div><b>徽章「舊時代的珍母」</b><small>徽章牆</small></div></div>
+    <div class="cleanup-actions"><button id="reward-ok">收下</button></div></section>
+  <section id="memento" class="panel memento" role="dialog" aria-modal="true" aria-label="舊時代的相簿" hidden><header><h2>舊時代的相簿</h2><span id="memento-summary"></span><button id="memento-close">返回</button></header><div id="memento-grid" class="memento-grid"></div></section>
   <section id="prestige" class="panel prestige" role="dialog" aria-modal="true" aria-label="換桌布" hidden><header><h2>換一張新桌布</h2><span id="prestige-summary"></span><button id="prestige-close">返回</button></header><div id="prestige-body"></div></section>
   <section id="stats" class="panel badge-wall" role="dialog" aria-modal="true" aria-label="里程碑徽章牆" hidden>
-    <header><h2><img class="badge" src="clicker-ui-badge-star.png" alt="" />里程碑徽章牆 <b id="badge-count">0 / 17</b></h2><span id="stats-body"></span><button id="stats-close">繼續開工</button></header>
+    <header><h2><img class="badge" src="clicker-ui-badge-star.png" alt="" />里程碑徽章牆 <b id="badge-count">0 / 17</b></h2><span id="stats-body"></span><button id="stats-close">繼續開工</button><button id="memento-open" hidden>舊時代的相簿</button></header>
     <div id="badge-grid"></div>
     <div id="stats-tools"><button id="pick100-open" hidden>第 100 包・12 選 1</button><button id="badge-share">分享卡</button><button id="io-export">匯出存檔</button><button id="io-import">匯入存檔</button></div>
     <div id="save-io" hidden><textarea id="io-text" aria-label="存檔字串" spellcheck="false"></textarea><div class="io-row"><button id="io-copy">複製</button><button id="import-check">檢查</button><button id="import-confirm" hidden>確定覆蓋</button><span id="io-status" role="status"></span></div></div>

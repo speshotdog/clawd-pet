@@ -279,6 +279,7 @@
       const s = store.state; if (!s) return;
       $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${totalPackages(s)} 包｜夥伴 ${Object.keys(s.collection).length} / ${Object.keys(B.characters).length}｜付費抽數 ${s.paidDraws}｜漏掉 ${s.missed || 0} 包｜連續 ${s.daily?.streak || 0} 天`;
       const grid = $('badge-grid'); grid.replaceChildren();
+      const mo = $('memento-open'); if (mo) mo.hidden = !s.legacy?.snapshot;   // v3：從零開始的人才有舊時代的相簿
       for (const b of BADGES) {
         const el = document.createElement('div'); el.className = 'badge-cell'; el.dataset.id = b.id; el.classList.toggle('earned', s.badges.includes(b.id));
         el.title = `${b.name}：${b.desc}`; el.append(badgeNode(b.id)); const name = document.createElement('small'); name.textContent = b.name; el.append(name); grid.append(el);
@@ -461,7 +462,7 @@
     }
     // 隱藏時把分享鍵與徽章彈窗的計時器清掉（閒置狀態不能留任何 timer）
     function suspend() { clearTimeout(offerTimer); offerTimer = 0; clearTimeout(popTimer); popTimer = 0; offer.hidden = true; }
-    instance = { tick, afterClick: renderFrost, afterBurst, decorate, openWall, openShare, openPick, escape, badgeEarned, suspend, get share() { return share; }, compose };
+    instance = { tick, afterClick: renderFrost, afterBurst, decorate, openWall, openShare, openPick, escape, badgeEarned, suspend, badgeNode, get share() { return share; }, compose };
     decorate(); renderDaily(true); renderFrost();
     return instance;
   }

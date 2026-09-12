@@ -443,6 +443,27 @@ window.Clicker = (() => {
   let album = null, prestigeUI = null, extras = null, dragUI = null, teamUI = null, apocUI = null, apocOpened = false;
   // v3 大掃除結算頁：v2→v3 遷移過（legacy 存在）而且還沒看過就整頁顯示一次；玩家自己按「收下」才關。
   // 匯入存檔到另一台機器第一次載入也會看到（legacy.seen 存在存檔裡）。
+  // 從零開始之後的獎勵視窗：卡與徽章；收下才關
+  function rewardPage() {
+    $('reward-badge').replaceChildren(extras?.badgeNode ? extras.badgeNode('oldtimes') : document.createTextNode('舊'));
+    $('reward').hidden = false; $('game-content').inert = true; $('reward-ok').focus();
+    $('reward-ok').onclick = () => { $('reward').hidden = true; $('game-content').inert = false; changed(); notice('從零開始。魔花少女在末世的卡冊，徽章在徽章牆'); };
+  }
+  // 舊時代的相簿：legacy.snapshot 的卡片（星、超越、階級）與數字
+  function mementoPage() {
+    const snap = store.state.legacy?.snapshot; if (!snap) return;
+    const ids = Object.keys(snap.collection || {}).filter(id => Pool.byId[id] && snap.collection[id] > 0).sort((a, b) => E.origin(b) - E.origin(a));
+    $('memento-summary').textContent = `生涯 ${format(snap.lifetimeCoins || 0)} 幣・已拆 ${format(snap.packages || 0)} 包・輪迴 ${snap.prestiges || 0} 次・夥伴 ${ids.length} 隻・徽章 ${(snap.badges || []).length} 枚（${new Date(snap.takenAt).toLocaleDateString('zh-TW')} 封存）`;
+    const grid = $('memento-grid'); grid.replaceChildren();
+    const fake = { ...store.state, collection: snap.collection, dust: snap.dust, promotions: snap.promotions || {}, transcend: snap.transcend || {} };
+    for (const id of ids) {
+      const cell = document.createElement('div'); cell.className = 'memento-cell';
+      const el = card.create({ ...Pool.byId[id], rarity: E.rarity(fake, id) }, { tag: false }); el.classList.add('flipped', 'album-card'); cell.append(el);
+      const meta = document.createElement('small'); const st = E.stars(E.dust(fake, id)), t = snap.transcend?.[id] || 0, L = snap.partnerLevels?.[id] || 0;
+      meta.textContent = `★${st}${t ? `・超越 ${t}` : ''}${L ? `・Lv.${L}` : ''}`; cell.append(meta); grid.append(cell);
+    }
+    $('memento').hidden = false; $('game-content').inert = true; $('memento-close').focus();
+  }
   function cleanupPage() {
     const s = store.state, L = s.legacy;
     if (!L || L.seen) return;
@@ -468,9 +489,11 @@ window.Clicker = (() => {
       if (resetBtn.dataset.armed !== '1') { resetBtn.dataset.armed = '1'; resetBtn.textContent = '確定放棄全部進度？再按一次'; return; }
       const fresh = window.ClickerSave.fresh(Date.now());
       fresh.settings = { ...fresh.settings, muted: s.settings.muted, music: s.settings.music, musicVolume: s.settings.musicVolume, sfxVolume: s.settings.sfxVolume };
-      fresh.legacy = { ...L, seen: Date.now(), reset: true }; fresh.collectibles = ['mohuashaonv'];
+      // 進度快照：卡片、星、升階、超越、訓練、徽章——放在 legacy.snapshot，徽章牆的「舊時代的相簿」可以回味
+      const snapshot = { takenAt: Date.now(), collection: { ...s.collection }, dust: { ...s.dust }, promotions: { ...s.promotions }, transcend: { ...s.transcend }, partnerLevels: { ...s.partnerLevels }, badges: [...s.badges], lifetimeCoins: s.lifetimeCoins, prestiges: L.prestiges, packages: window.ClickerExtras.totalPackages ? window.ClickerExtras.totalPackages(s) : 0 };
+      fresh.legacy = { ...L, seen: Date.now(), reset: true, snapshot }; fresh.collectibles = ['mohuashaonv'];
       const checked = window.ClickerExtras.checkBadges ? window.ClickerExtras.checkBadges(fresh).state : fresh;
-      if (commit(checked)) { $('cleanup').hidden = true; $('game-content').inert = false; reload(); notice('從零開始。魔花少女與徽章已入袋'); }
+      if (commit(checked)) { $('cleanup').hidden = true; reload(); rewardPage(); }
     };
   }
   // 第十二輪：匯入存檔後整個畫面照新狀態重來（場景、夥伴列、舞台、待收下的招募）
@@ -649,6 +672,8 @@ window.Clicker = (() => {
     for (const id of ['roster', 'stats', 'receipt', 'wardrobe', 'prestige']) $(`${id}-close`).onclick = () => { if (id === 'roster') album.close(); $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('prestige-open').onclick = () => { if (!cutin.active) prestigeUI.open(); };
     $('team-open').onclick = () => { if (!cutin.active) teamUI.open(); };
+    $('memento-close').onclick = () => { $('memento').hidden = true; $('game-content').inert = false; };
+    $('memento-open').onclick = () => { $('stats').hidden = true; mementoPage(); };
     $('wardrobe-open').onclick = () => { if (!cutin.active) album.openWardrobe(); };
     $('stats-open').onclick = () => { if (!cutin.active) extras.openWall(); };   // 第十二輪：統計面板改成徽章牆
   }
@@ -669,6 +694,8 @@ window.Clicker = (() => {
     if (album?.escape()) return true;
     if (!$('prestige').hidden) { $('prestige-close').click(); return true; }
     if (!$('team-editor').hidden) { $('team-close').click(); return true; }
+    if (!$('memento').hidden) { $('memento-close').click(); return true; }
+    if (!$('reward').hidden) { $('reward-ok').click(); return true; }
     if (!$('apoc').hidden) { apocUI.close(); return true; }
     if (extras?.escape()) return true;
     for (const id of ['scenes', 'roster', 'stats', 'receipt']) if (!$(id).hidden) { $(`${id}-close`).click(); return true; }
