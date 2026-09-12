@@ -85,7 +85,7 @@ def main():
     with sync_playwright() as p:
         # ───────── 快轉遇到新卡會停 ─────────
         b, pg, errors = open_page(p, 390, 844, True, owned=6)
-        pg.locator('#draw-five').click()
+        pg.wait_for_function('!document.getElementById("draw-five").disabled', timeout=15000); pg.locator('#draw-five').click()   # v3：強存檔幾秒就過一隻小王，勝利演出那一下鍵會暫時鎖住
         pg.wait_for_timeout(900)
         entries = pg.evaluate("()=>Clicker.state.pending.draw.entries.map(e=>({name:e.entry.name,dup:e.dup}))")
         fresh = [e['name'] for e in entries if not e['dup']]
@@ -122,7 +122,7 @@ def main():
 
         # ───────── 全是重複卡時，快轉要真的快 ─────────
         b, pg, errors = open_page(p, 390, 844, True, owned=None)
-        pg.locator('#draw-five').click()
+        pg.wait_for_function('!document.getElementById("draw-five").disabled', timeout=15000); pg.locator('#draw-five').click()   # v3：強存檔幾秒就過一隻小王，勝利演出那一下鍵會暫時鎖住
         pg.wait_for_timeout(900)
         alldup = pg.evaluate("()=>Clicker.state.pending.draw.entries.every(e=>e.dup)")
         check(alldup, '整本圖鑑都有的存檔抽出來全是重複卡')
@@ -136,7 +136,7 @@ def main():
         pg.wait_for_timeout(2600)
         b.close()
         b, pg, errors = open_page(p, 390, 844, True, owned=6)
-        pg.locator('#draw-five').click()
+        pg.wait_for_function('!document.getElementById("draw-five").disabled', timeout=15000); pg.locator('#draw-five').click()   # v3：強存檔幾秒就過一隻小王，勝利演出那一下鍵會暫時鎖住
         pg.wait_for_timeout(900)
         pg.locator('#skip').click()
         pg.wait_for_timeout(240)

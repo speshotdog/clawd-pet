@@ -23,7 +23,7 @@ window.ClickerGacha = (() => {
         if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price'; price.textContent = s.freeDraws ? `免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}` : format(cost); el.append(price); }
       if (s.freeDraws && el.id.startsWith('recruit-')) el.textContent=`${count===1?'單抽':'五連'} · 免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}`;
       if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)}`; el.append(note); }
-      el.disabled = !ready || !canOpen() || store.blocked || !!s.boss || !!s.pending || !supported || missing > 0 || busy;
+      el.disabled = !ready || !canOpen() || store.blocked || (!!s.boss && s.boss.gate === undefined) || !!s.pending || !supported || missing > 0 || busy;   // v3：路障小王不鎖招募
     }
     function render() {
       const s = store.state; if (!s) return;
@@ -134,7 +134,7 @@ window.ClickerGacha = (() => {
     }
     async function start(count) {
       const s = store.state;
-      if (!ready || !canOpen() || busy || store.blocked || s.boss || s.pending || !window.GachaModes[s.settings.mode].counts.includes(count)) return;
+      if (!ready || !canOpen() || busy || store.blocked || (s.boss && s.boss.gate === undefined) || s.pending || !window.GachaModes[s.settings.mode].counts.includes(count)) return;   // v3：路障小王不鎖招募
       busy = true;
       try {
         const next = E.purchaseDraw(s, count, Date.now(), window.GachaPool);

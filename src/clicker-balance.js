@@ -158,6 +158,8 @@
     CHEST_RATE: .03, CHEST_MUL: 8, CHEST_MILESTONE: 150, MARKS_PER_RUN: 12,
     // C 路（2026-09-12 使用者拍）：王是「賺大錢的時刻」——打贏小王給 requirement×GATE_REWARD、大王給門檻包需求×BOSS_REWARD 的幣（一次性、只進錢包）
     GATE_REWARD: 8, BOSS_REWARD: 40,
+    // 30 秒火力 ≥ 血量 × GATE_SKIP 的小王直接讓路（給獎金、不演出）：剛換桌布或壓倒性強的玩家不用每 10 包看一次動畫，牆只在真的是牆時出現
+    GATE_SKIP: 10,
     // 成長側實驗旋鈕（模擬器 A/B 用；1／1／1.15 就是 v2 原值）：夥伴訓練每級再乘 PARTNER_G^L、全隊訓練價 ×TRAIN_COST_MUL、夥伴訓練價 ×PARTNER_COST_MUL
     // 2026-09-13 兩週日曆掃描定案（REPORT §二之三）：PARTNER_G 1.02、每站 K 遞減；一個小數點就是一天與一週的差別，改之前先跑 tools/sim/clicker-v3.js
     PARTNER_G: 1.02, TRAIN_COST_MUL: 2.5, PARTNER_COST_MUL: 1.15, PARTNER_CAP: 200,

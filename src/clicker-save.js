@@ -224,7 +224,7 @@
     if (!Array.isArray(s.roster)) s.roster = [];
     s.roster = [...new Set(s.roster.filter(id => known(id) && s.collection[id] > 0 && !E.dispatched(s, id)))];
     while (E.rosterViolations(s.roster).length) s.roster.pop();
-    if (!s.roster.length && Object.keys(s.collection).length) s.roster = E.autoRoster(s);
+    if (!s.roster.length && Object.keys(s.collection).length) s.roster = E.autoRoster(s, s.skillSlots.filter(Boolean));   // 自動編隊時技能槽裡的先保住
     s.skillSlots = s.skillSlots.map(id => id && !s.roster.includes(id) ? null : id);
     for (const id of Object.keys(B.characters).filter(id => !B.originalIds.includes(id))) {
       s.dust[id] ??= s.collection[id] || 0; s.promotions[id] ??= 0; s.transcend[id] ??= 0; s.partnerLevels[id] ??= 0;

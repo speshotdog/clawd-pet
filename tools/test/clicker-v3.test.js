@@ -55,7 +55,7 @@ test('v3 編隊：前綴上限用出身；只有隊伍裡的產錢；空隊伍�
   assert.throws(() => E.setRoster(s, [...mythics.slice(0, 2), ...legendaries.slice(0, 5)], 0), /階級上限/);   // 2 + 5 = 7 > 6
   let t = E.setRoster(s, ['yueyue2', 'zhenmu'], 0); near(E.rates(t).P, E.rates({ ...s, roster: ['yueyue2', 'zhenmu'] }).P);
   assert.ok(E.rates(t).P < E.rates(s).P, '兩張的隊伍比自動編的二十張弱');
-  assert.throws(() => E.equip(t, 0, 'yang', 0), /先編入隊伍/); t = E.equip(t, 0, 'zhenmu', 0);
+  t = E.equip(t, 0, 'yang', 0); assert.ok(t.roster.includes('yang'), '裝技能自動編入隊伍'); t = E.setRoster(t, ['yueyue2', 'zhenmu'], 0); t = E.equip(t, 0, 'zhenmu', 0);
   t = E.setRoster(t, ['yueyue2'], 0); assert.deepEqual(t.skillSlots, [null, null, null], '離隊一併離開技能槽');
   // 升階不改所屬層：精良升到傳說階仍佔精良格
   const u = S.fresh(0); for (const id of legendaries.slice(0, 6)) { u.collection[id] = 1; u.dust[id] = 1; }

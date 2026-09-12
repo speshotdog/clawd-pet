@@ -171,7 +171,7 @@ window.Clicker = (() => {
     if (show) { const pct=Math.min(999,Math.round(preview.ratio*100)); est.querySelector('span').textContent=cooling ? `冷卻 ${Math.ceil((preview.cooldownUntil-now)/1000)} 秒` : `≈ ${pct}%`; est.querySelector('i').style.width=`${Math.min(100,pct)}%`; est.classList.toggle('ok',pct>=100); est.classList.toggle('near',pct>=90 && pct<100); }
     const gateBlock=$('gate-block'); gateBlock.hidden=!(preview?.kind==='gate' && !s.boss);
     if (!gateBlock.hidden) $('gate-label').innerHTML=`第 ${preview.index} 包路障${preview.lost ? '<br><small>守住了，準備好再點「挑戰」</small>' : ''}`;
-    $('scene-open').disabled=!!s.boss || !!stage?.bossBusy; $('recruit-open').disabled=!!s.boss;
+    $('scene-open').disabled=!!s.boss || !!stage?.bossBusy; $('recruit-open').disabled=!!s.boss && s.boss.gate===undefined;   // v3：小王不鎖招募
     balance(s.coins); rate($('click-rate'), `每次 ${format(D)}`, String(D)); rate($('passive-rate'), `每秒 ${format(P)}`, String(P));
     $('tutorial-progress').textContent = `${Math.min(50, s.manualClicks)} / 50`;
     if (s.claimedMilestones.includes('tutorial50') && !$('tutorial').hidden && !$('tutorial').classList.contains('leaving')) {
@@ -530,7 +530,7 @@ window.Clicker = (() => {
     album = window.ClickerAlbum.create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations });
     prestigeUI = window.ClickerPrestigeUI.create({ store, card, commit, changed, action, format, notice, sound, stage, album });
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
-      canOpen: () => !stage.bossBusy,
+      canOpen: () => !stage.bossBusy || store.state.boss?.gate !== undefined,   // v3：小王打到一半也能招募
       pauseStage() { cutin.stop(); stage.stop(); renderSlots(); },
       resumeStage() { if (!hiddenNow() && !suspended) { stage.start(); stage.render(store.state, { instant: true }); } renderSlots(); },
       joined(entries) { stage.join(store.state, entries); },

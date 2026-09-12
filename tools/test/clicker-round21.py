@@ -46,13 +46,15 @@ def main():
           const r=E.rates(s), cap=30*r.P+180*r.D;
           const cfg=Sc.fridge.boss;
           const st=E.startBoss(s,s.settledAt);
-          return {need:st.boss.need, cap, floorMul:cfg.floorMul, mul:cfg.mul,
+          return {need:st.boss.need, cap, floorMul:cfg.floorMul, mul:cfg.mul, k:ClickerBalance.V3.BOSS_K.fridge ?? ClickerBalance.V3.BOSS_MUL,
                   floorRaw:E.requirement(101,'fridge'), regen:Sc.fridge.enemy.regen};
         }""")
         need, cap, floor = boss['need'], boss['cap'], boss['floorRaw'] * boss['floorMul']
         check(boss['floorMul'] == .3, f"冰箱王下限係數 floorMul=0.3（實際 {boss['floorMul']}）")
-        check(abs(need - max(floor, boss['mul'] * cap)) / need < 1e-9,
-              f"血量＝max(下限 {floor:.3e}, mul×容量 {boss['mul']*cap:.3e}) = {need:.3e}")
+        # v3：王血量改成關卡函數 K×門檻包需求×站係數（不再讀 P／D）
+        k = boss['k']
+        check(abs(need - k * boss['floorRaw'] * boss['mul']) / need < 1e-9,
+              f"血量＝K {k}×門檻包需求 {boss['floorRaw']:.3e}×係數 {boss['mul']} = {need:.3e}（不再跟玩家火力掛鉤）")
         check(floor < boss['floorRaw'] * .5,
               f"下限從 {boss['floorRaw']:.3e} 收成 {floor:.3e}（舊值高於任何玩家到得了的 30 秒容量＝永遠打不贏）")
 

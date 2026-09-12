@@ -586,11 +586,12 @@ window.ClickerStage = (() => {
             // v3：路障打通與大王都給一次性獎金（C 路），橫幅直接寫金額——「錢就是為了這一刻」
             banner.textContent=r.gate!==undefined ? `路障打通！＋${format(r.bonus||0)}` : nextScene ? `${nextScene.name} 解鎖！＋${format(r.bonus||0)}` : '全站破關！珍母的零食櫃清空了';banner.classList.toggle('final-win',!nextScene && r.gate===undefined);banner.hidden=false;
             motion(banner,[{transform:'scale(.8)'},{transform:'scale(1)'}],200);
+            // v3：小王每 10 包一隻，勝利橫幅縮短（停 700ms），免得強一點的玩家每幾秒被鎖一次招募
             later(()=>motion(banner,[{transform:'translateX(0)',opacity:1},{transform:'translateX(-600px)',opacity:0}],220,()=>{
               banner.hidden=true;
               window.ClickerScene.mount(latestState.settings.scene);$('bag').style.visibility='';$('triple').style.visibility='';bossBusy=false;lastPackage=latestState.package.index;render(latestState,{instant:true});
-            }),1800);
-          },800);
+            }),r.gate!==undefined ? 700 : 1800);
+          },r.gate!==undefined ? 300 : 800);
         } else {
           cracks(r.crack);
           motion($('boss-view'),Array.from({length:7},(_,i)=>({transform:`rotate(${i===6?0:i%2?4:-4}deg)`})),480,()=>{

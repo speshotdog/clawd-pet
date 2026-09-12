@@ -71,7 +71,7 @@ CARDS = """() => {
 
 
 def draw_five(pg):
-    pg.locator('#draw-five').click()
+    pg.wait_for_function('!document.getElementById("draw-five").disabled', timeout=15000); pg.locator('#draw-five').click()   # v3：強存檔幾秒就過一隻小王，勝利演出那一下鍵會暫時鎖住
     pg.wait_for_timeout(1200)
     pg.locator('#reveal-all').click(timeout=15000)
     pg.wait_for_timeout(2600)

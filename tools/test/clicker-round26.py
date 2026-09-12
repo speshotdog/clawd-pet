@@ -21,7 +21,7 @@ SEED = """() => {
   s.collection=Object.fromEntries(ids.map(id=>[id,5]));
   s.dust=Object.fromEntries(ids.map(id=>[id,10]));
   s.partnerLevels=Object.fromEntries(ids.map(id=>[id,60]));
-  s.skillSlots=['yueyuexian','wanwumythic','qinghua'];
+  s.skillSlots=['yueyuexian','qinghua','zhenmoss'];   // v3：隊伍神話上限 2，第三張神話技能會被移出槽
   s.clickLevel=60; s.trainingLevel=20; s.coins=1e14; s.lifetimeCoins=5e14;
   s.manualClicks=50; s.claimedMilestones=['tutorial50'];   // 過了教學，#tap 才點得出浮字
   s.universalDust=500;
@@ -146,6 +146,7 @@ def main():
         for src, kind in [('mieshi', 'bossDamage'), ('qinghua', 'team'),
                           ('yueyuexian', 'team'), ('wanwumythic', 'clickAdd')]:
             fx[src] = pg.evaluate("""([src,kind]) => {
+              Clicker.state.skillSlots[0]=src;   // v3：隊伍神話上限 2，四張不能同時在槽，演出要的是「在槽裡」這個條件
               document.querySelectorAll('.mythic-fx').forEach(e=>e.remove());
               testStage.skill({source:src, kind, value:1e9, chain:1});
               return document.querySelectorAll('.mythic-fx').length; }""", [src, kind])

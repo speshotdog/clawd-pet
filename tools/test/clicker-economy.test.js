@@ -19,10 +19,11 @@ for (const id of ['caihua', 'fox', 'lk', 'zhenzhen2', 'yang', 'zhenzhen', 'dog',
     S.validate(JSON.parse(JSON.stringify(a)), Pool);
     if (def.kind === 'burst') {
       const expected = id === 'caihua' ? 20 * pi : 15 * P;
-      close(a.coins - s.coins, expected); close(a.lifetimeCoins - s.lifetimeCoins, expected);
-      // v3：一口氣拆過第 10 包會被小王擋在第 11 包前（拆包力照樣全數進錢包）
-      const plain = E.advancePackage(s.package, expected);
-      assert.deepEqual(a.package, s.package.index + plain.completed > 10 ? { ...E.newPackage('backyard', 11), gate: { index: 10, cooldownUntil: 0 } } : plain.package);
+      // v3：一口氣拆過第 10 包會遇到小王；火力壓倒（30 秒火力 ≥ 血量 10 倍）就直接讓路、獎金入袋，否則擋在第 11 包前
+      const plain = E.advancePackage(s.package, expected), crossed = s.package.index + plain.completed > 10;
+      const skip = crossed && E.capacity30(s) >= E.gateNeed(s, 10) * B.V3.GATE_SKIP, bonus = skip ? E.requirement(10) * B.V3.GATE_REWARD : 0;
+      close(a.coins - s.coins, expected + bonus); close(a.lifetimeCoins - s.lifetimeCoins, expected + bonus);
+      assert.deepEqual(a.package, crossed && !skip ? { ...E.newPackage('backyard', 11), gate: { index: 10, cooldownUntil: 0 } } : plain.package);
       assert.equal(a.manualClicks, s.manualClicks); assert.equal(a.effects.length, 0);
     } else if (['self', 'team'].includes(def.kind)) {
       const extra = def.kind === 'self' ? pi * (def.multiplier - 1) : P * def.ratio;

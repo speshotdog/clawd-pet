@@ -133,7 +133,7 @@ def main():
                   name:b&&b.name, desc:b&&b.desc, label:b&&b.label,
                   beforeWin:b&&b.test(before), afterWin:b&&b.test(after)};
         }""")
-        check(badge['count'] == 18 and badge['has'], f"徽章 {badge['count']} 枚，boss-city 在裡面")
+        check(badge['count'] == 19 and badge['has'], f"徽章 {badge['count']} 枚，boss-city 在裡面")
         check(badge['name'] == '滅世珍獸・滅世都市' and badge['label'] == '王7',
               f"徽章名字與標籤：{badge['name']}／{badge['label']}（{badge['desc']}）")
         check(badge['beforeWin'] is False and badge['afterWin'] is True,

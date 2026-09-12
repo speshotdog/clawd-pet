@@ -77,8 +77,8 @@ def main():
             pg.evaluate("""() => {
               const E=ClickerEconomy;
               const s=E.clone(Clicker.state);
-              s.boss.dealt = s.boss.need * 2;
-              window.__finished = E.settle(s, Date.now()).state;
+              // v3：王血量是關卡函數，這種滿養種子一秒就打穿；已經贏了就直接拿現況
+              if (s.boss) { s.boss.dealt = s.boss.need * 2; window.__finished = E.settle(s, Date.now()).state; } else window.__finished = s;
             }""")
             won = pg.evaluate("""() => {
               const s = window.__finished;

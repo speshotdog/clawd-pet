@@ -118,7 +118,7 @@
   }
   // ---- v3 §三 編隊：前綴上限用出身（原生稀有度）算層，升階不改所屬層（使用者 2026-09-12 定案 (a)）
   // 空隊伍＝自動編隊（沒開過編隊畫面的玩家照樣有收益）；沒有 roster 欄位的舊狀態＝全部
-  const rosterOf = s => !Array.isArray(s.roster) ? Object.keys(B.characters) : s.roster.length ? s.roster.filter(id => s.collection[id] > 0) : autoRoster(s);
+  const rosterOf = s => !Array.isArray(s.roster) ? Object.keys(B.characters) : s.roster.length ? s.roster.filter(id => s.collection[id] > 0) : autoRoster(s, (s.skillSlots || []).filter(Boolean));
   const rosterCounts = ids => B.V3.ROSTER_LIMITS.map((_,i) => ids.filter(id => (3 - origin(id)) <= i).length);   // 神話 origin 3 → 第 0 層
   const rosterViolations = ids => rosterCounts(ids).flatMap((n,i) => n > B.V3.ROSTER_LIMITS[i] ? [i] : []);
   const dispatched = (s,id) => (s.dispatch || []).some(d => d.id === id);
@@ -131,10 +131,10 @@
     return s;
   }
   // 自動編隊：按目前每秒收益由高到低塞，撞上限就跳過（遷移與新手用）
-  function autoRoster(s) {
+  function autoRoster(s, seed = []) {
     const ids = Object.keys(s.collection).filter(id => s.collection[id] > 0 && !dispatched(s,id)).sort((a,b) => individual(s,b) - individual(s,a));
-    const out = [];
-    for (const id of ids) { if (out.length >= 20) break; if (!rosterViolations([...out,id]).length) out.push(id); }
+    const out = []; for (const id of seed) if (s.collection[id] > 0 && !out.includes(id) && !rosterViolations([...out,id]).length && out.length < 20) out.push(id);   // 技能槽裡的先保住
+    for (const id of ids) { if (out.length >= 20) break; if (!out.includes(id) && !rosterViolations([...out,id]).length) out.push(id); }
     return out;
   }
   // ---- v3 §六 派遣：只能派不在隊的卡、4 小時、回來給該角色粉塵 1（傳說／神話半顆）＋萬用 1；每日最多 9 次回收
@@ -291,7 +291,11 @@
       if (source !== 'offline') for (let i = from; i < from + result.completed; i++) if (isChest(s, i)) { const bonus = requirement(i, s.settings.scene) * B.V3.CHEST_MUL; s.coins += bonus; s.lifetimeCoins += bonus; event.chest = (event.chest || 0) + bonus; }
       // v3 §二 小王：每 10 包擋一次（門檻包之後交給大王）；一口氣拆過好幾包時停在第一個路障
       const threshold = bossPackagesFor(s, s.settings.scene);
-      for (let i = from; i < from + result.completed; i++) if (i % B.V3.GATE_EVERY === 0 && (threshold == null || i < threshold)) { s.package = { ...newPackage(s.settings.scene, i + 1), gate: { index: i, cooldownUntil: 0 } }; break; }
+      for (let i = from; i < from + result.completed; i++) if (i % B.V3.GATE_EVERY === 0 && (threshold == null || i < threshold)) {
+        const need = gateNeed(s, i);
+        if (source !== 'offline' && capacity30(s) >= need * B.V3.GATE_SKIP) { const bonus = requirement(i, s.settings.scene) * B.V3.GATE_REWARD; s.coins += bonus; s.lifetimeCoins += bonus; s.runGates = (s.runGates || 0) + 1; event.gateSkipped = (event.gateSkipped || 0) + bonus; continue; }   // 壓倒性火力：小王讓路
+        s.package = { ...newPackage(s.settings.scene, i + 1), gate: { index: i, cooldownUntil: 0 } }; break;
+      }
     }
     stampDeadline(s, s.settledAt, result.completed > 0);
     return result.completed;
@@ -490,7 +494,12 @@
     if (s.pending) throw new Error('請先收下招募');
     if (s.skillSlots[slot] === id) return s;
     if (id && s.skillSlots.includes(id)) throw new Error('角色已在其他槽位');
-    if (id && !rosterOf(s).includes(id)) throw new Error('要先編入隊伍');
+    // v3：裝技能＝自動編入隊伍（有位子就進，撞前綴上限或滿 20 才擋）——玩家不用先去卡冊編隊
+    if (id && !rosterOf(s).includes(id)) {
+      const next = [...rosterOf(s), id];
+      if (next.length > 20 || rosterViolations(next).length || dispatched(s, id)) throw new Error(dispatched(s, id) ? '派遣中，回來再裝' : '隊伍沒有位子，先移出一張');
+      s.roster = next;
+    }
     s.skillSlots[slot] = id; s.slotReadyAt[slot] = s.settledAt + 30000;
     return s;
   }
@@ -535,7 +544,7 @@
   }
   function purchaseDraw(state, count, now, pool, options = {}) {
     const s = settle(state, now).state;
-    if (state.boss || s.pending || ![1, 5].includes(count)) throw new Error('王包中或尚有待收下結果或張數錯誤');
+    if ((state.boss && state.boss.gate === undefined) || s.pending || ![1, 5].includes(count)) throw new Error('王包中或尚有待收下結果或張數錯誤');   // v3：路障小王不鎖招募（計時照走）
     const free = Math.min(s.freeDraws || 0,count), paid=count-free;
     const price = drawCost(s, paid);
     if (!Number.isFinite(price) || s.coins < price) throw new Error('餘額不足');
