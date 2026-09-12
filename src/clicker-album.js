@@ -5,7 +5,7 @@ window.ClickerAlbum = (() => {
     const $ = id => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
     const CHAR_IDS = Pool.CHARACTER_IDS.filter(id => B.characters[id]).sort((a,b) => E.origin(a)-E.origin(b)), PER_PAGE = 4;
     // v3：收藏卡（魔花少女）擁有時排在最後一頁；沒有戰力、不編隊、不升星
-    const allIds = () => [...CHAR_IDS, ...((store.state?.collectibles) || []).filter(id => Pool.byId[id])];
+    const allIds = () => [...CHAR_IDS];   // 收藏卡不在角色頁，走「收藏卡」分頁（collectOpen）
     let IDS = allIds(); let PAGES = Math.ceil(IDS.length / PER_PAGE);
     const isCollect = id => Pool.byId[id]?.kind === 'collect';
     // 橫式一次看跨頁（兩頁），直式一次一頁。sheet 是「目前這一翻」的索引，sheets 是總翻數。
@@ -63,8 +63,8 @@ window.ClickerAlbum = (() => {
       $('dust-count').textContent = s.universalDust || 0;
       // v3 編隊摘要：隊伍 n/20 與前綴上限（出身算層）；派遣到期就出「收回」鍵
       const team = E.rosterOf(s), counts = E.rosterCounts(team), lim = B.V3.ROSTER_LIMITS, due = (s.dispatch || []).filter(d => d.until <= Date.now()).length;
-      $('team-summary').innerHTML = `隊伍 <b>${team.length}/20</b>（神 ${counts[0]}/${lim[0]}・傳 ${counts[1]}/${lim[1]}・史 ${counts[2]}/${lim[2]}）${s.roster?.length ? '' : '・自動編隊'}`;
-      $('team-summary').title = '只有隊伍裡的夥伴產錢；上限用出身算（升階不改層）；隊外的夥伴可以派遣 4 小時換粉塵';
+      $('team-summary').innerHTML = `隊伍 <b>${team.length}/20</b>${s.roster?.length ? '' : '・自動'}`;
+      $('team-summary').title = `神話 ${counts[0]}/${lim[0]}・＋傳說 ${counts[1]}/${lim[1]}・＋史詩 ${counts[2]}/${lim[2]}（上限用出身算）。只有隊伍裡的夥伴產錢；隊外的可以派遣 4 小時換粉塵`;
       $('recall-all').hidden = !due; $('recall-all').textContent = `收回派遣（${due}）`;
       const sh = sheet(), n = sheets();
       $('album-page').textContent = `${sh + 1} / ${n}`;
@@ -133,11 +133,8 @@ window.ClickerAlbum = (() => {
       const right = document.createElement('div'); right.className = 'detail-right';
       const h = document.createElement('h3'); h.textContent = Pool.byId[id].name; right.append(h);
       if (isCollect(id)) {   // 收藏卡：只有說明與返回
-        const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = '特別・收藏卡'; right.append(tier);
-        const info = document.createElement('div'); info.className = 'detail-info';
-        for (const [k, v] of [['來歷', '大掃除之前就換過桌布的老玩家才有；絕版，之後沒有任何取得方式'], ['戰力', '沒有。不編隊、不升星、不派遣，純收藏'], ['原型', '禮物卡「魔花少女」，精裝版的全息卡面在末世'] ]) { const r = document.createElement('p'); const b = document.createElement('b'); b.textContent = k; const span = document.createElement('span'); span.textContent = v; r.append(b, span); info.append(r); }
-        right.append(info);
-        const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); right.append(back);
+        const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = '收藏卡'; right.append(tier);
+        const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到收藏卡'; back.onclick = () => { closeDetail(true); openCollect(); }; right.append(back);
         root.append(left, right); big.style.transform = 'scale(1.15)'; refreshKey = stateKey(); return;
       }
       const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = tierName(s, id); right.append(tier);
@@ -225,6 +222,24 @@ window.ClickerAlbum = (() => {
       startBlink(big);
       if (animate) back.focus();
       refreshKey = stateKey();   // 對齊，免得下一個 tick 又重建一次
+    }
+    // v3 收藏卡分頁（第一版）：只放卡與名字。正式的分頁之後再做。
+    function openCollect() {
+      const s = store.state; detailId = null; closeDustShop();
+      const root = $('album-detail'); root.replaceChildren(); root.hidden = false;
+      const wrap = document.createElement('div'); wrap.className = 'collect-page';
+      const h = document.createElement('h3'); h.textContent = '收藏卡'; wrap.append(h);
+      const grid = document.createElement('div'); grid.className = 'collect-grid';
+      const ids = (s.collectibles || []).filter(id => Pool.byId[id]);
+      if (!ids.length) { const empty = document.createElement('p'); empty.textContent = '還沒有收藏卡。'; grid.append(empty); }
+      for (const id of ids) {
+        const slot = document.createElement('button'); slot.className = 'album-slot'; slot.dataset.id = id; slot.type = 'button'; slot.title = Pool.byId[id].name;
+        slot.append(makeCard(s, id)); const meta = document.createElement('div'); meta.className = 'album-meta'; const line = document.createElement('small'); line.textContent = Pool.byId[id].name; meta.append(line); slot.append(meta);
+        slot.onclick = () => openDetail(id); grid.append(slot);
+      }
+      wrap.append(grid);
+      const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); wrap.append(back);
+      root.append(wrap); refreshKey = stateKey();
     }
     function closeDetail(instant = false) {
       stopBlink(); detailId = null; refreshKey = stateKey(); const root = $('album-detail'); if (root.hidden) return;
@@ -384,6 +399,7 @@ window.ClickerAlbum = (() => {
       if (!e.target.closest('.album-slot, .page-corner')) flip(dir);
     };
     $('album-prev').onclick = () => flip(-1); $('album-next').onclick = () => flip(1);
+    $('collect-open').onclick = () => openCollect();
     $('recall-all').onclick = () => action(() => { const r = E.recall(store.state, Date.now()); if (commit(r.state)) { changed(); sound('transcend'); notice(`收回派遣：${r.rewards.filter(x => !x.capped).length} 位帶粉塵回來${r.rewards.some(x => x.capped) ? '（今天已達 9 次上限）' : ''}`); renderBook(); } });
     $('train-all').onclick = () => action(() => {
       const r = window.ClickerPrestige.trainAll(store.state, Date.now());

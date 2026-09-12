@@ -42,7 +42,7 @@ def open_page(p):
 with sync_playwright() as p:
     b, pg, errors = open_page(p)
     pg.click('#roster-open'); pg.wait_for_timeout(500)
-    summary = pg.text_content('#team-summary'); check('12/20' in summary and '神 0/2' in summary, '隊伍摘要：' + summary[:60])
+    summary = pg.text_content('#team-summary'); check('12/20' in summary, '隊伍摘要：' + summary[:60])
     check(not pg.evaluate("()=>document.getElementById('recall-all').hidden") and '（1）' in pg.text_content('#recall-all'), '收回派遣鍵（1）')
     stamps = pg.evaluate("()=>({team:document.querySelectorAll('.album-slot .team-stamp').length, away:document.querySelectorAll('.album-slot .away-stamp').length, champ:document.querySelectorAll('.album-slot .champ-flag').length, slot:document.querySelectorAll('.album-slot .slot-stamp:not(.team-stamp):not(.away-stamp)').length})")
     check(stamps['team'] >= 1 and stamps['champ'] >= 1, '第一頁有隊章與當家旗 ' + str(stamps))

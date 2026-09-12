@@ -802,6 +802,10 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 .team-row .grow-btn.team { background:#dff3e4; } .team-row .grow-btn.dispatch { background:#e9e4f7; }
 #team-summary b { font-size:13px; }
 #recall-all { background:#e9e4f7; }
+.collect-page { padding:8px 16px; display:grid; gap:12px; }
+.collect-page h3 { margin:0; }
+.collect-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.collect-grid .album-slot { position:relative; }
 /* v3 拖曳：夥伴列 → 技能槽（照 team20.css） */
 #drag-layer { position:fixed; inset:0; z-index:200; pointer-events:none; }
 .drag-ghost { position:absolute; left:0; top:0; will-change:translate; filter:drop-shadow(0 6px 8px rgba(0,0,0,.35)); }

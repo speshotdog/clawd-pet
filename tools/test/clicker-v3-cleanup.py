@@ -66,12 +66,11 @@ with sync_playwright() as p:
     check('oldtimes' in pg.evaluate("()=>Clicker.state.badges"), '徽章「舊時代的珍母」入袋：' + str(pg.evaluate("()=>Clicker.state.badges")))
     check(pg.evaluate("()=>Clicker.state.collectibles") == ['mohuashaonv'], '魔花少女收藏卡入袋')
     pg.click('#roster-open'); pg.wait_for_timeout(400)
-    for _ in range(20):
-        if pg.evaluate("()=>!!document.querySelector('.album-slot[data-id=mohuashaonv]')"): break
-        pg.click('#album-next'); pg.wait_for_timeout(120)
-    check(pg.evaluate("()=>!!document.querySelector('.album-slot[data-id=mohuashaonv] .card.r-special')"), '卡冊最後一頁有魔花少女（粉框 special）')
-    pg.click('.album-slot[data-id=mohuashaonv]'); pg.wait_for_timeout(400)
-    check('絕版' in pg.text_content('#album-detail'), '詳情：收藏卡・絕版')
+    check(not pg.evaluate("()=>!!document.querySelector('.album-slot[data-id=mohuashaonv]')"), '角色卡冊頁沒有收藏卡')
+    pg.click('#collect-open'); pg.wait_for_timeout(400)
+    check(pg.evaluate("()=>!!document.querySelector('.collect-grid .album-slot[data-id=mohuashaonv] .card.r-special')"), '收藏卡分頁有魔花少女（粉框 special）')
+    pg.click('.collect-grid .album-slot[data-id=mohuashaonv]'); pg.wait_for_timeout(400)
+    txt = pg.text_content('#album-detail'); check('魔花少女' in txt and '絕版' not in txt and '戰力' not in txt, '詳情只有卡與名字')
     pg.screenshot(path=str(OUT / '3-collect.png'))
     pg.click('#album-detail .detail-back'); pg.wait_for_timeout(200); pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
     pg.reload(); pg.wait_for_function('window.Clicker?.state'); pg.wait_for_timeout(1200)
