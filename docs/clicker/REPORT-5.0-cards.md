@@ -69,3 +69,10 @@ B 背景實際 cover 座標（對應相同素材）：
 - 灰貓尾巴原本與蛋糕交疊、觀星腳架未納入、龍未帶山丘、炒飯貓改為獨立擺位，都是可否決的構圖選擇；如要維持完整原場景，需另定裁切，不能補畫遮住部分。
 - 沒有修改 src/、card_face.js、demo.html、來源素材；沒有啟動 server、commit、建置其他頁面。只跑 cards-remade → standalone 這一對，沒有跑 deluxe builders。
 - 工作途中出現 ceremony.js、deluxe-gacha-b.html／standalone 的外部變動；不是本輪指令產生，未修改或還原。BRIEF-astra-5.0-cards.md 與來源資料夾開工時已是 untracked，予以保留。
+
+## 2026-09-13 夜：使用者退回（字體醜、摳圖爛、人物沒置中）→ 改版
+
+- **字體**：根因是 demo.html 內嵌的字型子集只收了 demo.html 出現過的字，5.0 名字裡 19 個字（甜牛午蛋糕錯晚睡提籃摘願總欸究奧米咆嘯）不在裡面，掉回系統字體。`build_round4_fonts.py` 改成字元集加上 `pool_data.pool()` 所有名字，重建後 766 字，缺字 0。demo.html 只有字型 blob 變了。
+- **不摳圖**：八張系列卡改 `flat`（滿版平鋪、`bleed`），`prepare_5_0_flat.py` 以角色本體為中心裁 5:7 視窗（角色約佔卡高六成、中心落在 44% 高度給名字框留位），LANCZOS 縮成 600×840，不改 RGB、不補畫。小丑玥玥維持 framed。
+- **觀星系列的限制**：影片裡四隻擠在一起，flat 視窗一定看得到旁邊那隻；龍只有 191px 高，放大到卡面會糊。替代方案：觀星做**一張**群像卡（整幅景）而不是拆四張——待使用者裁。
+- 結果：`shots/5.0/all-cards-flat.png`（舊版摳圖版留在 `all-cards.png` 對照）。

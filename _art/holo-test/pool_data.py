@@ -59,19 +59,21 @@ EXTRA_CARDS = [
 # 來源圖檔名是**不可變的**，跟顯示名分開。
 # 2026-09-10 珍珍改名成本草珍目時，resolve_source() 還在用顯示名組檔名，
 # 整支 check_new_cards_round32.py 在 import 期就死掉——所以規則只留這一份。
+# 2026-09-13 使用者退回 Astra 的摳圖版：「摳不出來就不要摳、人物置中」→ 八張系列卡改 flat 滿版（prepare_5_0_flat.py 裁 5:7 視窗），
+# 只有小丑玥玥是單一角色走 framed。七張名字與稀有度仍是提案。
 CARDS_5_0 = [
     {'id': ident, 'name': name, 'rarity': rarity, 'kind': kind, 'file': f'card-{ident}.png',
-     **({'scene': True} if kind == 'depth' else {})}
+     **({'bleed': True} if kind == 'flat' else {})}
     for ident, name, rarity, kind in [
-        ('tiandianaini', '甜點愛牛', 'epic', 'depth'),
-        ('xiawujiaojiao', '下午膠膠', 'rare', 'depth'),
-        ('danngaomie', '蛋糕分咩一口', 'epic', 'depth'),
-        ('wangyuanmie', '咩有看錯星', 'epic', 'depth'),
-        ('xingyejiao', '今晚不睡膠', 'rare', 'depth'),
-        ('tilanxing', '提籃摘星獸', 'epic', 'depth'),
-        ('shanqiulong', '星願龍總欸', 'legendary', 'depth'),
+        ('tiandianaini', '甜點愛牛', 'epic', 'flat'),
+        ('xiawujiaojiao', '下午膠膠', 'rare', 'flat'),
+        ('danngaomie', '蛋糕分咩一口', 'epic', 'flat'),
+        ('wangyuanmie', '咩有看錯星', 'epic', 'flat'),
+        ('xingyejiao', '今晚不睡膠', 'rare', 'flat'),
+        ('tilanxing', '提籃摘星獸', 'epic', 'flat'),
+        ('shanqiulong', '星願龍總欸', 'legendary', 'flat'),
         ('jiujixiaochouyueyue', '究極小丑玥玥', 'mythic', 'framed'),
-        ('aomijiapaoxiaoshou', '奧米加咆嘯獸', 'mythic', 'depth'),
+        ('aomijiapaoxiaoshou', '奧米加咆嘯獸', 'mythic', 'flat'),
     ]
 ]
 

@@ -5,7 +5,11 @@ from fontTools.ttLib import TTFont
 
 root = Path(__file__).parent
 html = (root / 'demo.html').read_bytes().decode('utf-8')
-chars = ''.join(sorted(set(''.join(re.findall(r'[^\x00-\x7f]', html)) + '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz /·°↻')))
+# 2026-09-13：字元集加上卡池所有名字（5.0 新卡有 19 個字不在 demo.html 裡，掉回系統字體＝使用者說的「字體很醜」）
+import sys; sys.path.insert(0, str(root))
+from pool_data import pool
+names = ''.join(c['name'] for c in pool(with_palette=False))
+chars = ''.join(sorted(set(''.join(re.findall(r'[^\x00-\x7f]', html)) + names + '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz /·°↻')))
 text = root / 'round4-font-chars.txt'
 text.write_text(chars, encoding='utf-8')
 fonts = {

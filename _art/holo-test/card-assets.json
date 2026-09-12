@@ -79,25 +79,15 @@
     ],
     "bytes": 491990
   },
-  "layer-aomijiapaoxiaoshou-subject.png": {
-    "path": "card-assets/35691a771447d93144c7d919c16a53ef3b5bd7360c2c5bcccc8080e287c5ab25.webp",
-    "sourceSha256": "35691a771447d93144c7d919c16a53ef3b5bd7360c2c5bcccc8080e287c5ab25",
-    "sha256": "385d44304ab00b11fbae6b44ad5b28b6d7da86d17fb3542dd79d537c3113732b",
+  "card-aomijiapaoxiaoshou.png": {
+    "path": "card-assets/614e2cf5d2e6b0460033166e20ebfdebd43cc7c992a06ad468ca79eef8aa5b14.webp",
+    "sourceSha256": "614e2cf5d2e6b0460033166e20ebfdebd43cc7c992a06ad468ca79eef8aa5b14",
+    "sha256": "699ad7b0114358362ba9e09f55466b6b1f0be0b5aef1363feafb456ee37c9e8a",
     "size": [
       600,
       840
     ],
-    "bytes": 186386
-  },
-  "layer-aomijiapaoxiaoshou-background.png": {
-    "path": "card-assets/ac65f5d86123dc27e48461d24f0dddc6d3f8045ad19f619b891bf58d7885798b.webp",
-    "sourceSha256": "ac65f5d86123dc27e48461d24f0dddc6d3f8045ad19f619b891bf58d7885798b",
-    "sha256": "ec6ea29be755eb3a0f106871930a31637573e170ee3b6e6aa1a60e0e67c5289a",
-    "size": [
-      600,
-      840
-    ],
-    "bytes": 162000
+    "bytes": 370028
   },
   "card-jiujixiaochouyueyue.png": {
     "path": "card-assets/5cc1452edb73ef295295af96960101c37461f6700be5f0ecc709f02390bd0b88.webp",
@@ -289,25 +279,15 @@
     ],
     "bytes": 127360
   },
-  "layer-shanqiulong-subject.png": {
-    "path": "card-assets/20bc60b12b418c06a6b30ecb4e131246f95094d6f5b030c2542e00e7feb51a99.webp",
-    "sourceSha256": "20bc60b12b418c06a6b30ecb4e131246f95094d6f5b030c2542e00e7feb51a99",
-    "sha256": "2da5d1102a3aff9abbec45a628d325916a8c351adf3e23500f28521ff6a8f86e",
+  "card-shanqiulong.png": {
+    "path": "card-assets/99dd64e4f4b9d5640e65e6be73bb0a0c9baf5e9f7e061aab7f6693efa2cbd06b.webp",
+    "sourceSha256": "99dd64e4f4b9d5640e65e6be73bb0a0c9baf5e9f7e061aab7f6693efa2cbd06b",
+    "sha256": "482f48a8f373314e577b3e7d6108d32855c3a53dadc04263b50edb0b2dcb9716",
     "size": [
       600,
       840
     ],
-    "bytes": 39884
-  },
-  "layer-shanqiulong-background.png": {
-    "path": "card-assets/b84f871fc4c531a2b9b0c971563c4ecd47bbc628dbe428a929e8e06a5dce7cfc.webp",
-    "sourceSha256": "b84f871fc4c531a2b9b0c971563c4ecd47bbc628dbe428a929e8e06a5dce7cfc",
-    "sha256": "ea02f632586b80dbbf6479e1f4da5f774b2d937650ff9a0304e836fc722f78f9",
-    "size": [
-      600,
-      840
-    ],
-    "bytes": 22140
+    "bytes": 238284
   },
   "card-shiyi.png": {
     "path": "card-assets/7811def4ad4a78e4cdc0675ab21fcc72c033e4329625ea7f88660579d7ccac86.webp",
@@ -409,25 +389,15 @@
     ],
     "bytes": 59842
   },
-  "layer-danngaomie-subject.png": {
-    "path": "card-assets/41455cad9714c12e5bf2cc1078a1dad28fbe0766f9a63db7a49c1aec013f10e8.webp",
-    "sourceSha256": "41455cad9714c12e5bf2cc1078a1dad28fbe0766f9a63db7a49c1aec013f10e8",
-    "sha256": "ad077fe21dde673db6106d6b69434d48de42aa53829e596e93ca94fd6ae3ba5a",
+  "card-danngaomie.png": {
+    "path": "card-assets/f330bc31ea2329d131b997aba81ddcf6a882fe82979134c609dfa1810125e70c.webp",
+    "sourceSha256": "f330bc31ea2329d131b997aba81ddcf6a882fe82979134c609dfa1810125e70c",
+    "sha256": "baf17a781e3e53b1fab2fe23e3409d488d4c635c0c660db712a2246db1825e45",
     "size": [
       600,
       840
     ],
-    "bytes": 124966
-  },
-  "layer-danngaomie-background.png": {
-    "path": "card-assets/bae26c36c9558eb48e90af8fe4d658f404c1336e70841ca093559c2b3d9f7224.webp",
-    "sourceSha256": "bae26c36c9558eb48e90af8fe4d658f404c1336e70841ca093559c2b3d9f7224",
-    "sha256": "427ba8f4aeeddeb8f4f4219ae8ea7d5122b7bb489349217703169cbc2e4d0cb2",
-    "size": [
-      600,
-      840
-    ],
-    "bytes": 79078
+    "bytes": 402360
   },
   "card-foxmoney.png": {
     "path": "card-assets/cac53b344d6c682273e062cec8571c57598aec8edc662f356fe89c35ef9fbab0.webp",
@@ -489,65 +459,35 @@
     ],
     "bytes": 104308
   },
-  "layer-tiandianaini-subject.png": {
-    "path": "card-assets/e3cfcf8bad14d5836465dc22e0a1ddca4d612d5a37ff7d99ecfe87dfbacb0e0f.webp",
-    "sourceSha256": "e3cfcf8bad14d5836465dc22e0a1ddca4d612d5a37ff7d99ecfe87dfbacb0e0f",
-    "sha256": "9d19ae296e8a998a922dd1e8375d2ed24ce19ec344592eb694bb0e80fd175f00",
+  "card-tiandianaini.png": {
+    "path": "card-assets/978a38334681667928328d06e6280299548ca51502c29d00195b1caba674613f.webp",
+    "sourceSha256": "978a38334681667928328d06e6280299548ca51502c29d00195b1caba674613f",
+    "sha256": "46cb38cd7fe2ad2f8a5e002f41f686e11eb5806675007947c2b0f9cd2511555c",
     "size": [
       600,
       840
     ],
-    "bytes": 168550
+    "bytes": 401532
   },
-  "layer-tiandianaini-background.png": {
-    "path": "card-assets/bae26c36c9558eb48e90af8fe4d658f404c1336e70841ca093559c2b3d9f7224.webp",
-    "sourceSha256": "bae26c36c9558eb48e90af8fe4d658f404c1336e70841ca093559c2b3d9f7224",
-    "sha256": "427ba8f4aeeddeb8f4f4219ae8ea7d5122b7bb489349217703169cbc2e4d0cb2",
+  "card-tilanxing.png": {
+    "path": "card-assets/33585c4bf5f98a0360d0decdffcbac57463c94d0fe0a6e247e0246774e4d39e7.webp",
+    "sourceSha256": "33585c4bf5f98a0360d0decdffcbac57463c94d0fe0a6e247e0246774e4d39e7",
+    "sha256": "60366f01dd12b5fe2979d366f042e37f283f38a981ec1ab034501bbe79c322e2",
     "size": [
       600,
       840
     ],
-    "bytes": 79078
+    "bytes": 343104
   },
-  "layer-tilanxing-subject.png": {
-    "path": "card-assets/58cccfbf185a20f57397ee9b1e59f6fbb651f4d303e78342f26c8b5d3772c783.webp",
-    "sourceSha256": "58cccfbf185a20f57397ee9b1e59f6fbb651f4d303e78342f26c8b5d3772c783",
-    "sha256": "050d817166fb868c4119654cf28af409a2e28b1e633cbfc6f47bc52bb4d24045",
+  "card-wangyuanmie.png": {
+    "path": "card-assets/ad791093a9ad405c973f892c90ce016ba3f4102375bde17fbf2f446f1b65f579.webp",
+    "sourceSha256": "ad791093a9ad405c973f892c90ce016ba3f4102375bde17fbf2f446f1b65f579",
+    "sha256": "a81186d90ddc12f28a0bea5caf1e89226ad5e168063513e7aa473646b9a8bba8",
     "size": [
       600,
       840
     ],
-    "bytes": 70502
-  },
-  "layer-tilanxing-background.png": {
-    "path": "card-assets/b84f871fc4c531a2b9b0c971563c4ecd47bbc628dbe428a929e8e06a5dce7cfc.webp",
-    "sourceSha256": "b84f871fc4c531a2b9b0c971563c4ecd47bbc628dbe428a929e8e06a5dce7cfc",
-    "sha256": "ea02f632586b80dbbf6479e1f4da5f774b2d937650ff9a0304e836fc722f78f9",
-    "size": [
-      600,
-      840
-    ],
-    "bytes": 22140
-  },
-  "layer-wangyuanmie-subject.png": {
-    "path": "card-assets/f7fa681f498f392f297078fedf3f484f83a0d6eaca400d92c88a8fbcb10ac519.webp",
-    "sourceSha256": "f7fa681f498f392f297078fedf3f484f83a0d6eaca400d92c88a8fbcb10ac519",
-    "sha256": "0e6430658fb07e167635dccd6e4ad03795d5260b255869cafc4348234731e539",
-    "size": [
-      600,
-      840
-    ],
-    "bytes": 74162
-  },
-  "layer-wangyuanmie-background.png": {
-    "path": "card-assets/b84f871fc4c531a2b9b0c971563c4ecd47bbc628dbe428a929e8e06a5dce7cfc.webp",
-    "sourceSha256": "b84f871fc4c531a2b9b0c971563c4ecd47bbc628dbe428a929e8e06a5dce7cfc",
-    "sha256": "ea02f632586b80dbbf6479e1f4da5f774b2d937650ff9a0304e836fc722f78f9",
-    "size": [
-      600,
-      840
-    ],
-    "bytes": 22140
+    "bytes": 230288
   },
   "card-xiaochouyue.png": {
     "path": "card-assets/b0f471279741526c1b532db9b76ff4fb2b4c3d67b82c82f55d330e78c9a575fe.webp",
@@ -779,45 +719,25 @@
     ],
     "bytes": 57552
   },
-  "layer-xiawujiaojiao-subject.png": {
-    "path": "card-assets/321366edc7442cd3638b7b987476fb0aee8dcf79cdb0839e7609776ded02e4b8.webp",
-    "sourceSha256": "321366edc7442cd3638b7b987476fb0aee8dcf79cdb0839e7609776ded02e4b8",
-    "sha256": "9435015ff04eeb43ec983514f062500b28c7d7d7ac7475c97e90498dbb6bc89f",
+  "card-xiawujiaojiao.png": {
+    "path": "card-assets/895df4621b4796880eb221fa2ceb597a28322e61b85585ebe206204d9809063e.webp",
+    "sourceSha256": "895df4621b4796880eb221fa2ceb597a28322e61b85585ebe206204d9809063e",
+    "sha256": "4a0c612ede4b2efef8519a8c846eb33468166a5c043357303abeafb91801e186",
     "size": [
       600,
       840
     ],
-    "bytes": 75202
+    "bytes": 379826
   },
-  "layer-xiawujiaojiao-background.png": {
-    "path": "card-assets/bae26c36c9558eb48e90af8fe4d658f404c1336e70841ca093559c2b3d9f7224.webp",
-    "sourceSha256": "bae26c36c9558eb48e90af8fe4d658f404c1336e70841ca093559c2b3d9f7224",
-    "sha256": "427ba8f4aeeddeb8f4f4219ae8ea7d5122b7bb489349217703169cbc2e4d0cb2",
+  "card-xingyejiao.png": {
+    "path": "card-assets/67130e1a056f5ad778c19c445a197215bbae622cc590087873498d8441f7876f.webp",
+    "sourceSha256": "67130e1a056f5ad778c19c445a197215bbae622cc590087873498d8441f7876f",
+    "sha256": "1376499fe4651a18c883084a547c2862afbb758c89ad61197c82f57ba54ccf4e",
     "size": [
       600,
       840
     ],
-    "bytes": 79078
-  },
-  "layer-xingyejiao-subject.png": {
-    "path": "card-assets/184e5f50a2eec4f912db8fe59b9f480186f72b8018743dac56fc1e758c1db113.webp",
-    "sourceSha256": "184e5f50a2eec4f912db8fe59b9f480186f72b8018743dac56fc1e758c1db113",
-    "sha256": "2eac28f444be4d1893f096b5e0e94a7f09604586ec41f5b73d395674471d5b99",
-    "size": [
-      600,
-      840
-    ],
-    "bytes": 48040
-  },
-  "layer-xingyejiao-background.png": {
-    "path": "card-assets/b84f871fc4c531a2b9b0c971563c4ecd47bbc628dbe428a929e8e06a5dce7cfc.webp",
-    "sourceSha256": "b84f871fc4c531a2b9b0c971563c4ecd47bbc628dbe428a929e8e06a5dce7cfc",
-    "sha256": "ea02f632586b80dbbf6479e1f4da5f774b2d937650ff9a0304e836fc722f78f9",
-    "size": [
-      600,
-      840
-    ],
-    "bytes": 22140
+    "bytes": 309806
   },
   "card-yangtuo.png": {
     "path": "card-assets/c7ea3995fb8c835795a4f731d287ade6024b8749cbbecac287ebb8f331561ae5.webp",
