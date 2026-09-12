@@ -6,12 +6,16 @@ const E=require('../../src/clicker-economy.js'), S=require('../../src/clicker-sa
 const CPS=+process.argv[2]||4, SESSION=(+process.argv[3]||20)*60000, DAYS=+process.argv[4]||14;
 // 印記永久倍率係數 A/B：MARKMUL=0.25 node tools/sim/clicker-curve.js ...（不給就用 balance 的預設 .5）
 if (process.env.MARKMUL !== undefined) B.MARK_MUL_COEF = +process.env.MARKMUL;
-for (const k of Object.keys(B.V3)) if (process.env[k] !== undefined) B.V3[k] = +process.env[k];
+for (const k of Object.keys(B.V3)) if (process.env[k] !== undefined && k!=='BOSS_K') B.V3[k] = +process.env[k];
+// BOSS_K=6,5,4,3,2.5,2,2（後院→滅世）；CITY_MUL 覆寫滅世都市的需求係數；NO_PRESTIGE=1 關掉輪迴（14 天目標下正常玩家不輪迴）
+if (process.env.BOSS_K) { const ks=process.env.BOSS_K.split(',').map(Number); ['backyard','kitchen','market','factory','nightmarket','fridge','city'].forEach((id,i)=>{ if(ks[i]) B.V3.BOSS_K[id]=ks[i]; }); }
+const scenesAll=require('../../src/clicker-scene.js').scenes; if (process.env.CITY_MUL) scenesAll.city.requirementMul=+process.env.CITY_MUL;
+const NO_PRESTIGE=!!process.env.NO_PRESTIGE;
 const firstWin={}, gateStall={}, dispatchLog={recalls:0,dust:0};
 let prestiges=0, prestigeLog=[];
 let seed=0x8a57a; const rng=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
 let skipUntil=0; let s=S.fresh(0), now=0, draws=0, drawLog=[], bossLog=[], packLog=[], active=0, lastDrawAt=0, buys={click:0,training:0,partner:0,auto:0};
-const order=['backyard','kitchen','market','factory','nightmarket','fridge'];
+const order=['backyard','kitchen','market','factory','nightmarket','fridge','city'];   // v3：滅世都市也要進換場景清單，否則打完冰箱會被切回去、永遠沒人打滅世珍獸
 const combos=[['yueyue','dog','jiaobu'],['yang','fox','caihua'],['yueyue2','jiaobu2','caihua']];
 function payback(kind,id) {   // 回本秒數：花費 / 每秒增加的 P（點擊用 D×CPS 換算）
   const r=E.rates(s), P0=r.P+r.D*CPS; let cost, next=E.clone(s);
@@ -27,14 +31,14 @@ function payback(kind,id) {   // 回本秒數：花費 / 每秒增加的 P（點
 // v3 輪迴策略：本輪印記 ≥ 6 就換（半輪以上的收穫），或卡在同一隻大王超過一整段 session 且 ≥ 3 枚。
 let stuckSince=null;
 function maybePrestige() {
-  if(s.pending||s.boss) return;
+  if(NO_PRESTIGE||s.pending||s.boss) return;
   const avail=P.marksAvailable(s);
   if(P.canPrestige(s)) return;
   const stuck=stuckSince!==null && now-stuckSince>=SESSION;
-  if(!(avail>=6 || (stuck && avail>=3))) return;
+  if(!(avail>=8 || (stuck && avail>=3))) return;
   s=P.prestige(s,now,rng).state; prestiges++; stuckSince=null;
   for(const item of [...B.marks].sort((a,b)=>a.cost-b.cost)) { try{ s=P.buyMark(s,item.id,now); }catch{} }
-  while((s.marks || 0) >= (s.blessing || 0) + 1) s=P.buyBlessing(s,now);
+  buyArtifacts();
   prestigeLog.push({at:now,n:prestiges,gained:prestiges?s.marksClaimed-(prestigeLog.at(-1)?.claimed||0):0,claimed:s.marksClaimed,markMul:E.markMul(s),bless:s.blessing,blessMul:E.blessMul(s),champions:s.champions});
 }
 // 換完桌布之後場景進度全部歸零，但 bossWins 留著＝場景仍然解鎖，
@@ -54,9 +58,17 @@ function maybeSwitchScene() {
   }
   if(best!==here) s=E.switchScene(s,best,now);
 }
+// D 路：神器輪流買最便宜的那一級（真人會分散投資）；收益優先（同價時）
+function buyArtifacts() {
+  for(let guard=0;guard<200;guard++) {
+    const opts=B.ARTIFACTS.map(a=>({id:a.id,level:(a.id==='blessing'?(s.blessing||0):(s.artifacts?.[a.id]||0))+1,max:a.max})).filter(o=>o.level<=o.max && o.level<=(s.marks||0));
+    if(!opts.length) return; opts.sort((x,y)=>x.level-y.level || (x.id==='blessing'?-1:1));
+    s=P.buyArtifact(s,opts[0].id,now);
+  }
+}
 function shop() {
   if(s.pending||s.boss) return;
-  while((s.marks || 0) >= (s.blessing || 0) + 1) s=P.buyBlessing(s,now);
+  buyArtifacts();
   // 五連：付得起就抽（最多每 90 秒一次，模擬真人開包時間）
   while(!s.pending && (s.freeDraws>=5 || s.coins>=E.drawCost(s,5)) && now-lastDrawAt>=90000) {
     const paidState=E.settle(s,now).state, price=E.drawCost(paidState,5-Math.min(paidState.freeDraws||0,5));
@@ -131,7 +143,8 @@ while(now<DAYS*86400000) {
   recordDust();
   daily.push(`${fmt(now)} ${s.settings.scene}#${s.package.index} P=${E.rates(s).P.toExponential(2)} 醒來幣=${pre.toExponential(1)} 剩=${s.coins.toExponential(1)} 訓練Lv${s.trainingLevel} 夥伴Lv中位${[...Object.values(s.partnerLevels||{})].sort((a,b)=>a-b)[Object.keys(s.partnerLevels||{}).length>>1]||0}`);
 }
-console.log('=== v3 牆的位置（各站大王第一次打贏）===');
+const fiveStar=Object.keys(s.collection).filter(id=>E.stars(E.dust(s,id))>=5).length;
+console.log('=== v3 牆的位置（各站大王第一次打贏）=== 天數',[...order,'city'].map(id=>firstWin[id]?(firstWin[id]/86400000).toFixed(1):'-').join('/'),'夥伴',Object.keys(s.collection).length,'5★',fiveStar);
 for(const id of [...order,'city']) console.log(' ',id,firstWin[id]?fmt(firstWin[id]):'未打贏','小王卡住合計',((gateStall[id]||0)/60000).toFixed(1)+'min');
 console.log(' 派遣回收次數',dispatchLog.recalls,'萬用粉塵',s.universalDust);
 console.log('=== 輪迴 ===','次數',prestiges,'累積印記',s.marksClaimed||0,'永久倍率 ×'+E.markMul(s).toFixed(1),
@@ -146,7 +159,7 @@ const byScene={}; for(const p of packLog){(byScene[p.scene]||=[]).push(p.sec);}
 for(const [sc,arr] of Object.entries(byScene)) { const a=[...arr].sort((x,y)=>x-y); console.log(' 包速',sc,'n=',a.length,'中位',a[a.length>>1].toFixed(1)+'s','p90',a[Math.floor(a.length*.9)].toFixed(1)+'s','最長',a[a.length-1].toFixed(0)+'s'); }
 const dHours={}; for(const d of drawLog){const h=Math.floor(d.at/3600000/24); dHours[h]=(dHours[h]||0)+1;} console.log(' 每日五連數',JSON.stringify(dHours));
 console.log(' 每日萬用粉塵入帳',JSON.stringify(dailyDust));
-console.log(' 收益祝福 Lv',s.blessing || 0,'剩餘印記',s.marks || 0);
+console.log(' 神器',JSON.stringify({blessing:s.blessing||0,...(s.artifacts||{})}),'剩餘印記',s.marks || 0);
 console.log(' 主動遊玩總時數',fmt(active)); for(const d of daily) console.log(' 醒來',d);
 
 const paidBack=drawLog.map((d,i)=>({...d,n:i+1})).filter(d=>d.paybackSec!==null).sort((a,b)=>a.paybackSec-b.paybackSec);

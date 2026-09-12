@@ -159,7 +159,21 @@
     // C 路（2026-09-12 使用者拍）：王是「賺大錢的時刻」——打贏小王給 requirement×GATE_REWARD、大王給門檻包需求×BOSS_REWARD 的幣（一次性、只進錢包）
     GATE_REWARD: 8, BOSS_REWARD: 40,
     // 成長側實驗旋鈕（模擬器 A/B 用；1／1／1.15 就是 v2 原值）：夥伴訓練每級再乘 PARTNER_G^L、全隊訓練價 ×TRAIN_COST_MUL、夥伴訓練價 ×PARTNER_COST_MUL
-    PARTNER_G: 1, TRAIN_COST_MUL: 2.5, PARTNER_COST_MUL: 1.15, PARTNER_CAP: 200 };
+    PARTNER_G: 1, TRAIN_COST_MUL: 2.5, PARTNER_COST_MUL: 1.15, PARTNER_CAP: 200,
+    // 每站各自的大王 K（缺的用 BOSS_MUL）：前段大、後段小，讓第一次離線那筆錢沖不過前四站（DESIGN-balance-v3 §十四）
+    BOSS_K: {} };
+  // D 路（2026-09-13 使用者拍，照 Sakura Clicker）：祝福從一條線拆成 7 個「神器」線，第 r 級收 r 枚印記、各有頂，
+  // 玩家要選先升哪個。收益祝福沿用舊欄位 s.blessing；其餘存 s.artifacts[id]。總量上限 MARKS_TOTAL_CAP（Sakura 是 350）。
+  const ARTIFACTS = [
+    { id:'blessing', name:'收益祝福', per:'全隊每秒收益與攻擊力 +10%', max:20 },
+    { id:'tap',      name:'手勁祝福', per:'點擊拆包力 +10%', max:20 },
+    { id:'skill',    name:'技能祝福', per:'技能效果量 +5%', max:10 },
+    { id:'cd',       name:'冷卻祝福', per:'技能冷卻 −2%', max:10 },
+    { id:'offline',  name:'離線祝福', per:'離線收益 +10%', max:10 },
+    { id:'chest',    name:'寶箱祝福', per:'寶箱包機率 +1%', max:10 },
+    { id:'dust',     name:'粉塵祝福', per:'每次換桌布多 1 顆萬用粉塵', max:10 },
+  ];
+  const MARKS_TOTAL_CAP = 100;
   const blessings = [
     { id:'blessing', name:'收益祝福', desc:'全隊每秒收益與攻擊力，每級 +10%（上限 Lv.20）' },
     { id:'dustTrade', name:'粉塵兌換', cost:1, desc:'換 5 萬用粉塵；每換一次下一次就貴 1 印記' },
@@ -167,7 +181,7 @@
   const autoClickMax = 10;
   const autoClickCap = s => s.markShop?.finger14 ? 14 : autoClickMax;
   const decor = ['花盆','燈串','小鼓','風鈴','貓抓板','相框','香氛蠟燭','小旗串','多肉','留聲機'].map((name,i)=>({ id:`deco${i}`, name, file:`clicker-deco-${i}.png` }));
-  const api = { originalIds, marks, blessings, BLESSING_MAX, V3, autoClickMax, autoClickCap, decor, wardrobe, characters, MARK_MUL_COEF, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const api = { originalIds, marks, blessings, ARTIFACTS, MARKS_TOTAL_CAP, BLESSING_MAX, V3, autoClickMax, autoClickCap, decor, wardrobe, characters, MARK_MUL_COEF, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;

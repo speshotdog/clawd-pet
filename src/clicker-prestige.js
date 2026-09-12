@@ -27,7 +27,7 @@
   function prestige(state, now, rng = Math.random) {
     const s = E.settle(state, now).state, why = canPrestige(s);
     if (why) throw new Error(why);
-    const gained = marksAvailable(s);
+    const gained = Math.min(marksAvailable(s), Math.max(0, B.MARKS_TOTAL_CAP - (s.marksClaimed || 0)));   // 總量上限（Sakura 350／我們 100）
     s.marksClaimed = (s.marksClaimed || 0) + gained; s.marks = (s.marks || 0) + gained; s.prestiges = (s.prestiges || 0) + 1;
     s.coins = 0; s.clickLevel = 0; s.trainingLevel = 0; s.autoClick = 0; s.partnerLevels = {}; s.autoRemainder = 0;
     s.package = E.newPackage('backyard'); s.settings.scene = 'backyard'; s.scenePackages = {};
@@ -35,7 +35,7 @@
     delete s.thief;
     s.effects = []; s.cooldownUntil = {}; s.slotReadyAt = s.slotReadyAt.map(() => 0); s.chain = { count: 1, expiresAt: 0 };
     if (s.markShop?.starter5) s.freeDraws = (s.freeDraws || 0) + 5;
-    s.universalDust = (s.universalDust || 0) + 3;
+    s.universalDust = (s.universalDust || 0) + 3 + (s.artifacts?.dust || 0);   // 粉塵祝福
     s.runWins = []; s.runPacks = 0; s.runGates = 0; delete s.energized;
     s.champions = pickChampions(s, rng);
     s.prestigeHintDate = null; s.peakRate = 0; s.peakRateStamp = 0;
@@ -54,10 +54,18 @@
     return s;
   }
   function buyBlessing(state, now = state.settledAt) {
-    const s = E.settle(state, now).state, level = (s.blessing || 0) + 1;
-    if (level > B.BLESSING_MAX) throw new Error('收益祝福已滿級');
+    return buyArtifact(state, 'blessing', now);
+  }
+  // D 路：7 條神器線，第 r 級收 r 枚（同舊祝福的形狀），各有頂
+  function buyArtifact(state, id, now = state.settledAt) {
+    const s = E.settle(state, now).state, def = B.ARTIFACTS.find(a => a.id === id);
+    if (!def) throw new Error('沒有這個神器');
+    const cur = id === 'blessing' ? (s.blessing || 0) : (s.artifacts?.[id] || 0), level = cur + 1;
+    if (level > def.max) throw new Error(`${def.name}已滿級`);
     if ((s.marks || 0) < level) throw new Error('印記不足');
-    s.marks -= level; s.blessing = level; return s;
+    s.marks -= level;
+    if (id === 'blessing') s.blessing = level; else { s.artifacts ||= {}; s.artifacts[id] = level; }
+    return s;
   }
   // 粉塵兌換改成遞增價（2026-09-08 使用者定案）。原本是固定 1 印記換 5 粉塵，
   // 但印記的產出是 √生涯收入，會爆炸性成長（生涯 1e18 就有 10 萬枚），
@@ -151,6 +159,6 @@
     s.decoShown = s.decoShown.includes(id) ? s.decoShown.filter(x => x !== id) : [...s.decoShown, id];
     return s;
   }
-  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, pickChampions, buyMark, buyBlessing, tradeDust, dustTradeCost, DUST_PER_TRADE, buyDrawTicket, autoClickCost, buyAutoClick, autoClicks, trainCost, train, trainAll, nextMilestone, decoPrice, buyDeco, toggleDeco, hint };
+  const api = { PARTNER_CAP, THRESHOLD, marksTotal, marksAvailable, markMul, canPrestige, prestige, pickChampions, buyMark, buyBlessing, buyArtifact, tradeDust, dustTradeCost, DUST_PER_TRADE, buyDrawTicket, autoClickCost, buyAutoClick, autoClicks, trainCost, train, trainAll, nextMilestone, decoPrice, buyDeco, toggleDeco, hint };
   if (node) module.exports = api; else root.ClickerPrestige = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

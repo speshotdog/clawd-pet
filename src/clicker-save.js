@@ -15,7 +15,7 @@
       missed: 0, sweep: {last:null,count:0,at:0}, gift: null, nextGiftAt: 0, giftResult: null,
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
       // v3（DESIGN-balance-v3）：編隊、本輪王勝／包數、本輪當家、派遣、寶箱種子、大掃除封存
-      roster: [], runWins: [], runPacks: 0, runGates: 0, champions: [], dispatch: [], dispatchDay: null, dispatchHalf: {}, chestSeed: Math.floor((now * 2654435761) % 4294967296), legacy: null,
+      roster: [], runWins: [], runPacks: 0, runGates: 0, champions: [], artifacts: {}, dispatch: [], dispatchDay: null, dispatchHalf: {}, chestSeed: Math.floor((now * 2654435761) % 4294967296), legacy: null,
       settings: { clickSound:'soft', clickFx:'shard', muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8, autoChallenge: true } };
   }
   const object = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -110,7 +110,7 @@
     check(s.manualClicks < 50 ? !s.claimedMilestones.includes('tutorial50') : s.claimedMilestones.includes('tutorial50') && s.collection.yueyue2 > 0, '教學獎勵');
     s.marks ??= 0; s.marksClaimed ??= 0; s.prestiges ??= 0; s.markShop ??= {}; s.dustTrades ??= 0; s.autoClick ??= 0; s.autoRemainder ??= 0; s.autoClicks ??= 0; s.partnerLevels ??= {}; s.deco ??= []; s.decoShown ??= []; s.peakRate ??= 0; s.prestigeHintDate ??= null;
     check(integer(s.dustTrades) && integer(s.marks) && integer(s.marksClaimed) && s.marks <= s.marksClaimed && integer(s.prestiges) && integer(s.autoClick) && s.autoClick <= B.autoClickCap(s) && number(s.autoRemainder) && s.autoRemainder < 1 && integer(s.autoClicks), '輪迴與電動手指');
-    check(object(s.markShop) && Object.entries(s.markShop).every(([id, v]) => B.marks.some(m => m.id === id) && v === true) && s.marksClaimed >= s.marks + s.blessing * (s.blessing + 1) / 2 + s.dustTrades * (s.dustTrades + 1) / 2 + Object.keys(s.markShop).reduce((sum, id) => sum + B.marks.find(m => m.id === id).cost, 0), '印記商店');
+    check(object(s.markShop) && Object.entries(s.markShop).every(([id, v]) => B.marks.some(m => m.id === id) && v === true) && s.marksClaimed >= s.marks + s.blessing * (s.blessing + 1) / 2 + Object.values(s.artifacts || {}).reduce((sum, r) => sum + r * (r + 1) / 2, 0) + s.dustTrades * (s.dustTrades + 1) / 2 + Object.keys(s.markShop).reduce((sum, id) => sum + B.marks.find(m => m.id === id).cost, 0), '印記商店');
     check(object(s.partnerLevels) && Object.entries(s.partnerLevels).every(([id, L]) => known(id) && (s.collection[id] > 0 || L === 0) && integer(L) && L <= 200), '夥伴訓練');
     check(Array.isArray(s.deco) && new Set(s.deco).size === s.deco.length && s.deco.every(id => B.decor.some(d => d.id === id)), '裝飾');
     // 2026-09-08 使用者定案：裝飾保留、但預設不擺出來（全部擺出來畫面太亂）。
@@ -146,9 +146,11 @@
         check(variants.some(p=>['kind','multiplier','ratio','factor','copy','charges','duration','cd','basis'].every(k=>p[k]===def[k])), '技能快照參數');
       }
       check(e.energized === undefined || e.energized === 2, '充能快照');
-      const mult = def.multiplier === undefined ? undefined : 1+(def.multiplier-1)*[1,1.3,1.6][e.chain-1]*(e.energized || 1);
+      check(e.arts === undefined || (object(e.arts) && integer(e.arts.skill) && e.arts.skill <= 10 && integer(e.arts.cd) && e.arts.cd <= 10), '神器快照');
+      const artSkill = 1 + .05 * (e.arts?.skill || 0), artCd = 1 - .02 * (e.arts?.cd || 0);
+      const mult = def.multiplier === undefined ? undefined : 1+(def.multiplier-1)*[1,1.3,1.6][e.chain-1]*(e.energized || 1)*artSkill;
       check(def.kind && e.kind === def.kind && number(e.startedAt) && number(e.expiresAt) && Math.abs(e.expiresAt - e.startedAt - def.duration * 1000) < .001 && e.startedAt <= s.settledAt, '效果期限');
-      check(Math.abs(s.cooldownUntil[e.source] - e.startedAt - def.cd * 1000) < .001, '效果冷卻');
+      check(Math.abs(s.cooldownUntil[e.source] - e.startedAt - def.cd * 1000 * artCd) < .001, '效果冷卻');
       if (e.kind === 'click') check(e.multiplier === mult && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '次數效果');
       else if (e.kind === 'clickTime') check(e.multiplier === mult, '時間倍率');
       else if (e.kind === 'clickAdd') check(number(e.value) && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '點擊加法');
@@ -210,6 +212,8 @@
       if (lastLegendary >= 0) check(s.pity.sinceLegendary === draw.entries.length - lastLegendary - 1, 'pending 保底');
     }
     // ---- v3 欄位：缺的補預設；隊伍／派遣不合法就靜默修正（不進 REPAIRS，那張表只准放暫時狀態）
+    s.artifacts ??= {};
+    check(object(s.artifacts) && Object.entries(s.artifacts).every(([id, r]) => B.ARTIFACTS.some(a => a.id === id && a.id !== 'blessing' && integer(r) && r <= a.max)), '神器');
     s.runWins ??= []; s.runPacks ??= 0; s.runGates ??= 0; s.champions ??= []; s.dispatch ??= []; s.dispatchDay ??= null; s.dispatchHalf ??= {}; s.legacy ??= null;
     s.chestSeed ??= Math.floor(Math.random() * 4294967296); s.settings.autoChallenge ??= true;
     check(Array.isArray(s.runWins) && new Set(s.runWins).size === s.runWins.length && s.runWins.every(id => s.bossWins.includes(id)) && integer(s.runPacks) && integer(s.runGates), '本輪紀錄');

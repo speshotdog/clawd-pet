@@ -83,6 +83,9 @@
   // 第十三輪：印記永久倍率、桌面裝飾
   const markMul = (s) => 1 + B.MARK_MUL_COEF * Math.sqrt(s.marksClaimed || 0);
   const blessMul = (s) => 1 + .1 * (s.blessing || 0);
+  const art = (s, id) => s.artifacts?.[id] || 0;   // D 路神器等級
+  const skillArt = (s) => 1 + .05 * art(s, 'skill');
+  const cdArt = (s) => 1 - .02 * art(s, 'cd');
   const decoMul = (s) => 1 + .01 * (s.deco?.length || 0);
   const affinity = (s,id) => (Scenes(s.settings?.scene).affinity || []).includes(id);
   const activeBonds = s => B.bonds.filter(b => b.pair.every(id => s.collection[id] > 0));
@@ -167,7 +170,7 @@
     const mul = (Scenes(s.settings?.scene).rewardMul || 1) * decoMul(s), M = markMul(s) * blessMul(s);
     const trait = (s.skillSlots || []).reduce((m,id) => m * (id && s.collection[id] ? skillAt(s,id).trait?.clickMul || 1 : 1), 1);
     const share = .05 * (1 + (s.markShop?.tapShare1 ? 1 : 0) + (s.markShop?.tapShare2 ? 1 : 0));   // v3 §九：5％→10％→15％
-    return { P: M * P * mul, D: trait * (M * 1.15 ** s.clickLevel + share * M * P) * mul };
+    return { P: M * P * mul, D: trait * (1 + .1 * art(s, 'tap')) * (M * 1.15 ** s.clickLevel + share * M * P) * mul };
   }
   function tagFor(entry, dup, owned, state) {
     if (state?.transcend?.[entry.id]===5) return {text:`萬用 +${['¼','½','1','2'][origin(entry.id)]}`,cls:'mastery'};
@@ -294,7 +297,7 @@
     return result.completed;
   }
   // 寶箱判定：(種子, 場景, 包號) 的雜湊；隊伍裡 Lv≥150 的夥伴每人 +1%
-  function chestRate(s) { return B.V3.CHEST_RATE + .01 * rosterOf(s).filter(id => (s.partnerLevels?.[id] || 0) >= B.V3.CHEST_MILESTONE).length; }
+  function chestRate(s) { return B.V3.CHEST_RATE + .01 * art(s, 'chest') + .01 * rosterOf(s).filter(id => (s.partnerLevels?.[id] || 0) >= B.V3.CHEST_MILESTONE).length; }
   function isChest(s, index) {
     let h = ((s.chestSeed || 0) ^ 0x9e3779b9) >>> 0; for (const ch of `${s.settings.scene}#${index}`) { h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193) >>> 0; }
     return (h % 10000) / 10000 < chestRate(s);
@@ -415,6 +418,7 @@
     if (s.boss && now >= s.boss.endsAt) finishBoss(s,false,now);
     s.settledAt = Math.max(s.settledAt, now);
     if (options.offline && s.markShop?.offline15) { grant(s, earned * .5, 'offline', {coinsOnly:true}); earned *= 1.5; }
+    if (options.offline && art(s, 'offline')) { const extra = earned * .1 * art(s, 'offline'); grant(s, extra, 'offline', {coinsOnly:true}); earned += extra; }   // D 路離線祝福
     stampDeadline(s, now);
     tickGift(s, now, options);
     tickThief(s, state.boss ? 0 : elapsed, options);
@@ -491,6 +495,7 @@
     if (def.kind === 'reload') { for (let k = 0; k < s.skillSlots.length; k++) { const other = s.skillSlots[k]; if (other && other !== id) { s.cooldownUntil[other] = 0; s.slotReadyAt[k] = 0; } } s.cooldownUntil[id] = t + def.cd * 1000; return { state: s, effect, completed: 0 }; }
     if (def.kind === 'energize') { s.energized = true; s.cooldownUntil[id] = t + def.cd * 1000; return { state: s, effect, completed: 0 }; }
     const energized = s.energized ? 2 : 1; if (s.energized) { delete s.energized; effect.energized = 2; }
+    if (art(s,'skill') || art(s,'cd')) effect.arts = { skill: art(s,'skill'), cd: art(s,'cd') };   // 神器快照（驗證用；params 仍是基礎值）
     if (def.kind === 'click') Object.assign(effect, { multiplier: def.multiplier, remaining: def.charges });
     else if (def.kind === 'clickTime') effect.multiplier = def.multiplier;
     else if (def.kind === 'self') effect.value = individual(s, id) * (def.multiplier - 1) * (Scenes(s.settings.scene).rewardMul || 1);
@@ -507,13 +512,13 @@
       if (!targets.length) throw new Error('需要另一位夥伴');
       effect.target = targets[0]; effect.value = copied(effect.target) * def.copy;
     }
-    if (effect.multiplier !== undefined) effect.multiplier = 1+(effect.multiplier-1)*chainMul*energized;
-    if (effect.value !== undefined) effect.value *= chainMul*energized;
+    if (effect.multiplier !== undefined) effect.multiplier = 1+(effect.multiplier-1)*chainMul*energized*skillArt(s);
+    if (effect.value !== undefined) effect.value *= chainMul*energized*skillArt(s);
     const instant = def.kind === 'burst' || def.kind === 'bossDamage';
     const completed = instant ? grant(s, effect.value, 'skill') : 0;
     // 重整之後同一張卡可能在舊效果還沒到期時再放：新效果取代舊的（存檔規則：一個來源一個效果、冷卻對得上 startedAt）
     if (!instant) { s.effects = s.effects.filter(e => e.source !== id); s.effects.push(effect); }
-    s.cooldownUntil[id] = t + def.cd * 1000;
+    s.cooldownUntil[id] = t + def.cd * 1000 * cdArt(s);
     return { state: s, effect, completed };
   }
   function purchaseDraw(state, count, now, pool, options = {}) {
@@ -569,7 +574,7 @@
     // 純放置約 60%、連點不用技約 80%、連點＋技能 110%↑；離線衝過門檻不會讓王變得打不動
     // 下限用「門檻那一包」而不是現在這一包：離線衝過門檻幾十包，王不能跟著變成不可能
     // v3 §二：血量改成關卡函數（門檻包需求 × K × 站係數），不再讀 P／D——這才是牆
-    const need=B.V3.BOSS_MUL*requirement(bossPackages(scene)+1,scene)*cfg.mul;
+    const need=(B.V3.BOSS_K[scene] ?? B.V3.BOSS_MUL)*requirement(bossPackages(scene)+1,scene)*cfg.mul;
     s.boss={scene,need,dealt:crack*need,startedAt:now,endsAt:now+(cfg.seconds+(s.markShop?.bossTime ? 10 : 0))*1000,crack,shells:shellsFor(scene).filter(v=>1-v>crack),shellHp:3,blocked:0};
     if (s.gift) endGift(s, now, false);
     delete s.thief;
@@ -588,7 +593,7 @@
     s.bossCracks ||= {}; s.bossCracks[b.scene]=crack; s.boss=null;
     s.bossResult={scene:b.scene,won,crack,at:now,next:nextScene(b.scene)};
     if (won) {
-      const bonus=requirement(bossPackages(b.scene)+1,b.scene)*cfg.mul*B.V3.BOSS_REWARD; s.coins+=bonus; s.lifetimeCoins+=bonus; s.bossResult.bonus=bonus;   // C 路：大王＝賺大錢的時刻
+      const bonus=requirement(bossPackages(b.scene)+1,b.scene)*cfg.mul*B.V3.BOSS_REWARD; s.coins+=bonus; s.lifetimeCoins+=bonus; s.bossResult.bonus=bonus;   // C 路：大王＝賺大錢的時刻；獎金不吃 K，K 只決定牆多厚
       s.runWins ||= []; if (!s.runWins.includes(b.scene)) s.runWins.push(b.scene);
       s.bossWins ||= []; if (!s.bossWins.includes(b.scene)) { s.bossWins.push(b.scene); s.universalDust=(s.universalDust || 0)+3; s.freeDraws=(s.freeDraws || 0)+cfg.reward.freeDraws; }
       s.bossCooldownUntil=b.scene === 'city' ? now+cfg.cooldown*1000 : 0;   // 終點站可重複挑戰，要有冷卻
@@ -601,7 +606,7 @@
   }
   const api = { medianPartnerLevel, exchangeRate, PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, blessMul, decoMul,
     thiefHit, newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene, autoGate,
-    rosterOf, rosterCounts, rosterViolations, setRoster, autoRoster, dispatched, dispatch, recall, champion, bossPackagesFor, runWon, canGate, startGate, gateNeed, isChest, chestRate,
+    art, skillArt, cdArt, rosterOf, rosterCounts, rosterViolations, setRoster, autoRoster, dispatched, dispatch, recall, champion, bossPackagesFor, runWon, canGate, startGate, gateNeed, isChest, chestRate,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerEconomy = api;

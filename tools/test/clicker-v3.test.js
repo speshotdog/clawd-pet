@@ -135,3 +135,19 @@ test('v3 商店：點擊附加 5%→10%→15%、要先買前一項；招募券�
   s = P.buyMark(s, 'tapShare2', 0); near(E.rates(s).D - d0, .10 * P0, 1e-9); S.validate(s, Pool);
   assert.ok(!B.blessings.some(b => b.id === 'drawTicket'));
 });
+test('D 路神器：7 條線第 r 級收 r 枚、各有頂；效果進 rates／技能／冷卻／離線／寶箱／輪迴粉塵；總量上限 100', () => {
+  let s = seed({ marks: 30, marksClaimed: 30 }); s.collection.yang = 1; s.dust.yang = 1; s.roster = ['zhenmu', 'yang']; s.skillSlots = ['yang', null, null]; s.slotReadyAt = [0, 0, 0]; s.lifetimeCoins = 1e6;
+  const d0 = E.rates(s).D, cd0 = E.skillAt(s, 'yang').cd;
+  s = P.buyArtifact(s, 'tap', 0); s = P.buyArtifact(s, 'tap', 0);   // 1 + 2 = 3 枚
+  near(E.rates(s).D, d0 * 1.2, 1e-9); assert.equal(s.marks, 27); assert.equal(s.artifacts.tap, 2);
+  s = P.buyArtifact(s, 'skill', 0); s = P.buyArtifact(s, 'cd', 0); s = P.buyArtifact(s, 'chest', 0); s = P.buyArtifact(s, 'dust', 0); s = P.buyArtifact(s, 'offline', 0);
+  assert.equal(s.marks, 27 - 5); near(E.chestRate(s), .04, 1e-9);
+  const a = E.activate(s, 0, 0); near(a.effect.value, E.rates(s).P * E.skillAt(s, 'yang').ratio * 1.05, 1e-9);   // 羊咩 team：全隊 P × ratio × 技能祝福 1.05
+  near(a.state.cooldownUntil.yang, cd0 * 1000 * .98, 1e-6); assert.deepEqual(a.effect.arts, { skill: 1, cd: 1 });
+  S.validate(JSON.parse(JSON.stringify(a.state)), Pool);
+  for (let i = 0; i < 9; i++) s = P.buyArtifact({ ...s, marks: 100 }, 'cd', 0);
+  assert.equal(s.artifacts.cd, 10); assert.throws(() => P.buyArtifact({ ...s, marks: 100 }, 'cd', 0), /滿級/);
+  let o = { ...s, settledAt: 0 }; const off = E.settle(o, 3600000, { offline: true }); near(off.earned, E.rates(o).P * 3600 * 1.1, 1e-6);
+  s.bossWins = ['backyard']; s.runWins = ['backyard']; const r = P.prestige(s, 0, () => .5); assert.equal(r.state.universalDust, 3 + 1);
+  const capped = P.prestige({ ...s, marksClaimed: 99 }, 0, () => .5); assert.equal(capped.gained, 1, '總量上限 100');
+});
