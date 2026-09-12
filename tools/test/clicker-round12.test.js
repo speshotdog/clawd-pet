@@ -64,7 +64,7 @@ test('round12 徽章：累計包數跨場景、第 10／25／50 包放玩具、�
   const a = X.checkBadges(s); assert.deepEqual(a.earned, ['pack10', 'pack25', 'boss-backyard']); assert.deepEqual(X.toys(a.state), ['toy-dino.png', 'toy-ballyellow.png']);
   assert.deepEqual(X.checkBadges(a.state).earned, []); assert.equal(X.checkBadges(a.state).state, a.state);
   S.validate(a.state, Pool);
-  assert.equal(X.BADGES.length, 18);
+  assert.equal(X.BADGES.length, 19);   // v3：+「舊時代的珍母」
   const t = S.fresh(0); t.collection = { zhenmu: 16 }; t.dust = { zhenmu: 20 }; t.transcend = { zhenmu: 1 }; t.lifetimeCoins = 1e8; t.daily = { date: '2026-09-06', done: true, need: 300, dealt: 300, streak: 7 };
   assert.deepEqual(X.checkBadges(t).earned, ['star5', 'transcend', 'streak7', 'coins1e8']);
 });

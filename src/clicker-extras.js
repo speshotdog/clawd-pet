@@ -62,6 +62,8 @@
     { id: 'transcend', name: '第一次超越', desc: '任一夥伴超越', icon: 'heart', label: '超越', test: s => Object.values(s.transcend || {}).some(v => v > 0) },
     { id: 'streak7', name: '連續 7 天', desc: '連續 7 天拆完今日限定包', icon: 'star', label: '7日', test: s => (s.daily?.streak || 0) >= 7 },
     { id: 'coins1e8', name: '生涯 1 億', desc: '生涯收入達 1 億幣', icon: 'star', label: '1億', test: s => s.lifetimeCoins >= 1e8 },
+    // v3 大掃除補償：換過桌布的老玩家（DESIGN-2026-09-12-content-architecture §十一）
+    { id: 'oldtimes', name: '舊時代的珍母', desc: '大掃除之前就換過桌布的老玩家', icon: 'heart', label: '舊', test: s => (s.legacy?.prestiges || 0) >= 1 },
   ];
   const badge = id => BADGES.find(b => b.id === id);
   function checkBadges(state) {

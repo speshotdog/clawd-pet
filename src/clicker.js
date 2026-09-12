@@ -431,6 +431,27 @@ window.Clicker = (() => {
     $('zoomer').style.top = `${(innerHeight - 640 * z) / 2}px`;
   }
   let album = null, prestigeUI = null, extras = null;
+  // v3 大掃除結算頁：v2→v3 遷移過（legacy 存在）而且還沒看過就整頁顯示一次；玩家自己按「收下」才關。
+  // 匯入存檔到另一台機器第一次載入也會看到（legacy.seen 存在存檔裡）。
+  function cleanupPage() {
+    const s = store.state, L = s.legacy;
+    if (!L || L.seen) return;
+    const kept = [`夥伴 ${Object.keys(s.collection).filter(id => s.collection[id] > 0).length} 隻、星與超越`, `徽章 ${s.badges.length} 枚、更衣室、桌面裝飾`, `輪迴 ${L.prestiges} 次的紀錄、王的勝利`];
+    const artsSpent = (s.blessing || 0) * ((s.blessing || 0) + 1) / 2;
+    const tidy = [`印記 ${L.marksClaimed.toLocaleString('zh-TW')} → ${(s.marksClaimed).toLocaleString('zh-TW')}（新版印記照「每輪做到的事」算，每輪最多 ${B.V3.MARKS_PER_RUN} 枚）`,
+      `收益祝福 Lv.${L.blessing.toLocaleString('zh-TW')} → Lv.${s.blessing}（已用 ${artsSpent} 枚幫你買到；手上還有 ${s.marks} 枚可以投其他神器）`,
+      `永久倍率：拿掉（以前是 ×${(1 + .5 * Math.sqrt(L.marksClaimed)).toFixed(0)}，所有王都變成秒殺）`];
+    const gifts = L.prestiges >= 1 ? ['徽章「舊時代的珍母」', '魔花少女・收藏卡（絕版，之後沒有任何取得方式；卡面製作中）'] : ['（沒換過桌布的存檔不需要補償）'];
+    const why = `新印記 ＝ 換桌布次數 ${L.prestiges} × 每輪上限 ${B.V3.MARKS_PER_RUN} ＝ ${L.prestiges * B.V3.MARKS_PER_RUN} 枚（反推不到的一律給上界，寧可多給）。祝福第 L 級收 L 枚，先幫你買到買不起為止。永久倍率的根因：它跟生涯幣掛鉤、又乘回幣上，兩條互餵沒有頂；新版換成有頂的神器。`;
+    $('cleanup-body').innerHTML = `<div class="cleanup-cols">
+      <div><b>保留</b><ul>${kept.map(t => `<li>${t}</li>`).join('')}</ul></div>
+      <div><b>整理</b><ul>${tidy.map(t => `<li>${t}</li>`).join('')}</ul></div>
+      <div><b>補償</b><ul>${gifts.map(t => `<li>${t}</li>`).join('')}</ul></div></div>
+      <p id="cleanup-explain" hidden>${why}</p>`;
+    $('cleanup').hidden = false; $('game-content').inert = true; $('cleanup-ok').focus();
+    $('cleanup-why').onclick = () => { const el = $('cleanup-explain'); el.hidden = !el.hidden; };
+    $('cleanup-ok').onclick = () => { const next = E.clone(store.state); next.legacy = { ...next.legacy, seen: Date.now() }; if (commit(next)) { $('cleanup').hidden = true; $('game-content').inert = gacha?.active || false; changed(); } };
+  }
   // 第十二輪：匯入存檔後整個畫面照新狀態重來（場景、夥伴列、舞台、待收下的招募）
   function reload() {
     window.ClickerScene.mount(store.state.settings.scene, store.state.package.index);
@@ -518,6 +539,7 @@ window.Clicker = (() => {
     ready = true; gacha.setReady(); stage.setPartners(store.state);
     offline(); stage.render(store.state, { instant: true }); changed(); status();
     if (store.state.pending) gacha.restore(); startTimers();
+    cleanupPage();
     // 自動修復過就要講出來——不能默默把玩家的東西重置掉還裝作沒事。
     // 原本那份沒被覆蓋，留在 clicker_save_broken 底下。
     if (store.repaired) {
