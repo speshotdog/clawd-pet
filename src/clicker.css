@@ -593,6 +593,39 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 
 /* Round 13: 換桌布、印記商店、電動手指、夥伴訓練、桌面裝飾 */
 #prestige { display:flex; flex-direction:column; }
+/* v3 編隊畫面 */
+#team-editor { display:flex; flex-direction:column; }
+#team-editor > header { flex-shrink:0; margin-bottom:8px; }
+#team-editor > header span { font-size:13px; font-weight:700; }
+.team-body { flex:1; min-height:0; display:grid; grid-template-columns:3fr 2fr; gap:12px; overflow:hidden; }
+.team-body > * { min-width:0; }
+.team-left { min-height:0; display:grid; grid-template-rows:auto 1fr auto; gap:8px; }
+.team-caps { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.team-cap { display:flex; justify-content:space-between; font-size:12px; padding:3px 8px; border:1.5px dashed #d9c3a3; border-radius:8px; background:rgba(255,248,236,.85); }
+.team-cap.full { border-color:#e0453a; color:#a3231b; }
+.team-cap b { font-variant-numeric:tabular-nums; }
+.team-grid { min-height:0; overflow-y:auto; display:grid; grid-template-columns:repeat(5,1fr); gap:6px; align-content:start; }
+.team-cell { position:relative; display:grid; justify-items:center; gap:2px; padding:4px 2px; border:2px solid #96714f; border-radius:10px; background:#fff7e5; font-size:11px; line-height:1.1; cursor:pointer; }
+.team-cell .buddy-portrait { width:44px; height:44px; background:none; }
+.team-cell .buddy-portrait svg { width:36px!important; height:36px!important; }
+.team-cell b { font-size:11px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.team-cell small { font-size:10px; color:#7a5a3a; }
+.team-cell.empty { color:#b8a78f; border-style:dashed; font-size:20px; min-height:76px; }
+.team-cell.picked { outline:3px solid #f2b233; box-shadow:0 0 10px #ffd76a; }
+.team-cell.cand.blocked { opacity:.55; border-style:dashed; border-color:#e0453a; }
+.team-cell .slot-stamp { position:absolute; right:2px; top:2px; }
+.team-cell .champ-flag { position:absolute; left:2px; top:2px; font-style:normal; font-size:9px; padding:0 4px; border-radius:3px; background:#ffd76a; border:1px solid #8a6a1a; color:#5a4310; }
+.team-slots { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.team-slot { display:grid; justify-items:center; gap:2px; padding:4px; border:2px solid #96714f; border-radius:10px; background:#fff7e5; font-size:12px; min-height:64px; }
+.team-slot .buddy-portrait { width:36px; height:36px; background:none; }
+.team-slot .buddy-portrait svg { width:30px!important; height:30px!important; }
+.team-slot.target { outline:2px dashed #f2b233; }
+.team-slot small { font-size:10px; color:#7a5a3a; }
+.team-right { min-height:0; display:grid; grid-template-rows:auto 1fr; gap:6px; }
+.team-right h3 { margin:0; font-size:13px; }
+.team-candidates { min-height:0; overflow-y:auto; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; align-content:start; }
+.team-empty { color:#7a5a3a; font-size:13px; }
+.team-why { flex-shrink:0; margin:6px 0 0; font-size:13px; color:#5b4632; min-height:1.4em; }
 /* v3 大掃除結算頁 */
 #cleanup { display:flex; flex-direction:column; z-index:40; }
 #cleanup > header span { font-size:13px; color:#7a5a3a; }
