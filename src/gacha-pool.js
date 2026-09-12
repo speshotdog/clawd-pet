@@ -8,6 +8,7 @@
     epic:      { label: '史詩' },
     legendary: { label: '傳說' },
     mythic: { label: '神話' },
+    special: { label: '特別' },   // v3 收藏卡（魔花少女）：不在卡池、沒有戰力
   };
   const RARITY_ORDER = ['mythic', 'legendary', 'epic', 'rare', 'common'];
   // id / 顯示名照 menu.js 的 CHARACTERS 與 TOYS
@@ -72,6 +73,9 @@
     { id: 'hotdog',     name: '熱狗',        rarity: 'common', kind: 'emoji', glyph: '🌭' },
     { id: 'heart',      name: '愛心',        rarity: 'common', kind: 'emoji', glyph: '♥', color: '#e8473a' },
   ];
+  // v3 收藏卡：只有大掃除補償這一條路（使用者 2026-09-12：絕版、沒有任何取得方式）；kind 'collect' 不進 rollPack
+  CATALOG.push({ id: 'mohuashaonv', name: '魔花少女', rarity: 'special', kind: 'collect', src: 'card-mohuashaonv.png', bleed: true });
+  const COLLECTIBLE_IDS = ['mohuashaonv'];
   const byId = Object.fromEntries(CATALOG.map((e) => [e.id, e]));
   const CHARACTER_IDS = CATALOG.filter((e) => e.kind === 'char').map((e) => e.id);
 
@@ -174,7 +178,7 @@
   }
 
   const shownRarity = item => item.veil || item.entry.rarity;
-  const api = { shownRarity, rank, RARITY, RARITY_ORDER, CATALOG, byId, CHARACTER_IDS, DEMO_POLICY, GAME_POLICY, rollPack };
+  const api = { shownRarity, rank, RARITY, RARITY_ORDER, CATALOG, byId, CHARACTER_IDS, COLLECTIBLE_IDS, DEMO_POLICY, GAME_POLICY, rollPack };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.GachaPool = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

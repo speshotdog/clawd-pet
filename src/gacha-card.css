@@ -17,6 +17,7 @@
 .card.r-rare { --rc: var(--c-rare); --rc-a: rgba(0,112,221,.7); --rc-b: rgba(0,112,221,.3); }
 .card.r-epic { --rc: var(--c-epic); --rc-a: rgba(163,53,238,.72); --rc-b: rgba(163,53,238,.32); }
 .card.r-legendary { --rc: var(--c-legendary); --rc-a: rgba(255,128,0,.85); --rc-b: rgba(255,128,0,.4); }
+.card.r-special { --rc: #ff7fb8; --rc-a: rgba(255,127,184,.85); --rc-b: rgba(255,127,184,.4); }   /* v3 收藏卡：粉框粉字（禮物卡的識別） */
 .card.dealt { opacity: 1; }
 .card.flipped { cursor: default; }
 .card.flying { transition: transform .5s cubic-bezier(.5, 0, .9, .4), opacity .25s .3s; opacity: 0; }
@@ -82,6 +83,8 @@
   box-shadow: inset 0 0 0 1px rgba(0,0,0,.5), inset 0 0 0 3px rgba(255,255,255,.12);
 }
 .r-legendary .face-frame { border-image: linear-gradient(160deg, #ffd27a, #ff8000 45%, #c25200 60%, #ffd27a) 1; border-radius: 0; }
+.r-special .face-frame { border-image: linear-gradient(160deg, #ffd6ea, #ff7fb8 45%, #b8477f 60%, #ffd6ea) 1; border-radius: 0; }
+.r-special .face-name, .r-special .face-rarity { color: #ffd6ea; }
 .r-epic .face-frame { border-image: linear-gradient(160deg, #e2b6ff, #a335ee 45%, #6b1fa8 60%, #e2b6ff) 1; border-radius: 0; }
 .face-art {
   position: absolute; left: 10px; right: 10px; top: 10px; height: 148px; border-radius: 8px 8px 0 0;

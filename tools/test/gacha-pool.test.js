@@ -7,7 +7,8 @@ const seq = (values) => { let i = 0; return () => (i < values.length ? values[i+
 const rollGame = (opts) => Pool.rollPack({ policy: Pool.GAME_POLICY, id: 'd', visualSeed: 1, ...opts });
 
 test('目錄：52 隻角色進遊戲池，玩具與 emoji 不進', () => {
-  assert.equal(Pool.CATALOG.length, 57);
+  assert.equal(Pool.CATALOG.length, 58);   // v3：+ 收藏卡 mohuashaonv（kind collect，不進池）
+  assert.deepEqual(Pool.COLLECTIBLE_IDS, ['mohuashaonv']); assert.equal(Pool.byId.mohuashaonv.kind, 'collect');
   assert.equal(Pool.GAME_POLICY.candidates.length, 52);
   assert.ok(Pool.GAME_POLICY.candidates.every((id) => Pool.byId[id].kind === 'char'));
 });

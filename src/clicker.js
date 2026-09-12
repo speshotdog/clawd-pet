@@ -443,7 +443,7 @@ window.Clicker = (() => {
     const tidy = [`印記 ${L.marksClaimed.toLocaleString('zh-TW')} → ${(s.marksClaimed).toLocaleString('zh-TW')}（新版印記照「每輪做到的事」算，每輪最多 ${B.V3.MARKS_PER_RUN} 枚）`,
       `收益祝福 Lv.${L.blessing.toLocaleString('zh-TW')} → Lv.${s.blessing}（已用 ${artsSpent} 枚幫你買到；手上還有 ${s.marks} 枚可以投其他神器）`,
       `永久倍率：拿掉（以前是 ×${(1 + .5 * Math.sqrt(L.marksClaimed)).toFixed(0)}，所有王都變成秒殺）`];
-    const gifts = L.prestiges >= 1 ? ['徽章「舊時代的珍母」', '魔花少女・收藏卡（絕版，之後沒有任何取得方式；卡面製作中）'] : ['（沒換過桌布的存檔不需要補償）'];
+    const gifts = L.prestiges >= 1 ? ['徽章「舊時代的珍母」', '魔花少女・收藏卡（絕版，之後沒有任何取得方式；在卡冊最後一頁）'] : ['（沒換過桌布的存檔不需要補償）'];
     const why = `新印記 ＝ 換桌布次數 ${L.prestiges} × 每輪上限 ${B.V3.MARKS_PER_RUN} ＝ ${L.prestiges * B.V3.MARKS_PER_RUN} 枚（反推不到的一律給上界，寧可多給）。祝福第 L 級收 L 枚，先幫你買到買不起為止。永久倍率的根因：它跟生涯幣掛鉤、又乘回幣上，兩條互餵沒有頂；新版換成有頂的神器。`;
     $('cleanup-body').innerHTML = `<div class="cleanup-cols">
       <div><b>保留</b><ul>${kept.map(t => `<li>${t}</li>`).join('')}</ul></div>

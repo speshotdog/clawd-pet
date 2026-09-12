@@ -15,7 +15,7 @@
       missed: 0, sweep: {last:null,count:0,at:0}, gift: null, nextGiftAt: 0, giftResult: null,
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
       // v3（DESIGN-balance-v3）：編隊、本輪王勝／包數、本輪當家、派遣、寶箱種子、大掃除封存
-      roster: [], runWins: [], runPacks: 0, runGates: 0, champions: [], artifacts: {}, dispatch: [], dispatchDay: null, dispatchHalf: {}, chestSeed: Math.floor((now * 2654435761) % 4294967296), legacy: null,
+      roster: [], runWins: [], runPacks: 0, runGates: 0, champions: [], artifacts: {}, collectibles: [], dispatch: [], dispatchDay: null, dispatchHalf: {}, chestSeed: Math.floor((now * 2654435761) % 4294967296), legacy: null,
       settings: { clickSound:'soft', clickFx:'shard', muted: false, mode: 'wish', scene: 'backyard', music: true, musicVolume: .6, sfxVolume: .8, autoChallenge: true } };
   }
   const object = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -50,6 +50,7 @@
       const ids = Object.keys(s.collection || {}).filter(id => known(id) && s.collection[id] > 0).sort();
       let h = Math.floor((s.lifetimeCoins || 0) % 2147483647) >>> 0; s.champions = [];
       while (ids.length && s.champions.length < B.V3.CHAMPIONS) { h = (Math.imul(h, 1664525) + 1013904223) >>> 0; s.champions.push(ids.splice(h % ids.length, 1)[0]); }
+      if (prestiges >= 1) s.collectibles = [...new Set([...(s.collectibles || []), 'mohuashaonv'])];   // 補償：魔花少女收藏卡（絕版）
       s.version = 3;
     }
     check(object(s) && s.version === 3 && s.balanceVersion === 1, '版本（本版不降級或重置）');
@@ -212,7 +213,8 @@
       if (lastLegendary >= 0) check(s.pity.sinceLegendary === draw.entries.length - lastLegendary - 1, 'pending 保底');
     }
     // ---- v3 欄位：缺的補預設；隊伍／派遣不合法就靜默修正（不進 REPAIRS，那張表只准放暫時狀態）
-    s.artifacts ??= {};
+    s.artifacts ??= {}; s.collectibles ??= [];
+    { const PoolRef = pool || (node ? require('./gacha-pool.js') : root.GachaPool); check(Array.isArray(s.collectibles) && new Set(s.collectibles).size === s.collectibles.length && s.collectibles.every(id => PoolRef.COLLECTIBLE_IDS.includes(id)), '收藏卡'); }
     check(object(s.artifacts) && Object.entries(s.artifacts).every(([id, r]) => B.ARTIFACTS.some(a => a.id === id && a.id !== 'blessing' && integer(r) && r <= a.max)), '神器');
     s.runWins ??= []; s.runPacks ??= 0; s.runGates ??= 0; s.champions ??= []; s.dispatch ??= []; s.dispatchDay ??= null; s.dispatchHalf ??= {}; s.legacy ??= null;
     s.chestSeed ??= Math.floor(Math.random() * 4294967296); s.settings.autoChallenge ??= true;

@@ -3,7 +3,11 @@
 window.ClickerAlbum = (() => {
   function create({ store, card, commit, changed, action, format, notice, sound, skillTip, homeFlag, stage, showRecommendations }) {
     const $ = id => document.getElementById(id), E = window.ClickerEconomy, B = window.ClickerBalance, Pool = window.GachaPool;
-    const IDS = Pool.CHARACTER_IDS.filter(id => B.characters[id]).sort((a,b) => E.origin(a)-E.origin(b)), PER_PAGE = 4, PAGES = Math.ceil(IDS.length / PER_PAGE);
+    const CHAR_IDS = Pool.CHARACTER_IDS.filter(id => B.characters[id]).sort((a,b) => E.origin(a)-E.origin(b)), PER_PAGE = 4;
+    // v3：收藏卡（魔花少女）擁有時排在最後一頁；沒有戰力、不編隊、不升星
+    const allIds = () => [...CHAR_IDS, ...((store.state?.collectibles) || []).filter(id => Pool.byId[id])];
+    let IDS = allIds(); let PAGES = Math.ceil(IDS.length / PER_PAGE);
+    const isCollect = id => Pool.byId[id]?.kind === 'collect';
     // 橫式一次看跨頁（兩頁），直式一次一頁。sheet 是「目前這一翻」的索引，sheets 是總翻數。
     const wide = () => !matchMedia('(max-aspect-ratio: 3/4)').matches;
     const sheets = () => wide() ? Math.ceil(PAGES / 2) : PAGES;
@@ -37,6 +41,7 @@ window.ClickerAlbum = (() => {
       return `${RAR[cur]}${cur !== Pool.byId[id].rarity ? `（${o}出身）` : ''}${t ? `・超越 ${t}` : ''}${t === 5 ? '・覺醒' : ''}`;
     }
     function makeCard(s, id) {
+      if (isCollect(id)) { const el = card.create({ ...Pool.byId[id] }, { tag: false }); el.classList.add('flipped', 'album-card', 'collect'); return el; }
       const el = card.create({ ...Pool.byId[id], rarity: E.rarity(s, id) }, { tag: false });
       el.classList.add('flipped', 'album-card'); el.classList.toggle('locked', !s.collection[id]); el.classList.toggle('awakened', s.transcend?.[id] === 5);
       if (!s.collection[id]) { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; el.append(q); }
@@ -46,13 +51,14 @@ window.ClickerAlbum = (() => {
     // ---------- 卡冊 ----------
     function refreshTrainAll() {
       const s = store.state, P = window.ClickerPrestige;
-      const ids = IDS.filter(id => s.collection[id] && (s.partnerLevels?.[id] || 0) < P.PARTNER_CAP);
+      const ids = CHAR_IDS.filter(id => s.collection[id] && (s.partnerLevels?.[id] || 0) < P.PARTNER_CAP);
       const cost = ids.reduce((sum,id) => sum + P.trainCost(s.partnerLevels?.[id] || 0, id), 0);
       $('train-all').disabled = !ids.length || s.coins < cost || store.blocked;
       $('train-all').textContent = !ids.length ? '平均訓練（無可訓練夥伴）' : `平均訓練（${s.coins < cost ? '需' : '約'} ${format(cost)} 幣）`;
     }
     function renderBook(instant = false) {
       const s = store.state; if (!s) return;
+      IDS = allIds(); PAGES = Math.ceil(IDS.length / PER_PAGE);
       refreshTrainAll();
       $('dust-count').textContent = s.universalDust || 0;
       // v3 編隊摘要：隊伍 n/20 與前綴上限（出身算層）；派遣到期就出「收回」鍵
@@ -70,6 +76,7 @@ window.ClickerAlbum = (() => {
         el.dataset.canFlip = String(pageId === 'album-left' ? sh > 0 : sh + 1 < n);
         IDS.slice(face * PER_PAGE, face * PER_PAGE + PER_PAGE).forEach(id => {
           const slot = document.createElement('button'); slot.className = 'album-slot'; slot.dataset.id = id; slot.type = 'button';
+          if (isCollect(id)) { slot.setAttribute('aria-label', `${Pool.byId[id].name}・收藏卡`); slot.title = '收藏卡・絕版'; slot.append(makeCard(s, id)); const meta = document.createElement('div'); meta.className = 'album-meta'; const line = document.createElement('small'); line.textContent = '收藏卡・絕版'; meta.append(line); slot.append(meta); slot.onclick = () => openDetail(id); el.append(slot); return; }
           const hint = `${Pool.byId[id].name}・${s.collection[id] ? `粉塵 ${format(E.dust(s, id))} 顆・` : ''}${nextStep(s, id)}`;
           slot.setAttribute('aria-label', hint); slot.title = hint;
           slot.append(makeCard(s, id));
@@ -116,7 +123,7 @@ window.ClickerAlbum = (() => {
     // 所以開完之後要自己把 refreshKey 對齊，讓那一次多餘的重建不要發生。
     function stateKey() {
       const s = store.state;
-      return JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
+      return JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && !isCollect(detailId) && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
     }
     function openDetail(id, animate = true) {
       const s = store.state; detailId = id; closeDustShop();
@@ -125,6 +132,14 @@ window.ClickerAlbum = (() => {
       const big = makeCard(s, id); big.classList.add('detail-card'); left.append(big);
       const right = document.createElement('div'); right.className = 'detail-right';
       const h = document.createElement('h3'); h.textContent = Pool.byId[id].name; right.append(h);
+      if (isCollect(id)) {   // 收藏卡：只有說明與返回
+        const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = '特別・收藏卡'; right.append(tier);
+        const info = document.createElement('div'); info.className = 'detail-info';
+        for (const [k, v] of [['來歷', '大掃除之前就換過桌布的老玩家才有；絕版，之後沒有任何取得方式'], ['戰力', '沒有。不編隊、不升星、不派遣，純收藏'], ['原型', '禮物卡「魔花少女」，精裝版的全息卡面在末世'] ]) { const r = document.createElement('p'); const b = document.createElement('b'); b.textContent = k; const span = document.createElement('span'); span.textContent = v; r.append(b, span); info.append(r); }
+        right.append(info);
+        const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); right.append(back);
+        root.append(left, right); big.style.transform = 'scale(1.15)'; refreshKey = stateKey(); return;
+      }
       const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = tierName(s, id); right.append(tier);
       right.append(starRow(s, id));
       const owned = !!s.collection[id];
@@ -248,7 +263,7 @@ window.ClickerAlbum = (() => {
       const h = document.createElement('h3'); h.textContent = `萬用粉塵 ${s.universalDust || 0} 顆`; root.append(h);
       const hint = document.createElement('p'); hint.textContent = '兌換成指定夥伴的粉塵：精良 1:1、史詩 2:1、傳說 3:1。萬用粉塵來自每隻王首勝、每日一包與滿養夥伴的重複卡。'; root.append(hint);
       const list = document.createElement('div'); list.className = 'dust-list';
-      for (const id of IDS) {
+      for (const id of CHAR_IDS) {
         const row = document.createElement('div'); row.className = 'dust-row'; const rate = E.exchangeRate(id);
         row.append(card.art.create(Pool.byId[id]));
         const name = document.createElement('b'); name.textContent = `${Pool.byId[id].name}`; row.append(name);

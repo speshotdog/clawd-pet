@@ -35,7 +35,7 @@ const assetsReady = fetch('index.html').then((r) => r.text())
   });
 
 function buildArt(entry) {
-  if (entry.kind === 'char' && entry.src) {
+  if ((entry.kind === 'char' || entry.kind === 'collect') && entry.src) {   // v3 收藏卡也走靜態 PNG
     const img = document.createElement('img'); img.className = 'character-png' + (entry.bleed ? ' bleed' : '');
     img.src = entry.src; img.alt = ''; img.draggable = false; return img;
   }
@@ -130,6 +130,7 @@ const LIVE_CFG = {
   rare:      { tilt: 5, lift: 8,  scale: 1.04,  parallax: 1.5 },
   epic:      { tilt: 6, lift: 9,  scale: 1.045, parallax: 2 },
   legendary: { tilt: 7, lift: 10, scale: 1.05,  parallax: 2.5 },
+  special:   { tilt: 7, lift: 10, scale: 1.05,  parallax: 2.5 },
 };
 const LIVE_MINI = { tilt: 3, lift: 2, scale: 1.025, parallax: 0 };
 const ENTER_MS = 800;          // 入場動作長度
