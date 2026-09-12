@@ -612,7 +612,8 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 /* v3 末世模式：蓋滿整個 960×640 遊戲框（含頂欄、底欄） */
 #apoc { position:absolute; inset:0; z-index:35; background:#242723; }
 /* 末世畫面（team20／精裝招募）是照 1280 寬設計的，塞進 960×640 太擠：用 1280×853 畫、等比縮 0.75 顯示（使用者 09-13：為了觀賞性等比例縮小） */
-#apoc iframe { position:absolute; left:0; top:0; width:1280px; height:853.34px; transform:scale(.75); transform-origin:0 0; border:0; background:#242723; }
+#apoc { --apoc-scale:.75; --apoc-width:1280px; }
+#apoc iframe { position:absolute; left:0; top:0; width:var(--apoc-width); height:calc(100% / var(--apoc-scale)); transform:scale(var(--apoc-scale)); transform-origin:0 0; border:0; background:#242723; }
 #apoc-coach { position:absolute; inset:0; background:rgba(0,0,0,.45); display:grid; place-items:end center; padding:16px 16px 72px; z-index:5; }
 .coach-bubble { max-width:520px; background:#fff7e5; border:3px solid #96714f; border-radius:16px; padding:12px 16px; box-shadow:0 8px 24px rgba(0,0,0,.35); }
 .coach-bubble small { color:#7a5a3a; font-size:11px; letter-spacing:.08em; }

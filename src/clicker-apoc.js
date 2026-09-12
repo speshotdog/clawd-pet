@@ -31,8 +31,11 @@
       if (commit(next)) changed();
       coach(-1); $('apoc-open').classList.remove('new');
     }
+    // 畫布固定 1280 寬，縮到目前 #apoc 的寬（桌機 960→0.75；直式手機照寬度算）
+    function fit() { const w = $('apoc').clientWidth || 960; const scale = w >= 800 ? w / 1280 : 1; $('apoc').style.setProperty('--apoc-scale', scale.toFixed(4)); $('apoc').style.setProperty('--apoc-width', `${Math.round(w / scale)}px`); }   // 直式手機：不縮，讓 map20 自己的手機版面接手
+    addEventListener('resize', () => { if (!$('apoc').hidden) fit(); });
     function open(startTutorial = false) {
-      $('apoc').hidden = false; $('game-content').inert = true; document.body.dataset.mode = 'apoc';
+      $('apoc').hidden = false; fit(); $('game-content').inert = true; document.body.dataset.mode = 'apoc';
       if (!frame().getAttribute('src')) frame().src = 'apoc/index.html';
       const done = (store.state.apoc?.tutorial || 0) >= STEPS.length;
       const start = () => { pushState(); if (startTutorial || !done) coach(0); else { coach(-1); go('map'); } };
