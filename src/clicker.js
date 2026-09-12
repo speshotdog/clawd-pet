@@ -170,7 +170,14 @@ window.Clicker = (() => {
     const est=$('boss-estimate'); est.hidden=!show;
     if (show) { const pct=Math.min(999,Math.round(preview.ratio*100)); est.querySelector('span').textContent=cooling ? `冷卻 ${Math.ceil((preview.cooldownUntil-now)/1000)} 秒` : `≈ ${pct}%`; est.querySelector('i').style.width=`${Math.min(100,pct)}%`; est.classList.toggle('ok',pct>=100); est.classList.toggle('near',pct>=90 && pct<100); }
     const gateBlock=$('gate-block'); gateBlock.hidden=!(preview?.kind==='gate' && !s.boss);
-    if (!gateBlock.hidden) $('gate-label').innerHTML=`第 ${preview.index} 包路障${preview.lost ? '<br><small>守住了，準備好再點「挑戰」</small>' : ''}`;
+    if (!gateBlock.hidden) {
+      $('gate-label').innerHTML=`第 ${preview.index} 包路障${preview.lost ? '<br><small>守住了，準備好再點「挑戰」</small>' : ''}`;
+      // 小王＝該站大王的素材縮小（sprite 走 CSS 逐幀，靜態圖直接當背景）
+      const cfg=window.ClickerScene.resolve(s.settings.scene).boss || {}, pv=$('gate-preview'), w=Math.round((cfg.size?.[0] || 260)*.5), h=Math.round((cfg.size?.[1] || 300)*.5);
+      pv.style.width=`${w}px`; pv.style.height=`${h}px`;
+      if (cfg.sprite) { pv.classList.add('sprite'); pv.style.setProperty('--boss-sprite',`url('${cfg.sprite}')`); pv.style.setProperty('--boss-frames',cfg.frames || 4); pv.style.backgroundImage=''; }
+      else { pv.classList.remove('sprite'); pv.style.removeProperty('--boss-sprite'); pv.style.backgroundImage=`url('${cfg.image || 'clicker-boss-can.png'}')`; }
+    }
     $('scene-open').disabled=!!s.boss || !!stage?.bossBusy; $('recruit-open').disabled=!!s.boss && s.boss.gate===undefined;   // v3：小王不鎖招募
     balance(s.coins); rate($('click-rate'), `每次 ${format(D)}`, String(D)); rate($('passive-rate'), `每秒 ${format(P)}`, String(P));
     $('tutorial-progress').textContent = `${Math.min(50, s.manualClicks)} / 50`;

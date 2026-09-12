@@ -29,7 +29,7 @@ window.ClickerStage = (() => {
     let fx = null, page = 0, teamState = null, teamKey = '', clickChain = 0, fxClickAt = -Infinity, joining = false;
     let soundTimes = [];
     let bossKey=null, resultKey=null, bossBusy=false, bossEntering=false, heartbeat=-1, shellTarget=null, struckRing=null;
-    const GATE_SVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 200"><g stroke="#3b2a1a" stroke-width="6" stroke-linejoin="round"><rect x="20" y="70" width="180" height="34" rx="8" fill="#ffb347"/><rect x="20" y="120" width="180" height="34" rx="8" fill="#ffb347"/><line x1="50" y1="55" x2="50" y2="190"/><line x1="170" y1="55" x2="170" y2="190"/></g><g fill="#3b2a1a"><rect x="44" y="70" width="20" height="34" transform="skewX(-20)"/><rect x="98" y="70" width="20" height="34" transform="skewX(-20)"/><rect x="152" y="70" width="20" height="34" transform="skewX(-20)"/><rect x="71" y="120" width="20" height="34" transform="skewX(-20)"/><rect x="125" y="120" width="20" height="34" transform="skewX(-20)"/><rect x="179" y="120" width="20" height="34" transform="skewX(-20)"/></g><circle cx="110" cy="30" r="16" fill="#ff4d4d" stroke="#3b2a1a" stroke-width="5"/><circle cx="70" cy="32" r="5" fill="#3b2a1a"/><circle cx="150" cy="32" r="5" fill="#3b2a1a"/></svg>';
+    // 小王沒有自己的素材：用該站大王的圖縮小（見 renderBoss）
     // 第十一輪：三連包子包狀態、輸送帶、夜市禮包的演出狀態
     let subStates=[0,0,0], tripleBusy=false, lastMissed=null, beltTime=0, beltWarned=false, beltTicked=null;
     let giftKey=null, giftResultKey=null, giftLanded=false;
@@ -549,8 +549,8 @@ window.ClickerStage = (() => {
         bossImg.alt=cfg.name || '大罐頭';
         // v3 小王：先用路障 SVG 當佔位（使用者 2026-09-13：先用簡單 SVG 排版面，之後優化），尺寸比大王小一號
         const gate=s.boss.gate!==undefined; $('boss-view').classList.toggle('gate',gate);
-        if (gate) { bossImg.classList.remove('sprite'); bossImg.style.removeProperty('--boss-sprite'); bossImg.src='data:image/svg+xml;utf8,'+encodeURIComponent(GATE_SVG); bossImg.alt='路障小王'; }
-        if (gate) cfg={...cfg,size:[220,200],center:cfg.center || 460};
+        // 小王用該站大王的現成素材縮 70%（使用者 2026-09-13：都用現有素材）
+        if (gate) { bossImg.alt='路障小王・'+(cfg.name || '大罐頭'); const w=cfg.size?.[0] || 260, h=cfg.size?.[1] || 300; cfg={...cfg,size:[Math.round(w*.7),Math.round(h*.7)],center:cfg.center || 460}; }
         $('boss-view').style.setProperty('--boss-w',`${cfg.size?.[0] || 260}px`); $('boss-view').style.setProperty('--boss-h',`${cfg.size?.[1] || 300}px`); $('boss-view').style.setProperty('--boss-cx',`${cfg.center || 460}px`);
         $('boss-view').classList.toggle('full-board', (cfg.size?.[0] || 260) >= 600);
         $('boss-timer').hidden=false;$('boss-view').hidden=false;

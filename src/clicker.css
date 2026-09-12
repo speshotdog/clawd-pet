@@ -819,7 +819,10 @@ footer button, .save-plate { display:flex; align-items:center; justify-content:c
 #boss-estimate span { font-variant-numeric:tabular-nums; font-weight:700; }
 #stage > #boss-challenge.glow { animation:challenge-glow 1.2s ease-in-out infinite; }
 @keyframes challenge-glow { 0%,100% { filter:drop-shadow(0 0 0 #ffd76a); } 50% { filter:drop-shadow(0 0 10px #ffd76a); } }
-#stage > #gate-block { position:absolute; left:330px; top:170px; width:200px; z-index:9; display:grid; justify-items:center; gap:2px; font-size:14px; line-height:1.2; text-align:center; color:#3b2a1a; text-shadow:0 1px 0 #fff, 0 0 4px #fff; }
+#stage > #gate-block { position:absolute; left:330px; top:120px; width:200px; z-index:9; display:grid; justify-items:center; gap:2px; font-size:14px; line-height:1.2; text-align:center; color:#3b2a1a; text-shadow:0 1px 0 #fff, 0 0 4px #fff; }
+#gate-preview { background-repeat:no-repeat; background-size:contain; background-position:center bottom; opacity:.92; filter:drop-shadow(0 4px 4px rgba(0,0,0,.35)); }
+#gate-preview.sprite { background-size:calc(var(--boss-frames,4) * 100%) 100%; background-position-x:0%; background-image:var(--boss-sprite); animation:boss-frames calc(var(--boss-frames,4) * 130ms) steps(var(--boss-frames,4), jump-none) infinite; }
+@media (prefers-reduced-motion: reduce) { #gate-preview.sprite { animation:none; } }
 #gate-block small { font-size:11px; color:#7a5a3a; }
 #boss-view.gate #boss-image { transform:translateY(40px); }
 @media (prefers-reduced-motion: reduce) { #stage > #boss-challenge.glow { animation:none; } }
