@@ -15,7 +15,7 @@ def main():
                     'gacha-mode-runtime.js', 'gacha-mode-*.js', 'gacha-pool.js',
                     'character-config.js', 'gacha-*.png', 'gacha-*.jpg', 'toy-*.png', 'card-*.png', 'monster-*.png']:
         files.update(p for p in SRC.glob(pattern) if p.is_file())
-    for folder in ['chipforge', 'fonts']:
+    for folder in ['chipforge', 'fonts', 'apoc']:   # v3：末世殼的自包含頁
         files.update(p for p in (SRC / folder).rglob('*') if p.is_file() and 'worklet' not in p.parts)
     source = (SRC / 'index.html').read_text(encoding='utf8')
     templates = '\n'.join(re.findall(r'<template\b[^>]*>.*?</template>', source, re.S))
