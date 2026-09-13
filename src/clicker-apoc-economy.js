@@ -174,7 +174,10 @@
     const ids = a.pending.draw.entries.map(e => e.entry.id);
     const next = drawn({ ...a, tickets: a.tickets + ids.length, pending: null }, ids);   // drawn() 自己會扣券
     const newIds = [...new Set(ids.filter(id => !a.collection[id]))];
-    return { state: next, accepted: true, newIds };
+    // 末世的「星」就是張數，所以重複＝升星；結算提示用得到
+    const starUps = [];
+    for (const id of new Set(ids.filter(id => a.collection[id]))) starUps.push({ id, from: a.collection[id], to: next.collection[id] });
+    return { state: next, accepted: true, newIds, starUps };
   }
   const view = (a, now) => ({ coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
     skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null,

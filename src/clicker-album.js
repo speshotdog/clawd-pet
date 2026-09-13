@@ -222,13 +222,24 @@ window.ClickerAlbum = (() => {
       const rows = [
         ['被動', owned ? `每秒 ${format(E.individual(s, id))}${E.affinity(s, id) ? '（當家 ×1.5）' : ''}` : `每秒 ${format(def.base)}（招募後）`],
         [def.skill, skillTip(s, id).replace(/\n/g, '\n')],
-        ['粉塵', owned ? `持有 ${E.dust(s, id)} 顆・可用 ${E.availableDust(s, id)} 顆・${nextStep(s, id)}` : '尚未招募'],
+        ['粉塵', owned ? `持有 ${E.dust(s, id)} 顆・可用 ${E.availableDust(s, id)} 顆` : '尚未招募'],
       ];
       if (def.trait) rows.push(['特質', `裝備時攻擊力 ×${E.skillAt(s,id).trait.clickMul}`]);
       for (const bond of B.bonds.filter(b => b.pair.includes(id))) rows.push(['羈絆', bond.pair.every(k => s.collection[k]) ? `${bond.name}・已生效` : `${bond.name}・需要 ${bond.pair.filter(k => !s.collection[k]).map(k => Pool.byId[k].name).join('、')}`]);
       const home = Object.entries(window.ClickerScenes).filter(([, sc]) => (sc.affinity || []).includes(id)).map(([, sc]) => sc.name);
       if (home.length) rows.push(['當家', `${home.join('、')}：收益 ×1.5、冷卻 −20%`]);
       if (E.champion(s, id)) rows.push(['本輪當家', '這一輪收益 ×1.5、冷卻 −20%；換桌布會重抽']);
+      // 升階／超越改成「抽到就自動做」（使用者 2026-09-13），所以詳情頁不再放那兩顆按鈕——
+      // 它們只是把外面已經會自動發生的事再問一次；改成一行看得懂的進度。
+      if (owned) {
+        const t = s.transcend?.[id] || 0, five = E.stars(E.dust(s, id)) >= 5;
+        const next = E.tier(s, id) < 2 ? E.promotionCost(s, id) : (t < 5 ? E.transcendCost(s, id) : 0);
+        const what = E.tier(s, id) < 2 ? '升階' : '超越';
+        rows.push(['成長', t === 5 ? '超越五・覺醒（已滿養）'
+          : !five ? `${nextStep(s, id)}　滿 5★ 之後，抽到重複的就會自動${what}`
+          : next ? `自動${what} ${E.availableDust(s, id)}/${next}　粉塵夠了，下次抽到就自己升`
+          : '已滿']);
+      }
       const inTeam = E.rosterOf(s).includes(id), away = E.dispatched(s, id), job = (s.dispatch || []).find(d => d.id === id);
       if (owned) rows.push(['編隊', inTeam ? '在隊伍裡（產錢、可裝技能）' : away ? `派遣中，${Math.max(0, Math.ceil((job.until - Date.now()) / 60000))} 分鐘後回來` : '不在隊伍（不產錢；可以派遣）']);
       for (const [k, v] of rows) { const r = document.createElement('p'); const b = document.createElement('b'); b.textContent = k; const span = document.createElement('span'); span.textContent = v; r.append(b, span); info.append(r); }
@@ -244,19 +255,6 @@ window.ClickerAlbum = (() => {
         buttons.append(btn);
       }
       const grow = document.createElement('div'); grow.className = 'detail-grow';
-      const canPromote = owned && E.tier(s, id) < 2, canTranscend = owned && E.tier(s, id) >= 2 && (s.transcend?.[id] || 0) < 5;
-      const five = owned && E.stars(E.dust(s, id)) >= 5;
-      const promote = document.createElement('button'); promote.className = 'grow-btn promote';
-      promote.textContent = canPromote ? `升階（${E.availableDust(s, id)}/${E.promotionCost(s, id)} 顆）` : E.tier(s, id) >= 2 ? `已是${RAR[E.rarity(s,id)]}階` : '升階';
-      promote.disabled = !canPromote || !five || E.availableDust(s, id) < E.promotionCost(s, id) || store.blocked;
-      promote.title = !five ? '要 5★ 才能升階' : '';
-      promote.onclick = () => action(() => { if (commit(E.promote(store.state, id, Date.now()))) { changed(); celebrate(big, 'promote'); notice(`${Pool.byId[id].name} 升階為${RAR[E.rarity(store.state, id)]}！`); later(() => { openDetail(id); renderBook(); }, 700); } });
-      const trans = document.createElement('button'); trans.className = 'grow-btn transcend';
-      const t = s.transcend?.[id] || 0;
-      trans.textContent = canTranscend ? `超越 ${t + 1}（${E.availableDust(s, id)}/${E.transcendCost(s, id)} 顆）` : t === 5 ? '超越五・覺醒' : '超越（要傳說階）';
-      trans.disabled = !canTranscend || !five || E.availableDust(s, id) < E.transcendCost(s, id) || store.blocked;
-      trans.onclick = () => action(() => { if (commit(E.transcend(store.state, id, Date.now()))) { changed(); celebrate(big, store.state.transcend[id] === 5 ? 'awaken' : 'transcend'); notice(`${Pool.byId[id].name} 超越 ${store.state.transcend[id]}！`); later(() => { openDetail(id); renderBook(); }, 900); } });
-      grow.append(promote, trans);
       // 夥伴個別訓練：每級 +1 倍（CC 建築），10/25/50/100/150/200 收益 ×2；25/50/75/100 給技能副軸
       const P = window.ClickerPrestige, L = s.partnerLevels?.[id] || 0, ms = P.nextMilestone(L), om = E.PARTNER_MILESTONES.find(m => L < m), CAP = P.PARTNER_CAP;
       const train = document.createElement('button'); train.className = 'grow-btn train';

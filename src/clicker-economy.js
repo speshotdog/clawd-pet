@@ -30,8 +30,8 @@
   const availableDust = (s,id) => Math.max(0,dust(s,id)-16-spentDust(s,id));
   const exchangeRate = id => origin(id) === 3 ? 100 : origin(id)+1;   // 神話 100 萬用粉塵換 1 顆（使用者 2026-09-08）
   const rarity = (s,id) => ['rare','epic','legendary','mythic'][tier(s,id)];
-  function grow(state,id,now,trans) {
-    const s=settle(state,now).state;
+  function grow(state,id,now,trans,inPlace=false) {
+    const s=inPlace?state:settle(state,now).state;
     if (!Object.hasOwn(B.characters,id) || s.pending || stars(dust(s,id))<5) throw new Error('要 5★ 才能升階或超越');
     const cost=trans ? transcendCost(s,id) : promotionCost(s,id);
     if (!cost || (trans && tier(s,id)<2)) throw new Error('已是最高階，或還沒升到傳說階')
@@ -553,14 +553,32 @@
     s.pending = { draw: result.draw };
     return s;
   }
+  // 升階／超越自動化（使用者 2026-09-13：「我希望抽到後就會自己升級了」）。
+  // 規則完全沿用手動那條路（grow）：5★ 才有資格、粉塵夠才做、能做幾次就做幾次。
+  // 玩家不必再去卡冊按按鈕，但錢（粉塵）照樣扣，養成深度沒有變。
+  function autoGrow(s, ids) {
+    const ups = [];
+    for (const id of [...new Set(ids)]) {
+      for (let guard = 0; guard < 12; guard++) {
+        const canPromote = stars(dust(s, id)) >= 5 && promotionCost(s, id) > 0 && availableDust(s, id) >= promotionCost(s, id);
+        const canTranscend = stars(dust(s, id)) >= 5 && tier(s, id) >= 2 && transcendCost(s, id) > 0 && availableDust(s, id) >= transcendCost(s, id);
+        if (canPromote) { const from = rarity(s, id); grow(s, id, s.settledAt, false, true); ups.push({ id, kind: 'promote', from, to: rarity(s, id) }); continue; }
+        if (canTranscend) { grow(s, id, s.settledAt, true, true); ups.push({ id, kind: 'transcend', to: s.transcend[id], awakened: s.transcend[id] === 5 }); continue; }
+        break;
+      }
+    }
+    return ups;
+  }
   function collect(state, drawId, now) {
     // 同一 id 第二次收下直接拒絕；不結算、不寫入、不播入隊。
     if (!state.pending || state.pending.draw.id !== drawId) return { state, accepted: false };
     const s = settle(state, now).state, entries = s.pending.draw.entries;
     const newIds = [...new Set(entries.filter((e) => !s.collection[e.entry.id]).map((e) => e.entry.id))];
+    const dustBefore = s.universalDust || 0;
     const starUps=entries.map(item=>receive(s,item.entry.id)).filter(up=>up.to>up.from);
     s.pending = null;
-    return { state: s, accepted: true, newIds, starUps };
+    const grows = autoGrow(s, entries.map(e => e.entry.id));
+    return { state: s, accepted: true, newIds, starUps, grows, universalDust: (s.universalDust || 0) - dustBefore };
   }
   const sceneMap = () => typeof module !== 'undefined' && module.exports ? require('./clicker-scene.js').scenes : root.ClickerScenes;
   const nextScene = id => Object.keys(sceneMap()).find(key=>sceneMap()[key].unlock?.boss===id);
@@ -628,7 +646,7 @@
   }
   const api = { medianPartnerLevel, exchangeRate, PARTNER_MILESTONES, partnerMul, DRAW_SECONDS, tripleFor, timerFor, giftFor, subNeed, SWEEP_WINDOW_MS, SWEEP_BONUS, origin, tier, rarity, dust, availableDust, spentDust, promotionCost, transcendCost, promote, transcend, exchange, wardrobe, wardrobePrice, affinity, activeBonds, skillAt, recommend, clone, clickCost, trainingCost, drawCost, stars, starMultiplier, individual, rates, tagFor, markMul, blessMul, decoMul,
     thiefHit, newPackage, unlocked, nextScene, canBoss, startBoss, abandonBoss, switchScene, autoGate, bossPreview, capacity30,
-    art, skillArt, cdArt, rosterOf, rosterCounts, rosterViolations, setRoster, autoRoster, dispatched, dispatch, recall, champion, bossPackagesFor, runWon, canGate, startGate, gateNeed, isChest, chestRate,
+    autoGrow, art, skillArt, cdArt, rosterOf, rosterCounts, rosterViolations, setRoster, autoRoster, dispatched, dispatch, recall, champion, bossPackagesFor, runWon, canGate, startGate, gateNeed, isChest, chestRate,
     requirement, packageSum, advancePackage, settle, click, upgrade, slotCount, equip, activate, purchaseDraw, collect };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerEconomy = api;

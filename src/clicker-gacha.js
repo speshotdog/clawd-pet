@@ -28,7 +28,7 @@ window.ClickerGacha = (() => {
       label: (n) => `${n === 1 ? '單抽' : '十連'} · ${n} 券`,
       counts: [1, 10],
       purchase: (n, now) => { const next = E.clone(store.state); next.apoc = A().purchaseDraw(A().normalize(next.apoc), n, now); return next; },
-      collect: (id, now) => { const next = E.clone(store.state); const r = A().collectDraw(A().normalize(next.apoc), id, now); next.apoc = r.state; return { state: next, accepted: r.accepted }; },
+      collect: (id, now) => { const next = E.clone(store.state); const r = A().collectDraw(A().normalize(next.apoc), id, now); next.apoc = r.state; return { state: next, accepted: r.accepted, newIds: r.newIds, starUps: r.starUps }; },
       blocked: () => false,
     } : {
       pending: () => store.state?.pending || null,
@@ -38,7 +38,7 @@ window.ClickerGacha = (() => {
       label: (n) => `${n === 1 ? '單抽' : '五連'} · ${format(E.drawCost(store.state, Math.max(0, n - (store.state.freeDraws || 0))))}`,
       counts: [1, 5],
       purchase: (n, now) => E.purchaseDraw(store.state, n, now, window.GachaPool),
-      collect: (id, now) => { const r = E.collect(store.state, id, now); return { state: r.state, accepted: r.accepted }; },
+      collect: (id, now) => E.collect(store.state, id, now),
       blocked: () => !!(store.state.boss && store.state.boss.gate === undefined),
     };
     const packSize = () => apoc() ? 10 : 5;
@@ -214,6 +214,7 @@ window.ClickerGacha = (() => {
         const result = W().collect(currentId, Date.now());
         if (!result.accepted || !commit(result.state)) return;
         summaryReady = false; currentId = null; changed();
+        if (!stay) { const done = showDrawSummary(result, entries); if (done) return; }   // 先講清楚得到什麼，再關
         if (stay) {
           pendingJoins.push(...entries); $('collect').hidden = $('collect-again').hidden = true; busy = false;
           // 下一輪起不來（存檔鎖住、冒出大王⋯⋯）就正常收尾，不然會停在一個沒有任何按鈕的死畫面
@@ -224,6 +225,53 @@ window.ClickerGacha = (() => {
       } catch (err) { notice(err.message); }
       finally { busy = false; render(); }
     }
+    // 抽卡結算（使用者 2026-09-13：「幫我思考抽到時結算的提示」）。
+    // 沒有任何值得講的事（全是重複又沒升星）就不擋路，直接關。
+    function showDrawSummary(result, entries) {
+      const map = apoc() ? Object.fromEntries((window.ApocPool || []).map(c => [c.id, c])) : window.GachaPool.byId;
+      const name = id => map[id]?.name || id;
+      const lines = [];
+      if (result.newIds?.length) lines.push({ tag: '新夥伴', faces: result.newIds });
+      // 同一隻連升好幾級要併成一行：「采華 精良→史詩、采華 史詩→傳說」讀起來像壞掉
+      const isNew = new Set(result.newIds || []);
+      const stars = (result.starUps || []).filter(u => u.to > u.from && !isNew.has(u.id));
+      if (stars.length) lines.push({ tag: '升星', text: stars.map(u => `${name(u.id)} ★${u.from}→★${u.to}`).join('、') });
+      const RAR = { rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' };
+      const promotes = new Map();
+      for (const g of (result.grows || []).filter(g => g.kind === 'promote')) {
+        const cur = promotes.get(g.id); promotes.set(g.id, { from: cur ? cur.from : g.from, to: g.to });
+      }
+      if (promotes.size) lines.push({ tag: '自動升階', text: [...promotes].map(([id, g]) => `${name(id)} ${RAR[g.from]}→${RAR[g.to]}`).join('、') });
+      const trans = new Map();
+      for (const g of (result.grows || []).filter(g => g.kind === 'transcend')) trans.set(g.id, g);
+      if (trans.size) lines.push({ tag: '自動超越', text: [...trans].map(([id, g]) => `${name(id)} 超越 ${g.to}${g.awakened ? '・覺醒！' : ''}`).join('、') });
+      if (result.universalDust) lines.push({ tag: '萬用粉塵', text: `＋${format(result.universalDust)}（滿養溢出）` });
+      if (!lines.length) return false;
+      const body = $('draw-summary-body'); body.replaceChildren();
+      for (const line of lines) {
+        const row = document.createElement('div'); row.className = 'draw-line';
+        const b = document.createElement('b'); b.textContent = line.tag; row.append(b);
+        if (line.faces) {
+          const wrap = document.createElement('div'); wrap.className = 'draw-faces';
+          for (const id of line.faces) {
+            const fig = document.createElement('figure'); fig.append(card.art.create(map[id]));
+            const cap = document.createElement('figcaption'); cap.textContent = name(id); fig.append(cap); wrap.append(fig);
+          }
+          row.append(wrap);
+        } else { const t = document.createElement('span'); t.textContent = line.text; row.append(t); }
+        body.append(row);
+      }
+      pendingSummaryJoins = entries;
+      $('collect').hidden = $('collect-again').hidden = true; $('recruit-hint').textContent = '';
+      $('draw-summary').hidden = false; $('draw-summary-ok').focus();
+      return true;
+    }
+    let pendingSummaryJoins = null;
+    $('draw-summary-ok').onclick = () => {
+      $('draw-summary').hidden = true;
+      const entries = pendingSummaryJoins || []; pendingSummaryJoins = null;
+      close(); joined(dedupe([...pendingJoins.splice(0), ...entries]));
+    };
     function restore() {
       if (!W().pending() || !ready) return;
       open(); $('recruit-entry').hidden = true;

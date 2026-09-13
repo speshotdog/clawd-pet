@@ -1312,3 +1312,22 @@ body[data-world="apoc"] .package-meter { background:#16203000; border-color:#4A6
 body[data-world="apoc"] #effect-label { background:#22304A; border-color:#4A628A; color:#DDE6F4; }
 body[data-world="apoc"] #effect-label.broken { background:#E0B33C; color:#0C1119; border-color:#0C1119; }
 body[data-world="apoc"] .slot-empty { font-size:26px; color:#5C7CB8; }
+
+/* 抽卡結算：收下之後的一張小結（新夥伴／升星／自動升階／超越／粉塵） */
+#draw-summary { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:60;
+  width:min(560px, 86%); max-height:82%; overflow:auto; display:flex; flex-direction:column; gap:10px;
+  padding:18px 20px 16px; background:var(--paper); border:3px solid var(--ink); border-radius:16px;
+  box-shadow:0 10px 0 rgba(0,0,0,.35); }
+#game #draw-summary, #game #draw-summary h2, #game #draw-summary .draw-line span,
+#game #draw-summary figcaption { color:var(--ink); }
+#draw-summary h2 { margin:0; font-size:20px; }
+#draw-summary-body { display:flex; flex-direction:column; gap:8px; }
+.draw-line { display:flex; align-items:flex-start; gap:8px; font-size:13px; line-height:1.5; }
+.draw-line b { flex:none; min-width:76px; padding:1px 6px; border-radius:6px; background:var(--ink); color:var(--paper); font-size:12px; text-align:center; }
+.draw-line span { min-width:0; }
+.draw-faces { display:flex; flex-wrap:wrap; gap:6px; }
+.draw-faces figure { margin:0; width:52px; text-align:center; font-size:11px; line-height:1.2; }
+.draw-faces figure > :first-child { width:52px; height:52px; object-fit:contain; display:block; }
+#draw-summary-ok { align-self:center; min-width:140px; height:40px; font-size:16px; }
+body[data-world="apoc"] #draw-summary { background:#22304A; border-color:#0C1119; color:#DDE6F4; }
+body[data-world="apoc"] .draw-line b { background:#0E1520; color:#DDE6F4; }
