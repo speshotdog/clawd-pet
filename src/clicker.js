@@ -255,6 +255,7 @@ window.Clicker = (() => {
     $('album-book').before(list);
   }
   function renderSlots() {
+    if (apocMode()) return;   // 末世的技能格由 clicker-apoc-ui.js 畫
     if (!store.state) return;
     const s = store.state, key = JSON.stringify([s.settings.scene, s.collection, s.skillSlots, E.slotCount(s)]);
     if (slotsKey !== key) {
@@ -586,7 +587,12 @@ window.Clicker = (() => {
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
       canOpen: () => !stage.bossBusy || store.state.boss?.gate !== undefined,   // v3：小王打到一半也能招募
       pauseStage() { cutin.stop(); stage.stop(); renderSlots(); },
-      resumeStage() { if (!hiddenNow() && !suspended) { stage.start(); stage.render(store.state, { instant: true }); } renderSlots(); },
+      // 末世的舞台與技能格是 apocUI 在畫；1.0 的 stage／renderSlots 進去會對不上 DOM
+      resumeStage() {
+        if (apocMode()) { apocUI?.render(); return; }
+        if (!hiddenNow() && !suspended) { stage.start(); stage.render(store.state, { instant: true }); }
+        renderSlots();
+      },
       joined(entries) { stage.join(store.state, entries); },
     });
     extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin });
@@ -712,6 +718,7 @@ window.Clicker = (() => {
       else { apocUI.leave(); window.ClickerScene.mount(store.state.settings.scene); stage.start(); }
       changed(); $('tap').focus();
     }
+    $('apoc-ending-close').onclick = () => { $('apoc-ending').hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('scenes-close').onclick=()=>{$('scenes').hidden=true; $('game-content').inert=gacha.active; $('scene-open').focus();};
     for (const id of ['roster', 'stats', 'receipt', 'wardrobe', 'prestige']) $(`${id}-close`).onclick = () => { if (id === 'roster') album.close(); $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('prestige-open').onclick = () => { if (!cutin.active) prestigeUI.open(); };
@@ -742,6 +749,7 @@ window.Clicker = (() => {
     if (!$('reward').hidden) { $('reward-ok').click(); return true; }
 
     if (extras?.escape()) return true;
+    if (!$('apoc-ending').hidden) { $('apoc-ending-close').click(); return true; }
     for (const id of ['scenes', 'roster', 'stats', 'receipt']) if (!$(id).hidden) { $(`${id}-close`).click(); return true; }
     return false;
   }

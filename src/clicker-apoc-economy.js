@@ -47,7 +47,7 @@
   //   原本每次都重建一個 71 筆的物件；快取起來，卡池換了才重算。
   let poolCache = null, poolCacheSrc = null;
   const poolById = () => { const src = root.ApocPool || []; if (src !== poolCacheSrc) { poolCacheSrc = src; poolCache = Object.fromEntries(src.map(c => [c.id, c])); } return poolCache; };
-  function fresh() { return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0, ticketsBought: 0, pending: null, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1 } }; }
+  function fresh() { return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0, ticketsBought: 0, pending: null, cleared: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1 } }; }
   function normalize(a) {
     const f = fresh(); a = { ...f, ...(a || {}) };
     if (!a.collection || typeof a.collection !== 'object') a.collection = {};
@@ -58,6 +58,7 @@
     if (a.stage && (typeof a.stage.hp !== 'number' || a.stage.index !== a.progress)) a.stage = null;
     if (a.stage && a.stage.boss && !a.stage.shield) { a.stage = { ...a.stage, shield: freshShield(0), breakUntil: 0 }; }   // 舊存檔的王關補上護盾
     a.ticketsBought = Math.max(0, Math.floor(Number(a.ticketsBought) || 0));
+    a.cleared = !!a.cleared;
     if (!a.pending || !a.pending.draw || !Array.isArray(a.pending.draw.entries)) a.pending = null;
     a.skillCd = [0, 1, 2, 3].map(i => Number(a.skillCd?.[i]) || 0);
     a.fx = { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, ...(a.fx || {}) };
@@ -91,7 +92,12 @@
       // 破防時間到 → 重新起盾，下一輪要的點擊數 ×GROWTH
       if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0, shield: freshShield((st.shield?.cycle || 0) + 1) };
       if (dt > 0) st.hp -= p * dt * bossMul(st, now, false);
-      if (st.hp <= 0) { s.coins += reward(st.index); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null; events.push({ type: 'win', index: st.index, reward: reward(st.index) }); }
+      if (st.hp <= 0) {
+        s.coins += reward(st.index); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null;
+        events.push({ type: 'win', index: st.index, reward: reward(st.index) });
+        // 全線通行只報一次；之後留在末世繼續放置與補收藏
+        if (s.progress >= RULES.STATIONS && !s.cleared) { s.cleared = true; events.push({ type: 'cleared' }); }
+      }
       else if (st.deadline && now >= st.deadline) { s.stage = null; s.cooldownUntil = now + RULES.BOSS_COOLDOWN; events.push({ type: 'fail', index: st.index }); }
       else s.stage = st;
     }
@@ -180,7 +186,7 @@
     return { state: next, accepted: true, newIds, starUps };
   }
   const view = (a, now) => ({ coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
-    skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null,
+    skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null, cleared: !!a.cleared,
     skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < RULES.STATIONS ? need(a.progress) : 0, ticketCost: ticketCost(a, 1), roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS });
   root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, fight, settle, tap, buyTicket, drawn, setTeam, rosterCounts, rosterViolations, view, ticketCost, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;

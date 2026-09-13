@@ -18,6 +18,7 @@ window.ClickerApocUI = (() => {
 
 
   function create({ $, store, commit, changed, notice, format, card, sound, openRoster, openTeam }) {
+    const root = window;
     const A = window.ApocEconomy, Pool = () => window.ApocPool || [];
     let byIdCache = null, byIdSrc = null;
     const byId = () => { const p = Pool(); if (p !== byIdSrc) { byIdSrc = p; byIdCache = Object.fromEntries(p.map(c => [c.id, c])); } return byIdCache; };
@@ -36,6 +37,12 @@ window.ClickerApocUI = (() => {
       for (const ev of events) {
         if (ev.type === 'win') { sound('upgrade'); notice(`通過第 ${ev.index + 1} 站・＋${format(ev.reward)} 末世金幣`); }
         else if (ev.type === 'fail') notice('王關失敗');
+        else if (ev.type === 'cleared') {
+          const v = view();
+          $('apoc-ending-text').textContent = `二十站都打通了。收藏 ${v.owned.length} / ${(root.ApocPool || []).length} 張，戰力 ${format(v.power)}。`;
+          $('apoc-ending').hidden = false; $('game-content').inert = true; $('apoc-ending-close').focus();
+          sound('transcend');
+        }
       }
       changed();   // 讓招募層等其他模組也跟著重畫（價目、按鈕的可按狀態都在那邊算）
       return events;
@@ -44,6 +51,7 @@ window.ClickerApocUI = (() => {
     function tap() {
       if (!store.state.apoc?.stage) return;
       apply((x, now) => A.settle(A.tap(x, now), now, 0), true);
+      sound('click');
       const el = $('apoc-enemy');
       if (el && !matchMedia('(prefers-reduced-motion: reduce)').matches)
         el.animate([{ transform: 'scale(1)' }, { transform: 'scale(.94)', offset: .4 }, { transform: 'scale(1)' }], 120);
@@ -150,14 +158,29 @@ window.ClickerApocUI = (() => {
       $('training-ticket').hidden = true;
       $('training-one').textContent = '去編隊'; $('training-one').disabled = false;
       $('training-max').hidden = true;
-      // 三張卡的標題也要換成末世的說法，不然會留著「攻擊力／全隊訓練／幫忙拆包」
-      const heads = document.querySelectorAll('#shop h2');
-      if (heads[0]) heads[0].childNodes[0].textContent = '末世券 ';
-      if (heads[1]) heads[1].childNodes[0].textContent = '隊伍 ';
-      const recruitNote = document.querySelector('#shop .recruit small');
-      if (recruitNote) recruitNote.textContent = '隊伍裡的卡才有戰力';
+      // 三張卡的標題也要換成末世的說法，不然會留著「攻擊力／全隊訓練／幫忙拆包」。
+      // ⚠ 這是改 1.0 的靜態文字，所以第一次改之前要把原文存起來，leave() 要還回去，
+      //   不然從末世切回桌邊會看到「末世券」掛在攻擊力那張卡上。
+      setLabel(document.querySelectorAll('#shop h2')[0], '末世券 ');
+      setLabel(document.querySelectorAll('#shop h2')[1], '隊伍 ');
+      setLabel(document.querySelector('#shop .recruit small'), '隊伍裡的卡才有戰力');
     }
 
+    // 只換「第一個文字節點」，不動裡面的 <small>／<b>；原文記在 dataset 裡等 leave() 還原
+    function setLabel(host, text) {
+      if (!host) return;
+      let node = [...host.childNodes].find(n => n.nodeType === 3);
+      if (!node) { node = document.createTextNode(''); host.prepend(node); }
+      if (host.dataset.homeLabel === undefined) host.dataset.homeLabel = node.textContent;
+      node.textContent = text;
+    }
+    function restoreLabels() {
+      for (const host of document.querySelectorAll('[data-home-label]')) {
+        const node = [...host.childNodes].find(n => n.nodeType === 3);
+        if (node) node.textContent = host.dataset.homeLabel;
+        delete host.dataset.homeLabel;
+      }
+    }
     function render() {
       if (store.state?.settings.world !== 'apoc') return;
       const v = view();
@@ -170,8 +193,14 @@ window.ClickerApocUI = (() => {
     }
 
     // 進入／離開末世：只換 body 的旗標與一次重繪，版面節點完全共用
-    function enter() { document.body.dataset.world = 'apoc'; lastTick = Date.now(); render(); }
-    function leave() { delete document.body.dataset.world; const e = $('apoc-enemy'); if (e) e.hidden = true; }
+    // 進末世：開門禮（普發玥玥＋10 券）只發一次。舊版是 iframe 開啟時發的，
+    // iframe 拿掉之後沒人發 → 第一次進去會是空隊伍、0 券，什麼都不能做。
+    function enter() {
+      document.body.dataset.world = 'apoc'; lastTick = Date.now();
+      if (store.state?.apoc?.unlocked && !store.state.apoc.gifted) apply(a => A.gift(a));
+      render();
+    }
+    function leave() { delete document.body.dataset.world; const e = $('apoc-enemy'); if (e) e.hidden = true; restoreLabels(); }
 
     return {
       render, enter, leave, tap, tick, apply,

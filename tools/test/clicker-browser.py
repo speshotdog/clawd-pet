@@ -1012,6 +1012,10 @@ def main():
                 page.screenshot(path=str(OUT / 'pending.png'))
             before = page.evaluate('Object.values(Clicker.state.collection).reduce((a,b)=>a+b,0)')
             page.evaluate('document.getElementById("collect").click();document.getElementById("collect").click()')
+            # 收下之後先出「抽卡結算」（新夥伴／升星／自動升階⋯⋯），按「繼續」才關招募層並播入隊
+            page.wait_for_timeout(300)
+            if not page.locator('#draw-summary').is_hidden():
+                page.evaluate('document.getElementById("draw-summary-ok").click()')
             if name == 'wish':
                 page.wait_for_selector('#join-flight svg, #join-flight img')
                 page.screenshot(path=str(OUT / 'join-duplicate.png'))
@@ -1047,6 +1051,9 @@ def main():
         page.evaluate('Object.defineProperty(document,"hidden",{configurable:true,value:false}); document.dispatchEvent(new Event("visibilitychange"));')
         assert page.locator('#collect').is_visible()
         page.locator('#collect').click()
+        page.wait_for_timeout(300)
+        if not page.locator('#draw-summary').is_hidden(): page.evaluate('document.getElementById("draw-summary-ok").click()')
+        page.wait_for_timeout(400)
 
         bindings=page.evaluate('fxBindings'); page.close()
         # Round 2 scenes use the actual save/load and input paths; no server or app debug API.

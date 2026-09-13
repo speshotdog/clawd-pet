@@ -1331,3 +1331,28 @@ body[data-world="apoc"] .slot-empty { font-size:26px; color:#5C7CB8; }
 #draw-summary-ok { align-self:center; min-width:140px; height:40px; font-size:16px; }
 body[data-world="apoc"] #draw-summary { background:#22304A; border-color:#0C1119; color:#DDE6F4; }
 body[data-world="apoc"] .draw-line b { background:#0E1520; color:#DDE6F4; }
+
+/* 末世的編隊畫面：跟卡冊一樣換深色 */
+body[data-world="apoc"] .team-editor, body[data-world="apoc"] .t20-rail,
+body[data-world="apoc"] .team-dialog, body[data-world="apoc"] #t20-card {
+  border-image:none !important; background:#16202F; border:3px solid #4A628A; border-radius:12px; color:#DDE6F4; }
+body[data-world="apoc"] .team-proxy { background:#22304A; border-color:#4A628A; color:#DDE6F4; }
+body[data-world="apoc"] .capacity-row, body[data-world="apoc"] .team-detail header,
+body[data-world="apoc"] #t20-detail-op, body[data-world="apoc"] .picker-status { color:#C6D4E8; }
+body[data-world="apoc"] #apoc-ending { background:#22304A; border-color:#0C1119; color:#DDE6F4; }
+
+/* ---- UI 體檢（tools/test/clicker-ui-audit.py）抓到的裁切／出界，逐條修 ---- */
+/* 卡片詳情的標題：字級 22 配預設行高會把下緣切掉（實測內容 21px、框 17px） */
+.detail-right h3 { line-height:1.25; }
+/* 末世技能格的「＋」：字的行盒比框高，改成用 flex 置中、不靠行高 */
+.slot-empty { display:flex; align-items:center; justify-content:center; width:100%; height:100%; line-height:0; }
+@media (max-aspect-ratio: 3/4) {
+  /* 場景票券本來是寫死的兩欄 300px＝612px，直式畫面只有 390 */
+  #scene-tickets { grid-template-columns:1fr; gap:8px; }
+  .scene-ticket { width:auto; }
+  /* 徽章牆本來是九欄，直式塞不下 */
+  #badge-grid { grid-template-columns:repeat(5,1fr); }
+  /* 分享鍵在橫式是絕對定位在 left:604px，直式那是畫面外；直式收進標題列右邊 */
+  /* 分享鍵在橫式是絕對定位在 left:604px（畫面外）；直式釘在畫面右上角 */
+  #team #share-offer { position:fixed; left:auto; right:10px; top:calc(64px + env(safe-area-inset-top)); height:auto; padding:3px 12px 5px; z-index:20; }
+}

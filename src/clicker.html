@@ -112,6 +112,8 @@
     <header><h2>第 100 包・12 選 1</h2><span>選一位夥伴，送該角色粉塵 1 顆（等於一張卡）。只能選一次。</span><button id="pick100-close">稍後再選</button></header>
     <div id="pick100-grid"></div>
   </section>
+  <!-- 末世全線通行：只出現一次（apoc.cleared） -->
+  <section id="apoc-ending" class="small-panel" role="dialog" aria-modal="true" aria-label="末世全線通行" hidden><small>末世</small><h2>全線通行。</h2><p id="apoc-ending-text"></p><button id="apoc-ending-close">留在末世</button></section>
   <section id="daily-done" class="small-panel" role="dialog" aria-modal="true" aria-label="今日限定包" hidden><small>今日限定包拆開了</small><h2>今天的份，收下！</h2><p id="daily-done-text"></p><button id="daily-done-close">繼續開工</button></section>
   <section id="receipt" class="small-panel" role="dialog" aria-modal="true" aria-label="離線收據" hidden><small>夥伴幫你收好了</small><h2>回來啦。</h2><p id="receipt-text"></p><button id="receipt-close">繼續開工</button></section>
   <section id="save-error" class="small-panel" hidden><h2>存檔無法讀取</h2><p id="save-error-text"></p><button id="export-raw">匯出原始資料</button><textarea id="raw-save" aria-label="原始存檔" readonly hidden></textarea><button id="rescue-open">貼上存檔救回</button><div id="rescue" hidden><textarea id="rescue-text" aria-label="要貼上的存檔" spellcheck="false" placeholder="把存檔字串貼在這裡"></textarea><div class="io-row"><button id="rescue-load">讀進來</button><span id="rescue-status" role="status"></span></div></div><button id="error-close">關閉視窗</button></section>
