@@ -43,6 +43,52 @@ window.ClickerGacha = (() => {
       blocked: () => !!(store.state.boss && store.state.boss.gate === undefined),
     };
     const packSize = () => apoc() ? 10 : 5;
+    // 末世的抽卡演出＝精裝典藏包（使用者指定）。演出頁只播放；扣券在 start()、落帳在 collectApoc()。
+    const ceremony = (() => {
+      const host = $('apoc-ceremony'), frame = $('apoc-ceremony-frame');
+      let loaded = null;
+      const load = () => loaded ||= new Promise(resolve => {
+        const onReady = (e) => { if (e.source === frame.contentWindow && e.data?.apocCeremony === 'ready') { removeEventListener('message', onReady); resolve(); } };
+        addEventListener('message', onReady); frame.src = 'apoc/ceremony.html';
+      });
+      addEventListener('message', (e) => {
+        // 只認自己的 iframe；演出頁自己的收合動畫是 220ms，等它跑完再關
+        if (e.source === frame.contentWindow && e.data?.apocCeremony === 'collect') setTimeout(collectApoc, 240);
+      });
+      return {
+        async play(ids, restore = false) {
+          previousFocus = document.activeElement; host.hidden = false; $('game-content').inert = true; pauseStage();
+          await load(); const api = frame.contentWindow.ApocCeremony;
+          if (restore) api.restore(ids); else api.play(ids);
+          frame.focus();
+        },
+        hide() { host.hidden = true; },
+        // 典藏包按「收下」就自己清場了；主頁落帳不成時用它把同一批結果放回結果頁
+        replay(ids) { frame.contentWindow?.ApocCeremony?.restore(ids); },
+        get active() { return !host.hidden; },
+      };
+    })();
+    function collectApoc() {
+      const p = W().pending(); if (!p) { ceremony.hide(); return; }
+      const ids = p.draw.entries.map(it => it.entry.id);
+      // 落帳不成（存檔鎖住、寫入失敗）一定要把結果頁放回去：典藏包已經清場，
+      // 不放回去玩家就停在沒有任何按鈕的黑畫面，只能重新整理（Codex 複檢 B1）
+      if (busy) { ceremony.replay(ids); return; }
+      // 上一次寫入失敗後存檔會鎖住，而「重試儲存」鍵在被典藏包蓋住的主頁上按不到——收下時自己先重試一次
+      if (store.blocked && !commit()) { ceremony.replay(ids); notice('存檔仍然失敗，結果已保留，再按一次收下'); return; }
+      busy = true;
+      try {
+        const result = W().collect(p.draw.id, Date.now());
+        if (!result.accepted || !commit(result.state)) { ceremony.replay(ids); notice('存檔失敗，結果已保留，再按一次收下'); return; }
+        ceremony.hide(); changed();
+        const jf = $('join-flight');
+        const entries = p.draw.entries.map(it => ({ id: it.entry.id, origin: { x: jf.clientWidth / 2, y: jf.clientHeight / 2 } }));
+        // 結算卡借用招募層的 #draw-summary（兩個世界同一套結算提示）；沒什麼好講的就直接回遊戲
+        open(); $('recruit-entry').hidden = true;
+        if (!showDrawSummary(result, entries)) { pendingJoins.push(...entries); close(); }
+      } catch (err) { notice(err.message); }
+      finally { busy = false; render(); }
+    }
     function priceButton(el, count, s, supported) {
       const w = W(), cost = w.cost(count), missing = Math.max(0, Math.ceil(cost - w.wallet()));
       const many = packSize();
@@ -59,7 +105,7 @@ window.ClickerGacha = (() => {
       const s = store.state; if (!s) return;
       const w = W(), many = packSize();
       if (!apoc()) { $('draw-price').textContent = s.freeDraws ? `免費 ×${s.freeDraws}` : format(E.drawCost(s, 1)); $('draw-ticket').title = String(E.drawCost(s, Math.max(0,1-s.freeDraws))); }
-      const supported = window.GachaModes[s.settings.mode].counts.includes(1);
+      const supported = apoc() || window.GachaModes[s.settings.mode].counts.includes(1);   // 末世固定是典藏包，單抽十連都有（Codex 複檢 B2）
       const note = supported ? '' : `此演出只支援${apoc() ? '十' : '五'}連；單抽請選流星或拆包桌面。`;
       for (const id of ['draw-one', 'recruit-one']) priceButton($(id), 1, s, supported);
       for (const id of ['draw-five', 'recruit-five']) priceButton($(id), many, s, true);
@@ -181,7 +227,7 @@ window.ClickerGacha = (() => {
     function start(count) {
       const s = store.state, w = W();
       const modeCounts = window.GachaModes[s.settings.mode].counts;
-      const ok = count === 1 ? modeCounts.includes(1) : modeCounts.includes(apoc() ? 5 : count);   // 末世十連借五連的演出排版
+      const ok = apoc() || (count === 1 ? modeCounts.includes(1) : modeCounts.includes(count));   // 典藏包本來就有單抽／五連／十連
       if (!ready || (!apoc() && !canOpen()) || busy || store.blocked || w.blocked() || w.pending() || !ok) return false;
       busy = true;
       try {
@@ -190,6 +236,7 @@ window.ClickerGacha = (() => {
         if (!commit(next)) return false;
         const ticket = $('draw-ticket'); ticket.getAnimations().forEach(a=>a.cancel());
         if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ticket.animate([{transform:'scale(1)'},{transform:'scale(.96)',offset:.5},{transform:'scale(1)'}],{duration:140});
+        if (apoc()) { ceremony.play(W().pending().draw.entries.map(it => it.entry.id)); return true; }
         open(); $('recruit-entry').hidden = true; $('collect').hidden = true; $('skip').hidden = false;
         $('recruit-hint').textContent = ''; const run = makeRuntime(W().pending().draw);
         if (s.settings.mode === 'hearthstone') {
@@ -258,7 +305,9 @@ window.ClickerGacha = (() => {
         if (line.faces) {
           const wrap = document.createElement('div'); wrap.className = 'draw-faces';
           for (const id of line.faces) {
-            const fig = document.createElement('figure'); fig.append(card.art.create(map[id]));
+            const fig = document.createElement('figure');
+            const holo = apoc() && window.ClickerHolo?.ready() ? window.ClickerHolo.face(map[id]) : null;   // 末世一律精裝卡面
+            if (holo) { const slot = document.createElement('span'); slot.className = 'holo-slot'; slot.append(holo); fig.append(slot); } else fig.append(card.art.create(map[id]));
             const cap = document.createElement('figcaption'); cap.textContent = name(id); fig.append(cap); wrap.append(fig);
           }
           row.append(wrap);
@@ -277,6 +326,7 @@ window.ClickerGacha = (() => {
     };
     function restore() {
       if (!W().pending() || !ready) return;
+      if (apoc()) { if (!ceremony.active) ceremony.play(W().pending().draw.entries.map(it => it.entry.id), true); return; }
       open(); $('recruit-entry').hidden = true;
       // pending 保留 veil；沿用重開直接總覽，由 runtime 將卡面還原真實色階。
       makeRuntime(W().pending().draw).skip();
@@ -297,7 +347,7 @@ window.ClickerGacha = (() => {
       s.settings.mode = $('mode-select').value;
       commit(s); render();
     };
-    return { render, open, close, restore, start, collect, get active() { return !layer.hidden; },
+    return { render, open, close, restore, start, collect, get active() { return !layer.hidden || ceremony.active; },
       setReady() { ready = true; render(); },
       suspend() {
         // 隱藏後不留 runtime 等待、卡面動畫或粒子；回來以 pending 重建靜態總覽。

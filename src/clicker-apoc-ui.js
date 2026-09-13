@@ -27,6 +27,8 @@ window.ClickerApocUI = (() => {
     //   內容沒變就別重建；會每秒變的只有冷卻秒數與可按狀態，那兩個就地更新。
     let buddyKey = '', slotKey = '';
 
+    // 末世的卡一律用精裝卡面（HoloCardFace）；拿不到就退回 1.0 的畫法，不要整個壞掉
+    const faceOf = (entry) => (window.ClickerHolo && window.ClickerHolo.ready() && window.ClickerHolo.face(entry)) || card.art.create(entry);
     const view = () => A.view(A.normalize(store.state.apoc), Date.now());
     // 對 s.apoc 做一次純函式變換並提交
     function apply(fn, silent = false) {
@@ -121,7 +123,7 @@ window.ClickerApocUI = (() => {
         const entry = map[id]; if (!entry) continue;
         const el = document.createElement('button'); el.className = 'buddy'; el.dataset.id = id;
         el.title = `${entry.name}・查看卡冊`; el.style.setProperty('--rarity', RARITY[entry.rarity]);
-        const portrait = document.createElement('span'); portrait.className = 'buddy-portrait'; portrait.append(card.art.create(entry));
+        const portrait = document.createElement('span'); portrait.className = 'buddy-portrait holo-slot'; portrait.append(faceOf(entry));
         const name = document.createElement('b'); name.textContent = entry.name;
         const stars = document.createElement('span'); stars.textContent = `★${v.collection[id] || 1}`;
         el.append(portrait, name, stars);
@@ -143,7 +145,7 @@ window.ClickerApocUI = (() => {
         const wrap = document.createElement('article'); wrap.className = 'skill-slot';
         const b = document.createElement('button'); b.className = 'skill-use'; b.dataset.slot = i;
         const left = Math.max(0, Math.ceil(((v.skillCd && v.skillCd[i] || 0) - now) / 1000));
-        if (entry) b.append(card.art.create(entry));
+        if (entry) { const wrap = document.createElement('span'); wrap.className = 'holo-slot'; wrap.append(faceOf(entry)); b.append(wrap); }
         else { const plus = document.createElement('span'); plus.className = 'slot-empty'; plus.textContent = '＋'; b.append(plus); }
         // 空格要能點（點了就去編隊）；只有「發動技能」才受戰鬥中／冷卻限制（Codex 複檢 3-3）
         b.disabled = store.blocked || (!!def && (!!left || !v.stage));
@@ -220,11 +222,13 @@ window.ClickerApocUI = (() => {
       $('owned-count').textContent = `${v.owned.length} / ${Pool().length}`;
       // 1.0 的 numbers() 在末世不跑，這幾顆鍵的可用狀態要自己設，不然會卡在 HTML 的預設值
       // （#scene-open 在 HTML 裡是 disabled 的 → 末世會完全打不開場景面板）
-      $('scene-open').disabled = false; $('scene-open').title = '切換主系統與場景';
+      $('scene-open').disabled = false; $('scene-open').title = '回到關卡地圖';
+      setLabel($('scene-open').querySelector('span'), '地圖');
       $('roster-open').disabled = $('team-open').disabled = false;
       // 商店賣的是桌邊的音效／特效／擺飾，花的是桌邊的幣，對末世戰力沒有任何作用——
       // 留著只會讓玩家花錯錢、期待不存在的效果（Codex 第二輪 B8）。統計同理：那是桌邊的生涯數字。
       hide('wardrobe-open'); hide('stats-open');
+      hide('recruit-open');   // 末世的演出固定是精裝典藏包，沒有演出方式可選
       if ($('daily-bag')) hide('daily-bag');   // 今日限定包是 1.0 的東西
     }
 

@@ -126,6 +126,8 @@ def main():
               f"按 ESC 後畫面沒有被清空：招募層 {after['layer']}／收下鍵 {after['collect']}／卡片 {after['cards']} 張")
         pg.locator('#collect').click()
         pg.wait_for_function('!Clicker.state.pending', timeout=10000)
+        # 2026-09-13 起收下後會先出抽卡結算（新夥伴／升星／自動升階），按「繼續」才關
+        if pg.locator('#draw-summary').is_visible(): pg.locator('#draw-summary-ok').click(); pg.wait_for_timeout(300)
         check(pg.evaluate('document.getElementById("recruit-layer").hidden'), "ESC 之後照樣收得下，招募層正常關閉")
 
         check(not errors, f"沒有 JS 錯誤：{errors[:3]}")

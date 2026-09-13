@@ -60,10 +60,24 @@
       <header class="buddy-header"><h2><img class="badge" src="clicker-ui-badge-heart.png" alt="" />我的夥伴</h2><span id="notice" role="status" hidden></span><nav><button id="buddy-prev" aria-label="上一頁">‹</button><span id="buddy-page"></span><button id="buddy-next" aria-label="下一頁">›</button></nav></header>
       <div id="buddies"></div>
     </section>
+    <!-- 末世關卡地圖：切到末世模式後的主畫面。版面照 holo-5.0 的 map20 原型移植
+         （20 站線性路線、每四站一個王、五個區段），素材由 tools/apoc/build_map.py 拆出來。 -->
+    <section id="apoc-map" aria-label="末世關卡地圖" hidden>
+      <nav id="map-rail" aria-label="區段"></nav>
+      <div id="map-window"><div id="map-route"><div id="map-terrain" aria-hidden="true"></div><svg id="map-lines" aria-hidden="true"></svg></div></div>
+      <aside id="map-inspector" aria-label="關卡摘要">
+        <div class="map-progress"><b id="map-total">00 / 20</b> 站已通行</div>
+        <small id="map-section"></small><h2 id="map-title"></h2>
+        <p id="map-status" role="status"></p><p id="map-desc"></p><p id="map-next"></p>
+        <div class="map-actions"><button id="map-enter">進入戰鬥</button><button id="map-back">回到目前站</button></div>
+      </aside>
+    </section>
     <canvas id="click-fx" width="960" height="640" aria-hidden="true"></canvas><div id="floaters" aria-hidden="true"></div><div id="join-flight" aria-hidden="true"></div>
-    <footer><span id="completed">已拆 0 包</span><span id="next-goal">下一目標：50 點迎接玥玥</span><button id="prestige-open" title="換桌布（輪迴）與印記商店"><img class="badge" src="clicker-ui-tablecloth.png" alt="" />換桌布</button><button id="team-open" title="編隊：隊伍 20 張、技能槽"><img class="badge" src="clicker-ui-flag.png" alt="" />編隊</button><button id="roster-open"><img class="badge" src="clicker-ui-badge-paw.png" alt="" />名冊 <b id="owned-count">0 / 12</b></button><button id="wardrobe-open"><img class="badge" src="clicker-ui-hanger.png" alt="" />商店</button><span class="save-plate"><img class="badge" src="clicker-ui-badge-heart.png" alt="" /><span id="save-status" role="status">尚未儲存</span></span><button id="retry-save" hidden>重試儲存</button></footer>
+    <footer><span id="completed">已拆 0 包</span><span id="next-goal">下一目標：50 點迎接玥玥</span><button id="mode-open" title="切換主系統：桌邊／末世"><img class="badge" src="clicker-ui-scene.png" alt="" />模式</button><button id="prestige-open" title="換桌布（輪迴）與印記商店"><img class="badge" src="clicker-ui-tablecloth.png" alt="" />換桌布</button><button id="team-open" title="編隊：隊伍 20 張、技能槽"><img class="badge" src="clicker-ui-flag.png" alt="" />編隊</button><button id="roster-open"><img class="badge" src="clicker-ui-badge-paw.png" alt="" />名冊 <b id="owned-count">0 / 12</b></button><button id="wardrobe-open"><img class="badge" src="clicker-ui-hanger.png" alt="" />商店</button><span class="save-plate"><img class="badge" src="clicker-ui-badge-heart.png" alt="" /><span id="save-status" role="status">尚未儲存</span></span><button id="retry-save" hidden>重試儲存</button></footer>
   </div>
   <div id="cutin" aria-hidden="true"></div>
+  <!-- 末世的抽卡演出＝精裝典藏包（apoc/ceremony.html，第一次抽才載入）。扣券與落帳在主頁，演出頁只負責播放與「收下」。 -->
+  <div id="apoc-ceremony" role="dialog" aria-modal="true" aria-label="精裝典藏包" hidden><iframe id="apoc-ceremony-frame" title="精裝典藏包"></iframe></div>
   <section id="recruit-layer" class="table skin-af" role="dialog" aria-modal="true" aria-label="招募夥伴" hidden>
     <header id="recruit-topbar"><b>招募夥伴</b><label>演出 <select id="mode-select"><option value="wish">流星投遞</option><option value="hearthstone">拆包桌面</option><option value="summon">腳印召喚陣</option><option value="stage">拉幕登場</option><option value="rip">撕包</option></select></label><button id="recruit-mute">音效開</button><button id="recruit-close">返回</button><button id="recruit-window-close">關閉視窗</button></header>
     <div id="recruit-entry"><img src="gacha-pack.png" alt="夥伴卡包" /><h2>邀一位夥伴，一起開工。</h2><p id="recruit-pity"></p><div><button id="recruit-one"></button><button id="recruit-five"></button></div><p id="recruit-note"></p></div>
@@ -75,6 +89,7 @@
   </section>
   <section id="roster" class="panel album" role="dialog" aria-modal="true" aria-label="夥伴卡冊" hidden><header><h2>夥伴卡冊</h2><span id="team-summary">點卡片看細節。重複卡變成該夥伴的粉塵，5★ 之後可以升階、超越。</span><button id="recall-all" hidden>收回派遣</button><button id="collect-open" hidden>收藏卡</button><button id="train-all" disabled>平均訓練</button><button id="dust-open" class="dust-jar" title="萬用粉塵：兌換成指定夥伴的粉塵"><img src="clicker-ui-dust-jar.png" alt="" /><b id="dust-count">0</b></button><button id="recommend-open">推薦組合</button><button id="roster-close">返回</button></header><div id="album-book"><div class="album-page" id="album-left"></div><div class="album-page" id="album-right"></div><button id="album-prev" class="page-corner prev" aria-label="上一頁">‹</button><button id="album-next" class="page-corner next" aria-label="下一頁">›</button><span id="album-page" class="album-pageno"></span></div><div id="album-detail" hidden></div><div id="dust-shop" hidden></div></section>
   <section id="wardrobe" class="panel wardrobe" role="dialog" aria-modal="true" aria-label="商店" hidden><header><h2 id="shop-title">商店</h2><span id="wardrobe-price"></span><button id="shop-back" hidden>回到分類</button><button id="wardrobe-close">返回</button></header><div id="shop-cats"></div><div id="wardrobe-body" hidden><div class="wardrobe-col" data-cat="sounds"><div id="wardrobe-sounds"></div></div><div class="wardrobe-col" data-cat="fx"><div id="wardrobe-fx"></div></div><div class="wardrobe-col" data-cat="decor"><small id="wardrobe-decor-price"></small><div id="wardrobe-decor"></div></div></div><p class="wardrobe-hint" id="shop-hint">挑一個分類逛逛。買過的永久保留。</p></section>
+  <section id="modes" class="small-panel" role="dialog" aria-modal="true" aria-label="選擇模式" hidden><h2>要玩哪一個？</h2><div id="mode-list"></div><button id="modes-close">回去</button></section>
   <section id="scenes" class="small-panel" role="dialog" aria-modal="true" aria-label="場景票券" hidden><h2>下一站，在哪拆？</h2><div id="scene-tickets"></div><button id="scenes-close">回到桌邊</button></section>
   <!-- v3 大掃除結算頁：老玩家第一次載入看到一次；透明本身就是補償（DESIGN-2026-09-12-content-architecture §11.4） -->
   <section id="cleanup" class="panel cleanup" role="dialog" aria-modal="true" aria-label="珍母大掃除" hidden><header><h2>珍母大掃除</h2><span>末世快來了，舊桌布收進相簿</span></header><div id="cleanup-body"></div><div class="cleanup-actions"><button id="cleanup-why">這是怎麼算的？</button><button id="cleanup-reset">從零開始（拿魔花少女＋徽章）</button><button id="cleanup-ok">保留進度</button></div></section>
@@ -123,6 +138,7 @@
 <script src="gacha-audio.js"></script><script src="gacha-fx.js"></script><script src="gacha-card.js"></script><script src="gacha-mode-runtime.js"></script>
 <script src="gacha-mode-hearthstone.js"></script><script src="gacha-mode-wish.js"></script><script src="gacha-mode-summon.js"></script><script src="gacha-mode-stage.js"></script><script src="gacha-mode-rip.js"></script>
 <script src="clicker-scene.js"></script><script type="module" src="clicker-music.js"></script>
-<script src="clicker-balance.js"></script><script src="clicker-economy.js"></script><script src="clicker-extras.js"></script><script src="clicker-save.js"></script><script src="clicker-stage.js"></script><script src="clicker-gacha.js"></script><script src="clicker-album.js"></script><script src="clicker-prestige.js"></script><script src="clicker-prestige-ui.js"></script><script src="clicker-drag.js"></script><script src="clicker-team.js"></script><script src="apoc/pool.js"></script><script src="clicker-apoc-economy.js"></script><script src="clicker-apoc-ui.js"></script><script src="clicker-cutin.js"></script><script src="clicker.js"></script>
+<script src="clicker-balance.js"></script><script src="clicker-economy.js"></script><script src="clicker-extras.js"></script><script src="clicker-save.js"></script><script src="clicker-stage.js"></script><script src="clicker-gacha.js"></script><script src="clicker-album.js"></script><script src="clicker-prestige.js"></script><script src="clicker-prestige-ui.js"></script><script src="clicker-drag.js"></script><script src="clicker-team.js"></script><script src="apoc/pool.js"></script><script src="apoc/card-face.js"></script><script src="clicker-holo.js"></script>
+  <script src="clicker-apoc-map.js"></script><script src="clicker-apoc-economy.js"></script><script src="clicker-apoc-ui.js"></script><script src="clicker-cutin.js"></script><script src="clicker.js"></script>
 </body>
 </html>

@@ -1386,3 +1386,104 @@ body[data-world="apoc"] #chest-tag, body[data-world="apoc"] #parasite-label { di
 /* 技能槽滿了的時候在原地展開「要換掉哪一格」（不用跑去編隊卸下再回來） */
 .slot-pick-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
 .slot-pick-row button { font-size:12px; padding:2px 8px 4px; }
+
+/* 精裝卡面（HoloCardFace）掛進 1.0 的格子裡：.hcard 是 inset:0，所以容器要有尺寸與定位 */
+.holo-face { position:absolute; inset:0; display:block; }
+.holo-slot { position:relative; display:block; width:100%; height:100%; aspect-ratio:5/7; }
+body[data-world="apoc"] #buddies .buddy-portrait.holo-slot { width:auto; height:64px; aspect-ratio:5/7; margin:0 auto; }
+/* 編隊格子與技能格沿用 1.0 頭像的高度，不然第二排會被技能區蓋住、名字被卡面擋住 */
+body[data-world="apoc"] .team-proxy .buddy-portrait.holo-slot { width:auto; height:42px; aspect-ratio:5/7; }
+body[data-world="apoc"] .skill-grid .skill-slot .buddy-portrait.holo-slot { width:auto; height:40px; aspect-ratio:5/7; }
+body[data-world="apoc"] #slots .skill-use .holo-slot { width:auto; height:100%; aspect-ratio:5/7; margin:0 auto; }
+/* 卡冊／編隊裡的精裝卡：1.0 的 .card 是固定 150×210 再 scale，精裝卡面用同一個框就好 */
+.holo-card { position:relative; }
+.holo-card.locked .holo-face { filter:grayscale(1) brightness(.45); }
+
+/* ============================================================
+   末世關卡地圖（#apoc-map）
+   使用者：「模式 是額外的大選項，切換後就是之前做的關卡地圖」。
+   版面照 holo-5.0 map20 原型，但尺寸改成 1.0 的固定畫布（960×640）裡的一塊：
+   佔掉舞台＋商店＋隊伍那一整片，頂列與頁尾照舊露出來。
+   ============================================================ */
+#apoc-map { position:absolute; left:16px; top:72px; width:928px; height:508px;
+  display:grid; grid-template-columns:1fr 280px; grid-template-rows:34px 1fr; gap:10px; }
+#map-rail { grid-column:1; grid-row:1; display:flex; gap:6px; }
+#map-rail button { flex:1; min-width:0; padding:4px 6px; font-size:11px; line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#map-rail button b { font-variant-numeric:tabular-nums; margin-right:4px; opacity:.7; }
+#map-window { grid-column:1; grid-row:2; overflow-y:auto; overscroll-behavior:contain;
+  position:relative; border:3px solid var(--paper-edge,#4A628A); border-radius:12px; background:#0E1520; }
+#map-route { position:relative; height:2960px; }
+#map-terrain { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+.map-tile { position:relative; display:block; width:100%;
+  aspect-ratio:971/1619; background:url('apoc/map/terrain.webp') center/100% 100% no-repeat; opacity:.55; }
+#map-lines { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+.map-link { stroke:#9FB4D4; stroke-width:2.5; fill:none; stroke-opacity:.26; vector-effect:non-scaling-stroke; }
+.map-link.walked { stroke-opacity:.8; }
+.map-station { position:absolute; left:calc(43% + var(--dx)); width:52px; height:52px; padding:0;
+  border:0; background:transparent; box-shadow:none; z-index:2; }
+#game-content .map-station { border:0; box-shadow:none; background:transparent; }
+#game-content .map-station:hover:enabled { background:transparent; }
+.map-station .node-body { position:absolute; inset:0; border:2px solid var(--paper-edge,#4A628A);
+  background:#0E1520; display:grid; place-items:center; border-radius:6px; }
+.map-station.boss .node-body { border-color:#E0B33C; border-width:3px; }
+.map-motif { display:block; width:30px; height:30px; background:center/contain no-repeat; }
+.motif-check { background-image:url('apoc/map/check.webp'); }
+.motif-lock  { background-image:url('apoc/map/lock.webp'); opacity:.42; }
+.motif-paw   { background-image:url('apoc/map/paw.webp'); }
+.map-station.current .node-body { box-shadow:0 0 0 3px #A4B193, 0 0 14px #A4B19366; }
+.map-station.picked .node-body { outline:2px dashed #E0B33C; outline-offset:3px; }
+.map-station.locked .node-body { border-color:#31425F; }
+.map-label { position:absolute; left:60px; top:14px; width:150px; text-align:left; font-size:12px;
+  color:#C6D4E8; background:#0E1520D9; padding:2px 6px; border-radius:4px; pointer-events:none;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#map-inspector { grid-column:2; grid-row:1 / span 2; display:flex; flex-direction:column; gap:8px;
+  border:3px solid var(--paper-edge,#4A628A); border-radius:12px; background:var(--paper,#22304A);
+  padding:12px; overflow:auto; }
+.map-progress { font-size:11px; color:#8FA3BE; } .map-progress b { font-variant-numeric:tabular-nums; color:#DDE6F4; }
+#map-section { color:#8FA3BE; }
+#map-title { font-size:19px; line-height:1.25; }
+#map-status { border-left:3px solid #A4B193; padding-left:8px; font-size:12px; }
+#map-desc, #map-next { font-size:11px; line-height:1.45; color:#B8C7DC; }
+.map-actions { margin-top:auto; display:flex; flex-direction:column; gap:8px; }
+.map-actions button { width:100%; }
+/* 模式面板：兩張大卡，比場景票券大一號——這是「玩哪一款」而不是「去哪一站」 */
+#modes { width:520px; }
+#mode-list { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; }
+#game .mode-card, .mode-card { display:flex; flex-direction:column; align-items:stretch; gap:8px; padding:10px; text-align:left; min-width:0; }
+.mode-thumb { display:block; height:120px; border-radius:8px; background:#2A2320; overflow:hidden; }
+.mode-thumb img { width:100%; height:100%; object-fit:cover; }
+.mode-card b { display:block; font-size:17px; line-height:1.3; }
+.mode-card small { display:block; font-size:12px; line-height:1.35; }
+/* 地圖開著的時候，戰鬥畫面的技能格／商店／隊伍列都是絕對定位的兄弟節點，會從地圖底下透出來。
+   用 visibility 收（不是 hidden 屬性）：那幾個節點的 hidden 由各自的 renderer 管，不能搶。 */
+#game-content.map-open #slots, #game-content.map-open #shop, #game-content.map-open #team,
+#game-content.map-open #stage-gap { visibility:hidden; }
+/* 精裝典藏包疊層：蓋滿 960×640 的遊戲框（演出頁自己的版面就是照這個殼調的，見 ceremony-layout.js） */
+#apoc-ceremony { position:absolute; inset:0; z-index:80; border-radius:16px; overflow:hidden; background:#101115; }
+#apoc-ceremony iframe { display:block; width:100%; height:100%; border:0; }
+.draw-faces figure .holo-slot { width:64px; height:auto; }
+body[data-world="apoc"] .draw-faces figure { width:64px; }   /* 精裝卡面 5:7，64 寬；1.0 的頭像框是 52 會互相疊 */
+
+/* 直式的關卡地圖 */
+@media (max-aspect-ratio: 3/4) {
+  /* 直式的 #game-content 是一條 flex 直欄（見上面的 order 註解），地圖佔掉舞台到夥伴列那一段 */
+  #apoc-map { position:static; left:auto; top:auto; width:auto; height:auto; flex:1; min-height:0; order:2;
+    grid-template-columns:minmax(0,1fr); grid-template-rows:34px minmax(0,1fr) auto; gap:8px; }
+  #map-rail { grid-column:1; grid-row:1; overflow-x:auto; overflow-y:hidden; }
+  #map-rail button { flex:0 0 auto; }
+  #map-window { grid-column:1; grid-row:2; }
+  #map-inspector { grid-column:1; grid-row:3; padding:10px; gap:6px; }
+  #map-desc { display:none; }
+  .map-actions { flex-direction:row; } .map-actions button { flex:1; min-width:0; }
+  .map-station { left:calc(28% + var(--dx)); }
+  .map-label { width:130px; }
+  /* 橫式用 visibility 收；直式這幾塊是 flex 項目，visibility 仍然佔高度，要真的拿掉 */
+  #game-content.map-open #shop, #game-content.map-open #slots, #game-content.map-open #team,
+  #game-content.map-open #stage-gap { display:none; }
+  /* 直式的「下一目標」是絕對定位在頂部的一行字，地圖開著時會壓在區段列上；進度資訊欄裡已經有了 */
+  #game-content.map-open footer #next-goal { display:none; }
+}
+
+body[data-world="apoc"] #recruit-topbar label { display:none; }   /* 末世的演出固定是精裝典藏包，「演出」選單沒有意義 */
+body[data-world="apoc"] #share-offer { display:none; }   /* 分享提示是桌邊事件（升階、打王⋯⋯）用的，末世裡按下去會分享另一個世界的資料 */

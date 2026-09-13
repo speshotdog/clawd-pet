@@ -91,7 +91,9 @@ def main():
         check(base['portrait'], '390×844 會切到直式版面')
         check(not base['scroll'], '整頁不出現捲軸')
         check(base['slots'] == 4, f"技能槽 4 格都排得下（印記商店的 slot4）：{base['slots']} 格")
-        check(base['tabs'] == 6, f"底部六個分頁都排得下（v3 多了「編隊」；末世地圖解鎖後才出現）：{base['tabs']} 個")
+        # 頁尾：換桌布／編隊／名冊／商店；「模式」只在末世解鎖後出現（09-13 起模式是頂層大選項）
+        want = 4 + (1 if pg.evaluate("()=>!!Clicker.state.apoc?.unlocked") else 0)
+        check(base['tabs'] == want, f"底部 {want} 個分頁都排得下：{base['tabs']} 個")
         check(not base['wide'], f"沒有元素撐出畫面寬：{base['wide'] or '沒有'}")
         check(abs(base['stageAspect'] - 608/360) < .02,
               f"舞台維持 608:360 的比例（實測 {base['stageAspect']}），內部座標系不用改")

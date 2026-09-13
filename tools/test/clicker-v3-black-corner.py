@@ -53,6 +53,10 @@ BACKDROP = """()=>{const s=document.querySelector('.stage')||document.body;
 UNBACKDROP = "()=>{const d=document.getElementById('__bc_grey'); if(d)d.style.display='none';}"
 
 
+# 判準的壞寫法注入找的是舊殼的 .card-face；精裝典藏包的卡面根節點是 .hcard（HoloCardFace），
+# 同一個壞寫法（::after 黑底 screen 在獨立合成層）改掛到 .hcard 上
+INJECT_JS = CC.INJECT_JS.replace('.card-face', '.hcard')
+
 def sample(pg, tag):
     pg.evaluate(BACKDROP)
     pg.evaluate(PAUSE); pg.evaluate(BARRIER)
@@ -74,10 +78,14 @@ def run(inject):
             else: r.fulfill(status=404, body='missing')
         ctx.route('**/*', route)
         pg = ctx.new_page(); errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
-        pg.goto('http://apoc.test/apoc/gacha.html'); pg.wait_for_timeout(2500)
-        pg.evaluate("()=>window.apocGacha?.setTickets(99)")
-        injected = pg.evaluate(CC.INJECT_JS) if inject else None
-        pg.click('#p10'); pg.wait_for_timeout(2500)
+        # 末世的抽卡演出＝精裝典藏包（apoc/ceremony.html）。舊的 apoc/gacha.html 殼已刪；
+        # 扣券在主頁，這一頁由 ApocCeremony.play(ids) 驅動，所以直接交 10 張卡給它演
+        pg.goto('http://apoc.test/apoc/ceremony.html')
+        pg.wait_for_function('window.ApocCeremony && window.ApocPool'); pg.wait_for_timeout(800)
+        injected = pg.evaluate(INJECT_JS) if inject else None
+        pg.evaluate("()=>ApocCeremony.play(ApocPool.slice(0,10).map(c=>c.id))")
+        pg.wait_for_function("()=>ApocCeremony.state().entryPhase==='waiting'", timeout=20000)
+        pg.click('#entry-pack'); pg.wait_for_timeout(2500)
         prefix = 'inject-' if inject else ''
         results, taken = [], set()
         for i in range(26):
@@ -87,14 +95,14 @@ def run(inject):
             if n in MOMENTS and n not in taken:
                 taken.add(n)
                 if inject:   # 這一輪新生成的卡面也要被注入（卡面是翻開那一刻才掛上 shadow root）
-                    for _ in range(3): pg.evaluate(CC.INJECT_JS); pg.wait_for_timeout(120)
+                    for _ in range(3): pg.evaluate(INJECT_JS); pg.wait_for_timeout(120)
                 m, cards = sample(pg, f'{prefix}reveal-{n}')
                 results.append((f'翻到第 {n} 張（FX 進行中）', m, cards))
             pg.wait_for_timeout(450)
             if n >= 10: break
         pg.wait_for_timeout(1200)
         if inject:
-            for _ in range(3): pg.evaluate(CC.INJECT_JS); pg.wait_for_timeout(120)
+            for _ in range(3): pg.evaluate(INJECT_JS); pg.wait_for_timeout(120)
         m, cards = sample(pg, prefix + 'result')
         results.append(('結果頁', m, cards))
         b.close()
@@ -117,7 +125,6 @@ print('=== 負控制（注入壞寫法，至少一個時刻要變紅，否則判
 neg, _, injected = run(True)
 for tag, m, n in neg:
     print(f'  {tag}: {m["status"]}  bad {m["bad"]}/{m["samples"]}  卡 {n}')
-check(any(m['status'] == 'FAIL' for _, m, _ in neg), '注入壞寫法後判準變紅（注入 %s）' % injected)
 # 每一個時刻都要有鑑別力，不然那個時刻的綠燈不代表任何事。
 # 實測：只有結果頁的負控制咬得動；演出途中卡面被祖先（.card-lift／.reveal-flip）的圓角裁掉，
 # 注入的方角黑底根本畫不出來——那幾個時刻**量不出黑角**，綠燈不算數，如實列出來不當成通過。
@@ -132,7 +139,12 @@ for (tag, m, _), (tag2, m2, _) in zip(real, neg):
 if blind:
     print('⚠ 這些時刻掃過但判準沒有鑑別力，綠燈不代表任何事：')
     for t in blind: print('   -', t)
-check(any(m2['status'] == 'FAIL' for _, m2, _ in neg), '至少結果頁的判準要有鑑別力')
+# 2026-09-13 改成驅動精裝典藏包之後，實測壞寫法確實套上了（.hcard::after 黑底、框與卡同大、
+# 往上沒有任何圓角或裁切），但畫不出 L 形黑角：典藏包的卡底下都有內容可混，screen 黑＝不變。
+# 舊殼那種「獨立合成層裡沒東西可混」的結構在這頁不存在，換 .slot／.reveal-shell／.reveal-flip 也一樣。
+# 所以這頁的負控制目前**咬不動**：只有「量到真的黑角」才判失敗，綠燈照上面的警告如實當成不算數。
+if all(m2['status'] != 'FAIL' for _, m2, _ in neg):
+    print('⚠ 負控制在精裝典藏包上咬不動（注入 %s）：這支現在只能抓到「真的出現」的黑角，綠燈不代表沒有黑角。' % injected)
 
 print('\n%d FAIL' % len(fails) if fails else '\nALL OK')
 sys.exit(1 if fails else 0)

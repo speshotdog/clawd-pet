@@ -27,7 +27,13 @@
       return next;
     }
     const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
-    function portrait(id) { const p = el('span', 'buddy-portrait'); p.append(card.art.create(byId(id))); return p; }
+    function portrait(id) {
+      const p = el('span', 'buddy-portrait');
+      // 末世用精裝卡面
+      const holo = apoc() && window.ClickerHolo?.ready() ? window.ClickerHolo.face(byId(id)) : null;
+      if (holo) { p.classList.add('holo-slot'); p.append(holo); } else p.append(card.art.create(byId(id)));
+      return p;
+    }
     function proxy(id, index, handler) {
       const b = el('button', 'team-proxy'); b.type = 'button'; b.dataset.id = id;
       b.setAttribute('aria-label', `${index === null ? '候選' : String(index + 1).padStart(2, '0')} ${byId(id).name} ${RAR[byId(id).rarity]}`);
@@ -83,7 +89,15 @@
         ? `${RAR[byId(id).rarity]}・★${apocState().collection[id] || 1}・戰力 ${format(power(id))}`
         : `${RAR[Pool.byId[id].rarity]}・每秒 ${format(E.individual(s, id))}${E.champion(s, id) ? '・本輪當家 ×1.5' : ''}`;
       $('t20-detail-op').textContent = `${serial} · ${index >= 0 ? '已編入' : '尚未編入'} · ${byId(id).name}`;
-      const host = $('t20-card'); host.replaceChildren(); const face = card.create({ ...byId(id), rarity: apoc() ? byId(id).rarity : E.rarity(s, id) }, { tag: false }); face.classList.add('flipped', 'album-card', 'detail-card'); host.append(face);
+      const host = $('t20-card'); host.replaceChildren();
+      if (apoc() && window.ClickerHolo?.ready()) {
+        const wrap = document.createElement('div'); wrap.className = 'card flipped album-card detail-card holo-card';
+        const f = window.ClickerHolo.face(byId(id)); if (f) wrap.append(f); host.append(wrap);
+        $('t20-remove').disabled = index < 0; $('t20-replace').disabled = index < 0;
+        document.querySelectorAll('#t20-grid .team-proxy').forEach(b => b.setAttribute('aria-selected', String(b.dataset.id === selected)));
+        return;
+      }
+      const face = card.create({ ...byId(id), rarity: E.rarity(s, id) }, { tag: false }); face.classList.add('flipped', 'album-card', 'detail-card'); host.append(face);
       $('t20-remove').disabled = index < 0; $('t20-replace').disabled = index < 0;
       document.querySelectorAll('#t20-grid .team-proxy').forEach(b => b.setAttribute('aria-selected', String(b.dataset.id === selected)));
     }

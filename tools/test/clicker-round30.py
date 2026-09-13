@@ -47,7 +47,9 @@ def main():
         pg.goto('http://clicker.test/clicker.html')
         pg.wait_for_function('window.Clicker?.state')
         pg.evaluate(SEED)
-        pg.reload(); pg.wait_for_function('!document.getElementById("tap").disabled')
+        # ⚠ 不能只等 #tap 不是 disabled：HTML 裡它本來就沒有 disabled，重新載入後初始化還沒跑就成立了，
+        #   這時頁尾各鍵的 onclick 還沒綁，點下去沒反應（實測 3 次 2 次，HEAD 一樣）。等到綁好才開始操作。
+        pg.reload(); pg.wait_for_function('!document.getElementById("tap").disabled && typeof document.getElementById("wardrobe-open").onclick === "function"')
 
         # ---- 一、桌面裝飾：買了但預設不擺 ----
         deco = pg.evaluate("""() => ({owned: Clicker.state.deco.length,

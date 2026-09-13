@@ -36,7 +36,9 @@
       const img = d.src.querySelector('.buddy-portrait') || d.src, r = img.getBoundingClientRect();
       d.w = r.width; d.h = r.height; d.gx = e.clientX - r.left; d.gy = e.clientY - r.top;
       const g = document.createElement('div'); g.className = 'drag-ghost'; g.style.width = `${d.w}px`; g.style.height = `${d.h}px`;
-      g.append(card.art.create(byId(d.id))); layer.append(g); d.ghost = g;
+      // 末世拖的是精裝卡（使用者：舊的卡樣式一張都不准放）
+      const holo = apoc() && window.ClickerHolo?.ready() ? window.ClickerHolo.face(byId(d.id)) : null;
+      g.append(holo || card.art.create(byId(d.id))); layer.append(g); d.ghost = g;
       try { d.src.setPointerCapture(d.pid); d.captured = true; } catch {}
       targetsOf(d).forEach(el => el.classList.add('drop-ok'));
       place();

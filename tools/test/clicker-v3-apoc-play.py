@@ -29,10 +29,6 @@ MYTHIC_JS = """()=>{const a=Clicker.state.apoc,p=Object.fromEntries(ApocPool.map
   if(!a.roster.includes(id)) a.roster=[id,...a.roster].slice(0,20);
   a.skills=[id,null,null,null]; return id;}"""
 
-INSIDE_JS = """()=>{const l=document.getElementById('recruit-layer').getBoundingClientRect();
-  return [...document.querySelectorAll('#cards .card')].every(c=>{const r=c.getBoundingClientRect();
-    return r.left>=l.left-1 && r.right<=l.right+1 && r.top>=l.top-1 && r.bottom<=l.bottom+1;});}"""
-
 with sync_playwright() as p:
     b = p.chromium.launch()
     ctx = b.new_context(viewport={'width': 1280, 'height': 860})
@@ -52,18 +48,31 @@ with sync_playwright() as p:
     a = pg.evaluate("()=>Clicker.state.apoc")
     check(a['gifted'] and a['tickets'] == 10 and a['roster'] == ['pufayueyue'], '開門禮：普發玥玥入隊＋10 券')
 
-    # 十連（招募層兩個世界共用）
-    pg.eval_on_selector('#draw-five', 'e=>e.click()'); pg.wait_for_timeout(900)
+    # 末世一進來是關卡地圖；點「進入戰鬥」才是 1.0 的戰鬥畫面
+    check(pg.locator('#apoc-map').is_visible(), '末世的主畫面是關卡地圖')
+    pg.evaluate("()=>{ApocEconomy.RULES.BASE_NEED=3000;}")   # 這支測接線不是數值；進入戰鬥當下就算血量，要先改
+    pg.eval_on_selector('#map-enter', 'e=>e.click()'); pg.wait_for_timeout(800)
+    check(pg.locator('#apoc-map').is_hidden(), '進入戰鬥 → 地圖收起')
+
+    # 十連：演出是精裝典藏包（使用者指定），扣券與結果在主頁先寫進存檔
+    pg.eval_on_selector('#draw-five', 'e=>e.click()'); pg.wait_for_timeout(600)
     check(pg.evaluate("()=>!!Clicker.state.apoc.pending"), '十連：pending 進了末世的存檔')
     check(not pg.evaluate("()=>!!Clicker.state.pending"), '沒有汙染 1.0 的 pending')
-    for _ in range(6):
-        if pg.locator('#skip').is_visible(): pg.locator('#skip').click()
-        pg.wait_for_timeout(700)
-        if not pg.locator('#collect').is_hidden(): break
-    check(pg.locator('#cards .card').count() == 10, '十張卡都在版面裡（%d）' % pg.locator('#cards .card').count())
-    check(pg.evaluate(INSIDE_JS), '十張卡沒有跑出招募層')
+    check(pg.locator('#apoc-ceremony').is_visible(), '精裝典藏包打開')
+    frame = next(f for f in pg.frames if f.url.endswith('apoc/ceremony.html'))
+    frame.wait_for_function("()=>window.ApocCeremony && ApocCeremony.state().entryPhase==='waiting'", timeout=20000)
+    saved = pg.evaluate("()=>Clicker.state.apoc.pending.draw.entries.map(e=>e.entry.id)")
+    check(frame.evaluate("()=>ApocCeremony.state().ids") == saved, '演出的十張＝存檔裡的十張')
+    frame.eval_on_selector('#entry-pack', 'e=>e.click()'); pg.wait_for_timeout(1500)
+    frame.evaluate("()=>{const b=document.getElementById('revealall'); if(b&&!b.hidden) b.click();}")
+    frame.wait_for_function("()=>ApocCeremony.state().collectable", timeout=30000)
+    inside = frame.evaluate("()=>{const w=document.getElementById('win').getBoundingClientRect();"
+                            "const s=[...document.querySelectorAll('#fan .slot')].map(e=>e.getBoundingClientRect());"
+                            "return s.length===10 && s.every(r=>r.left>=w.left-1&&r.right<=w.right+1&&r.top>=w.top-1&&r.bottom<=w.bottom+1);}")
+    check(inside, '十張卡都在典藏包的畫面裡')
     pg.screenshot(path=str(OUT / '1-ten.png'))
-    pg.eval_on_selector('#collect', 'e=>e.click()'); pg.wait_for_timeout(1000)
+    frame.eval_on_selector('#finish', 'e=>e.click()'); pg.wait_for_timeout(1000)
+    check(pg.locator('#apoc-ceremony').is_hidden(), '收下 → 典藏包關閉')
     if not pg.locator('#draw-summary').is_hidden():
         check(True, '收下之後出結算：' + ' / '.join(pg.locator('#draw-summary-body').inner_text().split('\n'))[:60])
         pg.screenshot(path=str(OUT / '2-summary.png'))
@@ -72,7 +81,6 @@ with sync_playwright() as p:
     check(a['tickets'] == 0 and len(a['roster']) >= 2, '十連：券扣光、新卡自動入隊 ' + str({'tickets': a['tickets'], 'roster': len(a['roster'])}))
 
     # 一般關
-    pg.evaluate("()=>{ApocEconomy.RULES.BASE_NEED=3000;}")   # 這支測接線不是數值
     pg.eval_on_selector('#boss-challenge', 'e=>e.click()'); pg.wait_for_timeout(500)
     check(pg.evaluate("()=>Clicker.state.apoc.stage.shield") is None, '一般關沒有護盾')
     for _ in range(80):

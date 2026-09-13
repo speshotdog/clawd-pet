@@ -63,8 +63,17 @@ AUDIT_JS = r"""(label)=>{
     // 逐軸看：橫向可捲不代表縱向也可以（Codex 複檢 4-1）
     const scrollX=/auto|scroll/.test(c.overflowX), scrollY=/auto|scroll/.test(c.overflowY);
     const dx=e.scrollWidth-e.clientWidth, dy=e.scrollHeight-e.clientHeight;
-    const badX = dx>1 && !scrollX && c.textOverflow!=='ellipsis';
-    const badY = dy>1 && !scrollY;
+    // overflow:visible 的字不會被自己的框裁掉，只會被外層「會裁切、又不能捲」的容器裁到——
+    // 那就量字形的實際矩形。精裝卡的卡名行框 14px、字形 16px，但外層沒有東西裁它，畫面上是完整的。
+    const cutBy=(axis)=>{const rg=document.createRange(); rg.selectNodeContents(e); const t=rg.getBoundingClientRect();
+      let p=e.parentElement; while(p&&p!==document.documentElement){const pc=getComputedStyle(p), ov=axis==='x'?pc.overflowX:pc.overflowY;
+        if(/auto|scroll/.test(ov)) return false;
+        // 內層容得下不代表外層也容得下，要一路查上去（Codex 複檢 C）
+        if(ov!=='visible'){const pr=p.getBoundingClientRect();
+          if(axis==='x' ? (t.left<pr.left-1||t.right>pr.right+1) : (t.top<pr.top-1||t.bottom>pr.bottom+1)) return true;}
+        p=p.parentElement;} return false;};
+    const badX = dx>1 && !scrollX && c.textOverflow!=='ellipsis' && (c.overflowX!=='visible' || cutBy('x'));
+    const badY = dy>1 && !scrollY && (c.overflowY!=='visible' || cutBy('y'));
     if(badX||badY) problems.push({kind:'字被裁', el:desc(e), detail:`${badX?'橫':''}${badY?'縱':''}向：內容 ${e.scrollWidth}×${e.scrollHeight}，框 ${e.clientWidth}×${e.clientHeight}`});
   }
   // 2 跑出可見範圍。⚠ 在捲動容器裡面「超出去」是正常的（那就是捲動的意思），
@@ -82,10 +91,17 @@ AUDIT_JS = r"""(label)=>{
     if(!sy && (r.top<gb.top-1||r.bottom>gb.bottom+1))
       problems.push({kind:'上下出界', el:desc(e), detail:`y ${Math.round(r.top)}..${Math.round(r.bottom)} / 可見 ${Math.round(by.top)}..${Math.round(by.bottom)}`});
   }
+  // 捲到捲動容器可見範圍外的東西，看不到也點不到，捲過去才輪得到它——這時量「被蓋住／疊住」
+  // 會量到容器外面的鄰居（例如地圖站點捲到底下，中心點落在頁尾的鍵上）
+  const scrolledOut=e=>{const r=e.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+r.height/2;
+    let p=e.parentElement; while(p&&p!==document.documentElement){const c=getComputedStyle(p);
+      if(/auto|scroll/.test(c.overflowX+c.overflowY)){const pr=p.getBoundingClientRect();
+        if(x<pr.left||x>pr.right||y<pr.top||y>pr.bottom) return true;}
+      p=p.parentElement;} return false;};
   // 3 可以點的東西被蓋住
   for(const e of all){
     if(!/^(button|select|input)$/i.test(e.tagName)) continue;
-    if(e.disabled||isHit(e)) continue;
+    if(e.disabled||isHit(e)||scrolledOut(e)) continue;
     const r=e.getBoundingClientRect(); const x=r.left+r.width/2, y=r.top+r.height/2;
     if(x<0||y<0||x>innerWidth||y>innerHeight){
       // 在可捲的容器裡（例如直式的夥伴列是一條左右滑的）捲一下就點得到，不算問題
@@ -99,7 +115,7 @@ AUDIT_JS = r"""(label)=>{
       problems.push({kind:'被蓋住', el:desc(e), detail:`中心點命中 ${desc(hit)}`});
   }
   // 4 按鈕互相重疊超過一半
-  const btns=all.filter(e=>/^button$/i.test(e.tagName)&&!isHit(e)).map(e=>({e,r:e.getBoundingClientRect()}));
+  const btns=all.filter(e=>/^button$/i.test(e.tagName)&&!isHit(e)&&!scrolledOut(e)).map(e=>({e,r:e.getBoundingClientRect()}));
   for(let i=0;i<btns.length;i++)for(let j=i+1;j<btns.length;j++){
     const a=btns[i],b=btns[j];
     if(a.e.contains(b.e)||b.e.contains(a.e)) continue;
@@ -111,6 +127,10 @@ AUDIT_JS = r"""(label)=>{
   }
   return {label, problems};
 }"""
+
+
+# 精裝典藏包在 iframe 裡：同一套判準，框換成演出頁自己的 #win
+FRAME_AUDIT_JS = AUDIT_JS.replace("document.getElementById('game')", "document.getElementById('win')").replace("document.getElementById('game-content')", "document.getElementById('win')")
 
 
 def main():
@@ -148,11 +168,35 @@ def main():
                 name = (size + '-' + label).replace('／', '-').replace(' ', '')
                 pg.screenshot(path=str(OUT / (name + '.png'))); shots.append(name)
 
-            def go_world(scene):
-                # 照真人的路走：場景面板 → 點票券。直接改 state 再 reload 會跳過切換流程，
+            def go_world(world):
+                # 照真人的路走：模式面板 → 點那張卡。直接改 state 再 reload 會跳過切換流程，
                 # 切回去時的快取／還原問題就全部躲掉了（Codex 複檢 4-2）
-                pg.eval_on_selector('#scene-open', 'e=>e.click()'); pg.wait_for_timeout(500)
-                pg.eval_on_selector('.scene-ticket[data-scene="' + scene + '"]', 'e=>e.click()'); pg.wait_for_timeout(1500)
+                pg.eval_on_selector('#mode-open', 'e=>e.click()'); pg.wait_for_timeout(500)
+                pg.eval_on_selector('.mode-card[data-mode="' + world + '"]', 'e=>e.click()'); pg.wait_for_timeout(1500)
+
+            def scan_frame(label):
+                frame = next(f for f in pg.frames if f.url.endswith('apoc/ceremony.html'))
+                screen = size + '・' + label
+                res = frame.evaluate(FRAME_AUDIT_JS, screen)
+                for pr in res['problems']: findings.append({**pr, 'screen': res['label']})
+                name = (size + '-' + label).replace('／', '-').replace(' ', '')
+                pg.screenshot(path=str(OUT / (name + '.png'))); shots.append(name)
+                return frame
+
+            def apoc_draw(label, collect=True):
+                # 末世的十連是精裝典藏包：開包 → 跳過演出 → 結果頁
+                pg.eval_on_selector('#draw-five', 'e=>e.click()'); pg.wait_for_timeout(600)
+                scan(label + '（典藏包外框）', '#apoc-ceremony')
+                frame = next(f for f in pg.frames if f.url.endswith('apoc/ceremony.html'))
+                frame.wait_for_function("()=>window.ApocCeremony && ApocCeremony.state().entryPhase==='waiting'", timeout=20000)
+                scan_frame(label + '・開包')
+                frame.eval_on_selector('#entry-pack', 'e=>e.click()'); pg.wait_for_timeout(1500)
+                frame.evaluate("()=>{const b=document.getElementById('revealall'); if(b&&!b.hidden) b.click();}")
+                frame.wait_for_function("()=>ApocCeremony.state().collectable", timeout=30000)
+                pg.wait_for_timeout(500)
+                scan_frame(label + '・結果')
+                if collect:
+                    frame.eval_on_selector('#finish', 'e=>e.click()'); pg.wait_for_timeout(1000)
 
             # ---- 1.0
             HOME_MAIN = ['#tap', '#bag-image', '#slots .skill-slot', '#buddies .buddy']
@@ -162,7 +206,8 @@ def main():
                       ('wardrobe-open', 'wardrobe-close', '商店', '#wardrobe #shop-cats'),
                       ('stats-open', 'stats-close', '統計', '#stats #badge-grid'),
                       ('prestige-open', 'prestige-close', '換桌布', '#prestige #prestige-body'),
-                      ('scene-open', 'scenes-close', '場景', '#scenes .scene-ticket')]
+                      ('scene-open', 'scenes-close', '場景', '#scenes .scene-ticket'),
+                      ('mode-open', 'modes-close', '模式', '#modes .mode-card')]
             for opener, closer, label, expect in PANELS:
                 pg.eval_on_selector(f'#{opener}', 'e=>e.click()'); scan(label, expect)
                 pg.eval_on_selector(f'#{closer}', 'e=>e.click()'); pg.wait_for_timeout(400)
@@ -181,14 +226,18 @@ def main():
             pg.eval_on_selector('#draw-summary-ok', 'e=>e.click()')
             pg.wait_for_timeout(1200)
 
-            # ---- 末世（從場景面板走過去）
+            # ---- 末世（從模式面板走過去）
             go_world('apoc')
             pg.evaluate("()=>{const A=ApocEconomy,s=Clicker.state; s.apoc=A.drawn({...A.normalize(s.apoc),tickets:40}, ApocPool.slice(0,22).map(c=>c.id)); s.apoc.skills=[s.apoc.roster[0],s.apoc.roster[1],null,null];}")
             pg.wait_for_timeout(1400)
+            scan('末世地圖', ['#apoc-map .map-station', '#map-enter'])
+            pg.eval_on_selector('.map-station.boss', 'e=>e.click()'); scan('末世地圖・選王關', '#map-title')
+            pg.eval_on_selector('#map-back', 'e=>e.click()'); pg.wait_for_timeout(300)
+            pg.eval_on_selector('#map-enter', 'e=>e.click()'); pg.wait_for_timeout(900)
             scan('末世主畫面', ['#apoc-enemy', '#slots .skill-slot', '#buddies .buddy'])
             for opener, closer, label, expect in [('roster-open', 'roster-close', '末世卡冊', '#roster .album-slot'),
                                                   ('team-open', 'team-close', '末世編隊', '#team-editor #t20-caps'),
-                                                  ('scene-open', 'scenes-close', '末世場景', '#scenes .scene-ticket')]:
+                                                  ('mode-open', 'modes-close', '末世模式', '#modes .mode-card')]:
                 pg.eval_on_selector(f'#{opener}', 'e=>e.click()'); scan(label, expect)
                 pg.eval_on_selector(f'#{closer}', 'e=>e.click()'); pg.wait_for_timeout(400)
             # 末世的卡片詳情與編隊挑選器（第一輪漏掉的畫面）
@@ -212,28 +261,25 @@ def main():
             scan('末世結局', '#apoc-ending-close')
             pg.eval_on_selector('#apoc-ending-close', 'e=>e.click()'); pg.wait_for_timeout(500)
             pg.evaluate("()=>{const a=Clicker.state.apoc; a.progress=2; a.stage=null;}"); pg.wait_for_timeout(1000)
-            pg.eval_on_selector('#draw-five', 'e=>e.click()'); pg.wait_for_timeout(900)
-            for _ in range(6):
-                if pg.locator('#skip').is_visible(): pg.locator('#skip').click()
-                pg.wait_for_timeout(600)
-                if not pg.locator('#collect').is_hidden(): break
-            scan('末世十連', '#cards .card')
+            apoc_draw('末世十連', collect=False)
             # 抽完不收下就重新整理：pending 要還原得回來（不然玩家卡在沒有按鈕的畫面）
             pg.reload(); pg.wait_for_function('window.Clicker?.state'); pg.wait_for_timeout(2200)
-            scan('末世重開後的待收下', '#collect')
-            pg.eval_on_selector('#collect', 'e=>e.click()'); pg.wait_for_timeout(1000)
+            frame = next(f for f in pg.frames if f.url.endswith('apoc/ceremony.html'))
+            frame.wait_for_function("()=>window.ApocCeremony && ApocCeremony.state().collectable", timeout=30000)
+            scan_frame('末世重開後的待收下')
+            frame.eval_on_selector('#finish', 'e=>e.click()'); pg.wait_for_timeout(1000)
             scan('末世抽卡結算', ['#draw-summary-body .draw-line', '#draw-summary-ok'])
             pg.eval_on_selector('#draw-summary-ok', 'e=>e.click()'); pg.wait_for_timeout(800)
             # 切回原本的桌邊場景：共用節點的快取與還原有沒有做好
-            go_world('city')
+            go_world('home')
             scan('切回桌邊', HOME_MAIN)
             # 兩套 renderer 共用同一組節點，各有「內容沒變就不重畫」的快取。切回桌邊時如果沒把快取
             # 作廢，夥伴列與技能格會留著末世的卡圖。這條專門抓那個（Codex 複檢 1-1）。
-            leftover = pg.evaluate("()=>[...document.querySelectorAll('#buddies img, #slots img')]"
-                                   ".map(i=>i.getAttribute('src')||'').filter(s=>s.includes('apoc/cards/'))")
+            leftover = pg.evaluate("()=>[...document.querySelectorAll('#buddies .holo-face, #slots .holo-face')]"
+                                   ".map(e=>(e.closest('.buddy,.skill-slot')?.textContent||'').trim())")
             if leftover:
                 findings.append({'kind': '殘留上個世界的卡圖', 'el': '#buddies / #slots',
-                                 'detail': '%d 張還是末世卡：%s' % (len(leftover), leftover[0]),
+                                 'detail': '%d 張還是末世的精裝卡面：%s' % (len(leftover), leftover[0]),
                                  'screen': size + '・切回桌邊'})
             for opener, closer, label, expect in PANELS[:2]:
                 pg.eval_on_selector('#' + opener, 'e=>e.click()'); scan('回桌邊-' + label, expect)

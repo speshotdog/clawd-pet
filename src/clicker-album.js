@@ -51,6 +51,14 @@ window.ClickerAlbum = (() => {
     function makeCard(s, id) {
       if (isCollect(id)) { const el = card.create({ ...Pool.byId[id] }, { tag: false }); el.classList.add('flipped', 'album-card', 'collect'); return el; }
       const entry = byId(id);
+      // 末世的卡一律用精裝卡面（使用者：所有卡都是精裝版）
+      if (apoc() && window.ClickerHolo?.ready()) {
+        const wrap = document.createElement('div'); wrap.className = 'card flipped album-card holo-card';
+        wrap.classList.toggle('locked', !have(s, id));
+        const face = window.ClickerHolo.face(entry); if (face) wrap.append(face);
+        if (!have(s, id)) { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; wrap.append(q); }
+        return wrap;
+      }
       const el = card.create({ ...entry, rarity: apoc() ? entry.rarity : E.rarity(s, id) }, { tag: false });
       el.classList.add('flipped', 'album-card');
       el.classList.toggle('locked', !have(s, id));

@@ -299,7 +299,8 @@ window.Clicker = (() => {
   }
   const apocMode = () => store.state?.settings.world === 'apoc';
   function changed() {
-    if (apocMode()) { apocUI?.render(); gacha?.render(); album?.refresh(); audioUI(); return; }   // 末世：同一組節點，另一套資料
+    if (store.state) $('mode-open').hidden = !store.state.apoc?.unlocked;   // 末世沒解鎖就只有一個模式，這顆鍵沒意義
+    if (apocMode()) { apocUI?.render(); apocMap?.sync(); gacha?.render(); album?.refresh(); audioUI(); return; }   // 末世：同一組節點，另一套資料
     numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); extras?.tick();
   }
   function action(fn) {
@@ -462,7 +463,7 @@ window.Clicker = (() => {
     $('zoomer').style.left = `${(innerWidth - 960 * z) / 2}px`;
     $('zoomer').style.top = `${(innerHeight - 640 * z) / 2}px`;
   }
-  let album = null, prestigeUI = null, extras = null, dragUI = null, teamUI = null, apocUI = null, apocOpened = false;
+  let album = null, prestigeUI = null, extras = null, dragUI = null, teamUI = null, apocUI = null, apocMap = null, apocOpened = false;
   // v3 大掃除結算頁：v2→v3 遷移過（legacy 存在）而且還沒看過就整頁顯示一次；玩家自己按「收下」才關。
   // 匯入存檔到另一台機器第一次載入也會看到（legacy.seen 存在存檔裡）。
   // 從零開始之後的獎勵視窗：卡與徽章；收下才關
@@ -528,8 +529,8 @@ window.Clicker = (() => {
     for (const id of ['click-rate', 'passive-rate', 'click-next', 'training-next', 'click-level', 'training-level'])
       { const el = $(id); if (el) { el.title = ''; delete el.dataset.value; } }
     if (numberTimer) { clearTimeout(numberTimer); numberTimer = 0; }
-    if (store.state.settings.world === 'apoc') { stage.stop(); apocUI?.enter(); }
-    else { apocUI?.leave(); stage.setPartners(store.state); stage.render(store.state, { instant: true }); }
+    if (store.state.settings.world === 'apoc') { stage.stop(); apocUI?.enter(); apocMap?.open(); }
+    else { apocMap?.close(); apocUI?.leave(); stage.setPartners(store.state); stage.render(store.state, { instant: true }); }
     changed(); status();
     if (store.state.pending || store.state.apoc?.pending) gacha.restore();
   }
@@ -623,7 +624,9 @@ window.Clicker = (() => {
     teamUI = window.ClickerTeamUI.create({ $, store, commit, changed, action, notice, sound, card, E, B, Pool, format, drag: dragUI });
     apocUI = window.ClickerApocUI.create({ $, store, commit, changed, notice, format, card, sound,
       openRoster: (id) => showRoster(id), openTeam: () => teamUI?.open() });
-    if (store.state.settings.world === 'apoc') apocUI.enter();
+    apocMap = window.ClickerApocMap.create({ $, apocUI, format, refit: () => fitStage() }); apocMap.bind();
+    // 末世的主畫面是關卡地圖（使用者：「切換後就是之前做的關卡地圖」）；點站進去才是 1.0 那套戰鬥畫面
+    if (store.state.settings.world === 'apoc') { apocUI.enter(); apocMap.open(); }
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     ready = true; gacha.setReady(); stage.setPartners(store.state);
@@ -703,6 +706,7 @@ window.Clicker = (() => {
     $('boss-challenge').onclick = () => action(()=>{ if (apocMode()) { apocUI.fight(); return; } if (stage.bossBusy || cutin.active || gacha.active) return; const now=Date.now(), p=E.bossPreview(store.state,now); if (!p) return; if (commit(p.kind==='gate' ? E.startGate(store.state,now) : E.startBoss(store.state,now))) changed(); });
     $('scene-open').title='選擇場景';
     $('scene-open').onclick = () => action(()=>{
+      if (apocMode()) { apocMap.open(); return; }   // 末世沒有場景：這顆鍵在末世是「地圖」
       if (store.state.boss || stage.bossBusy || cutin.active) return;
       $('scene-tickets').replaceChildren();
       Object.entries(window.ClickerScenes).forEach(([id,scene],i)=>{
@@ -713,33 +717,43 @@ window.Clicker = (() => {
         const available=E.unlocked(store.state,id), current=store.state.settings.scene===id, markLocked=scene.requiresMark && !store.state.markShop?.[scene.requiresMark];
         status.textContent=current?'目前':available?'已解鎖':markLocked?'印記商店 5 印記解鎖':`${window.ClickerScenes[scene.unlock.boss].name}拆滿 ${scene.unlock.packages} 包並打贏${window.ClickerScenes[scene.unlock.boss].boss?.name || '大罐頭'}${scene.available===false?'（後續開放）':''}`;
         text.append(name,status); ticket.append(thumb,text);
-        ticket.disabled=!available || (current && store.state.settings.world!=='apoc');
+        ticket.disabled=!available || current;
         ticket.onclick=()=>action(()=>{
-          if (store.state.settings.world==='apoc') { setWorld('home', id); return; }
           if(commit(E.switchScene(store.state,id,Date.now()))) {window.ClickerScene.mount(id); $('scenes-close').click(); changed();}
         });
         $('scene-tickets').append(ticket);
       });
-      // v3：末世是第二個主系統，跟七個場景並排在同一張票券牆上——選了哪個，那個就是現在在玩的
-      if (store.state.apoc?.unlocked) {
-        const t=document.createElement('button'); t.className='scene-ticket apoc-ticket'; t.dataset.scene='apoc';
-        const thumb=document.createElement('span'); thumb.className='scene-thumb';
-        const img=document.createElement('img'); img.src='clicker-boss7-mieshi.png'; img.alt=''; img.onerror=()=>{img.hidden=true;}; thumb.append(img);
-        const text=document.createElement('span'), name=document.createElement('b'), status=document.createElement('small');
-        name.textContent='末世'; const inApoc=store.state.settings.world==='apoc';
-        status.textContent=inApoc?'目前':'精裝卡的世界・另一套進度';
-        text.append(name,status); t.append(thumb,text); t.disabled=inApoc;
-        t.onclick=()=>action(()=>setWorld('apoc'));
-        $('scene-tickets').append(t);
-      }
       $('scenes').hidden=false; $('game-content').inert=true; $('scenes-close').focus();
     });
+    // 「模式」：兩個主系統的大選項（使用者：「模式 是額外的大選項，切換後就是之前做的關卡地圖」）。
+    //  跟場景分開——場景是桌邊裡的七站，模式是「玩桌邊還是玩末世」。
+    $('mode-open').onclick = () => action(()=>{
+      if (stage.bossBusy || cutin.active) return;
+      const list = $('mode-list'); list.replaceChildren();
+      const inApoc = apocMode();
+      for (const m of [
+        { id:'home', name:'珍母點點', desc:'桌邊拆零食包・七個場景', img:'clicker-scene1-thumb.png', locked:false },
+        { id:'apoc', name:'末世', desc:store.state.apoc?.unlocked ? '二十站關卡地圖・精裝卡' : '打贏第七站的滅世珍獸解鎖', img:'clicker-boss7-mieshi.png', locked:!store.state.apoc?.unlocked },
+      ]) {
+        const b=document.createElement('button'); b.className='mode-card'; b.dataset.mode=m.id;
+        const current = (m.id==='apoc')===inApoc;
+        const thumb=document.createElement('span'); thumb.className='mode-thumb';
+        const img=document.createElement('img'); img.src=m.img; img.alt=''; img.onerror=()=>{img.hidden=true;}; thumb.append(img);
+        const text=document.createElement('span'), name=document.createElement('b'), small=document.createElement('small');
+        name.textContent=m.name; small.textContent=current?'目前在玩':m.desc; text.append(name,small);
+        b.append(thumb,text); b.disabled=current || m.locked;
+        b.onclick=()=>action(()=>setWorld(m.id));
+        list.append(b);
+      }
+      $('modes').hidden=false; $('game-content').inert=true; $('modes-close').focus();
+    });
+    $('modes-close').onclick=()=>{$('modes').hidden=true; $('game-content').inert=gacha.active; $('mode-open').focus();};
     // 兩個主系統的唯一切換點。切過去等同「重新整理」：面板全關、舞台重掛、存檔記住選的那個。
     function setWorld(world, scene) {
       const next = E.clone(store.state); next.settings = { ...next.settings, world };
       if (world === 'home' && scene && scene !== next.settings.scene) Object.assign(next, E.switchScene(next, scene, Date.now()));
       if (!commit(next)) return;
-      for (const id of ['scenes','roster','stats','wardrobe','prestige','team-editor','share','pick100']) $(id).hidden = true;
+      for (const id of ['modes','scenes','roster','stats','wardrobe','prestige','team-editor','share','pick100']) $(id).hidden = true;
       album?.close?.(); $('game-content').inert = false;
       // ⚠ 兩套 renderer 共用同一組節點，各自有「內容沒變就不重畫」的快取。換世界時節點已經被
       //   另一套換掉了，快取卻還說有效 → 技能槽會找不到自己的 <small>（null.textContent）、
@@ -751,12 +765,12 @@ window.Clicker = (() => {
       for (const id of ['click-rate', 'passive-rate', 'click-next', 'training-next', 'click-level', 'training-level'])
         { const el = $(id); if (el) { el.title = ''; delete el.dataset.value; } }
       if (numberTimer) { clearTimeout(numberTimer); numberTimer = 0; }
-      if (world === 'apoc') { stage.stop(); apocUI.enter(); }
-      else { apocUI.leave(); $('slots').replaceChildren(); window.ClickerScene.mount(store.state.settings.scene); stage.start(); }
+      if (world === 'apoc') { stage.stop(); apocUI.enter(); apocMap.open(); }
+      else { apocMap.close(); apocUI.leave(); $('slots').replaceChildren(); window.ClickerScene.mount(store.state.settings.scene); stage.start(); }
       changed();
       // 目標世界如果有沒收下的抽卡結果，要在這裡恢復——不然招募鍵因 pending 被鎖、收下畫面又沒開，
       // 玩家只能重新載入（Codex 第三輪 B2）
-      if (store.state.pending || store.state.apoc?.pending) gacha.restore(); else $('tap').focus();
+      if (store.state.pending || store.state.apoc?.pending) gacha.restore(); else if (world !== 'apoc') $('tap').focus();
     }
     // 夥伴列的翻頁鍵在末世要翻末世的隊伍（桌邊的綁在 clicker-stage.js）
     for (const [id, dir] of [['buddy-prev', -1], ['buddy-next', 1]]) {
@@ -791,6 +805,7 @@ window.Clicker = (() => {
     if (album?.escape()) return true;
     if (!$('prestige').hidden) { $('prestige-close').click(); return true; }
     if (!$('team-editor').hidden) { $('team-close').click(); return true; }
+    if (!$('modes').hidden) { $('modes-close').click(); return true; }   // 漏列會掉進 closeWindow()（Codex 複檢 B4）
     if (!$('memento').hidden) { $('memento-close').click(); return true; }
     if (!$('reward').hidden) { $('reward-ok').click(); return true; }
 
