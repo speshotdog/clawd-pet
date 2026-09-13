@@ -277,7 +277,15 @@
     // ---------- 徽章牆（統計面板） ----------
     function openWall() {
       const s = store.state; if (!s) return;
-      $('stats-body').textContent = `生涯收入 ${format(s.lifetimeCoins)} 幣｜手點 ${format(s.manualClicks)} 次｜已拆 ${totalPackages(s)} 包｜夥伴 ${Object.keys(s.collection).length} / ${Object.keys(B.characters).length}｜付費抽數 ${s.paidDraws}｜漏掉 ${s.missed || 0} 包｜連續 ${s.daily?.streak || 0} 天`;
+      // 生涯數字改成一格一格的數字卡（使用者第四輪：「1.0 的統計也改成新版，比較好閱讀」）；以前是一整行用｜隔開
+      $('stats-body').textContent = '滑過徽章看怎麼拿';
+      { const tiles = $('stats-tiles'); tiles.replaceChildren(); tiles.hidden = false;
+        for (const [k, v] of [['生涯收入（幣）', format(s.lifetimeCoins)], ['手點', `${format(s.manualClicks)} 次`], ['已拆', `${format(totalPackages(s))} 包`],
+          ['夥伴', `${Object.keys(s.collection).length} / ${Object.keys(B.characters).length}`], ['付費抽數', format(s.paidDraws)], ['漏掉', `${s.missed || 0} 包`], ['連續開工', `${s.daily?.streak || 0} 天`]]) {
+          const cell = document.createElement('div'); cell.className = 'stat-tile';
+          const b = document.createElement('b'); b.textContent = v; const sm = document.createElement('small'); sm.textContent = k;
+          cell.append(b, sm); tiles.append(cell);
+        } }
       const grid = $('badge-grid'); grid.replaceChildren();
       const mo = $('memento-open'); if (mo) mo.hidden = !s.legacy?.snapshot;   // v3：從零開始的人才有舊時代的相簿
       for (const b of BADGES) {

@@ -28,7 +28,7 @@ body[data-world="apoc"][data-apoc-theme] .upgrade, body[data-world="apoc"][data-
 body[data-world="apoc"][data-apoc-theme] #team, body[data-world="apoc"][data-apoc-theme] .panel,
 body[data-world="apoc"][data-apoc-theme] .small-panel, body[data-world="apoc"][data-apoc-theme] #album-detail,
 body[data-world="apoc"][data-apoc-theme] #map-inspector, body[data-world="apoc"][data-apoc-theme] .team-dialog,
-body[data-world="apoc"][data-apoc-theme] #draw-summary, body[data-world="apoc"][data-apoc-theme] #recruit-topbar {
+body[data-world="apoc"][data-apoc-theme] #recruit-topbar {
   background:transparent; border:0; border-radius:0; box-shadow:none;
   border-image:var(--t-paper) 64 fill / 18px stretch !important;
   color:var(--t-text); outline:0;
@@ -90,9 +90,8 @@ body[data-world="apoc"][data-apoc-theme] .capacity-row, body[data-world="apoc"][
 body[data-world="apoc"][data-apoc-theme] #t20-detail-op, body[data-world="apoc"][data-apoc-theme] .picker-status,
 body[data-world="apoc"][data-apoc-theme] .map-progress b, body[data-world="apoc"][data-apoc-theme] #map-title,
 body[data-world="apoc"][data-apoc-theme] .team-proxy .proxy-name, body[data-world="apoc"][data-apoc-theme] #buddies .buddy,
-body[data-world="apoc"][data-apoc-theme] #recruit-hint, body[data-world="apoc"][data-apoc-theme] .draw-faces figcaption { color:var(--t-text); }
-body[data-world="apoc"][data-apoc-theme] #recruit-topbar > b,
-body[data-world="apoc"][data-apoc-theme] .draw-line > b { background:var(--t-accent); color:var(--t-accent-ink); border-radius:8px; }
+body[data-world="apoc"][data-apoc-theme] #recruit-hint { color:var(--t-text); }
+body[data-world="apoc"][data-apoc-theme] #recruit-topbar > b { background:var(--t-accent); color:var(--t-accent-ink); border-radius:8px; }
 body[data-world="apoc"][data-apoc-theme] #package-progress::-webkit-progress-bar { background:var(--t-btn-disabled); }
 body[data-world="apoc"][data-apoc-theme] #package-progress::-webkit-progress-value { background:var(--t-meter); }
 
@@ -127,14 +126,13 @@ body[data-world="apoc"][data-apoc-theme] #next-goal { color:var(--t-text); }
    多出來的 2px 壓在 .purchase 的虛線上，看起來像刪除線（「末世金幣 27」「戰力 894・點一下 447」） */
 body[data-world="apoc"][data-apoc-theme] .upgrade p, body[data-world="apoc"][data-apoc-theme] .recruit > div > small { line-height:15px; }
 
-/* 抽卡結算與全線通行：clicker.css 用 `#game #draw-summary …` 把字寫死成深藍版的淺色，
+/* 全線通行：clicker.css 把字寫死成深藍版的淺色，
    權重比上面的通用規則高，要用同等以上的選擇器蓋回墨色（Codex 複檢 B1：紙底上只剩 1.74:1） */
-body[data-world="apoc"][data-apoc-theme] #game #draw-summary,
-body[data-world="apoc"][data-apoc-theme] #game #draw-summary h2,
-body[data-world="apoc"][data-apoc-theme] #game #draw-summary .draw-line span,
-body[data-world="apoc"][data-apoc-theme] #game #draw-summary figcaption,
 body[data-world="apoc"][data-apoc-theme] #game #apoc-ending,
 body[data-world="apoc"][data-apoc-theme] #game #apoc-ending * { color:var(--t-text); }
-body[data-world="apoc"][data-apoc-theme] #game #draw-summary,
 body[data-world="apoc"][data-apoc-theme] #game #apoc-ending { background:transparent; border-image:var(--t-paper) 64 fill / 18px stretch !important; border:0; }
 body[data-world="apoc"][data-apoc-theme] #game #apoc-ending button { color:var(--t-text); }
+
+/* 王關的護盾／破防標籤：clicker.css 的末世深藍版是淺字，壓在紙色票券上幾乎看不到（使用者第四輪截圖）→ 深墨字 */
+body[data-world="apoc"][data-apoc-theme] #effect-label { background:transparent; color:var(--t-text); font-weight:700; }
+body[data-world="apoc"][data-apoc-theme] #effect-label.broken { background:#E0B33C; color:#2A1C12; border-color:var(--paper-edge); }

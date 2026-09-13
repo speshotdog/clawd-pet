@@ -17,7 +17,6 @@ window.ClickerGacha = (() => {
     //（它是照分頁分批的，第二次查的時候頁面已經翻到別批了）→ getBoundingClientRect of null。
     const dedupe = (list) => { const seen = new Set(); return list.filter(e => !seen.has(e.id) && seen.add(e.id)); };
     const layer = $('recruit-layer');
-    let pendingSummaryJoins = null;   // 結算卡按「繼續」之前，先收著這一抽要播入隊的夥伴
     // 兩個主系統共用這一層：差別只有「錢是什麼」「卡池是什麼」「落帳寫到哪」。
     const A = () => window.ApocEconomy;
     const apoc = () => store.state?.settings.world === 'apoc';
@@ -57,15 +56,15 @@ window.ClickerGacha = (() => {
         if (e.source === frame.contentWindow && e.data?.apocCeremony === 'collect') setTimeout(collectApoc, 240);
       });
       return {
-        async play(ids, restore = false) {
+        async play(ids, restore = false, badges = []) {
           previousFocus = document.activeElement; host.hidden = false; $('game-content').inert = true; pauseStage();
           await load(); const api = frame.contentWindow.ApocCeremony;
-          if (restore) api.restore(ids); else api.play(ids);
+          if (restore) api.restore(ids, badges); else api.play(ids, badges);
           frame.focus();
         },
         hide() { host.hidden = true; },
         // 典藏包按「收下」就自己清場了；主頁落帳不成時用它把同一批結果放回結果頁
-        replay(ids) { frame.contentWindow?.ApocCeremony?.restore(ids); },
+        replay(ids) { frame.contentWindow?.ApocCeremony?.restore(ids, drawBadges().badges); },
         get active() { return !host.hidden; },
       };
     })();
@@ -84,9 +83,8 @@ window.ClickerGacha = (() => {
         ceremony.hide(); changed();
         const jf = $('join-flight');
         const entries = p.draw.entries.map(it => ({ id: it.entry.id, origin: { x: jf.clientWidth / 2, y: jf.clientHeight / 2 } }));
-        // 結算卡借用招募層的 #draw-summary（兩個世界同一套結算提示）；沒什麼好講的就直接回遊戲
-        open(); $('recruit-entry').hidden = true;
-        if (!showDrawSummary(result, entries)) { pendingJoins.push(...entries); close(); }
+        // 「新夥伴／升星」已經標在典藏包的結果卡上（使用者第四輪：不要另外跳「收下了！」視窗），收下就直接回遊戲
+        open(); $('recruit-entry').hidden = true; pendingJoins.push(...entries); close();
       } catch (err) { notice(err.message); }
       finally { busy = false; render(); }
     }
@@ -137,14 +135,14 @@ window.ClickerGacha = (() => {
       if (W().pending()) return;
       cleanup(); layer.hidden = true; $('game-content').inert = false; $('recruit-entry').hidden = false;
       $('collect').hidden = $('collect-again').hidden = $('skip').hidden = $('reveal-all').hidden = true;
-      // 結算卡與它的待播入隊也要一起收掉，不然下次打開招募會帶著上一次的結算（Codex 複檢 1-5）
-      $('draw-summary').hidden = true;
-      if (pendingSummaryJoins) { pendingJoins.push(...pendingSummaryJoins); pendingSummaryJoins = null; }
       resumeStage(); previousFocus?.focus();
       if (pendingJoins.length) { const all = pendingJoins; pendingJoins = []; joined(dedupe(all)); }
     }
     function summary() {
       summaryReady = true; $('collect').hidden = false; $('skip').hidden = $('reveal-all').hidden = true;
+      // 結果卡上直接標「新夥伴／升星／升階／超越」（使用者第四輪：兩個世界都是，不另外跳視窗）。卡的順序＝抽到的順序
+      const { badges, dust } = drawBadges();
+      [...$('cards').children].forEach((el, i) => { el.querySelectorAll('.draw-badges').forEach(x => x.remove()); if (badges[i]?.length) el.append(badgeNode(badges[i])); });
       // 錢是抽的當下就扣掉的，所以現在的 state 拿來算「還抽不抽得起下一次」是準的
       const s = store.state, again = $('collect-again'), w = W(), many = packSize();
       const cost = w.cost(many);
@@ -152,10 +150,34 @@ window.ClickerGacha = (() => {
       again.hidden = !affordable;
       again.textContent = apoc() ? apocPrice(many, '收下並繼續十連 · ')
         : (s.freeDraws ? `收下並繼續五連 · 免費 ×${Math.min(many, s.freeDraws)}` : `收下並繼續五連 · ${format(cost)}`);
-      $('recruit-hint').textContent = affordable
+      $('recruit-hint').textContent = (affordable
         ? '結果已儲存。收下後夥伴就會開始幫忙，或直接再抽一次。'
-        : '結果已儲存，收下後夥伴就會開始幫忙。';
+        : '結果已儲存，收下後夥伴就會開始幫忙。') + (dust ? `　滿養溢出：萬用粉塵 ＋${format(dust)}` : '');
       $('collect').focus(); render();
+    }
+    // 收下之前，用同一份 pending 試算一次收下的結果（純函式、不提交），照抽到的順序對到每一張卡
+    function drawBadges() {
+      const none = { badges: [], dust: 0 }, p = W().pending(); if (!p) return none;
+      let r; try { r = W().collect(p.draw.id, Date.now()); } catch { return none; }
+      if (!r?.accepted) return none;
+      const ids = p.draw.entries.map(it => it.entry.id), badges = ids.map(() => []);
+      const put = (i, b) => { if (i >= 0) badges[i].push(b); };
+      const RAR = { rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' };
+      const isNew = new Set(r.newIds || []);
+      for (const id of isNew) put(ids.indexOf(id), { kind: 'new', text: '新夥伴' });
+      // 升星標在同一隻的最後一張（那張收下時才升上去）；新夥伴自己不另外標升星
+      for (const u of r.starUps || []) if (u.to > u.from && !isNew.has(u.id)) put(ids.lastIndexOf(u.id), { kind: 'star', text: `★${u.from}→★${u.to}` });
+      // 同一隻連升好幾階併成一個（「采華 精良→史詩、史詩→傳說」讀起來像壞掉）
+      const grows = new Map();
+      for (const g of r.grows || []) { const key = `${g.kind}:${g.id}`, cur = grows.get(key); grows.set(key, { ...g, from: cur ? cur.from : g.from }); }
+      for (const g of grows.values()) put(ids.lastIndexOf(g.id), g.kind === 'promote'
+        ? { kind: 'promote', text: `升階 ${RAR[g.to] || ''}` } : { kind: 'transcend', text: `超越 ${g.to}${g.awakened ? '・覺醒' : ''}` });
+      return { badges, dust: r.universalDust || 0 };
+    }
+    function badgeNode(list) {
+      const box = document.createElement('div'); box.className = 'draw-badges';
+      for (const b of list) { const tag = document.createElement('b'); tag.className = `draw-badge ${b.kind}`; tag.textContent = b.text; box.append(tag); }
+      return box;
     }
     function makeRuntime(draw) {
       cleanup(); currentId = draw.id; summaryReady = false;
@@ -241,7 +263,7 @@ window.ClickerGacha = (() => {
         if (!commit(next)) return false;
         const ticket = $('draw-ticket'); ticket.getAnimations().forEach(a=>a.cancel());
         if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ticket.animate([{transform:'scale(1)'},{transform:'scale(.96)',offset:.5},{transform:'scale(1)'}],{duration:140});
-        if (apoc()) { ceremony.play(W().pending().draw.entries.map(it => it.entry.id)); return true; }
+        if (apoc()) { ceremony.play(W().pending().draw.entries.map(it => it.entry.id), false, drawBadges().badges); return true; }
         open(); $('recruit-entry').hidden = true; $('collect').hidden = true; $('skip').hidden = false;
         $('recruit-hint').textContent = ''; const run = makeRuntime(W().pending().draw);
         if (s.settings.mode === 'hearthstone') {
@@ -270,70 +292,20 @@ window.ClickerGacha = (() => {
         const result = W().collect(currentId, Date.now());
         if (!result.accepted || !commit(result.state)) return;
         summaryReady = false; currentId = null; changed();
-        if (!stay) { const done = showDrawSummary(result, entries); if (done) return; }   // 先講清楚得到什麼，再關
         if (stay) {
           pendingJoins.push(...entries); $('collect').hidden = $('collect-again').hidden = true; busy = false;
           // 下一輪起不來（存檔鎖住、冒出大王⋯⋯）就正常收尾，不然會停在一個沒有任何按鈕的死畫面
-          if (!start(packSize())) { close(); joined(dedupe([...pendingJoins.splice(0)])); }
+          if (!start(packSize())) close();   // close() 會把累積的入隊去重後播一次
           return;
         }
-        close(); joined(dedupe([...pendingJoins.splice(0), ...entries]));
+        // 本包先併進累積的入隊，統一由 close() 去重播一次——分兩次叫 joined() 會讓連抽抽到的同一隻飛兩次（Codex 第四輪）
+        pendingJoins.push(...entries); close();
       } catch (err) { notice(err.message); }
       finally { busy = false; render(); }
     }
-    // 抽卡結算（使用者 2026-09-13：「幫我思考抽到時結算的提示」）。
-    // 沒有任何值得講的事（全是重複又沒升星）就不擋路，直接關。
-    function showDrawSummary(result, entries) {
-      const map = apoc() ? Object.fromEntries((window.ApocPool || []).map(c => [c.id, c])) : window.GachaPool.byId;
-      const name = id => map[id]?.name || id;
-      const lines = [];
-      if (result.newIds?.length) lines.push({ tag: '新夥伴', faces: result.newIds });
-      // 同一隻連升好幾級要併成一行：「采華 精良→史詩、采華 史詩→傳說」讀起來像壞掉
-      const isNew = new Set(result.newIds || []);
-      const stars = (result.starUps || []).filter(u => u.to > u.from && !isNew.has(u.id));
-      if (stars.length) lines.push({ tag: '升星', text: stars.map(u => `${name(u.id)} ★${u.from}→★${u.to}`).join('、') });
-      const RAR = { rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' };
-      const promotes = new Map();
-      for (const g of (result.grows || []).filter(g => g.kind === 'promote')) {
-        const cur = promotes.get(g.id); promotes.set(g.id, { from: cur ? cur.from : g.from, to: g.to });
-      }
-      if (promotes.size) lines.push({ tag: '自動升階', text: [...promotes].map(([id, g]) => `${name(id)} ${RAR[g.from]}→${RAR[g.to]}`).join('、') });
-      const trans = new Map();
-      for (const g of (result.grows || []).filter(g => g.kind === 'transcend')) trans.set(g.id, g);
-      if (trans.size) lines.push({ tag: '自動超越', text: [...trans].map(([id, g]) => `${name(id)} 超越 ${g.to}${g.awakened ? '・覺醒！' : ''}`).join('、') });
-      if (result.universalDust) lines.push({ tag: '萬用粉塵', text: `＋${format(result.universalDust)}（滿養溢出）` });
-      if (!lines.length) return false;
-      const body = $('draw-summary-body'); body.replaceChildren();
-      for (const line of lines) {
-        const row = document.createElement('div'); row.className = 'draw-line';
-        const b = document.createElement('b'); b.textContent = line.tag; row.append(b);
-        if (line.faces) {
-          const wrap = document.createElement('div'); wrap.className = 'draw-faces';
-          for (const id of line.faces) {
-            const fig = document.createElement('figure');
-            const holo = apoc() && window.ClickerHolo?.ready() ? window.ClickerHolo.face(map[id]) : null;   // 末世一律精裝卡面
-            if (holo) { const slot = document.createElement('span'); slot.className = 'holo-slot'; slot.append(holo); fig.append(slot); }
-            else if (apoc()) { const blank = document.createElement('span'); blank.className = 'holo-slot apoc-face-blank'; fig.append(blank); }   // 末世不准退回 1.0 卡面
-            else fig.append(card.art.create(map[id]));
-            const cap = document.createElement('figcaption'); cap.textContent = name(id); fig.append(cap); wrap.append(fig);
-          }
-          row.append(wrap);
-        } else { const t = document.createElement('span'); t.textContent = line.text; row.append(t); }
-        body.append(row);
-      }
-      pendingSummaryJoins = entries;
-      $('collect').hidden = $('collect-again').hidden = true; $('recruit-hint').textContent = '';
-      $('draw-summary').hidden = false; $('draw-summary-ok').focus();
-      return true;
-    }
-    $('draw-summary-ok').onclick = () => {
-      $('draw-summary').hidden = true;
-      const entries = pendingSummaryJoins || []; pendingSummaryJoins = null;
-      close(); joined(dedupe([...pendingJoins.splice(0), ...entries]));
-    };
     function restore() {
       if (!W().pending() || !ready) return;
-      if (apoc()) { if (!ceremony.active) ceremony.play(W().pending().draw.entries.map(it => it.entry.id), true); return; }
+      if (apoc()) { if (!ceremony.active) ceremony.play(W().pending().draw.entries.map(it => it.entry.id), true, drawBadges().badges); return; }
       open(); $('recruit-entry').hidden = true;
       // pending 保留 veil；沿用重開直接總覽，由 runtime 將卡面還原真實色階。
       makeRuntime(W().pending().draw).skip();

@@ -164,3 +164,8 @@ button:disabled{opacity:.4;cursor:default}
 
 /* 末世：扣券在主頁，這裡只演出 */
 .entry-actions,.test-label{display:none!important}
+
+/* 末世：結果卡上的新夥伴／升星徽章（主頁算好傳進來） */
+.slot .apoc-badges{position:absolute;left:50%;top:-4%;transform:translateX(-50%);z-index:40;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;width:130%;pointer-events:none}
+.apoc-badge{font:800 13px/1 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;padding:5px 9px;border-radius:999px;color:#fff;background:#8E3B2E;border:2px solid #fff6e6;box-shadow:0 3px 8px #000a;white-space:nowrap;letter-spacing:.04em}
+.apoc-badge.new{background:#D9412F}.apoc-badge.star{background:#B9821F}.apoc-badge.promote,.apoc-badge.transcend{background:#6A4FB0}

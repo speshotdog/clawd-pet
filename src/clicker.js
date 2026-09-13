@@ -532,7 +532,7 @@ window.Clicker = (() => {
     for (const id of ['click-rate', 'passive-rate', 'click-next', 'training-next', 'click-level', 'training-level'])
       { const el = $(id); if (el) { el.title = ''; delete el.dataset.value; } }
     if (numberTimer) { clearTimeout(numberTimer); numberTimer = 0; }
-    if (store.state.settings.world === 'apoc') { stage.stop(); apocUI?.enter(); apocMap?.open(); }
+    if (store.state.settings.world === 'apoc') { stage.stop(); apocUI?.enter(); apocMap?.close(); }   // 末世預設是戰鬥畫面（使用者第四輪），地圖從「地圖」鍵開
     else { apocMap?.close(); apocUI?.leave(); stage.setPartners(store.state); stage.render(store.state, { instant: true }); }
     changed(); status();
     if (store.state.pending || store.state.apoc?.pending) gacha.restore();
@@ -629,7 +629,8 @@ window.Clicker = (() => {
       openRoster: (id) => showRoster(id), openTeam: () => teamUI?.open() });
     apocMap = window.ClickerApocMap.create({ $, apocUI, format, refit: () => fitStage() }); apocMap.bind();
     // 末世的主畫面是關卡地圖（使用者：「切換後就是之前做的關卡地圖」）；點站進去才是 1.0 那套戰鬥畫面
-    if (store.state.settings.world === 'apoc') { apocUI.enter(); apocMap.open(); }
+    // 使用者第四輪：「末世地圖的預設畫面是戰鬥畫面，不是選擇關卡，每次都要按進入戰鬥很麻煩」→ 進末世直接是戰鬥畫面，自動開打
+    if (store.state.settings.world === 'apoc') { apocUI.enter(); apocMap.close(); }
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     // ⚠ 夥伴列是兩個世界共用的節點：在末世重新整理時，這行會把末世已經畫好的夥伴列蓋成桌邊的隊伍
@@ -771,7 +772,7 @@ window.Clicker = (() => {
       for (const id of ['click-rate', 'passive-rate', 'click-next', 'training-next', 'click-level', 'training-level'])
         { const el = $(id); if (el) { el.title = ''; delete el.dataset.value; } }
       if (numberTimer) { clearTimeout(numberTimer); numberTimer = 0; }
-      if (world === 'apoc') { stage.stop(); apocUI.enter(); apocMap.open(); }
+      if (world === 'apoc') { stage.stop(); apocUI.enter(); apocMap.close(); }
       else { apocMap.close(); apocUI.leave(); $('slots').replaceChildren(); window.ClickerScene.mount(store.state.settings.scene); stage.start(); }
       changed();
       // 目標世界如果有沒收下的抽卡結果，要在這裡恢復——不然招募鍵因 pending 被鎖、收下畫面又沒開，
@@ -824,7 +825,8 @@ window.Clicker = (() => {
   document.addEventListener('pointerdown', e => {
     if (cutin?.active || !$('save-error').hidden) return;
     if (!['save-error', 'receipt', 'daily-done', 'prestige', 'wardrobe', 'roster', 'stats', 'scenes', 'share', 'pick100'].some(id => !$(id).hidden)) return;
-    if (e.target.closest('.panel, .small-panel, #album-detail, #dust-shop, #recruit-layer, .audio-controls')) return;
+    // #card-zoom（卡冊的放大欣賞）掛在 #game、不在 .panel 裡：沒排除的話按住卡面就被當成點面板外、立刻關掉（Codex 第四輪）
+    if (e.target.closest('.panel, .small-panel, #album-detail, #dust-shop, #recruit-layer, #card-zoom, .audio-controls')) return;
     closeTopPanel();
   });
   window.addEventListener('keydown', (e) => {
@@ -844,7 +846,8 @@ window.Clicker = (() => {
       closeWindow();
     }
     if (e.key === 'Tab') {
-      const panel = ['save-error', 'receipt', 'daily-done', 'prestige', 'wardrobe', 'roster', 'stats', 'scenes', 'share', 'pick100', 'recruit-layer'].map($).find((el) => !el.hidden);
+      // 放大欣賞開著時焦點只在放大層裡轉，不要跑回被遮住的卡冊（Codex 第四輪）
+      const panel = $('card-zoom') || ['save-error', 'receipt', 'daily-done', 'prestige', 'wardrobe', 'roster', 'stats', 'scenes', 'share', 'pick100', 'recruit-layer'].map($).find((el) => !el.hidden);
       if (!panel) return;
       const focusable = [...panel.querySelectorAll('button,select,textarea')].filter((el) => !el.disabled && !el.hidden && el.getClientRects().length);
       const first = focusable[0], last = focusable.at(-1);

@@ -58,7 +58,22 @@
   const freshShield = cycle => ({ taps: 0, need: Math.round(RULES.SHIELD.TAPS * RULES.SHIELD.GROWTH ** cycle), cycle });
   // 王關傷害倍率：破防中 ×2、護盾在場的放置 ×0.35（點擊不受罰，點擊才是破盾的手段）
   const bossMul = (st, now, byTap) => !st?.boss ? 1 : now < (st.breakUntil || 0) ? RULES.SHIELD.BREAK_MUL : byTap ? 1 : RULES.SHIELD.IDLE_MUL;
-  const skillOf = (a, slot) => { const id = a.skills?.[slot]; const c = id ? poolById()[id] : null; return c ? { slot, id, card: c, ...RULES.SKILLS[c.rarity] } : null; };
+  // 技能名沿用 1.0（使用者第四輪：「2.0 技能雖然重新設計，但技能名稱不要改，1.0 有的名稱就直接沿用」）：
+  // 同名角色用 1.0 的技能名（ClickerBalance.characters[id].skill），效果仍照稀有度；1.0 沒有這張卡才用稀有度的名字。
+  // 瀏覽器裡 clicker-balance.js／gacha-pool.js 比這支先載入；node 測試沒有它們就一律用稀有度的名字。
+  let oneSkills = null;
+  const oneSkillName = c => {
+    if (!oneSkills) {
+      const B = root.ClickerBalance, P = root.GachaPool; if (!B || !P || !P.byId) return null;
+      oneSkills = {};
+      for (const [id, ch] of Object.entries(B.characters)) { const n = P.byId[id]?.name; if (n && ch.skill && !(n in oneSkills)) oneSkills[n] = ch.skill; }
+    }
+    return oneSkills[c.name] || null;
+  };
+  const skillOf = (a, slot) => { const id = a.skills?.[slot]; const c = id ? poolById()[id] : null; if (!c) return null; const base = RULES.SKILLS[c.rarity]; return { slot, id, card: c, ...base, name: oneSkillName(c) || base.name }; };
+  // 1.0 的印記／祝福加成（使用者第四輪：「1.0 的印記加成直接套進 2.0」）。畫面層每次從 1.0 存檔現算後掛在 a.boost，不寫進存檔。
+  const NO_BOOST = { power: 1, click: 1, skill: 1, cd: 1 };
+  const boostOf = a => a.boost || NO_BOOST;
   const powerMul = (a, now) => (a.fx && now < (a.fx.powerUntil || 0)) ? (a.fx.powerMul || 1) : 1;
   // ⚠ 這個表每次點擊都會被查好幾十次（power() → cardPower() → poolById()），
   //   原本每次都重建一個 71 筆的物件；快取起來，卡池換了才重算。
@@ -68,7 +83,7 @@
   const dayKey = now => Math.floor(now / 86400000);   // 同 1.0 派遣的日界
   function fresh() {
     return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
-      paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
+      paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
       pending: null, cleared: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1 } };
   }
   function normalize(a) {
@@ -87,6 +102,8 @@
     // 舊檔的「買過幾張券」就是當時的抽卡價格進度，搬成付費抽數，價格不會倒退
     a.paidDraws = count(raw.paidDraws !== undefined ? raw.paidDraws : raw.ticketsBought); delete a.ticketsBought;
     a.teamLevel = count(a.teamLevel); a.clickLevel = count(a.clickLevel);
+    delete a.boost;   // 1.0 加成是執行期現算的，存檔裡的舊值一律不信
+    a.bossFailed = Number.isInteger(a.bossFailed) && a.bossFailed === a.progress ? a.bossFailed : null;   // 只記「目前這一站的王輸過」
     a.onePeak = Number.isFinite(Number(a.onePeak)) && Number(a.onePeak) > 0 ? Number(a.onePeak) : 0;   // 桌邊歷史最高每秒收益（換券定價基準，換桌布不歸零）
     { const x = a.exchange && typeof a.exchange === 'object' ? a.exchange : {};
       a.exchange = { day: Number.isFinite(x.day) ? x.day : null, count: count(x.count), total: count(x.total) }; }
@@ -138,7 +155,7 @@
     return { state: { ...a, coins, [LEVEL_KEY[kind]]: L }, levels };
   }
   function cardPower(a, id) { const c = poolById()[id]; if (!c || !a.collection[id]) return 0; return RULES.POWER[c.rarity] * (1 + RULES.STAR_MUL * (a.collection[id] - 1)); }
-  const power = a => a.roster.reduce((sum, id) => sum + cardPower(a, id), 0) * trainMul('team', a.teamLevel);
+  const power = a => a.roster.reduce((sum, id) => sum + cardPower(a, id), 0) * trainMul('team', a.teamLevel) * boostOf(a).power;
   const need = i => Math.round(RULES.BASE_NEED * RULES.GROWTH ** i * (isBoss(i) ? RULES.BOSS_MUL : 1));
   const reward = i => Math.round(need(i) * RULES.REWARD_SHARE);
   const canFight = (a, now) => !a.stage && a.progress < RULES.STATIONS && !(isBoss(a.progress) && a.cooldownUntil > now);
@@ -165,13 +182,14 @@
         // 全線通行只報一次；之後留在末世繼續放置與補收藏
         if (s.progress >= RULES.STATIONS && !s.cleared) { s.cleared = true; events.push({ type: 'cleared' }); }
       }
-      else if (st.deadline && now >= st.deadline) { s.stage = null; s.cooldownUntil = now + RULES.BOSS_COOLDOWN; events.push({ type: 'fail', index: st.index }); }
+      // 輸過就記下這一站：之後不自動開打，等玩家按右上角的「再次挑戰」（使用者第四輪：第一次遭遇直接進，失敗之後才有進入選項）
+      else if (st.deadline && now >= st.deadline) { s.stage = null; s.cooldownUntil = now + RULES.BOSS_COOLDOWN; s.bossFailed = st.index; events.push({ type: 'fail', index: st.index }); }
       else s.stage = st;
     }
     return { state: s, events };
   }
   // 這一下點擊的傷害（畫面浮字要跟實際扣血一致，打死那一下也要顯示整下的量，不是剩下的血）
-  const tapDamage = (a, now) => !a.stage ? 0 : power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel)
+  const tapDamage = (a, now) => !a.stage ? 0 : power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click
     * (a.fx?.clickLeft > 0 ? (a.fx.clickMul || 1) : 1) * bossMul(a.stage, now, true);
   function tap(a, now) {
     if (!a.stage) return a;
@@ -194,10 +212,11 @@
     const def = skillOf(a, slot); if (!def) throw new Error('這格還沒放卡');
     if (now < (a.skillCd?.[slot] || 0)) throw new Error('技能冷卻中');
     let fx = { ...a.fx }, cd = [...(a.skillCd || [0, 0, 0, 0])];
-    if (def.kind === 'clickMul') { fx.clickMul = def.value; fx.clickLeft = def.uses; }
-    else if (def.kind === 'powerMul') { fx.powerMul = def.value; fx.powerUntil = now + def.ms; }
-    else if (def.kind === 'cool') cd = cd.map((t, i) => i === slot ? t : Math.max(now, t - def.value));
-    cd[slot] = now + def.cd;
+    const k = boostOf(a);   // 1.0 的技能祝福放大效果量、冷卻祝福縮短冷卻（同 1.0 的 skillArt／cdArt）
+    if (def.kind === 'clickMul') { fx.clickMul = def.value * k.skill; fx.clickLeft = def.uses; }
+    else if (def.kind === 'powerMul') { fx.powerMul = 1 + (def.value - 1) * k.skill; fx.powerUntil = now + def.ms; }
+    else if (def.kind === 'cool') cd = cd.map((t, i) => i === slot ? t : Math.max(now, t - def.value * k.skill));
+    cd[slot] = now + def.cd * k.cd;
     return { ...a, fx, skillCd: cd };
   }
   // ---- 抽卡價：n 抽裡先用券，剩下的才付末世金幣
@@ -302,7 +321,7 @@
     skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < RULES.STATIONS ? need(a.progress) : 0,
     drawCost1: drawCost(a, 1), drawCost10: drawCost(a, 10), paidDraws: a.paidDraws || 0,
     teamLevel: a.teamLevel || 0, clickLevel: a.clickLevel || 0, teamCost: trainCost(a, 'team'), clickCost: trainCost(a, 'click'),
-    teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel),
+    teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click, boost: boostOf(a),
     exchangeToday: exchangeToday(a, now), exchangeTotal: a.exchange?.total || 0, stats: a.stats, wins: a.wins || 0, cosmetics: a.cosmetics,
     roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS });
   root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, fight, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,

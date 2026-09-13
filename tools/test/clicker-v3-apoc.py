@@ -42,7 +42,22 @@ with sync_playwright() as p:
     pg.goto('http://clicker.test/clicker.html'); pg.wait_for_function('window.Clicker?.state'); pg.evaluate(SEED); pg.reload()
     pg.wait_for_function('window.Clicker?.state && !document.getElementById("tap").disabled'); pg.wait_for_timeout(1200)
 
-    # ---- 從「模式」切過去（使用者 09-13：「模式 是額外的大選項，切換後就是之前做的關卡地圖」）
+    # ---- 第四輪：1.0 的抽卡結果直接在卡上標「新夥伴／升星」，收下就回遊戲，不再跳「收下了！」視窗
+    # 種子每張 4 顆粉塵，再抽到只到 5 顆（還在 3★），不會升星；只留 3 位夥伴，五連才保證有「新夥伴」可以標
+    pg.evaluate("()=>{const s=Clicker.state; for(const id of Object.keys(s.collection).slice(3)) { delete s.collection[id]; delete s.dust[id]; } s.roster=[]; s.skillSlots=s.skillSlots.map(()=>null); s.freeDraws=5;}")
+    pg.wait_for_timeout(1300)
+    pg.eval_on_selector('#draw-five', 'e=>e.click()'); pg.wait_for_timeout(1500)
+    for _ in range(12):
+        if pg.locator('#collect').is_visible(): break
+        pg.evaluate("()=>{const b=document.getElementById('skip'); if(b&&!b.hidden) b.click();}"); pg.wait_for_timeout(900)
+    check(pg.locator('#collect').is_visible(), '1.0 五連演出跑完、收下鍵出現')
+    home_badges = pg.evaluate("()=>[...document.querySelectorAll('#cards .draw-badge')].map(b=>b.textContent)")
+    check(len(home_badges) > 0, f'1.0 結果卡上直接標徽章：{home_badges}')
+    pg.screenshot(path=str(OUT / '00-home-badges.png'))
+    pg.eval_on_selector('#collect', 'e=>e.click()'); pg.wait_for_timeout(1200)
+    check(pg.locator('#recruit-layer').is_hidden() and pg.locator('#draw-summary').count() == 0, '收下就回遊戲，沒有「收下了！」視窗')
+
+    # ---- 從「模式」切過去（使用者 09-13：「模式 是額外的大選項，切換後就是之前做的關卡地圖」；第四輪改成直接進戰鬥畫面）
     check(pg.evaluate("()=>Clicker.state.settings.world") == 'home', '一開始在 1.0 桌邊')
     pg.eval_on_selector('#scene-open', 'e=>e.click()'); pg.wait_for_timeout(600)
     check(pg.locator('.scene-ticket[data-scene="apoc"]').count() == 0, '場景面板裡沒有末世（場景是桌邊的七站）')
@@ -53,7 +68,10 @@ with sync_playwright() as p:
     check(pg.evaluate("()=>Clicker.state.settings.world") == 'apoc', '選了末世 → 當前主系統是末世')
     check(pg.evaluate("()=>document.body.dataset.world") == 'apoc', 'body 掛上 data-world=apoc（色票換掉）')
     check(pg.evaluate("()=>document.getElementById('modes').hidden"), '切換後模式面板自己關掉')
-    check(pg.locator('#apoc-map').is_visible() and pg.locator('.map-station').count() == 20, '末世一進來是關卡地圖（20 站）')
+    # 使用者第四輪：「末世地圖的預設畫面是戰鬥畫面，不是選擇關卡，每次都要按進入戰鬥很麻煩」
+    check(pg.locator('#apoc-map').is_hidden() and pg.locator('#apoc-enemy').is_visible(), '末世一進來就是戰鬥畫面（不是關卡地圖）')
+    pg.eval_on_selector('#scene-open', 'e=>e.click()'); pg.wait_for_timeout(600)
+    check(pg.locator('#apoc-map').is_visible() and pg.locator('.map-station').count() == 20, '頂列「地圖」打開關卡地圖（20 站）')
     pg.screenshot(path=str(OUT / '0-apoc-map.png'))
     pg.eval_on_selector('#map-enter', 'e=>e.click()'); pg.wait_for_timeout(900)
     check(pg.locator('#apoc-map').is_hidden(), '進入戰鬥 → 地圖收起')
@@ -62,7 +80,7 @@ with sync_playwright() as p:
     # ---- 戰鬥畫面用的是 1.0 的節點（唯一的 iframe 是精裝典藏包，抽卡才載入）
     check(pg.locator('iframe:not(#apoc-ceremony-frame)').count() == 0, '沒有其他 iframe')
     check(pg.locator('#apoc-enemy').is_visible(), '舞台上有怪')
-    check(pg.evaluate("()=>!!Clicker.state.apoc.stage"), '從地圖「進入戰鬥」就開打')
+    check(pg.evaluate("()=>!!Clicker.state.apoc.stage"), '戰鬥畫面上自動開打')
     check(pg.locator('#bag').is_hidden() or not pg.locator('#bag').is_visible(), '1.0 的零食包收起來了')
 
     # ---- 卡片是末世卡
@@ -91,6 +109,37 @@ with sync_playwright() as p:
     check('/' in pg.locator('#package-number').inner_text(), '血條寫著目前血量：' + pg.locator('#package-number').inner_text())
     pg.screenshot(path=str(OUT / '2-fight.png'))
 
+    # ---- 第四輪：點舞台空白處也算傷害；打死之後下一站自動開打（以前要再按「開戰」，使用者回報「無法點了」）
+    sb = pg.locator('#stage').bounding_box()
+    hp1 = pg.evaluate("()=>Clicker.state.apoc.stage.hp")
+    pg.mouse.click(sb['x'] + sb['width'] * .06, sb['y'] + sb['height'] * .08); pg.wait_for_timeout(300)
+    check(pg.evaluate("()=>Clicker.state.apoc.stage.hp") < hp1, '點舞台左上角的空白處也會扣血')
+    idx0 = pg.evaluate("()=>Clicker.state.apoc.stage.index")
+    pg.evaluate("()=>{Clicker.state.apoc.stage.hp=1;}")
+    pg.mouse.click(sb['x'] + sb['width'] * .94, sb['y'] + sb['height'] * .08); pg.wait_for_timeout(1600)
+    nxt = pg.evaluate("()=>Clicker.state.apoc.stage")
+    check(bool(nxt) and nxt['index'] == idx0 + 1, f'打死之後下一站自動開打（{idx0} → {nxt and nxt["index"]}）')
+    hp2 = pg.evaluate("()=>Clicker.state.apoc.stage.hp")
+    pg.mouse.click(sb['x'] + sb['width'] * .5, sb['y'] + sb['height'] * .4); pg.wait_for_timeout(300)
+    check(pg.evaluate("()=>Clicker.state.apoc.stage.hp") < hp2, '下一站出來之後照樣點得動')
+
+    # ---- 第四輪：技能名沿用 1.0（同名角色）；1.0 的印記／祝福加成套進 2.0
+    pg.evaluate("()=>{const a=Clicker.state.apoc; a.collection.seal=1; if(!a.roster.includes('seal')) a.roster=[...a.roster.slice(0,19),'seal']; a.skills=[a.skills[0],a.skills[1],'seal',null];}")
+    pg.wait_for_timeout(1400)
+    names = pg.evaluate("()=>[...document.querySelectorAll('#slots .skill-name')].map(e=>e.textContent)")
+    check(any(n.startswith('快樂拍拍') for n in names), f'快樂海豹的技能叫 1.0 的「快樂拍拍」{names}')
+    p0 = pg.evaluate("()=>{const A=ApocEconomy;return A.power(A.normalize(Clicker.state.apoc));}")
+    rate = lambda: float(''.join(ch for ch in pg.locator('#click-rate').inner_text() if ch.isdigit() or ch == '.'))
+    r0 = rate()
+    m0 = pg.evaluate("()=>ClickerEconomy.markMul(Clicker.state)*ClickerEconomy.blessMul(Clicker.state)")
+    # ⚠ 收益祝福 Lv5 要先領過 1+2+3+4+5＝15 枚印記，只設 blessing 會存檔驗證失敗（印記商店）、消費鎖住、末世停止重畫（實測）
+    pg.evaluate("()=>{const s=Clicker.state; s.marksClaimed=Math.max(s.marksClaimed||0,15); s.blessing=5;}"); pg.wait_for_timeout(1600)
+    check(pg.locator('#retry-save').is_hidden(), '設了收益祝福之後存檔沒有鎖住')
+    m1 = pg.evaluate("()=>ClickerEconomy.markMul(Clicker.state)*ClickerEconomy.blessMul(Clicker.state)")
+    r1 = rate()
+    check(abs(r1 / r0 - m1 / m0) < .02, f'1.0 的印記×收益祝福（×{m1 / m0:.2f}）套進 2.0 戰力：{r0} → {r1}')
+    pg.evaluate("()=>{Clicker.state.blessing=0;}"); pg.wait_for_timeout(1200)
+
     # ---- 卡冊與編隊都是 1.0 那一套
     pg.eval_on_selector('#roster-open', 'e=>e.click()'); pg.wait_for_timeout(900)
     check(pg.locator('.album-slot').count() > 0, '末世卡冊打得開（%d 格）' % pg.locator('.album-slot').count())
@@ -103,6 +152,19 @@ with sync_playwright() as p:
     NO_OLD = ("()=>[...document.querySelectorAll('#game .character-png, #game .card:not(.holo-card):not(.deluxe-card):not(.apoc-face-blank)')]"
               ".filter(e=>e.offsetParent).map(e=>e.className+' @'+(e.closest('[id]')||{}).id)")
     check(not pg.evaluate(NO_OLD), '末世卡冊裡沒有 1.0 卡面：' + str(pg.evaluate(NO_OLD))[:160])
+    # 放大鏡：按住卡面拖曳轉動時放大層不能被當成「點面板外」關掉（Codex 第四輪必修 1）；Esc 關掉後焦點回到放大鍵
+    pg.eval_on_selector('#album-detail .zoom-btn', 'e=>e.focus()')
+    pg.eval_on_selector('#album-detail .zoom-btn', 'e=>e.click()'); pg.wait_for_timeout(800)
+    zb = pg.locator('#card-zoom .zoom-card').bounding_box()
+    check(zb is not None, '放大鏡打開放大層')
+    if zb:
+        cx, cy = zb['x'] + zb['width'] / 2, zb['y'] + zb['height'] / 2
+        pg.mouse.move(cx, cy); pg.mouse.down(); pg.mouse.move(cx + 60, cy + 20, steps=6); pg.mouse.up(); pg.wait_for_timeout(400)
+        check(pg.locator('#card-zoom').count() == 1, '按住卡面拖曳轉動，放大層不會被關掉')
+        pg.keyboard.press('Tab'); pg.wait_for_timeout(100)
+        check(pg.evaluate("()=>!!document.activeElement.closest('#card-zoom')"), 'Tab 焦點留在放大層裡')
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
+        check(pg.locator('#card-zoom').count() == 0 and pg.evaluate("()=>document.activeElement.classList.contains('zoom-btn')"), 'Esc 收掉放大層、焦點回到放大鍵')
     pg.eval_on_selector('#album-detail .detail-back', 'e=>e.click()'); pg.wait_for_timeout(500)
     if pg.evaluate("()=>(Clicker.state.collectibles||[]).length") and pg.locator('#collect-open').is_visible():
         pg.eval_on_selector('#collect-open', 'e=>e.click()'); pg.wait_for_timeout(2500)
@@ -174,7 +236,7 @@ with sync_playwright() as p:
     pg.eval_on_selector('.mode-card[data-mode="apoc"]', 'e=>e.click()'); pg.wait_for_timeout(1200)
     pg.reload(); pg.wait_for_function('window.Clicker?.state'); pg.wait_for_timeout(1500)
     check(pg.evaluate("()=>Clicker.state.settings.world") == 'apoc', '重新整理之後還在末世（存檔記得）')
-    check(pg.locator('#apoc-map').is_visible(), '重新整理之後回到末世的關卡地圖')
+    check(pg.locator('#apoc-map').is_hidden() and pg.locator('#apoc-enemy').is_visible(), '重新整理之後回到末世的戰鬥畫面')
 
     check(not errors, '頁面錯誤 0：' + '; '.join(errors)[:200])
     b.close()

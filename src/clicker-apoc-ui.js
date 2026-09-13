@@ -32,14 +32,24 @@ window.ClickerApocUI = (() => {
     //（使用者 09-13：「2.0 不准出現任何 1.0 卡面」）
     const blank = () => { const el = document.createElement('span'); el.className = 'apoc-face-blank'; return el; };
     const faceOf = (entry) => (window.ClickerHolo && window.ClickerHolo.ready() && window.ClickerHolo.face(entry)) || blank();
-    const view = () => A.view(A.normalize(store.state.apoc), Date.now());
+    // 1.0 的印記／祝福加成直接套進 2.0（使用者第四輪）。算法照 1.0 的 rates()：
+    //   全隊戰力 ×（印記倍率 × 收益祝福）、點擊再 ×（1＋10%×攻擊力祝福）、技能效果 ×（1＋5%×技能祝福）、冷卻 ×（1−2%×冷卻祝福）。
+    //   每次都從 1.0 的存檔現算（1.0 買了祝福，2.0 馬上吃到），不寫進末世存檔。
+    function oneBoost(s) {
+      const E = window.ClickerEconomy, art = id => s?.artifacts?.[id] || 0;
+      if (!E || !s) return { power: 1, click: 1, skill: 1, cd: 1 };
+      return { power: E.markMul(s) * E.blessMul(s), click: 1 + .1 * art('tap'), skill: 1 + .05 * art('skill'), cd: 1 - .02 * art('cd') };
+    }
+    const boosted = (a, s = store.state) => { a.boost = oneBoost(s); return a; };
+    const view = () => A.view(boosted(A.normalize(store.state.apoc)), Date.now());
     // 對 s.apoc 做一次純函式變換並提交
     function apply(fn, silent = false) {
       const s = store.state; if (!s.apoc?.unlocked) return [];
       let events = [];
       try {
-        const next = JSON.parse(JSON.stringify(s)); const r = fn(A.normalize(next.apoc), Date.now());
+        const next = JSON.parse(JSON.stringify(s)); const r = fn(boosted(A.normalize(next.apoc), s), Date.now());
         if (r && r.state) { next.apoc = r.state; events = r.events || []; } else next.apoc = r;
+        delete next.apoc.boost;   // 加成是現算的，不寫進存檔
         if (!commit(next)) return [];
       } catch (err) { if (!silent) notice(err.message); return []; }
       for (const ev of events) {
@@ -137,9 +147,24 @@ window.ClickerApocUI = (() => {
         { transform: 'scale(1)', filter: `brightness(1) ${shade}` }], kind === 'hit' || kind === 'shield' ? 130 : 200);
     }
 
-    function tap(point) {
-      const before = store.state.apoc; if (!before?.stage) return;
-      const b = A.normalize(before), now = Date.now(), idx = b.stage.index;
+    // 使用者第四輪：「打死上一隻怪物之後，下一隻出現，然後就無法點了」——以前要再按一次「開戰」。
+    // 戰鬥畫面上一律自動接下一站；地圖、招募層、結局畫面開著，或隊伍是空的就不自動。
+    function autoFight() {
+      const a = store.state?.apoc; if (!a?.unlocked || a.stage || store.blocked) return false;
+      if ($('game-content').classList.contains('map-open') || !$('recruit-layer').hidden || !$('apoc-ending').hidden) return false;
+      // 精裝典藏包是另一層（#apoc-ceremony），還沒收下的結果也算招募中：背景不要偷偷接下一站（Codex 第四輪）
+      if (!$('apoc-ceremony').hidden || a.pending) return false;
+      const v = view(); if (!v.canFight || !(v.power > 0)) return false;
+      if (A.isBoss(a.progress) && a.bossFailed === a.progress) return false;   // 這一站的王輸過：等玩家自己按「再次挑戰」
+      apply((x, n) => A.fight(x, n), true);
+      return !!store.state.apoc?.stage;
+    }
+    // 點舞台任何地方都算打怪（使用者第四輪：「點擊範圍不要只有怪物本身，空白地方也要能造成傷害」）；
+    // 王的護盾照舊：每一下都算進破盾進度。受擊特效一律打在怪身上（點在空白處也是打到怪）。
+    function tap() {
+      if (!store.state.apoc?.stage && !autoFight()) return;
+      const before = store.state.apoc;
+      const b = boosted(A.normalize(before)), now = Date.now(), idx = b.stage.index;
       const dmg = A.tapDamage(b, now), crit = (b.fx?.clickLeft || 0) > 0, boss = !!b.stage.boss, wasBroken = now < (b.stage.breakUntil || 0);
       const events = apply((x, n) => A.settle(A.tap(x, n), n, 0), true);
       if (!events.length && store.state.apoc === before) return;   // commit 被擋（存檔鎖住之類）就不演
@@ -147,13 +172,14 @@ window.ClickerApocUI = (() => {
       const broke = boss && !wasBroken && !won && after.stage?.index === idx && (after.stage.breakUntil || 0) > now;
       sound(broke ? 'skill' : crit ? 'skill' : 'click');
       const kind = won ? 'kill' : broke ? 'break' : crit ? 'crit' : boss && !wasBroken ? 'shield' : 'hit';
-      hitFx(point, kind, broke ? `破盾！-${format(dmg)}` : `-${format(dmg)}`);
+      hitFx(null, kind, broke ? `破盾！-${format(dmg)}` : `-${format(dmg)}`);
     }
     function tick() {
       const now = Date.now(), dt = Math.min(60, (now - lastTick) / 1000); lastTick = now;
       const events = apply((x, n) => A.settle(x, n, dt), true);
       // 放著被隊伍打死也要有擊倒演出（點死的那一下由 tap() 自己演）；地圖蓋著舞台時不演
       if (events.some(e => e.type === 'win') && !$('game-content').classList.contains('map-open') && $('recruit-layer').hidden) hitFx(null, 'kill', '擊倒！');
+      autoFight();
     }
 
     // ---- 舞台：把 1.0 的拆包面換成打怪面（同一組節點，換內容）
@@ -191,7 +217,7 @@ window.ClickerApocUI = (() => {
       const go = $('boss-challenge');
       go.hidden = !!v.stage || v.progress >= v.stations;
       go.disabled = !v.canFight || !(v.power > 0) || store.blocked;
-      go.textContent = !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? '挑戰王關' : '開戰';
+      go.textContent = !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? '再次挑戰' : '挑戰王關') : '開戰';
       go.classList.toggle('glow', !!(v.canFight && v.power > 0));
       $('boss-estimate').hidden = true;
       $('package-result').textContent = v.progress >= v.stations ? '全線已通行。'
@@ -395,11 +421,12 @@ window.ClickerApocUI = (() => {
       setLabel($('stats').querySelector('h2'), '末世戰績 ');
       hide('badge-count'); hide('pick100-open'); hide('badge-share'); hide('memento-open');
       $('stats-body').textContent = '這一頁是末世的數字。下面的匯出／匯入存檔是兩個世界共用的同一份存檔。';
-      const grid = $('badge-grid'); grid.replaceChildren();
+      // 數字格跟 1.0 統計同一套（#stats-tiles）；末世沒有徽章，徽章牆先藏起來，離開末世會還原
+      hide('badge-grid'); const grid = $('stats-tiles'); grid.replaceChildren(); grid.hidden = false;
       for (const [k, val] of [['通過站數', `${v.progress} / ${v.stations}`], ['收藏', `${v.owned.length} / ${Pool().length}`], ['戰力', format(v.power)],
         ['抽卡次數', format(v.stats.draws)], ['點擊次數', format(v.stats.taps)], ['最高一擊', format(v.stats.maxHit)], ['破盾次數', format(v.stats.shieldBreaks)],
-        ['換到的券', format(v.exchangeTotal)], ['點擊力', `Lv.${v.clickLevel}`], ['全隊訓練', `Lv.${v.teamLevel}`]]) {
-        const cell = document.createElement('div'); cell.className = 'apoc-stat';
+        ['換到的券', format(v.exchangeTotal)], ['點擊力', `Lv.${v.clickLevel}`], ['全隊訓練', `Lv.${v.teamLevel}`], ['1.0 印記加成', `戰力 ×${v.boost.power.toFixed(2)}`]]) {
+        const cell = document.createElement('div'); cell.className = 'stat-tile';
         const b = document.createElement('b'); b.textContent = val; const sm = document.createElement('small'); sm.textContent = k;
         cell.append(b, sm); grid.append(cell);
       }

@@ -35,6 +35,12 @@ def main():
     css = css.replace('cardback/deluxe-back.webp', 'art/deluxe-back.webp')
     # 主頁負責扣券：原型的試抽券與抽卡鍵收起來（節點保留，ceremony.js 會讀它們）
     css += '\n/* 末世：扣券在主頁，這裡只演出 */\n.entry-actions,.test-label{display:none!important}\n'
+    # 使用者第四輪：「新夥伴／升星」直接標在抽卡結果上，不另外跳「收下了！」視窗
+    css += ('\n/* 末世：結果卡上的新夥伴／升星徽章（主頁算好傳進來） */\n'
+            '.slot .apoc-badges{position:absolute;left:50%;top:-4%;transform:translateX(-50%);z-index:40;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;width:130%;pointer-events:none}\n'
+            '.apoc-badge{font:800 13px/1 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;padding:5px 9px;border-radius:999px;color:#fff;background:#8E3B2E;'
+            'border:2px solid #fff6e6;box-shadow:0 3px 8px #000a;white-space:nowrap;letter-spacing:.04em}\n'
+            '.apoc-badge.new{background:#D9412F}.apoc-badge.star{background:#B9821F}.apoc-badge.promote,.apoc-badge.transcend{background:#6A4FB0}\n')
     (OUT / 'ceremony.css').write_text(css, encoding='utf-8')
 
     js = '\n'.join((HOLO / n).read_text(encoding='utf-8')
@@ -45,10 +51,17 @@ def main():
 // ── 末世橋接（build_ceremony.py 加的，演出本體沒改）──────────────────────
 // 主頁已經扣券並把結果寫進存檔；這裡只照清單演出，收下時回報。
 btn.fin.addEventListener('click',()=>{if(parent!==window)parent.postMessage({apocCeremony:'collect'},'*');});
+// 結果卡上的「新夥伴／★1→★2」徽章（使用者第四輪：直接標在抽卡結果，不另外跳視窗）。
+// 主頁照抽到的順序算好傳進來；卡片定型（completeSlot）時掛上，清場（clearRun）時跟著卡一起消失。
+let apocBadges=[];
+const apocCompleteSlot=completeSlot;
+completeSlot=function(s){apocCompleteSlot(s);const list=apocBadges[+s.el.dataset.i]||[];
+  if(!list.length||s.el.querySelector('.apoc-badges'))return;const box=node('div','apoc-badges');
+  for(const b of list){const tag=node('b','apoc-badge '+(b.kind||''));tag.textContent=b.text;box.append(tag);}s.el.append(box);};
 window.ApocCeremony={
-  play(ids){if(busy||slots.length)clearRun();window.__apocIds=ids.slice();pull(ids.length);},
+  play(ids,badges){apocBadges=Array.isArray(badges)?badges:[];if(busy||slots.length)clearRun();window.__apocIds=ids.slice();pull(ids.length);},
   // 重新整理時存檔裡還有沒收下的結果：直接跳到結果頁（原型的 skipAll 就是這條路）
-  restore(ids){this.play(ids);const run=generation;const go=async()=>{
+  restore(ids,badges){this.play(ids,badges);const run=generation;const go=async()=>{
     if(run!==generation)return; if(!await ready)return;
     if(entryPhase!=='waiting'){requestAnimationFrame(go);return;} openPack(); skipAll();};go();},
   reset(){clearRun();hint.textContent='';},

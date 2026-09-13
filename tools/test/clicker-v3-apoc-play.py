@@ -48,17 +48,20 @@ with sync_playwright() as p:
     a = pg.evaluate("()=>Clicker.state.apoc")
     check(a['gifted'] and a['tickets'] == 10 and a['roster'] == ['pufayueyue'], '開門禮：普發玥玥入隊＋10 券')
 
-    # 末世一進來是關卡地圖；點「進入戰鬥」才是 1.0 的戰鬥畫面
-    check(pg.locator('#apoc-map').is_visible(), '末世的主畫面是關卡地圖')
-    pg.evaluate("()=>{ApocEconomy.RULES.BASE_NEED=3000;}")   # 這支測接線不是數值；進入戰鬥當下就算血量，要先改
-    pg.eval_on_selector('#map-enter', 'e=>e.click()'); pg.wait_for_timeout(800)
-    check(pg.locator('#apoc-map').is_hidden(), '進入戰鬥 → 地圖收起')
+    # 第四輪：末世一進來就是戰鬥畫面、自動開打（不再先停在關卡地圖）
+    check(pg.locator('#apoc-map').is_hidden() and pg.locator('#apoc-enemy').is_visible(), '末世的主畫面是戰鬥畫面')
+    # 這支測接線不是數值：血量改小。開場已經自動開打了，清掉那一場讓它照新血量重開
+    pg.evaluate("()=>{ApocEconomy.RULES.BASE_NEED=3000; Clicker.state.apoc.stage=null;}"); pg.wait_for_timeout(1400)
+    check(pg.evaluate("()=>Clicker.state.apoc.stage && Clicker.state.apoc.stage.need") == 3000, '自動重新開打，血量照新數字')
 
     # 十連：演出是精裝典藏包（使用者指定），扣券與結果在主頁先寫進存檔
     pg.eval_on_selector('#draw-five', 'e=>e.click()'); pg.wait_for_timeout(600)
     check(pg.evaluate("()=>!!Clicker.state.apoc.pending"), '十連：pending 進了末世的存檔')
     check(not pg.evaluate("()=>!!Clicker.state.pending"), '沒有汙染 1.0 的 pending')
     check(pg.locator('#apoc-ceremony').is_visible(), '精裝典藏包打開')
+    # 典藏包還沒收下時，背景不能自動接下一站（Codex 第四輪必修 2）：把目前這場清掉，等兩個 tick 看有沒有偷開
+    pg.evaluate("()=>{Clicker.state.apoc.stage=null;}"); pg.wait_for_timeout(2200)
+    check(pg.evaluate("()=>Clicker.state.apoc.stage") is None, '典藏包開著（還沒收下）時不會自動開打')
     frame = next(f for f in pg.frames if f.url.endswith('apoc/ceremony.html'))
     frame.wait_for_function("()=>window.ApocCeremony && ApocCeremony.state().entryPhase==='waiting'", timeout=20000)
     saved = pg.evaluate("()=>Clicker.state.apoc.pending.draw.entries.map(e=>e.entry.id)")
@@ -71,12 +74,13 @@ with sync_playwright() as p:
                             "return s.length===10 && s.every(r=>r.left>=w.left-1&&r.right<=w.right+1&&r.top>=w.top-1&&r.bottom<=w.bottom+1);}")
     check(inside, '十張卡都在典藏包的畫面裡')
     pg.screenshot(path=str(OUT / '1-ten.png'))
+    # 第四輪：「新夥伴／升星」直接標在典藏包的結果卡上，不另外跳「收下了！」視窗
+    badges = frame.evaluate("()=>[...document.querySelectorAll('#fan .slot .apoc-badge')].map(b=>b.textContent)")
+    check(len(badges) > 0 and '新夥伴' in badges, f'典藏包結果卡上有徽章：{badges[:6]}')
+    pg.screenshot(path=str(OUT / '1b-badges.png'))
     frame.eval_on_selector('#finish', 'e=>e.click()'); pg.wait_for_timeout(1000)
     check(pg.locator('#apoc-ceremony').is_hidden(), '收下 → 典藏包關閉')
-    if not pg.locator('#draw-summary').is_hidden():
-        check(True, '收下之後出結算：' + ' / '.join(pg.locator('#draw-summary-body').inner_text().split('\n'))[:60])
-        pg.screenshot(path=str(OUT / '2-summary.png'))
-        pg.eval_on_selector('#draw-summary-ok', 'e=>e.click()'); pg.wait_for_timeout(900)
+    check(pg.locator('#recruit-layer').is_hidden() and pg.locator('#draw-summary').count() == 0, '收下就回遊戲，沒有「收下了！」視窗')
     a = pg.evaluate("()=>Clicker.state.apoc")
     check(a['tickets'] == 0 and len(a['roster']) >= 2, '十連：券扣光、新卡自動入隊 ' + str({'tickets': a['tickets'], 'roster': len(a['roster'])}))
 

@@ -1264,7 +1264,10 @@ body[data-world="apoc"] #stage-fit { filter:none; }
   filter:drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
 #apoc-enemy.boss { width:210px; height:200px; top:140px; }
 /* 怪鳥與灰狼的圖是 4 格橫排的動畫表（clicker-scene.js frames:4），整張放進來會變成「一排三四隻」；只取第一格 */
-#apoc-enemy[src="clicker-monster-bird.png"], #apoc-enemy[src="clicker-monster-wolf.png"] { object-view-box:inset(0 75% 0 0); }
+#apoc-enemy[src="clicker-monster-bird.png"], #apoc-enemy[src="clicker-monster-wolf.png"] { object-view-box:inset(0 75% 0 0);
+  animation:apoc-sprite4 520ms steps(4, jump-none) infinite; }   /* 使用者第四輪：「這不是動圖」→ 照 1.0 的王：4 格、每格 130ms */
+@keyframes apoc-sprite4 { from { object-view-box:inset(0 75% 0 0); } to { object-view-box:inset(0 0 0 75%); } }
+@media (prefers-reduced-motion: reduce) { #apoc-enemy[src="clicker-monster-bird.png"], #apoc-enemy[src="clicker-monster-wolf.png"] { animation:none; } }
 /* 紙票券的貼圖在深色下是一塊土黃，全部換成純色板（尺寸不動） */
 body[data-world="apoc"] .package-meter, body[data-world="apoc"] .price-ticket,
 body[data-world="apoc"] #notice, body[data-world="apoc"] .buddy-header h2,
@@ -1283,12 +1286,12 @@ body[data-world="apoc"] .skill-name, body[data-world="apoc"] .skill-slot small,
 body[data-world="apoc"] .slot-stamp, body[data-world="apoc"] .parasite-stamp {
   background:#0E1520; border-color:#5C7CB8; color:#DDE6F4; }
 /* 末世的點擊區＝怪本身（1.0 的 #tap 是珍母的位置，末世沒有珍母） */
-/* 點擊區跟著怪置中（怪在舞台 (304,150)，王大一號在 (304,140)）；左下的技能格 z-index 比它高，重疊處按得到技能 */
-body[data-world="apoc"] #tap { left:199px; top:40px; width:210px; height:200px; border-radius:16px; }
+/* 點擊區＝整個舞台（使用者第四輪：「空白地方也要能造成傷害」）；技能格與開戰鍵的 z-index 比它高，照樣按得到 */
+body[data-world="apoc"] #tap { left:0; top:0; width:608px; height:360px; border-radius:0; }
 /* 受擊浮字：置中靠 translate，動畫只動 transform */
 #floaters .apoc-hit { translate:-50% 0; white-space:nowrap; pointer-events:none; }
 #floaters .apoc-hit b { -webkit-text-stroke:1.4px #2A1C12; paint-order:stroke fill; }
-body[data-world="apoc"] #tap:hover:enabled { background:#FFFFFF10; }
+body[data-world="apoc"] #tap:hover:enabled { background:transparent; }
 body[data-world="apoc"] #buddies .buddy { background:#22304A; }
 body[data-world="apoc"] #completed { display:none; }
 /* 招募層在末世也要換色（同一層兩個世界共用） */
@@ -1320,30 +1323,6 @@ body[data-world="apoc"] #effect-label { background:#22304A; border-color:#4A628A
 body[data-world="apoc"] #effect-label.broken { background:#E0B33C; color:#0C1119; border-color:#0C1119; }
 body[data-world="apoc"] .slot-empty { font-size:26px; color:#5C7CB8; }
 
-/* 抽卡結算：收下之後的一張小結（新夥伴／升星／自動升階／超越／粉塵） */
-#draw-summary { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:60;
-  width:min(560px, 86%); max-height:82%; overflow:auto; display:flex; flex-direction:column; gap:10px;
-  padding:18px 20px 16px; background:var(--paper); border:3px solid var(--ink); border-radius:16px;
-  box-shadow:0 10px 0 rgba(0,0,0,.35); }
-#game #draw-summary, #game #draw-summary h2, #game #draw-summary .draw-line span,
-#game #draw-summary figcaption { color:var(--ink); }
-#draw-summary h2 { margin:0; font-size:20px; }
-#draw-summary-body { display:flex; flex-direction:column; gap:8px; }
-.draw-line { display:flex; align-items:flex-start; gap:8px; font-size:13px; line-height:1.5; }
-.draw-line b { flex:none; min-width:76px; padding:1px 6px; border-radius:6px; background:var(--ink); color:var(--paper); font-size:12px; text-align:center; }
-.draw-line span { min-width:0; }
-.draw-faces { display:flex; flex-wrap:wrap; gap:6px; }
-.draw-faces figure { margin:0; width:52px; text-align:center; font-size:11px; line-height:1.2; }
-.draw-faces figure > :first-child { width:52px; height:52px; object-fit:contain; display:block; }
-#draw-summary-ok { align-self:center; min-width:140px; height:40px; font-size:16px; }
-/* ⚠ 上面 `#game #draw-summary ...` 把標題／內文／名字寫死成 var(--ink)，末世的 --ink 是 #0C1119，
-   壓在 #22304A 的底上等於看不見。這裡要用同等以上的 specificity 逐個蓋回來（Codex 複檢 3-4）。 */
-body[data-world="apoc"] #game #draw-summary { background:#22304A; border-color:#0C1119; }
-body[data-world="apoc"] #game #draw-summary,
-body[data-world="apoc"] #game #draw-summary h2,
-body[data-world="apoc"] #game #draw-summary .draw-line span,
-body[data-world="apoc"] #game #draw-summary figcaption { color:#DDE6F4; }
-body[data-world="apoc"] .draw-line b { background:#0E1520; color:#DDE6F4; }
 
 /* 末世的編隊畫面：跟卡冊一樣換深色 */
 body[data-world="apoc"] .team-editor, body[data-world="apoc"] .t20-rail,
@@ -1418,14 +1397,22 @@ body[data-world="apoc"] #game-content #slots .skill-use:disabled { background:tr
   background-color:#E8DCC0; background-repeat:no-repeat; }
 .apoc-sticker > i > * { width:100%; height:100%; }
 /* 末世戰績（借徽章牆面板）與末世商店（借商店面板）、招募卡下的換券入口 */
-#badge-grid .apoc-stat { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-width:0;
-  padding:10px 6px; border:2px dashed rgba(59,42,28,.45); border-radius:10px; }
-#badge-grid .apoc-stat b { font-size:22px; line-height:1.15; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#badge-grid .apoc-stat small { font-size:12px; }
+/* 統計／戰績的數字格（兩個世界同一套；使用者第四輪：1.0 統計也改成新版） */
+#stats-tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(118px, 1fr)); gap:8px; margin:0 0 10px; }
+#stats-tiles .stat-tile { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-width:0;
+  padding:10px 6px; border:2px dashed rgba(59,42,28,.45); border-radius:10px; background:rgba(255,246,230,.6); }
+#game #stats-tiles .stat-tile b { font-size:22px; line-height:1.15; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; -webkit-text-stroke:0; }
+#stats-tiles .stat-tile small { font-size:12px; }
+/* 直式：數字格一排 4 格、字縮小；面板內可以捲動——多了數字格之後徽章牆與存檔鍵被推出畫面（UI 體檢 26 條） */
+@media (max-aspect-ratio: 3/4) {
+  #stats-tiles { grid-template-columns:repeat(4, minmax(0, 1fr)); gap:4px; margin-bottom:6px; }
+  #stats-tiles .stat-tile { padding:4px 2px; gap:0; }
+  #game #stats-tiles .stat-tile b { font-size:14px; }
+  #stats-tiles .stat-tile small { font-size:10px; }
+  #stats.badge-wall { overflow-y:auto; }
+}
 /* 1.0 的分類頁是置中的格子；末世商店是兩段由上往下的清單，要撐滿、靠左、從頂端排（不然兩段各自置中、縮排對不齊、上面空一大片） */
 #shop-cats:has(.apoc-shop-sec) { display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; align-content:start; gap:14px; }
-#badge-grid:has(.apoc-stat) { grid-template-columns:repeat(5, minmax(0, 1fr)); }
-@media (max-aspect-ratio: 3/4) { #badge-grid:has(.apoc-stat) { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
 #shop-cats .apoc-shop-sec { grid-column:1 / -1; justify-self:stretch; width:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:flex-start; gap:6px; padding:6px 4px; min-width:0; }
 #shop-cats .apoc-shop-sec h3 { margin:0; font-size:17px; }
 #shop-cats .apoc-shop-sec p { margin:0; font-size:13px; line-height:1.4; }
@@ -1507,8 +1494,6 @@ body[data-world="apoc"] #slots .skill-slot[data-state="cooldown"] .skill-use::af
 /* 精裝典藏包疊層：蓋滿 960×640 的遊戲框（演出頁自己的版面就是照這個殼調的，見 ceremony-layout.js） */
 #apoc-ceremony { position:absolute; inset:0; z-index:80; border-radius:16px; overflow:hidden; background:#101115; }
 #apoc-ceremony iframe { display:block; width:100%; height:100%; border:0; }
-.draw-faces figure .holo-slot { width:64px; height:auto; }
-body[data-world="apoc"] .draw-faces figure { width:64px; }   /* 精裝卡面 5:7，64 寬；1.0 的頭像框是 52 會互相疊 */
 
 /* 直式的關卡地圖 */
 @media (max-aspect-ratio: 3/4) {
@@ -1572,3 +1557,32 @@ body[data-world="apoc"] #game #roster .album-slot { --button-bg:transparent; bac
   .skill-grid .skill-slot .slot-name { white-space:normal; text-align:center; line-height:1.15; overflow:visible; }
   body[data-world="apoc"] .skill-grid .skill-slot .buddy-portrait.holo-slot { height:52px; }
 }
+
+/* ---- 第四輪 ---- */
+/* 1.0 招募結果卡上的「新夥伴／升星／升階／超越」徽章（取代收下後的「收下了！」視窗） */
+#cards .draw-badges { position:absolute; left:50%; top:-14px; transform:translateX(-50%); z-index:30; display:flex; gap:4px; pointer-events:none; white-space:nowrap; }
+#game #cards .draw-badge { font-size:13px; line-height:1; font-weight:800; padding:4px 9px; border-radius:999px; color:#fff; background:#D9412F;
+  border:2px solid #FFF6E6; box-shadow:0 2px 6px rgba(0,0,0,.45); -webkit-text-stroke:0; letter-spacing:.04em; }
+#game #cards .draw-badge.star { background:#B9821F; }
+#game #cards .draw-badge.promote, #game #cards .draw-badge.transcend { background:#6A4FB0; }
+/* 卡冊詳情的放大鏡與放大欣賞層（卡到畫面正中間、背景變暗） */
+/* 卡冊詳情的左欄改直排：放大鏡在卡下方（橫排會被擠到卡右邊、字變成直的「放／大」）。詳情卡橫式會放大 1.15 倍，要留位置 */
+#game #album-detail .detail-left { flex-direction:column; align-items:center; }
+#game .zoom-btn { display:flex; align-items:center; justify-content:center; gap:4px; margin:44px auto 0; padding:4px 16px; font-size:14px; white-space:nowrap; }
+/* ⚠ 直式也要留 44px：詳情卡的進場動畫停在 scale(1.15)（fill:forwards 蓋過直式的 scale(1)），卡底實際多出約 32px，只留 8px 會把鍵壓在卡面底下（UI 體檢＋實測） */
+/* 1.0 的 .card 預設透明（要 .detail-card 才顯示）；放大層裡的 1.0 卡要自己打開 */
+#card-zoom .zoom-card > .card { opacity:1; pointer-events:auto; }
+#card-zoom { position:absolute; inset:0; z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:rgba(12,8,4,.8); }
+#card-zoom .zoom-card { position:relative; height:min(80%, 580px); width:auto; aspect-ratio:5/7; }
+/* 直式：畫面窄，改成以寬度為準（高度照 5:7 算）。以高度為準再壓 max-width 會把卡拉長（實測 359×580） */
+@media (max-aspect-ratio: 3/4) { #card-zoom .zoom-card { width:88%; height:auto; } }
+#card-zoom .zoom-card > :not(.card) { position:absolute; inset:0; width:100% !important; height:100% !important; margin:0; transform:none; }
+/* 1.0 的卡內部是固定像素排版：只撐大外框的話角色和名字還是小卡大小、下面一片空（實測）。
+   所以保持原尺寸、整張等比放大到框的高度（--zoom-k 由 clicker-album.js 掛上之後量出來） */
+#card-zoom .zoom-card > .card { position:absolute; left:50%; top:50%; margin:0; transform-origin:center center;
+  transform:translate(-50%, -50%) scale(var(--zoom-k, 1)) !important; transition:none; }
+#game #card-zoom .zoom-hint { margin:0; color:#F6ECD6; font-size:13px; -webkit-text-stroke:0; }
+#game #card-zoom .zoom-close { position:absolute; top:14px; right:14px; }
+/* 末世編隊的卡名：精裝卡的深色光暈會壓到名字上，黑字就讀不到（使用者第四輪）→ 名字墊一塊紙色底、跟卡拉開 */
+body[data-world="apoc"] #game .team-proxy .proxy-name { position:relative; z-index:2; margin-top:4px; padding:1px 7px; border-radius:5px;
+  background:#EFE3C8; border:1px solid #3B2A1C; color:#2A1C12; font-weight:700; text-shadow:none; }

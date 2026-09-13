@@ -85,7 +85,6 @@
     <div id="dim" class="dim"></div><div id="flash" class="flash"></div>
     <canvas id="fx-under" class="fx fx-under" width="960" height="640"></canvas><div id="cards" class="cards"></div><canvas id="fx" class="fx" width="960" height="640"></canvas><div id="mode-root" class="mode-root"></div>
     <!-- 抽卡結算：收下之後先講清楚「這一抽到底得到什麼」，再關掉招募層（使用者 2026-09-13） -->
-    <div id="draw-summary" hidden><h2>收下了！</h2><div id="draw-summary-body"></div><button id="draw-summary-ok">繼續</button></div>
     <div class="reveal-controls"><button id="reveal-all" hidden>全部翻開</button><button id="skip" hidden>略過演出</button><button id="collect" hidden>收下夥伴</button><button id="collect-again" hidden>收下並繼續五連</button></div><p id="recruit-hint" role="status"></p>
   </section>
   <section id="roster" class="panel album" role="dialog" aria-modal="true" aria-label="夥伴卡冊" hidden><header><h2>夥伴卡冊</h2><span id="team-summary">點卡片看細節。重複卡變成該夥伴的粉塵，5★ 之後可以升階、超越。</span><button id="recall-all" hidden>收回派遣</button><button id="collect-open" hidden>收藏卡</button><button id="train-all" disabled>平均訓練</button><button id="dust-open" class="dust-jar" title="萬用粉塵：兌換成指定夥伴的粉塵"><img src="clicker-ui-dust-jar.png" alt="" /><b id="dust-count">0</b></button><button id="recommend-open">推薦組合</button><button id="roster-close">返回</button></header><div id="album-book"><div class="album-page" id="album-left"></div><div class="album-page" id="album-right"></div><button id="album-prev" class="page-corner prev" aria-label="上一頁">‹</button><button id="album-next" class="page-corner next" aria-label="下一頁">›</button><span id="album-page" class="album-pageno"></span></div><div id="album-detail" hidden></div><div id="dust-shop" hidden></div></section>
@@ -115,7 +114,7 @@
   <section id="prestige" class="panel prestige" role="dialog" aria-modal="true" aria-label="換桌布" hidden><header><h2>換一張新桌布</h2><span id="prestige-summary"></span><button id="prestige-close">返回</button></header><div id="prestige-body"></div></section>
   <section id="stats" class="panel badge-wall" role="dialog" aria-modal="true" aria-label="里程碑徽章牆" hidden>
     <header><h2><img class="badge" src="clicker-ui-badge-star.png" alt="" />里程碑徽章牆 <b id="badge-count">0 / 17</b></h2><span id="stats-body"></span><button id="stats-close">繼續開工</button><button id="memento-open" hidden>舊時代的相簿</button></header>
-    <div id="badge-grid"></div>
+    <div id="stats-tiles" hidden></div><div id="badge-grid"></div>
     <div id="stats-tools"><button id="pick100-open" hidden>第 100 包・12 選 1</button><button id="badge-share">分享卡</button><button id="io-export">匯出存檔</button><button id="io-import">匯入存檔</button></div>
     <div id="save-io" hidden><textarea id="io-text" aria-label="存檔字串" spellcheck="false"></textarea><div class="io-row"><button id="io-copy">複製</button><button id="import-check">檢查</button><button id="import-confirm" hidden>確定覆蓋</button><span id="io-status" role="status"></span></div></div>
   </section>

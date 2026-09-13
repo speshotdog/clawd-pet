@@ -244,7 +244,7 @@ window.ClickerAlbum = (() => {
       const s = store.state; detailId = id; closeDustShop();
       const root = $('album-detail'); root.replaceChildren(); root.hidden = false;
       const left = document.createElement('div'); left.className = 'detail-left';
-      const big = makeCard(s, id); big.classList.add('detail-card'); left.append(big);
+      const big = makeCard(s, id); big.classList.add('detail-card'); left.append(big, zoomButton(id));
       if (apoc()) window.ClickerHolo?.interactive(big.querySelector('.holo-face'));   // 拿在手上看：拖曳轉動、反光跟著游標
       const right = document.createElement('div'); right.className = 'detail-right';
       const h = document.createElement('h3'); h.textContent = byId(id).name; right.append(h);
@@ -421,7 +421,51 @@ window.ClickerAlbum = (() => {
       const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); wrap.append(back);
       root.append(wrap); refreshKey = stateKey();
     }
+    // 放大鏡（使用者第四輪）：卡移到畫面正中間放大、背景變暗，讓玩家好好把弄觀賞。
+    // 末世是精裝卡面（拖曳轉動、反光跟游標）；收藏卡嵌精裝頁本身；1.0 是原本的卡。點背景、關閉鍵或 Esc 收起來。
+    function zoomButton(id) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'zoom-btn'; b.title = '放大欣賞'; b.setAttribute('aria-label', '放大欣賞');
+      b.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><span>放大</span>';
+      b.onclick = () => openZoom(id);
+      return b;
+    }
+    let zoomReturn = null;   // 打開放大層的那顆鍵；關掉時把焦點還給它（Codex 第四輪）
+    function openZoom(id) {
+      closeZoom(); zoomReturn = document.activeElement;
+      const s = store.state, layer = document.createElement('div'); layer.id = 'card-zoom';
+      layer.setAttribute('role', 'dialog'); layer.setAttribute('aria-modal', 'true'); layer.setAttribute('aria-label', `${byId(id).name}・放大欣賞`);
+      const holder = document.createElement('div'); holder.className = 'zoom-card';
+      let face = null;
+      if (isCollect(id) && apoc()) holder.append(deluxeCard(id));
+      else if (apoc() && window.ClickerHolo?.ready() && (face = window.ClickerHolo.face(byId(id)))) holder.append(face);
+      else if (apoc()) { const blank = document.createElement('span'); blank.className = 'apoc-face-blank'; holder.append(blank); }   // 末世不准退回 1.0 卡面
+      else { const el = makeCard(s, id); el.classList.add('zoom-face'); holder.append(el); }
+      const hint = document.createElement('p'); hint.className = 'zoom-hint';
+      hint.textContent = apoc() ? '拖曳轉動・滑過看反光・點背景關閉' : '點背景關閉';
+      const close = document.createElement('button'); close.type = 'button'; close.className = 'zoom-close'; close.textContent = '關閉'; close.onclick = () => closeZoom();
+      layer.append(holder, hint, close);
+      layer.onclick = e => { if (e.target === layer) closeZoom(); };
+      $('game').append(layer);
+      if (face) { window.ClickerHolo.refit(face); window.ClickerHolo.interactive(face); }
+      // 1.0 的卡：量原本的高度，整張等比放大到放大框的高度（內部是固定像素排版，不能直接撐大）
+      const plain = holder.querySelector(':scope > .card');
+      if (plain && plain.offsetHeight) plain.style.setProperty('--zoom-k', String(holder.clientHeight / plain.offsetHeight));
+      close.focus();
+    }
+    function closeZoom() {
+      const z = $('card-zoom'); if (!z) return false; z.remove();
+      if (zoomReturn?.isConnected) zoomReturn.focus(); zoomReturn = null;
+      return true;
+    }
+    // 放大層開著時轉向：1.0 卡的比例要照新的框重量；精裝卡面的字級也跟著容器重算（Codex 第四輪）
+    function refitZoom() {
+      const z = $('card-zoom'); if (!z) return;
+      const holder = z.querySelector('.zoom-card'), plain = holder?.querySelector(':scope > .card');
+      if (plain && plain.offsetHeight) plain.style.setProperty('--zoom-k', String(holder.clientHeight / plain.offsetHeight));
+      const face = holder?.querySelector(':scope > .holo-face'); if (face) window.ClickerHolo?.refit(face);
+    }
     function closeDetail(instant = false) {
+      closeZoom();
       stopBlink(); detailId = null; refreshKey = stateKey(); const root = $('album-detail'); if (root.hidden) return;
       if (instant || reduced.matches) { root.hidden = true; root.replaceChildren(); return; }
       root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160 }).finished.then(() => { root.hidden = true; root.replaceChildren(); }).catch(() => { root.hidden = true; });
@@ -594,6 +638,7 @@ window.ClickerAlbum = (() => {
     $('recommend-open').onclick = () => showRecommendations();
     // Esc：先關展示頁／粉塵罐，再關卡冊
     function escape() {
+      if (closeZoom()) return true;   // 放大欣賞開著：Esc 先收它
       // 商店在分類內時，Esc 先退回分類頁，再按一次才關掉整個商店
       if (!$('wardrobe').hidden) {
         // 末世商店沒有分類頁：直接關（不然殘留的 1.0 shopCategory 會把末世商店重畫成桌邊商店，Codex 第三輪）
@@ -606,7 +651,7 @@ window.ClickerAlbum = (() => {
       return false;
     }
     // 直橫切換：跨頁 ↔ 單頁的排版不同，卡冊開著的時候要重畫（page 是單頁索引，不會跳掉）
-    function relayout() { if (!$('roster').hidden) renderBook(); }
+    function relayout() { if (!$('roster').hidden) renderBook(); refitZoom(); }
     return { open, close, openDetail, openWardrobe, closeWardrobe, renderBook, escape, starRow, relayout,
       get isOpen() { return !$('roster').hidden; }, get detailId() { return detailId; },
       // 每秒結算都會呼叫；只有卡冊真正關心的欄位變了才重建，否則每秒重建卡片會閃爍

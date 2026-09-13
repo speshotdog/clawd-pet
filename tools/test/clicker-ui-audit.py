@@ -38,7 +38,7 @@ AUDIT_JS = r"""(label)=>{
   const problems=[];
   const game=document.getElementById('game'); const gb=game.getBoundingClientRect();
   // 有面板打開的時候，後面的東西「被蓋住」是對的，不是問題——只檢查目前真的在操作的那一層。
-  const open=[...document.querySelectorAll('.panel,.small-panel,#recruit-layer,#draw-summary,#album-detail,#dust-shop,dialog[open]')]
+  const open=[...document.querySelectorAll('.panel,.small-panel,#recruit-layer,#card-zoom,#album-detail,#dust-shop,dialog[open]')]
     .filter(e=>!e.hidden && getComputedStyle(e).display!=='none');
   const scope=open.length? open[open.length-1] : document.getElementById('game-content');
   // 這些是刻意做成透明的大片點擊區（點珍母／點怪／子包／禮包），本來就會跟別的東西重疊
@@ -204,7 +204,7 @@ def main():
             PANELS = [('roster-open', 'roster-close', '卡冊', '#roster .album-slot'),
                       ('team-open', 'team-close', '編隊', '#team-editor #t20-caps'),
                       ('wardrobe-open', 'wardrobe-close', '商店', '#wardrobe #shop-cats'),
-                      ('stats-open', 'stats-close', '統計', '#stats #badge-grid'),
+                      ('stats-open', 'stats-close', '統計', ['#stats #stats-tiles .stat-tile', '#stats #badge-grid']),
                       ('prestige-open', 'prestige-close', '換桌布', '#prestige #prestige-body'),
                       ('scene-open', 'scenes-close', '場景', '#scenes .scene-ticket'),
                       ('mode-open', 'modes-close', '模式', '#modes .mode-card')]
@@ -219,17 +219,17 @@ def main():
                 if pg.locator('#skip').is_visible(): pg.locator('#skip').click()
                 pg.wait_for_timeout(600)
                 if not pg.locator('#collect').is_hidden(): break
-            scan('招募總覽', '#cards .card')
-            pg.eval_on_selector('#collect', 'e=>e.click()'); pg.wait_for_timeout(1100)
-            # 五連一定會有新夥伴或升星，結算就一定要出現——「有才掃」等於沒驗（Codex 第二輪 A11）
-            scan('抽卡結算', ['#draw-summary-body .draw-line', '#draw-summary-ok'])
-            pg.eval_on_selector('#draw-summary-ok', 'e=>e.click()')
-            pg.wait_for_timeout(1200)
+            # 第四輪：「新夥伴／升星」直接標在結果卡上（不再有收下後的「收下了！」視窗）。
+            # 五連一定會有新夥伴或升星，徽章就一定要出現——「有才掃」等於沒驗（Codex 第二輪 A11）
+            scan('招募總覽', ['#cards .card', '#cards .draw-badge'])
+            pg.eval_on_selector('#collect', 'e=>e.click()'); pg.wait_for_timeout(1200)
 
             # ---- 末世（從模式面板走過去）
             go_world('apoc')
             pg.evaluate("()=>{const A=ApocEconomy,s=Clicker.state; s.apoc=A.drawn({...A.normalize(s.apoc),tickets:40}, ApocPool.slice(0,22).map(c=>c.id)); s.apoc.skills=[s.apoc.roster[0],s.apoc.roster[1],null,null];}")
             pg.wait_for_timeout(1400)
+            # 第四輪：末世一進來是戰鬥畫面，地圖要從頂列「地圖」打開
+            pg.eval_on_selector('#scene-open', 'e=>e.click()'); pg.wait_for_timeout(800)
             scan('末世地圖', ['#apoc-map .map-station', '#map-enter'])
             pg.eval_on_selector('.map-station.boss', 'e=>e.click()'); scan('末世地圖・選王關', '#map-title')
             pg.eval_on_selector('#map-back', 'e=>e.click()'); pg.wait_for_timeout(300)
@@ -243,7 +243,11 @@ def main():
             # 末世的卡片詳情與編隊挑選器（第一輪漏掉的畫面）
             pg.eval_on_selector('#roster-open', 'e=>e.click()'); pg.wait_for_timeout(700)
             pg.evaluate("()=>document.querySelector('.album-slot:not(.locked)')?.click()")
-            scan('末世卡片詳情', '#album-detail .detail-info')
+            scan('末世卡片詳情', ['#album-detail .detail-info', '#album-detail .zoom-btn'])
+            # 第四輪：放大鏡 → 卡到畫面正中間、背景變暗
+            pg.eval_on_selector('#album-detail .zoom-btn', 'e=>e.click()'); pg.wait_for_timeout(700)
+            scan('末世卡片放大', ['#card-zoom .zoom-card', '#card-zoom .zoom-close'])
+            pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
             pg.eval_on_selector('#roster-close', 'e=>e.click()'); pg.wait_for_timeout(400)
             pg.eval_on_selector('#team-open', 'e=>e.click()'); pg.wait_for_timeout(700)
             pg.evaluate("()=>document.querySelector('#t20-skills .skill-slot')?.click()")
@@ -267,9 +271,7 @@ def main():
             frame = next(f for f in pg.frames if f.url.endswith('apoc/ceremony.html'))
             frame.wait_for_function("()=>window.ApocCeremony && ApocCeremony.state().collectable", timeout=30000)
             scan_frame('末世重開後的待收下')
-            frame.eval_on_selector('#finish', 'e=>e.click()'); pg.wait_for_timeout(1000)
-            scan('末世抽卡結算', ['#draw-summary-body .draw-line', '#draw-summary-ok'])
-            pg.eval_on_selector('#draw-summary-ok', 'e=>e.click()'); pg.wait_for_timeout(800)
+            frame.eval_on_selector('#finish', 'e=>e.click()'); pg.wait_for_timeout(1200)   # 第四輪：收下就回遊戲，沒有結算視窗
             # 切回原本的桌邊場景：共用節點的快取與還原有沒有做好
             go_world('home')
             scan('切回桌邊', HOME_MAIN)
