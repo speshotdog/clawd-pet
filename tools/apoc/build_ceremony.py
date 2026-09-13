@@ -118,6 +118,22 @@ parent!==window&&parent.postMessage({apocCeremony:'ready'},'*');
     html = must_replace(html, 'function path(n){\n',
         "function path(n){\n  if(window.ApocAssets&&window.ApocAssets[n]) return abs(window.ApocAssets[n]);\n")
     html = must_replace(html, '__CEREMONY_JS__', js)   # ceremony.js 用到 IIFE 內的 $／path／makeFace，只能內嵌在同一段
+    # 第九輪使用者：「我想要有更好的開封效果，點下去卡包微微震動、發光、縮小，然後回彈噴出卡片」。
+    # 原型點下去只有「放大 1.08 → 回 1」＋「往下壓 5px」；換成蓄力（微震＋越縮越小＋越來越亮）620ms → 回彈閃光，之後照原本撕包、發牌。
+    html = must_replace(html, "A(pack,[{transform:`translateY(0) rotate(0deg) scale(1.08)`},{transform:'translateY(0) rotate(0deg)'}],{duration:240});", (
+        "sound('charge');"
+        "A(pack,[{transform:'translate(0,0) rotate(0deg) scale(1.06)',filter:'brightness(1) drop-shadow(0 0 0 #ffd76a)'},"
+        "{transform:'translate(-3px,1px) rotate(-1.6deg) scale(1.01)',offset:.14},{transform:'translate(3px,-1px) rotate(1.6deg) scale(.97)',offset:.28},"
+        "{transform:'translate(-3px,1px) rotate(-1.3deg) scale(.93)',filter:'brightness(1.2) drop-shadow(0 0 12px #ffd76a)',offset:.42},"
+        "{transform:'translate(3px,0) rotate(1.2deg) scale(.9)',offset:.56},{transform:'translate(-2px,0) rotate(-1deg) scale(.87)',offset:.7},"
+        "{transform:'translate(2px,0) rotate(.8deg) scale(.85)',filter:'brightness(1.55) drop-shadow(0 0 28px #ffd76a)',offset:.86},"
+        "{transform:'translate(0,0) rotate(0deg) scale(.84)',filter:'brightness(1.85) drop-shadow(0 0 42px #fff2b0)'}],{duration:620,easing:'ease-in'});"
+        "if(!await wait(620,run))return false;"
+        "A(pack,[{transform:'scale(.84)',filter:'brightness(1.85) drop-shadow(0 0 42px #fff2b0)'},"
+        "{transform:'scale(1.24)',filter:'brightness(2.3) drop-shadow(0 0 64px #fff6d0)',offset:.5},"
+        "{transform:'scale(1.12)',filter:'brightness(1.3) drop-shadow(0 0 22px #ffd76a)'}],{duration:240,easing:'cubic-bezier(.2,1.6,.4,1)',fill:'forwards'});"))
+    # 回彈之後不要再「往下壓 5px、縮回 .985」，那會把回彈吃掉
+    html = must_replace(html, "A(pack,[{transform:'translateY(0) scale(1)'},{transform:'translateY(5px) scale(.985)'}],{duration:200});", "")
     html = '<!-- 由 tools/apoc/build_ceremony.py 產生，不要手改 -->\n' + html
     (OUT / 'ceremony.html').write_text(html, encoding='utf-8', newline='\n')
     size = sum(p.stat().st_size for p in [OUT / 'ceremony.html', OUT / 'ceremony.css'] + list((OUT / 'fx').glob('*.webp')))

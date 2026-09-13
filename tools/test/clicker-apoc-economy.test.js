@@ -329,3 +329,22 @@ test('神話卡施放：fx.mythic 開著直到 10 下用完；傳說卡不算；
   const legend = A.useSkill(a, 1, 0); assert.equal(legend.fx.mythic, false, '傳說卡的點擊加倍不放神話技能曲');
   assert.equal(A.normalize({ ...a, fx: { ...a.fx, mythic: true, clickLeft: 0 } }).fx.mythic, false);
 });
+
+// --- 第九輪：一般站要連打 WAVES 隻
+test('一站多隻：打死換下一隻滿血＋獎勵、進度不動；最後一隻才推進度；王站一隻；normalize 補欄位', () => {
+  const saved = R.WAVES; R.WAVES = 3;
+  try {
+    let a = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'] }), 0);
+    assert.equal(a.stage.waves, 3); assert.equal(a.stage.wave, 1);
+    const kill = s => A.settle({ ...s, stage: { ...s.stage, hp: 1 } }, 1000, 1);
+    let r = kill(a); assert.deepEqual(r.events.map(e => e.type), ['wave']); assert.equal(r.state.progress, 0);
+    assert.equal(r.state.stage.wave, 2); assert.equal(r.state.stage.hp, A.need(0));
+    assert.equal(r.events[0].reward, Math.round(A.reward(0) / 3), '一隻給這一站獎勵的 1/3（一站總額不變）');
+    r = kill(r.state); assert.equal(r.state.stage.wave, 3);
+    r = kill(r.state); assert.deepEqual(r.events.map(e => e.type), ['win']); assert.equal(r.state.progress, 1);
+    const boss = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3 }), 0);
+    assert.equal(boss.stage.waves, 1);
+    const old = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], stage: { index: 0, hp: 5, need: A.need(0), boss: false } });
+    assert.equal(old.stage.waves, 3); assert.equal(old.stage.wave, 1);
+  } finally { R.WAVES = saved; }
+});

@@ -33,6 +33,9 @@
     // 抽卡價隨「已經付費抽過幾次」往上走（同 1.0 的招募費用），不然放置金幣是跟戰力一起指數長的，
     // 戰力→金幣→抽卡→戰力 會直接跑掉：模擬器量到一輪 20 站可以抽到一千七百次。
     DRAW_COST: 1000, DRAW_GROWTH: 1.02, STATIONS: 20,
+    // 第九輪使用者：「可以利用增加每一站需要打的小站數量拉長遊戲時長，注意難度平衡」——一般站要連打 WAVES 隻（每隻給一次獎勵、滿血換下一隻，
+    // 最後一隻才推進度）；王站還是一隻。
+    WAVES: 1,
     // 1.0 金幣換券（時薪券）：一張＝1.0 每秒收益 × SECONDS，當天第 k 張再 ×GROWTH^k
     EXCHANGE: { SECONDS: 600, GROWTH: 1.25 },
     // 訓練（花末世金幣）：全隊訓練 Lv L 全隊戰力 ×(1+MUL)^L；點擊力 Lv L 每下 ×(1+MUL)^L。第 L 級 COST×GROWTH^L
@@ -118,6 +121,9 @@
     if (a.stage && (typeof a.stage.hp !== 'number' || (a.stage.farm ? !farmOk(a.stage) : a.stage.index !== a.progress))) a.stage = null;
     if (a.stage?.farm) a.stage = { ...a.stage, farm: true, boss: false, deadline: null, shield: null, breakUntil: 0 };
     if (a.stage && a.stage.boss && !a.stage.shield) { a.stage = { ...a.stage, shield: freshShield(0), breakUntil: 0 }; }   // 舊存檔的王關補上護盾
+    // 一站幾隻（第九輪）：王站與刷怪固定 1 隻；一般站照現在的 WAVES，目前第幾隻夾在 1～waves
+    if (a.stage) { const waves = a.stage.boss || a.stage.farm ? 1 : RULES.WAVES;
+      a.stage = { ...a.stage, waves, wave: Math.max(1, Math.min(waves, count(a.stage.wave) || 1)) }; }
     // 舊存檔的戰鬥還是舊血量（第五輪改了 BASE_NEED／GROWTH／BOSS_MUL，Codex 第五輪必修 2）：照剩下的血佔幾成換算成新版血量。
     // 換算後 need 就等於新版，所以只會換一次；王關的 60 秒期限在第一次結算時才給（settle 裡），這裡不碰期限，避免每次載入就續時。
     if (a.stage && a.stage.need !== need(a.stage.index)) {
@@ -188,6 +194,9 @@
   const bossMulOf = i => RULES.BOSS_MULS[Math.floor(i / 4)] ?? RULES.BOSS_MULS[RULES.BOSS_MULS.length - 1];
   const need = i => Math.round(RULES.BASE_NEED * RULES.GROWTH ** i * (isBoss(i) ? bossMulOf(i) : 1));
   const reward = i => Math.round(need(i) * RULES.REWARD_SHARE * RULES.REWARD_GROWTH ** i);
+  // 一般站一隻（含刷怪）的獎勵＝這一站的獎勵 ÷ WAVES：一站打完拿到的錢跟以前一樣，只是多花時間。
+  // ⚠ 第九輪先試過每隻都給整份——錢變成 WAVES 倍、訓練長得太快，打越多隻全線反而越短（一般玩家 54 分 → 8 隻時 38 分）
+  const killReward = i => isBoss(i) ? reward(i) : Math.round(reward(i) / Math.max(1, RULES.WAVES));
   // 刷怪中的戰鬥可以直接被「再次挑戰」換掉
   const canFight = (a, now) => (!a.stage || !!a.stage.farm) && a.progress < RULES.STATIONS && !(isBoss(a.progress) && a.cooldownUntil > now);
   // 刷怪（第六輪，照 Sakura 的「打不過就回去刷怪」）：這一站的王輸過之後，回前一站一直打——拿那一站的獎勵、不推進度
@@ -202,7 +211,7 @@
     if (!canFight(a, now)) throw new Error(a.progress >= RULES.STATIONS ? '全線已通行' : a.stage ? '戰鬥中' : '王關冷卻中');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
     const i = a.progress, boss = isBoss(i);
-    return { ...a, stage: { index: i, hp: need(i), need: need(i), boss, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, shield: boss ? freshShield(0) : null, breakUntil: 0 } };
+    return { ...a, stage: { index: i, hp: need(i), need: need(i), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, shield: boss ? freshShield(0) : null, breakUntil: 0 } };
   }
   // 結算：回傳 { state, events:[{type:'win'|'fail', index}] }
   function settle(a, now, dt) {
@@ -228,12 +237,18 @@
       if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0, shield: freshShield((st.shield?.cycle || 0) + 1) };
       if (st.hp <= 0 && st.farm) {
         // 刷怪：拿這一站的獎勵、不推進度（王那一站還等著玩家再挑戰）
-        s.coins += reward(st.index); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
-        events.push({ type: 'farm', index: st.index, reward: reward(st.index) });
+        s.coins += killReward(st.index); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
+        events.push({ type: 'farm', index: st.index, reward: killReward(st.index) });
+      }
+      else if (st.hp <= 0 && (st.wave || 1) < (st.waves || 1)) {
+        // 同一站的下一隻（第九輪）：給這一隻的獎勵、滿血換下一隻，進度不動
+        s.coins += killReward(st.index);
+        s.stage = { ...st, wave: (st.wave || 1) + 1, hp: need(st.index), startedAt: now };
+        events.push({ type: 'wave', index: st.index, wave: st.wave || 1, waves: st.waves, reward: killReward(st.index) });
       }
       else if (st.hp <= 0) {
-        s.coins += reward(st.index); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null;
-        events.push({ type: 'win', index: st.index, reward: reward(st.index) });
+        s.coins += killReward(st.index); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null;
+        events.push({ type: 'win', index: st.index, reward: killReward(st.index) });
         // 全線通行只報一次；之後留在末世繼續放置與補收藏
         if (s.progress >= RULES.STATIONS && !s.cleared) { s.cleared = true; events.push({ type: 'cleared' }); }
       }

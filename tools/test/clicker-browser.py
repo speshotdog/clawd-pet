@@ -939,10 +939,12 @@ def main():
         page.goto('http://clicker.test/clicker.html')
         page.evaluate("sessionStorage.setItem('test-seed',JSON.stringify(ClickerSave.fresh(Date.now())))")
         page.reload()
-        page.wait_for_function('window.Clicker && !document.getElementById("tap").disabled')
+        # ⚠ 冷啟動（瀏覽器快取還是空的）時點擊區會比珍母先啟用：只等 #tap 可按，下一行數珍母會是 0。
+        #   09-14 對照：跳過前面幾輪直接跑這段必失敗、先跑過 round6/round5 就過（HANDOFF 記過「HEAD 三次壞一次」）。珍母也要等到。
+        page.wait_for_function('window.Clicker && !document.getElementById("tap").disabled && document.querySelector("#hero > svg")')
         page.locator('#receipt-close').click() if page.locator('#receipt').is_visible() else None
         assert page.evaluate('Clicker.state.coins') == 0
-        assert page.locator('#hero > svg').count() == 1, page.evaluate("()=>({hero:[...document.querySelectorAll('#hero > *')].map(e=>e.tagName), world:Clicker.state.settings.world, fatal:document.getElementById('fatal').hidden?null:document.getElementById('fatal').textContent, errors:"+json.dumps(errors)+"})")
+        assert page.locator('#hero > svg').count() == 1
         assert page.locator('#tap').bounding_box()['width'] == 240
         assert page.locator('#hero > svg').bounding_box()['height'] > 185
         assert page.evaluate('testSchedules.raf.size') == 2
@@ -1151,7 +1153,7 @@ def main():
             assert scenes.locator('#cutin > *').count() == 0
             assert scenes.locator('#game.stage-frozen').count() == 0
             assert scenes.locator('.floater').count() == 1
-            assert abs(float(scenes.locator('.floater b').inner_text()[1:].replace(',',''))-scenes.evaluate('heldExpected')) <= .051
+            assert abs(float(scenes.locator('.floater b').inner_text()[1:].replace(',',''))-scenes.evaluate('heldExpected')) <= .051, (character, scenes.locator('.floater b').inner_text(), scenes.evaluate('heldExpected'), scenes.evaluate('Clicker.state.coins-beforeCutinCoins'))
             if character == 'zhenmu':
                 advance(320); shot('round4-parasite-merge')
                 assert scenes.locator('#parasite-label svg, #parasite-label img').count() == 1

@@ -195,7 +195,7 @@ window.ClickerApocUI = (() => {
         return A.settle(A.tap(x, n), n, 0);
       }, true);
       if (!events.length && store.state.apoc === before) return;   // commit 被擋（存檔鎖住之類）就不演
-      const after = store.state.apoc, won = events.some(e => e.type === 'win' || e.type === 'farm');
+      const after = store.state.apoc, won = events.some(e => e.type === 'win' || e.type === 'farm' || e.type === 'wave');
       if (!!before?.fx?.mythic !== !!after?.fx?.mythic) window.ClickerMusic?.sync(store.state);   // 神話技能的 10 下用完：技能曲收掉
       if (!(dmg > 0) && !won) return;   // 期限已過的點擊不算傷害，也不演受擊（下一次結算判輸）
       const broke = boss && !wasBroken && !won && after.stage?.index === idx && (after.stage.breakUntil || 0) > now;
@@ -212,7 +212,7 @@ window.ClickerApocUI = (() => {
       if (st && was && st.index === idx0 && hp0 - st.hp > 0) floatPassive(hp0 - st.hp);
       // 放著被隊伍打死也要有擊倒演出（點死的那一下由 tap() 自己演）；地圖蓋著舞台時不演
       window.ClickerMusic?.sync(store.state);   // 第八輪：一站一首——換站、刷怪回前一站時換曲（沒變就什麼都不做）
-      if (events.some(e => e.type === 'win' || e.type === 'farm') && !$('game-content').classList.contains('map-open') && $('recruit-layer').hidden) hitFx(null, 'kill', '擊倒！');
+      if (events.some(e => e.type === 'win' || e.type === 'farm' || e.type === 'wave') && !$('game-content').classList.contains('map-open') && $('recruit-layer').hidden) hitFx(null, 'kill', '擊倒！');
       autoFight();
     }
 
@@ -244,7 +244,7 @@ window.ClickerApocUI = (() => {
       const failed = (!v.stage || !!v.stage.farm) && store.state.apoc?.bossFailed === v.progress;   // 這一站的王輸過（輸了從滿血重來；第六輪起在前一站刷怪）
       const idleNeed = farmGap ? A.need(i) : v.need;
       const hp = v.stage ? Math.max(0, v.stage.hp) : idleNeed, max = v.stage ? v.stage.need : idleNeed;
-      $('package-label').textContent = v.progress >= v.stations ? '全線已通行' : `第 ${i + 1} 站${boss ? '・王關' : (v.stage?.farm || farmGap) ? '・刷怪中' : ''}`;
+      $('package-label').textContent = v.progress >= v.stations ? '全線已通行' : `第 ${i + 1} 站${boss ? '・王關' : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
       $('package-progress').max = 1; $('package-progress').value = max ? Math.min(1, 1 - hp / max) : 0;
       $('package-number').textContent = v.progress >= v.stations ? `${v.stations} / ${v.stations}` : `${format(hp)} / ${format(max)}`;
 
