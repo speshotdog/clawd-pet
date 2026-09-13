@@ -158,7 +158,9 @@ with sync_playwright() as p:
     check(pg.locator('#train-all').is_hidden() and pg.locator('#dust-open').is_hidden(), '1.0 的粉塵罐／平均訓練在末世收起來')
     pg.evaluate("()=>document.querySelector('.album-slot:not(.locked)')?.click()"); pg.wait_for_timeout(700)
     btns = [t.strip() for t in pg.locator('#album-detail button').all_inner_texts()]
-    check(not any('超越' in t or '升階' in t or '派遣' in t for t in btns), '末世詳情沒有升階／超越／派遣：' + '、'.join(btns))
+    # 第十輪 D 使用者要 2.0 也有派遣（「派遣拿金幣，低機率拿到卷」）：派遣鍵要有，1.0 的升階／超越照樣不准出現
+    check(not any('超越' in t or '升階' in t for t in btns), '末世詳情沒有升階／超越：' + '、'.join(btns))
+    check(any('派遣' in t for t in btns), '末世詳情有派遣鍵：' + '、'.join(btns))
     pg.screenshot(path=str(OUT / '3-album.png'))
     # 使用者 09-13：「2.0 不准出現任何 1.0 卡面」——收藏卡（魔花少女）在末世要是精裝版，不是 1.0 的平面卡
     NO_OLD = ("()=>[...document.querySelectorAll('#game .character-png, #game .card:not(.holo-card):not(.deluxe-card):not(.apoc-face-blank)')]"

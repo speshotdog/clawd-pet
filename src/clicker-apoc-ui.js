@@ -93,7 +93,15 @@ window.ClickerApocUI = (() => {
       $('receipt-text').textContent = `離開 ${h(ev.elapsed)} 小時（最多算 ${h(A.RULES.OFFLINE.MAX_MS)} 小時）。隊伍在第 ${ev.index + 1} 站${ev.kills > 0 ? `打了 ${format(ev.kills)} 隻，` : '放著打，'}帶回 ${format(ev.earned)} 末世金幣；進度沒有往前。`;
       $('receipt').hidden = false; $('game-content').inert = true; $('receipt-close').focus();
     }
-    function offlineCheck() { if (store.state?.apoc?.unlocked && !store.blocked) apply((x, n) => A.offline(x, n), true); }
+    // Codex 10D 必修：離線入帳 commit 失敗（存檔鎖住、寫入失敗）時記成待結算；在補發成功之前，tick 與點擊都不准跑會把 seenAt 推到現在的 settle，
+    //   不然「重試存檔」之後下一個 tick 就把八小時的離線收益吃掉。
+    let offlinePending = false;
+    function offlineCheck() {
+      if (!store.state?.apoc?.unlocked) { offlinePending = false; return; }
+      if (store.blocked) { offlinePending = true; return; }
+      const before = store.state.apoc; apply((x, n) => A.offline(x, n), true);
+      offlinePending = store.state.apoc === before;
+    }
     // 第十輪 D 末世徽章牆：從存檔現算（不另存清單，壞檔也不會掉徽章）；圖示是字章，不借 1.0 的圖
     const APOC_BADGES = [
       ...['灰狼犬', '貼紙羊', '扛槌兔', '雞頭合成怪', '真・滅世珍獸'].map((name, k) => ({ name: `打贏${name}`, label: `王${k + 1}`, test: v => v.progress > k * 4 + 3 || v.laps > 0 })),
@@ -250,6 +258,7 @@ window.ClickerApocUI = (() => {
     // 王的護盾照舊：每一下都算進破盾進度。受擊特效一律打在怪身上（點在空白處也是打到怪）。
     // part：王④的部位圓鈕（head／body／tail）；點舞台其他地方不帶
     function tap(point, part) {
+      if (offlinePending) { offlineCheck(); if (offlinePending) return; lastTick = Date.now(); }
       if (!store.state.apoc?.stage && !autoFight()) return;
       const before = store.state.apoc;
       const b = boosted(A.normalize(before)), now = Date.now(), idx = b.stage.index;
@@ -274,6 +283,7 @@ window.ClickerApocUI = (() => {
       renderMech(store.state.apoc?.stage);
     }
     function tick() {
+      if (offlinePending) { offlineCheck(); if (offlinePending) return; lastTick = Date.now(); }   // 離線收益還沒入帳：先補，補不進去就整個 tick 不跑
       const now = Date.now(), dt = Math.min(60, (now - lastTick) / 1000); lastTick = now;
       const was = store.state.apoc?.stage, hp0 = was?.hp, idx0 = was?.index;
       const events = apply((x, n) => A.settle(x, n, dt), true);
@@ -670,8 +680,8 @@ window.ClickerApocUI = (() => {
       // 數字格跟 1.0 統計同一套（#stats-tiles）；末世沒有徽章，徽章牆先藏起來，離開末世會還原
       const grid = $('stats-tiles'); grid.replaceChildren(); grid.hidden = false;
       for (const [k, val] of [['通過站數', `${v.progress} / ${v.stations}`], ['收藏', `${v.owned.length} / ${Pool().length}`], ['戰力', format(v.power)],
-        ['抽卡次數', format(v.stats.draws)], ['點擊次數', format(v.stats.taps)], ['最高一擊', format(v.stats.maxHit)], ['破盾次數', format(v.stats.shieldBreaks)],
-        ['換到的券', format(v.exchangeTotal)], ['點擊力', `Lv.${v.clickLevel}`], ['全隊訓練', `Lv.${v.teamLevel}`], ['1.0 印記加成', `戰力 ×${v.boost.power.toFixed(2)}`], [v.laps ? `重走・戰力 ${times(v.lapPower)}` : '重走廢土', v.laps ? `第 ${v.laps + 1} 圈` : '還沒重走'], ['無盡最遠', v.endlessBest ? `＋${v.endlessBest} 站` : '—']]) {
+        ['抽卡次數', format(v.stats.draws)], ['點擊次數', format(v.stats.taps)], ['最高一擊', format(v.stats.maxHit)], ['破防次數', format(v.stats.shieldBreaks)],
+        ['換到的券', format(v.exchangeTotal)], ['點擊力', `Lv.${v.clickLevel}`], ['全隊訓練', `Lv.${v.teamLevel}`], ['1.0 印記加成（戰力）', `×${v.boost.power.toFixed(2)}`], [v.laps ? `重走・戰力 ${times(v.lapPower)}` : '重走廢土', v.laps ? `第 ${v.laps + 1} 圈` : '還沒重走'], ['無盡最遠', v.endlessBest ? `＋${v.endlessBest} 站` : '—']]) {
         const cell = document.createElement('div'); cell.className = 'stat-tile';
         const b = document.createElement('b'); b.textContent = val; const sm = document.createElement('small'); sm.textContent = k;
         cell.append(b, sm); grid.append(cell);

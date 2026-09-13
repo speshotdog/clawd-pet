@@ -20,6 +20,9 @@ for (const k of Object.keys(R)) if (process.env[k] !== undefined && typeof R[k] 
 if (process.env.BOSS_MULS) R.BOSS_MULS = process.env.BOSS_MULS.split(',').map(Number);
 // 第十輪王關機制：MECH_IDLE_MUL／MECH_BREAK_MUL…覆寫 BOSS_MECH 頂層數字；ACC＝玩家踩中拍子／點對部位的機率
 for (const k of ['IDLE_MUL', 'BREAK_MS', 'BREAK_MUL', 'ROTATE_MS']) if (process.env['MECH_' + k] !== undefined) R.BOSS_MECH[k] = Number(process.env['MECH_' + k]);
+// 第十輪 D：DISPATCH=0 關掉派遣；DISPATCH_KILLS／DISPATCH_TICKET 覆寫派遣收益
+if (process.env.DISPATCH_KILLS !== undefined) R.DISPATCH.KILLS = Number(process.env.DISPATCH_KILLS);
+if (process.env.DISPATCH_TICKET !== undefined) R.DISPATCH.TICKET = Number(process.env.DISPATCH_TICKET);
 for (const [kind, pre] of [['team', 'TEAM'], ['click', 'CLICK']]) for (const k of ['MUL', 'COST', 'GROWTH']) R.TRAIN[kind][k] = env(`${pre}_${k}`, R.TRAIN[kind][k]);
 
 const SESSION_MIN = Number(process.argv[2] || 20), SESSIONS = Number(process.argv[3] || 3), DAYS = Number(process.argv[4] || 14);
@@ -32,7 +35,7 @@ function run(SESSION_MIN, SESSIONS, DAYS, { oneP = env('ONE_P', 0), oneCoins = e
 seed = SEED;
 let a = A.gift(A.normalize({ ...A.fresh(), unlocked: true }));
 a = { ...a, boost: { power: env('ONE_BOOST', 1), click: 1, skill: 1, cd: 1 } };   // 1.0 的印記／祝福加成（第四輪起直接套進 2.0）
-let now = 0, played = 0, draws = 0, bossFails = 0, farms = 0, done = null, exchanged = 0, one = oneCoins, lastFail = null;
+let now = 0, played = 0, draws = 0, bossFails = 0, farms = 0, done = null, exchanged = 0, one = oneCoins, lastFail = null, dispatched = 0;
 const log = [];
 function spend() {
   for (;;) {
@@ -48,6 +51,14 @@ function spend() {
 }
 for (let day = 1; day <= DAYS && !done; day++) {
   for (let s = 0; s < SESSIONS && !done; s++) {
+    // 第十輪 D 派遣：每場開頭收回到期的、把隊外的卡（稀有度高的先）派滿位子（Codex 10D 值得修：平衡要算進派遣）
+    if (env('DISPATCH', 1) > 0) {
+      a = A.collectDispatch(a, now, rnd).state;
+      const RANKS = { mythic: 0, legendary: 1, epic: 2, rare: 3, common: 4 }, pool = Object.fromEntries((global.ApocPool || []).map(c => [c.id, c]));
+      const idle = Object.keys(a.collection).filter(id => a.collection[id] > 0 && !a.roster.includes(id) && !(a.dispatch || []).some(d => d.id === id))
+        .sort((x, y) => (RANKS[pool[x]?.rarity] ?? 9) - (RANKS[pool[y]?.rarity] ?? 9));
+      for (const id of idle) { if ((a.dispatch || []).length >= R.DISPATCH.SLOTS) break; a = A.startDispatch(a, id, now); dispatched++; }
+    }
     if (oneP > 0) for (;;) { const c = A.exchangeCost(a, oneP, now); if (!(c <= one)) break; const r = A.exchange(a, one, oneP, now); a = r.state; one -= r.cost; exchanged++; }
     for (let t = 0; t < SESSION_MIN * 60 && !done; t++) {
       now += 1000; played += 1;
@@ -91,7 +102,7 @@ for (let day = 1; day <= DAYS && !done; day++) {
     if (env('OFFLINE', 1) > 0) a = A.offline(a, now).state;   // 第十輪 D：末世離線收益（OFFLINE=0 關掉對照）
   }
 }
-return { done, log, a, played, bossFails, farms, draws, exchanged };
+return { done, log, a, played, bossFails, farms, draws, exchanged, dispatched };
 }
 if (require.main !== module) { module.exports = { run, RULES: R }; return; }
 const res = run(SESSION_MIN, SESSIONS, DAYS);
@@ -100,6 +111,6 @@ console.log(`場次 ${SESSION_MIN} 分 × ${SESSIONS}／天　BASE_NEED=${R.BASE
 console.log('站　 累計分鐘  第幾天  戰力          卡種  抽數  全隊Lv 點擊Lv');
 for (const l of log) console.log(`${String(l.station).padStart(2)}   ${String(l.min).padStart(7)}  ${String(l.day).padStart(5)}   ${String(l.power).padStart(11)}  ${String(l.owned).padStart(4)}  ${String(l.draws).padStart(4)}  ${String(l.team).padStart(5)} ${String(l.click).padStart(6)}`);
 const boss = [4, 8, 12, 16, 20].map(s => log.find(l => l.station === s)?.min ?? '-').join('／');
-console.log(done ? `\n全線 20 站：第 ${done.day} 天、累計遊玩 ${done.min} 分鐘（王站 ${boss} 分、王關失敗 ${fails} 次、刷怪 ${res.farms} 場、換到券 ${res.exchanged} 張）`
+console.log(done ? `\n全線 20 站：第 ${done.day} 天、累計遊玩 ${done.min} 分鐘（王站 ${boss} 分、王關失敗 ${fails} 次、刷怪 ${res.farms} 場、換到券 ${res.exchanged} 張、派遣 ${res.dispatched} 次）`
                  : `\n${DAYS} 天內沒打完，只到第 ${end.progress} 站（累計 ${Math.round(secs / 60)} 分鐘、戰力 ${Math.round(A.power(end))}、王關失敗 ${fails} 次）`);
 })();

@@ -238,7 +238,7 @@ window.ClickerAlbum = (() => {
     // 所以開完之後要自己把 refreshKey 對齊，讓那一次多餘的重建不要發生。
     function stateKey() {
       const s = store.state;
-      if (apoc()) { const a = A().normalize(s.apoc); return JSON.stringify(['apoc', a.collection, a.roster, a.skills, a.dispatch]); }
+      if (apoc()) { const a = A().normalize(s.apoc); return JSON.stringify(['apoc', a.collection, a.roster, a.skills, a.dispatch, a.dispatch.length ? Math.floor(Date.now() / 60000) : 0]); }   // 派遣中每分鐘重畫一次倒數（Codex 10D 值得修）
       return JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && !isCollect(detailId) && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
     }
     function openDetail(id, animate = true) {
