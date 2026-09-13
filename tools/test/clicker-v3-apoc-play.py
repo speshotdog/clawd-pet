@@ -93,10 +93,10 @@ with sync_playwright() as p:
     check(pg.evaluate("()=>Clicker.state.apoc.progress") >= 1, '打完第 1 站，進度 +1')
 
     # 王關：護盾＋節奏
-    # ⚠ 這支把 BASE_NEED 改成 3000，王血又只有一般站 ×0.04（約 190）：一進王關放置傷害就秒掉，還沒點滿 15 下破盾。
-    #   不能只在畫面上假改 stage.need——「再次挑戰」會照真實的 need(3) 開打、瞬間打死。
+    # ⚠ 這支把 BASE_NEED 改成 3000 加速，王血跟著變小：王關段落要跑 60 秒時限、輸了、刷怪、再次挑戰，王不能先被打死。
+    #   不能只在畫面上假改 stage.need——「再次挑戰」會照真實的 need(3) 開打。
     #   所以**進王關之前**先把王血倍率放大，讓 need(3) 本身就夠大；王關段落測完再還原。
-    boss_mul = pg.evaluate("()=>{const m=ApocEconomy.RULES.BOSS_MUL; ApocEconomy.RULES.BOSS_MUL=1000; Clicker.state.apoc.progress=3; return m;}"); pg.wait_for_timeout(1300)
+    boss_mul = pg.evaluate("()=>{const m=ApocEconomy.RULES.BOSS_MULS; ApocEconomy.RULES.BOSS_MULS=m.map(()=>1000); Clicker.state.apoc.progress=3; return m;}"); pg.wait_for_timeout(1300)
     pg.eval_on_selector('#boss-challenge', 'e=>e.click()'); pg.wait_for_timeout(600)
     pg.evaluate("()=>{const st=Clicker.state.apoc.stage, n=ApocEconomy.need(3); if(st){st.need=n; st.hp=n;}}")
     st = pg.evaluate("()=>Clicker.state.apoc.stage")
@@ -115,11 +115,16 @@ with sync_playwright() as p:
     pg.evaluate("()=>{const st=Clicker.state.apoc.stage; st.hp=st.need*.6; st.breakUntil=0; st.deadline=Date.now()+400;}")
     pg.wait_for_timeout(1800)
     lost = pg.evaluate("()=>{const a=Clicker.state.apoc; return {stage:a.stage, failed:a.bossFailed, progress:a.progress, carry:a.bossCarry, cd:a.cooldownUntil-Date.now()};}")
-    check(lost['stage'] is None and lost['failed'] == lost['progress'] == 3, f"時間到 → 王關失敗、記下這站輸過 {lost['failed']}")
+    check((lost['stage'] is None or lost['stage'].get('farm')) and lost['failed'] == lost['progress'] == 3, f"時間到 → 王關失敗、記下這站輸過 {lost['failed']}")
     need3 = pg.evaluate("()=>ApocEconomy.need(3)")
     check(not lost['carry'], '輸了不保留血量（第五輪使用者：不要保留血量的機制）')
     pg.wait_for_timeout(1500)
-    check(pg.evaluate("()=>Clicker.state.apoc.stage") is None, '輸了之後不會自動開打（等玩家自己挑戰）')
+    farm = pg.evaluate("()=>Clicker.state.apoc.stage")
+    check(bool(farm) and farm.get('farm') and farm['index'] == 2 and not farm['boss'], f"輸了自動回前一站刷怪、不是再打王（第六輪：照 Sakura Clicker）：{farm and farm['index']}")
+    check('刷怪中' in pg.locator('#package-label').inner_text(), '血條寫著刷怪中：' + pg.locator('#package-label').inner_text())
+    # inner_text 讀得到不代表看得到：1.0 的標籤欄固定 72px、overflow hidden，以前「第 4 站・王關」就只露出「第 4 站・」
+    clip = pg.evaluate("()=>{const e=document.getElementById('package-label'); return [e.scrollWidth, e.clientWidth];}")
+    check(clip[0] <= clip[1] + 1, f'血條標籤整段看得到、沒有被切（scrollWidth {clip[0]}／clientWidth {clip[1]}）')
     check(pg.locator('#boss-challenge').is_visible() and '再次挑戰' in pg.locator('#boss-challenge').inner_text(), '右上角出現「再次挑戰」：' + pg.locator('#boss-challenge').inner_text())
     check('秒' in pg.locator('#boss-challenge').inner_text() and pg.locator('#boss-challenge').is_disabled(), '冷卻中寫出還要等幾秒、按鈕停用：' + pg.locator('#boss-challenge').inner_text())
     check('再次挑戰' in pg.locator('#package-result').inner_text(), '下方寫出冷卻後按「再次挑戰」重打：' + pg.locator('#package-result').inner_text())
@@ -131,7 +136,7 @@ with sync_playwright() as p:
     again = pg.evaluate("()=>Clicker.state.apoc.stage")
     check(bool(again) and again['index'] == 3 and abs(again['hp'] - need3) < need3 * .01 and again['deadline'],
           f"按「再次挑戰」→ 從滿血重打（{again and round(again['hp'])} / {need3}）")
-    pg.evaluate("m=>{ApocEconomy.RULES.BOSS_MUL=m; const a=Clicker.state.apoc; a.stage=null; a.bossFailed=null;}", boss_mul)   # 王關段落測完，還原
+    pg.evaluate("m=>{ApocEconomy.RULES.BOSS_MULS=m; const a=Clicker.state.apoc; a.stage=null; a.bossFailed=null;}", boss_mul)   # 王關段落測完，還原
 
     # 技能格
     mythic = pg.evaluate(MYTHIC_JS); pg.wait_for_timeout(1300)

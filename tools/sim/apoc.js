@@ -1,12 +1,14 @@
-// 末世（2.0）節奏模擬器（2026-09-13 之後這一輪；第三輪改成「末世金幣直接抽卡＋訓練＋1.0 換券」）。
-// 目的：量「20 站要打幾天」。真人模型照 1.0 模擬器的假設：一天三段 20 分鐘、每段連點 6 下/秒。
-// ⚠ 末世**沒有離線收益**（tick 的 dt 上限 60 秒），所以只有在玩的時間會推進，
-//   下線時間對進度完全沒有貢獻——這是它跟 1.0 最大的差別。
-// 花錢策略：湊到十連就抽（先用券）；訓練只在「比十連便宜很多」的時候買（TRAIN_SHARE，預設 0.25）。
-// 1.0 換券：ONE_P＝1.0 每秒收益、ONE_COINS＝1.0 存款；每段開始前把當天換得起的券換掉，段與段之間 1.0 補 6 小時離線。
+// 末世（2.0）節奏模擬器。
+// 第六輪（使用者：王變門檻，「對照之前的參考遊戲，用等比的方式把時長降低」「約 1 小時」）起的玩家模型：
+//   王輸了自動回前一站刷怪（A.fight(a, now, true)），「戰力推估夠了」才再挑戰（上次打掉 d 成 → 戰力要到上次的 1/d 倍）；
+//   錢先抽十連（收藏還沒滿 DRAW_UNTIL 種），抽不起再買最便宜的訓練；技能格放戰力前 4 張、技能一好就放。
+// 對照：Sakura Clicker（Clicker Heroes 換皮）一般玩家（每秒 3 下）到第 10／20／30／40／50 區是 2.5／12／34／108／326 分，
+//   我們 5 個王站（第 4／8／12／16／20 站）目標是它的 1/6：0.4／1.9／5.7／18／54 分。
+// ⚠ 末世沒有離線收益（tick 的 dt 上限 60 秒），只有在玩的時間會推進。
 // 用法：node tools/sim/apoc.js [場次分鐘=20] [每天場次=3] [天數=14]
-//   環境變數可覆寫任何 RULES 頂層數字鍵：BASE_NEED=2400 GROWTH=1.19 node tools/sim/apoc.js
-//   訓練：TEAM_MUL／TEAM_COST／TEAM_GROWTH、CLICK_MUL／CLICK_COST／CLICK_GROWTH；1.0：ONE_P=1e10 ONE_COINS=1e14
+//   玩家節奏：CPS（在戰鬥中每秒點幾下）、TAP_SHARE（在場時間裡真的在點的比例）、SKILLS=0（不放技能）、ONE_BOOST（1.0 加成的戰力倍率）
+//   數字：任何 RULES 頂層數字鍵（BASE_NEED=2000 GROWTH=1.9 REWARD_SHARE=.1…）、BOSS_MULS=2,3,4,5,6、
+//         TEAM_MUL／TEAM_COST／TEAM_GROWTH、CLICK_*、DRAW_UNTIL；1.0 換券 ONE_P／ONE_COINS
 global.window = global;
 (() => {
 require('../../src/apoc/pool.js');
@@ -15,64 +17,70 @@ const R = A.RULES;
 
 const env = (k, d) => process.env[k] !== undefined ? Number(process.env[k]) : d;
 for (const k of Object.keys(R)) if (process.env[k] !== undefined && typeof R[k] === 'number') R[k] = Number(process.env[k]);
+if (process.env.BOSS_MULS) R.BOSS_MULS = process.env.BOSS_MULS.split(',').map(Number);
 for (const k of ['TAPS', 'GROWTH', 'IDLE_MUL', 'BREAK_MS', 'BREAK_MUL']) if (process.env['SHIELD_' + k] !== undefined) R.SHIELD[k] = Number(process.env['SHIELD_' + k]);
 for (const [kind, pre] of [['team', 'TEAM'], ['click', 'CLICK']]) for (const k of ['MUL', 'COST', 'GROWTH']) R.TRAIN[kind][k] = env(`${pre}_${k}`, R.TRAIN[kind][k]);
 
 const SESSION_MIN = Number(process.argv[2] || 20), SESSIONS = Number(process.argv[3] || 3), DAYS = Number(process.argv[4] || 14);
-// 真人節奏可覆寫（第四輪使用者：「難度可能偏難」——原本假設每秒 6 下、技能一好就放，比真人勤快）
-//   CPS＝在戰鬥中每秒點幾下；SKILLS=0 表示不放技能；IDLE_SHARE＝在場時間裡真的在點的比例（其他時間放著）
-const TAPS_PER_SEC = env('CPS', 6), USE_SKILLS = env('SKILLS', 1) > 0, TAP_SHARE = env('TAP_SHARE', 1), STEP = 1000;
-let seed = 20260913;
+const TAPS_PER_SEC = env('CPS', 6), USE_SKILLS = env('SKILLS', 1) > 0, TAP_SHARE = env('TAP_SHARE', 1), DRAW_UNTIL = env('DRAW_UNTIL', 60);
+const SEED = env('SEED', 20260913);   // 換抽卡運氣：門檻對抽到什麼很敏感，定案前要多跑幾個種子
+let seed = SEED;
 const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
 
-function run(SESSION_MIN, SESSIONS, DAYS, { oneP = env('ONE_P', 0), oneCoins = env('ONE_COINS', 0), trainShare = env('TRAIN_SHARE', .25) } = {}) {
-seed = 20260913;
+function run(SESSION_MIN, SESSIONS, DAYS, { oneP = env('ONE_P', 0), oneCoins = env('ONE_COINS', 0) } = {}) {
+seed = SEED;
 let a = A.gift(A.normalize({ ...A.fresh(), unlocked: true }));
-// 1.0 的印記／祝福加成（第四輪起直接套進 2.0）：ONE_BOOST＝戰力倍率（收益祝福 Lv10 ≈ 2）；Codex 第五輪指出模擬沒算
-a = { ...a, boost: { power: env('ONE_BOOST', 1), click: 1, skill: 1, cd: 1 } };
-let now = 0, played = 0, draws = 0, bossFails = 0, done = null, exchanged = 0, one = oneCoins;
+a = { ...a, boost: { power: env('ONE_BOOST', 1), click: 1, skill: 1, cd: 1 } };   // 1.0 的印記／祝福加成（第四輪起直接套進 2.0）
+let now = 0, played = 0, draws = 0, bossFails = 0, farms = 0, done = null, exchanged = 0, one = oneCoins, lastFail = null;
 const log = [];
 function spend() {
-  // 真人不會等打完才抽：湊到十連就抽（戰鬥中也能抽）
-  if (a.coins >= A.drawCost(a, 10)) {
-    a = A.purchaseDraw(a, 10, now, rnd); a = A.collectDraw(a, a.pending.draw.id, now).state; draws += 10;
-    // 技能格：放戰力最高的 4 張（以前模擬器從來沒裝技能，SKILLS=1 其實沒有技能可放）
-    const top = [...a.roster].sort((x, y) => A.cardPower(a, y) - A.cardPower(a, x)).slice(0, 4);
-    a = A.setTeam(a, a.roster, top);
+  for (;;) {
+    if (!a.pending && a.coins >= A.drawCost(a, 10) && Object.keys(a.collection).length < DRAW_UNTIL) {
+      a = A.purchaseDraw(a, 10, now, rnd); a = A.collectDraw(a, a.pending.draw.id, now).state; draws += 10;
+      const top = [...a.roster].sort((x, y) => A.cardPower(a, y) - A.cardPower(a, x)).slice(0, 4);
+      a = A.setTeam(a, a.roster, top); continue;
+    }
+    const kind = A.trainCost(a, 'team') <= A.trainCost(a, 'click') ? 'team' : 'click';
+    if (a.coins >= A.trainCost(a, kind)) { a = A.train(a, kind).state; continue; }
+    break;
   }
-  const cheap = A.drawCost({ ...a, tickets: 0 }, 10) * trainShare;
-  for (const kind of ['click', 'team']) while (A.trainCost(a, kind) <= Math.min(a.coins, cheap)) a = A.train(a, kind).state;
 }
 for (let day = 1; day <= DAYS && !done; day++) {
   for (let s = 0; s < SESSIONS && !done; s++) {
     if (oneP > 0) for (;;) { const c = A.exchangeCost(a, oneP, now); if (!(c <= one)) break; const r = A.exchange(a, one, oneP, now); a = r.state; one -= r.cost; exchanged++; }
     for (let t = 0; t < SESSION_MIN * 60 && !done; t++) {
-      now += STEP; played += 1;
+      now += 1000; played += 1;
       spend();
-      if (!a.stage && A.canFight(a, now)) { try { a = A.fight(a, now); } catch {} }
+      if (!a.stage) {
+        const i = a.progress, ready = !lastFail || lastFail.i !== i || A.power(a) >= lastFail.power / Math.max(.05, lastFail.dealt);
+        if (A.isBoss(i) && a.bossFailed === i && (!A.canFight(a, now) || !ready)) { a = A.fight(a, now, true); farms++; }
+        else if (A.canFight(a, now)) a = A.fight(a, now);
+      }
       if (a.stage) {
-        if (t % 100 < TAP_SHARE * 100) for (let k = 0; k < TAPS_PER_SEC; k++) a = A.tap(a, now);
+        // 打王一定會點（60 秒而已）；TAP_SHARE 只套在一般站與刷怪。
+        // ⚠ 以前一律「點 50 秒停 50 秒」：王關整場落在停手那段 → 打掉比例很低 → 推估要戰力 ×20 才再挑戰 → 卡在刷怪幾十分鐘，數字忽大忽小
+        if (a.stage.boss || t % 100 < TAP_SHARE * 100) for (let k = 0; k < TAPS_PER_SEC; k++) a = A.tap(a, now);
         if (USE_SKILLS) for (let slot = 0; slot < 4; slot++) if (A.canSkill(a, slot, now)) a = A.useSkill(a, slot, now);
       }
-      const r = A.settle(a, now, 1); a = r.state;
+      const st = a.stage, r = A.settle(a, now, 1); a = r.state;
       for (const ev of r.events) {
-        if (ev.type === 'fail') bossFails++;
-        if (ev.type === 'win') log.push({ station: ev.index + 1, min: Math.round(played / 60), day, power: Math.round(A.power(a)), owned: Object.keys(a.collection).length, draws, team: a.teamLevel, click: a.clickLevel });
+        if (ev.type === 'fail') { bossFails++; lastFail = { i: ev.index, power: A.power(a), dealt: 1 - st.hp / st.need }; }
+        if (ev.type === 'win') { lastFail = null; log.push({ station: ev.index + 1, min: +(played / 60).toFixed(1), day, power: Math.round(A.power(a)), owned: Object.keys(a.collection).length, draws, team: a.teamLevel, click: a.clickLevel }); }
       }
       if (a.progress >= R.STATIONS) done = { day, min: Math.round(played / 60) };
     }
-    // 下線：末世沒有離線收益；1.0 那邊回桌邊一次補 6 小時離線
-    now += 6 * 3600 * 1000; one += oneP * 6 * 3600;
+    now += 6 * 3600 * 1000; one += oneP * 6 * 3600;   // 下線：末世沒有離線收益；1.0 那邊回桌邊一次補 6 小時離線
   }
 }
-return { done, log, a, played, bossFails, draws, exchanged };
+return { done, log, a, played, bossFails, farms, draws, exchanged };
 }
 if (require.main !== module) { module.exports = { run, RULES: R }; return; }
 const res = run(SESSION_MIN, SESSIONS, DAYS);
-const { done, log, a: end, played: mins, bossFails: fails } = res;
-console.log(`場次 ${SESSION_MIN} 分 × ${SESSIONS}／天　BASE_NEED=${R.BASE_NEED} GROWTH=${R.GROWTH} DRAW=${R.DRAW_COST}×${R.DRAW_GROWTH} TEAM=${JSON.stringify(R.TRAIN.team)} CLICK=${JSON.stringify(R.TRAIN.click)} ONE_P=${env('ONE_P', 0)}`);
-console.log('站　 累計分鐘  第幾天  戰力      卡種  抽數  全隊Lv 點擊Lv');
-for (const l of log) console.log(`${String(l.station).padStart(2)}   ${String(l.min).padStart(7)}  ${String(l.day).padStart(5)}   ${String(l.power).padStart(7)}  ${String(l.owned).padStart(4)}  ${String(l.draws).padStart(4)}  ${String(l.team).padStart(5)} ${String(l.click).padStart(6)}`);
-console.log(done ? `\n全線 20 站：第 ${done.day} 天、累計遊玩 ${done.min} 分鐘（王關失敗 ${fails} 次、換到券 ${res.exchanged} 張）`
-                 : `\n${DAYS} 天內沒打完，只到第 ${end.progress} 站（累計 ${Math.round(mins / 60)} 分鐘、戰力 ${Math.round(A.power(end))}、王關失敗 ${fails} 次）`);
+const { done, log, a: end, played: secs, bossFails: fails } = res;
+console.log(`場次 ${SESSION_MIN} 分 × ${SESSIONS}／天　BASE_NEED=${R.BASE_NEED} GROWTH=${R.GROWTH} BOSS_MULS=${R.BOSS_MULS} REWARD=${R.REWARD_SHARE}×${R.REWARD_GROWTH} TEAM=${JSON.stringify(R.TRAIN.team)} CLICK=${JSON.stringify(R.TRAIN.click)}`);
+console.log('站　 累計分鐘  第幾天  戰力          卡種  抽數  全隊Lv 點擊Lv');
+for (const l of log) console.log(`${String(l.station).padStart(2)}   ${String(l.min).padStart(7)}  ${String(l.day).padStart(5)}   ${String(l.power).padStart(11)}  ${String(l.owned).padStart(4)}  ${String(l.draws).padStart(4)}  ${String(l.team).padStart(5)} ${String(l.click).padStart(6)}`);
+const boss = [4, 8, 12, 16, 20].map(s => log.find(l => l.station === s)?.min ?? '-').join('／');
+console.log(done ? `\n全線 20 站：第 ${done.day} 天、累計遊玩 ${done.min} 分鐘（王站 ${boss} 分、王關失敗 ${fails} 次、刷怪 ${res.farms} 場、換到券 ${res.exchanged} 張）`
+                 : `\n${DAYS} 天內沒打完，只到第 ${end.progress} 站（累計 ${Math.round(secs / 60)} 分鐘、戰力 ${Math.round(A.power(end))}、王關失敗 ${fails} 次）`);
 })();

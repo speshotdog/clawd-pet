@@ -1276,6 +1276,9 @@ body[data-world="apoc"] #stage-fit { filter:none; }
 @media (prefers-reduced-motion: reduce) { #apoc-enemy[src="clicker-monster-bird.png"], #apoc-enemy[src="clicker-monster-wolf.png"] { animation:none; } }
 /* 輸了王的說明要一直看得到（1.0 這格平常透明、只閃一下）；apoc-ui 只在末世輸了王時掛 .apoc-shown */
 body[data-world="apoc"] #package-result.apoc-shown { opacity:1; left:442px; top:96px; width:140px; }   /* 放在「再次挑戰」鍵正下方，不蓋到王 */
+/* 1.0 的標籤欄固定 72px、超出藏起來：末世的「第 3 站・刷怪中」「第 4 站・王關」會被切成「第 3 站・」，改成跟著字長 */
+body[data-world="apoc"] .package-meter { grid-template-columns:auto minmax(0,1fr) 150px; }
+body[data-world="apoc"] #package-label { width:auto; max-width:180px; }
 /* 紙票券的貼圖在深色下是一塊土黃，全部換成純色板（尺寸不動） */
 body[data-world="apoc"] .package-meter, body[data-world="apoc"] .price-ticket,
 body[data-world="apoc"] #notice, body[data-world="apoc"] .buddy-header h2,

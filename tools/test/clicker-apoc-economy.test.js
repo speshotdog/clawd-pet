@@ -83,7 +83,7 @@ test('桌邊金幣換券（時薪券）：一張＝桌邊 10 分鐘收益，當�
   assert.equal(b.exchange.day, Math.floor((day + 86400000) / 86400000), '日界不會往回退');
   assert.equal(A.normalize({ ...A.fresh(), onePeak: 'x' }).onePeak, 0);
 });
-test('訓練：全隊訓練每級戰力 +3%、點擊力每級每下 +5%；費用每級 ×2；「最多」買到錢不夠為止', () => {
+test('訓練（第六輪乘算）：全隊訓練每級戰力 ×(1+MUL)、點擊力每級每下 ×(1+MUL)；費用每級 ×GROWTH；「最多」買到錢不夠為止', () => {
   const T = R.TRAIN;
   let a = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], coins: T.team.COST });
   const p0 = A.power(a);
@@ -94,7 +94,7 @@ test('訓練：全隊訓練每級戰力 +3%、點擊力每級每下 +5%；費用
   let b = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], coins: two + 100 }), 0);
   const r = A.train(b, 'click', true);
   assert.equal(r.levels, 2); assert.equal(r.state.clickLevel, 2); assert.equal(r.state.coins, 100);
-  assert.ok(Math.abs(A.tapDamage(r.state, 0) - A.power(b) * R.CLICK_SHARE * (1 + 2 * T.click.MUL)) < 1e-9);
+  assert.ok(Math.abs(A.tapDamage(r.state, 0) - A.power(b) * R.CLICK_SHARE * (1 + T.click.MUL) ** 2) < 1e-6);
   assert.equal(A.trainCost(r.state, 'click'), Math.round(T.click.COST * T.click.GROWTH ** 2));
 });
 test('戰績：點擊數、最高一擊、破盾次數會累積', () => {
@@ -267,4 +267,41 @@ test('逾時後才結算：期限前還沒算的放置傷害照算，夠打死�
   // 上次結算在 59 秒，期限 60 秒：期限前還有 1 秒 ×IDLE_MUL 的放置傷害
   assert.equal(A.settle(a, R.BOSS_TIME + 500, 1.5).events[0].type, 'win');
   assert.equal(A.settle(A.tap(a, R.BOSS_TIME + 1), R.BOSS_TIME + 1, 0).events[0].type, 'fail');
+});
+
+// --- 第六輪（使用者：王變門檻，照 Sakura Clicker 等比縮到約 1 小時）
+test('王輸過：回前一站刷怪（拿前一站獎勵、不推進度），「再次挑戰」會換掉刷怪的戰鬥；沒輸過不能刷', () => {
+  const base = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3 });
+  assert.throws(() => A.fight(base, 0, true), /不能刷怪/);
+  const lost = A.settle(A.fight(base, 0), R.BOSS_TIME, 0).state;
+  assert.equal(lost.bossFailed, 3);
+  let f = A.fight(lost, R.BOSS_TIME, true);
+  assert.equal(f.stage.index, 2); assert.equal(f.stage.farm, true); assert.equal(f.stage.boss, false); assert.equal(f.stage.deadline, null);
+  assert.equal(A.normalize(f).stage.index, 2, '重新載入：刷怪的戰鬥留著');
+  assert.equal(A.normalize({ ...f, bossFailed: null }).stage, null, '沒輸過卻在刷怪＝壞資料');
+  assert.equal(A.canFight(f, R.BOSS_TIME + 1000), false, '冷卻中不能挑戰');
+  const coins = f.coins, dying = { ...f, stage: { ...f.stage, hp: 1 } };
+  const r = A.settle(dying, R.BOSS_TIME + 1000, 1);
+  assert.deepEqual(r.events.map(e => e.type), ['farm']);
+  assert.equal(r.state.progress, 3); assert.equal(r.state.stage, null); assert.ok(r.state.coins >= coins + A.reward(2));
+  const again = A.fight(f, lost.cooldownUntil);
+  assert.equal(again.stage.index, 3); assert.equal(again.stage.boss, true); assert.equal(again.stage.hp, A.need(3), '再次挑戰從滿血開打');
+});
+test('血量與獎勵：王＝該站血量 × BOSS_MULS（逐隻遞增）、一定比前一站硬；獎勵成長略高於血量', () => {
+  R.BOSS_MULS.forEach((m, k) => { const i = 4 * k + 3; assert.equal(A.need(i), Math.round(R.BASE_NEED * R.GROWTH ** i * m)); assert.ok(A.need(i) > A.need(i - 1)); });
+  assert.ok(A.reward(10) / A.need(10) > A.reward(1) / A.need(1));
+});
+test('刷怪一秒最多開一場（Codex 第六輪必修：一擊必殺連點可以無限刷）；等級有上限，乘算不會變 Infinity', () => {
+  const base = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3 });
+  const lost = A.settle(A.fight(base, 0), R.BOSS_TIME, 0).state;
+  let f = A.fight(lost, R.BOSS_TIME, true); f = { ...f, stage: { ...f.stage, hp: 1 } };
+  const t = R.BOSS_TIME + 10, won = A.settle(A.tap(f, t), t, 0).state;
+  assert.equal(won.stage, null); assert.equal(won.farmNextAt, t + R.FARM_RESPAWN);
+  assert.throws(() => A.fight(won, t + R.FARM_RESPAWN / 2, true), /不能刷怪/, '剛打死馬上點：不能立刻開下一場');
+  assert.equal(A.fight(won, t + R.FARM_RESPAWN, true).stage.farm, true);
+  const huge = A.normalize({ ...base, teamLevel: 10000, clickLevel: 1e9 });
+  assert.equal(huge.teamLevel, R.TRAIN_MAX); assert.equal(huge.clickLevel, R.TRAIN_MAX);
+  assert.ok(Number.isFinite(A.power(huge))); assert.ok(Number.isFinite(A.tapDamage(A.fight(huge, 0), 0)));
+  assert.ok(Number.isFinite(A.trainCost(huge, 'team')));
+  assert.throws(() => A.train({ ...huge, coins: Infinity }, 'team'), /練到頂/);
 });

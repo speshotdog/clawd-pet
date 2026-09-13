@@ -54,7 +54,7 @@ window.ClickerApocUI = (() => {
       } catch (err) { if (!silent) notice(err.message); return []; }
       for (const ev of events) {
         if (ev.type === 'win') { sound('upgrade'); notice(`通過第 ${ev.index + 1} 站・＋${format(ev.reward)} 末世金幣`); }
-        else if (ev.type === 'fail') notice(`王關失敗，${Math.round(A.RULES.BOSS_COOLDOWN / 1000)} 秒後可以再次挑戰`);
+        else if (ev.type === 'fail') notice(`王關失敗：回前一站刷錢變強，${Math.round(A.RULES.BOSS_COOLDOWN / 1000)} 秒後可以再次挑戰`);
         else if (ev.type === 'cleared') {
           const v = view();
           $('apoc-ending-text').textContent = `二十站都打通了。收藏 ${v.owned.length} / ${(root.ApocPool || []).length} 張，戰力 ${format(v.power)}。`;
@@ -169,8 +169,10 @@ window.ClickerApocUI = (() => {
       if ($('game-content').classList.contains('map-open') || !$('recruit-layer').hidden || !$('apoc-ending').hidden) return false;
       // 精裝典藏包是另一層（#apoc-ceremony），還沒收下的結果也算招募中：背景不要偷偷接下一站（Codex 第四輪）
       if (!$('apoc-ceremony').hidden || a.pending) return false;
-      const v = view(); if (!v.canFight || !(v.power > 0)) return false;
-      if (A.isBoss(a.progress) && a.bossFailed === a.progress) return false;   // 這一站的王輸過：等玩家自己按「再次挑戰」
+      const v = view(); if (!(v.power > 0)) return false;
+      // 這一站的王輸過：回前一站刷怪變強（第六輪，照 Sakura Clicker），準備好玩家自己按「再次挑戰」
+      if (A.isBoss(a.progress) && a.bossFailed === a.progress) { apply((x, n) => A.fight(x, n, true), true); return !!store.state.apoc?.stage; }
+      if (!v.canFight) return false;
       apply((x, n) => A.fight(x, n), true);
       return !!store.state.apoc?.stage;
     }
@@ -188,7 +190,7 @@ window.ClickerApocUI = (() => {
         return A.settle(A.tap(x, n), n, 0);
       }, true);
       if (!events.length && store.state.apoc === before) return;   // commit 被擋（存檔鎖住之類）就不演
-      const after = store.state.apoc, won = events.some(e => e.type === 'win');
+      const after = store.state.apoc, won = events.some(e => e.type === 'win' || e.type === 'farm');
       if (!(dmg > 0) && !won) return;   // 期限已過的點擊不算傷害，也不演受擊（下一次結算判輸）
       const broke = boss && !wasBroken && !won && after.stage?.index === idx && (after.stage.breakUntil || 0) > now;
       sound(broke ? 'skill' : crit ? 'skill' : 'click');
@@ -203,7 +205,7 @@ window.ClickerApocUI = (() => {
       const st = store.state.apoc?.stage;
       if (st && was && st.index === idx0 && hp0 - st.hp > 0) floatPassive(hp0 - st.hp);
       // 放著被隊伍打死也要有擊倒演出（點死的那一下由 tap() 自己演）；地圖蓋著舞台時不演
-      if (events.some(e => e.type === 'win') && !$('game-content').classList.contains('map-open') && $('recruit-layer').hidden) hitFx(null, 'kill', '擊倒！');
+      if (events.some(e => e.type === 'win' || e.type === 'farm') && !$('game-content').classList.contains('map-open') && $('recruit-layer').hidden) hitFx(null, 'kill', '擊倒！');
       autoFight();
     }
 
@@ -214,17 +216,20 @@ window.ClickerApocUI = (() => {
         el = document.createElement('img'); el.id = 'apoc-enemy'; el.alt = ''; el.draggable = false;
         $('stage').insertBefore(el, $('bag'));
       }
-      const i = v.stage ? v.stage.index : v.progress;
-      const boss = v.stage ? v.stage.boss : A.isBoss(i);
+      // 刷怪兩場之間有 1 秒空檔（Codex 第六輪必修：限制刷怪重新開場）：空檔照樣畫前一站、寫刷怪中，不要閃成王
+      const farmGap = !v.stage && store.state.apoc?.bossFailed === v.progress && A.isBoss(v.progress) && v.progress > 0 && v.progress < v.stations;
+      const i = v.stage ? v.stage.index : farmGap ? v.progress - 1 : v.progress;
+      const boss = v.stage ? v.stage.boss : farmGap ? false : A.isBoss(i);
       const src = enemyArt(Math.min(i, 19), boss);
       if (el.getAttribute('src') !== src) el.setAttribute('src', src);
       el.classList.toggle('boss', !!boss);
       el.hidden = v.progress >= v.stations;
 
       document.querySelector('.package-meter').hidden = false;
-      const failed = !v.stage && store.state.apoc?.bossFailed === v.progress;   // 這一站的王輸過（輸了從滿血重來，第五輪使用者不要保留血量）
-      const hp = v.stage ? Math.max(0, v.stage.hp) : v.need, max = v.stage ? v.stage.need : v.need;
-      $('package-label').textContent = v.progress >= v.stations ? '全線已通行' : `第 ${i + 1} 站${boss ? '・王關' : ''}`;
+      const failed = (!v.stage || !!v.stage.farm) && store.state.apoc?.bossFailed === v.progress;   // 這一站的王輸過（輸了從滿血重來；第六輪起在前一站刷怪）
+      const idleNeed = farmGap ? A.need(i) : v.need;
+      const hp = v.stage ? Math.max(0, v.stage.hp) : idleNeed, max = v.stage ? v.stage.need : idleNeed;
+      $('package-label').textContent = v.progress >= v.stations ? '全線已通行' : `第 ${i + 1} 站${boss ? '・王關' : (v.stage?.farm || farmGap) ? '・刷怪中' : ''}`;
       $('package-progress').max = 1; $('package-progress').value = max ? Math.min(1, 1 - hp / max) : 0;
       $('package-number').textContent = v.progress >= v.stations ? `${v.stations} / ${v.stations}` : `${format(hp)} / ${format(max)}`;
 
@@ -244,7 +249,7 @@ window.ClickerApocUI = (() => {
 
       // 「開戰」沿用 1.0 的挑戰鍵
       const go = $('boss-challenge');
-      go.hidden = !!v.stage || v.progress >= v.stations;
+      go.hidden = (!!v.stage && !v.stage.farm) || v.progress >= v.stations;   // 刷怪中也要看得到「再次挑戰」
       go.disabled = !v.canFight || !(v.power > 0) || store.blocked;
       // 冷卻中寫出還要等幾秒，不然停用的「再次挑戰」看起來像壞掉（Codex 第五輪）
       const wait = Math.max(0, Math.ceil((v.cooldownUntil - Date.now()) / 1000));
@@ -252,8 +257,8 @@ window.ClickerApocUI = (() => {
       go.classList.toggle('glow', !!(v.canFight && v.power > 0));
       $('boss-estimate').hidden = true;
       $('package-result').textContent = v.progress >= v.stations ? '全線已通行。'
+        : failed ? (v.canFight ? '王關失敗：在前一站刷錢變強，準備好就按「再次挑戰」。' : '王關失敗：先在前一站刷錢變強，冷卻結束後可以「再次挑戰」。')
         : v.stage ? '點怪攻擊；隊伍放著也會打。'
-        : failed ? (v.canFight ? '王關失敗，按「再次挑戰」重打。' : '王關失敗，冷卻結束後按「再次挑戰」重打。')
         : '按「開戰」開始。';
       // 1.0 的這一格平常透明、只在完成一包時閃一下；末世輸了王要一直看得到（Codex 5b）
       $('package-result').classList.toggle('apoc-shown', failed && v.progress < v.stations);
@@ -357,10 +362,10 @@ window.ClickerApocUI = (() => {
       setLabel(h2[0], '點擊力 '); setLabel(h2[1], '全隊訓練 ');
       setLabel(document.querySelector('#shop .recruit small'), '隊伍裡的卡才有戰力');
       $('click-level').textContent = `Lv.${v.clickLevel}`;
-      $('click-next').textContent = `點一下 ${format(v.tapDamage)} → ${format(v.tapDamage / v.clickMul * (v.clickMul + T.click.MUL))}`;
+      $('click-next').textContent = `點一下 ${format(v.tapDamage)} → ${format(v.tapDamage * (1 + T.click.MUL))}`;
       $('click-price').textContent = format(v.clickCost);
       $('training-level').textContent = `Lv.${v.teamLevel}`;
-      $('training-next').textContent = `全隊戰力 ×${v.teamMul.toFixed(2)} → ×${(v.teamMul + T.team.MUL).toFixed(2)}`;
+      $('training-next').textContent = `全隊戰力 ×${v.teamMul.toFixed(2)} → ×${(v.teamMul * (1 + T.team.MUL)).toFixed(2)}`;
       $('training-price').textContent = format(v.teamCost);
       for (const [type, cost] of [['click', v.clickCost], ['training', v.teamCost]]) {
         $(`${type}-one`).textContent = '升級！';

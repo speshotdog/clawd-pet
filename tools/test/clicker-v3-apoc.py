@@ -109,12 +109,15 @@ with sync_playwright() as p:
     hp0 = pg.evaluate("()=>Clicker.state.apoc.stage.hp")
     for _ in range(12):
         pg.evaluate("()=>document.getElementById('tap').click()"); pg.wait_for_timeout(40)
-    check(pg.evaluate("()=>Clicker.state.apoc.stage.hp") < hp0, '點怪會扣血')
+    # 第六輪第 1 站血很少，12 下可能直接打死換到第 2 站（血更多）：換站也算扣血成功
+    check(pg.evaluate(f"()=>{{const a=Clicker.state.apoc; return a.progress>0 || (!!a.stage && a.stage.hp < {hp0});}}"), '點怪會扣血（打死換站也算）')
     check('/' in pg.locator('#package-number').inner_text(), '血條寫著目前血量：' + pg.locator('#package-number').inner_text())
     pg.screenshot(path=str(OUT / '2-fight.png'))
 
     # ---- 第四輪：點舞台空白處也算傷害；打死之後下一站自動開打（以前要再按「開戰」，使用者回報「無法點了」）
     sb = pg.locator('#stage').bounding_box()
+    # 第六輪前幾站血很少，一下就可能打死換站：先把這場的血加厚，比較的才是同一隻
+    pg.evaluate("()=>{const st=Clicker.state.apoc.stage; st.need=st.hp=1e12;}")
     hp1 = pg.evaluate("()=>Clicker.state.apoc.stage.hp")
     pg.mouse.click(sb['x'] + sb['width'] * .06, sb['y'] + sb['height'] * .08); pg.wait_for_timeout(300)
     check(pg.evaluate("()=>Clicker.state.apoc.stage.hp") < hp1, '點舞台左上角的空白處也會扣血')

@@ -16,32 +16,37 @@
     CLICK_SHARE: .5,         // 一下＝每秒戰力的一半
     // 2026-09-13 之後這一輪定案：用 tools/sim/apoc.js 掃出來的（目標＝一天三段 20 分鐘、20 站 3～5 天）。
     // ⚠ 末世沒有離線收益，所以「幾天」＝「玩了幾段」，不是掛機天數。
-    // 第四輪使用者：「難度可能偏難」。以一般玩家（每秒 3 下、在場一半時間在點）量：600000／1.20 是第 1 站 9 分、全線第 12 天 686 分。
-    // 使用者選「放寬」＋「王關統一 60 秒，幫我把難度調整」＋「不要保留血量，直接調整血量」。輸了從滿血重來，
-    // 所以王血要壓到慢的玩家 60 秒內也打得完；王血壓低後總時間掉太多，一般站血量拉回 300000 補回來。
-    // 王血倍率掃描（tools/sim/apoc.js，一天三段 20 分，技能格裝戰力前 4 張）：
-    //   ×.25 一般玩家卡第 15 站；×.07 每秒 3 下／五成時間 141 分，但每秒 2 下／四成時間就掉到第 12 天、輸 267 次（懸崖）；
-    //   ×.05 前面都第 3 天，只剩「每秒 2 下、三成時間、不放技能」卡到第 12 天；×.04 連它都第 4 天 199 分、輸 4 次；×.03 跟 ×.04 幾乎一樣。
-    // 定案 ×.04：一般（CPS=3 TAP_SHARE=0.5）第 1 站 3 分、第 3 天 142 分、輸 2 次、抽 140 次；每秒 2 下／四成時間 172 分、輸 0 次；
-    //   勤快（CPS=6）第 2 天 61 分；帶 1.0 加成 ×2（收益祝福 Lv10）一般 69 分、勤快第 1 天 31 分。
-    //   護盾的放置倍率與破盾下數對輸幾次幾乎沒影響（掃過 0.35～1.0、10～15 下），卡的是王血跟 60 秒的比例。
-    BASE_NEED: 300000, GROWTH: 1.17, BOSS_MUL: .04,
-    REWARD_SHARE: .02,       // 通關獎勵＝血量 ×0.02 末世金幣
+    // 第四輪使用者：「難度可能偏難」→ 第五輪把王血壓到一般站 ×.04（60 秒內打得完），結果變成「王太簡單、路上太難」。
+    // 第六輪使用者：「關卡難度也同步，不然會造成王太簡單、路上太難」→ 選「王變門檻（打不過就去抽卡／練）」
+    //   ＋「對照之前的參考遊戲，用等比的方式把時長降低」＋「約 1 小時」。
+    // 參考 Sakura Clicker（Clicker Heroes 換皮，docs/clicker/REFERENCE-2026-09-12-sakura-clicker.md）：
+    //   血量是關卡函數；王＝該區怪 ×2～6 逐隻遞增；限時打不完就回去刷怪變強；金幣成長率略高於血量（1.59 對 1.55），
+    //   牆來自「花錢買傷害越後面越沒效率」。它的一般玩家（每秒 3 下）到第 10／20／30／40／50 區是 2.5／12／34／108／326 分，
+    //   我們的 5 個王站（第 4／8／12／16／20 站）對準它的 1/6：0.4／1.9／5.7／18／54 分。
+    // 為什麼不能再用第五輪的做法：2.0 的戰力靠收藏，抽滿就停在兩三千；王要比路上硬又是 60 秒，路上一站只剩幾十秒，整條變成幾分鐘。
+    //   要保住長度又讓王是門檻，戰力就得能靠錢一直長（訓練改乘算，見 TRAIN），輸了要有地方賺錢（刷前一站，見 fight）。
+    // 數字是 tools/sim/apoc.js 掃出來的，結果見 docs/clicker/HANDOFF-2026-09-13-v3.md 〇之十。
+    BASE_NEED: 5000, GROWTH: 2.1, BOSS_MULS: [2, 3, 4, 5, 6],
+    // 過關獎勵＝血量 ×0.08 ×1.066^站：Sakura 金／血成長比 1.59／1.55≈1.026／區，我們一站約等於它 2.5 區 → 1.026^2.5≈1.066
+    REWARD_SHARE: .08, REWARD_GROWTH: 1.066,
     IDLE_COINS: .01,         // 放置產出＝每秒戰力 ×0.01
     // 抽卡價隨「已經付費抽過幾次」往上走（同 1.0 的招募費用），不然放置金幣是跟戰力一起指數長的，
     // 戰力→金幣→抽卡→戰力 會直接跑掉：模擬器量到一輪 20 站可以抽到一千七百次。
     DRAW_COST: 1000, DRAW_GROWTH: 1.02, STATIONS: 20,
     // 1.0 金幣換券（時薪券）：一張＝1.0 每秒收益 × SECONDS，當天第 k 張再 ×GROWTH^k
     EXCHANGE: { SECONDS: 600, GROWTH: 1.25 },
-    // 訓練（花末世金幣）：全隊訓練 Lv L 全隊戰力 ×(1+MUL·L)；點擊力 Lv L 每下 ×(1+MUL·L)。第 L 級 COST×GROWTH^L
-    // tools/sim/apoc.js 掃出來的（第三輪）：不訓練 218 分鐘；這組 201 分鐘・第 4 天・抽 200 次，跟改版前 202 分鐘同節奏，
-    // 一輪大約練到全隊 Lv2、點擊 Lv3——訓練是「卡關時補一把」，不是主線（主線還是抽卡）。
-    TRAIN: { team: { MUL: .03, COST: 40000, GROWTH: 2 }, click: { MUL: .05, COST: 20000, GROWTH: 2 } },
+    // 訓練（花末世金幣）：全隊訓練 Lv L 全隊戰力 ×(1+MUL)^L；點擊力 Lv L 每下 ×(1+MUL)^L。第 L 級 COST×GROWTH^L
+    // 第六輪改乘算：戰力 ∝ 花掉的錢^(ln1.1／ln1.3≈0.36)，越後面越沒效率——這就是 Sakura 的牆（收藏會抽滿，只有訓練能一直長）。
+    //   第三輪是線性 +3%／+5%、費用 ×2：戰力停在兩三千，王一變成門檻就永遠過不去。
+    TRAIN: { team: { MUL: .1, COST: 500, GROWTH: 1.3 }, click: { MUL: .1, COST: 300, GROWTH: 1.3 } },
+    TRAIN_MAX: 1000,   // 等級上限：1.1^1000、1.3^1000 都還是有限數；存檔改成一萬級會變 Infinity（Codex 第六輪）
     // 第三輪一度把王關時限關掉（當時王血是一般站 ×2.5，60 秒一定是硬牆）；第五輪王血壓到 ×.04 之後加回。
     // 第四輪使用者：「第一次遭遇應該直接進入關卡，失敗之後才會在右上方有進入選項」＋「統一 60」→ 王關一律 60 秒，輸了冷卻 60 秒後手動「再次挑戰」。
     BOSS_TIME: 60000, BOSS_COOLDOWN: 60000,
+    // 刷怪兩場之間至少隔 1 秒（Codex 第六輪必修：一擊必殺時連點可以 750ms 刷 6 場；模擬器也是一秒一場）
+    FARM_RESPAWN: 1000,
     // ⚠ 第五輪試過「輸了保留部分傷害」（照 1.0 的裂痕），使用者：「我不想要保留血量的機制，直接調整血量就好」→ 拿掉。
-    //   輸了就從滿血重來，所以王血一定要壓到一般玩家 60 秒內打得完（見 BOSS_MUL 的註解）。
+    //   輸了從滿血重來；第六輪起輸了自動回前一站刷怪（fight(a, now, true)），變強了玩家自己按「再次挑戰」。
     // 王關機制（使用者 2026-09-13：護盾＋節奏，節奏用「點擊次數」而不是計時器，而且不要太嚴苛）：
     //   王有護盾，護盾在場時放置傷害只剩三成五（不是零，放著還是會動）；
     //   累積 TAPS 下點擊破盾 → BREAK_MS 毫秒破防，全部傷害 ×2；破防結束重新起盾，需要的點擊數 ×GROWTH。
@@ -93,7 +98,7 @@
   const dayKey = now => Math.floor(now / 86400000);   // 同 1.0 派遣的日界
   function fresh() {
     return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
-      paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
+      paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
       pending: null, cleared: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1 } };
   }
   function normalize(a) {
@@ -107,7 +112,10 @@
         if (!id || !a.roster.includes(id) || seen.has(id)) return null;   // 舊檔可能有同卡多槽（Codex 第三輪 B1）
         seen.add(id); return id;
       }); }
-    if (a.stage && (typeof a.stage.hp !== 'number' || a.stage.index !== a.progress)) a.stage = null;
+    // 刷怪中的戰鬥是前一站：只有「這一站是王、而且輸過」才合法（第六輪）；其他進度不符的戰鬥丟掉
+    const farmOk = st => st.index === a.progress - 1 && isBoss(a.progress) && raw.bossFailed === a.progress;
+    if (a.stage && (typeof a.stage.hp !== 'number' || (a.stage.farm ? !farmOk(a.stage) : a.stage.index !== a.progress))) a.stage = null;
+    if (a.stage?.farm) a.stage = { ...a.stage, farm: true, boss: false, deadline: null, shield: null, breakUntil: 0 };
     if (a.stage && a.stage.boss && !a.stage.shield) { a.stage = { ...a.stage, shield: freshShield(0), breakUntil: 0 }; }   // 舊存檔的王關補上護盾
     // 舊存檔的戰鬥還是舊血量（第五輪改了 BASE_NEED／GROWTH／BOSS_MUL，Codex 第五輪必修 2）：照剩下的血佔幾成換算成新版血量。
     // 換算後 need 就等於新版，所以只會換一次；王關的 60 秒期限在第一次結算時才給（settle 裡），這裡不碰期限，避免每次載入就續時。
@@ -117,7 +125,8 @@
     }
     // 舊檔的「買過幾張券」就是當時的抽卡價格進度，搬成付費抽數，價格不會倒退
     a.paidDraws = count(raw.paidDraws !== undefined ? raw.paidDraws : raw.ticketsBought); delete a.ticketsBought;
-    a.teamLevel = count(a.teamLevel); a.clickLevel = count(a.clickLevel);
+    a.teamLevel = Math.min(RULES.TRAIN_MAX, count(a.teamLevel)); a.clickLevel = Math.min(RULES.TRAIN_MAX, count(a.clickLevel));
+    a.farmNextAt = Number.isFinite(Number(a.farmNextAt)) && Number(a.farmNextAt) > 0 ? Number(a.farmNextAt) : 0;
     delete a.boost;   // 1.0 加成是執行期現算的，存檔裡的舊值一律不信
     a.bossFailed = Number.isInteger(a.bossFailed) && a.bossFailed === a.progress ? a.bossFailed : null;   // 只記「目前這一站的王輸過」
     delete a.bossCarry;   // 保留血量的機制拿掉了（第五輪使用者），上一版存檔留下的欄位丟掉
@@ -161,22 +170,33 @@
   }
   // ---- 訓練
   const LEVEL_KEY = { team: 'teamLevel', click: 'clickLevel' };
-  const trainMul = (kind, level) => 1 + RULES.TRAIN[kind].MUL * (level || 0);
+  const trainMul = (kind, level) => (1 + RULES.TRAIN[kind].MUL) ** (level || 0);   // 第六輪起乘算（見 RULES.TRAIN）
   const trainCost = (a, kind, n = 1) => { const t = RULES.TRAIN[kind], L = a[LEVEL_KEY[kind]] || 0; let sum = 0; for (let i = 0; i < n; i++) sum += Math.round(t.COST * t.GROWTH ** (L + i)); return sum; };
   // max＝有多少錢就升多少級（同 1.0 的「最多」）；一級都買不起就丟錯
   function train(a, kind, max = false) {
     const t = RULES.TRAIN[kind]; if (!t) throw new Error('沒有這種訓練');
     let L = a[LEVEL_KEY[kind]] || 0, coins = a.coins, levels = 0;
-    for (;;) { const c = Math.round(t.COST * t.GROWTH ** L); if (coins < c) break; coins -= c; L++; levels++; if (!max || levels >= 1000) break; }
-    if (!levels) throw new Error(`末世金幣不足，下一級要 ${Math.round(t.COST * t.GROWTH ** L)}`);
+    for (;;) { if (L >= RULES.TRAIN_MAX) break; const c = Math.round(t.COST * t.GROWTH ** L); if (coins < c) break; coins -= c; L++; levels++; if (!max || levels >= 1000) break; }
+    if (!levels) throw new Error(L >= RULES.TRAIN_MAX ? '已經練到頂了' : `末世金幣不足，下一級要 ${Math.round(t.COST * t.GROWTH ** L)}`);
     return { state: { ...a, coins, [LEVEL_KEY[kind]]: L }, levels };
   }
   function cardPower(a, id) { const c = poolById()[id]; if (!c || !a.collection[id]) return 0; return RULES.POWER[c.rarity] * (1 + RULES.STAR_MUL * (a.collection[id] - 1)); }
   const power = a => a.roster.reduce((sum, id) => sum + cardPower(a, id), 0) * trainMul('team', a.teamLevel) * boostOf(a).power;
-  const need = i => Math.round(RULES.BASE_NEED * RULES.GROWTH ** i * (isBoss(i) ? RULES.BOSS_MUL : 1));
-  const reward = i => Math.round(need(i) * RULES.REWARD_SHARE);
-  const canFight = (a, now) => !a.stage && a.progress < RULES.STATIONS && !(isBoss(a.progress) && a.cooldownUntil > now);
-  function fight(a, now) {
+  // 血量：一般站 BASE×GROWTH^i；王站再 ×BOSS_MULS[第幾隻王]（Sakura 的王＝該區怪 ×2～6，逐隻遞增）
+  const bossMulOf = i => RULES.BOSS_MULS[Math.floor(i / 4)] ?? RULES.BOSS_MULS[RULES.BOSS_MULS.length - 1];
+  const need = i => Math.round(RULES.BASE_NEED * RULES.GROWTH ** i * (isBoss(i) ? bossMulOf(i) : 1));
+  const reward = i => Math.round(need(i) * RULES.REWARD_SHARE * RULES.REWARD_GROWTH ** i);
+  // 刷怪中的戰鬥可以直接被「再次挑戰」換掉
+  const canFight = (a, now) => (!a.stage || !!a.stage.farm) && a.progress < RULES.STATIONS && !(isBoss(a.progress) && a.cooldownUntil > now);
+  // 刷怪（第六輪，照 Sakura 的「打不過就回去刷怪」）：這一站的王輸過之後，回前一站一直打——拿那一站的獎勵、不推進度
+  const canFarm = (a, now) => !a.stage && isBoss(a.progress) && a.bossFailed === a.progress && a.progress > 0 && now >= (a.farmNextAt || 0);
+  function fight(a, now, farm = false) {
+    if (farm) {
+      if (!canFarm(a, now)) throw new Error('現在不能刷怪');
+      if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
+      const i = a.progress - 1;
+      return { ...a, stage: { index: i, hp: need(i), need: need(i), boss: false, farm: true, startedAt: now, deadline: null, shield: null, breakUntil: 0 } };
+    }
     if (!canFight(a, now)) throw new Error(a.progress >= RULES.STATIONS ? '全線已通行' : a.stage ? '戰鬥中' : '王關冷卻中');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
     const i = a.progress, boss = isBoss(i);
@@ -204,7 +224,12 @@
       }
       // 破防時間到 → 重新起盾，下一輪要的點擊數 ×GROWTH（傷害算完才換，破防那段才吃得到 ×2）
       if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0, shield: freshShield((st.shield?.cycle || 0) + 1) };
-      if (st.hp <= 0) {
+      if (st.hp <= 0 && st.farm) {
+        // 刷怪：拿這一站的獎勵、不推進度（王那一站還等著玩家再挑戰）
+        s.coins += reward(st.index); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
+        events.push({ type: 'farm', index: st.index, reward: reward(st.index) });
+      }
+      else if (st.hp <= 0) {
         s.coins += reward(st.index); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null;
         events.push({ type: 'win', index: st.index, reward: reward(st.index) });
         // 全線通行只報一次；之後留在末世繼續放置與補收藏
@@ -353,7 +378,7 @@
     teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click, boost: boostOf(a),
     exchangeToday: exchangeToday(a, now), exchangeTotal: a.exchange?.total || 0, stats: a.stats, wins: a.wins || 0, cosmetics: a.cosmetics,
     roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS });
-  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, fight, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, canFarm, fight, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
