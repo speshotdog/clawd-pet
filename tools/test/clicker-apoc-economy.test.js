@@ -29,9 +29,11 @@ test('一般關：放置＋點擊打到 0 就通關、拿獎勵、進度 +1', ()
   a = A.fight(a, now); assert.equal(a.stage.need, A.need(0)); assert.equal(a.stage.deadline, null);
   let r = A.settle(a, now + 1000, 1); assert.equal(r.events.length, 0); assert.ok(r.state.stage.hp < A.need(0));
   a = A.tap(r.state, now); assert.equal(a.stage.hp, r.state.stage.hp - 60 * R.CLICK_SHARE);
-  a = { ...a, stage: { ...a.stage, hp: 1 } }; r = A.settle(a, now + 2000, 1);
-  assert.deepEqual(r.events[0], { type: 'win', index: 0, reward: A.reward(0) }); assert.equal(r.state.progress, 1); assert.equal(r.state.stage, null);
-  assert.ok(r.state.coins >= A.reward(0));
+  // 第九輪一站 5 隻：直接打這一站的最後一隻；一隻給這一站獎勵的 1/WAVES
+  a = { ...a, stage: { ...a.stage, hp: 1, wave: a.stage.waves } }; r = A.settle(a, now + 2000, 1);
+  const last = Math.round(A.reward(0) / R.WAVES);
+  assert.deepEqual(r.events[0], { type: 'win', index: 0, reward: last }); assert.equal(r.state.progress, 1); assert.equal(r.state.stage, null);
+  assert.ok(r.state.coins >= last);
 });
 test('王關時限（第四輪使用者：統一 60 秒）：時間到失敗、進冷卻、之後才能再打；一般關沒有時限', () => {
   const now = 1e6;
@@ -283,7 +285,7 @@ test('王輸過：回前一站刷怪（拿前一站獎勵、不推進度），�
   const coins = f.coins, dying = { ...f, stage: { ...f.stage, hp: 1 } };
   const r = A.settle(dying, R.BOSS_TIME + 1000, 1);
   assert.deepEqual(r.events.map(e => e.type), ['farm']);
-  assert.equal(r.state.progress, 3); assert.equal(r.state.stage, null); assert.ok(r.state.coins >= coins + A.reward(2));
+  assert.equal(r.state.progress, 3); assert.equal(r.state.stage, null); assert.ok(r.state.coins >= coins + Math.round(A.reward(2) / R.WAVES));   // 刷怪一隻＝一般站一隻的獎勵
   const again = A.fight(f, lost.cooldownUntil);
   assert.equal(again.stage.index, 3); assert.equal(again.stage.boss, true); assert.equal(again.stage.hp, A.need(3), '再次挑戰從滿血開打');
 });

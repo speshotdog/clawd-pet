@@ -122,7 +122,12 @@ with sync_playwright() as p:
     pg.mouse.click(sb['x'] + sb['width'] * .06, sb['y'] + sb['height'] * .08); pg.wait_for_timeout(300)
     check(pg.evaluate("()=>Clicker.state.apoc.stage.hp") < hp1, '點舞台左上角的空白處也會扣血')
     idx0 = pg.evaluate("()=>Clicker.state.apoc.stage.index")
-    pg.evaluate("()=>{Clicker.state.apoc.stage.hp=1;}")
+    # 第九輪一站 5 隻：直接打這一站的最後一隻（中間幾隻另外驗「第 N 站・2/5」）
+    pg.evaluate("()=>{const st=Clicker.state.apoc.stage; st.wave=1; st.hp=1;}"); pg.wait_for_timeout(1300)
+    w2 = pg.evaluate("()=>Clicker.state.apoc.stage")
+    check(bool(w2) and w2['index'] == idx0 and w2['wave'] == 2 and '2/' in pg.locator('#package-label').inner_text(),
+          f"打死第 1 隻：同一站換第 2 隻、血條寫著 2/{w2 and w2['waves']}（{pg.locator('#package-label').inner_text()}）")
+    pg.evaluate("()=>{const st=Clicker.state.apoc.stage; st.wave=st.waves; st.hp=1;}")
     pg.mouse.click(sb['x'] + sb['width'] * .94, sb['y'] + sb['height'] * .08); pg.wait_for_timeout(1600)
     nxt = pg.evaluate("()=>Clicker.state.apoc.stage")
     check(bool(nxt) and nxt['index'] == idx0 + 1, f'打死之後下一站自動開打（{idx0} → {nxt and nxt["index"]}）')
