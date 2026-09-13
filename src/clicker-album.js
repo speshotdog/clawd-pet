@@ -48,7 +48,19 @@ window.ClickerAlbum = (() => {
       const cur = E.rarity(s, id), o = ORIGIN[E.origin(id)], t = s.transcend?.[id] || 0;
       return `${RAR[cur]}${cur !== Pool.byId[id].rarity ? `（${o}出身）` : ''}${t ? `・超越 ${t}` : ''}${t === 5 ? '・覺醒' : ''}`;
     }
+    // 收藏卡的精裝版：直接嵌精裝頁（?embed=1 只留卡本身）。使用者 09-13：「2.0 不准出現任何 1.0 卡面，
+    // 魔花少女是之前花最多心力做的卡」——末世裡一律用這個，沒有精裝頁的收藏卡寧可顯示問號也不退回 1.0 卡面。
+    const DELUXE = { mohuashaonv: 'apoc/mohuashaonv.html' };
+    function deluxeCard(id) {
+      const wrap = document.createElement('div'); wrap.className = 'card flipped album-card collect deluxe-card';
+      if (DELUXE[id]) {
+        const f = document.createElement('iframe'); f.src = `${DELUXE[id]}?embed=1`; f.title = `${Pool.byId[id].name}・精裝`;
+        f.tabIndex = -1; f.setAttribute('scrolling', 'no'); wrap.append(f);
+      } else { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; wrap.append(q); }
+      return wrap;
+    }
     function makeCard(s, id) {
+      if (isCollect(id) && apoc()) return deluxeCard(id);
       if (isCollect(id)) { const el = card.create({ ...Pool.byId[id] }, { tag: false }); el.classList.add('flipped', 'album-card', 'collect'); return el; }
       const entry = byId(id);
       // 末世的卡一律用精裝卡面（使用者：所有卡都是精裝版）
@@ -119,12 +131,16 @@ window.ClickerAlbum = (() => {
       // 那一頁從此隱形。不在翻頁中的時候一律清乾淨，才有穩定的靜止狀態。
       if (!flipping) for (const id of ['album-left', 'album-right']) $(id).getAnimations().forEach(a => a.cancel());
       // 末世的卡冊只有「卡」這一件事：1.0 的粉塵罐、平均訓練、派遣、推薦組合都收起來
-      for (const id of ['train-all', 'dust-open', 'recommend-open', 'recall-all', 'collect-open']) $(id).hidden = apoc() || $(id).hidden;
+      for (const id of ['train-all', 'dust-open', 'recommend-open', 'recall-all']) $(id).hidden = apoc() || $(id).hidden;
+      // 收藏卡卡冊：兩個世界都看得到（使用者第三輪：「之前說的收藏卡的卡冊做去哪了？」）。
+      // ⚠ 這顆鍵以前兩邊都沒打開過——桌邊只把收藏卡排在最後一頁，末世的卡冊只列末世卡池，所以末世完全看不到。
+      { const n = (s.collectibles || []).filter(id => Pool.byId[id]).length;
+        $('collect-open').hidden = !n; $('collect-open').textContent = `收藏卡 ${n}`; }
       if (apoc()) {
         const a = A().normalize(s.apoc), owned = Object.keys(a.collection).filter(k => a.collection[k] > 0).length;
         $('team-summary').innerHTML = `隊伍 <b>${a.roster.length}/20</b>・收藏 <b>${owned}/${IDS.length}</b>`;
         $('team-summary').title = '只有隊伍裡的卡有戰力。同一張再抽到就多一星（每星 +25%）。';
-        for (const id of ['train-all', 'dust-open', 'recommend-open', 'recall-all', 'collect-open']) $(id).hidden = true;
+        for (const id of ['train-all', 'dust-open', 'recommend-open', 'recall-all']) $(id).hidden = true;
       } else {
         for (const id of ['train-all', 'dust-open', 'recommend-open']) $(id).hidden = false;
         refreshTrainAll();
@@ -580,7 +596,8 @@ window.ClickerAlbum = (() => {
     function escape() {
       // 商店在分類內時，Esc 先退回分類頁，再按一次才關掉整個商店
       if (!$('wardrobe').hidden) {
-        if (shopCategory) { shopCategory = null; pendingBuy = null; renderWardrobe(); return true; }
+        // 末世商店沒有分類頁：直接關（不然殘留的 1.0 shopCategory 會把末世商店重畫成桌邊商店，Codex 第三輪）
+        if (shopCategory && !apoc()) { shopCategory = null; pendingBuy = null; renderWardrobe(); return true; }
         $('wardrobe-close').click(); return true;
       }
       if ($('roster').hidden) return false;
@@ -600,7 +617,7 @@ window.ClickerAlbum = (() => {
         if (key === refreshKey) return; refreshKey = key;
         // 重建不是「打開」，不要重播進場動畫、也不要把焦點搶回「回到卡冊」
         if (!$('roster').hidden) { renderBook(); if (detailId) openDetail(detailId, false); }
-        if (!$('wardrobe').hidden) renderWardrobe();
+        if (!$('wardrobe').hidden && !apoc()) renderWardrobe();   // 末世的商店面板由 clicker-apoc-ui.js 畫，這裡不要蓋掉
       } };
   }
   return { create };

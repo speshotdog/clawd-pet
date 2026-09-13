@@ -38,7 +38,8 @@
       const g = document.createElement('div'); g.className = 'drag-ghost'; g.style.width = `${d.w}px`; g.style.height = `${d.h}px`;
       // 末世拖的是精裝卡（使用者：舊的卡樣式一張都不准放）
       const holo = apoc() && window.ClickerHolo?.ready() ? window.ClickerHolo.face(byId(d.id)) : null;
-      g.append(holo || card.art.create(byId(d.id))); layer.append(g); d.ghost = g;
+      const blank = () => { const b = document.createElement('span'); b.className = 'apoc-face-blank'; return b; };
+      g.append(holo || (apoc() ? blank() : card.art.create(byId(d.id)))); layer.append(g); d.ghost = g;
       try { d.src.setPointerCapture(d.pid); d.captured = true; } catch {}
       targetsOf(d).forEach(el => el.classList.add('drop-ok'));
       place();

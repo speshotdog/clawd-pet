@@ -31,7 +31,8 @@
       const p = el('span', 'buddy-portrait');
       // 末世用精裝卡面
       const holo = apoc() && window.ClickerHolo?.ready() ? window.ClickerHolo.face(byId(id)) : null;
-      if (holo) { p.classList.add('holo-slot'); p.append(holo); } else p.append(card.art.create(byId(id)));
+      // 末世拿不到精裝卡面時放空白底，不准退回 1.0 卡面（使用者 09-13）
+      if (holo) { p.classList.add('holo-slot'); p.append(holo); } else if (apoc()) { const b = el('span', 'apoc-face-blank'); p.append(b); } else p.append(card.art.create(byId(id)));
       return p;
     }
     function proxy(id, index, handler) {
@@ -99,6 +100,7 @@
         document.querySelectorAll('#t20-grid .team-proxy').forEach(b => b.setAttribute('aria-selected', String(b.dataset.id === selected)));
         return;
       }
+      if (apoc()) { const b = document.createElement('div'); b.className = 'card flipped album-card detail-card apoc-face-blank'; host.append(b); return; }   // 末世不准退回 1.0 卡面
       const face = card.create({ ...byId(id), rarity: E.rarity(s, id) }, { tag: false }); face.classList.add('flipped', 'album-card', 'detail-card'); host.append(face);
       $('t20-remove').disabled = index < 0; $('t20-replace').disabled = index < 0;
       document.querySelectorAll('#t20-grid .team-proxy').forEach(b => b.setAttribute('aria-selected', String(b.dataset.id === selected)));

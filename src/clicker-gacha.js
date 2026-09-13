@@ -23,10 +23,11 @@ window.ClickerGacha = (() => {
     const apoc = () => store.state?.settings.world === 'apoc';
     const W = () => apoc() ? {
       pending: () => store.state.apoc?.pending || null,
-      cost: (n) => Math.max(0, n),                        // 末世：一張卡一張券
-      wallet: () => A().normalize(store.state.apoc).tickets,
-      unit: '券',
-      label: (n) => `${n === 1 ? '單抽' : '十連'} · ${n} 券`,
+      // 末世：先用券（只從桌邊金幣換來），不夠的才付末世金幣——同 1.0「免費抽先用、剩下付錢」
+      cost: (n) => A().drawCost(A().normalize(store.state.apoc), n),
+      wallet: () => A().normalize(store.state.apoc).coins,
+      unit: '末世金幣',
+      label: (n) => apocPrice(n, `${n === 1 ? '單抽' : '十連'} · `),
       counts: [1, 10],
       purchase: (n, now) => { const next = E.clone(store.state); next.apoc = A().purchaseDraw(A().normalize(next.apoc), n, now); return next; },
       collect: (id, now) => { const next = E.clone(store.state); const r = A().collectDraw(A().normalize(next.apoc), id, now); next.apoc = r.state; return { state: next, accepted: r.accepted, newIds: r.newIds, starUps: r.starUps }; },
@@ -89,14 +90,18 @@ window.ClickerGacha = (() => {
       } catch (err) { notice(err.message); }
       finally { busy = false; render(); }
     }
+    // 末世的價牌：先用券（只從桌邊金幣換來），剩下的付末世金幣——寫法同 1.0 的「免費 ×n + 價格」
+    function apocPrice(n, prefix = '') {
+      const a = A().normalize(store.state.apoc), free = Math.min(a.tickets || 0, n), cost = A().drawCost(a, n);
+      return prefix + (free ? `券 ×${free}${cost ? ` + ${format(cost)}` : ''}` : format(cost));
+    }
     function priceButton(el, count, s, supported) {
       const w = W(), cost = w.cost(count), missing = Math.max(0, Math.ceil(cost - w.wallet()));
-      const many = packSize();
       el.replaceChildren();
       el.textContent = el.id === 'draw-one' ? '招募！' : el.id === 'draw-five' ? (apoc() ? '十連' : '五連') : w.label(count);
       el.title = String(cost);
       if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price';
-        price.textContent = apoc() ? `${many} 券` : (s.freeDraws ? `免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}` : format(cost)); el.append(price); }
+        price.textContent = apoc() ? apocPrice(count) : (s.freeDraws ? `免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}` : format(cost)); el.append(price); }
       if (!apoc() && s.freeDraws && el.id.startsWith('recruit-')) el.textContent=`${count===1?'單抽':'五連'} · 免費 ×${Math.min(count,s.freeDraws)}${cost ? ` + ${format(cost)}` : ''}`;
       if (missing) { const note = document.createElement('small'); note.textContent = `還差 ${format(missing)} ${w.unit}`; el.append(note); }
       el.disabled = !ready || !canOpen() || store.blocked || w.blocked() || !!w.pending() || !supported || missing > 0 || busy;
@@ -145,7 +150,7 @@ window.ClickerGacha = (() => {
       const cost = w.cost(many);
       const affordable = cost <= w.wallet() && window.GachaModes[s.settings.mode].counts.includes(apoc() ? 5 : many);
       again.hidden = !affordable;
-      again.textContent = apoc() ? `收下並繼續十連 · ${many} 券`
+      again.textContent = apoc() ? apocPrice(many, '收下並繼續十連 · ')
         : (s.freeDraws ? `收下並繼續五連 · 免費 ×${Math.min(many, s.freeDraws)}` : `收下並繼續五連 · ${format(cost)}`);
       $('recruit-hint').textContent = affordable
         ? '結果已儲存。收下後夥伴就會開始幫忙，或直接再抽一次。'
@@ -307,7 +312,9 @@ window.ClickerGacha = (() => {
           for (const id of line.faces) {
             const fig = document.createElement('figure');
             const holo = apoc() && window.ClickerHolo?.ready() ? window.ClickerHolo.face(map[id]) : null;   // 末世一律精裝卡面
-            if (holo) { const slot = document.createElement('span'); slot.className = 'holo-slot'; slot.append(holo); fig.append(slot); } else fig.append(card.art.create(map[id]));
+            if (holo) { const slot = document.createElement('span'); slot.className = 'holo-slot'; slot.append(holo); fig.append(slot); }
+            else if (apoc()) { const blank = document.createElement('span'); blank.className = 'holo-slot apoc-face-blank'; fig.append(blank); }   // 末世不准退回 1.0 卡面
+            else fig.append(card.art.create(map[id]));
             const cap = document.createElement('figcaption'); cap.textContent = name(id); fig.append(cap); wrap.append(fig);
           }
           row.append(wrap);

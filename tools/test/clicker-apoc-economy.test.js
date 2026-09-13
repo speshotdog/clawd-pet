@@ -46,15 +46,64 @@ test('王關時限（預設關閉，RULES.BOSS_TIME 給值才生效）：時間�
     assert.equal(A.canFight(r.state, now + R.BOSS_TIME + 1000), false); assert.equal(A.canFight(r.state, r.state.cooldownUntil), true);
   } finally { R.BOSS_TIME = saved; }
 });
-test('券：第一張 1000，之後每買一張漲 2%；金幣不夠丟錯', () => {
+// --- 第三輪（使用者定案）：末世金幣直接抽卡；券只從 1.0 金幣換（時薪券），抽的時候先用券
+test('抽卡直接花末世金幣：第一抽 1000、每付費抽一次漲 2%；先用券，不夠的才付錢', () => {
   const a = { ...A.fresh(), coins: 1500 };
-  assert.equal(A.ticketCost(a, 1), 1000);
-  assert.equal(A.buyTicket(a).tickets, 1); assert.equal(A.buyTicket(a).coins, 500);
-  assert.equal(A.buyTicket(a).ticketsBought, 1);
-  assert.throws(() => A.buyTicket(a, 2), /不足/);
-  const rich = { ...A.fresh(), coins: 1e9, ticketsBought: 100 };
-  assert.equal(A.ticketCost(rich, 1), Math.round(1000 * R.TICKET_GROWTH ** 100));
-  assert.equal(A.ticketCost(rich, 3), [0, 1, 2].reduce((n, i) => n + Math.round(1000 * R.TICKET_GROWTH ** (100 + i)), 0));
+  assert.equal(A.drawCost(a, 1), 1000);
+  const one = A.purchaseDraw(a, 1, 0, () => .9);
+  assert.equal(one.coins, 500); assert.equal(one.paidDraws, 1); assert.equal(one.stats.draws, 1); assert.ok(one.pending);
+  assert.throws(() => A.purchaseDraw(a, 10, 0), /不足/);
+  const rich = { ...A.fresh(), coins: 1e9, paidDraws: 100 };
+  assert.equal(A.drawCost(rich, 3), [0, 1, 2].reduce((n, i) => n + Math.round(1000 * R.DRAW_GROWTH ** (100 + i)), 0));
+  // 7 張券抽十連：7 張免費、3 張付錢
+  const mixed = { ...A.fresh(), coins: 1e6, tickets: 7 };
+  assert.equal(A.drawCost(mixed, 10), [0, 1, 2].reduce((n, i) => n + Math.round(1000 * R.DRAW_GROWTH ** i), 0));
+  const after = A.purchaseDraw(mixed, 10, 0, () => .9);
+  assert.equal(after.tickets, 0); assert.equal(after.paidDraws, 3); assert.equal(after.coins, 1e6 - A.drawCost(mixed, 10));
+  // 收下不再扣錢／扣券，只落帳
+  const got = A.collectDraw(after, after.pending.draw.id, 0).state;
+  assert.equal(got.tickets, 0); assert.equal(got.coins, after.coins); assert.equal(Object.values(got.collection).reduce((x, y) => x + y, 0), 10);
+});
+test('桌邊金幣換券（時薪券）：一張＝桌邊 10 分鐘收益，當天每換一張 ×1.25，隔天重置', () => {
+  const day = 86400000 * 20000, P = 1e10;
+  let a = A.fresh();
+  assert.equal(A.exchangeCost(a, P, day), P * 600);
+  let r = A.exchange(a, 1e20, P, day + 1000); a = r.state;
+  assert.equal(r.cost, P * 600); assert.equal(a.tickets, 1);
+  assert.equal(A.exchangeCost(a, P, day + 2000), Math.ceil(P * 600 * 1.25));
+  a = A.exchange(a, 1e20, P, day + 3000).state;
+  assert.equal(A.exchangeCost(a, P, day + 4000), Math.ceil(P * 600 * 1.25 ** 2));
+  assert.equal(A.exchangeCost(a, P, day + 86400000), P * 600, '隔天回到原價');
+  assert.equal(a.exchange.total, 2);
+  assert.throws(() => A.exchange(a, P * 600, P, day + 5000), /不足/);
+  assert.throws(() => A.exchange(a, 1e20, 0, day), /沒有每秒收益/);
+  // 日期往回調不能重置加價（Codex 第三輪）：前進一天換一張，再調回原日，價格照最後紀錄那天算
+  let b = A.exchange(a, 1e20, P, day + 86400000).state;
+  assert.equal(A.exchangeCost(b, P, day + 6000), Math.ceil(P * 600 * 1.25), '調回前一天：沿用最後那天的 1 張');
+  b = A.exchange(b, 1e20, P, day + 7000).state;
+  assert.equal(b.exchange.day, Math.floor((day + 86400000) / 86400000), '日界不會往回退');
+  assert.equal(A.normalize({ ...A.fresh(), onePeak: 'x' }).onePeak, 0);
+});
+test('訓練：全隊訓練每級戰力 +3%、點擊力每級每下 +5%；費用每級 ×2；「最多」買到錢不夠為止', () => {
+  const T = R.TRAIN;
+  let a = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], coins: T.team.COST });
+  const p0 = A.power(a);
+  a = A.train(a, 'team').state;
+  assert.equal(a.teamLevel, 1); assert.equal(a.coins, 0); assert.ok(Math.abs(A.power(a) - p0 * (1 + T.team.MUL)) < 1e-9);
+  assert.throws(() => A.train(a, 'team'), /不足/);
+  const two = T.click.COST + Math.round(T.click.COST * T.click.GROWTH);
+  let b = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], coins: two + 100 }), 0);
+  const r = A.train(b, 'click', true);
+  assert.equal(r.levels, 2); assert.equal(r.state.clickLevel, 2); assert.equal(r.state.coins, 100);
+  assert.ok(Math.abs(A.tapDamage(r.state, 0) - A.power(b) * R.CLICK_SHARE * (1 + 2 * T.click.MUL)) < 1e-9);
+  assert.equal(A.trainCost(r.state, 'click'), Math.round(T.click.COST * T.click.GROWTH ** 2));
+});
+test('戰績：點擊數、最高一擊、破盾次數會累積', () => {
+  let a = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3 }), 0);
+  for (let i = 0; i < R.SHIELD.TAPS; i++) a = A.tap(a, 0);
+  assert.equal(a.stats.taps, R.SHIELD.TAPS); assert.equal(a.stats.shieldBreaks, 1);
+  const hit = A.tapDamage(a, 0); a = A.tap(a, 0);
+  assert.equal(a.stats.maxHit, hit, '破防中的一下 ×2 是目前最高');
 });
 test('normalize：壞欄位歸零、不在收藏的卡出隊、進度不符的戰鬥丟掉', () => {
   const a = A.normalize({ unlocked: true, collection: { m1: 1 }, roster: ['m1', 'ghost'], skills: ['m1', 'ghost'], stage: { index: 5, hp: 10 }, progress: 0 });
@@ -141,9 +190,12 @@ test('未知卡片不會憑空生券（以前是默默過濾掉、券卻沒扣�
   assert.throws(() => A.drawn(a, ['missing']), /不在末世卡池/);
   assert.equal(A.drawn({ ...a }, ['m1']).tickets, 9);
 });
-test('ticketsBought 非有限數要歸零，否則券價會變 Infinity', () => {
-  assert.equal(A.normalize({ ...A.fresh(), ticketsBought: '1e309' }).ticketsBought, 0);
-  assert.ok(Number.isFinite(A.ticketCost(A.normalize({ ...A.fresh(), ticketsBought: '1e309' }), 1)));
+test('付費抽數非有限數要歸零（否則抽卡價會變 Infinity）；舊檔的 ticketsBought 搬成 paidDraws', () => {
+  assert.equal(A.normalize({ ...A.fresh(), paidDraws: '1e309' }).paidDraws, 0);
+  assert.ok(Number.isFinite(A.drawCost(A.normalize({ ...A.fresh(), paidDraws: '1e309' }), 1)));
+  const old = A.normalize({ unlocked: true, ticketsBought: 42, tickets: 3 });
+  assert.equal(old.paidDraws, 42); assert.equal(old.ticketsBought, undefined); assert.equal(old.tickets, 3);
+  assert.equal(A.normalize({ ...A.fresh(), teamLevel: 'x', stats: { taps: -5, maxHit: 'Infinity' } }).teamLevel, 0);
 });
 test('舊檔已經走完 20 站但沒有 cleared → 直接補成已通關，不事後補播結局', () => {
   assert.equal(A.normalize({ ...A.fresh(), progress: 20 }).cleared, true);

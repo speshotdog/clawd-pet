@@ -275,7 +275,7 @@ def main():
             scan('切回桌邊', HOME_MAIN)
             # 兩套 renderer 共用同一組節點，各有「內容沒變就不重畫」的快取。切回桌邊時如果沒把快取
             # 作廢，夥伴列與技能格會留著末世的卡圖。這條專門抓那個（Codex 複檢 1-1）。
-            leftover = pg.evaluate("()=>[...document.querySelectorAll('#buddies .holo-face, #slots .holo-face')]"
+            leftover = pg.evaluate("()=>[...document.querySelectorAll('#buddies .holo-face, #slots .holo-face, #slots .apoc-sticker')]"
                                    ".map(e=>(e.closest('.buddy,.skill-slot')?.textContent||'').trim())")
             if leftover:
                 findings.append({'kind': '殘留上個世界的卡圖', 'el': '#buddies / #slots',

@@ -311,7 +311,7 @@ window.Clicker = (() => {
   function tap(point, target) {
     action(() => {
       if (gacha.active || !$('roster').hidden || !$('wardrobe').hidden || !$('prestige').hidden || !$('receipt').hidden || !$('stats').hidden) return;
-      if (apocMode()) { apocUI.tap(); return; }   // 末世：同一個點擊區，打的是怪
+      if (apocMode()) { apocUI.tap(point); return; }   // 末世：同一個點擊區，打的是怪（落點給受擊特效用）
       const time = performance.now(); inputTimes = inputTimes.filter((t) => time - t < 1000); if (inputTimes.length >= 8) return;
       inputTimes.push(time);
       const result = E.click(store.state, Date.now(), target);
@@ -383,6 +383,9 @@ window.Clicker = (() => {
     tickTimer = setInterval(() => {
       if (apocMode()) { apocUI?.tick(); return; }   // 末世不跑 1.0 的拆包結算
       settle(); autoTick(); changed();
+      // 末世換券的定價基準：桌邊「歷史最高每秒收益」的精確值（peakRateStamp 只存指數，換弱隊能把券價壓到九分之一，Codex 第三輪）。
+      // 記在 apoc 底下，換桌布不會歸零；只往上記，不另外存檔（下一次自動存檔帶走）
+      { const s = store.state, P = s?.apoc ? E.rates(s).P : 0; if (Number.isFinite(P) && P > (s.apoc?.onePeak || 0)) s.apoc.onePeak = P; }
     }, 1000);
     saveTimer = setInterval(() => { if (!store.blocked) commit(); }, 5000);
     if (!gacha.active && !apocMode()) stage.start();   // 末世不跑桌邊舞台（Codex 第二輪 B4）
@@ -610,7 +613,7 @@ window.Clicker = (() => {
     prestigeUI = window.ClickerPrestigeUI.create({ store, card, commit, changed, action, format, notice, sound, stage, album });
     gacha = window.ClickerGacha.create({ store, card, commit, changed, format, notice,
       canOpen: () => !stage.bossBusy || store.state.boss?.gate !== undefined,   // v3：小王打到一半也能招募
-      pauseStage() { cutin.stop(); stage.stop(); renderSlots(); },
+      pauseStage() { cutin.stop(); stage.stop(); apocUI?.stopFx(); renderSlots(); },   // 末世的粒子也要停：招募層要借同一個全域畫布
       // 末世的舞台與技能格是 apocUI 在畫；1.0 的 stage／renderSlots 進去會對不上 DOM
       resumeStage() {
         if (apocMode()) { apocUI?.render(); return; }
@@ -676,8 +679,9 @@ window.Clicker = (() => {
     }
     $('tap').onkeyup = (e) => { if (e.code === 'Space' || e.code === 'Enter') e.preventDefault(); };
     for (const type of ['click', 'training']) {
-      $(`${type}-one`).onclick = () => { if (apocMode()) return type === 'click' ? apocUI.buyTicket() : teamUI?.open(); upgrade(type, false); };
-      $(`${type}-max`).onclick = () => { if (apocMode()) return; upgrade(type, true); };
+      // 末世：同兩張卡＝點擊力／全隊訓練（使用者第三輪選 A：跟 1.0 的攻擊力／全隊訓練一一對應），花末世金幣
+      $(`${type}-one`).onclick = () => { if (apocMode()) return action(() => apocUI.train(type === 'click' ? 'click' : 'team', false)); upgrade(type, false); };
+      $(`${type}-max`).onclick = () => { if (apocMode()) return action(() => apocUI.train(type === 'click' ? 'click' : 'team', true)); upgrade(type, true); };
     }
     // 共用設定（靜音／音樂／音量／演出）在末世不要順手跑桌邊結算——那會改到另一個世界的
     // 金額與進度（Codex 第三輪 B4）。設定本身兩個世界共用，這點沒變。
@@ -782,12 +786,13 @@ window.Clicker = (() => {
     $('apoc-ending-close').onclick = () => { $('apoc-ending').hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('scenes-close').onclick=()=>{$('scenes').hidden=true; $('game-content').inert=gacha.active; $('scene-open').focus();};
     for (const id of ['roster', 'stats', 'receipt', 'wardrobe', 'prestige']) $(`${id}-close`).onclick = () => { if (id === 'roster') album.close(); $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
-    $('prestige-open').onclick = () => { if (!cutin.active) prestigeUI.open(); };
+    $('prestige-open').onclick = () => { if (apocMode()) return; if (!cutin.active) prestigeUI.open(); };   // 末世的這一格是「重走廢土」（鍵先放）
     $('team-open').onclick = () => { if (!cutin.active) teamUI.open(); };
     $('memento-close').onclick = () => { $('memento').hidden = true; $('game-content').inert = false; };
     $('memento-open').onclick = () => { $('stats').hidden = true; mementoPage(); };
-    $('wardrobe-open').onclick = () => { if (!cutin.active) album.openWardrobe(); };
-    $('stats-open').onclick = () => { if (!cutin.active) extras.openWall(); };   // 第十二輪：統計面板改成徽章牆
+    // 頁尾「商店」與頂列「統計」兩個世界同一顆鍵：末世開的是末世商店（兌換所＋外觀）與末世戰績（使用者第三輪）
+    $('wardrobe-open').onclick = () => { if (cutin.active) return; if (apocMode()) apocUI.openShop(); else album.openWardrobe(); };
+    $('stats-open').onclick = () => { if (cutin.active) return; if (apocMode()) apocUI.openStats(); else extras.openWall(); };   // 第十二輪：統計面板改成徽章牆
   }
   window.addEventListener('clicker-music-ready', () => { if (suspended) window.ClickerMusic.suspend(); else window.ClickerMusic.sync(store.state); });
   document.addEventListener('visibilitychange', () => { jlog(`visibilitychange hidden=${document.hidden}`); visible = !document.hidden; if (!visible) suspend(); else resume(); });

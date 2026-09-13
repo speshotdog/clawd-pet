@@ -758,6 +758,9 @@ h1{position:relative;z-index:1;margin:0;font-size:17px;letter-spacing:.2em;font-
  .gift-particles>i{animation:none;transform:none;opacity:.83}}
 </style>
 
+<!-- 嵌入模式（?embed=1）：末世卡冊直接嵌這一頁當卡面，只留卡本身（使用者：2.0 不准出現 1.0 卡面） -->
+<style>html[data-embed]{color-scheme:light}html[data-embed] body{padding:0;min-height:0;height:100vh;background:transparent;gap:0;overflow:hidden}html[data-embed] body:before,html[data-embed] h1,html[data-embed] .hint{display:none}html[data-embed] .stage{width:auto;height:94vh;max-width:94vw;filter:drop-shadow(0 6px 12px #0000007a)}</style>
+<script>if(/[?&]embed=/.test(location.search))document.documentElement.setAttribute("data-embed","1")</script>
 <h1>魔花少女 · 特殊</h1>
 <div class="stage" id="stage"></div>
 <p class="hint">滑鼠移到卡片上可以<b>傾斜</b>看反光，<b>點一下卡片</b>會做一個動作，做完自己變回來。</p>
