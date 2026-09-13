@@ -68,6 +68,13 @@ window.ClickerApocUI = (() => {
         else if (ev.type === 'cleared') {
           const v = view();
           $('apoc-ending-text').textContent = `二十站都打通了。收藏 ${v.owned.length} / ${(root.ApocPool || []).length} 張，戰力 ${format(v.power)}。`;
+          // 第十輪 B：結局寫這一趟的數字（textContent 組，不塞 HTML）
+          const st = v.stats || {};
+          $('apoc-ending-stats').replaceChildren(...[['打贏', `${v.wins} 場`], ['點擊', `${format(st.taps || 0)} 下`], ['最高一擊', format(st.maxHit || 0)],
+            ['破防', `${st.shieldBreaks || 0} 次`], ['招募', `${st.draws || 0} 抽`], ['收藏', `${v.owned.length} 張`]].map(([k, val]) => {
+            const li = document.createElement('li'), s = document.createElement('span'), b = document.createElement('b');
+            s.textContent = k; b.textContent = val; li.append(s, b); return li;
+          }));
           $('apoc-ending').hidden = false; $('game-content').inert = true; $('apoc-ending-close').focus();
           sound('transcend');
         }
@@ -293,6 +300,32 @@ window.ClickerApocUI = (() => {
     }
 
     // ---- 舞台：把 1.0 的拆包面換成打怪面（同一組節點，換內容）
+    // 第十輪 B 王前預告關：下一隻王的打法（字要短，手機直式最多兩行）
+    const OMEN_HINT = ['狗群擋在王前面，先清光才打得到', '會長殼：只有點擊剝得掉，放著打不動', '跟著槌子落地的拍子點，踩中傷害 ×3',
+      '照亮起的部位順序點，點對一輪就破防', '前四種打法每 15 秒輪流換'];
+    // 第十輪 B 2.0 新手引導：四步，第 N 步在條件成立時冒出來、按「知道了」才前進（存在 apoc.tutorial）。
+    //   打過第 4 站的舊存檔（朋友試玩的存檔）不冒，免得老手被當新手
+    const COACH = [
+      // ⚠ 第 0 步不能等「還沒開戰」：tick 一能打就自動開戰（自動接關），第一次進來馬上就有 stage（batch_b 驗收抓到）
+      { when: () => true, text: '末世：編隊裡的卡才有戰力，隊伍會一站站打下去' },
+      { when: a => !!a.stage && !a.stage.boss, text: '點怪就能打，隊伍放著也會打；一站要打 5 隻' },
+      { when: a => a.progress >= 1, text: '打怪賺末世金幣：拿去「全隊訓練」或「進入招募」變強' },
+      { when: a => a.progress >= 3, text: '每 4 站一隻王：限時 60 秒，照提示打' },   // 手機直式兩行會剩一個字掉下去，縮短
+    ];
+    function coach(v) {
+      const a = store.state.apoc, step = a?.tutorial || 0, c = a && a.progress < 4 && COACH[step];
+      const show = !!c && c.when(a) && !store.blocked && $('recruit-layer').hidden && $('apoc-ceremony').hidden;
+      let el = $('apoc-coach');
+      if (!el && show) {
+        el = document.createElement('div'); el.id = 'apoc-coach'; el.setAttribute('role', 'status');
+        const text = document.createElement('span'), ok = document.createElement('button'); ok.type = 'button'; ok.textContent = '知道了';
+        ok.addEventListener('pointerdown', e => e.stopPropagation());   // 不要被舞台當成點怪
+        ok.addEventListener('click', e => { e.stopPropagation(); const at = store.state.apoc?.tutorial || 0; apply(x => ({ ...x, tutorial: Math.min(4, at + 1) }), true); render(); });
+        el.append(text, ok); $('stage').append(el);
+      }
+      if (el) { el.hidden = !show; if (show && el.firstChild.textContent !== c.text) el.firstChild.textContent = c.text; }
+      $('stage').classList.toggle('coaching', show);
+    }
     function renderStage(v) {
       let el = $('apoc-enemy');
       if (!el) {
@@ -326,7 +359,17 @@ window.ClickerApocUI = (() => {
 
       // 王關機制與破防：借用「效果標籤」那一格（第十輪：五種機制各寫各的）
       const label = $('effect-label'), now = Date.now(), info = v.stage && v.stage.boss ? A.bossInfo(v.stage, now) : null;
-      label.hidden = !info;
+      // 第十輪 B 王前預告關：王前一站（index %4 === 2）舞台一圈暗紅，標籤寫下一隻王的名字與打法
+      const omen = !!v.stage && !v.stage.boss && !v.stage.farm && v.stage.index % 4 === 2 && v.stage.index < 19;
+      $('stage').classList.toggle('apoc-omen', omen);
+      label.classList.toggle('omen', omen && !info);
+      label.hidden = !info && !omen;
+      if (omen && !info) {
+        const seg = Math.floor(v.stage.index / 4);
+        label.textContent = `前方預告・${BOSSES[seg].name}｜${OMEN_HINT[seg]}`;
+        label.classList.remove('broken', 'urgent');
+      }
+      coach(v);
       if (info) {
         // 王關 60 秒倒數放最前面，跟破防秒數分開寫（Codex 第五輪必修 1：看不到倒數就直接判輸）
         const left = v.stage.deadline ? Math.max(0, Math.ceil((v.stage.deadline - now) / 1000)) : null;
@@ -641,6 +684,8 @@ window.ClickerApocUI = (() => {
       const e = $('apoc-enemy'); if (e) { e.hidden = true; e.getAnimations().forEach(a => a.cancel()); e.classList.remove('far', 'shelled', 'breaking'); }
       for (const id of ['apoc-parts', 'apoc-beat', 'apoc-minions']) { const x = $(id); if (x) x.hidden = true; }   // 第十輪王關機制的畫面不留到桌邊
       mechKey = '';
+      // 第十輪 B：預告暗紅圈、引導紙片也不留到桌邊
+      $('stage').classList.remove('apoc-omen', 'coaching'); const coachEl = $('apoc-coach'); if (coachEl) coachEl.hidden = true;
       // 受擊特效是末世自己畫的，切回桌邊要收乾淨（粒子 scope 只清自己的，不會動到 1.0 的）
       fx?.stop(); fx = null; document.querySelectorAll('#floaters .apoc-hit, #floaters .apoc-hit-impact, #floaters .apoc-passive').forEach(el => el.remove());
       // 王關的護盾文字借用桌邊的效果標籤，不收掉會留在桌邊（Codex 第二輪 B12）

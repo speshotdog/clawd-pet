@@ -285,6 +285,8 @@
     a.onePeak = Number.isFinite(Number(a.onePeak)) && Number(a.onePeak) > 0 ? Number(a.onePeak) : 0;   // 桌邊歷史最高每秒收益（換券定價基準，換桌布不歸零）
     { const x = a.exchange && typeof a.exchange === 'object' ? a.exchange : {};
       a.exchange = { day: Number.isFinite(x.day) ? x.day : null, count: count(x.count), total: count(x.total) }; }
+    // 第十輪 B：2.0 新手引導走到第幾步（0～4，4＝看完）；UI 照這個數字決定要不要冒提示
+    a.tutorial = Number.isInteger(a.tutorial) && a.tutorial > 0 ? Math.min(a.tutorial, 4) : 0;
     { const x = a.stats && typeof a.stats === 'object' ? a.stats : {};
       a.stats = { taps: count(x.taps), maxHit: Number.isFinite(x.maxHit) && x.maxHit > 0 ? x.maxHit : 0, shieldBreaks: count(x.shieldBreaks), draws: count(x.draws) }; }
     { const x = a.cosmetics && typeof a.cosmetics === 'object' ? a.cosmetics : {}, ids = RULES.HIT_FX.map(f => f.id);
