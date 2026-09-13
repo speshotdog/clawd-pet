@@ -183,16 +183,20 @@ window.ClickerApocUI = (() => {
     }
     // 點舞台任何地方都算打怪（使用者第四輪：「點擊範圍不要只有怪物本身，空白地方也要能造成傷害」）；
     // 王的護盾照舊：每一下都算進破盾進度。受擊特效一律打在怪身上（點在空白處也是打到怪）。
-    function tap() {
+    // part：王④的部位圓鈕（head／body／tail）；點舞台其他地方不帶
+    function tap(point, part) {
       if (!store.state.apoc?.stage && !autoFight()) return;
       const before = store.state.apoc;
       const b = boosted(A.normalize(before)), now = Date.now(), idx = b.stage.index;
       const dmg = A.tapDamage(b, now), crit = (b.fx?.clickLeft || 0) > 0, boss = !!b.stage.boss, wasBroken = now < (b.stage.breakUntil || 0);
+      // 第十輪：這一下打在狗群或殼上（王本身不掉血）→ 演「磨盾」；扛槌兔拍子上 → 浮字寫「準！」
+      const info0 = A.bossInfo(b.stage, now), absorbed = !!info0 && ((info0.mech === 0 && info0.minions > 0) || (info0.mech === 1 && info0.shellHp > 0));
+      const beat = !!info0 && info0.mech === 2 && info0.onBeat;
       const events = apply((x, n) => {
         // 期限已過、下一次 tick 還沒來：先把上次結算到期限為止的放置傷害補算、分出勝負，這一下不算（Codex 5b 必修 1：
         // 以前直接 settle(…, 0)，那一段合法的放置傷害被吞掉，本來會贏的判成輸）。補算過就把 tick 的基準往前推，不重複算
         if (x.stage?.deadline && n >= x.stage.deadline) { const r = A.settle(x, n, Math.min(60, (n - lastTick) / 1000)); lastTick = n; return r; }
-        return A.settle(A.tap(x, n), n, 0);
+        return A.settle(A.tap(x, n, { part }), n, 0);
       }, true);
       if (!events.length && store.state.apoc === before) return;   // commit 被擋（存檔鎖住之類）就不演
       const after = store.state.apoc, won = events.some(e => e.type === 'win' || e.type === 'farm' || e.type === 'wave');
@@ -200,8 +204,9 @@ window.ClickerApocUI = (() => {
       if (!(dmg > 0) && !won) return;   // 期限已過的點擊不算傷害，也不演受擊（下一次結算判輸）
       const broke = boss && !wasBroken && !won && after.stage?.index === idx && (after.stage.breakUntil || 0) > now;
       sound(broke ? 'skill' : crit ? 'skill' : 'click');
-      const kind = won ? 'kill' : broke ? 'break' : crit ? 'crit' : boss && !wasBroken ? 'shield' : 'hit';
-      hitFx(null, kind, broke ? `破盾！-${format(dmg)}` : dmg > 0 ? `-${format(dmg)}` : '擊倒！');   // dmg 0 還贏＝期限前的放置傷害補算打死的
+      const kind = won ? 'kill' : broke ? 'break' : crit ? 'crit' : absorbed ? 'shield' : 'hit';
+      hitFx(null, kind, broke ? `破防！-${format(dmg)}` : dmg > 0 ? `${beat ? '準！' : ''}-${format(dmg)}` : '擊倒！');   // dmg 0 還贏＝期限前的放置傷害補算打死的
+      renderMech(store.state.apoc?.stage);
     }
     function tick() {
       const now = Date.now(), dt = Math.min(60, (now - lastTick) / 1000); lastTick = now;
@@ -214,6 +219,77 @@ window.ClickerApocUI = (() => {
       window.ClickerMusic?.sync(store.state);   // 第八輪：一站一首——換站、刷怪回前一站時換曲（沒變就什麼都不做）
       if (events.some(e => e.type === 'win' || e.type === 'farm' || e.type === 'wave') && !$('game-content').classList.contains('map-open') && $('recruit-layer').hidden) hitFx(null, 'kill', '擊倒！');
       autoFight();
+    }
+
+    // ---- 王關機制的畫面（第十輪）：標籤文字、狗群列、殼的外框、節拍光圈、部位圓鈕
+    const PART_NAME = { head: '頭', body: '身', tail: '尾' };
+    const MECH_NAME = ['狗群', '外殼', '節拍', '部位'];
+    function mechText(info) {
+      const sec = ms => Math.max(0, Math.ceil(ms / 1000));
+      // ⚠ 字要短：手機截圖看過，滅世珍獸「輪到狗群（15 秒後換）｜狗群擋路：…」會斷兩行、超出舞台右邊
+      const head = info.rotating ? `${MECH_NAME[info.mech]}・${sec(info.rotateIn)}秒後換｜` : '';
+      if (info.breaking) return `${head}破防！傷害 ×2・剩 ${sec(info.breakLeft)} 秒`;
+      if (info.mech === 0) return head + (info.minions > 0 ? `狗群剩 ${info.minions} 隻，清光才打得到王` : `王露出來了！狗群 ${sec(info.respawnIn)} 秒後再來`);
+      if (info.mech === 1) return head + (info.shellHp > 0 ? `外殼 ${info.shellLayer + 1}/${info.shellLayers}：點擊剝殼・剩 ${format(info.shellHp)}` : `已剝殼 ${info.shellLayer}/${info.shellLayers}・打下去還會長殼`);
+      if (info.mech === 2) return `${head}照槌子落地的拍子點・連中 ${info.chain}/${info.chainNeed}`;
+      return `${head}照順序點亮的部位：${PART_NAME[info.nextPart] || ''}（${info.step}/${info.steps}）`;
+    }
+    let mechKey = '';
+    function renderMech(st) {
+      const stage = $('stage'), enemy = $('apoc-enemy');
+      let parts = $('apoc-parts'), beat = $('apoc-beat'), dogs = $('apoc-minions');
+      if (!parts) {
+        parts = document.createElement('div'); parts.id = 'apoc-parts';
+        for (const id of ['head', 'body', 'tail']) {
+          const b = document.createElement('button'); b.type = 'button'; b.dataset.part = id; b.textContent = PART_NAME[id]; b.setAttribute('aria-label', `點${PART_NAME[id]}`);
+          // 圓鈕自己吃掉這一下（不要再往下傳到舞台的點擊區，不然一下算兩次）
+          b.addEventListener('pointerdown', e => e.stopPropagation());
+          b.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); tap(null, id); });
+          parts.append(b);
+        }
+        beat = document.createElement('div'); beat.id = 'apoc-beat'; beat.setAttribute('aria-hidden', 'true');
+        dogs = document.createElement('div'); dogs.id = 'apoc-minions'; dogs.setAttribute('aria-hidden', 'true');
+        stage.append(beat, dogs, parts);
+      }
+      const now = Date.now(), info = st?.boss ? A.bossInfo(st, now) : null, m = info ? info.mech : -1;
+      const eb = enemy && !enemy.hidden ? { l: enemy.offsetLeft, t: enemy.offsetTop, w: enemy.offsetWidth, h: enemy.offsetHeight } : null;   // 置中用 translate(-50%,-50%)
+      // 部位圓鈕：頭在左上、身在中間、尾在右邊（雞頭合成怪面向左）
+      parts.hidden = m !== 3 || !eb;
+      if (!parts.hidden) {
+        // 截圖看過：頭再往上會壓到效果標籤；尾巴在右側偏高的地方
+        const pos = { head: [-.28, -.14], body: [.02, .12], tail: [.4, -.02] };
+        for (const b of parts.children) {
+          const [dx, dy] = pos[b.dataset.part];
+          b.style.left = `${eb.l + dx * eb.w}px`; b.style.top = `${eb.t + dy * eb.h}px`;
+          b.classList.toggle('next', b.dataset.part === info.nextPart);
+        }
+      }
+      // 節拍光圈：跟扛槌兔的揮槌同一個週期；每一場開打時把動畫對齊到 startedAt
+      beat.hidden = m !== 2 || !eb;
+      const key = info ? `${st.startedAt}:${m}` : '';
+      if (!beat.hidden) {
+        beat.style.left = `${eb.l}px`; beat.style.top = `${eb.t + eb.h * .08}px`;   // 圈在兔子身上（截圖看過：放腳下會蓋到技能格的字）
+        if (key !== mechKey) {
+          // 重新掛動畫再對齊（Codex 第十輪 A 必修 3：分頁隱藏時動畫被取消，只改負延遲不會重新開始）
+          const delay = `-${(now - (st.startedAt || 0)) % info.beatMs}ms`;
+          beat.style.setProperty('--beat-ms', `${info.beatMs}ms`); beat.style.animationDelay = delay;
+          beat.classList.remove('on'); void beat.offsetWidth; beat.classList.add('on');
+          if (enemy.classList.contains('apoc-sprite')) { enemy.style.animationName = 'none'; void enemy.offsetWidth; enemy.style.animationName = ''; enemy.style.animationDelay = delay; }
+        }
+      }
+      mechKey = key;
+      // 狗群：王待在遠處（變小變暗），前面排一列小狗
+      const dogCount = m === 0 ? info.minions : 0;
+      dogs.hidden = !dogCount || !eb;
+      if (!dogs.hidden) {
+        if (dogs.childElementCount !== dogCount) dogs.replaceChildren(...Array.from({ length: dogCount }, () => { const i = document.createElement('i'); return i; }));
+        dogs.style.left = `${eb.l}px`; dogs.style.top = `${eb.t + eb.h * .42}px`;
+      }
+      if (enemy) {
+        enemy.classList.toggle('far', dogCount > 0);
+        enemy.classList.toggle('shelled', m === 1 && info.shellHp > 0);
+        enemy.classList.toggle('breaking', !!info?.breaking);
+      }
     }
 
     // ---- 舞台：把 1.0 的拆包面換成打怪面（同一組節點，換內容）
@@ -248,19 +324,17 @@ window.ClickerApocUI = (() => {
       $('package-progress').max = 1; $('package-progress').value = max ? Math.min(1, 1 - hp / max) : 0;
       $('package-number').textContent = v.progress >= v.stations ? `${v.stations} / ${v.stations}` : `${format(hp)} / ${format(max)}`;
 
-      // 護盾與破防：借用「效果標籤」那一格，不另外長新東西
-      const label = $('effect-label'), sh = v.stage && v.stage.boss ? v.stage.shield : null;
-      const broken = !!(v.stage && v.stage.breakUntil > Date.now());
-      label.hidden = !(v.stage && v.stage.boss);
-      if (!label.hidden) {
+      // 王關機制與破防：借用「效果標籤」那一格（第十輪：五種機制各寫各的）
+      const label = $('effect-label'), now = Date.now(), info = v.stage && v.stage.boss ? A.bossInfo(v.stage, now) : null;
+      label.hidden = !info;
+      if (info) {
         // 王關 60 秒倒數放最前面，跟破防秒數分開寫（Codex 第五輪必修 1：看不到倒數就直接判輸）
-        const left = v.stage.deadline ? Math.max(0, Math.ceil((v.stage.deadline - Date.now()) / 1000)) : null;
-        label.textContent = (left !== null ? `王關剩 ${left} 秒｜` : '') + (broken
-          ? `破防！全傷害 ×2・剩 ${Math.max(0, Math.ceil((v.stage.breakUntil - Date.now()) / 1000))} 秒`
-          : `護盾：再點 ${Math.max(0, (sh ? sh.need - sh.taps : 0))} 下破盾`);
-        label.classList.toggle('broken', broken);
+        const left = v.stage.deadline ? Math.max(0, Math.ceil((v.stage.deadline - now) / 1000)) : null;
+        label.textContent = (left !== null ? `王關剩 ${left} 秒｜` : '') + mechText(info);
+        label.classList.toggle('broken', info.breaking);
         label.classList.toggle('urgent', left !== null && left <= 10);
       }
+      renderMech(v.stage);
 
       // 「開戰」沿用 1.0 的挑戰鍵
       const go = $('boss-challenge');
@@ -564,7 +638,9 @@ window.ClickerApocUI = (() => {
       delete document.body.dataset.world; delete document.body.dataset.apocTheme; delete $('stage').dataset.apocSeg;
       $('package-result').classList.remove('apoc-shown');
       window.ClickerMusic?.sync(store.state);   // 回桌邊：換回 1.0 的場景曲
-      const e = $('apoc-enemy'); if (e) { e.hidden = true; e.getAnimations().forEach(a => a.cancel()); }
+      const e = $('apoc-enemy'); if (e) { e.hidden = true; e.getAnimations().forEach(a => a.cancel()); e.classList.remove('far', 'shelled', 'breaking'); }
+      for (const id of ['apoc-parts', 'apoc-beat', 'apoc-minions']) { const x = $(id); if (x) x.hidden = true; }   // 第十輪王關機制的畫面不留到桌邊
+      mechKey = '';
       // 受擊特效是末世自己畫的，切回桌邊要收乾淨（粒子 scope 只清自己的，不會動到 1.0 的）
       fx?.stop(); fx = null; document.querySelectorAll('#floaters .apoc-hit, #floaters .apoc-hit-impact, #floaters .apoc-passive').forEach(el => el.remove());
       // 王關的護盾文字借用桌邊的效果標籤，不收掉會留在桌邊（Codex 第二輪 B12）
@@ -575,7 +651,8 @@ window.ClickerApocUI = (() => {
 
     // 末世沒有離線收益：回到前景時把時間基準拉回現在，不然第一個 tick 會補結算最多 60 秒
     //（Codex 第二輪 B5）
-    function resume() { lastTick = Date.now(); }
+    // 分頁隱藏回來：節拍光圈與逐格動畫重新掛上、對齊 startedAt（Codex 第十輪 A 必修 3）
+    function resume() { lastTick = Date.now(); mechKey = ''; if (store.state?.settings.world === 'apoc') render(); }
     // 招募層要借 GachaFx 的全域畫布：先把末世的粒子停掉清乾淨，不然會畫到招募層上（Codex 第三輪）
     function stopFx() { fx?.stop(); fx = null; }
     return {

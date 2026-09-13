@@ -1,0 +1,7 @@
+// 珍母點點 試玩版（Cloudflare Workers 靜態檔案，給朋友測試用；GitHub Pages 維持舊版）
+// 部署：python tools/export-web.py && npx wrangler deploy --config tools/cloudflare/wrangler.jsonc
+{
+  "name": "zhenmu-dots-beta",
+  "compatibility_date": "2026-09-01",
+  "assets": { "directory": "../../dist-web" }
+}

@@ -10,3 +10,4 @@ _art/out/
 _art/*.json
 _art/*-source.png
 build.log
+.wrangler/

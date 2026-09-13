@@ -99,44 +99,82 @@ test('訓練（第六輪乘算）：全隊訓練每級戰力 ×(1+MUL)、點擊�
   assert.ok(Math.abs(A.tapDamage(r.state, 0) - A.power(b) * R.CLICK_SHARE * (1 + T.click.MUL) ** 2) < 1e-6);
   assert.equal(A.trainCost(r.state, 'click'), Math.round(T.click.COST * T.click.GROWTH ** 2));
 });
-test('戰績：點擊數、最高一擊、破盾次數會累積', () => {
-  let a = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3 }), 0);
-  for (let i = 0; i < R.SHIELD.TAPS; i++) a = A.tap(a, 0);
-  assert.equal(a.stats.taps, R.SHIELD.TAPS); assert.equal(a.stats.shieldBreaks, 1);
-  const hit = A.tapDamage(a, 0); a = A.tap(a, 0);
-  assert.equal(a.stats.maxHit, hit, '破防中的一下 ×2 是目前最高');
+test('戰績：點擊數、最高一擊、破防次數會累積（扛槌兔拍子上連中破防）', () => {
+  const MS = R.BOSS_MECH.RHYTHM.MS, N = R.BOSS_MECH.RHYTHM.CHAIN;
+  let a = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 11 }), 0);
+  a = { ...a, stage: { ...a.stage, hp: 1e15, need: 1e15 } };
+  for (let i = 0; i < N; i++) a = A.tap(a, i * MS);
+  assert.equal(a.stats.taps, N); assert.equal(a.stats.shieldBreaks, 1);
+  const t = N * MS, hit = A.tapDamage(a, t); a = A.tap(a, t);
+  assert.equal(a.stats.maxHit, hit, '破防中拍子上的一下（×2×3）是目前最高');
 });
 test('normalize：壞欄位歸零、不在收藏的卡出隊、進度不符的戰鬥丟掉', () => {
   const a = A.normalize({ unlocked: true, collection: { m1: 1 }, roster: ['m1', 'ghost'], skills: ['m1', 'ghost'], stage: { index: 5, hp: 10 }, progress: 0 });
   assert.deepEqual(a.roster, ['m1']); assert.deepEqual(a.skills, ['m1', null, null, null]); assert.equal(a.stage, null);
 });
 
-// --- 王關護盾＋節奏（使用者 2026-09-13：節奏用點擊次數，不要太嚴苛）
-function bossReady() {
-  let a = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3 });
-  return A.fight(a, 0);
+// --- 第十輪：五種王關機制（使用者：「照企劃做五種」）
+const BM = () => R.BOSS_MECH;
+function bossAtStation(i) {
+  const a = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: i }), 0);
+  return { ...a, stage: { ...a.stage, hp: 1e9, need: 1e9 } };
 }
-test('王關：進場帶護盾；護盾在場放置只剩三成五，點擊照常', () => {
-  const a = bossReady(), p = A.power(a);
-  assert.equal(a.stage.boss, true); assert.equal(a.stage.shield.need, R.SHIELD.TAPS); assert.equal(a.stage.shield.taps, 0);
-  const idle = A.settle(a, 1000, 1).state;
-  assert.ok(Math.abs((a.stage.hp - idle.stage.hp) - p * R.SHIELD.IDLE_MUL) < 1e-6, '放置 ×0.35');
-  const tapped = A.tap(a, 0);
-  assert.ok(Math.abs((a.stage.hp - tapped.stage.hp) - p * R.CLICK_SHARE) < 1e-6, '點擊不打折');
-  assert.equal(tapped.stage.shield.taps, 1, '這一下算進破盾進度');
+test('王① 灰狼犬：狗群先吸收傷害（放置也打狗），清光才打得到王，AGAIN_MS 後再來一批', () => {
+  let a = bossAtStation(3), p = A.power(a);
+  assert.equal(a.stage.mech, 0); assert.equal(a.stage.minions.left, BM().SUMMON.COUNT);
+  a = { ...a, stage: { ...a.stage, minions: { ...a.stage.minions, max: 10, hp: 10 } } };
+  let t = A.tap(a, 0);
+  assert.equal(t.stage.hp, 1e9, '有狗的時候王不掉血'); assert.ok(t.stage.minions.left <= BM().SUMMON.COUNT);
+  for (let i = 0; i < 20 && t.stage.minions.left; i++) t = A.tap(t, 0);
+  assert.equal(t.stage.minions.left, 0); assert.equal(t.stage.minions.nextAt, BM().SUMMON.AGAIN_MS);
+  const hit = A.tap(t, 1); assert.ok(hit.stage.hp < 1e9, '狗清光就打得到王');
+  const again = A.settle(hit, BM().SUMMON.AGAIN_MS + 1, 0).state;
+  assert.equal(again.stage.minions.left, BM().SUMMON.AGAIN, '狗群再來');
+  assert.equal(A.bossInfo(again.stage, BM().SUMMON.AGAIN_MS + 1).minions, BM().SUMMON.AGAIN);
+  void p;
 });
-test('王關節奏：點滿 15 下破防 8 秒、全傷害 ×2，破防結束重新起盾且門檻變高', () => {
-  let a = bossReady(), p = A.power(a);
-  for (let i = 0; i < R.SHIELD.TAPS; i++) a = A.tap(a, 0);
-  assert.equal(a.stage.breakUntil, R.SHIELD.BREAK_MS, '破防中');
-  const before = a.stage.hp, hit = A.tap(a, 0);
-  assert.ok(Math.abs((before - hit.stage.hp) - p * R.CLICK_SHARE * R.SHIELD.BREAK_MUL) < 1e-6, '破防時點擊 ×2');
-  const idle = A.settle(a, 1000, 1).state;
-  assert.ok(Math.abs((before - idle.stage.hp) - p * R.SHIELD.BREAK_MUL) < 1e-6, '破防時放置也 ×2');
-  const after = A.settle(a, R.SHIELD.BREAK_MS + 1, 0).state;
-  assert.equal(after.stage.breakUntil, 0);
-  assert.equal(after.stage.shield.cycle, 1);
-  assert.equal(after.stage.shield.need, Math.round(R.SHIELD.TAPS * R.SHIELD.GROWTH));
+test('王② 貼紙羊：血掉到 75% 長殼、殼只吃點擊（放置打不動），剝掉一層破防', () => {
+  let a = bossAtStation(7);
+  assert.equal(a.stage.mech, 1);
+  a = { ...a, stage: { ...a.stage, hp: 1e9 * .75 + 1 } };
+  let t = A.tap(a, 0);
+  assert.equal(t.stage.hp, 1e9 * .75, '打到門檻就停住'); assert.ok(t.stage.shell.hp > 0, '長出殼');
+  const idle = A.settle(t, 1000, 1).state;
+  assert.equal(idle.stage.shell.hp, t.stage.shell.hp, '放置剝不了殼'); assert.equal(idle.stage.hp, t.stage.hp);
+  t = { ...t, stage: { ...t.stage, shell: { ...t.stage.shell, hp: 1 } } };
+  const peeled = A.tap(t, 2000);
+  assert.equal(peeled.stage.shell.layer, 1); assert.equal(peeled.stage.shell.hp, 0);
+  assert.equal(peeled.stage.breakUntil, 2000 + BM().SHELL.STAGGER_MS, '剝掉一層破防');
+  assert.equal(peeled.stats.shieldBreaks, 1);
+});
+test('王③ 扛槌兔：拍子上 ×3、沒對上 ×.5，連中 CHAIN 下破防；放置打折', () => {
+  const MS = BM().RHYTHM.MS, a = bossAtStation(11), p = A.power(a);
+  assert.equal(a.stage.mech, 2);
+  const on = A.tap(a, MS), off = A.tap(a, MS / 2);
+  assert.ok(Math.abs((1e9 - on.stage.hp) - p * R.CLICK_SHARE * BM().RHYTHM.HIT_MUL) < 1e-6, '拍子上 ×3');
+  assert.ok(Math.abs((1e9 - off.stage.hp) - p * R.CLICK_SHARE * BM().RHYTHM.MISS_MUL) < 1e-6, '沒對上 ×.5');
+  assert.equal(on.stage.rhythm.chain, 1); assert.equal(A.tap(on, MS * 1.5).stage.rhythm.chain, 0, '沒對上連中歸零');
+  const idle = A.settle(a, MS / 2, MS / 2000).state;
+  assert.ok(Math.abs((1e9 - idle.stage.hp) - p * BM().IDLE_MUL * MS / 2000) < 1e-6, '放置打折');
+});
+test('王④ 雞頭合成怪：照順序點部位 LEN 下破防；點錯從頭；點空白處照樣有傷害', () => {
+  let a = bossAtStation(15);
+  assert.equal(a.stage.mech, 3);
+  const seq = a.stage.order.seq; assert.equal(seq.length, BM().ORDER.LEN);
+  const wrong = BM().ORDER.PARTS.find(x => x !== seq[0]);
+  assert.equal(A.tap(a, 0, { part: wrong }).stage.order.step, 0, '點錯從頭');
+  assert.ok(A.tap(a, 0).stage.hp < 1e9, '點空白處有傷害');
+  for (const part of seq) a = A.tap(a, 100, { part });
+  assert.equal(a.stage.breakUntil, 100 + BM().BREAK_MS, '一輪點完破防'); assert.equal(a.stage.order.round, 1); assert.equal(a.stage.order.step, 0);
+  assert.equal(A.bossInfo(a.stage, 100).nextPart, a.stage.order.seq[0]);
+});
+test('王⑤ 滅世珍獸：每 ROTATE_MS 換一種機制；外殼期間已經打到門檻底下不會把血補回去', () => {
+  const a = bossAtStation(19), T = BM().ROTATE_MS;
+  assert.equal(a.stage.mech, 4);
+  assert.deepEqual([0, T, 2 * T, 3 * T, 4 * T].map(t => A.mechAt(a.stage, t + 1)), [0, 1, 2, 3, 0]);
+  const low = { ...a, stage: { ...a.stage, hp: 1e9 * .3 } };
+  const r = A.tap(low, T + 1);
+  assert.ok(r.stage.hp <= 1e9 * .3, '血不會被補回門檻'); assert.equal(r.stage.shell.layer, 2, '跳過已經打穿的兩層');
 });
 // --- 第五輪 Codex 必修：舊存檔換算、舊王關給一次期限、逾時不能判勝
 test('舊存檔的戰鬥照剩餘比例換算成新版血量（只換一次）；舊王關沒有期限的第一次結算給 60 秒、之後不續時', () => {
@@ -144,6 +182,7 @@ test('舊存檔的戰鬥照剩餘比例換算成新版血量（只換一次）�
   const old = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3,
     stage: { index: 3, hp: 1296000, need: 2592000, boss: true, startedAt: 0, deadline: null, shield: { taps: 0, need: 15, cycle: 0 }, breakUntil: 0 } });
   assert.equal(old.stage.need, n3); assert.ok(Math.abs(old.stage.hp - n3 * .5) < 1e-6, '半血換成新版的半血');
+  assert.equal(old.stage.shield, undefined, '舊的護盾欄位拿掉'); assert.equal(old.stage.mech, 0); assert.equal(old.stage.minions.left, R.BOSS_MECH.SUMMON.COUNT, '換成這一隻王的機制');
   assert.equal(A.normalize(old).stage.hp, old.stage.hp, '換算只做一次');
   const r1 = A.settle(old, 1000000, 0);
   assert.equal(r1.state.stage.deadline, 1000000 + R.BOSS_TIME, '第一次結算給完整 60 秒');
@@ -152,19 +191,20 @@ test('舊存檔的戰鬥照剩餘比例換算成新版血量（只換一次）�
 });
 test('期限過了的點擊不算傷害、放置只算到期限為止——逾時不能被判勝；期限前的致死照樣算贏', () => {
   let a = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3 }), 0);
+  a = { ...a, stage: { ...a.stage, minions: { ...a.stage.minions, left: 0, nextAt: 1e15 } } };   // 狗群清光（王露出來，放置 ×1）
   const p = A.power(a), late = a.stage.deadline + 10000;
   const one = { ...a, stage: { ...a.stage, hp: 1 } };
   assert.equal(A.tapDamage(one, late), 0);
   assert.equal(A.settle(A.tap(one, late), late, 0).events[0].type, 'fail', '王剩 1 滴，期限過後才點：判輸');
   // 期限前 1 秒進來、隔了 11 秒才結算：只算 1 秒的放置
-  const five = { ...a, stage: { ...a.stage, hp: p * R.SHIELD.IDLE_MUL * 5 } };
+  const five = { ...a, stage: { ...a.stage, hp: p * 5 } };
   assert.equal(A.settle(five, a.stage.deadline + 10000, 11).events[0].type, 'fail');
-  const half = { ...a, stage: { ...a.stage, hp: p * R.SHIELD.IDLE_MUL * .5 } };
+  const half = { ...a, stage: { ...a.stage, hp: p * .5 } };
   assert.equal(A.settle(half, a.stage.deadline - 500, 1).events[0].type, 'win', '期限前合法的致死');
 });
-test('一般關沒有護盾，放置照原速', () => {
+test('一般關沒有王關機制，放置照原速', () => {
   let a = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'] });
-  a = A.fight(a, 0); assert.equal(a.stage.boss, false); assert.equal(a.stage.shield, null);
+  a = A.fight(a, 0); assert.equal(a.stage.boss, false); assert.equal(a.stage.mech, undefined); assert.equal(A.mechAt(a.stage, 0), -1);
   const idle = A.settle(a, 1000, 1).state;
   assert.ok(Math.abs((a.stage.hp - idle.stage.hp) - A.power(a)) < 1e-6);
 });
@@ -250,19 +290,20 @@ function bossAt100() {
   const i = [...Array(R.STATIONS).keys()].find(A.isBoss);
   const a = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: i });
   assert.equal(A.power(a), 100);
-  return A.fight(a, 0);   // deadline = 60000
+  const f = A.fight(a, 0);   // deadline = 60000
+  return { ...f, stage: { ...f.stage, minions: { ...f.stage.minions, left: 0, nextAt: 1e15 } } };   // 第十輪：第一隻王有狗群，先清光（王露出來，放置 ×1）
 }
-test('破防跟王關期限同時結束：期限前那段照破防 ×2 算，不會被整段算成護盾倍率（Codex 5b 必修 2）', () => {
+test('破防跟王關期限同時結束：期限前那段照破防 ×2 算，不會被整段算成一般倍率（Codex 5b 必修 2）', () => {
   const a = bossAt100(); a.stage = { ...a.stage, hp: 100, breakUntil: R.BOSS_TIME };
   const late = A.settle(a, R.BOSS_TIME + 1, 2);   // 58.001～60 秒是破防：100×2×1.999 ≈ 400 > 100
   assert.equal(late.events[0].type, 'win');
   const early = A.settle(a, R.BOSS_TIME - 1, 2);
   assert.equal(early.events[0].type, 'win', '期限前結算也一樣贏');
-  // 切段：破防 1 秒＋護盾 1 秒
-  const b = bossAt100(); b.stage = { ...b.stage, hp: 1e6, breakUntil: 10000 };
+  // 切段：破防 1 秒（×2）＋ 一般 1 秒（狗清光的王，放置 ×1）
+  const b = bossAt100(); b.stage = { ...b.stage, hp: 1e6, need: 1e6, breakUntil: 10000 };
   const mixed = A.settle(b, 11000, 2).state.stage;
-  assert.ok(Math.abs((1e6 - mixed.hp) - 100 * (R.SHIELD.BREAK_MUL + R.SHIELD.IDLE_MUL)) < 1e-6, String(1e6 - mixed.hp));
-  assert.equal(mixed.breakUntil, 0, '破防結束後重新起盾');
+  assert.ok(Math.abs((1e6 - mixed.hp) - 100 * (R.BOSS_MECH.BREAK_MUL + 1)) < 1e-6, String(1e6 - mixed.hp));
+  assert.equal(mixed.breakUntil, 0, '破防結束');
 });
 test('逾時後才結算：期限前還沒算的放置傷害照算，夠打死就贏；只拿 dt 0 結算會吞掉它（Codex 5b 必修 1，UI 點擊要先補算）', () => {
   const a = bossAt100(); a.stage = { ...a.stage, hp: 10 };
@@ -349,4 +390,37 @@ test('一站多隻：打死換下一隻滿血＋獎勵、進度不動；最後�
     const old = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], stage: { index: 0, hp: 5, need: A.need(0), boss: false } });
     assert.equal(old.stage.waves, 3); assert.equal(old.stage.wave, 1);
   } finally { R.WAVES = saved; }
+});
+
+// --- Codex 第十輪 A 必修
+test('放置照事件時間推進：一次結算 10 秒＝逐秒結算 10 秒（狗群、殼、輪流都一樣）', () => {
+  for (const [i, hp] of [[3, null], [7, .8], [19, null]]) {
+    const base = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1, m2: 1 }, roster: ['m1', 'm2'], progress: i }), 0);
+    // 每秒約 4000 傷害：40 秒內三站都打不死（第 4 站清掉約 3 隻狗、第 8 站打到 75% 長殼、第 20 站中途換成外殼），才比得出差別
+    const boost = { power: 20, click: 1, skill: 1, cd: 1 };
+    let a = { ...base, boost, stage: { ...base.stage, hp: base.stage.need * (hp || 1), minions: { ...base.stage.minions, max: 50000, hp: 50000 } } };
+    const once = A.settle(a, 40000, 40).state.stage;
+    let b = a; for (let s = 1; s <= 40; s++) b = A.settle(b, s * 1000, 1).state;
+    const step = b.stage;
+    assert.ok(Math.abs(once.hp - step.hp) <= Math.max(1, step.need * 1e-9), `第 ${i + 1} 站 王血 一次 ${once.hp} vs 逐秒 ${step.hp}`);
+    assert.equal(once.minions.left, step.minions.left, `第 ${i + 1} 站 狗數`);
+    assert.equal(once.shell.layer, step.shell.layer, `第 ${i + 1} 站 殼層`);
+  }
+});
+test('期限後才到點的狗群重生，不能把期限前本來會贏的判成輸', () => {
+  const i = 3, base = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: i }), 100000);
+  const a = { ...base, stage: { ...base.stage, hp: 50, deadline: 160000, minions: { ...base.stage.minions, left: 0, nextAt: 160500 } } };
+  assert.equal(A.settle(a, 160000, 1).events[0].type, 'win');
+  assert.equal(A.settle(a, 161000, 2).events[0].type, 'win');
+});
+test('壞掉的王關機制存檔：normalize 重建那一塊，點部位不丟例外、血不會變 NaN', () => {
+  const base = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 15 }), 0);
+  const bad = A.normalize({ ...base, stage: { ...base.stage, order: {}, minions: { left: 2, hp: 'bad', max: 5 }, shell: { layer: .5, hp: -1 }, rhythm: { chain: 'x' } } });
+  assert.ok(Array.isArray(bad.stage.order.seq) && bad.stage.order.seq.length === R.BOSS_MECH.ORDER.LEN);
+  const t = A.tap(bad, 10, { part: 'head' });
+  assert.ok(Number.isFinite(t.stage.hp));
+  const s1 = A.normalize({ ...base, progress: 3, stage: { ...base.stage, index: 3, mech: 0, minions: { left: 2, hp: 'bad', max: 5 } } });
+  assert.ok(Number.isFinite(A.tap(s1, 10).stage.minions.hp));
+  const s2 = A.normalize({ ...base, progress: 7, stage: { ...base.stage, index: 7, mech: 1, need: 1000, hp: 900, shell: { layer: .5, hp: 0 } } });
+  assert.ok(Number.isFinite(A.tap(s2, 10).stage.hp));
 });

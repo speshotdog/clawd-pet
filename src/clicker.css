@@ -1288,7 +1288,7 @@ body[data-world="apoc"] #package-number, body[data-world="apoc"] #package-label 
 body[data-world="apoc"] #package-progress::-webkit-progress-bar { background:#0E1520; }
 body[data-world="apoc"] #package-progress::-webkit-progress-value { background:#C9524A; }
 body[data-world="apoc"] #recruit-open { display:none; }
-body[data-world="apoc"] #shop h2 { color:#DDE6F4; }
+body[data-world="apoc"] #shop h2 { color:#DDE6F4; line-height:20px; }   /* 第十輪截圖：末世標籤多了 2px 邊框，標題＋說明塞不進 42px 那列，說明字被虛線劃過 */
 body[data-world="apoc"] #shop h2 small { color:#8FA3BE; }
 body[data-world="apoc"] .recruit small, body[data-world="apoc"] .upgrade p { color:#9FB3CE; }
 /* 技能名字的小紙片、槽章：換深色 */
@@ -1517,7 +1517,8 @@ body[data-world="apoc"] #slots .skill-slot[data-state="cooldown"] .skill-use::af
 #apoc-ceremony:not([hidden]) { animation:apoc-ceremony-in .22s ease-out; }
 #apoc-ceremony.closing { opacity:0; pointer-events:none; }
 @keyframes apoc-ceremony-in { from { opacity:0; } to { opacity:1; } }
-body[data-world="apoc"] #shop .recruit #draw-one { min-width:150px; }
+@media not all and (max-aspect-ratio: 3/4) { body[data-world="apoc"] #shop .recruit { grid-template-rows:40px 42px auto auto auto; } }   /* 橫式限定（直式有自己的兩列）：進入招募是兩行字，1.0 的 38px 列裝不下、按鈕底邊壓到機率行 */
+body[data-world="apoc"] #shop .recruit #draw-one { min-width:150px; height:auto; min-height:0; padding-block:2px; line-height:1.05; font-size:14px; }   /* 第十輪截圖：固定高度時小字「差 923」掉出底邊；但撐到 44px 又比 38px 那列高、蓋住下面的機率行 → 壓緊到兩行剛好 */
 /* 「進入招募」下面一行小字寫可不可以抽；UI 體檢：跟標題擠同一行時直式會出界 */
 body[data-world="apoc"] #shop .recruit #draw-one .draw-five-price { display:block; font-size:11px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 @media (max-aspect-ratio: 3/4) {
@@ -1622,3 +1623,31 @@ body[data-world="apoc"] #game #roster .album-slot { --button-bg:transparent; bac
 /* 末世編隊的卡名：精裝卡的深色光暈會壓到名字上，黑字就讀不到（使用者第四輪）→ 名字墊一塊紙色底、跟卡拉開 */
 body[data-world="apoc"] #game .team-proxy .proxy-name { position:relative; z-index:2; margin-top:4px; padding:1px 7px; border-radius:5px;
   background:#EFE3C8; border:1px solid #3B2A1C; color:#2A1C12; font-weight:700; text-shadow:none; }
+
+/* ============================================================
+   第十輪：五種王關機制的畫面（clicker-apoc-ui.js renderMech）
+   ⚠ #stage 的直接子節點預設 pointer-events:none（見上面 :not(#tap)… 那條）；圓鈕在 #apoc-parts 裡面，自己開回來
+   ============================================================ */
+#stage > #apoc-parts, #stage > #apoc-beat, #stage > #apoc-minions { position:absolute; left:0; top:0; width:0; height:0; z-index:6; }
+#apoc-parts button { pointer-events:auto; position:absolute; width:60px; height:60px; margin:-30px 0 0 -30px; padding:0; border-radius:50%;
+  border:3px solid #2A1C12; background:#F6ECD6cc; color:#2A1C12; font:900 20px/1 "jf-openhuninn", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  box-shadow:0 3px 0 rgba(42,28,18,.55); opacity:.62; cursor:pointer; touch-action:manipulation; }
+#game-content #apoc-parts button { border-image:none; }
+#apoc-parts button.next { opacity:1; background:#FFD76A; transform:scale(1.12); box-shadow:0 0 0 4px #FFF6D0, 0 0 18px 6px #FFD76Acc; animation:apoc-part-glow .8s ease-in-out infinite alternate; }
+@keyframes apoc-part-glow { from { box-shadow:0 0 0 4px #FFF6D0, 0 0 10px 2px #FFD76A99; } to { box-shadow:0 0 0 4px #FFF6D0, 0 0 22px 8px #FFD76A; } }
+#apoc-beat { pointer-events:none; }
+#apoc-beat.on::before { content:''; position:absolute; left:-70px; top:-70px; width:140px; height:140px; border-radius:50%; border:5px solid #FFD76A;
+  animation:apoc-beat var(--beat-ms, 1170ms) linear infinite; animation-delay:inherit; }
+@keyframes apoc-beat { 0% { transform:scale(1.35); opacity:.95; border-width:6px; } 18% { transform:scale(.55); opacity:.2; } 100% { transform:scale(1.35); opacity:.95; } }
+#apoc-minions { pointer-events:none; display:flex; gap:4px; transform:translate(-50%, 0); width:auto; height:auto; }
+#apoc-minions i { display:block; flex:none; width:46px; height:40px;   /* flex:none：外層是 0 寬的定位錨點，預設會把小狗縮成 0 寬（測試抓到的） */ background:url('apoc/boss/boss1-wolfdog.png') 0 0 / 500% 100% no-repeat; filter:drop-shadow(0 3px 2px rgba(0,0,0,.5)); }
+#apoc-enemy.far { opacity:.6; scale:.72; filter:drop-shadow(0 8px 10px rgba(0,0,0,.55)) saturate(.7); transition:scale .3s, opacity .3s; }
+#apoc-enemy.shelled { filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 6px #FFFFFF) drop-shadow(0 0 14px #BFD4E6) drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
+#apoc-enemy.breaking { filter:drop-shadow(0 0 10px #FFB347) drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
+@media (prefers-reduced-motion: reduce) { #apoc-beat.on::before { animation-duration:calc(var(--beat-ms, 1170ms) * 1); } #apoc-parts button.next { animation:none; } }
+@media (max-aspect-ratio: 3/4) { #apoc-parts button { width:64px; height:64px; margin:-32px 0 0 -32px; font-size:22px; } }
+/* 第十輪手機截圖：王關機制的效果標籤變長，不准超出舞台——寬度上限＋置中換行 */
+body[data-world="apoc"] #effect-label { max-width:calc(100% - 24px); white-space:normal; text-align:center; line-height:1.35; box-sizing:border-box;
+  left:12px; right:12px; width:fit-content; margin-inline:auto; }   /* 置中：1.0 是 left:138px，長字會頂到右緣被切（不用 transform，標籤自己有彈出動畫） */
+/* 手機舞台整塊縮成六成，標籤原本的字只剩 7px 左右（截圖看不清楚）→ 直式放大到跟下面血條的字差不多 */
+@media (max-aspect-ratio: 3/4) { body[data-world="apoc"] #effect-label { font-size:20px; padding:4px 14px; } }

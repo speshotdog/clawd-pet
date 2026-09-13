@@ -1195,11 +1195,15 @@ def main():
             for corner, offset in [('upper-left', 8), ('lower-right', 232)]:
                 seed(1)
                 scenes.evaluate("z => document.getElementById('zoomer').style.transform='scale('+z+')'", zoom)
+                # 第十輪抓到：載入後 #stage 身上還有一段有限長度的 Web Animation（translateY 4.4px），
+                #   遊戲照 #stage 的盒子換算落點（clicker.js pointOf），測試照 #game 換算 → 差幾 px。先把它播完再量
+                scenes.evaluate("document.getElementById('stage').getAnimations().forEach(a=>{if(isFinite(a.effect.getComputedTiming().endTime))a.finish()})")
                 box = scenes.locator('#tap').bounding_box()
                 x, y = box['x'] + offset * zoom, box['y'] + offset * zoom
                 scenes.evaluate('fxEvents.length=0')
-                scenes.mouse.click(x, y)
+                # 換算要在點之前量：點下去的震動會把 #game 位移幾 px，點完才量會把震動算進期望值（第十輪抓到差 5.35）
                 expected = scenes.evaluate("({x,y})=>{const r=document.getElementById('game').getBoundingClientRect();return {x:(x-r.left)*960/r.width,y:(y-r.top)*640/r.height}}", dict(x=x,y=y))
+                scenes.mouse.click(x, y)
                 particles = scenes.evaluate('fxEvents')
                 # 第七輪：點擊特效改成華麗版（碎紙＋光痕＋閃光＋衝擊波）＋噴金幣（clicker-hitfx.js），一下不再是固定 8 顆；
                 #   這裡驗的是「特效打在點下去的位置」：粒子至少 8 顆、全部在落點附近（四芒星的起點隨機散 ±20）
@@ -1207,7 +1211,8 @@ def main():
                 assert all(abs(v['x']-expected['x'])<=21 and abs(v['y']-expected['y'])<=21 for v in particles)
                 floater = scenes.locator('.floater')
                 assert abs(float(floater.evaluate('(e)=>e.style.left.slice(0,-2)'))-expected['x'])<=10
-                assert float(floater.evaluate('(e)=>e.style.top.slice(0,-2)'))==expected['y']-12
+                top = float(floater.evaluate('(e)=>e.style.top.slice(0,-2)'))
+                assert abs(top-(expected['y']-12))<1e-6, (zoom, corner, top, expected)
                 advance(60); shot('click-pointer-'+corner+'-'+str(zoom))
         seed(0,coins=0,level=50)
         scenes.locator('#tap').focus(); scenes.keyboard.press('Space'); advance(64)

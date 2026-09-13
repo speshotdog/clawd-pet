@@ -86,13 +86,14 @@ with sync_playwright() as p:
 
     # 一般關
     pg.eval_on_selector('#boss-challenge', 'e=>e.click()'); pg.wait_for_timeout(500)
-    check(pg.evaluate("()=>Clicker.state.apoc.stage.shield") is None, '一般關沒有護盾')
+    check(pg.evaluate("()=>Clicker.state.apoc.stage.mech") is None, '一般關沒有王關機制')
+    pg.evaluate("()=>{const st=Clicker.state.apoc.stage; st.wave=st.waves;}")   # 第九輪一站 5 隻：直接打最後一隻
     for _ in range(80):
         pg.evaluate("()=>document.getElementById('tap').click()"); pg.wait_for_timeout(30)
         if pg.evaluate("()=>Clicker.state.apoc.progress") >= 1: break
     check(pg.evaluate("()=>Clicker.state.apoc.progress") >= 1, '打完第 1 站，進度 +1')
 
-    # 王關：護盾＋節奏
+    # 王關：第十輪五種機制（第 4 站灰狼犬＝狗群；部位與節拍在段落最後另外驗）
     # ⚠ 這支把 BASE_NEED 改成 3000 加速，王血跟著變小：王關段落要跑 60 秒時限、輸了、刷怪、再次挑戰，王不能先被打死。
     #   不能只在畫面上假改 stage.need——「再次挑戰」會照真實的 need(3) 開打。
     #   所以**進王關之前**先把王血倍率放大，讓 need(3) 本身就夠大；王關段落測完再還原。
@@ -101,15 +102,21 @@ with sync_playwright() as p:
     pg.evaluate("()=>{const st=Clicker.state.apoc.stage, n=ApocEconomy.need(3); if(st){st.need=n; st.hp=n;}}")
     st = pg.evaluate("()=>Clicker.state.apoc.stage")
     # 第四輪使用者：王關統一 60 秒時限（輸了從滿血重來、等冷卻後按「再次挑戰」）
-    check(bool(st and st['boss'] and st['deadline'] and abs(st['deadline'] - st['startedAt'] - 60000) < 5 and st['shield']['need'] == 15), '王關：帶護盾、60 秒時限')
-    check('破盾' in pg.locator('#effect-label').inner_text(), '畫面寫著護盾怎麼破：' + pg.locator('#effect-label').inner_text())
+    check(bool(st and st['boss'] and st['deadline'] and abs(st['deadline'] - st['startedAt'] - 60000) < 5 and st['mech'] == 0 and st['minions']['left'] == 5), '王關：灰狼犬帶 5 隻狗群、60 秒時限')
+    pg.wait_for_timeout(1100)
+    check('狗群' in pg.locator('#effect-label').inner_text(), '畫面寫著先清狗群：' + pg.locator('#effect-label').inner_text())
     check('王關剩' in pg.locator('#effect-label').inner_text() and '秒' in pg.locator('#effect-label').inner_text(), '畫面有王關 60 秒倒數（Codex 第五輪必修 1）：' + pg.locator('#effect-label').inner_text())
-    for _ in range(15):
-        pg.evaluate("()=>document.getElementById('tap').click()"); pg.wait_for_timeout(35)
-    pg.wait_for_timeout(500)
-    check(pg.evaluate("()=>Clicker.state.apoc.stage.breakUntil") > 0, '點滿 15 下 → 破防')
-    check('破防' in pg.locator('#effect-label').inner_text(), '破防提示：' + pg.locator('#effect-label').inner_text())
+    # ⚠ #apoc-minions／#apoc-parts／#apoc-beat 是寬高 0 的定位錨點，Playwright 對 0×0 元素一律回 is_visible()=False；要驗裡面的東西
+    dogs = pg.evaluate("()=>{const d=document.getElementById('apoc-minions'), e=document.getElementById('apoc-enemy'); const i=d&&d.querySelector('i'); const r=i&&i.getBoundingClientRect();"
+                       "return {exists:!!d, hidden:d?d.hidden:null, n:d?d.querySelectorAll('i').length:0, rect:r?[Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height)]:null, enemyHidden:e?e.hidden:null, minions:Clicker.state.apoc.stage?.minions?.left};}")
+    check(dogs['n'] == 5 and not dogs['hidden'] and dogs['rect'] and dogs['rect'][2] > 0, f'狗群小圖示 5 隻看得到 {dogs}')
     pg.screenshot(path=str(OUT / '3-boss.png'))
+    pg.evaluate("()=>{const mi=Clicker.state.apoc.stage.minions; mi.max=1; mi.hp=1;}")
+    for _ in range(12):
+        pg.evaluate("()=>document.getElementById('tap').click()"); pg.wait_for_timeout(35)
+        if pg.evaluate("()=>Clicker.state.apoc.stage.minions.left") == 0: break
+    pg.wait_for_timeout(1100)
+    check(pg.evaluate("()=>Clicker.state.apoc.stage.minions.left") == 0 and '王露出來' in pg.locator('#effect-label').inner_text(), '狗群清光 → 王露出來了：' + pg.locator('#effect-label').inner_text())
 
     # 王關時間到就輸——冷卻中不自動開打、右上角寫「再次挑戰」，按下去從滿血重打（第五輪使用者：不要保留血量的機制）
     pg.evaluate("()=>{const st=Clicker.state.apoc.stage; st.hp=st.need*.6; st.breakUntil=0; st.deadline=Date.now()+400;}")
@@ -136,7 +143,25 @@ with sync_playwright() as p:
     again = pg.evaluate("()=>Clicker.state.apoc.stage")
     check(bool(again) and again['index'] == 3 and abs(again['hp'] - need3) < need3 * .01 and again['deadline'],
           f"按「再次挑戰」→ 從滿血重打（{again and round(again['hp'])} / {need3}）")
-    pg.evaluate("m=>{ApocEconomy.RULES.BOSS_MULS=m; const a=Clicker.state.apoc; a.stage=null; a.bossFailed=null;}", boss_mul)   # 王關段落測完，還原
+    # 第十輪：王④雞頭合成怪的部位圓鈕——用真的滑鼠點亮起的那顆（圓鈕要能按、不能被舞台其他層擋住），點完一輪破防
+    pg.evaluate("()=>{const a=Clicker.state.apoc; a.progress=15; a.stage=null; a.bossFailed=null; a.cooldownUntil=0;}"); pg.wait_for_timeout(1500)
+    st15 = pg.evaluate("()=>Clicker.state.apoc.stage")
+    check(bool(st15) and st15['index'] == 15 and st15['mech'] == 3, f"第 16 站雞頭合成怪：部位機制 {st15 and st15.get('mech')}")
+    check(pg.locator('#apoc-parts button').count() == 3 and pg.locator('#apoc-parts button.next').count() == 1 and pg.locator('#apoc-parts button.next').is_visible(), '部位圓鈕 3 顆、亮 1 顆')
+    size = pg.evaluate("()=>{const b=document.querySelector('#apoc-parts button.next').getBoundingClientRect(); return [b.width,b.height]}")
+    check(size[0] >= 44 and size[1] >= 44, f'亮的圓鈕夠大好按（{size}）')
+    pg.screenshot(path=str(OUT / '3c-boss-parts.png'))
+    for _ in range(4):
+        pg.locator('#apoc-parts button.next').click(); pg.wait_for_timeout(250)
+    pg.wait_for_timeout(900)
+    brk = pg.evaluate("()=>Clicker.state.apoc.stage.breakUntil-Date.now()")
+    check(brk > 0 and '破防' in pg.locator('#effect-label').inner_text(), f'照順序點完一輪 → 破防（剩 {brk}ms）：' + pg.locator('#effect-label').inner_text())
+    # 王③扛槌兔：節拍光圈
+    pg.evaluate("()=>{const a=Clicker.state.apoc; a.progress=11; a.stage=null; a.bossFailed=null; a.cooldownUntil=0;}"); pg.wait_for_timeout(1500)
+    beat_on = pg.evaluate("()=>{const b=document.getElementById('apoc-beat'); if(!b||b.hidden) return false; const s=getComputedStyle(b,'::before'); return s.content!=='none' && s.animationName==='apoc-beat';}")
+    check(pg.evaluate("()=>Clicker.state.apoc.stage?.mech") == 2 and beat_on and '拍子' in pg.locator('#effect-label').inner_text(), '第 12 站扛槌兔：節拍光圈與提示：' + pg.locator('#effect-label').inner_text())
+    pg.screenshot(path=str(OUT / '3d-boss-beat.png'))
+    pg.evaluate("m=>{ApocEconomy.RULES.BOSS_MULS=m; const a=Clicker.state.apoc; a.progress=3; a.stage=null; a.bossFailed=null;}", boss_mul)   # 王關段落測完，還原
 
     # 技能格
     mythic = pg.evaluate(MYTHIC_JS); pg.wait_for_timeout(1300)
@@ -149,7 +174,8 @@ with sync_playwright() as p:
     # 全線通行
     pg.evaluate("()=>{const s=Clicker.state.apoc; s.progress=19; s.stage=null;}"); pg.wait_for_timeout(1300)
     pg.eval_on_selector('#boss-challenge', 'e=>e.click()'); pg.wait_for_timeout(500)
-    pg.evaluate("()=>{Clicker.state.apoc.stage.hp=1;}")
+    # 第十輪：滅世珍獸一開場輪到狗群，狗會吸掉所有傷害——一起清掉，這一下才打得到王
+    pg.evaluate("()=>{const st=Clicker.state.apoc.stage; st.hp=1; if(st.minions){st.minions.left=0; st.minions.nextAt=Date.now()+1e9;}}")
     for _ in range(40):
         pg.evaluate("()=>document.getElementById('tap').click()"); pg.wait_for_timeout(40)
         if pg.evaluate("()=>Clicker.state.apoc.progress") >= 20: break

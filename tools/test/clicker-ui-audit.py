@@ -257,7 +257,8 @@ def main():
             # 末世結局
             pg.evaluate("()=>{const a=Clicker.state.apoc; a.progress=19; a.stage=null; a.cleared=false;}"); pg.wait_for_timeout(1200)
             pg.eval_on_selector('#boss-challenge', 'e=>e.click()'); pg.wait_for_timeout(500)
-            pg.evaluate("()=>{if(Clicker.state.apoc.stage) Clicker.state.apoc.stage.hp=1;}")
+            # 第十輪：滅世珍獸一開場輪到狗群（狗吸掉所有傷害），一起清掉
+            pg.evaluate("()=>{const st=Clicker.state.apoc.stage; if(st){st.hp=1; if(st.minions){st.minions.left=0; st.minions.nextAt=Date.now()+1e9;}}}")
             for _ in range(30):
                 pg.evaluate("()=>document.getElementById('tap').click()"); pg.wait_for_timeout(40)
                 if pg.evaluate("()=>Clicker.state.apoc.progress") >= 20: break

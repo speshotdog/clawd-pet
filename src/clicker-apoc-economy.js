@@ -26,7 +26,9 @@
     // 為什麼不能再用第五輪的做法：2.0 的戰力靠收藏，抽滿就停在兩三千；王要比路上硬又是 60 秒，路上一站只剩幾十秒，整條變成幾分鐘。
     //   要保住長度又讓王是門檻，戰力就得能靠錢一直長（訓練改乘算，見 TRAIN），輸了要有地方賺錢（刷前一站，見 fight）。
     // 數字是 tools/sim/apoc.js 掃出來的，結果見 docs/clicker/HANDOFF-2026-09-13-v3.md 〇之十。
-    BASE_NEED: 5000, GROWTH: 2.1, BOSS_MULS: [2, 3, 4, 5, 6],
+    // 第十輪王有機制（狗群擋傷害、殼放置打不動、節拍／部位放置只剩三成五）後，舊 [2,3,4,5,6] 一般玩家（CPS 3、在場一半）全破 228 分，
+    //   最後一隻滅世珍獸四種機制輪流就吃掉 128 分 → 後三隻降成 3.5／4／3.5：四個種子 161～179 分、踩拍命中 5 成 192 分、快手 41 分。
+    BASE_NEED: 5000, GROWTH: 2.1, BOSS_MULS: [2, 3, 3.5, 4, 3.5],
     // 過關獎勵＝血量 ×0.08 ×1.066^站：Sakura 金／血成長比 1.59／1.55≈1.026／區，我們一站約等於它 2.5 區 → 1.026^2.5≈1.066
     REWARD_SHARE: .08, REWARD_GROWTH: 1.066,
     IDLE_COINS: .01,         // 放置產出＝每秒戰力 ×0.01
@@ -52,11 +54,17 @@
     FARM_RESPAWN: 1000,
     // ⚠ 第五輪試過「輸了保留部分傷害」（照 1.0 的裂痕），使用者：「我不想要保留血量的機制，直接調整血量就好」→ 拿掉。
     //   輸了從滿血重來；第六輪起輸了自動回前一站刷怪（fight(a, now, true)），變強了玩家自己按「再次挑戰」。
-    // 王關機制（使用者 2026-09-13：護盾＋節奏，節奏用「點擊次數」而不是計時器，而且不要太嚴苛）：
-    //   王有護盾，護盾在場時放置傷害只剩三成五（不是零，放著還是會動）；
-    //   累積 TAPS 下點擊破盾 → BREAK_MS 毫秒破防，全部傷害 ×2；破防結束重新起盾，需要的點擊數 ×GROWTH。
+    // 王關機制（第十輪使用者：「照企劃做五種」，PLAN-2.0-levels.md 三；以前五隻王都是同一套護盾）。
+    //   mech＝第幾隻王：0 灰狼犬 召喚小怪／1 貼紙羊 外殼層／2 扛槌兔 節拍／3 雞頭合成怪 部位順序／4 滅世珍獸 前四種每 ROTATE_MS 輪流。
+    //   破防（breakUntil）是共用的：外殼剝掉一層、節拍連中 CHAIN 下、部位順序打完一輪都會破防，破防中全部傷害 ×BREAK_MUL。
     //   一般關完全不受影響。
-    SHIELD: { TAPS: 15, GROWTH: 1.25, IDLE_MUL: .35, BREAK_MS: 8000, BREAK_MUL: 2 },
+    BOSS_MECH: {
+      IDLE_MUL: .35, BREAK_MS: 8000, BREAK_MUL: 2, ROTATE_MS: 15000,
+      SUMMON: { COUNT: 5, HP: .06, AGAIN_MS: 20000, AGAIN: 3 },           // 狗群：每隻血＝王血 ×HP，清光才打得到王，AGAIN_MS 後再來 AGAIN 隻；放置也打得到狗
+      SHELL: { AT: [.75, .5, .25], HP: .08, STAGGER_MS: 3000 },           // 外殼：王血掉到 AT 時長出殼（血＝王血 ×HP），只有點擊剝得掉；剝掉一層破防 3 秒
+      RHYTHM: { MS: 1170, WINDOW: 200, HIT_MUL: 3, MISS_MUL: .5, CHAIN: 8 },   // 節拍＝扛槌兔 9 格 ×130ms 的揮槌週期；拍子上 ±WINDOW 內點 ×3、沒對上 ×.5，連中 CHAIN 下破防
+      ORDER: { PARTS: ['head', 'body', 'tail'], LEN: 4 },                  // 部位：照亮起的圓鈕順序點 LEN 下破防；點錯從頭；點空白處普通傷害
+    },
     // 獨立技能格 4 格：沿用 1.0 的語意（點擊倍率／全隊加成／冷卻縮短），技能由卡的稀有度決定
     SKILLS: {
       mythic:    { name: '一口氣開封', kind: 'clickMul', value: 10, uses: 10, cd: 60000, text: '接下來 10 次點擊 ×10' },
@@ -76,9 +84,139 @@
   };
   const isBoss = i => i % 4 === 3;
   const DRAW_COUNTS = [1, 5, 10];   // 典藏包抽卡選單的三顆鍵（第七輪）
-  const freshShield = cycle => ({ taps: 0, need: Math.round(RULES.SHIELD.TAPS * RULES.SHIELD.GROWTH ** cycle), cycle });
-  // 王關傷害倍率：破防中 ×2、護盾在場的放置 ×0.35（點擊不受罰，點擊才是破盾的手段）
-  const bossMul = (st, now, byTap) => !st?.boss ? 1 : now < (st.breakUntil || 0) ? RULES.SHIELD.BREAK_MUL : byTap ? 1 : RULES.SHIELD.IDLE_MUL;
+  // ---- 王關機制（第十輪）
+  const M = () => RULES.BOSS_MECH;
+  const seqFor = (index, round) => Array.from({ length: M().ORDER.LEN }, (_, k) => M().ORDER.PARTS[(index * 7 + round * 5 + k * k * 3 + k * 2) % M().ORDER.PARTS.length]);
+  function freshMech(i) {
+    const hp = need(i) * M().SUMMON.HP;
+    return { mech: Math.min(4, Math.floor(i / 4)), minions: { left: M().SUMMON.COUNT, max: hp, hp, nextAt: 0 }, shell: { layer: 0, hp: 0 },
+      rhythm: { chain: 0 }, order: { step: 0, round: 0, seq: seqFor(i, 0) } };
+  }
+  // 現在是哪一種機制（滅世珍獸每 ROTATE_MS 換一種）
+  const mechAt = (st, now) => !st?.boss ? -1 : st.mech === 4 ? Math.floor(Math.max(0, now - (st.startedAt || 0)) / M().ROTATE_MS) % 4 : (st.mech ?? 0);
+  const onBeat = (st, now) => { const ms = M().RHYTHM.MS, ph = ((now - (st.startedAt || 0)) % ms + ms) % ms; return Math.min(ph, ms - ph) <= M().RHYTHM.WINDOW; };
+  const breaking = (st, now) => now < (st?.breakUntil || 0);
+  // 點一下的倍率：破防 ×2；節拍時拍子上 ×3、沒對上 ×.5
+  const tapMul = (st, now) => !st?.boss ? 1 : (breaking(st, now) ? M().BREAK_MUL : 1) * (mechAt(st, now) === 2 ? (onBeat(st, now) ? M().RHYTHM.HIT_MUL : M().RHYTHM.MISS_MUL) : 1);
+  // 放置的倍率：破防 ×2；節拍與部位時放置只剩 IDLE_MUL（要人在場點）；外殼長出來時放置打不動殼
+  const idleMul = (st, now) => {
+    if (!st?.boss) return 1;
+    const m = mechAt(st, now), br = breaking(st, now) ? M().BREAK_MUL : 1;
+    if (m === 1 && st.shell?.hp > 0) return 0;
+    return br * (m === 2 || m === 3 ? M().IDLE_MUL : 1);
+  };
+  // 傷害進王：狗群先吸收、殼只吃點擊、節拍連中計數、部位順序計步。回傳 { st, broke, absorbed }
+  function routeDamage(st0, d, now, byTap, part) {
+    const st = { ...st0 }, m = mechAt(st, now); let broke = false;
+    if (m === 0 && st.minions?.left > 0) {
+      const mi = { ...st.minions }; mi.hp -= d;
+      if (mi.hp <= 0) { mi.left -= 1; mi.hp = mi.left > 0 ? mi.max : 0; if (!mi.left) mi.nextAt = now + M().SUMMON.AGAIN_MS; }
+      st.minions = mi; return { st, broke, absorbed: true };
+    }
+    if (m === 1) {
+      const sh = { ...(st.shell || { layer: 0, hp: 0 }) }, AT = M().SHELL.AT;
+      if (sh.hp > 0) {
+        if (byTap) { sh.hp -= d; if (sh.hp <= 0) { sh.hp = 0; sh.layer += 1; st.breakUntil = now + M().SHELL.STAGGER_MS; broke = true; } }
+        st.shell = sh; return { st, broke, absorbed: true };
+      }
+      // 別的機制期間（滅世珍獸輪流）已經打到門檻底下：那幾層直接跳過，不要把血補回門檻
+      while (sh.layer < AT.length && st.hp <= AT[sh.layer] * st.need) sh.layer += 1;
+      const floor = sh.layer < AT.length ? AT[sh.layer] * st.need : -Infinity;
+      st.hp = Math.max(floor, st.hp - d);
+      if (st.hp <= floor) sh.hp = st.need * M().SHELL.HP;
+      st.shell = sh; return { st, broke, absorbed: false };
+    }
+    if (m === 2 && byTap) {
+      const r = { ...(st.rhythm || { chain: 0 }) };
+      if (onBeat(st, now)) { r.chain += 1; if (r.chain >= M().RHYTHM.CHAIN && !breaking(st, now)) { st.breakUntil = now + M().BREAK_MS; broke = true; r.chain = 0; } }
+      else r.chain = 0;
+      st.rhythm = r;
+    }
+    if (m === 3 && byTap && part) {
+      const o = { ...(st.order || { step: 0, round: 0, seq: seqFor(st.index, 0) }) };
+      if (part === o.seq[o.step]) {
+        o.step += 1;
+        if (o.step >= o.seq.length) { o.step = 0; o.round += 1; o.seq = seqFor(st.index, o.round); if (!breaking(st, now)) { st.breakUntil = now + M().BREAK_MS; broke = true; } }
+      } else o.step = 0;
+      st.order = o;
+    }
+    st.hp -= d; return { st, broke, absorbed: false };
+  }
+  // 狗群到點重生（只在輪到狗群的時候）
+  const respawn = (st, t) => mechAt(st, t) === 0 && st.minions && !st.minions.left && st.minions.nextAt && t >= st.minions.nextAt
+    ? { ...st, minions: { ...st.minions, left: M().SUMMON.AGAIN, hp: st.minions.max, nextAt: 0 } } : st;
+  // 殼的下一條線（已經打穿的層不算）
+  function shellFloor(st) {
+    const AT = M().SHELL.AT; let layer = st.shell?.layer || 0;
+    while (layer < AT.length && st.hp <= AT[layer] * st.need) layer += 1;
+    return layer < AT.length ? AT[layer] * st.need : -Infinity;
+  }
+  // 放置傷害照時間順序推進（Codex 第十輪 A 必修 1、2）：一段時間裡可能殺好幾隻狗、打到門檻長殼、狗群到點重生，
+  //   剩下的傷害要接著算；以前一段最多殺一隻狗、多的傷害消失，而且結算頻率不同結果就不同。只推進到 s1（呼叫端已經夾在期限內）。
+  function idleBoss(st0, dps, s0, s1) {
+    let st = st0, t = s0;
+    const mid = (s0 + s1) / 2, m = mechAt(st, mid);   // 呼叫端在換機制、破防、技能到期的時間點切段，段內機制固定
+    // ⚠ 傳給 routeDamage 的時間一定要在段內：段尾剛好是滅世珍獸換機制的時間點，拿段尾去判斷會把傷害算進下一種機制
+    const inside = x => Math.min(Math.max(x, s0), s1 - Math.min(1, (s1 - s0) / 2));
+    for (let guard = 0; t < s1 && guard < 2000; guard++) {
+      st = respawn(st, t);
+      const rate = dps * idleMul(st, mid) / 1000;   // 每毫秒
+      if (!(rate > 0)) {
+        // 殼擋住放置：這一段剩下的時間打不動（狗群輪不到這裡）
+        break;
+      }
+      let until = s1;
+      if (m === 0 && st.minions && !st.minions.left && st.minions.nextAt > t && st.minions.nextAt < s1) until = st.minions.nextAt;
+      if (m === 0 && st.minions?.left > 0) {
+        const ms = st.minions.hp / rate;
+        if (t + ms <= until) { st = routeDamage(st, st.minions.hp * (1 + 1e-9) + 1e-9, inside(t + ms), false).st; t += ms; continue; }
+      } else if (m === 1 && !(st.shell?.hp > 0)) {
+        const floor = shellFloor(st);
+        if (floor > -Infinity && st.hp > floor) {
+          const ms = (st.hp - floor) / rate;
+          if (t + ms <= until) { st = routeDamage(st, st.hp - floor, inside(t + ms), false).st; t += ms; continue; }
+        }
+      }
+      st = routeDamage(st, rate * (until - t), inside(until), false).st; t = until;
+    }
+    return st;
+  }
+  // 滅世珍獸換機制的時間點
+  const rotateCuts = (st, t0, t1) => {
+    if (st.mech !== 4) return [];
+    const T = M().ROTATE_MS, s = st.startedAt || 0, out = [];
+    for (let k = Math.ceil((t0 - s) / T); s + k * T < t1 && out.length < 100; k++) if (k > 0) out.push(s + k * T);
+    return out;
+  };
+  // 存檔可編輯（Codex 第十輪 A 必修 4）：機制狀態壞掉就重建那一塊，不要 NaN、不要點部位時丟例外
+  function cleanMech(st) {
+    const f = freshMech(st.index), fin = v => Number.isFinite(Number(v)) ? Number(v) : NaN, int = v => Number.isInteger(Number(v)) ? Number(v) : NaN;
+    const out = { ...st, mech: f.mech };
+    const mi = st.minions || {}, maxCount = Math.max(M().SUMMON.COUNT, M().SUMMON.AGAIN);
+    out.minions = int(mi.left) >= 0 && int(mi.left) <= maxCount && fin(mi.max) > 0 && fin(mi.hp) >= 0 && fin(mi.hp) <= fin(mi.max) && fin(mi.nextAt ?? 0) >= 0
+      ? { left: int(mi.left), max: fin(mi.max), hp: fin(mi.hp), nextAt: fin(mi.nextAt ?? 0) } : f.minions;
+    const sh = st.shell || {};
+    out.shell = int(sh.layer) >= 0 && int(sh.layer) <= M().SHELL.AT.length && fin(sh.hp) >= 0 && fin(sh.hp) <= (st.need || 0) * M().SHELL.HP * 1.0001
+      ? { layer: int(sh.layer), hp: fin(sh.hp) } : f.shell;
+    const r = st.rhythm || {};
+    out.rhythm = int(r.chain) >= 0 && int(r.chain) <= M().RHYTHM.CHAIN ? { chain: int(r.chain) } : f.rhythm;
+    const o = st.order || {}, P = M().ORDER.PARTS;
+    out.order = Array.isArray(o.seq) && o.seq.length === M().ORDER.LEN && o.seq.every(x => P.includes(x)) && int(o.step) >= 0 && int(o.step) < o.seq.length && int(o.round) >= 0
+      ? { seq: [...o.seq], step: int(o.step), round: int(o.round) } : f.order;
+    out.breakUntil = fin(st.breakUntil) >= 0 ? fin(st.breakUntil) : 0;
+    return out;
+  }
+  // 畫面與模擬器用的王關狀態摘要
+  function bossInfo(st, now) {
+    if (!st?.boss) return null;
+    const m = mechAt(st, now), o = st.order || {};
+    return { mech: m, rotating: st.mech === 4, breaking: breaking(st, now), breakLeft: Math.max(0, (st.breakUntil || 0) - now),
+      minions: st.minions?.left || 0, respawnIn: st.minions?.left ? 0 : Math.max(0, (st.minions?.nextAt || 0) - now),
+      shellHp: st.shell?.hp || 0, shellMax: st.need * M().SHELL.HP, shellLayer: st.shell?.layer || 0, shellLayers: M().SHELL.AT.length,
+      chain: st.rhythm?.chain || 0, chainNeed: M().RHYTHM.CHAIN, onBeat: onBeat(st, now), beatMs: M().RHYTHM.MS,
+      nextPart: o.seq ? o.seq[o.step || 0] : null, step: o.step || 0, steps: o.seq?.length || M().ORDER.LEN,
+      rotateIn: st.mech === 4 ? M().ROTATE_MS - (Math.max(0, now - (st.startedAt || 0)) % M().ROTATE_MS) : 0 };
+  }
   // 技能名沿用 1.0（使用者第四輪：「2.0 技能雖然重新設計，但技能名稱不要改，1.0 有的名稱就直接沿用」）：
   // 同名角色用 1.0 的技能名（ClickerBalance.characters[id].skill），效果仍照稀有度；1.0 沒有這張卡才用稀有度的名字。
   // 瀏覽器裡 clicker-balance.js／gacha-pool.js 比這支先載入；node 測試沒有它們就一律用稀有度的名字。
@@ -121,8 +259,13 @@
     // 刷怪中的戰鬥是前一站：只有「這一站是王、而且輸過」才合法（第六輪）；其他進度不符的戰鬥丟掉
     const farmOk = st => st.index === a.progress - 1 && isBoss(a.progress) && raw.bossFailed === a.progress;
     if (a.stage && (typeof a.stage.hp !== 'number' || (a.stage.farm ? !farmOk(a.stage) : a.stage.index !== a.progress))) a.stage = null;
-    if (a.stage?.farm) a.stage = { ...a.stage, farm: true, boss: false, deadline: null, shield: null, breakUntil: 0 };
-    if (a.stage && a.stage.boss && !a.stage.shield) { a.stage = { ...a.stage, shield: freshShield(0), breakUntil: 0 }; }   // 舊存檔的王關補上護盾
+    if (a.stage?.farm) a.stage = { ...a.stage, farm: true, boss: false, deadline: null, breakUntil: 0 };
+    // 第十輪：舊存檔的王關是護盾版（shield），換成這一隻王自己的機制狀態
+    if (a.stage && a.stage.boss && (a.stage.mech === undefined || !a.stage.minions || !a.stage.shell || !a.stage.rhythm || !a.stage.order)) {
+      a.stage = { ...a.stage, ...freshMech(a.stage.index), breakUntil: 0 };
+    }
+    if (a.stage && a.stage.boss) a.stage = cleanMech(a.stage);   // 壞掉的機制欄位重建（Codex 第十輪 A 必修 4）
+    if (a.stage) delete a.stage.shield;
     // 一站幾隻（第九輪）：王站與刷怪固定 1 隻；一般站照現在的 WAVES，目前第幾隻夾在 1～waves
     if (a.stage) { const waves = a.stage.boss || a.stage.farm ? 1 : RULES.WAVES;
       a.stage = { ...a.stage, waves, wave: Math.max(1, Math.min(waves, count(a.stage.wave) || 1)) }; }
@@ -208,12 +351,12 @@
       if (!canFarm(a, now)) throw new Error('現在不能刷怪');
       if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
       const i = a.progress - 1;
-      return { ...a, stage: { index: i, hp: need(i), need: need(i), boss: false, farm: true, startedAt: now, deadline: null, shield: null, breakUntil: 0 } };
+      return { ...a, stage: { index: i, hp: need(i), need: need(i), boss: false, farm: true, startedAt: now, deadline: null, breakUntil: 0 } };
     }
     if (!canFight(a, now)) throw new Error(a.progress >= RULES.STATIONS ? '全線已通行' : a.stage ? '戰鬥中' : '王關冷卻中');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
     const i = a.progress, boss = isBoss(i);
-    return { ...a, stage: { index: i, hp: need(i), need: need(i), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, shield: boss ? freshShield(0) : null, breakUntil: 0 } };
+    return { ...a, stage: { index: i, hp: need(i), need: need(i), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, breakUntil: 0, ...(boss ? freshMech(i) : {}) } };
   }
   // 結算：回傳 { state, events:[{type:'win'|'fail', index}] }
   function settle(a, now, dt) {
@@ -229,14 +372,18 @@
       // 這一段依「破防結束、技能到期、王關期限」切開，各段用當時的倍率（Codex 5b 必修 2：期限前的破防 ×2 被整段算成護盾倍率）
       const t0 = now - dt * 1000, tEnd = st.deadline ? Math.min(now, st.deadline) : now;
       if (tEnd > t0) {
-        const cuts = [t0, ...[st.breakUntil, a.fx?.powerUntil].filter(t => t > t0 && t < tEnd), tEnd].sort((x, y) => x - y);
+        // 切段：破防結束、技能到期、滅世珍獸換機制（段內倍率與機制固定）；王的段內再照事件時間推進（idleBoss）
+        const cuts = [t0, ...[st.breakUntil, a.fx?.powerUntil, ...rotateCuts(st, t0, tEnd)].filter(t => t > t0 && t < tEnd), tEnd].sort((x, y) => x - y);
         for (let k = 1; k < cuts.length; k++) {
-          const mid = (cuts[k - 1] + cuts[k]) / 2;
-          st.hp -= power(a) * powerMul(a, mid) * bossMul(st, mid, false) * (cuts[k] - cuts[k - 1]) / 1000;
+          const mid = (cuts[k - 1] + cuts[k]) / 2, dps = power(a) * powerMul(a, mid);
+          if (st.boss) st = idleBoss(st, dps, cuts[k - 1], cuts[k]);
+          else st.hp -= dps * (cuts[k] - cuts[k - 1]) / 1000;
         }
       }
-      // 破防時間到 → 重新起盾，下一輪要的點擊數 ×GROWTH（傷害算完才換，破防那段才吃得到 ×2）
-      if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0, shield: freshShield((st.shield?.cycle || 0) + 1) };
+      // 結算到的時間點（期限以內）狗群剛好到點：補上重生（dt 0 的結算不會走上面的推進；期限後才到點的不算）
+      if (st.boss) st = respawn(st, tEnd);
+      // 破防時間到（傷害算完才清，破防那段才吃得到 ×2）
+      if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0 };
       if (st.hp <= 0 && st.farm) {
         // 刷怪：拿這一站的獎勵、不推進度（王那一站還等著玩家再挑戰）
         s.coins += killReward(st.index); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
@@ -262,8 +409,9 @@
   }
   // 這一下點擊的傷害（畫面浮字要跟實際扣血一致，打死那一下也要顯示整下的量，不是剩下的血）
   const tapDamage = (a, now) => !a.stage || (a.stage.deadline && now >= a.stage.deadline) ? 0 : power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click
-    * (a.fx?.clickLeft > 0 ? (a.fx.clickMul || 1) : 1) * bossMul(a.stage, now, true);
-  function tap(a, now) {
+    * (a.fx?.clickLeft > 0 ? (a.fx.clickMul || 1) : 1) * tapMul(a.stage, now);
+  // opt.part：王④部位圓鈕（head／body／tail）；點空白處不帶
+  function tap(a, now, opt = {}) {
     if (!a.stage) return a;
     if (a.stage.deadline && now >= a.stage.deadline) return a;   // 期限過了的點擊不算（結算時會判輸）
     const dmg = tapDamage(a, now);
@@ -271,12 +419,8 @@
     let fx = { ...a.fx };
     if (fx.clickLeft > 0) { fx.clickLeft -= 1; if (!fx.clickLeft) { fx.clickMul = 1; fx.mythic = false; } }
     let st = { ...a.stage }, broke = false;
-    if (st.boss && !(now < (st.breakUntil || 0))) {
-      // 護盾在場：這一下算進破盾進度；點滿就破防
-      const sh = { ...(st.shield || freshShield(0)) }; sh.taps += 1;
-      st.shield = sh; if (sh.taps >= sh.need) { st.breakUntil = now + RULES.SHIELD.BREAK_MS; broke = true; }
-    }
-    st.hp -= dmg;
+    if (st.boss) ({ st, broke } = routeDamage(respawn(st, now), dmg, now, true, opt.part));   // 第十輪：五種王關機制（點之前先補到點的狗群重生）
+    else st.hp -= dmg;
     const stats = { ...a.stats, taps: (a.stats?.taps || 0) + 1, maxHit: Math.max(a.stats?.maxHit || 0, dmg), shieldBreaks: (a.stats?.shieldBreaks || 0) + (broke ? 1 : 0) };
     return { ...a, stage: st, fx, stats };
   }
@@ -399,7 +543,7 @@
     teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click, boost: boostOf(a),
     exchangeToday: exchangeToday(a, now), exchangeTotal: a.exchange?.total || 0, stats: a.stats, wins: a.wins || 0, cosmetics: a.cosmetics,
     roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS });
-  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, canFarm, fight, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, canFarm, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
