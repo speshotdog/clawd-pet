@@ -1487,3 +1487,43 @@ body[data-world="apoc"] .draw-faces figure { width:64px; }   /* 精裝卡面 5:7
 
 body[data-world="apoc"] #recruit-topbar label { display:none; }   /* 末世的演出固定是精裝典藏包，「演出」選單沒有意義 */
 body[data-world="apoc"] #share-offer { display:none; }   /* 分享提示是桌邊事件（升階、打王⋯⋯）用的，末世裡按下去會分享另一個世界的資料 */
+
+/* 09-13 使用者第二輪回饋：編隊與卡冊 */
+/* 技能槽不要兩行：四格一排（兩個世界都是最多四格） */
+.skill-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.skill-grid .skill-slot { min-width:0; }
+.skill-grid .skill-slot .slot-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* 四條累加上限壓成一排四格：標籤＋數字一行、下面一條細格子（違規／受影響的標色邏輯不變） */
+#t20-caps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+#t20-caps .capacity-row { display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto 6px; column-gap:6px; row-gap:3px; align-items:baseline; font-size:11px; }
+#t20-caps .capacity-row > span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#t20-caps .capacity-row .segments { grid-column:1 / -1; display:flex; gap:1px; height:6px; }
+#t20-caps .capacity-row .segments i { flex:1; min-width:0; height:6px; border-radius:1px; }
+/* 末世：隊伍成員直接是精裝卡（不要奶油色的框）；卡本身就有框，詳情區也不要再框一次 */
+/* ⚠ 要帶 #game：1.0 的「#game button」有 id 權重，會把奶油色底與 3px 框畫回來 */
+body[data-world="apoc"] #game .team-proxy { --button-bg:transparent; background:transparent; border:0; box-shadow:none; padding:0; gap:2px; }
+body[data-world="apoc"] #game .team-proxy:hover:enabled { background:transparent; transform:translateY(-2px); }
+body[data-world="apoc"] .team-proxy .proxy-image { width:auto; height:auto; }
+body[data-world="apoc"] .team-proxy .buddy-portrait.holo-slot { height:78px; }
+body[data-world="apoc"] .team-proxy[aria-selected="true"] { outline:0; box-shadow:none; }
+body[data-world="apoc"] .team-proxy[aria-selected="true"] .holo-slot { filter:drop-shadow(0 0 6px #f2b233); }
+body[data-world="apoc"] .team-proxy .proxy-name { font-size:11px; }
+body[data-world="apoc"] #t20-card, body[data-world="apoc"] .t20-card { background:transparent !important; border:0 !important; box-shadow:none !important; }
+body[data-world="apoc"] #t20-card .holo-card { width:150px; height:210px; }
+/* 卡冊：格子不要再框一層（卡本身有框）；星星圖示 */
+body[data-world="apoc"] #game #roster .album-slot { --button-bg:transparent; background:transparent; border:0; box-shadow:none; }   /* 蓋過「#roster button」的深藍底 */
+.apoc-stars { gap:1px; height:13px; margin:0 auto; }
+.apoc-stars b { font-size:11px; line-height:13px; margin-left:2px; }
+/* 拿在手上看的卡：游標提示可以轉 */
+.holo-interactive { cursor:grab; } .holo-interactive:active { cursor:grabbing; }
+/* 切入演出的主角是精裝卡時，照卡的比例放 */
+#cutin-actor.holo-actor { display:grid; place-items:center; }
+#cutin-actor.holo-actor .holo-face { position:relative; inset:auto; width:170px; aspect-ratio:5/7; }
+/* 直式手機：技能槽一樣一排四格（使用者：技能槽不要兩行），但 390 寬放不下卡＋名字——
+   有卡的格子只放卡（名字在 title 裡），空格的「＋ 挑選」允許折行 */
+@media (max-aspect-ratio: 3/4) {
+  .skill-grid .skill-slot { padding:3px 2px; }
+  .skill-grid .skill-slot .buddy-portrait + .slot-name { display:none; }
+  .skill-grid .skill-slot .slot-name { white-space:normal; text-align:center; line-height:1.15; overflow:visible; }
+  body[data-world="apoc"] .skill-grid .skill-slot .buddy-portrait.holo-slot { height:52px; }
+}

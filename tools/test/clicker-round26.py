@@ -145,8 +145,14 @@ def main():
         fx = {}
         for src, kind in [('mieshi', 'bossDamage'), ('qinghua', 'team'),
                           ('yueyuexian', 'team'), ('wanwumythic', 'clickAdd')]:
+            # v3：隊伍神話上限 2，四張不能同時在槽，演出要的是「在槽裡」這個條件。
+            # ⚠ 已經在槽裡就不要再塞第 0 格：同一張卡出現兩格＝「重複槽位」，碰上每 5 秒的自動存檔就驗證失敗、
+            #   消費鎖住，後面「收下並繼續五連」的招募鍵永遠是灰的（09-13 抓到的偶發失敗）。
+            pg.evaluate("""(src) => { if (!Clicker.state.skillSlots.includes(src)) Clicker.state.skillSlots[0]=src; }""", src)
+            # ⚠ mythicSkill 讀的是舞台快取的 latestState.skillSlots，特效掛在 #slots 已畫好的技能鈕上；
+            #   直接改 state 之後要等每秒的 changed() 把兩者都畫好再發動，不然量到的 0 是測試搶快（HEAD 一樣會）
+            pg.wait_for_timeout(1300)
             fx[src] = pg.evaluate("""([src,kind]) => {
-              Clicker.state.skillSlots[0]=src;   // v3：隊伍神話上限 2，四張不能同時在槽，演出要的是「在槽裡」這個條件
               document.querySelectorAll('.mythic-fx').forEach(e=>e.remove());
               testStage.skill({source:src, kind, value:1e9, chain:1});
               return document.querySelectorAll('.mythic-fx').length; }""", [src, kind])

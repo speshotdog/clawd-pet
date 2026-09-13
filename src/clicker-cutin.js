@@ -60,14 +60,16 @@ window.ClickerCutin = (() => {
     }
     function play(effect) {
       if (active) return;
-      active = true; stage.freeze(true); sound('skill');
-      const entry = window.GachaPool.byId[effect.source];
-      const spec = CUTIN[effect.source], mother = spec.side === 'right', direction = mother ? 1 : -1;
+      // 末世的技能（effect.spec）：同一套分鏡，主角是精裝卡；1.0 的舞台不在跑，不凍結也不結算
+      const apocCast = !!effect.spec;
+      active = true; if (!apocCast) stage.freeze(true); sound('skill');
+      const entry = effect.entry || window.GachaPool.byId[effect.source];
+      const spec = effect.spec || CUTIN[effect.source], mother = spec.side === 'right', direction = mother ? 1 : -1;
       root.classList.toggle('mythic', entry.rarity === 'mythic');
       root.style.setProperty('--skill', spec.color);
       root.style.setProperty('--stripe', spec.stripe);
       root.style.setProperty('--focus-x', mother ? '320px' : '320px'); root.dataset.phase = 'hit-stop';
-      finish = () => stage.skill(effect);
+      finish = () => { if (!apocCast) stage.skill(effect); };
       const dim = node('cutin-dim'); motion(dim,[{opacity:0},{opacity:1}],T.hit,0,'cubic-bezier(0,0,.2,1)');
       const flash = node('cutin-flash'); if (!reduced.matches) motion(flash,[{opacity:0},{opacity:.75,offset:.4},{opacity:0}],T.flash,0,'linear');
       const dots = node('cutin-halftone',dim);
@@ -85,7 +87,8 @@ window.ClickerCutin = (() => {
       const panel = node('cutin-panel'); panel.classList.toggle('from-right',mother);
       node('cutin-stripes',panel);
       const ink = masked('cutin-ink','ink-splash',panel);
-      const actor = node('cutin-actor',panel), svg = card.art.create(entry); actor.append(svg);
+      const actor = node('cutin-actor',panel), svg = effect.actor ? effect.actor() : card.art.create(entry); actor.append(svg);
+      if (effect.actor) actor.classList.add('holo-actor');
       const banner = masked('cutin-banner','brush-banner',panel);
       const name = node('cutin-name',panel); name.textContent = spec.name;
       const subtitle = node('cutin-subtitle',panel); subtitle.textContent = spec.sub(effect);
@@ -108,7 +111,7 @@ window.ClickerCutin = (() => {
         const impact = node('cutin-impact',panel,'img'); impact.src = 'clicker-fx-impact-burst.png';
         motion(impact,[{opacity:0,transform:'scale(.4)'},{opacity:1,transform:'scale(1.15)',offset:T.impact/(T.impact+T.impactOut)},{opacity:0,transform:'scale(1.15)'}],T.impact+T.impactOut,T.panel+T.arrive);
         later(()=>{
-          if (entry.src) {
+          if (entry.src || apocCast) {
             motion(svg, [{transform:'skewX(6deg) translateY(0)'},{transform:'skewX(6deg) translateY(-6px)',offset:.5},{transform:'skewX(6deg) translateY(0)'}],1200,0,'ease-in-out'); return;
           }
           const cfg = card.art.cfg(entry.id), start = performance.now();

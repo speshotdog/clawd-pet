@@ -45,7 +45,36 @@ window.ClickerHolo = (() => {
     prune(host._born); live.add(host);
     return host;
   }
+  // 可以拿在手上看的卡（卡冊詳情）：滑鼠經過時反光跟著游標，按住拖曳轉動，放開 280ms 回正。
+  // 手感照精裝典藏包的 bindInteraction：拖曳 0.2°/px、±18° 封頂、四次方緩出回正。
+  function interactive(host) {
+    const face = host && host._face; if (!face) return;
+    const rarity = face.dataset.rarity || [...face.classList].find(c => c.startsWith('r-'))?.slice(2) || 'rare';
+    let rx = 0, ry = 0, lx = 0, ly = 0, drag = null, raf = 0;
+    const paint = (x, y) => { lx = x; ly = y; window.HoloCardFace.paint(face, rarity, x, y, { tilt: false });
+      face.style.setProperty('--rx', rx + 'deg'); face.style.setProperty('--ry', ry + 'deg'); };
+    const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+    const release = () => {
+      drag = null; stop(); const r0x = rx, r0y = ry, x0 = lx, y0 = ly, t0 = performance.now();
+      const step = (now) => { const p = Math.min(1, (now - t0) / 280), k = Math.pow(1 - p, 4);
+        rx = r0x * k; ry = r0y * k; paint(x0 * k, y0 * k); raf = p < 1 ? requestAnimationFrame(step) : 0; };
+      raf = requestAnimationFrame(step);
+    };
+    host.style.touchAction = 'none';
+    host.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); stop(); drag = { x: e.clientX, y: e.clientY, rx, ry }; host.setPointerCapture(e.pointerId); });
+    host.addEventListener('pointermove', e => {
+      // 回正途中游標只是經過（沒在拖）就讓它回完，不然卡會停在半途（Codex 複檢 B2）
+      if (!drag && raf) return;
+      stop(); const b = host.getBoundingClientRect();
+      if (drag) { rx = Math.max(-18, Math.min(18, drag.rx - (e.clientY - drag.y) * .2)); ry = Math.max(-18, Math.min(18, drag.ry + (e.clientX - drag.x) * .2)); }
+      paint((e.clientX - b.left) / b.width * 2 - 1, (e.clientY - b.top) / b.height * 2 - 1);
+    });
+    host.addEventListener('pointerup', e => { if (host.hasPointerCapture(e.pointerId)) host.releasePointerCapture(e.pointerId); release(); });
+    host.addEventListener('pointercancel', release);
+    host.addEventListener('pointerleave', () => { if (!drag) release(); });
+    host.classList.add('holo-interactive');
+  }
   // 卡面的字級是用容器寬度算的，容器改變大小要重量一次
   function refit(host) { if (host && host._face) window.HoloCardFace.refit(host._face); }
-  return { face, refit, ready };
+  return { face, refit, ready, interactive };
 })();

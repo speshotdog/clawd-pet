@@ -266,7 +266,7 @@ window.Clicker = (() => {
     if (!store.state) return;
     const s = store.state, key = JSON.stringify([s.settings.scene, s.collection, s.skillSlots, E.slotCount(s)]);
     if (slotsKey !== key) {
-      slotsKey = key; $('slots').replaceChildren();
+      slotsKey = key; $('slots').replaceChildren(); delete $('slots').dataset.world;
       for (let i = 0; i < s.skillSlots.length; i++) {
         const el = document.createElement('article'); el.className = 'skill-slot';
         const id = s.skillSlots[i];
@@ -622,14 +622,16 @@ window.Clicker = (() => {
     extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin });
     dragUI = window.ClickerDrag.create({ $, store, commit, changed, notice, sound, card, E, Pool });   // v3：夥伴列拖到技能槽
     teamUI = window.ClickerTeamUI.create({ $, store, commit, changed, action, notice, sound, card, E, B, Pool, format, drag: dragUI });
-    apocUI = window.ClickerApocUI.create({ $, store, commit, changed, notice, format, card, sound,
+    apocUI = window.ClickerApocUI.create({ $, store, commit, changed, notice, format, card, sound, cutin,
       openRoster: (id) => showRoster(id), openTeam: () => teamUI?.open() });
     apocMap = window.ClickerApocMap.create({ $, apocUI, format, refit: () => fitStage() }); apocMap.bind();
     // 末世的主畫面是關卡地圖（使用者：「切換後就是之前做的關卡地圖」）；點站進去才是 1.0 那套戰鬥畫面
     if (store.state.settings.world === 'apoc') { apocUI.enter(); apocMap.open(); }
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
-    ready = true; gacha.setReady(); stage.setPartners(store.state);
+    // ⚠ 夥伴列是兩個世界共用的節點：在末世重新整理時，這行會把末世已經畫好的夥伴列蓋成桌邊的隊伍
+    //   （使用者 09-13 截圖：末世主畫面出現桌邊的夥伴、本輪當家、槽位）
+    ready = true; gacha.setReady(); if (!apocMode()) stage.setPartners(store.state);
     if (!apocMode()) { offline(); stage.render(store.state, { instant: true }); }   // 末世沒有離線收益，不該出桌邊收據（Codex 第二輪 B4）
     changed(); status();
     if (store.state.pending || store.state.apoc?.pending) gacha.restore(); startTimers();   // 末世的結果存在 apoc.pending（Codex 複檢 2-1）

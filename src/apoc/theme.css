@@ -1,0 +1,140 @@
+/* ============================================================
+   末世配色樣張：舊化的 1.0（使用者 2026-09-13：「說不定可以變成舊化材質的 1.0 感覺」）。
+
+   使用者在深藍／舊化／焦黑三張樣張裡選了舊化：泛黃紙、深棕墨——跟 1.0 同樣是「淺紙深字」。
+   body[data-apoc-theme="aged"] 由 clicker-apoc-ui.js 進末世時掛上，蓋掉 clicker.css 裡「末世＝深藍色票」那一段。
+   版面一行都不動；材質是 tools/apoc/build_theme.py 從 1.0 的貼圖做舊出來的（同尺寸同 alpha）。
+   ⚠ 這份樣式表放在 apoc/ 底下，裡面的相對網址以 apoc/ 為基準。
+   ============================================================ */
+body[data-world="apoc"][data-apoc-theme="aged"] #game {
+  --t-bg:url('theme/aged/kraft.webp'); --t-paper:url('theme/aged/paper.webp');
+  --t-panel:#CBB793; --t-btn:#DCCBA6; --t-btn-hover:#E8D9B6; --t-btn-disabled:#A99977;
+  --t-text:#2A1C12; --t-muted:#5B4633; --t-accent:#8E3B2E; --t-accent-ink:#F6ECD6; --t-meter:#9E4A34;
+  --t-stage-shade:rgba(40,24,10,.28);
+  --paper:#CBB793; --paper-edge:#3B2A1C; --ink:#2A1C12; --text-secondary:#5B4633;
+  color:#2A1C12;
+}
+
+/* ---- 底：舊化牛皮紙 */
+body[data-world="apoc"][data-apoc-theme] #game { background:var(--t-panel) var(--t-bg) repeat; }
+body[data-world="apoc"][data-apoc-theme] .desk-mat { background:transparent; box-shadow:none; }
+
+/* ---- 紙卡面板：舊化紙用 9-slice（border-image）貼，跟 1.0 的貼紙框同一個做法。
+   ⚠ 不能整張撐滿當背景：貼圖自己就畫了粗黑框＋縫線，撐滿會變成「CSS 框＋貼圖框」兩層，
+     高的面板還會把框拉變形、框角壓到字（09-13 樣張截圖）。 */
+body[data-world="apoc"][data-apoc-theme] #game-content h1,
+body[data-world="apoc"][data-apoc-theme] .wallet,
+body[data-world="apoc"][data-apoc-theme] .upgrade, body[data-world="apoc"][data-apoc-theme] .recruit,
+body[data-world="apoc"][data-apoc-theme] #team, body[data-world="apoc"][data-apoc-theme] .panel,
+body[data-world="apoc"][data-apoc-theme] .small-panel, body[data-world="apoc"][data-apoc-theme] #album-detail,
+body[data-world="apoc"][data-apoc-theme] #map-inspector, body[data-world="apoc"][data-apoc-theme] .team-dialog,
+body[data-world="apoc"][data-apoc-theme] #draw-summary, body[data-world="apoc"][data-apoc-theme] #recruit-topbar {
+  background:transparent; border:0; border-radius:0; box-shadow:none;
+  border-image:var(--t-paper) 64 fill / 18px stretch !important;
+  color:var(--t-text); outline:0;
+}
+/* 面板裡面的分區不再貼一次紙（卡冊的書與書頁、編隊的四塊）：一層淡紙色＋虛線就好，
+   不然卡冊會變成「面板框＋書框＋頁框」三層粗黑框 */
+body[data-world="apoc"][data-apoc-theme] #album-book, body[data-world="apoc"][data-apoc-theme] .album-page,
+body[data-world="apoc"][data-apoc-theme] .collect-page {
+  border-image:none !important; background:transparent; border:0; box-shadow:none; }
+body[data-world="apoc"][data-apoc-theme] .album-page + .album-page,
+body[data-world="apoc"][data-apoc-theme] #album-right { border-left:2px dashed rgba(59,42,28,.35); }
+body[data-world="apoc"][data-apoc-theme] .t20-rail {
+  border-image:none !important; background:rgba(255,246,222,.28); border:2px dashed rgba(59,42,28,.45);
+  border-radius:12px; box-shadow:none; color:var(--t-text); }
+body[data-world="apoc"][data-apoc-theme] .team-roster-head { background:transparent; color:var(--t-text); }
+body[data-world="apoc"][data-apoc-theme] #game .team-proxy { outline:0; }
+body[data-world="apoc"][data-apoc-theme] #game-content h1,
+body[data-world="apoc"][data-apoc-theme] #game h2, body[data-world="apoc"][data-apoc-theme] #game h3,
+body[data-world="apoc"][data-apoc-theme] .wallet b { color:var(--t-text); }
+
+/* ---- 按鈕：舊紙色塊＋深墨 */
+body[data-world="apoc"][data-apoc-theme] #game-content button,
+body[data-world="apoc"][data-apoc-theme] #roster button,
+body[data-world="apoc"][data-apoc-theme] #recruit-layer button,
+body[data-world="apoc"][data-apoc-theme] .detail-actions button,
+body[data-world="apoc"][data-apoc-theme] #t20-skills .skill-slot {
+  --button-bg:var(--t-btn); background:var(--t-btn); color:var(--t-text); border-color:var(--paper-edge);
+}
+body[data-world="apoc"][data-apoc-theme] #game-content button:hover:enabled,
+body[data-world="apoc"][data-apoc-theme] #recruit-layer button:hover:enabled { background:var(--t-btn-hover); }
+body[data-world="apoc"][data-apoc-theme] #game button:disabled,
+body[data-world="apoc"][data-apoc-theme] #recruit-layer button:disabled {
+  --button-bg:var(--t-btn-disabled); background:var(--t-btn-disabled); color:var(--t-muted); }
+/* 透明點擊區不能被上面那條塗成色塊 */
+body[data-world="apoc"][data-apoc-theme] #game-content #tap,
+body[data-world="apoc"][data-apoc-theme] #game-content .map-station,
+body[data-world="apoc"][data-apoc-theme] #game-content .buddy,
+body[data-world="apoc"][data-apoc-theme] #game .album-slot,
+body[data-world="apoc"][data-apoc-theme] #game .team-proxy { background:transparent; }
+
+/* ---- 小紙片：價牌、標題、技能名、槽章 */
+body[data-world="apoc"][data-apoc-theme] .package-meter, body[data-world="apoc"][data-apoc-theme] .price-ticket,
+body[data-world="apoc"][data-apoc-theme] #notice, body[data-world="apoc"][data-apoc-theme] .buddy-header h2,
+body[data-world="apoc"][data-apoc-theme] .scene-ticket, body[data-world="apoc"][data-apoc-theme] #shop h2,
+body[data-world="apoc"][data-apoc-theme] .skill-name, body[data-world="apoc"][data-apoc-theme] .skill-slot small,
+body[data-world="apoc"][data-apoc-theme] .slot-stamp, body[data-world="apoc"][data-apoc-theme] .map-label {
+  background:var(--t-btn); border-color:var(--paper-edge); color:var(--t-text); }
+body[data-world="apoc"][data-apoc-theme] #shop h2 small, body[data-world="apoc"][data-apoc-theme] .recruit small,
+body[data-world="apoc"][data-apoc-theme] .upgrade p, body[data-world="apoc"][data-apoc-theme] .album-meta small,
+body[data-world="apoc"][data-apoc-theme] #album-detail dt, body[data-world="apoc"][data-apoc-theme] #album-detail .detail-tier,
+body[data-world="apoc"][data-apoc-theme] .team-skills-label small, body[data-world="apoc"][data-apoc-theme] .team-detail small,
+body[data-world="apoc"][data-apoc-theme] .map-progress, body[data-world="apoc"][data-apoc-theme] #map-section,
+body[data-world="apoc"][data-apoc-theme] #map-desc, body[data-world="apoc"][data-apoc-theme] #map-next,
+body[data-world="apoc"][data-apoc-theme] .team-detail .detail-number, body[data-world="apoc"][data-apoc-theme] .rates,
+body[data-world="apoc"][data-apoc-theme] footer { color:var(--t-muted); }
+body[data-world="apoc"][data-apoc-theme] #package-number, body[data-world="apoc"][data-apoc-theme] #package-label,
+body[data-world="apoc"][data-apoc-theme] #album-detail dd, body[data-world="apoc"][data-apoc-theme] #album-detail h3,
+body[data-world="apoc"][data-apoc-theme] .capacity-row, body[data-world="apoc"][data-apoc-theme] .team-detail header,
+body[data-world="apoc"][data-apoc-theme] #t20-detail-op, body[data-world="apoc"][data-apoc-theme] .picker-status,
+body[data-world="apoc"][data-apoc-theme] .map-progress b, body[data-world="apoc"][data-apoc-theme] #map-title,
+body[data-world="apoc"][data-apoc-theme] .team-proxy .proxy-name, body[data-world="apoc"][data-apoc-theme] #buddies .buddy,
+body[data-world="apoc"][data-apoc-theme] #recruit-hint, body[data-world="apoc"][data-apoc-theme] .draw-faces figcaption { color:var(--t-text); }
+body[data-world="apoc"][data-apoc-theme] #recruit-topbar > b,
+body[data-world="apoc"][data-apoc-theme] .draw-line > b { background:var(--t-accent); color:var(--t-accent-ink); border-radius:8px; }
+body[data-world="apoc"][data-apoc-theme] #package-progress::-webkit-progress-bar { background:var(--t-btn-disabled); }
+body[data-world="apoc"][data-apoc-theme] #package-progress::-webkit-progress-value { background:var(--t-meter); }
+
+/* ---- 戰鬥舞台：不再是一塊暗底，墊上地圖同一張「廢墟後院」插畫再壓一層陰影 */
+body[data-world="apoc"][data-apoc-theme] #stage {
+  background:linear-gradient(var(--t-stage-shade), var(--t-stage-shade)), url('map/terrain.webp') center 70% / cover no-repeat;
+  border:3px solid var(--paper-edge); box-shadow:0 4px 0 var(--paper-edge);
+}
+
+/* ---- 地圖、招募層 */
+body[data-world="apoc"][data-apoc-theme] #map-window { border-color:var(--paper-edge); background:var(--t-panel); }
+body[data-world="apoc"][data-apoc-theme] .map-tile { opacity:1; }
+body[data-world="apoc"][data-apoc-theme] .map-station .node-body { background:var(--t-btn); border-color:var(--paper-edge); }
+body[data-world="apoc"][data-apoc-theme] .map-link { stroke:var(--paper-edge); stroke-opacity:.35; }
+body[data-world="apoc"][data-apoc-theme] .map-link.walked { stroke-opacity:.85; }
+body[data-world="apoc"][data-apoc-theme] #recruit-layer { background:var(--t-panel) var(--t-bg) repeat; }
+body[data-world="apoc"][data-apoc-theme] #t20-picker::backdrop { background:rgba(20,12,6,.6); }
+
+/* ---- 對比度（掃描器量出來的：舊紙上還留著深藍版的淺色字、停用鍵字太淡） */
+body[data-world="apoc"][data-apoc-theme] #game button:disabled,
+body[data-world="apoc"][data-apoc-theme] #recruit-layer button:disabled { background:#B9AA8A; color:#35261A; }
+body[data-world="apoc"][data-apoc-theme] #game .slot-empty { color:var(--t-muted); }
+body[data-world="apoc"][data-apoc-theme] #team-summary, body[data-world="apoc"][data-apoc-theme] #team-summary b,
+body[data-world="apoc"][data-apoc-theme] #album-page { color:var(--t-text); }
+body[data-world="apoc"][data-apoc-theme] #t20-skills .skill-slot .slot-name,
+body[data-world="apoc"][data-apoc-theme] #t20-skills .skill-slot small { color:var(--t-text); }
+
+/* ---- 直接壓在牛皮紙上的小字（右上角收益、頁尾進度）：底是透明的，掃描器當成深色底沒抓到 */
+body[data-world="apoc"][data-apoc-theme] .rates, body[data-world="apoc"][data-apoc-theme] footer,
+body[data-world="apoc"][data-apoc-theme] #next-goal { color:var(--t-text); }
+/* 商店卡片的說明字：標題含標籤框的 padding 是 26px，加上 18px 行高就超出 42px 的格子，
+   多出來的 2px 壓在 .purchase 的虛線上，看起來像刪除線（「末世金幣 27」「戰力 894・點一下 447」） */
+body[data-world="apoc"][data-apoc-theme] .upgrade p, body[data-world="apoc"][data-apoc-theme] .recruit > div > small { line-height:15px; }
+
+/* 抽卡結算與全線通行：clicker.css 用 `#game #draw-summary …` 把字寫死成深藍版的淺色，
+   權重比上面的通用規則高，要用同等以上的選擇器蓋回墨色（Codex 複檢 B1：紙底上只剩 1.74:1） */
+body[data-world="apoc"][data-apoc-theme] #game #draw-summary,
+body[data-world="apoc"][data-apoc-theme] #game #draw-summary h2,
+body[data-world="apoc"][data-apoc-theme] #game #draw-summary .draw-line span,
+body[data-world="apoc"][data-apoc-theme] #game #draw-summary figcaption,
+body[data-world="apoc"][data-apoc-theme] #game #apoc-ending,
+body[data-world="apoc"][data-apoc-theme] #game #apoc-ending * { color:var(--t-text); }
+body[data-world="apoc"][data-apoc-theme] #game #draw-summary,
+body[data-world="apoc"][data-apoc-theme] #game #apoc-ending { background:transparent; border-image:var(--t-paper) 64 fill / 18px stretch !important; border:0; }
+body[data-world="apoc"][data-apoc-theme] #game #apoc-ending button { color:var(--t-text); }

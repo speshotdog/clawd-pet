@@ -206,7 +206,7 @@ window.ClickerStage = (() => {
       page = Math.min(page, Math.max(0, Math.ceil(ids.length / 10) - 1));
       const key = JSON.stringify([s.settings.scene, ids, s.skillSlots, s.champions, s.effects.find(e => e.source === 'zhenmu')?.target, page]);
       if (key === teamKey) return; teamKey = key;
-      $('buddies').replaceChildren();
+      $('buddies').replaceChildren(); delete $('buddies').dataset.world;   // 末世的快取靠這個標記判斷節點還是不是它畫的
       $('buddy-page').textContent = `${page + 1}/${Math.max(1, Math.ceil(ids.length / 10))}`;
       $('buddy-prev').disabled = joining || page === 0; $('buddy-next').disabled = joining || (page + 1) * 10 >= ids.length;
       if (!ids.length) $('buddies').textContent = '還沒有夥伴。點 50 次，玥玥會來幫忙。';

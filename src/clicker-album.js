@@ -156,7 +156,13 @@ window.ClickerAlbum = (() => {
             slot.setAttribute('aria-label', hint); slot.title = hint;
             slot.append(makeCard(s, id));
             const meta = document.createElement('div'); meta.className = 'album-meta';
-            const line = document.createElement('small'); line.textContent = n ? `★${n}・戰力 ${format(A().cardPower(a, id))}` : '？？？'; meta.append(line);
+            // 星星用 1.0 的星星圖示（使用者：「卡冊星星請直接用圖示」）；張數多到排不下時改成一顆星＋×張數
+            if (n) { const row = document.createElement('div'); row.className = 'star-row apoc-stars';
+              const icons = n <= 5 ? n : 1;
+              for (let k = 0; k < icons; k++) { const img = new Image(); img.src = 'clicker-star.png'; img.alt = ''; row.append(img); }
+              if (n > 5) { const x = document.createElement('b'); x.textContent = `×${n}`; row.append(x); }
+              row.setAttribute('aria-label', `${n} 星`); meta.append(row); }
+            const line = document.createElement('small'); line.textContent = n ? `戰力 ${format(A().cardPower(a, id))}` : '？？？'; meta.append(line);
             const sk = (a.skills || []).indexOf(id);
             if (sk >= 0) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${sk + 1}`; slot.append(stamp); }
             else if ((a.roster || []).includes(id)) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp team-stamp'; stamp.textContent = '隊'; slot.append(stamp); }
@@ -223,6 +229,7 @@ window.ClickerAlbum = (() => {
       const root = $('album-detail'); root.replaceChildren(); root.hidden = false;
       const left = document.createElement('div'); left.className = 'detail-left';
       const big = makeCard(s, id); big.classList.add('detail-card'); left.append(big);
+      if (apoc()) window.ClickerHolo?.interactive(big.querySelector('.holo-face'));   // 拿在手上看：拖曳轉動、反光跟著游標
       const right = document.createElement('div'); right.className = 'detail-right';
       const h = document.createElement('h3'); h.textContent = byId(id).name; right.append(h);
       if (isCollect(id)) {   // 收藏卡：只有說明與返回

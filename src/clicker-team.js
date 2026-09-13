@@ -39,7 +39,7 @@
       b.setAttribute('aria-label', `${index === null ? '候選' : String(index + 1).padStart(2, '0')} ${byId(id).name} ${RAR[byId(id).rarity]}`);
       const img = el('span', 'proxy-image'); img.append(portrait(id));
       if (index !== null) img.append(el('span', 'proxy-index', String(index + 1).padStart(2, '0')));
-      img.append(el('span', 'proxy-symbol', SYMBOLS[byId(id).rarity]));
+      if (!apoc()) img.append(el('span', 'proxy-symbol', SYMBOLS[byId(id).rarity]));   // 精裝卡的卡框本身就是稀有度
       b.append(img, el('span', 'proxy-name', byId(id).name.replace('（原版）', '')));
       if (!apoc() && E.champion(store.state, id)) b.append(el('i', 'champ-flag', '本輪當家'));
       const slot = skills().indexOf(id); if (slot >= 0) b.append(el('i', 'slot-stamp', `槽${slot + 1}`));
@@ -72,6 +72,8 @@
       for (let i = 0; i < list.length; i++) {
         const id = list[i], b = el('button', 'skill-slot'); b.type = 'button'; b.dataset.slot = i;
         b.append(el('small', '', `技能槽 ${i + 1}`));
+        // 直式只放卡不放名字，名字要留在 title／aria-label（Codex 複檢 C）
+        const label = id ? `技能槽 ${i + 1}：${byId(id).name}` : `技能槽 ${i + 1}：挑選`; b.title = label; b.setAttribute('aria-label', label);
         if (!apoc() && i >= E.slotCount(s)) { b.disabled = true; b.append(el('span', 'slot-name', '未解鎖')); }
         else if (id) { b.append(portrait(id), el('span', 'slot-name', byId(id).name.replace('（原版）', ''))); }
         else b.append(el('span', 'slot-name', '＋ 挑選'));

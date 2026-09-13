@@ -17,7 +17,7 @@ window.ClickerApocUI = (() => {
   const enemyArt = (i, boss) => boss ? BOSSES[Math.floor(i / 4) % BOSSES.length] : MOBS[i % MOBS.length];
 
 
-  function create({ $, store, commit, changed, notice, format, card, sound, openRoster, openTeam }) {
+  function create({ $, store, commit, changed, notice, format, card, sound, openRoster, openTeam, cutin }) {
     const root = window;
     const A = window.ApocEconomy, Pool = () => window.ApocPool || [];
     let byIdCache = null, byIdSrc = null;
@@ -114,8 +114,9 @@ window.ClickerApocUI = (() => {
       const pages = Math.max(1, Math.ceil(v.roster.length / 10));
       buddyPage = Math.min(buddyPage, pages - 1);
       const key = JSON.stringify([v.roster, v.skills, v.collection, buddyPage]);
-      if (key === buddyKey) return; buddyKey = key;
-      host.replaceChildren();
+      // 快取只在「這塊還是末世畫的」時才算數：共用節點被桌邊的 renderer 蓋過就要重畫
+      if (key === buddyKey && host.dataset.world === 'apoc') return; buddyKey = key;
+      host.replaceChildren(); host.dataset.world = 'apoc';
       $('buddy-page').textContent = `${buddyPage + 1}/${pages}`;
       $('buddy-prev').disabled = buddyPage === 0; $('buddy-next').disabled = buddyPage + 1 >= pages;
       if (!v.roster.length) { host.textContent = '隊伍是空的。到「編隊」把卡放進來。'; return; }
@@ -134,12 +135,29 @@ window.ClickerApocUI = (() => {
       }
     }
 
+    // 技能施放：跟 1.0 同一套切入演出（使用者：「技能點下去也要有跟 1.0 一樣的施放效果」）
+    const SKILL_COLOR = { common: ['#A9A297', '#7E776C'], rare: ['#94BED0', '#5E93AA'], epic: ['#B8A2CF', '#80679E'],
+      legendary: ['#E9B94E', '#B8862A'], mythic: ['#FF4FD8', 'conic-gradient(#ff4fd8,#ffb347,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8)'] };
+    function cast(i) {
+      if (cutin?.active) return;
+      const before = view(), def = before.skillDefs[i], id = before.skills[i], entry = byId()[id];
+      if (!def || !entry) return;
+      const events = apply((x, n) => A.useSkill(x, i, n));
+      const after = view(); if ((after.skillCd?.[i] || 0) === (before.skillCd?.[i] || 0)) return;   // 冷卻中之類被擋下，apply 已經講原因
+      const d = A.RULES.SKILLS[entry.rarity], stamp = d.kind === 'clickMul' ? `×${d.value}` : d.kind === 'powerMul' ? `×${d.value}` : `−${d.value / 1000} 秒`;
+      const [color, stripe] = SKILL_COLOR[entry.rarity] || SKILL_COLOR.rare;
+      const name = def.name.length >= 6 ? def.name.slice(0, Math.floor(def.name.length / 2)) + '\n' + def.name.slice(Math.floor(def.name.length / 2)) : def.name;
+      cutin?.play({ source: id, entry: { ...entry, rarity: entry.rarity }, actor: () => faceOf(entry),
+        spec: { side: 'left', color, stripe, name, sub: () => def.text, stamp: () => stamp } });
+      return events;
+    }
+
     function renderSlots(v) {
       const map = byId(), host = $('slots'), now = Date.now();
       const key = JSON.stringify([v.skills, v.skillDefs.map(d => d && d.name)]);
-      if (key === slotKey) { updateSlots(v, now); return; }
+      if (key === slotKey && host.dataset.world === 'apoc') { updateSlots(v, now); return; }
       slotKey = key;
-      host.replaceChildren();
+      host.replaceChildren(); host.dataset.world = 'apoc';
       for (let i = 0; i < 4; i++) {
         const id = v.skills[i], def = v.skillDefs[i], entry = id ? map[id] : null;
         const wrap = document.createElement('article'); wrap.className = 'skill-slot';
@@ -150,7 +168,7 @@ window.ClickerApocUI = (() => {
         // 空格要能點（點了就去編隊）；只有「發動技能」才受戰鬥中／冷卻限制（Codex 複檢 3-3）
         b.disabled = store.blocked || (!!def && (!!left || !v.stage));
         b.title = def ? `${def.card}・${def.text}` : '點一下去編隊，把卡放進獨立技能格';
-        b.onclick = () => def ? apply((x, n) => A.useSkill(x, i, n)) : openTeam();
+        b.onclick = () => def ? cast(i) : openTeam();
         const name = document.createElement('span'); name.className = 'skill-name';
         name.textContent = def ? (left ? `${def.name}・${left}s` : def.name) : '選夥伴';
         wrap.append(b, name); host.append(wrap);
@@ -237,12 +255,13 @@ window.ClickerApocUI = (() => {
     // iframe 拿掉之後沒人發 → 第一次進去會是空隊伍、0 券，什麼都不能做。
     function enter() {
       document.body.dataset.world = 'apoc'; lastTick = Date.now(); buddyKey = slotKey = '';
+      document.body.dataset.apocTheme = 'aged';   // 使用者 09-13 選定：舊化的 1.0 材質（apoc/theme.css）
       if (store.state?.apoc?.unlocked && !store.state.apoc.gifted) apply(a => A.gift(a));
       render();
     }
     function leave() {
       buddyKey = slotKey = '';
-      delete document.body.dataset.world;
+      delete document.body.dataset.world; delete document.body.dataset.apocTheme;
       const e = $('apoc-enemy'); if (e) e.hidden = true;
       // 王關的護盾文字借用桌邊的效果標籤，不收掉會留在桌邊（Codex 第二輪 B12）
       const label = $('effect-label'); if (label) { label.hidden = true; label.classList.remove('broken'); }
