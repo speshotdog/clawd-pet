@@ -14,17 +14,29 @@ function track(song, mixer, filtered = false) {
   synth.limiter.disconnect(); synth.limiter.connect(filter || gain);
   return { song, mixer, gain, filter, synth, transport: new Transport(synth, {song,mixer}), target:0 };
 }
+// 現在該放哪一首（第八輪：兩個世界共用這支）。1.0＝掛上的場景曲＋共用的 lastboss 技能曲；
+// 末世＝這一站自己的曲＋神話技能曲（clicker-apoc-map.js 的 MUSIC／MYTHIC_MUSIC）。key 不同就換曲。
+const HOME_SKILL = { theme: 'lastboss', gen: { density:70, rhythm:75, speed:70, drama:85, mood:60, hook:75, smooth:40 } };
+function current(s) {
+  const map = window.ClickerApocMap;
+  if (s.settings.world === 'apoc' && map?.musicFor) { const music = map.musicFor(s.apoc); return { key: `apoc:${music.seed}`, music, skill: map.MYTHIC_MUSIC }; }
+  const scene = document.getElementById('stage').dataset.scene || s.settings.scene;
+  return { key: `home:${scene}`, music: window.ClickerScene.resolve(scene, s.package.index).music, skill: HOME_SKILL };
+}
+function songs(cur) {
+  const song = composeSong({theme:cur.music.theme,steps:32*16,gen:{...defaultGen(),...cur.music.gen},seed:cur.music.seed});
+  const skill = composeSong({theme:cur.skill.theme,steps:16*16,gen:{...defaultGen(),...cur.skill.gen,motif:extractMotif(song)},seed:cur.music.seed+'-battle'});
+  skill.transpose = song.transpose;   // 技能曲跟場景曲同調，疊上去不打架
+  return { song, skill };
+}
+function skillMixer() { const mixer = defaultMixer(); mixer.master = 64; mixer.duty.lead = '12.5%'; mixer.echo = 14; mixer.retro = false; return mixer; }
 function create() {
-  sceneId=state.settings.scene;
-  const music = window.ClickerScene.resolve(state.settings.scene,state.package.index).music;
+  const cur = current(state); sceneId = cur.key;
   ctx = new AudioContext();
   volume = ctx.createGain(); volumeTarget = state.settings.musicVolume; volume.gain.value = volumeTarget; volume.connect(ctx.destination);
-  const song = composeSong({theme:music.theme,steps:32*16,gen:{...defaultGen(),...music.gen},seed:music.seed});
-  const skill = composeSong({theme:'lastboss',steps:16*16,gen:{...defaultGen(),density:70,rhythm:75,speed:70,drama:85,mood:60,hook:75,smooth:40,motif:extractMotif(song)},seed:music.seed+'-battle'});
-  skill.transpose = song.transpose;
+  const { song, skill } = songs(cur);
   sceneTrack = track(song,{...defaultMixer(),master:60,retro:false});
-  const mixer = defaultMixer(); mixer.master = 64; mixer.duty.lead = '12.5%'; mixer.echo = 14; mixer.retro = false;
-  skillTrack = track(skill,mixer,true);
+  skillTrack = track(skill,skillMixer(),true);
 }
 // Envelopes and user volume are separate AudioParams, so dragging never cancels a transition.
 function curve(t, value, seconds, delay = 0) {
@@ -58,20 +70,24 @@ async function sync(next = state) {
   if (!next) return;
   state = next; const version = ++revision;
   clearTimeout(expiryTimer); expiryTimer = 0;
-  const alive = effectsAlive(); battle = !!state.boss || alive.length > 0;
+  // 末世：只有神話卡技能還有點擊加倍次數時才疊技能曲（王關有自己的曲，不再疊）；1.0 照舊（王包或任何技能效果）
+  const apoc = state.settings.world === 'apoc', fx = state.apoc?.fx;
+  const alive = apoc ? [] : effectsAlive(); battle = apoc ? !!(fx?.mythic && fx.clickLeft > 0) : (!!state.boss || alive.length > 0);
   if (!hidden && alive.length) expiryTimer = setTimeout(() => { safely(sync()); },Math.max(1,Math.min(...alive.map(e=>e.expiresAt))-Date.now()));
   if (!unlocked) return;
   const off = hidden || state.settings.music === false;
   if (!ctx && !off) create();
   if (!ctx) return;
-  const mountedScene=document.getElementById('stage').dataset.scene || state.settings.scene;
-  if (!off && sceneId!==mountedScene) {
-    sceneId=mountedScene;
-    const music=window.ClickerScene.resolve(sceneId).music, old=sceneTrack;
-    const song=composeSong({theme:music.theme,steps:32*16,gen:{...defaultGen(),...music.gen},seed:music.seed});
+  const cur = current(state);
+  if (!off && sceneId!==cur.key) {
+    sceneId=cur.key;
+    const { song, skill } = songs(cur), old=sceneTrack, oldSkill=skillTrack;
     sceneTrack=track(song,{...defaultMixer(),master:60,retro:false});
     sceneTrack.transport.start(0); curve(old,0,.4); curve(sceneTrack,battle?.24*.15:.24,.4);
-    setTimeout(()=>{old.transport.stop();old.gain.disconnect();},400);
+    // 技能曲跟著換（同調、帶新曲的動機；切世界時 lastboss ⇄ 神話技能曲）；舊的正在放就一起淡出，下面的 battle 分支會把新的接上
+    skillTrack=track(skill,skillMixer(),true);
+    if (oldSkill.transport.playing) { curve(oldSkill,0,.4); if (fadeKind === 'skill') { clearTimeout(fadeTimer); fadeTimer=0; fadeKind=''; } }
+    setTimeout(()=>{old.transport.stop();old.gain.disconnect();oldSkill.transport.stop();oldSkill.gain.disconnect();},400);
   }
   if (off) {
     if (fadeKind !== 'suspend' && ctx.state === 'running') {

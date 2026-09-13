@@ -124,7 +124,7 @@ window.ClickerGacha = (() => {
         const can = [1, 5, 10].filter(n => w.cost(n) <= w.wallet());
         el.textContent = '進入招募';
         const note = document.createElement('span'); note.className = 'draw-five-price';
-        note.textContent = w.pending() ? '有結果還沒收下' : can.length ? `可以抽・最多${drawName(can[can.length - 1])}` : `還差 ${format(Math.ceil(w.cost(1) - w.wallet()))}`;
+        note.textContent = w.pending() ? '結果還沒收下' : can.length ? `可抽・${drawName(can[can.length - 1])}` : `差 ${format(Math.ceil(w.cost(1) - w.wallet()))}`;   // 手機寬度塞得下的短字
         el.append(note); el.classList.toggle('can-draw', can.length > 0 || !!w.pending());
         el.title = '打開抽卡選單（單抽／五連／十連）'; el.disabled = !ready || store.blocked || busy;
         return;

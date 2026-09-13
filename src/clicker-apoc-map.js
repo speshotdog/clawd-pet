@@ -19,7 +19,30 @@ window.ClickerApocMap = (() => {
   // 以前只有第一段有真的美術（terrain.webp），二～五段拿同一張重複貼。現在一段一張（terrain-2～5.webp，
   // Codex imagegen 照第一段 seg1b 的規格畫，原稿與回報在 _art/apoc-map/），每張上放該段的 4 站。
   // 站點位置用「路線高度的百分比」算：第 k 段第 j 站在 (k + 0.2 + 0.2j) / 5——避開每張圖上下 10% 的接段過渡帶。
-  const stationPct = i => (Math.floor(i / 4) + .2 + .2 * (i % 4)) / 5 * 100;
+  // 第八輪使用者：「地圖接縫縮小」——每張圖上下各有 10% 的純色接段帶，兩張接起來就是一條 20% 的空白。
+  // 改成相鄰兩張疊 OVERLAP（圖高的比例），後一張的上緣用漸層淡入蓋住前一張的下緣（CSS .map-tile + .map-tile）。
+  // 站點放在每張扣掉疊合區之後的 25%～75%：路線總高＝5 − 4×OVERLAP 張圖。
+  const OVERLAP = .22;   // 手機截圖看 .18 還留一條色帶，加到 .22（CSS 的 margin-top 與漸層要一致）
+  // 第八輪使用者：「每個關卡都有自己的 BGM，神話卡的技能施放期間也要有自己的 BGM，幫我看之前的 8BIT 音樂專案去挑選適合的」。
+  // 曲子是 ChipForge（D:\claude研究\chipforge；遊戲內 src/chipforge）的主題＋固定 seed 即時作曲，同一站每次都是同一首。
+  // 一般站挑小調、殘破感的場景主題；王站挑「頭目戰」分類。刷怪時放前一站的曲（clicker-music.js 讀 stage.index）。
+  const MUSIC = [
+    'lostpath', 'nightfield', 'mistvalley', 'rival',            // 後院草地・廢墟：迷失之路／夜間平原／霧之谷／王 灰狼犬＝宿敵對決
+    'trainyard', 'mechbay', 'controlroom', 'mechabeast',        // 補給線：調車場／機庫整備／監控室／王 貼紙羊＝機械巨獸
+    'backalley', 'neonrain', 'basementclub', 'juggernaut',      // 夜市攤・廢墟：後巷貓影／霓虹雨／地下俱樂部（槌痕的拍子）／王 扛槌兔＝破城巨兵
+    'winecellar', 'tundra', 'secretroom', 'frostwyrm',          // 冷藏庫深處：酒窖／極地凍原／密室／王 雞頭合成怪＝冰霜巨龍
+    'colony', 'rainstreet', 'blackhole', 'truefinal',           // 滅世都市：廢棄殖民地／雨中街道／黑洞邊緣／王 真・滅世珍獸＝真·最終戰
+  ];
+  // 神話卡技能施放期間（10 次點擊 ×10 用完為止）疊上的曲：傳說RPG「熱血王道戰」
+  const MYTHIC_MUSIC = { theme: 'heartbattle', gen: { density: 75, rhythm: 80, speed: 75, drama: 90, mood: 70, hook: 85, smooth: 40 } };
+  // 刷怪兩場之間的 1 秒空檔沒有 stage：照 renderStage 的 farmGap 判斷，還是放前一站的曲（Codex 第八輪必修：
+  // 以前這一秒選到王站的曲，刷一隻就在霧之谷／宿敵對決之間來回切）
+  const musicFor = a => {
+    const p = a?.progress ?? 0, farmGap = !a?.stage && p % 4 === 3 && a?.bossFailed === p && p > 0 && p < 20;
+    const i = Math.max(0, Math.min(19, a?.stage ? a.stage.index : farmGap ? p - 1 : p));
+    return { theme: MUSIC[i], seed: `apoc-station-${i + 1}` };
+  };
+  const stationPct = i => (Math.floor(i / 4) * (1 - OVERLAP) + .25 + (i % 4) * (.5 / 3)) / (5 - 4 * OVERLAP) * 100;
   const STAGES = Array.from({ length: 20 }, (_, i) => ({
     i, segment: Math.floor(i / 4), boss: i % 4 === 3,
     name: i % 4 === 3 ? BOSSES[Math.floor(i / 4)] : NAMES[Math.floor(i / 4)][i % 4],
@@ -143,5 +166,5 @@ window.ClickerApocMap = (() => {
       },
     };
   }
-  return { create, STAGES, SECTIONS };
+  return { create, STAGES, SECTIONS, MUSIC, MYTHIC_MUSIC, musicFor };
 })();

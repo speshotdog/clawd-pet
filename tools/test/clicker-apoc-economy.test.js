@@ -317,3 +317,15 @@ test('五連：扣款、pending 經過 normalize（重開／tick）還在、收�
   assert.equal(got.accepted, true); assert.equal(Object.values(got.state.collection).reduce((x, y) => x + y, 0), 5);
   assert.throws(() => A.purchaseDraw(a, 3, 0, () => .9), /單抽、五連或十連/);
 });
+
+// --- 第八輪：神話卡技能施放期間放專屬 BGM（clicker-music.js 讀 fx.mythic）
+test('神話卡施放：fx.mythic 開著直到 10 下用完；傳說卡不算；normalize 清掉沒有次數的 mythic', () => {
+  let a = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1, l1: 1 }, roster: ['m1', 'l1'], skills: ['m1', 'l1', null, null] }), 0);
+  a = A.useSkill(a, 0, 0);
+  assert.equal(a.fx.mythic, true); assert.equal(a.fx.clickLeft, R.SKILLS.mythic.uses);
+  for (let i = 0; i < R.SKILLS.mythic.uses - 1; i++) a = { ...A.tap(a, 0), stage: { ...a.stage, hp: 1e12 } };
+  assert.equal(a.fx.mythic, true, '還剩一下');
+  a = A.tap(a, 0); assert.equal(a.fx.mythic, false, '10 下用完就收掉');
+  const legend = A.useSkill(a, 1, 0); assert.equal(legend.fx.mythic, false, '傳說卡的點擊加倍不放神話技能曲');
+  assert.equal(A.normalize({ ...a, fx: { ...a.fx, mythic: true, clickLeft: 0 } }).fx.mythic, false);
+});

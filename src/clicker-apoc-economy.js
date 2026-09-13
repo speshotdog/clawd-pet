@@ -100,7 +100,7 @@
   function fresh() {
     return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
       paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
-      pending: null, cleared: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1 } };
+      pending: null, cleared: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
   function normalize(a) {
     const f = fresh(), raw = a || {}; a = { ...f, ...raw };
@@ -160,7 +160,8 @@
       }
     }
     a.skillCd = [0, 1, 2, 3].map(i => Number(a.skillCd?.[i]) || 0);
-    a.fx = { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, ...(a.fx || {}) };
+    a.fx = { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false, ...(a.fx || {}) };
+    a.fx.mythic = !!a.fx.mythic && a.fx.clickLeft > 0;
     return a;
   }
   function gift(a) {
@@ -251,7 +252,7 @@
     const dmg = tapDamage(a, now);
     // 次數型增益（尾巴節拍／一口氣開封）在這裡消耗一格
     let fx = { ...a.fx };
-    if (fx.clickLeft > 0) { fx.clickLeft -= 1; if (!fx.clickLeft) fx.clickMul = 1; }
+    if (fx.clickLeft > 0) { fx.clickLeft -= 1; if (!fx.clickLeft) { fx.clickMul = 1; fx.mythic = false; } }
     let st = { ...a.stage }, broke = false;
     if (st.boss && !(now < (st.breakUntil || 0))) {
       // 護盾在場：這一下算進破盾進度；點滿就破防
@@ -268,7 +269,8 @@
     if (now < (a.skillCd?.[slot] || 0)) throw new Error('技能冷卻中');
     let fx = { ...a.fx }, cd = [...(a.skillCd || [0, 0, 0, 0])];
     const k = boostOf(a);   // 1.0 的技能祝福放大效果量、冷卻祝福縮短冷卻（同 1.0 的 skillArt／cdArt）
-    if (def.kind === 'clickMul') { fx.clickMul = def.value * k.skill; fx.clickLeft = def.uses; }
+    // mythic：神話卡的點擊加倍還在（第八輪：施放期間放神話技能曲，clicker-music.js 讀這個；傳說卡也是 clickMul，不算）
+    if (def.kind === 'clickMul') { fx.clickMul = def.value * k.skill; fx.clickLeft = def.uses; fx.mythic = def.card.rarity === 'mythic'; }
     else if (def.kind === 'powerMul') { fx.powerMul = 1 + (def.value - 1) * k.skill; fx.powerUntil = now + def.ms; }
     else if (def.kind === 'cool') cd = cd.map((t, i) => i === slot ? t : Math.max(now, t - def.value * k.skill));
     cd[slot] = now + def.cd * k.cd;

@@ -22,10 +22,12 @@ window.ClickerPrestigeUI = (() => {
         + `<li class="${packs >= 100 ? 'done' : ''}">本輪拆滿 100 包（${Math.min(packs,100)}/100）<b>${packs >= 100 ? '+1' : '—'}</b></li><li class="${packs >= 300 ? 'done' : ''}">本輪拆滿 300 包（${Math.min(packs,300)}/300）<b>${packs >= 300 ? '+1' : '—'}</b></li>`;
       const halved = (s.bossWins || []).filter(id => id !== 'city').length;
       const note = document.createElement('div'); note.className = 'prestige-note';
-      note.innerHTML = `<p>本輪可領印記 <b>${gained}</b> / ${B.V3.MARKS_PER_RUN} 顆（累計上限 ${B.MARKS_TOTAL_CAP}，已領 ${s.marksClaimed}）。</p>
+      // 第八輪：末世也打得開這個面板——要講清楚重置的是 1.0，不然「清除錢幣、攻擊力」會被看成末世的（Codex 第八輪）
+      const inApoc = document.body.dataset.world === 'apoc';
+      note.innerHTML = `${inApoc ? '<p><b>這裡重置的是 1.0 桌邊的進度</b>；末世的金幣、訓練與關卡進度都保留。</p>' : ''}<p>本輪可領印記 <b>${gained}</b> / ${B.V3.MARKS_PER_RUN} 顆（累計上限 ${B.MARKS_TOTAL_CAP}，已領 ${s.marksClaimed}）。</p>
         <ul class="run-ledger">${ledger}</ul>
         <p class="prestige-faster">下一輪會更快：贏過的 ${halved} 站門檻減半，神器加成照算，夥伴、粉塵、卡片全部帶著走。</p>
-        <div class="prestige-cols"><div><b>會清除</b><ul><li>錢幣、攻擊力、全隊訓練</li><li>電動手指、夥伴訓練</li><li>當輪包數，回到後院草地</li><li>王包裂痕、技能效果與冷卻</li></ul></div>
+        <div class="prestige-cols"><div><b>${inApoc ? '1.0 會清除' : '會清除'}</b><ul><li>錢幣、攻擊力、全隊訓練</li><li>電動手指、夥伴訓練</li><li>當輪包數，回到後院草地</li><li>王包裂痕、技能效果與冷卻</li></ul></div>
         <div><b>會保留</b><ul><li>夥伴、粉塵、升階、超越、編隊</li><li>保底與抽數、王的勝利紀錄</li><li>徽章、更衣室、桌面裝飾、派遣</li><li>印記、神器、商店</li></ul></div></div>
         <p>換桌布另送萬用粉塵 ${3 + (s.artifacts?.dust || 0)} 顆${s.markShop?.starter5 ? '，以及開局五連' : ''}；本輪當家會重抽。</p>`;
       body.append(note);
@@ -97,6 +99,8 @@ window.ClickerPrestigeUI = (() => {
         const r = P.prestige(store.state, Date.now());
         if (!commit(r.state)) return;
         close();
+        // 在末世按換桌布：1.0 的進度照樣重來，但畫面停在末世——不捲 1.0 的桌布、不掛 1.0 的場景（會蓋進 2.0 畫面），只蓋印記章
+        if (document.body.dataset.world === 'apoc') { sound('transcend'); changed(); finish(r.gained); return; }
         // 桌布捲起 → 黑一格 → 新桌布展開；印記數字「到站才跳」
         const table = $('game-content');
         sound('transcend');
@@ -119,7 +123,7 @@ window.ClickerPrestigeUI = (() => {
       stamp.animate([{ transform: 'translate(-50%,-50%) scale(1.8)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.17,.89,.32,1.28)' }).finished.then(() => setTimeout(() => stamp.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300 }).finished.then(() => stamp.remove()).catch(() => stamp.remove()), 1400)).catch(() => stamp.remove());
       notice(`換了新桌布，永久倍率 ×${E.markMul(store.state).toFixed(2)}`);
     }
-    function open() { tab = 'prestige'; $('prestige').hidden = false; $('game-content').inert = true; render(); $('prestige-close').focus(); }
+    function open(initial = 'prestige') { tab = initial; $('prestige').hidden = false; $('game-content').inert = true; render(); $('prestige-close').focus(); }
     function close() { $('prestige').hidden = true; $('game-content').inert = false; }
     // 「桌子有點滿了」便條：一天一次，點了就開面板
     function hint() {

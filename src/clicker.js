@@ -787,7 +787,8 @@ window.Clicker = (() => {
     $('apoc-ending-close').onclick = () => { $('apoc-ending').hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('scenes-close').onclick=()=>{$('scenes').hidden=true; $('game-content').inert=gacha.active; $('scene-open').focus();};
     for (const id of ['roster', 'stats', 'receipt', 'wardrobe', 'prestige']) $(`${id}-close`).onclick = () => { if (id === 'roster') album.close(); $(id).hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
-    $('prestige-open').onclick = () => { if (apocMode()) return; if (!cutin.active) prestigeUI.open(); };   // 末世的這一格是「重走廢土」（鍵先放）
+    // 第八輪：末世也打開換桌布面板，預設停在「神器與商店」（使用者：要升級還要回去 1.0 按，很不直覺）
+    $('prestige-open').onclick = () => { if (!cutin.active) prestigeUI.open(apocMode() ? 'marks' : 'prestige'); };
     $('team-open').onclick = () => { if (!cutin.active) teamUI.open(); };
     $('memento-close').onclick = () => { $('memento').hidden = true; $('game-content').inert = false; };
     $('memento-open').onclick = () => { $('stats').hidden = true; mementoPage(); };
@@ -843,7 +844,9 @@ window.Clicker = (() => {
       // 結果就是停在一個沒有卡、沒有收下鍵、返回鍵又因為 pending 而停用的死畫面。
       // 有 pending 時 ESC 什麼都不做，跟「返回」鍵停用的規則一致。
       if (gacha?.active) { if (!store.state.pending) gacha.close(); e.preventDefault(); return; }
-      closeWindow();
+      // 第八輪手機 UI 巡檢順手查到：網頁版沒有視窗可關，但 closeWindow() 會先把 visible 設成 false 再 suspend()——
+      // 之後 action() 全部被 hiddenNow() 擋掉，整個遊戲點什麼都沒反應，要切走分頁再回來才會好。只有桌面版才關視窗。
+      if (TAURI) closeWindow();
     }
     if (e.key === 'Tab') {
       // 放大欣賞開著時焦點只在放大層裡轉，不要跑回被遮住的卡冊（Codex 第四輪）

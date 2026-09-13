@@ -13,9 +13,19 @@ window.ClickerApocUI = (() => {
   const RARITY = { common: '#A9A297', rare: '#94BED0', epic: '#B8A2CF', legendary: '#E9B94E', mythic: '#FF4FD8' };
   // 20 站的敵人：沿用 1.0 的敵人／王素材（使用者：整體畫面用 1.0 的改），王關用大一號的
   const MOBS = ['monster-0.png', 'monster-1.png', 'monster-2.png'];
-  const BOSSES = ['clicker-monster-bird.png', 'clicker-monster-wolf.png', 'clicker-boss3-pack.png',
-    'clicker-boss4-crate.png', 'clicker-boss5-bag.png', 'clicker-boss7-mieshi.png'];
-  const enemyArt = (i, boss) => boss ? BOSSES[Math.floor(i / 4) % BOSSES.length] : MOBS[i % MOBS.length];
+  // 第八輪使用者：「王的名字和圖對不上，請解決」——地圖上的王是 2.0 企劃定的五隻（灰狼犬／貼紙羊／扛槌兔／雞頭合成怪／真・滅世珍獸，
+  // PLAN-2.0-levels），戰鬥卻一直借 1.0 的鳥／灰狼／罐頭／箱子／袋子。換成企劃指定的原素材
+  // （holo-5.0 `_art/holo-test/source-4.0/怪物/`：01.gif、ej93j4.gif、image.gif 去白底、rise.png 去白底），轉成逐格圖放 apoc/boss/；
+  // 滅世珍獸企劃當時「素材未定」，用 1.0 滅世都市的滅世珍獸本體：原圖是有 REC 取景框與大樓的整張畫，放上來像貼一張照片，
+  // 裁掉取景框、四周橢圓淡出（apoc/boss/boss5-mieshi.png）。aspect＝單格寬／高，h＝舞台上的顯示高度。
+  const BOSSES = [
+    { name: '灰狼犬', src: 'apoc/boss/boss1-wolfdog.png', frames: 5, ms: 100, aspect: 205 / 180, h: 190 },
+    { name: '貼紙羊', src: 'apoc/boss/boss2-sticker-sheep.png', frames: 7, ms: 100, aspect: 338 / 300, h: 230 },
+    { name: '扛槌兔', src: 'apoc/boss/boss3-hammer-bunny.png', frames: 9, ms: 130, aspect: 360 / 300, h: 230 },
+    { name: '雞頭合成怪', src: 'apoc/boss/boss4-chicken-chimera.png', frames: 1, aspect: 260 / 280, h: 230 },
+    { name: '真・滅世珍獸', src: 'apoc/boss/boss5-mieshi.png', frames: 1, aspect: 430 / 335, h: 250 },
+  ];
+  const enemyArt = (i, boss) => boss ? BOSSES[Math.floor(i / 4) % BOSSES.length] : { src: MOBS[i % MOBS.length], frames: 1 };
 
 
   function create({ $, store, commit, changed, notice, format, card, sound, openRoster, openTeam, cutin }) {
@@ -186,6 +196,7 @@ window.ClickerApocUI = (() => {
       }, true);
       if (!events.length && store.state.apoc === before) return;   // commit 被擋（存檔鎖住之類）就不演
       const after = store.state.apoc, won = events.some(e => e.type === 'win' || e.type === 'farm');
+      if (!!before?.fx?.mythic !== !!after?.fx?.mythic) window.ClickerMusic?.sync(store.state);   // 神話技能的 10 下用完：技能曲收掉
       if (!(dmg > 0) && !won) return;   // 期限已過的點擊不算傷害，也不演受擊（下一次結算判輸）
       const broke = boss && !wasBroken && !won && after.stage?.index === idx && (after.stage.breakUntil || 0) > now;
       sound(broke ? 'skill' : crit ? 'skill' : 'click');
@@ -200,6 +211,7 @@ window.ClickerApocUI = (() => {
       const st = store.state.apoc?.stage;
       if (st && was && st.index === idx0 && hp0 - st.hp > 0) floatPassive(hp0 - st.hp);
       // 放著被隊伍打死也要有擊倒演出（點死的那一下由 tap() 自己演）；地圖蓋著舞台時不演
+      window.ClickerMusic?.sync(store.state);   // 第八輪：一站一首——換站、刷怪回前一站時換曲（沒變就什麼都不做）
       if (events.some(e => e.type === 'win' || e.type === 'farm') && !$('game-content').classList.contains('map-open') && $('recruit-layer').hidden) hitFx(null, 'kill', '擊倒！');
       autoFight();
     }
@@ -216,8 +228,15 @@ window.ClickerApocUI = (() => {
       const i = v.stage ? v.stage.index : farmGap ? v.progress - 1 : v.progress;
       const boss = v.stage ? v.stage.boss : farmGap ? false : A.isBoss(i);
       $('stage').dataset.apocSeg = String(Math.floor(Math.min(i, 19) / 4) + 1);   // 舞台背景跟著這一段的地景換（apoc/theme.css）
-      const src = enemyArt(Math.min(i, 19), boss);
-      if (el.getAttribute('src') !== src) el.setAttribute('src', src);
+      const art = enemyArt(Math.min(i, 19), boss);
+      if (el.getAttribute('src') !== art.src) {
+        el.setAttribute('src', art.src);
+        // 逐格的王：動畫表當背景一格一格硬切（見 clicker.css .apoc-sprite）；單張的直接用 <img>
+        el.classList.toggle('apoc-sprite', art.frames > 1);
+        el.style.backgroundImage = art.frames > 1 ? `url("${art.src}")` : '';
+        el.style.setProperty('--frames', art.frames); el.style.setProperty('--frame-ms', `${art.ms || 100}ms`);
+        el.style.height = art.h ? `${art.h}px` : ''; el.style.width = art.h ? `${Math.round(art.h * art.aspect)}px` : '';
+      }
       el.classList.toggle('boss', !!boss);
       el.hidden = v.progress >= v.stations;
 
@@ -301,6 +320,7 @@ window.ClickerApocUI = (() => {
       const name = def.name.length >= 6 ? def.name.slice(0, Math.floor(def.name.length / 2)) + '\n' + def.name.slice(Math.floor(def.name.length / 2)) : def.name;
       cutin?.play({ source: id, entry: { ...entry, rarity: entry.rarity }, actor: () => faceOf(entry),
         spec: { side: 'left', color, stripe, name, sub: () => def.text, stamp: () => stamp } });
+      window.ClickerMusic?.sync(store.state);   // 第八輪：神話卡一放下去就疊上神話技能曲（技能曲本身延後 260ms 起步，對齊切入的撞擊）
       return events;
     }
 
@@ -520,10 +540,11 @@ window.ClickerApocUI = (() => {
       $('scene-open').disabled = false; $('scene-open').title = '回到關卡地圖';
       setLabel($('scene-open').querySelector('span'), '地圖');
       $('roster-open').disabled = $('team-open').disabled = false;
-      // 使用者第三輪：頂列「統計」＝末世戰績、頁尾「商店」＝兌換所＋外觀、「換桌布」那一格＝重走廢土（鍵先放，全線通行後開放）
+      // 使用者第三輪：頂列「統計」＝末世戰績、頁尾「商店」＝兌換所＋外觀。
+      // 第八輪使用者：「2.0 也要看得到換桌布相關的東西，不然要升級還要回去 1.0 按，很不直覺」→ 頁尾「換桌布」在末世照樣打開
+      // 1.0 的換桌布面板（神器與商店的加成本來就套進 2.0）；以前這一格是還沒做的「重走廢土」佔位、按了沒反應。
       setLabel($('stats-open').querySelector('span'), '戰績');
-      setLabel($('prestige-open'), '重走廢土');
-      setButton('prestige-open', true, v.cleared ? '重走廢土：還在設計，之後開放' : '全線通行之後開放（還在設計）');
+      setButton('prestige-open', store.blocked, '換桌布・神器與商店（印記加成也套用在末世）');
       hide('recruit-open');   // 末世的演出固定是精裝典藏包，沒有演出方式可選
       if ($('daily-bag')) hide('daily-bag');   // 今日限定包是 1.0 的東西
     }
@@ -542,6 +563,7 @@ window.ClickerApocUI = (() => {
       buddyKey = slotKey = shopKey = '';
       delete document.body.dataset.world; delete document.body.dataset.apocTheme; delete $('stage').dataset.apocSeg;
       $('package-result').classList.remove('apoc-shown');
+      window.ClickerMusic?.sync(store.state);   // 回桌邊：換回 1.0 的場景曲
       const e = $('apoc-enemy'); if (e) { e.hidden = true; e.getAnimations().forEach(a => a.cancel()); }
       // 受擊特效是末世自己畫的，切回桌邊要收乾淨（粒子 scope 只清自己的，不會動到 1.0 的）
       fx?.stop(); fx = null; document.querySelectorAll('#floaters .apoc-hit, #floaters .apoc-hit-impact, #floaters .apoc-passive').forEach(el => el.remove());

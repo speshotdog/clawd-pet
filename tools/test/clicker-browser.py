@@ -942,7 +942,7 @@ def main():
         page.wait_for_function('window.Clicker && !document.getElementById("tap").disabled')
         page.locator('#receipt-close').click() if page.locator('#receipt').is_visible() else None
         assert page.evaluate('Clicker.state.coins') == 0
-        assert page.locator('#hero > svg').count() == 1
+        assert page.locator('#hero > svg').count() == 1, page.evaluate("()=>({hero:[...document.querySelectorAll('#hero > *')].map(e=>e.tagName), world:Clicker.state.settings.world, fatal:document.getElementById('fatal').hidden?null:document.getElementById('fatal').textContent, errors:"+json.dumps(errors)+"})")
         assert page.locator('#tap').bounding_box()['width'] == 240
         assert page.locator('#hero > svg').bounding_box()['height'] > 185
         assert page.evaluate('testSchedules.raf.size') == 2

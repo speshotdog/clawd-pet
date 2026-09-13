@@ -1268,12 +1268,11 @@ body[data-world="apoc"] #stage-fit { filter:none; }
    ⚠ 不要用取景範圍（object-view-box）做動畫：切格的瞬間會被補間，取景框滑到兩格之間，隔壁格的黑線跟著跑進來。
    改用 1.0 的王驗證過的做法：動畫表當背景、background-position 用 steps() 一格一格硬切；<img> 本身的內容推到框外不畫。
    框的長寬比照單格（怪鳥 291×300、灰狼 391×300），圖才不會被壓扁。 */
-#apoc-enemy[src="clicker-monster-bird.png"], #apoc-enemy[src="clicker-monster-wolf.png"] {
-  object-position:-10000px 0; background-repeat:no-repeat; background-size:400% 100%; background-position:0% 0;
-  animation:boss-frames 520ms steps(4, jump-none) infinite; }
-#apoc-enemy[src="clicker-monster-bird.png"] { background-image:url("clicker-monster-bird.png"); width:194px; height:200px; }
-#apoc-enemy[src="clicker-monster-wolf.png"] { background-image:url("clicker-monster-wolf.png"); width:261px; height:200px; }
-@media (prefers-reduced-motion: reduce) { #apoc-enemy[src="clicker-monster-bird.png"], #apoc-enemy[src="clicker-monster-wolf.png"] { animation:none; } }
+/* 第八輪：王換成 2.0 企劃的五隻（clicker-apoc-ui.js 的 BOSSES），格數不一樣（5／7／9 格），格數與每格毫秒由 JS 帶變數；
+   寬高也由 JS 照單格比例設在 style 上（置中靠上面的 translate，不受影響） */
+#apoc-enemy.apoc-sprite { object-position:-10000px 0; background-repeat:no-repeat; background-size:calc(var(--frames) * 100%) 100%; background-position:0% 0;
+  animation:boss-frames calc(var(--frames) * var(--frame-ms)) steps(var(--frames), jump-none) infinite; }
+@media (prefers-reduced-motion: reduce) { #apoc-enemy.apoc-sprite { animation:none; } }
 /* 輸了王的說明要一直看得到（1.0 這格平常透明、只閃一下）；apoc-ui 只在末世輸了王時掛 .apoc-shown */
 body[data-world="apoc"] #package-result.apoc-shown { opacity:1; left:442px; top:96px; width:140px; }   /* 放在「再次挑戰」鍵正下方，不蓋到王 */
 /* 1.0 的標籤欄固定 72px、超出藏起來：末世的「第 3 站・刷怪中」「第 4 站・王關」會被切成「第 3 站・」，改成跟著字長 */
@@ -1462,6 +1461,10 @@ body[data-world="apoc"] #slots .skill-slot[data-state="cooldown"] .skill-use::af
 #map-terrain { position:relative; overflow:hidden; pointer-events:none; z-index:0; }
 .map-tile { position:relative; display:block; width:100%;
   aspect-ratio:971/1619; background:url('apoc/map/terrain.webp') center/100% 100% no-repeat; opacity:.55; }
+/* 第八輪「地圖接縫縮小」：相鄰兩張疊 18% 圖高（圖高＝寬×1619/971，所以 margin-top 用寬度的 30%），
+   後一張上緣 18% 漸層淡入，蓋住前一張的純色下緣（clicker-apoc-map.js 的 OVERLAP 要跟這裡一致） */
+.map-tile + .map-tile { margin-top:calc(-.22 * 100% * 1619 / 971);
+  -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 22%); mask-image:linear-gradient(to bottom, transparent 0, #000 22%); }
 .map-tile[data-seg="2"] { background-image:url('apoc/map/terrain-2.webp'); }
 .map-tile[data-seg="3"] { background-image:url('apoc/map/terrain-3.webp'); }
 .map-tile[data-seg="4"] { background-image:url('apoc/map/terrain-4.webp'); }
@@ -1518,8 +1521,13 @@ body[data-world="apoc"] #shop .recruit #draw-one { min-width:150px; }
 /* 「進入招募」下面一行小字寫可不可以抽；UI 體檢：跟標題擠同一行時直式會出界 */
 body[data-world="apoc"] #shop .recruit #draw-one .draw-five-price { display:block; font-size:11px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 @media (max-aspect-ratio: 3/4) {
-  body[data-world="apoc"] #shop .recruit #draw-one { min-width:0; }
-  body[data-world="apoc"] #shop .recruit #draw-one .draw-five-price { font-size:9px; }
+  /* 第八輪手機巡檢：按鈕是固定高度，小字從底邊溢出去——高度改成跟內容走 */
+  body[data-world="apoc"] #shop .recruit #draw-one { min-width:0; height:auto; min-height:44px; padding-block:3px; line-height:1.15; }
+  body[data-world="apoc"] #shop .recruit #draw-one .draw-five-price { font-size:10px; }
+  /* 夥伴列兩端有 14／20px 的淡出遮罩，第一張卡的名字被吃掉一半：左右留出同樣的空間 */
+  body[data-world="apoc"] #buddies { padding-inline:16px 22px; box-sizing:border-box; }
+  /* 編隊第一排卡片的編號（01、02…）掛在卡片上緣外面，被格線容器的上緣切掉：往下讓一點 */
+  body[data-world="apoc"] #t20-grid { padding-top:10px; }
 }
 #apoc-ceremony iframe { display:block; width:100%; height:100%; border:0; }
 
