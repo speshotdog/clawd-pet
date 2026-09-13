@@ -159,7 +159,7 @@ window.ClickerStage = (() => {
     function float(amount, heavy, point, { sweep = false, text = null } = {}) {
       if (!running || frozen) return;   // 同上：reduced 也要看得到數字，只是不飄
       const P = latestState ? E.rates(latestState).P : 0, ratio = P > 0 ? amount / P : amount > 0 ? Infinity : 0;
-      const size = ratio >= 200 ? 42 : ratio >= 30 ? 36 : ratio >= 5 ? 30 : 26, tilt = ratio >= 30 ? -4 : 0;
+      const size = ratio >= 200 ? 46 : ratio >= 30 ? 40 : ratio >= 5 ? 34 : 30, tilt = ratio >= 30 ? -4 : 0;   // 第七輪：數字大一號、彈出更有力
       const el = document.createElement('span'); el.className = 'floater';
       el.innerHTML = '<img src="clicker-coin.png" alt="" /><b></b>';
       el.querySelector('b').textContent = `+${format(amount)}`;
@@ -171,7 +171,7 @@ window.ClickerStage = (() => {
       appendFloater(el);
       motion(el, reduced.matches
         ? [{ opacity: 0 }, { opacity: 1, offset: .08 }, { opacity: 1, offset: .72 }, { opacity: 0 }]
-        : [{ transform: `translateY(0) scale(.6) rotate(${tilt}deg)`, opacity: 1 }, { transform:`translateY(-2px) scale(1.15) rotate(${tilt}deg)`, opacity:1, offset:30/720 }, { transform:`translateY(-4px) scale(1) rotate(${tilt}deg)`, opacity:1, offset:60/720 }, { transform: `translateY(-40px) rotate(${tilt}deg)`, opacity: 1, offset:520/720 }, { transform: `translateY(-56px) rotate(${tilt}deg)`, opacity: 0 }],
+        : [{ transform: `translateY(0) scale(.3) rotate(${tilt}deg)`, opacity: 1 }, { transform:`translateY(-4px) scale(1.4) rotate(${tilt}deg)`, opacity:1, offset:50/720 }, { transform:`translateY(-4px) scale(1) rotate(${tilt}deg)`, opacity:1, offset:60/720 }, { transform: `translateY(-40px) rotate(${tilt}deg)`, opacity: 1, offset:520/720 }, { transform: `translateY(-56px) rotate(${tilt}deg)`, opacity: 0 }],
         720, () => { el.remove(); }, 'linear');
     }
     function click(amount, heavy = false, s, completed = 0, point = IMPACT, result = {}) {
@@ -189,7 +189,7 @@ window.ClickerStage = (() => {
       struckRing=shellTarget?{el:shellTarget.cloneNode(true),parent:shellTarget.parentElement.parentElement}:null;
       const before = triple ? [...subStates] : null;
       render(s, { completed, manual: true, heavy });
-      burst(heavy ? 18 : clickChain >= 3 ? 12 : 8, heavy, !heavy && clickChain >= 3, point);
+      hitFx(point, heavy, clickChain >= 3, completed > 0);
       if (result.giftHit) motion($('gift-bag'), [{transform:'scale(1)'},{transform:'scale(1.06)',offset:.5},{transform:'scale(1)'}], 140);
       else if (triple) { if (!tripleBusy && s.package.index === lastPackage) for (const i of (sub === null ? [0,1,2] : [sub])) if (before[i] === subStates[i] && subStates[i] !== 4) subBounce(i, heavy); }
       else if (heavy) bounce(true); else if (!crossed && !bagBusy) bounce(false);
@@ -292,6 +292,18 @@ window.ClickerStage = (() => {
       if (chain) fx.spawn({ sprite:14, x:point.x, y:point.y, r:6, vy:-90, life:.3, color:'#E9B94E', blend:'lighter' });
       if (heavy) fx.spawn({ sprite:3, x:point.x, y:point.y, r:36, life:.25, color:'#E9B94E', blend:'lighter', update(p) { p.r = 36 + 54 * (1 - p.life / p.max); } });
       if (heavy) fx.spawn({ sprite: 5, x: point.x, y: point.y, r: 40, life: .14, vx: 0, vy: 0, g: 0, rot: -.35, color: '#E9B94E', blend: 'lighter' });
+    }
+    // 第七輪使用者：「點擊特效都不夠華麗」＋「做類似 Sakura Clicker 點擊噴出金幣」，看過樣品選「都做、兩個世界都套」。
+    // 華麗碎紙與金幣走共用的 ClickerHitFx；更衣室換過的點擊特效（緞帶、星星…）保留自己的形狀，只加金幣。
+    // 減少動畫：維持原本的碎紙、不噴金幣（跟之前一樣）。
+    function hitFx(point, heavy, chain, done) {
+      const H = window.ClickerHitFx, preset = fxPreset();
+      if (!fx || !H || reduced.matches || preset.id !== 'shard') burst(heavy ? 18 : chain ? 12 : 8, heavy, !heavy && chain, point);
+      if (!fx || !H || reduced.matches) return;
+      const level = done ? 2 : heavy ? 1 : 0;
+      if (preset.id === 'shard') H.impact(fx, point, level, { spark: '#E9B94E', shards: ['#EF8E8E', '#EF8E8E', '#FFF3DC'], dark: '#C9686B' });
+      H.coins(fx, point, H.COINS[level], { canvas: $('click-fx'), stage: $('stage'), wallet: document.querySelector('.wallet img'), floor: document.querySelector('.package-meter') });
+      if (heavy) shake(4, 150);   // 拆完一包自己有衝擊圖＋碎紙＋換包動畫，不另外震
     }
     let meterShown = 0, meterNeed = 100, meterAmount = 0;
     let meterRaf = 0, meterTarget = 0, meterFull = false, meterStarted = 0;

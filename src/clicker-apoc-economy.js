@@ -70,6 +70,7 @@
     ],
   };
   const isBoss = i => i % 4 === 3;
+  const DRAW_COUNTS = [1, 5, 10];   // 典藏包抽卡選單的三顆鍵（第七輪）
   const freshShield = cycle => ({ taps: 0, need: Math.round(RULES.SHIELD.TAPS * RULES.SHIELD.GROWTH ** cycle), cycle });
   // 王關傷害倍率：破防中 ×2、護盾在場的放置 ×0.35（點擊不受罰，點擊才是破盾的手段）
   const bossMul = (st, now, byTap) => !st?.boss ? 1 : now < (st.breakUntil || 0) ? RULES.SHIELD.BREAK_MUL : byTap ? 1 : RULES.SHIELD.IDLE_MUL;
@@ -145,7 +146,7 @@
     {
       const d = a.pending && a.pending.draw, pool = poolById();
       const ok = d && typeof d.id === 'string' && Array.isArray(d.entries)
-        && (d.entries.length === 1 || d.entries.length === 10)
+        && DRAW_COUNTS.includes(d.entries.length)   // 第七輪抽卡選單有五連（Codex 第七輪必修：只收 1／10 會把已扣款的五連結果清掉）
         && d.entries.every(e => e && e.entry && typeof e.entry.id === 'string' && pool[e.entry.id]);
       if (!ok) a.pending = null;
       else {
@@ -354,6 +355,7 @@
     return Object.freeze({ id, entries: Object.freeze(entries), visualSeed: Math.floor(rng() * 2 ** 31) });
   }
   function purchaseDraw(a, n, now, rng) {
+    if (!DRAW_COUNTS.includes(n)) throw new Error('只能單抽、五連或十連');
     if (a.pending) throw new Error('還有沒收下的結果');
     const cost = drawCost(a, n), free = Math.min(a.tickets || 0, n);
     if (a.coins < cost) throw new Error(`末世金幣不足（還差 ${Math.ceil(cost - a.coins)}）`);

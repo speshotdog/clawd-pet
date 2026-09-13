@@ -162,8 +162,13 @@ button:disabled{opacity:.4;cursor:default}
  .win:not([data-entry-phase]) .pack-idle-glow,.win[data-entry-phase=idle] .pack-idle-glow{opacity:.35}
 }
 
-/* 末世：扣券在主頁，這裡只演出 */
-.entry-actions,.test-label{display:none!important}
+/* 末世：扣錢在主頁；三顆鍵的小字是價錢，買不起就停用 */
+.test-label,.ticket-count{display:none!important}
+.pull-actions button:disabled{opacity:.42;cursor:not-allowed}
+.apoc-back{display:block;margin:18px auto 0;padding:8px 24px;font-size:13px;background:transparent;color:#c4c0b5;border:1px solid #c4c0b566;border-radius:999px;box-shadow:none;cursor:pointer}
+.apoc-back:hover{color:#fff;border-color:#fff}
+.apoc-again{min-width:136px;height:48px;padding:0 18px;background:#1b1e20;color:#eadfc4;border:1px solid #eadfc4;cursor:pointer}
+.apoc-again:disabled{opacity:.42;cursor:not-allowed}
 
 /* 末世：結果卡上的新夥伴／升星徽章（主頁算好傳進來） */
 .slot .apoc-badges{position:absolute;left:50%;top:-4%;transform:translateX(-50%);z-index:40;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;width:130%;pointer-events:none}

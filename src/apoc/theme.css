@@ -104,6 +104,11 @@ body[data-world="apoc"][data-apoc-theme] #stage {
 /* ---- 地圖、招募層 */
 body[data-world="apoc"][data-apoc-theme] #map-window { border-color:var(--paper-edge); background:var(--t-panel); }
 body[data-world="apoc"][data-apoc-theme] .map-tile { opacity:1; }
+/* 第七輪：戰鬥舞台的背景跟著目前這一段換（地圖一段一張地景；clicker-apoc-ui.js 的 renderStage 標 data-apoc-seg） */
+body[data-world="apoc"][data-apoc-theme] #stage[data-apoc-seg="2"] { background-image:linear-gradient(var(--t-stage-shade), var(--t-stage-shade)), url('map/terrain-2.webp'); }
+body[data-world="apoc"][data-apoc-theme] #stage[data-apoc-seg="3"] { background-image:linear-gradient(var(--t-stage-shade), var(--t-stage-shade)), url('map/terrain-3.webp'); }
+body[data-world="apoc"][data-apoc-theme] #stage[data-apoc-seg="4"] { background-image:linear-gradient(var(--t-stage-shade), var(--t-stage-shade)), url('map/terrain-4.webp'); }
+body[data-world="apoc"][data-apoc-theme] #stage[data-apoc-seg="5"] { background-image:linear-gradient(var(--t-stage-shade), var(--t-stage-shade)), url('map/terrain-5.webp'); }
 body[data-world="apoc"][data-apoc-theme] .map-station .node-body { background:var(--t-btn); border-color:var(--paper-edge); }
 body[data-world="apoc"][data-apoc-theme] .map-link { stroke:var(--paper-edge); stroke-opacity:.35; }
 body[data-world="apoc"][data-apoc-theme] .map-link.walked { stroke-opacity:.85; }

@@ -88,15 +88,16 @@ window.ClickerApocUI = (() => {
       const el = document.createElement('span'); el.className = 'floater apoc-hit';
       const b = document.createElement('b'); b.textContent = text; el.append(b);
       el.style.left = `${at.x + Math.random() * 44 - 22}px`; el.style.top = `${at.y - 24 - Math.random() * 14}px`;   // 連點時數字不要疊成一團
-      el.style.fontSize = kind === 'break' || kind === 'kill' ? '34px' : kind === 'crit' ? '32px' : '24px';
+      // 第七輪：數字彈出放大（樣品 B／C），越重越大
+      el.style.fontSize = kind === 'kill' ? '46px' : kind === 'break' ? '44px' : kind === 'crit' ? '42px' : '30px';
       el.style.color = kind === 'crit' ? '#FFD76A' : kind === 'break' ? '#FF9A6B' : kind === 'kill' ? '#FFE9A8' : '#FFF6E6';
       list.append(el);
       // 減少動畫：數字照樣看得到，只是不飄（1.0 第 21 輪的教訓：讀數是資訊不是裝飾）
       const frames = reduced.matches
         ? [{ opacity: 0 }, { opacity: 1, offset: .08 }, { opacity: 1, offset: .72 }, { opacity: 0 }]
-        : [{ transform: 'translateY(0) scale(.6)', opacity: 1 }, { transform: 'translateY(-4px) scale(1.18)', opacity: 1, offset: .06 },
-           { transform: 'translateY(-8px) scale(1)', opacity: 1, offset: .14 }, { transform: 'translateY(-44px)', opacity: 1, offset: .72 }, { transform: 'translateY(-60px)', opacity: 0 }];
-      el.animate(frames, { duration: kind === 'break' || kind === 'kill' ? 1000 : 720, easing: 'linear' }).finished.then(() => el.remove(), () => el.remove());
+        : [{ transform: 'translateY(0) scale(.3)', opacity: 1 }, { transform: 'translateY(-6px) scale(1.45)', opacity: 1, offset: .1 },
+           { transform: 'translateY(-10px) scale(1)', opacity: 1, offset: .22 }, { transform: 'translateY(-48px)', opacity: 1, offset: .75 }, { transform: 'translateY(-66px) scale(.9)', opacity: 0 }];
+      el.animate(frames, { duration: kind === 'break' || kind === 'kill' ? 1150 : kind === 'crit' ? 1000 : 760, easing: 'cubic-bezier(.2,.8,.3,1)' }).finished.then(() => el.remove(), () => el.remove());
     }
     // 被動傷害浮字（使用者第五輪：「2.0 似乎沒有顯示被動傷害，能加回來嗎」）：照 1.0 的 floatPassive——
     // 怪的右側、每秒一個、往上疊著慢慢淡出；減少動畫時原地淡入淡出（讀數是資訊不是裝飾，1.0 第 21 輪的教訓）。
@@ -119,32 +120,25 @@ window.ClickerApocUI = (() => {
       el.animate([{ transform: `scale(${.2 * k})`, opacity: 1 }, { transform: `scale(${.55 * k})`, opacity: 1, offset: .6 }, { transform: `scale(${.7 * k})`, opacity: 0 }], 180)
         .finished.then(() => el.remove(), () => el.remove());
     }
+    let shakeTimer = 0;
     function shakeStage(px, ms) {
       const st = $('stage'); st.style.setProperty('--boss-shake', `${px}px`); st.style.setProperty('--boss-shake-time', `${ms}ms`);
       st.classList.remove('boss-shake'); void st.offsetWidth; st.classList.add('boss-shake');
-      setTimeout(() => st.classList.remove('boss-shake'), ms);
+      // 每一下都會震：上一下的移除計時器要取消，不然普通命中後馬上擊倒，擊倒的震動會在 90ms 被切掉（Codex 第七輪）
+      clearTimeout(shakeTimer); shakeTimer = setTimeout(() => st.classList.remove('boss-shake'), ms);
     }
     // 碎片是舊化的土色／鐵鏽色，火花是金色；打在護盾上火花換成冷灰藍，一聽一看就知道「在磨盾」
     function burstAt(cv, u, kind) {
       if (!window.GachaFx || !$('recruit-layer').hidden) return;   // 招募層開著時 GachaFx 的全域畫布是招募層的，不能畫過去
       window.GachaFx.init($('click-fx'));   // 招募層會把全域畫布換成自己的，回來第一下要換回舞台這張
       fx ||= window.GachaFx.createScope();
-      const big = kind === 'break' || kind === 'kill', n = big ? 22 : kind === 'crit' ? 14 : 8;
-      // 配色跟著末世商店換上的外觀走（預設鏽鐵火花）
+      // 第七輪：華麗版碎片＋噴金幣（兩個世界共用 ClickerHitFx）。配色跟著末世商店換上的外觀走（預設鏽鐵火花）
       const skin = A.RULES.HIT_FX.find(f => f.id === store.state?.apoc?.cosmetics?.hitFx) || A.RULES.HIT_FX[0];
-      const spark = kind === 'shield' ? skin.shield : skin.spark;
-      const rand = (a, b) => a + Math.random() * (b - a);
-      for (let i = 0; i < n; i++) {
-        fx.spawn(i % 3 === 0
-          ? { sprite: 14, x: cv.x + rand(-8, 8), y: cv.y + rand(-8, 8), vx: rand(-170, 170) * u, vy: rand(-230, -40) * u, g: 280 * u,
-              r: rand(big ? 9 : 6, big ? 14 : 10) * u, life: rand(.25, .42), drag: .96, shrink: true, color: spark, blend: 'lighter' }
-          : { shape: 'shard', x: cv.x + rand(-10, 10), y: cv.y + rand(-6, 6), vx: rand(big ? -260 : -150, big ? 260 : 150) * u, vy: rand(big ? -380 : -260, -90) * u,
-              g: 560 * u, life: rand(.45, big ? .95 : .7), w: rand(8, big ? 18 : 14) * u, h: rand(5, 10) * u, rot: rand(0, 6.28), vr: rand(-9, 9),
-              drag: .99, color: skin.shards[i % 2], color2: '#2A1C12', fadeK: 4 });
-      }
-      if (kind !== 'hit' && kind !== 'shield')
-        fx.spawn({ sprite: 3, x: cv.x, y: cv.y, r: 34 * u, life: big ? .32 : .22, color: spark, blend: 'lighter', update(q) { q.r = (34 + (big ? 90 : 56) * (1 - q.life / q.max)) * u; } });
+      const level = HIT_LEVEL[kind] ?? 0, H = window.ClickerHitFx; if (!H) return;
+      H.impact(fx, cv, level, { spark: kind === 'shield' ? skin.shield : skin.spark, shards: skin.shards, u });
+      H.coins(fx, cv, H.COINS[level], { canvas: $('click-fx'), stage: $('stage'), wallet: document.querySelector('.wallet img'), floor: document.querySelector('.package-meter'), u });
     }
+    const HIT_LEVEL = { hit: 0, shield: 0, crit: 1, break: 2, kill: 3 };
     function hitFx(point, kind, text) {
       const p = hitPoint(point), el = $('apoc-enemy');
       floatText(text, p.fl, kind);
@@ -152,8 +146,9 @@ window.ClickerApocUI = (() => {
       const now = performance.now();
       // 連點很快的時候碎片不必每下都噴（浮字每下都有）；爆擊／破盾／擊倒一定噴
       if (kind !== 'hit' && kind !== 'shield' || now - sparkAt > 60) { sparkAt = now; burstAt(p.cv, p.u, kind); }
-      if (kind !== 'hit' && kind !== 'shield') impactAt(p.fl, kind === 'crit' ? .8 : 1.2);
-      if (kind === 'break' || kind === 'kill') shakeStage(kind === 'kill' ? 7 : 5, 220);
+      const level = HIT_LEVEL[kind] ?? 0;
+      if (level) impactAt(p.fl, [0, 1, 1.4, 1.7][level]);
+      shakeStage([2, 5, 8, 11][level], [90, 180, 240, 300][level]);   // 第七輪：每一下都有輕微震動（樣品 B／C），越重震越大
       if (!el) return;
       const shade = 'drop-shadow(0 8px 10px rgba(0,0,0,.55))';
       if (kind === 'kill') el.animate([{ transform: 'scale(1)', opacity: 1, filter: `brightness(2.4) ${shade}` }, { transform: 'scale(1.22)', opacity: 0, offset: .45 },
@@ -220,6 +215,7 @@ window.ClickerApocUI = (() => {
       const farmGap = !v.stage && store.state.apoc?.bossFailed === v.progress && A.isBoss(v.progress) && v.progress > 0 && v.progress < v.stations;
       const i = v.stage ? v.stage.index : farmGap ? v.progress - 1 : v.progress;
       const boss = v.stage ? v.stage.boss : farmGap ? false : A.isBoss(i);
+      $('stage').dataset.apocSeg = String(Math.floor(Math.min(i, 19) / 4) + 1);   // 舞台背景跟著這一段的地景換（apoc/theme.css）
       const src = enemyArt(Math.min(i, 19), boss);
       if (el.getAttribute('src') !== src) el.setAttribute('src', src);
       el.classList.toggle('boss', !!boss);
@@ -537,13 +533,14 @@ window.ClickerApocUI = (() => {
     // iframe 拿掉之後沒人發 → 第一次進去會是空隊伍、0 券，什麼都不能做。
     function enter() {
       document.body.dataset.world = 'apoc'; lastTick = Date.now(); buddyKey = slotKey = shopKey = '';
+      $('prestige-hint')?.remove();   // 1.0 的「桌子有點滿了」便條掛在共用舞台上、20 秒才消失：剛冒出來就切末世會留在 2.0 畫面（第七輪截圖看到）
       document.body.dataset.apocTheme = 'aged';   // 使用者 09-13 選定：舊化的 1.0 材質（apoc/theme.css）
       if (store.state?.apoc?.unlocked && !store.state.apoc.gifted) apply(a => A.gift(a));
       render();
     }
     function leave() {
       buddyKey = slotKey = shopKey = '';
-      delete document.body.dataset.world; delete document.body.dataset.apocTheme;
+      delete document.body.dataset.world; delete document.body.dataset.apocTheme; delete $('stage').dataset.apocSeg;
       $('package-result').classList.remove('apoc-shown');
       const e = $('apoc-enemy'); if (e) { e.hidden = true; e.getAnimations().forEach(a => a.cancel()); }
       // 受擊特效是末世自己畫的，切回桌邊要收乾淨（粒子 scope 只清自己的，不會動到 1.0 的）

@@ -123,7 +123,7 @@ window.ClickerPrestigeUI = (() => {
     function close() { $('prestige').hidden = true; $('game-content').inert = false; }
     // 「桌子有點滿了」便條：一天一次，點了就開面板
     function hint() {
-      if ($('prestige-hint')) return;
+      if ($('prestige-hint') || document.body.dataset.world === 'apoc') return;   // 便條掛在共用舞台上，末世不要冒出 1.0 的換桌布提示
       const el = document.createElement('button'); el.id = 'prestige-hint'; el.textContent = '桌子有點滿了，要不要換桌布？'; el.onclick = () => { el.remove(); open(); };
       $('stage').append(el); commit();
       setTimeout(() => el.remove(), 20000);

@@ -1398,7 +1398,8 @@ body[data-world="apoc"] .skill-grid .skill-slot .buddy-portrait.holo-slot { widt
 body[data-world="apoc"] #game-content #slots .skill-use,
 body[data-world="apoc"] #game-content #slots .skill-use:hover:enabled,
 body[data-world="apoc"] #game-content #slots .skill-use:disabled { background:transparent; border:0; border-image:none; box-shadow:none; }
-.apoc-sticker { position:absolute; inset:2px; border-radius:50%; padding:3px; box-sizing:border-box;
+/* 第七輪使用者：「2.0 的技能格縮小約 15%，比照 1.0 的大小」——框同樣 64px，貼紙往內縮（圓 60→50、連白邊約 54px，頭像約 44px，1.0 的頭像是 40px） */
+.apoc-sticker { position:absolute; inset:7px; border-radius:50%; padding:3px; box-sizing:border-box;
   background:var(--sticker-ring,#94BED0); box-shadow:0 0 0 2px #F6ECD6, 0 3px 0 2px rgba(42,28,18,.5); }
 .apoc-sticker[data-rarity="common"] { --sticker-ring:#A9A297; }
 .apoc-sticker[data-rarity="epic"] { --sticker-ring:#B8A2CF; }
@@ -1437,7 +1438,7 @@ body[data-world="apoc"] #game-content #slots .skill-use:disabled { background:tr
 .album-slot .deluxe-card iframe { pointer-events:none; }
 body[data-world="apoc"] #game #slots .skill-slot { background:transparent; border:0; }   /* 深藍版留下的方塊底，會在圓貼紙後面墊一塊深色 */
 body[data-world="apoc"] #slots .skill-slot[data-state="unavailable"] .skill-use { filter:saturate(.35); }
-body[data-world="apoc"] #slots .skill-slot[data-state="cooldown"] .skill-use::after { inset:5px; }
+body[data-world="apoc"] #slots .skill-slot[data-state="cooldown"] .skill-use::after { inset:10px; }   /* 跟著貼紙內縮 */
 /* 卡冊／編隊裡的精裝卡：1.0 的 .card 是固定 150×210 再 scale，精裝卡面用同一個框就好 */
 .holo-card { position:relative; }
 .holo-card.locked .holo-face { filter:grayscale(1) brightness(.45); }
@@ -1456,14 +1457,19 @@ body[data-world="apoc"] #slots .skill-slot[data-state="cooldown"] .skill-use::af
 #map-rail button b { font-variant-numeric:tabular-nums; margin-right:4px; opacity:.7; }
 #map-window { grid-column:1; grid-row:2; overflow-y:auto; overscroll-behavior:contain;
   position:relative; border:3px solid var(--paper-edge,#4A628A); border-radius:12px; background:#0E1520; }
-#map-route { position:relative; height:2960px; }
-#map-terrain { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+/* 第七輪：五段五張地景由上往下順排，路線高度＝五張圖撐出來的高度（站點與連線用百分比放在上面） */
+#map-route { position:relative; }
+#map-terrain { position:relative; overflow:hidden; pointer-events:none; z-index:0; }
 .map-tile { position:relative; display:block; width:100%;
   aspect-ratio:971/1619; background:url('apoc/map/terrain.webp') center/100% 100% no-repeat; opacity:.55; }
+.map-tile[data-seg="2"] { background-image:url('apoc/map/terrain-2.webp'); }
+.map-tile[data-seg="3"] { background-image:url('apoc/map/terrain-3.webp'); }
+.map-tile[data-seg="4"] { background-image:url('apoc/map/terrain-4.webp'); }
+.map-tile[data-seg="5"] { background-image:url('apoc/map/terrain-5.webp'); }
 #map-lines { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:1; }
 .map-link { stroke:#9FB4D4; stroke-width:2.5; fill:none; stroke-opacity:.26; vector-effect:non-scaling-stroke; }
 .map-link.walked { stroke-opacity:.8; }
-.map-station { position:absolute; left:calc(43% + var(--dx)); width:52px; height:52px; padding:0;
+.map-station { position:absolute; left:calc(43% + var(--dx)); width:52px; height:52px; padding:0; transform:translateY(-50%);
   border:0; background:transparent; box-shadow:none; z-index:2; }
 #game-content .map-station { border:0; box-shadow:none; background:transparent; }
 #game-content .map-station:hover:enabled { background:transparent; }
@@ -1503,7 +1509,18 @@ body[data-world="apoc"] #slots .skill-slot[data-state="cooldown"] .skill-use::af
 #game-content.map-open #slots, #game-content.map-open #shop, #game-content.map-open #team,
 #game-content.map-open #stage-gap { visibility:hidden; }
 /* 精裝典藏包疊層：蓋滿 960×640 的遊戲框（演出頁自己的版面就是照這個殼調的，見 ceremony-layout.js） */
-#apoc-ceremony { position:absolute; inset:0; z-index:80; border-radius:16px; overflow:hidden; background:#101115; }
+#apoc-ceremony { position:absolute; inset:0; z-index:80; border-radius:16px; overflow:hidden; background:#101115; transition:opacity .28s ease; }
+/* 第七輪使用者：「按下收下後的過場回到主畫面很不流暢」→ 打開淡入、關掉淡出（clicker-gacha.js 的 ceremony.close） */
+#apoc-ceremony:not([hidden]) { animation:apoc-ceremony-in .22s ease-out; }
+#apoc-ceremony.closing { opacity:0; pointer-events:none; }
+@keyframes apoc-ceremony-in { from { opacity:0; } to { opacity:1; } }
+body[data-world="apoc"] #shop .recruit #draw-one { min-width:150px; }
+/* 「進入招募」下面一行小字寫可不可以抽；UI 體檢：跟標題擠同一行時直式會出界 */
+body[data-world="apoc"] #shop .recruit #draw-one .draw-five-price { display:block; font-size:11px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+@media (max-aspect-ratio: 3/4) {
+  body[data-world="apoc"] #shop .recruit #draw-one { min-width:0; }
+  body[data-world="apoc"] #shop .recruit #draw-one .draw-five-price { font-size:9px; }
+}
 #apoc-ceremony iframe { display:block; width:100%; height:100%; border:0; }
 
 /* 直式的關卡地圖 */

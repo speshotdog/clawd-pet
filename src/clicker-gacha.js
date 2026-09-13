@@ -44,49 +44,72 @@ window.ClickerGacha = (() => {
     };
     const packSize = () => apoc() ? 10 : 5;
     // 末世的抽卡演出＝精裝典藏包（使用者指定）。演出頁只播放；扣券在 start()、落帳在 collectApoc()。
+    // 典藏包入口三顆鍵（單抽／五連／十連）的價錢與可不可以按；結果頁「繼續抽 N 次」同一套
+    const drawName = n => n === 1 ? '單抽' : n === 5 ? '五連' : '十連';
+    const offerFor = () => ({ counts: [1, 5, 10].map(n => ({ n, label: apocPrice(n), ok: !store.blocked && !W().pending() && W().cost(n) <= W().wallet() })) });
+    const againFor = n => ({ n, label: apocPrice(n, `繼續${drawName(n)} · `), ok: !store.blocked && W().cost(n) <= W().wallet() });
     const ceremony = (() => {
       const host = $('apoc-ceremony'), frame = $('apoc-ceremony-frame');
-      let loaded = null;
+      let loaded = null, closing = 0;
       const load = () => loaded ||= new Promise(resolve => {
         const onReady = (e) => { if (e.source === frame.contentWindow && e.data?.apocCeremony === 'ready') { removeEventListener('message', onReady); resolve(); } };
         addEventListener('message', onReady); frame.src = 'apoc/ceremony.html';
       });
+      const api = () => frame.contentWindow?.ApocCeremony;
+      const show = () => {
+        clearTimeout(closing); host.classList.remove('closing');
+        if (host.hidden) previousFocus = document.activeElement;
+        host.hidden = false; $('game-content').inert = true; pauseStage();
+      };
       addEventListener('message', (e) => {
-        // 只認自己的 iframe；演出頁自己的收合動畫是 220ms，等它跑完再關
-        if (e.source === frame.contentWindow && e.data?.apocCeremony === 'collect') setTimeout(collectApoc, 240);
+        if (e.source !== frame.contentWindow) return;   // 只認自己的 iframe
+        const m = e.data?.apocCeremony;
+        // 收下：先開始淡出——演出頁自己 220ms 後會把卡清掉、露出入口的卡包，淡出把那一下蓋掉；240ms 後落帳
+        if (m === 'collect') { host.classList.add('closing'); setTimeout(() => collectApoc(false), 240); }
+        else if (m === 'again') collectApoc(true);
+        else if (m === 'pull') { if (!start(Number(e.data.n))) api()?.offer(offerFor()); }
+        else if (m === 'leave') ceremony.close();
       });
       return {
-        async play(ids, restore = false, badges = []) {
-          previousFocus = document.activeElement; host.hidden = false; $('game-content').inert = true; pauseStage();
-          await load(); const api = frame.contentWindow.ApocCeremony;
-          if (restore) api.restore(ids, badges); else api.play(ids, badges);
+        // 招募卡的「進入招募」鍵：打開典藏包的入口（抽卡選單），這時還沒扣錢
+        async enter() { show(); await load(); api().enter(offerFor()); frame.focus(); },
+        async play(ids, restore = false, badges = [], again = null) {
+          show(); await load();
+          // 重開後放回結果頁也要有「繼續抽 N 次」（Codex 第七輪：以前恢復時沒傳，續抽鍵會消失）
+          if (restore) api().restore(ids, badges, again || againFor(ids.length)); else api().play(ids, badges, again);
           frame.focus();
         },
-        hide() { host.hidden = true; },
-        // 典藏包按「收下」就自己清場了；主頁落帳不成時用它把同一批結果放回結果頁
-        replay(ids) { frame.contentWindow?.ApocCeremony?.restore(ids, drawBadges().badges); },
+        // 關掉：淡出 280ms 再藏（使用者第七輪：「按下收下後的過場回到主畫面很不流暢」——以前是瞬間硬關）
+        close() {
+          if (W().pending()) return;
+          host.classList.add('closing'); $('game-content').inert = false; resumeStage();
+          clearTimeout(closing); closing = setTimeout(() => { host.hidden = true; host.classList.remove('closing'); }, 280);
+          previousFocus?.focus?.(); render();
+        },
+        // 典藏包按「收下」就自己清場了；主頁落帳不成時用它把同一批結果放回結果頁（淡出也要收回來）
+        replay(ids) { host.classList.remove('closing'); api()?.restore(ids, drawBadges().badges, againFor(ids.length)); },
         get active() { return !host.hidden; },
       };
     })();
-    function collectApoc() {
-      const p = W().pending(); if (!p) { ceremony.hide(); return; }
+    function collectApoc(again = false) {
+      const p = W().pending(); if (!p) { ceremony.close(); return; }
       const ids = p.draw.entries.map(it => it.entry.id);
       // 落帳不成（存檔鎖住、寫入失敗）一定要把結果頁放回去：典藏包已經清場，
       // 不放回去玩家就停在沒有任何按鈕的黑畫面，只能重新整理（Codex 複檢 B1）
       if (busy) { ceremony.replay(ids); return; }
       // 上一次寫入失敗後存檔會鎖住，而「重試儲存」鍵在被典藏包蓋住的主頁上按不到——收下時自己先重試一次
       if (store.blocked && !commit()) { ceremony.replay(ids); notice('存檔仍然失敗，結果已保留，再按一次收下'); return; }
-      busy = true;
+      busy = true; let next = 0;
       try {
         const result = W().collect(p.draw.id, Date.now());
         if (!result.accepted || !commit(result.state)) { ceremony.replay(ids); notice('存檔失敗，結果已保留，再按一次收下'); return; }
-        ceremony.hide(); changed();
-        const jf = $('join-flight');
-        const entries = p.draw.entries.map(it => ({ id: it.entry.id, origin: { x: jf.clientWidth / 2, y: jf.clientHeight / 2 } }));
-        // 「新夥伴／升星」已經標在典藏包的結果卡上（使用者第四輪：不要另外跳「收下了！」視窗），收下就直接回遊戲
-        open(); $('recruit-entry').hidden = true; pendingJoins.push(...entries); close();
+        changed();
+        // 「新夥伴／升星」已經標在典藏包的結果卡上（使用者第四輪），收下就直接回遊戲；
+        // 「繼續抽 N 次」：落帳後直接開下一輪同樣張數，不關典藏包、不閃回主畫面（使用者第七輪）
+        if (again) next = ids.length; else ceremony.close();
       } catch (err) { notice(err.message); }
       finally { busy = false; render(); }
+      if (next && !start(next)) ceremony.close();   // 起不來（錢不夠、存檔鎖住）就正常收尾，不停在沒有按鈕的畫面
     }
     // 末世的價牌：先用券（只從桌邊金幣換來），剩下的付末世金幣——寫法同 1.0 的「免費 ×n + 價格」
     function apocPrice(n, prefix = '') {
@@ -96,6 +119,16 @@ window.ClickerGacha = (() => {
     function priceButton(el, count, s, supported) {
       const w = W(), cost = w.cost(count), missing = Math.max(0, Math.ceil(cost - w.wallet()));
       el.replaceChildren();
+      // 第七輪使用者（2.0）：「招募夥伴那邊改成引導進入抽卡選單的按鈕，簡單顯示是否可以抽卡」
+      if (apoc() && el.id === 'draw-one') {
+        const can = [1, 5, 10].filter(n => w.cost(n) <= w.wallet());
+        el.textContent = '進入招募';
+        const note = document.createElement('span'); note.className = 'draw-five-price';
+        note.textContent = w.pending() ? '有結果還沒收下' : can.length ? `可以抽・最多${drawName(can[can.length - 1])}` : `還差 ${format(Math.ceil(w.cost(1) - w.wallet()))}`;
+        el.append(note); el.classList.toggle('can-draw', can.length > 0 || !!w.pending());
+        el.title = '打開抽卡選單（單抽／五連／十連）'; el.disabled = !ready || store.blocked || busy;
+        return;
+      }
       el.textContent = el.id === 'draw-one' ? '招募！' : el.id === 'draw-five' ? (apoc() ? '十連' : '五連') : w.label(count);
       el.title = String(cost);
       if (el.id === 'draw-five') { const price = document.createElement('span'); price.className = 'draw-five-price';
@@ -112,6 +145,7 @@ window.ClickerGacha = (() => {
       const note = supported ? '' : `此演出只支援${apoc() ? '十' : '五'}連；單抽請選流星或拆包桌面。`;
       for (const id of ['draw-one', 'recruit-one']) priceButton($(id), 1, s, supported);
       for (const id of ['draw-five', 'recruit-five']) priceButton($(id), many, s, true);
+      $('draw-five').hidden = apoc();   // 2.0 的十連在抽卡選單裡（典藏包入口）
       for (const id of ['pity', 'recruit-pity']) $(id).textContent = apoc()
         ? `神話 0.25%・傳說 4%・史詩 20%` : `最多再 ${40 - s.pity.sinceLegendary} 抽必得傳說`;
       $('single-note').textContent = supported ? '' : '此模式限多連；單抽請切換演出。'; $('recruit-note').textContent = note;
@@ -263,7 +297,7 @@ window.ClickerGacha = (() => {
         if (!commit(next)) return false;
         const ticket = $('draw-ticket'); ticket.getAnimations().forEach(a=>a.cancel());
         if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ticket.animate([{transform:'scale(1)'},{transform:'scale(.96)',offset:.5},{transform:'scale(1)'}],{duration:140});
-        if (apoc()) { ceremony.play(W().pending().draw.entries.map(it => it.entry.id), false, drawBadges().badges); return true; }
+        if (apoc()) { ceremony.play(W().pending().draw.entries.map(it => it.entry.id), false, drawBadges().badges, againFor(count)); return true; }
         open(); $('recruit-entry').hidden = true; $('collect').hidden = true; $('skip').hidden = false;
         $('recruit-hint').textContent = ''; const run = makeRuntime(W().pending().draw);
         if (s.settings.mode === 'hearthstone') {
@@ -310,7 +344,9 @@ window.ClickerGacha = (() => {
       // pending 保留 veil；沿用重開直接總覽，由 runtime 將卡面還原真實色階。
       makeRuntime(W().pending().draw).skip();
     }
-    $('draw-one').onclick = $('recruit-one').onclick = () => start(1);
+    // 2.0：招募卡的鍵是抽卡選單的入口（有沒收下的結果就直接放回結果頁）；1.0 照舊單抽
+    $('draw-one').onclick = () => apoc() ? (W().pending() ? restore() : ceremony.enter()) : start(1);
+    $('recruit-one').onclick = () => start(1);
     $('draw-five').onclick = $('recruit-five').onclick = () => start(packSize());
     $('recruit-open').onclick = open; $('recruit-close').onclick = close;
     // ⚠ 不能寫 onclick = collect：DOM 會把事件物件當成第一個參數傳進去，stay 就變成 truthy

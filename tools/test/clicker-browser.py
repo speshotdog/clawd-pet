@@ -199,7 +199,8 @@ def round6(context):
     page.wait_for_timeout(80)
     # ⚠ 被動浮字（.floater.passive，18px）每秒都會冒一顆，`.floater` 的最後一顆不一定是剛剛點出來的那顆。
     #   這裡要量的是點擊浮字，選擇器要排除被動的。
-    assert page.locator('.floater:not(.passive)').last.evaluate('(e)=>getComputedStyle(e).fontSize') == '26px'
+    # 第七輪使用者看過特效樣品選「都做」：點擊數字大一號（26→30px）、彈出更有力
+    assert page.locator('.floater:not(.passive)').last.evaluate('(e)=>getComputedStyle(e).fontSize') == '30px'
     assert page.locator('.floater b').last.evaluate('(e)=>getComputedStyle(e).webkitTextStrokeWidth') == '1.2px'
     page.screenshot(path=str(OUT / 'round6-floater.png'))
     # Sample actual AudioParams in the audio clock; no fake timers or gain mocks.
@@ -1198,8 +1199,10 @@ def main():
                 scenes.mouse.click(x, y)
                 expected = scenes.evaluate("({x,y})=>{const r=document.getElementById('game').getBoundingClientRect();return {x:(x-r.left)*960/r.width,y:(y-r.top)*640/r.height}}", dict(x=x,y=y))
                 particles = scenes.evaluate('fxEvents')
-                assert len(particles)==8
-                assert all(abs(v['x']-expected['x'])<=10 and abs(v['y']-expected['y'])<=4 for v in particles)
+                # 第七輪：點擊特效改成華麗版（碎紙＋光痕＋閃光＋衝擊波）＋噴金幣（clicker-hitfx.js），一下不再是固定 8 顆；
+                #   這裡驗的是「特效打在點下去的位置」：粒子至少 8 顆、全部在落點附近（四芒星的起點隨機散 ±20）
+                assert len(particles)>=8, len(particles)
+                assert all(abs(v['x']-expected['x'])<=21 and abs(v['y']-expected['y'])<=21 for v in particles)
                 floater = scenes.locator('.floater')
                 assert abs(float(floater.evaluate('(e)=>e.style.left.slice(0,-2)'))-expected['x'])<=10
                 assert float(floater.evaluate('(e)=>e.style.top.slice(0,-2)'))==expected['y']-12
@@ -1210,7 +1213,7 @@ def main():
         assert target > 1000
         shown = float(scenes.locator('#coins').inner_text().replace(',',''))
         assert 0 < shown < target
-        assert all(abs(v['x']-485)<=10 and abs(v['y']-240)<=4 for v in scenes.evaluate('fxEvents'))
+        assert all(abs(v['x']-485)<=21 and abs(v['y']-240)<=21 for v in scenes.evaluate('fxEvents'))   # 第七輪華麗版的散佈範圍，見上
         shot('wallet-tween-increase')
         advance(240)
         assert float(scenes.locator('#coins').inner_text().replace(',',''))==int(target)
@@ -1251,15 +1254,18 @@ def main():
         advance(400)
         assert scenes.locator('#bag-image').get_attribute('src')=='clicker-bag-0.png'
         seed(1); scenes.evaluate('fxEvents.length=0;document.getElementById("tap").click()'); advance(60)
-        particles=scenes.evaluate('fxEvents'); assert len(particles)==8, scenes.evaluate('({events:fxEvents,state:Clicker.state,now:Date.now(),time:performance.now()})')
-        assert sum(p.get('shape')=='shard' for p in particles)==6
-        assert all(p['canvas']=='click-fx' for p in particles); advance(60); shot('click-normal')
+        # 第七輪華麗版（clicker-hitfx.js）：一般＝碎紙 14＋光痕 6＋閃光 1＋衝擊波 1；重擊＝碎紙 26＋光痕 12＋四芒星 5＋閃光＋衝擊波。
+        #   另外噴金幣（貼圖粒子，有每秒上限，所以只驗不超過）。金幣帶 Image，傳回 Python 會變空物件——在頁面裡數。
+        counts=scenes.evaluate('({fx:fxEvents.filter(p=>!p.img).length,shard:fxEvents.filter(p=>p.shape==="shard").length,coins:fxEvents.filter(p=>p.img).length,canvas:fxEvents.every(p=>p.canvas==="click-fx")})')
+        assert counts['fx']==22 and counts['shard']==14 and counts['coins']<=2 and counts['canvas'], counts
+        advance(60); shot('click-normal')
         advance(5); scenes.evaluate('document.getElementById("tap").click()')
         advance(125); scenes.evaluate('fxEvents.length=0;document.getElementById("tap").click()'); advance(60)
-        assert scenes.evaluate('fxEvents.length')==13; shot('click-chain')
+        assert scenes.evaluate('fxEvents.filter(p=>!p.img).length')==22; shot('click-chain')
         seed(7,heavy=True); scenes.evaluate('fxEvents.length=0;document.getElementById("tap").click()'); advance(60)
-        assert scenes.evaluate('fxEvents.length')==20, scenes.evaluate('({events:fxEvents,state:Clicker.state,now:Date.now()})')
-        assert scenes.evaluate('fxEvents.filter(p=>p.sprite===5).length')==1; advance(30); shot('click-heavy')
+        counts=scenes.evaluate('({fx:fxEvents.filter(p=>!p.img).length,stars:fxEvents.filter(p=>p.sprite===1).length,coins:fxEvents.filter(p=>p.img).length})')
+        assert counts['fx']==45 and counts['stars']==5 and counts['coins']<=5, counts
+        advance(30); shot('click-heavy')
         # Multi-package completion and subsequent inputs retain the newest progress.
         advance(1100)
         scenes.evaluate('Clicker.state.clickLevel=100; fxEvents.length=0; document.getElementById("tap").click()')
@@ -1306,7 +1312,7 @@ def main():
             demo.evaluate('document.getElementById("original-css").remove();document.querySelectorAll("link[rel=stylesheet]").forEach(el=>el.disabled=false)')
         assert not errors, errors
         browser.close()
-    print('PASS: Round 4 storyboards x12, font, 10 buddies, slots empty/cooldown/ready, frozen particles/floaters, aggregate input, unskippable/recruit guard, reduced motion, hidden cleanup; Round 3 pointer/zoom, wallet tween +/- and format, meter wrap, paper shop/recruit, nine buddies;  真實點擊節流、教學、技能、12 角色、五模式、pending 恢復/雙擊、儲存失敗、隱藏恢復、卡面 CSS computed-style 等價；第二輪夥伴分頁、五狀態、寄生、8/12+1/18+2 粒子與多包最新進度。')
+    print('PASS: Round 4 storyboards x12, font, 10 buddies, slots empty/cooldown/ready, frozen particles/floaters, aggregate input, unskippable/recruit guard, reduced motion, hidden cleanup; Round 3 pointer/zoom, wallet tween +/- and format, meter wrap, paper shop/recruit, nine buddies;  真實點擊節流、教學、技能、12 角色、五模式、pending 恢復/雙擊、儲存失敗、隱藏恢復、卡面 CSS computed-style 等價；第二輪夥伴分頁、五狀態、寄生、華麗版粒子 22/22/45＋金幣與多包最新進度。')
 
 
 if __name__ == '__main__':

@@ -15,7 +15,11 @@ window.ClickerApocMap = (() => {
     ['斷裂街口', '沉陷高架', '彎曲街道']];
   const OMENS = ['草地被踩平的路徑', '纏著撕不斷的包裝膜', '地面固定間隔的槌痕；間隔預示之後的拍子',
     '對不上任何動物的腳印', '街道不該有的弧度'];
-  const STEP = 144;   // 站距（px），原型量好的；路線總高 = 20 × 144 + 上下留白
+  // 第七輪使用者：「地圖的美術是不是沒有完善，只有兩個區域，往下就重複而已，幫我完善」。
+  // 以前只有第一段有真的美術（terrain.webp），二～五段拿同一張重複貼。現在一段一張（terrain-2～5.webp，
+  // Codex imagegen 照第一段 seg1b 的規格畫，原稿與回報在 _art/apoc-map/），每張上放該段的 4 站。
+  // 站點位置用「路線高度的百分比」算：第 k 段第 j 站在 (k + 0.2 + 0.2j) / 5——避開每張圖上下 10% 的接段過渡帶。
+  const stationPct = i => (Math.floor(i / 4) + .2 + .2 * (i % 4)) / 5 * 100;
   const STAGES = Array.from({ length: 20 }, (_, i) => ({
     i, segment: Math.floor(i / 4), boss: i % 4 === 3,
     name: i % 4 === 3 ? BOSSES[Math.floor(i / 4)] : NAMES[Math.floor(i / 4)][i % 4],
@@ -29,16 +33,15 @@ window.ClickerApocMap = (() => {
       const terrain = document.createElement('div'); terrain.id = 'map-terrain'; terrain.setAttribute('aria-hidden', 'true');
       const lines = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); lines.id = 'map-lines'; lines.setAttribute('aria-hidden', 'true');
       route.append(terrain, lines);
-      // 地形是一張直幅插畫，沿著路線重複貼；高度由寬度推（原圖 971×1619）
-      // 一張接一張順排；直式寬度窄、每張矮，六張才鋪得滿 2960px 的路線
-      terrain.replaceChildren(...Array.from({ length: 6 }, () => {
-        const t = document.createElement('div'); t.className = 'map-tile'; return t;
+      // 五段五張直幅插畫由上往下順排，高度由寬度推（原圖 971×1619），路線高度就是五張疊起來的高度
+      terrain.replaceChildren(...SECTIONS.map((_, k) => {
+        const t = document.createElement('div'); t.className = 'map-tile'; t.dataset.seg = k + 1; return t;
       }));
       for (const s of STAGES) {
         const b = document.createElement('button');
         b.className = 'map-station' + (s.boss ? ' boss' : '');
         b.style.setProperty('--dx', `${s.i % 2 * 36}px`);
-        b.style.top = `${s.i * STEP + 40}px`;
+        b.style.top = `${stationPct(s.i)}%`;
         b.dataset.index = s.i;
         const body = document.createElement('span'); body.className = 'node-body';
         const sym = document.createElement('span'); sym.className = 'map-motif'; body.append(sym);
@@ -61,8 +64,9 @@ window.ClickerApocMap = (() => {
 
     const v = () => apocUI.view;
     function scrollTo(i) {
-      const w = $('map-window');
-      w.scrollTo({ top: Math.max(0, i * STEP + 40 - w.clientHeight / 2), behavior: 'smooth' });
+      const w = $('map-window'), node = $('map-route').querySelector(`.map-station[data-index="${i}"]`);
+      if (!node) return;
+      w.scrollTo({ top: Math.max(0, node.offsetTop - w.clientHeight / 2), behavior: 'smooth' });   // 站點以自己的中心定位（CSS translateY(-50%)）
     }
 
     function details() {
@@ -98,12 +102,15 @@ window.ClickerApocMap = (() => {
       });
       // 走過的路線畫實線，沒走過的淡：用站點自己的 top 算，不量 DOM（捲動位置不影響）
       const lines = $('map-lines');
-      lines.setAttribute('viewBox', `0 0 100 ${20 * STEP + 80}`);
+      // 連線端點＝站點中心：直接量節點（left 是 43%／28% ＋ 交錯 36px、以中心定位），SVG 座標就是路線的像素座標。
+      // Codex 第七輪：以前 x 寫死 43／47%，沒算交錯的 px 與節點半寬，線一直歪一側。
+      const route = $('map-route'), pt = n => { const b = nodes[n]; return [b.offsetLeft + b.offsetWidth / 2, b.offsetTop]; };
+      lines.setAttribute('viewBox', `0 0 ${route.clientWidth || 1} ${route.clientHeight || 1}`);
       lines.setAttribute('preserveAspectRatio', 'none');
       lines.replaceChildren(...STAGES.slice(0, 19).map((s, i) => {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        const x = (n) => 43 + (n % 2) * 4;
-        path.setAttribute('d', `M${x(i)} ${i * STEP + 70} L${x(i + 1)} ${(i + 1) * STEP + 70}`);
+        const [x0, y0] = pt(i), [x1, y1] = pt(i + 1);
+        path.setAttribute('d', `M${x0} ${y0} L${x1} ${y1}`);
         path.setAttribute('class', 'map-link' + (i < progress ? ' walked' : ''));
         return path;
       }));

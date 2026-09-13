@@ -305,3 +305,15 @@ test('刷怪一秒最多開一場（Codex 第六輪必修：一擊必殺連點�
   assert.ok(Number.isFinite(A.trainCost(huge, 'team')));
   assert.throws(() => A.train({ ...huge, coins: Infinity }, 'team'), /練到頂/);
 });
+
+// --- 第七輪：2.0 抽卡選單有單抽／五連／十連（Codex 第七輪必修：五連扣了款、pending 卻在 normalize 被清掉）
+test('五連：扣款、pending 經過 normalize（重開／tick）還在、收得下；其他張數不准買', () => {
+  const a = A.normalize({ ...A.fresh(), unlocked: true, tickets: 10, coins: 0 });
+  const bought = A.purchaseDraw(a, 5, 0, () => .9);
+  assert.equal(bought.tickets, 5); assert.equal(bought.pending.draw.entries.length, 5);
+  const reloaded = A.normalize(JSON.parse(JSON.stringify(bought)));
+  assert.ok(reloaded.pending, '重新載入後五連結果還在');
+  const got = A.collectDraw(reloaded, reloaded.pending.draw.id, 0);
+  assert.equal(got.accepted, true); assert.equal(Object.values(got.state.collection).reduce((x, y) => x + y, 0), 5);
+  assert.throws(() => A.purchaseDraw(a, 3, 0, () => .9), /單抽、五連或十連/);
+});
