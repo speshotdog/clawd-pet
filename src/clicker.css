@@ -1684,3 +1684,9 @@ body[data-world="apoc"] #effect-label.omen { color:#8E1B12; font-weight:900; }
 #apoc-ending-actions button { flex:1 1 140px; min-height:44px; font-size:16px; }
 @media (max-aspect-ratio: 3/4) { #apoc-lap-note { font-size:16px; } #apoc-ending-actions button { font-size:18px; } }
 @media (max-aspect-ratio: 3/4) { body[data-world="apoc"] #apoc-ending-close { min-height:44px; font-size:18px; } }   /* batch_c 量到手機「留在末世」只有 37px 高 */
+/* 第十輪 D：末世徽章牆（字章；沒拿到是灰的） */
+#badge-grid .apoc-badge-cell .apoc-medal { display:grid; place-items:center; width:46px; height:46px; margin:0 auto 3px; border-radius:50%; box-sizing:border-box;
+  border:3px solid #8C7B66; background:#D9CDB6; color:#6E5F4E; font:900 15px/1 "jf-openhuninn", "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
+#badge-grid .apoc-badge-cell.earned .apoc-medal { background:#FFD76A; border-color:#2A1C12; color:#2A1C12; box-shadow:0 2px 0 #2A1C12; }
+#badge-grid .apoc-badge-cell small { font-size:12px; line-height:1.25; }
+@media (max-aspect-ratio: 3/4) { #badge-grid .apoc-badge-cell small { font-size:13px; } }

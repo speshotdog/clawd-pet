@@ -66,6 +66,7 @@ window.ClickerApocUI = (() => {
         if (ev.type === 'win') { sound('upgrade'); notice(`通過第 ${ev.index + 1} 站・＋${format(ev.reward)} 末世金幣`); }
         else if (ev.type === 'fail') notice(`王關失敗：回前一站刷錢變強，${Math.round(A.RULES.BOSS_COOLDOWN / 1000)} 秒後可以再次挑戰`);
         else if (ev.type === 'cleared') { showEnding(); sound('transcend'); }
+        else if (ev.type === 'offline') showOffline(ev);
       }
       changed();   // 讓招募層等其他模組也跟著重畫（價目、按鈕的可按狀態都在那邊算）
       return events;
@@ -84,6 +85,38 @@ window.ClickerApocUI = (() => {
       }));
       endingActions(v);
       $('apoc-ending').hidden = false; $('game-content').inert = true; $('apoc-ending-close').focus();
+    }
+    // 第十輪 D 離線收據：借 1.0 的 #receipt（1.0 的 offline() 在末世不跑，兩邊不會同時出收據）
+    function showOffline(ev) {
+      if (!(ev.earned > 0)) return;
+      const h = ms => Math.round(ms / 360000) / 10;
+      $('receipt-text').textContent = `離開 ${h(ev.elapsed)} 小時（最多算 ${h(A.RULES.OFFLINE.MAX_MS)} 小時）。隊伍在第 ${ev.index + 1} 站${ev.kills > 0 ? `打了 ${format(ev.kills)} 隻，` : '放著打，'}帶回 ${format(ev.earned)} 末世金幣；進度沒有往前。`;
+      $('receipt').hidden = false; $('game-content').inert = true; $('receipt-close').focus();
+    }
+    function offlineCheck() { if (store.state?.apoc?.unlocked && !store.blocked) apply((x, n) => A.offline(x, n), true); }
+    // 第十輪 D 末世徽章牆：從存檔現算（不另存清單，壞檔也不會掉徽章）；圖示是字章，不借 1.0 的圖
+    const APOC_BADGES = [
+      ...['灰狼犬', '貼紙羊', '扛槌兔', '雞頭合成怪', '真・滅世珍獸'].map((name, k) => ({ name: `打贏${name}`, label: `王${k + 1}`, test: v => v.progress > k * 4 + 3 || v.laps > 0 })),
+      { name: '全線通行', label: '通', test: v => v.cleared || v.laps > 0 },
+      { name: '重走廢土', label: '重走', test: v => v.laps >= 1 },
+      { name: '重走 5 圈', label: '5圈', test: v => v.laps >= 5 },
+      { name: '無盡＋10 站', label: '無盡', test: v => v.endlessBest >= 10 },
+      { name: '收藏 30 張', label: '30', test: v => v.owned.length >= 30 },
+      { name: '收藏全部', label: '全', test: v => Pool().length > 0 && v.owned.length >= Pool().length },
+      { name: '破防 50 次', label: '破', test: v => (v.stats?.shieldBreaks || 0) >= 50 },
+      { name: '點擊一萬下', label: '萬', test: v => (v.stats?.taps || 0) >= 10000 },
+      { name: '派遣回來 10 次', label: '派', test: v => v.dispatchDone >= 10 },
+    ];
+    function apocBadges(v) {
+      const grid = $('badge-grid'); grid.replaceChildren(); grid.hidden = false;
+      let got = 0;
+      for (const b of APOC_BADGES) {
+        const ok = !!b.test(v); got += ok ? 1 : 0;
+        const el = document.createElement('div'); el.className = 'badge-cell apoc-badge-cell'; el.classList.toggle('earned', ok); el.title = `${b.name}${ok ? '（已拿到）' : '（還沒拿到）'}`;
+        const medal = document.createElement('span'); medal.className = 'apoc-medal'; medal.textContent = b.label;
+        const name = document.createElement('small'); name.textContent = b.name; el.append(medal, name); grid.append(el);
+      }
+      return got;
     }
     const times = x => `×${Math.round(x * 100) / 100}`;
     function endingActions(v) {
@@ -244,6 +277,15 @@ window.ClickerApocUI = (() => {
       const now = Date.now(), dt = Math.min(60, (now - lastTick) / 1000); lastTick = now;
       const was = store.state.apoc?.stage, hp0 = was?.hp, idx0 = was?.index;
       const events = apply((x, n) => A.settle(x, n, dt), true);
+      // 第十輪 D 派遣時間到：自動收回入帳
+      if ((store.state.apoc?.dispatch || []).some(d => d.until <= now)) {
+        const before = store.state.apoc; let got = [];
+        apply((x, n) => { const r = A.collectDispatch(x, n); got = r.rewards; return r.state; }, true);
+        if (got.length && store.state.apoc !== before) {
+          const coins = got.reduce((sum, r) => sum + r.coins, 0), t = got.reduce((sum, r) => sum + r.ticket, 0);
+          sound('transcend'); notice(`派遣回來 ${got.length} 位：＋${format(coins)} 末世金幣${t ? `，還撿到 ${t} 張券！` : ''}`);
+        }
+      }
       // 被動傷害：這一秒的結算沒有點擊，同一場戰鬥少掉的血就是隊伍放著打的量
       const st = store.state.apoc?.stage;
       if (st && was && st.index === idx0 && hp0 - st.hp > 0) floatPassive(hp0 - st.hp);
@@ -372,16 +414,16 @@ window.ClickerApocUI = (() => {
         el.style.height = art.h ? `${art.h}px` : ''; el.style.width = art.h ? `${Math.round(art.h * art.aspect)}px` : '';
       }
       el.classList.toggle('boss', !!boss);
-      const over = v.progress >= v.stations && !v.endless;   // 第十輪 C：無盡模式第 21 站起照樣有怪
+      const over = v.progress >= (v.endless ? A.RULES.ENDLESS_MAX : v.stations);   // 第十輪 C：無盡模式第 21 站起照樣有怪；打到 ENDLESS_MAX 才算到底（Codex 10C 值得修）
       el.hidden = over;
 
       document.querySelector('.package-meter').hidden = false;
       const failed = (!v.stage || !!v.stage.farm) && store.state.apoc?.bossFailed === v.progress;   // 這一站的王輸過（輸了從滿血重來；第六輪起在前一站刷怪）
-      const idleNeed = farmGap ? A.need(i) : v.need;
+      const idleNeed = farmGap ? A.need(i, { laps: v.laps }) : v.need;   // 第二圈的刷怪空檔也要帶圈數（Codex 10C 值得修）
       const hp = v.stage ? Math.max(0, v.stage.hp) : idleNeed, max = v.stage ? v.stage.need : idleNeed;
-      $('package-label').textContent = over ? '全線已通行' : `${i >= v.stations ? '無盡・' : ''}第 ${i + 1} 站${boss ? '・王關' : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
+      $('package-label').textContent = over ? (v.endless ? '無盡模式到底了' : '全線已通行') : `${i >= v.stations ? '無盡・' : ''}第 ${i + 1} 站${boss ? '・王關' : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
       $('package-progress').max = 1; $('package-progress').value = max ? Math.min(1, 1 - hp / max) : 0;
-      $('package-number').textContent = over ? `${v.stations} / ${v.stations}` : `${format(hp)} / ${format(max)}`;
+      $('package-number').textContent = over ? (v.endless ? `${A.RULES.ENDLESS_MAX} 站` : `${v.stations} / ${v.stations}`) : `${format(hp)} / ${format(max)}`;
 
       // 王關機制與破防：借用「效果標籤」那一格（第十輪：五種機制各寫各的）
       const label = $('effect-label'), now = Date.now(), info = v.stage && v.stage.boss ? A.bossInfo(v.stage, now) : null;
@@ -415,7 +457,7 @@ window.ClickerApocUI = (() => {
       go.textContent = !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? (wait ? `再次挑戰・${wait}秒` : '再次挑戰') : '挑戰王關') : '開戰';
       go.classList.toggle('glow', !!(v.canFight && v.power > 0));
       $('boss-estimate').hidden = true;
-      $('package-result').textContent = over ? '全線已通行。'
+      $('package-result').textContent = over ? (v.endless ? '無盡模式到底了。' : '全線已通行。')
         : failed ? (v.canFight ? '王關失敗：在前一站刷錢變強，準備好就按「再次挑戰」。' : '王關失敗：先在前一站刷錢變強，冷卻結束後可以「再次挑戰」。')
         : v.stage ? '點怪攻擊；隊伍放著也會打。'
         : '按「開戰」開始。';
@@ -620,13 +662,13 @@ window.ClickerApocUI = (() => {
       const v = view();
       setLabel($('stats').querySelector('h2'), '末世戰績 ');
       hide('badge-count'); hide('pick100-open'); hide('badge-share'); hide('memento-open');
-      $('stats-body').textContent = '這一頁是末世的數字。下面的匯出／匯入存檔是兩個世界共用的同一份存檔。';
+      $('stats-body').textContent = `這一頁是末世的數字與徽章（${apocBadges(v)} / ${APOC_BADGES.length}）。下面的匯出／匯入存檔是兩個世界共用的同一份存檔。`;
       if (v.cleared) {   // 第十輪 C：關掉結局之後，從戰績頁回去選重走廢土／無盡模式（1.0 的統計重寫 textContent 時這顆會一起消失）
         const b = document.createElement('button'); b.type = 'button'; b.className = 'text-button apoc-lap-open'; b.textContent = '全線通行選項（重走廢土／無盡模式）';
         b.onclick = () => { $('stats').hidden = true; showEnding(); }; $('stats-body').append(document.createElement('br'), b);
       }
       // 數字格跟 1.0 統計同一套（#stats-tiles）；末世沒有徽章，徽章牆先藏起來，離開末世會還原
-      hide('badge-grid'); const grid = $('stats-tiles'); grid.replaceChildren(); grid.hidden = false;
+      const grid = $('stats-tiles'); grid.replaceChildren(); grid.hidden = false;
       for (const [k, val] of [['通過站數', `${v.progress} / ${v.stations}`], ['收藏', `${v.owned.length} / ${Pool().length}`], ['戰力', format(v.power)],
         ['抽卡次數', format(v.stats.draws)], ['點擊次數', format(v.stats.taps)], ['最高一擊', format(v.stats.maxHit)], ['破盾次數', format(v.stats.shieldBreaks)],
         ['換到的券', format(v.exchangeTotal)], ['點擊力', `Lv.${v.clickLevel}`], ['全隊訓練', `Lv.${v.teamLevel}`], ['1.0 印記加成', `戰力 ×${v.boost.power.toFixed(2)}`], [v.laps ? `重走・戰力 ${times(v.lapPower)}` : '重走廢土', v.laps ? `第 ${v.laps + 1} 圈` : '還沒重走'], ['無盡最遠', v.endlessBest ? `＋${v.endlessBest} 站` : '—']]) {
@@ -681,7 +723,7 @@ window.ClickerApocUI = (() => {
       $('coins').textContent = format(v.coins);
       $('click-rate').textContent = `戰力 ${format(v.power)}`;
       $('passive-rate').textContent = `每秒 ${format(v.power * A.RULES.IDLE_COINS)}`;
-      $('next-goal').textContent = v.endless && v.progress >= v.stations ? `無盡 第 ${v.progress + 1} 站・最遠 ＋${v.endlessBest}` : v.progress >= v.stations ? '全線已通行' : `${v.laps ? `第 ${v.laps + 1} 圈・` : ''}第 ${Math.min(v.progress + 1, v.stations)} / ${v.stations} 站・收藏 ${v.owned.length} / ${Pool().length} 張`;
+      $('next-goal').textContent = v.endless && v.progress >= v.stations ? (v.progress >= A.RULES.ENDLESS_MAX ? `無盡到底・最遠 ＋${v.endlessBest}` : `無盡 第 ${v.progress + 1} 站・最遠 ＋${v.endlessBest}`) : v.progress >= v.stations ? '全線已通行' : `${v.laps ? `第 ${v.laps + 1} 圈・` : ''}第 ${Math.min(v.progress + 1, v.stations)} / ${v.stations} 站・收藏 ${v.owned.length} / ${Pool().length} 張`;
       $('owned-count').textContent = `${v.owned.length} / ${Pool().length}`;
       // 1.0 的 numbers() 在末世不跑，這幾顆鍵的可用狀態要自己設，不然會卡在 HTML 的預設值
       // （#scene-open 在 HTML 裡是 disabled 的 → 末世會完全打不開場景面板）
@@ -705,6 +747,7 @@ window.ClickerApocUI = (() => {
       $('prestige-hint')?.remove();   // 1.0 的「桌子有點滿了」便條掛在共用舞台上、20 秒才消失：剛冒出來就切末世會留在 2.0 畫面（第七輪截圖看到）
       document.body.dataset.apocTheme = 'aged';   // 使用者 09-13 選定：舊化的 1.0 材質（apoc/theme.css）
       if (store.state?.apoc?.unlocked && !store.state.apoc.gifted) apply(a => A.gift(a));
+      offlineCheck();   // 第十輪 D：離線收益（在桌邊待著的時間也算，最多 8 小時）
       render();
     }
     function leave() {
@@ -728,7 +771,7 @@ window.ClickerApocUI = (() => {
     // 末世沒有離線收益：回到前景時把時間基準拉回現在，不然第一個 tick 會補結算最多 60 秒
     //（Codex 第二輪 B5）
     // 分頁隱藏回來：節拍光圈與逐格動畫重新掛上、對齊 startedAt（Codex 第十輪 A 必修 3）
-    function resume() { lastTick = Date.now(); mechKey = ''; if (store.state?.settings.world === 'apoc') render(); }
+    function resume() { lastTick = Date.now(); mechKey = ''; if (store.state?.settings.world === 'apoc') { offlineCheck(); render(); } }   // 第十輪 D：回到前景先補離線收益
     // 招募層要借 GachaFx 的全域畫布：先把末世的粒子停掉清乾淨，不然會畫到招募層上（Codex 第三輪）
     function stopFx() { fx?.stop(); fx = null; }
     return {

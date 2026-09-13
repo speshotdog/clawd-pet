@@ -115,7 +115,7 @@
       clearOperation(); const s = store.state;
       const own = apoc() ? apocState().collection : s.collection;
       if (!own[id]) return false;
-      if (!apoc() && E.dispatched(s, id)) { $('t20-picker-status').textContent = '派遣中，回來才能編入'; return false; }
+      if (apoc() ? (s.apoc?.dispatch || []).some(d => d.id === id) : E.dispatched(s, id)) { $('t20-picker-status').textContent = '派遣中，回來才能編入'; return false; }
       let next = team().filter(x => x !== replace);
       if (next.includes(id)) { $('t20-picker-status').textContent = '此成員已在隊伍中'; return false; }
       next.push(id);
@@ -162,7 +162,7 @@
       for (const id of pool) {
         const b = proxy(id, null, () => { if (mode === 'skill') { pending = id; $('t20-picker-status').textContent = `技能槽 ${slot + 1} · ${byId(id).name}`; } else preview(id); $('t20-picker-confirm').disabled = false; document.querySelectorAll('#t20-picker-grid .team-proxy').forEach(x => x.setAttribute('aria-selected', String(x === b))); });
         if (mode !== 'skill' && ids.includes(id)) b.disabled = true;
-        if (mode !== 'skill' && !apoc() && E.dispatched(s, id)) { b.disabled = true; b.title = '派遣中'; }
+        if (mode !== 'skill' && (apoc() ? (s.apoc?.dispatch || []).some(d => d.id === id) : E.dispatched(s, id))) { b.disabled = true; b.title = '派遣中'; }
         grid.append(b);
       }
       if (!pool.length) grid.append(el('p', 'team-empty', mode === 'skill' ? '隊伍是空的，先編入成員' : '沒有候選'));

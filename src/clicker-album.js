@@ -182,6 +182,7 @@ window.ClickerAlbum = (() => {
             const sk = (a.skills || []).indexOf(id);
             if (sk >= 0) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${sk + 1}`; slot.append(stamp); }
             else if ((a.roster || []).includes(id)) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp team-stamp'; stamp.textContent = '隊'; slot.append(stamp); }
+            else if ((a.dispatch || []).some(d => d.id === id)) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp away-stamp'; stamp.textContent = '派'; slot.append(stamp); }   // 第十輪 D 派遣
             slot.append(meta); slot.onclick = () => openDetail(id); el.append(slot); return;
           }
           const hint = `${Pool.byId[id].name}・${s.collection[id] ? `粉塵 ${format(E.dust(s, id))} 顆・` : ''}${nextStep(s, id)}`;
@@ -237,7 +238,7 @@ window.ClickerAlbum = (() => {
     // 所以開完之後要自己把 refreshKey 對齊，讓那一次多餘的重建不要發生。
     function stateKey() {
       const s = store.state;
-      if (apoc()) { const a = A().normalize(s.apoc); return JSON.stringify(['apoc', a.collection, a.roster, a.skills]); }
+      if (apoc()) { const a = A().normalize(s.apoc); return JSON.stringify(['apoc', a.collection, a.roster, a.skills, a.dispatch]); }
       return JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && !isCollect(detailId) && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
     }
     function openDetail(id, animate = true) {
@@ -267,7 +268,7 @@ window.ClickerAlbum = (() => {
         const add = (k, v) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; info.append(dt, dd); };
         if (n) {
           add('戰力', `${format(A().cardPower(a, id))}（${n} 張・每多一張 +25%）`);
-          add('編隊', inTeam ? `在隊伍裡（${a.roster.indexOf(id) + 1} / 20）` : '不在隊伍（不算戰力）');
+          add('編隊', inTeam ? `在隊伍裡（${a.roster.indexOf(id) + 1} / 20）` : ((a.dispatch || []).some(d => d.id === id) ? '派遣中（不算戰力）' : '不在隊伍（不算戰力）'));
           const sk = (a.skills || []).indexOf(id); add('獨立技能', sk >= 0 ? `技能格 ${sk + 1}` : '沒有裝');
         } else add('狀態', '還沒抽到');
         right.append(info);
@@ -280,6 +281,8 @@ window.ClickerAlbum = (() => {
             next.apoc = A().setTeam(aa, roster, aa.skills);
             if (commit(next)) { sound('upgrade'); changed(); renderBook(); openDetail(id); }
           });
+          const away = (a.dispatch || []).some(d => d.id === id);
+          if (away) { t.disabled = true; t.title = '派遣中，回來才能編入'; }
           acts.append(t);
           // 四顆「裝到技能格 N」是同一個決定的四個選項，而且跟編隊重複——收成一顆，
           //（Codex 複檢 3-1）按了才問要放哪一格；已經裝好的那格直接讓它退出。
@@ -302,7 +305,19 @@ window.ClickerAlbum = (() => {
             next.apoc = A().setTeam(aa, roster, skills);
             if (commit(next)) { sound('upgrade'); changed(); notice(sk >= 0 ? '已卸下' : `裝到技能格 ${slot + 1}`); renderBook(); openDetail(id); }
           });
+          if (away && sk < 0) { eq.disabled = true; eq.title = '派遣中，回來才能裝'; }
           acts.append(eq);
+          // 第十輪 D 派遣：不在隊上的卡出去，回來帶末世金幣（小機率帶券）；時間到在 clicker-apoc-ui.js 的 tick 自動收回
+          const job = (a.dispatch || []).find(d => d.id === id), D = A().RULES.DISPATCH, used = (a.dispatch || []).length;
+          const go = document.createElement('button');
+          go.textContent = job ? `派遣中・${Math.max(1, Math.ceil((job.until - Date.now()) / 60000))} 分後回來` : inTeam ? '派遣（要先離隊）' : `派遣 ${D.MS / 3600000} 小時（${used}/${D.SLOTS}）`;
+          go.disabled = !!job || inTeam || used >= D.SLOTS || store.blocked;
+          go.title = `回來帶約 ${format(A().dispatchCoins(a, id))} 末世金幣，${Math.round(D.TICKET * 100)}% 機率多一張券`;
+          go.onclick = () => action(() => {
+            const next = E.clone(store.state); next.apoc = A().startDispatch(A().normalize(next.apoc), id, Date.now());
+            if (commit(next)) { changed(); notice(`${entry.name} 出發了，${D.MS / 3600000} 小時後回來`); renderBook(); openDetail(id); }
+          });
+          acts.append(go);
         }
         const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail();
         acts.append(back); right.append(acts);

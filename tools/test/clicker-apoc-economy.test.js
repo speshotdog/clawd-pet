@@ -463,3 +463,38 @@ test('第十輪 C 無盡模式：通關才能開；第 21 站起照打、記最�
   assert.equal(A.fight({ ...a, progress: 23 }, 1e6).stage.mech, 4);
   assert.equal(A.canFight({ ...a, progress: R.ENDLESS_MAX }, 1e6), false);
 });
+
+test('第十輪 D 離線：只在目前這一站賺錢、不前進；最多 MAX_MS；不到 MIN_MS 不算；王站算前一個一般站；settle 更新 seenAt', () => {
+  let a = A.gift(A.fresh()); a = { ...a, progress: 2, seenAt: 1e9 };
+  const r = A.offline(a, 1e9 + 3600000), ev = r.events[0];
+  assert.equal(r.state.progress, 2); assert.equal(r.state.stage, a.stage); assert.ok(ev.earned > 0); assert.equal(ev.index, 2);
+  assert.equal(r.state.coins, a.coins + ev.earned); assert.equal(r.state.seenAt, 1e9 + 3600000);
+  assert.equal(A.offline(a, 1e9 + 100 * 3600000).events[0].earned, A.offline(a, 1e9 + R.OFFLINE.MAX_MS).events[0].earned);
+  assert.equal(A.offline(a, 1e9 + R.OFFLINE.MIN_MS - 1).events.length, 0);
+  assert.equal(A.offline({ ...a, seenAt: 0 }, 1e9).events.length, 0);
+  assert.equal(A.offline({ ...a, progress: 3 }, 1e9 + 3600000).events[0].index, 2);
+  assert.equal(A.offline({ ...a, progress: 20, cleared: true }, 1e9 + 3600000).events[0].index, 18);
+  assert.equal(A.settle(a, 5e9, 0).state.seenAt, 5e9);
+  assert.equal(A.normalize({ ...a, seenAt: 'x' }).seenAt, 0);
+});
+test('第十輪 D 派遣：隊外的卡才能派、位子有限；時間到收金幣（稀有度加成）、機率帶券；派遣中不能入隊；壞資料丟掉', () => {
+  let a = A.gift(A.fresh()); a = A.drawn({ ...a, tickets: 4 }, ['e1', 'l1', 'm1', 'm2']);
+  a = A.setTeam(a, ['pufayueyue'], [null, null, null, null]);
+  assert.throws(() => A.startDispatch(a, 'pufayueyue', 0), /先移出隊伍/);
+  assert.throws(() => A.startDispatch(a, 'm3', 0), /還沒抽到/);
+  for (const id of ['e1', 'l1', 'm1']) a = A.startDispatch(a, id, 0);
+  assert.throws(() => A.startDispatch(a, 'e1', 0), /派遣中/);
+  assert.throws(() => A.startDispatch(a, 'm2', 0), /滿了/);
+  assert.ok(!A.setTeam(a, ['pufayueyue', 'e1'], null).roster.includes('e1'));
+  assert.ok(!A.addCards(a, ['e1']).roster.includes('e1'));
+  assert.equal(A.collectDispatch(a, R.DISPATCH.MS - 1).rewards.length, 0);
+  const lucky = A.collectDispatch(a, R.DISPATCH.MS, () => 0), none = A.collectDispatch(a, R.DISPATCH.MS, () => .99);
+  assert.equal(lucky.rewards.length, 3); assert.equal(lucky.state.tickets, a.tickets + 3); assert.equal(none.state.tickets, a.tickets);
+  assert.equal(lucky.state.dispatch.length, 0); assert.equal(lucky.state.dispatchDone, 3);
+  const m1 = lucky.rewards.find(r => r.id === 'm1'), e1 = lucky.rewards.find(r => r.id === 'e1');
+  assert.ok(m1.coins > e1.coins && e1.coins > 0);
+  assert.equal(none.state.coins, a.coins + lucky.rewards.reduce((sum, r) => sum + r.coins, 0));
+  assert.equal(A.normalize(a).dispatch.length, 3);
+  const bad = A.normalize({ ...a, dispatch: [{ id: 'm1', startedAt: 0, until: 5 }, { id: 'zzz', startedAt: 0, until: R.DISPATCH.MS }, null, { id: 'pufayueyue', startedAt: 0, until: R.DISPATCH.MS }] });
+  assert.equal(bad.dispatch.length, 0);
+});

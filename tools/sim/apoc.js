@@ -4,7 +4,7 @@
 //   錢先抽十連（收藏還沒滿 DRAW_UNTIL 種），抽不起再買最便宜的訓練；技能格放戰力前 4 張、技能一好就放。
 // 對照：Sakura Clicker（Clicker Heroes 換皮）一般玩家（每秒 3 下）到第 10／20／30／40／50 區是 2.5／12／34／108／326 分，
 //   我們 5 個王站（第 4／8／12／16／20 站）目標是它的 1/6：0.4／1.9／5.7／18／54 分。
-// ⚠ 末世沒有離線收益（tick 的 dt 上限 60 秒），只有在玩的時間會推進。
+// 第十輪 D 起末世有離線收益（只賺錢不前進，RULES.OFFLINE）；OFFLINE=0 可以關掉對照。
 // 用法：node tools/sim/apoc.js [場次分鐘=20] [每天場次=3] [天數=14]
 //   玩家節奏：CPS（在戰鬥中每秒點幾下）、TAP_SHARE（在場時間裡真的在點的比例）、SKILLS=0（不放技能）、ONE_BOOST（1.0 加成的戰力倍率）
 //   數字：任何 RULES 頂層數字鍵（BASE_NEED=2000 GROWTH=1.9 REWARD_SHARE=.1…）、BOSS_MULS=2,3,4,5,6、
@@ -87,7 +87,8 @@ for (let day = 1; day <= DAYS && !done; day++) {
       }
       if (a.progress >= R.STATIONS) done = { day, min: Math.round(played / 60) };
     }
-    now += 6 * 3600 * 1000; one += oneP * 6 * 3600;   // 下線：末世沒有離線收益；1.0 那邊回桌邊一次補 6 小時離線
+    now += 6 * 3600 * 1000; one += oneP * 6 * 3600;   // 下線 6 小時；1.0 那邊回桌邊一次補 6 小時離線
+    if (env('OFFLINE', 1) > 0) a = A.offline(a, now).state;   // 第十輪 D：末世離線收益（OFFLINE=0 關掉對照）
   }
 }
 return { done, log, a, played, bossFails, farms, draws, exchanged };

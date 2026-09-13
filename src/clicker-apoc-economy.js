@@ -39,7 +39,13 @@
     //   第 n 圈敵人血與獎勵 ×HP_FIRST×HP_GROWTH^(n−1)、戰力 ×(1＋POWER×n)，最多 MAX 圈。
     //   scratchpad ngplus_sim.js 一般玩家：HP_FIRST 3／4／6／10／16 第二圈 59／51／76／109／137 分 → 取 10（第一圈 146，第二圈快約 25%，之後 48→41→40）
     LAP: { MAX: 10, HP_FIRST: 10, HP_GROWTH: 1.1, POWER: .25 },
-    ENDLESS_MAX: 100,   // 無盡模式最多到第 100 站（血是 2.1^站，再往下數字會大到畫面寫不下）
+    ENDLESS_MAX: 100,
+    // 第十輪 D 離線（使用者：「離線會在該關卡持續賺錢，不會自己前進任何關卡」）：回來時補算最多 MAX_MS；
+    //   收入＝（放置金幣＋一直打目前這一站的怪的擊殺獎勵）×SHARE。王站／打完全線時算前一個一般站。
+    //   tools/sim/apoc.js（一天 3 場 20 分、中間下線 6 小時）SHARE .25：一般玩家全破 179 → 158 分、慢的 462 → 420 分（少一成左右，不會變成掛著就過）
+    OFFLINE: { MIN_MS: 60000, MAX_MS: 8 * 3600000, SHARE: .25 },
+    // 第十輪 D 派遣（使用者：「派遣拿金幣，低機率拿到券」）：不在隊上的卡出去 MS，回來帶「目前這一站 KILLS 隻怪」的金幣 ×稀有度，TICKET 機率多一張券
+    DISPATCH: { SLOTS: 3, MS: 2 * 3600000, KILLS: 20, TICKET: .12, RARITY: { mythic: 2, legendary: 1.6, epic: 1.3, rare: 1, common: 1 } },   // 無盡模式最多到第 100 站（血是 2.1^站，再往下數字會大到畫面寫不下）
     // 第九輪使用者：「可以利用增加每一站需要打的小站數量拉長遊戲時長，注意難度平衡」——一般站要連打 WAVES 隻（每隻給一次獎勵、滿血換下一隻，
     // 最後一隻才推進度）；王站還是一隻。
     // 模擬（tools/sim/apoc.js，一隻給這一站獎勵的 1/WAVES；王關整條輸 3～4 次都沒變）——一般玩家全線：1 隻 54 分／3 隻 106／5 隻 164／8 隻 239；
@@ -248,7 +254,7 @@
   function fresh() {
     return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
       paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
-      pending: null, cleared: false, laps: 0, endless: false, endlessBest: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
+      pending: null, cleared: false, laps: 0, endless: false, endlessBest: 0, seenAt: 0, dispatch: [], dispatchDone: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
   function normalize(a) {
     const f = fresh(), raw = a || {}; a = { ...f, ...raw };
@@ -256,6 +262,10 @@
     if (!Array.isArray(a.roster)) a.roster = [];
     if (!Array.isArray(a.skills)) a.skills = []; a.skills = [0, 1, 2, 3].map(i => a.skills[i] || null);
     a.roster = a.roster.filter(id => a.collection[id] > 0);
+    // 第十輪 D：派遣中的卡（壞資料整筆丟：沒抽到、在隊上、重複、時間不對）；離線基準時間
+    { const seen = new Set(); a.dispatch = (Array.isArray(a.dispatch) ? a.dispatch : []).filter(d => d && typeof d.id === 'string' && a.collection[d.id] > 0 && !a.roster.includes(d.id) && !seen.has(d.id) && seen.add(d.id)
+        && Number.isFinite(d.startedAt) && Number.isFinite(d.until) && d.until - d.startedAt === RULES.DISPATCH.MS).slice(0, RULES.DISPATCH.SLOTS).map(d => ({ id: d.id, startedAt: d.startedAt, until: d.until })); }
+    a.dispatchDone = count(a.dispatchDone); a.seenAt = Number.isFinite(Number(a.seenAt)) && Number(a.seenAt) > 0 ? Number(a.seenAt) : 0;
     { const seen = new Set();
       a.skills = a.skills.map(id => {
         if (!id || !a.roster.includes(id) || seen.has(id)) return null;   // 舊檔可能有同卡多槽（Codex 第三輪 B1）
@@ -371,7 +381,7 @@
   }
   // 結算：回傳 { state, events:[{type:'win'|'fail', index}] }
   function settle(a, now, dt) {
-    const events = []; let s = { ...a };
+    const events = []; let s = { ...a, seenAt: now };   // seenAt：最後一次結算的時間，離線收益從這裡算
     if (s.fx && s.fx.powerUntil && now >= s.fx.powerUntil) s.fx = { ...s.fx, powerUntil: 0, powerMul: 1 };
     const p = power(s) * powerMul(s, now);
     if (dt > 0) s.coins += p * RULES.IDLE_COINS * dt;
@@ -480,7 +490,7 @@
     if (ids.some(id => !pool[id])) throw new Error('卡片不在末世卡池裡');   // 以前是默默過濾掉 → 券沒扣回來會憑空變多
     const collection = { ...a.collection }; for (const id of ids) collection[id] = (collection[id] || 0) + 1;
     let roster = [...a.roster];
-    for (const id of ids) if (!roster.includes(id) && roster.length < 20 && !rosterViolations(roster.concat(id)).length) roster.push(id);   // 新卡自動入隊（同 1.0）
+    for (const id of ids) if (!roster.includes(id) && !dispatchedApoc(a, id) && roster.length < 20 && !rosterViolations(roster.concat(id)).length) roster.push(id);   // 新卡自動入隊（同 1.0）
     return { ...a, collection, roster };
   }
   // 直接用券把卡落帳（測試與模擬器用；遊戲裡走 purchaseDraw → collectDraw）
@@ -494,7 +504,7 @@
   const rosterCounts = ids => { const pool = poolById(); return LIMITS.map((_, i) => ids.filter(id => pool[id] && RANK[pool[id].rarity] <= i).length); };
   const rosterViolations = ids => rosterCounts(ids).flatMap((n, i) => n > LIMITS[i] ? [i] : []);
   function setTeam(a, roster, skills) {
-    roster = (roster || []).filter((id, i, arr) => a.collection[id] > 0 && arr.indexOf(id) === i).slice(0, 20);
+    roster = (roster || []).filter((id, i, arr) => a.collection[id] > 0 && !dispatchedApoc(a, id) && arr.indexOf(id) === i).slice(0, 20);   // 派遣中的卡不能入隊
     if (rosterViolations(roster).length) throw new Error('超過階級上限');
     // 同一張卡不能同時佔兩個技能格（桌邊的 equip 有這條，末世本來沒有）。
     // ⚠ 去重要留「新指定的那一格」，不是留第一格——不然「把已經在槽 1 的 A 指定到槽 2」會變成
@@ -560,6 +570,33 @@
     if (on && !a.cleared) throw new Error('全線通行之後才能開無盡模式');
     return { ...a, endless: !!on, stage: !on && a.progress >= RULES.STATIONS ? null : a.stage };
   }
+  // ---- 第十輪 D 離線與派遣
+  // 算錢的那一站：目前這一站；王站、打完全線（沒開無盡）→ 往前找最近的一般站
+  const incomeIndex = a => { let i = Math.min(a.progress || 0, (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) - 1); while (i > 0 && isBoss(i)) i -= 1; return Math.max(0, i); };
+  function offline(a, now) {
+    const O = RULES.OFFLINE, seen = a.seenAt || 0, elapsed = seen > 0 ? Math.max(0, now - seen) : 0, p = power(a);
+    if (elapsed < O.MIN_MS || !(p > 0)) return { state: { ...a, seenAt: now }, events: [] };
+    const secs = Math.min(elapsed, O.MAX_MS) / 1000, i = incomeIndex(a);
+    const kills = Math.floor(p * secs * O.SHARE / need(i, a)), earned = Math.floor(p * RULES.IDLE_COINS * secs * O.SHARE + kills * killReward(i, a));
+    return { state: { ...a, coins: a.coins + earned, seenAt: now }, events: [{ type: 'offline', elapsed, secs, index: i, kills, earned }] };
+  }
+  const dispatchedApoc = (a, id) => (a.dispatch || []).some(d => d.id === id);
+  function startDispatch(a, id, now) {
+    if (!(a.collection[id] > 0)) throw new Error('還沒抽到這張');
+    if (a.roster.includes(id)) throw new Error('隊伍裡的卡不能派遣，先移出隊伍');
+    if (dispatchedApoc(a, id)) throw new Error('已經在派遣中');
+    if ((a.dispatch || []).length >= RULES.DISPATCH.SLOTS) throw new Error('派遣位子滿了（' + RULES.DISPATCH.SLOTS + ' 個）');
+    return { ...a, dispatch: [...(a.dispatch || []), { id, startedAt: now, until: now + RULES.DISPATCH.MS }] };
+  }
+  const dispatchCoins = (a, id) => Math.round(killReward(incomeIndex(a), a) * RULES.DISPATCH.KILLS * (RULES.DISPATCH.RARITY[poolById()[id]?.rarity] || 1));
+  // 時間到的全部收回：金幣照收回當下的進度算（先派出去、之後打到後面的站，回來拿得比較多）
+  function collectDispatch(a, now, rng = Math.random) {
+    const done = (a.dispatch || []).filter(d => d.until <= now);
+    if (!done.length) return { state: a, rewards: [] };
+    let coins = 0, tickets = 0;
+    const rewards = done.map(d => { const c = dispatchCoins(a, d.id), t = rng() < RULES.DISPATCH.TICKET ? 1 : 0; coins += c; tickets += t; return { id: d.id, coins: c, ticket: t }; });
+    return { state: { ...a, coins: a.coins + coins, tickets: a.tickets + tickets, dispatch: a.dispatch.filter(d => d.until > now), dispatchDone: (a.dispatchDone || 0) + done.length }, rewards };
+  }
   const view = (a, now) => ({ coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
     skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null, cleared: !!a.cleared,
     skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) ? need(a.progress, a) : 0,
@@ -568,9 +605,10 @@
     teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click, boost: boostOf(a),
     exchangeToday: exchangeToday(a, now), exchangeTotal: a.exchange?.total || 0, stats: a.stats, wins: a.wins || 0, cosmetics: a.cosmetics,
     roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS,
+    dispatch: a.dispatch || [], dispatchSlots: RULES.DISPATCH.SLOTS, dispatchDone: a.dispatchDone || 0,
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
-  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, isBoss, canFight, canFarm, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
