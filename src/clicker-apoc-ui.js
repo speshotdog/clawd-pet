@@ -65,23 +65,48 @@ window.ClickerApocUI = (() => {
       for (const ev of events) {
         if (ev.type === 'win') { sound('upgrade'); notice(`通過第 ${ev.index + 1} 站・＋${format(ev.reward)} 末世金幣`); }
         else if (ev.type === 'fail') notice(`王關失敗：回前一站刷錢變強，${Math.round(A.RULES.BOSS_COOLDOWN / 1000)} 秒後可以再次挑戰`);
-        else if (ev.type === 'cleared') {
-          const v = view();
-          $('apoc-ending-text').textContent = `二十站都打通了。收藏 ${v.owned.length} / ${(root.ApocPool || []).length} 張，戰力 ${format(v.power)}。`;
-          // 第十輪 B：結局寫這一趟的數字（textContent 組，不塞 HTML）
-          const st = v.stats || {};
-          $('apoc-ending-stats').replaceChildren(...[['打贏', `${v.wins} 場`], ['點擊', `${format(st.taps || 0)} 下`], ['最高一擊', format(st.maxHit || 0)],
-            ['破防', `${st.shieldBreaks || 0} 次`], ['招募', `${st.draws || 0} 抽`], ['收藏', `${v.owned.length} 張`]].map(([k, val]) => {
-            const li = document.createElement('li'), s = document.createElement('span'), b = document.createElement('b');
-            s.textContent = k; b.textContent = val; li.append(s, b); return li;
-          }));
-          $('apoc-ending').hidden = false; $('game-content').inert = true; $('apoc-ending-close').focus();
-          sound('transcend');
-        }
+        else if (ev.type === 'cleared') { showEnding(); sound('transcend'); }
       }
       changed();   // 讓招募層等其他模組也跟著重畫（價目、按鈕的可按狀態都在那邊算）
       return events;
     }
+
+    // ---- 全線通行面板：第十輪 B 的數字、C 的重走廢土／無盡模式。打完第 20 站自動打開，戰績頁也能再打開
+    let replayArmed = false;
+    function showEnding() {
+      const v = view(); replayArmed = false;
+      $('apoc-ending-text').textContent = `二十站都打通了${v.laps ? `（第 ${v.laps + 1} 圈）` : ''}。收藏 ${v.owned.length} / ${(root.ApocPool || []).length} 張，戰力 ${format(v.power)}。`;
+      const st = v.stats || {};   // textContent 組，不塞 HTML
+      $('apoc-ending-stats').replaceChildren(...[['打贏', `${v.wins} 場`], ['點擊', `${format(st.taps || 0)} 下`], ['最高一擊', format(st.maxHit || 0)],
+        ['破防', `${st.shieldBreaks || 0} 次`], ['招募', `${st.draws || 0} 抽`], ['收藏', `${v.owned.length} 張`]].map(([k, val]) => {
+        const li = document.createElement('li'), sp = document.createElement('span'), b = document.createElement('b');
+        sp.textContent = k; b.textContent = val; li.append(sp, b); return li;
+      }));
+      endingActions(v);
+      $('apoc-ending').hidden = false; $('game-content').inert = true; $('apoc-ending-close').focus();
+    }
+    const times = x => `×${Math.round(x * 100) / 100}`;
+    function endingActions(v) {
+      const re = $('apoc-replay'), en = $('apoc-endless');
+      re.disabled = !v.canReplay || store.blocked; en.disabled = store.blocked;
+      re.textContent = !v.canReplay ? `重走廢土（已到 ${A.RULES.LAP.MAX} 圈）` : replayArmed ? '確定重走？' : '重走廢土';
+      en.textContent = v.endless ? '關掉無盡模式' : '無盡模式';
+      // 按兩次才重走（同商店購買）：第一次先寫清楚會歸零什麼
+      $('apoc-lap-note').textContent = replayArmed
+        ? `金幣與訓練會歸零，收藏和隊伍保留。下一圈敵人血 ${times(v.nextLapHp)}、戰力 ${times(v.nextLapPower)}。再按一次確定。`
+        : `重走廢土：保留收藏重來，下一圈敵人血 ${times(v.nextLapHp)}、戰力 ${times(v.nextLapPower)}。無盡模式：第 21 站起一直往下打${v.endlessBest ? `（最遠 ＋${v.endlessBest} 站）` : ''}。`;
+      re.onclick = () => {
+        if (!replayArmed) { replayArmed = true; endingActions(view()); return; }
+        replayArmed = false; const before = view().laps;
+        apply(x => A.replay(x));
+        if (view().laps > before) { closeEnding(); notice(`重走廢土・第 ${view().laps + 1} 圈開始`); } else endingActions(view());
+      };
+      en.onclick = () => {
+        const on = !view().endless; apply(x => A.setEndless(x, on));
+        if (view().endless === on) { closeEnding(); notice(on ? '無盡模式：第 21 站起一直往下打' : '無盡模式關掉了'); }
+      };
+    }
+    function closeEnding() { replayArmed = false; $('apoc-ending').hidden = true; $('game-content').inert = false; render(); }
 
     // ---- 點擊回饋（使用者第三輪：「點擊上什麼都沒有」）：跟 1.0 同一套語彙——傷害浮字、碎片＋火花、
     //      受擊閃白＋壓扁、爆擊／破盾加衝擊圖與震動。
@@ -308,7 +333,7 @@ window.ClickerApocUI = (() => {
     const COACH = [
       // ⚠ 第 0 步不能等「還沒開戰」：tick 一能打就自動開戰（自動接關），第一次進來馬上就有 stage（batch_b 驗收抓到）
       { when: () => true, text: '末世：編隊裡的卡才有戰力，隊伍會一站站打下去' },
-      { when: a => !!a.stage && !a.stage.boss, text: '點怪就能打，隊伍放著也會打；一站要打 5 隻' },
+      { when: a => !!a.stage && !a.stage.boss && !a.stage.farm, text: '點怪就能打，隊伍放著也會打；一般站要打 5 隻' },   // Codex 10B 必修：刷怪固定一隻，不能講 5 隻
       { when: a => a.progress >= 1, text: '打怪賺末世金幣：拿去「全隊訓練」或「進入招募」變強' },
       { when: a => a.progress >= 3, text: '每 4 站一隻王：限時 60 秒，照提示打' },   // 手機直式兩行會剩一個字掉下去，縮短
     ];
@@ -333,7 +358,7 @@ window.ClickerApocUI = (() => {
         $('stage').insertBefore(el, $('bag'));
       }
       // 刷怪兩場之間有 1 秒空檔（Codex 第六輪必修：限制刷怪重新開場）：空檔照樣畫前一站、寫刷怪中，不要閃成王
-      const farmGap = !v.stage && store.state.apoc?.bossFailed === v.progress && A.isBoss(v.progress) && v.progress > 0 && v.progress < v.stations;
+      const farmGap = !v.stage && store.state.apoc?.bossFailed === v.progress && A.isBoss(v.progress) && v.progress > 0 && (v.endless || v.progress < v.stations);
       const i = v.stage ? v.stage.index : farmGap ? v.progress - 1 : v.progress;
       const boss = v.stage ? v.stage.boss : farmGap ? false : A.isBoss(i);
       $('stage').dataset.apocSeg = String(Math.floor(Math.min(i, 19) / 4) + 1);   // 舞台背景跟著這一段的地景換（apoc/theme.css）
@@ -347,15 +372,16 @@ window.ClickerApocUI = (() => {
         el.style.height = art.h ? `${art.h}px` : ''; el.style.width = art.h ? `${Math.round(art.h * art.aspect)}px` : '';
       }
       el.classList.toggle('boss', !!boss);
-      el.hidden = v.progress >= v.stations;
+      const over = v.progress >= v.stations && !v.endless;   // 第十輪 C：無盡模式第 21 站起照樣有怪
+      el.hidden = over;
 
       document.querySelector('.package-meter').hidden = false;
       const failed = (!v.stage || !!v.stage.farm) && store.state.apoc?.bossFailed === v.progress;   // 這一站的王輸過（輸了從滿血重來；第六輪起在前一站刷怪）
       const idleNeed = farmGap ? A.need(i) : v.need;
       const hp = v.stage ? Math.max(0, v.stage.hp) : idleNeed, max = v.stage ? v.stage.need : idleNeed;
-      $('package-label').textContent = v.progress >= v.stations ? '全線已通行' : `第 ${i + 1} 站${boss ? '・王關' : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
+      $('package-label').textContent = over ? '全線已通行' : `${i >= v.stations ? '無盡・' : ''}第 ${i + 1} 站${boss ? '・王關' : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
       $('package-progress').max = 1; $('package-progress').value = max ? Math.min(1, 1 - hp / max) : 0;
-      $('package-number').textContent = v.progress >= v.stations ? `${v.stations} / ${v.stations}` : `${format(hp)} / ${format(max)}`;
+      $('package-number').textContent = over ? `${v.stations} / ${v.stations}` : `${format(hp)} / ${format(max)}`;
 
       // 王關機制與破防：借用「效果標籤」那一格（第十輪：五種機制各寫各的）
       const label = $('effect-label'), now = Date.now(), info = v.stage && v.stage.boss ? A.bossInfo(v.stage, now) : null;
@@ -366,7 +392,8 @@ window.ClickerApocUI = (() => {
       label.hidden = !info && !omen;
       if (omen && !info) {
         const seg = Math.floor(v.stage.index / 4);
-        label.textContent = `前方預告・${BOSSES[seg].name}｜${OMEN_HINT[seg]}`;
+        const text = `前方預告・${BOSSES[seg].name}｜${OMEN_HINT[seg]}`;
+        if (label.textContent !== text) label.textContent = text;   // Codex 10B 值得修：同樣的字不重設（render 一秒好幾次）
         label.classList.remove('broken', 'urgent');
       }
       coach(v);
@@ -381,19 +408,19 @@ window.ClickerApocUI = (() => {
 
       // 「開戰」沿用 1.0 的挑戰鍵
       const go = $('boss-challenge');
-      go.hidden = (!!v.stage && !v.stage.farm) || v.progress >= v.stations;   // 刷怪中也要看得到「再次挑戰」
+      go.hidden = (!!v.stage && !v.stage.farm) || over;   // 刷怪中也要看得到「再次挑戰」
       go.disabled = !v.canFight || !(v.power > 0) || store.blocked;
       // 冷卻中寫出還要等幾秒，不然停用的「再次挑戰」看起來像壞掉（Codex 第五輪）
       const wait = Math.max(0, Math.ceil((v.cooldownUntil - Date.now()) / 1000));
       go.textContent = !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? (wait ? `再次挑戰・${wait}秒` : '再次挑戰') : '挑戰王關') : '開戰';
       go.classList.toggle('glow', !!(v.canFight && v.power > 0));
       $('boss-estimate').hidden = true;
-      $('package-result').textContent = v.progress >= v.stations ? '全線已通行。'
+      $('package-result').textContent = over ? '全線已通行。'
         : failed ? (v.canFight ? '王關失敗：在前一站刷錢變強，準備好就按「再次挑戰」。' : '王關失敗：先在前一站刷錢變強，冷卻結束後可以「再次挑戰」。')
         : v.stage ? '點怪攻擊；隊伍放著也會打。'
         : '按「開戰」開始。';
       // 1.0 的這一格平常透明、只在完成一包時閃一下；末世輸了王要一直看得到（Codex 5b）
-      $('package-result').classList.toggle('apoc-shown', failed && v.progress < v.stations);
+      $('package-result').classList.toggle('apoc-shown', failed && !over);
     }
 
     function renderBuddies(v) {
@@ -594,11 +621,15 @@ window.ClickerApocUI = (() => {
       setLabel($('stats').querySelector('h2'), '末世戰績 ');
       hide('badge-count'); hide('pick100-open'); hide('badge-share'); hide('memento-open');
       $('stats-body').textContent = '這一頁是末世的數字。下面的匯出／匯入存檔是兩個世界共用的同一份存檔。';
+      if (v.cleared) {   // 第十輪 C：關掉結局之後，從戰績頁回去選重走廢土／無盡模式（1.0 的統計重寫 textContent 時這顆會一起消失）
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'text-button apoc-lap-open'; b.textContent = '全線通行選項（重走廢土／無盡模式）';
+        b.onclick = () => { $('stats').hidden = true; showEnding(); }; $('stats-body').append(document.createElement('br'), b);
+      }
       // 數字格跟 1.0 統計同一套（#stats-tiles）；末世沒有徽章，徽章牆先藏起來，離開末世會還原
       hide('badge-grid'); const grid = $('stats-tiles'); grid.replaceChildren(); grid.hidden = false;
       for (const [k, val] of [['通過站數', `${v.progress} / ${v.stations}`], ['收藏', `${v.owned.length} / ${Pool().length}`], ['戰力', format(v.power)],
         ['抽卡次數', format(v.stats.draws)], ['點擊次數', format(v.stats.taps)], ['最高一擊', format(v.stats.maxHit)], ['破盾次數', format(v.stats.shieldBreaks)],
-        ['換到的券', format(v.exchangeTotal)], ['點擊力', `Lv.${v.clickLevel}`], ['全隊訓練', `Lv.${v.teamLevel}`], ['1.0 印記加成', `戰力 ×${v.boost.power.toFixed(2)}`]]) {
+        ['換到的券', format(v.exchangeTotal)], ['點擊力', `Lv.${v.clickLevel}`], ['全隊訓練', `Lv.${v.teamLevel}`], ['1.0 印記加成', `戰力 ×${v.boost.power.toFixed(2)}`], [v.laps ? `重走・戰力 ${times(v.lapPower)}` : '重走廢土', v.laps ? `第 ${v.laps + 1} 圈` : '還沒重走'], ['無盡最遠', v.endlessBest ? `＋${v.endlessBest} 站` : '—']]) {
         const cell = document.createElement('div'); cell.className = 'stat-tile';
         const b = document.createElement('b'); b.textContent = val; const sm = document.createElement('small'); sm.textContent = k;
         cell.append(b, sm); grid.append(cell);
@@ -650,7 +681,7 @@ window.ClickerApocUI = (() => {
       $('coins').textContent = format(v.coins);
       $('click-rate').textContent = `戰力 ${format(v.power)}`;
       $('passive-rate').textContent = `每秒 ${format(v.power * A.RULES.IDLE_COINS)}`;
-      $('next-goal').textContent = v.progress >= v.stations ? '全線已通行' : `第 ${Math.min(v.progress + 1, v.stations)} / ${v.stations} 站・收藏 ${v.owned.length} / ${Pool().length} 張`;
+      $('next-goal').textContent = v.endless && v.progress >= v.stations ? `無盡 第 ${v.progress + 1} 站・最遠 ＋${v.endlessBest}` : v.progress >= v.stations ? '全線已通行' : `${v.laps ? `第 ${v.laps + 1} 圈・` : ''}第 ${Math.min(v.progress + 1, v.stations)} / ${v.stations} 站・收藏 ${v.owned.length} / ${Pool().length} 張`;
       $('owned-count').textContent = `${v.owned.length} / ${Pool().length}`;
       // 1.0 的 numbers() 在末世不跑，這幾顆鍵的可用狀態要自己設，不然會卡在 HTML 的預設值
       // （#scene-open 在 HTML 裡是 disabled 的 → 末世會完全打不開場景面板）

@@ -221,7 +221,7 @@
     if (globalThis.ApocEconomy) s.apoc = globalThis.ApocEconomy.normalize(s.apoc);   // v3 末世經濟欄位（coins／tickets／progress／collection／roster／stage）
     if (Array.isArray(s.bossWins) && s.bossWins.includes('city')) s.apoc.unlocked = true;
     if (s.settings.world === 'apoc' && !s.apoc.unlocked) s.settings.world = 'home';   // 還沒打贏滅世珍獸就回到桌邊   // 打過滅世珍獸的舊存檔直接開門
-    check(object(s.apoc) && typeof s.apoc.unlocked === 'boolean' && integer(s.apoc.tutorial) && (s.apoc.coins === undefined || (number(s.apoc.coins) && s.apoc.coins >= 0 && integer(s.apoc.tickets) && s.apoc.tickets >= 0 && integer(s.apoc.progress) && s.apoc.progress >= 0 && s.apoc.progress <= 20)), '末世');
+    check(object(s.apoc) && typeof s.apoc.unlocked === 'boolean' && integer(s.apoc.tutorial) && (s.apoc.coins === undefined || (number(s.apoc.coins) && s.apoc.coins >= 0 && integer(s.apoc.tickets) && s.apoc.tickets >= 0 && integer(s.apoc.progress) && s.apoc.progress >= 0 && s.apoc.progress <= (s.apoc.endless ? (globalThis.ApocEconomy?.RULES.ENDLESS_MAX ?? 100) : 20))), '末世');   // 第十輪 C：無盡模式第 21 站起（以前卡 20，commit 被擋、整個畫面停住）
     { const PoolRef = pool || (node ? require('./gacha-pool.js') : root.GachaPool); check(Array.isArray(s.collectibles) && new Set(s.collectibles).size === s.collectibles.length && s.collectibles.every(id => PoolRef.COLLECTIBLE_IDS.includes(id)), '收藏卡'); }
     check(object(s.artifacts) && Object.entries(s.artifacts).every(([id, r]) => B.ARTIFACTS.some(a => a.id === id && a.id !== 'blessing' && integer(r) && r <= a.max)), '神器');
     s.runWins ??= []; s.runPacks ??= 0; s.runGates ??= 0; s.champions ??= []; s.dispatch ??= []; s.dispatchDay ??= null; s.dispatchHalf ??= {}; s.legacy ??= null;

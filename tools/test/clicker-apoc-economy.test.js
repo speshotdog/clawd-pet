@@ -424,3 +424,42 @@ test('壞掉的王關機制存檔：normalize 重建那一塊，點部位不丟�
   const s2 = A.normalize({ ...base, progress: 7, stage: { ...base.stage, index: 7, mech: 1, need: 1000, hp: 900, shell: { layer: .5, hp: 0 } } });
   assert.ok(Number.isFinite(A.tap(s2, 10).stage.hp));
 });
+
+test('第十輪 C 重走廢土：通關才能重走；保留收藏、金幣訓練歸零；敵人血 ×HP_FIRST、戰力 ×(1+POWER)；最多 MAX 圈；壞值', () => {
+  let a = A.gift(A.fresh());
+  assert.throws(() => A.replay(a), /全線通行之後/);
+  a = { ...a, cleared: true, progress: 20, coins: 999, teamLevel: 5, clickLevel: 3 };
+  const r = A.replay(a);
+  assert.equal(r.laps, 1); assert.equal(r.progress, 0); assert.equal(r.coins, 0); assert.equal(r.teamLevel, 0); assert.equal(r.clickLevel, 0);
+  assert.deepEqual(r.collection, a.collection); assert.deepEqual(r.roster, a.roster); assert.equal(r.cleared, false); assert.equal(r.endless, false);
+  assert.equal(A.need(0, r), A.need(0) * R.LAP.HP_FIRST);
+  assert.ok(Math.abs(A.power(r) - A.power({ ...a, teamLevel: 0 }) * (1 + R.LAP.POWER)) < 1e-9);
+  assert.equal(A.fight(r, 1e6).stage.need, A.need(0) * R.LAP.HP_FIRST);
+  const boss = A.fight({ ...r, progress: 3 }, 1e6).stage;
+  assert.ok(Math.abs(boss.minions.max - A.need(3, r) * R.BOSS_MECH.SUMMON.HP) < 1e-6, '狗群的血也跟著圈數放大');
+  assert.equal(A.replay({ ...a, laps: R.LAP.MAX - 1 }).laps, R.LAP.MAX);
+  assert.throws(() => A.replay({ ...a, laps: R.LAP.MAX }), /到頂/);
+  assert.equal(A.normalize({ ...A.fresh(), laps: 'x' }).laps, 0);
+  assert.equal(A.normalize({ ...A.fresh(), laps: -2 }).laps, 0);
+  assert.equal(A.normalize({ ...A.fresh(), laps: 99 }).laps, R.LAP.MAX);
+  // 重走後的存檔再載入：戰鬥血量不會被 normalize 當成舊版血量換算回第一圈
+  const saved = A.fight(r, 1e6), back = A.normalize(JSON.parse(JSON.stringify(saved)));
+  assert.equal(back.stage.need, saved.stage.need);
+});
+test('第十輪 C 無盡模式：通關才能開；第 21 站起照打、記最遠；關掉丟掉 20 站後的戰鬥；王是四種輪流', () => {
+  let a = A.gift(A.fresh());
+  assert.throws(() => A.setEndless(a, true), /全線通行之後/);
+  a = { ...a, cleared: true, progress: 20 };
+  assert.equal(A.canFight(a, 0), false);
+  a = A.setEndless(a, true); assert.equal(A.canFight(a, 0), true);
+  a = A.fight(a, 1e6); assert.equal(a.stage.index, 20);
+  for (let k = 0; k < R.WAVES; k++) { a = { ...a, stage: { ...a.stage, hp: 0 } }; a = A.settle(a, 1e6 + k, 0).state; }
+  assert.equal(a.progress, 21); assert.equal(a.endlessBest, 1);
+  assert.equal(A.view(a, 1e6).need, A.need(21));
+  assert.equal(A.normalize(a).endless, true);
+  assert.equal(A.normalize({ ...a, cleared: false, progress: 3 }).endless, false);
+  const off = A.setEndless(A.fight(a, 2e6), false);
+  assert.equal(off.stage, null); assert.equal(A.canFight(off, 3e6), false);
+  assert.equal(A.fight({ ...a, progress: 23 }, 1e6).stage.mech, 4);
+  assert.equal(A.canFight({ ...a, progress: R.ENDLESS_MAX }, 1e6), false);
+});

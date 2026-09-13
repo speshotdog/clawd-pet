@@ -1678,3 +1678,9 @@ body[data-world="apoc"] #effect-label.omen { color:#8E1B12; font-weight:900; }
 #apoc-ending-stats { list-style:none; margin:4px 0 10px; padding:0; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:4px 16px; font-size:15px; }
 #apoc-ending-stats li { display:flex; justify-content:space-between; gap:8px; border-bottom:1px dashed currentColor; padding:2px 0; }
 #apoc-ending-stats b { font-weight:900; }
+/* 第十輪 C：結局的重走廢土／無盡模式（手機也要好按：44px 高、放不下就換行） */
+#apoc-lap-note { margin:0 0 8px; font-size:14px; line-height:1.45; }
+#apoc-ending-actions { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 10px; }
+#apoc-ending-actions button { flex:1 1 140px; min-height:44px; font-size:16px; }
+@media (max-aspect-ratio: 3/4) { #apoc-lap-note { font-size:16px; } #apoc-ending-actions button { font-size:18px; } }
+@media (max-aspect-ratio: 3/4) { body[data-world="apoc"] #apoc-ending-close { min-height:44px; font-size:18px; } }   /* batch_c 量到手機「留在末世」只有 37px 高 */

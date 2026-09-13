@@ -35,6 +35,11 @@
     // 抽卡價隨「已經付費抽過幾次」往上走（同 1.0 的招募費用），不然放置金幣是跟戰力一起指數長的，
     // 戰力→金幣→抽卡→戰力 會直接跑掉：模擬器量到一輪 20 站可以抽到一千七百次。
     DRAW_COST: 1000, DRAW_GROWTH: 1.02, STATIONS: 20,
+    // 第十輪 C 重走廢土（使用者：「兩個都做」，幅度交給模擬器）：全線通行後重來一圈，保留收藏、金幣與訓練歸零；
+    //   第 n 圈敵人血與獎勵 ×HP_FIRST×HP_GROWTH^(n−1)、戰力 ×(1＋POWER×n)，最多 MAX 圈。
+    //   scratchpad ngplus_sim.js 一般玩家：HP_FIRST 3／4／6／10／16 第二圈 59／51／76／109／137 分 → 取 10（第一圈 146，第二圈快約 25%，之後 48→41→40）
+    LAP: { MAX: 10, HP_FIRST: 10, HP_GROWTH: 1.1, POWER: .25 },
+    ENDLESS_MAX: 100,   // 無盡模式最多到第 100 站（血是 2.1^站，再往下數字會大到畫面寫不下）
     // 第九輪使用者：「可以利用增加每一站需要打的小站數量拉長遊戲時長，注意難度平衡」——一般站要連打 WAVES 隻（每隻給一次獎勵、滿血換下一隻，
     // 最後一隻才推進度）；王站還是一隻。
     // 模擬（tools/sim/apoc.js，一隻給這一站獎勵的 1/WAVES；王關整條輸 3～4 次都沒變）——一般玩家全線：1 隻 54 分／3 隻 106／5 隻 164／8 隻 239；
@@ -87,8 +92,8 @@
   // ---- 王關機制（第十輪）
   const M = () => RULES.BOSS_MECH;
   const seqFor = (index, round) => Array.from({ length: M().ORDER.LEN }, (_, k) => M().ORDER.PARTS[(index * 7 + round * 5 + k * k * 3 + k * 2) % M().ORDER.PARTS.length]);
-  function freshMech(i) {
-    const hp = need(i) * M().SUMMON.HP;
+  function freshMech(i, needHp = need(i)) {
+    const hp = needHp * M().SUMMON.HP;
     return { mech: Math.min(4, Math.floor(i / 4)), minions: { left: M().SUMMON.COUNT, max: hp, hp, nextAt: 0 }, shell: { layer: 0, hp: 0 },
       rhythm: { chain: 0 }, order: { step: 0, round: 0, seq: seqFor(i, 0) } };
   }
@@ -190,7 +195,7 @@
   };
   // 存檔可編輯（Codex 第十輪 A 必修 4）：機制狀態壞掉就重建那一塊，不要 NaN、不要點部位時丟例外
   function cleanMech(st) {
-    const f = freshMech(st.index), fin = v => Number.isFinite(Number(v)) ? Number(v) : NaN, int = v => Number.isInteger(Number(v)) ? Number(v) : NaN;
+    const f = freshMech(st.index, st.need > 0 ? st.need : need(st.index)), fin = v => Number.isFinite(Number(v)) ? Number(v) : NaN, int = v => Number.isInteger(Number(v)) ? Number(v) : NaN;
     const out = { ...st, mech: f.mech };
     const mi = st.minions || {}, maxCount = Math.max(M().SUMMON.COUNT, M().SUMMON.AGAIN);
     out.minions = int(mi.left) >= 0 && int(mi.left) <= maxCount && fin(mi.max) > 0 && fin(mi.hp) >= 0 && fin(mi.hp) <= fin(mi.max) && fin(mi.nextAt ?? 0) >= 0
@@ -243,7 +248,7 @@
   function fresh() {
     return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
       paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
-      pending: null, cleared: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
+      pending: null, cleared: false, laps: 0, endless: false, endlessBest: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
   function normalize(a) {
     const f = fresh(), raw = a || {}; a = { ...f, ...raw };
@@ -262,7 +267,7 @@
     if (a.stage?.farm) a.stage = { ...a.stage, farm: true, boss: false, deadline: null, breakUntil: 0 };
     // 第十輪：舊存檔的王關是護盾版（shield），換成這一隻王自己的機制狀態
     if (a.stage && a.stage.boss && (a.stage.mech === undefined || !a.stage.minions || !a.stage.shell || !a.stage.rhythm || !a.stage.order)) {
-      a.stage = { ...a.stage, ...freshMech(a.stage.index), breakUntil: 0 };
+      a.stage = { ...a.stage, ...freshMech(a.stage.index, need(a.stage.index, a)), breakUntil: 0 };
     }
     if (a.stage && a.stage.boss) a.stage = cleanMech(a.stage);   // 壞掉的機制欄位重建（Codex 第十輪 A 必修 4）
     if (a.stage) delete a.stage.shield;
@@ -271,8 +276,8 @@
       a.stage = { ...a.stage, waves, wave: Math.max(1, Math.min(waves, count(a.stage.wave) || 1)) }; }
     // 舊存檔的戰鬥還是舊血量（第五輪改了 BASE_NEED／GROWTH／BOSS_MUL，Codex 第五輪必修 2）：照剩下的血佔幾成換算成新版血量。
     // 換算後 need 就等於新版，所以只會換一次；王關的 60 秒期限在第一次結算時才給（settle 裡），這裡不碰期限，避免每次載入就續時。
-    if (a.stage && a.stage.need !== need(a.stage.index)) {
-      const n = need(a.stage.index), ratio = a.stage.need > 0 ? Math.max(0, Math.min(1, a.stage.hp / a.stage.need)) : 1;
+    if (a.stage && a.stage.need !== need(a.stage.index, a)) {
+      const n = need(a.stage.index, a), ratio = a.stage.need > 0 ? Math.max(0, Math.min(1, a.stage.hp / a.stage.need)) : 1;
       a.stage = { ...a.stage, need: n, hp: n * ratio };
     }
     // 舊檔的「買過幾張券」就是當時的抽卡價格進度，搬成付費抽數，價格不會倒退
@@ -292,7 +297,7 @@
     { const x = a.cosmetics && typeof a.cosmetics === 'object' ? a.cosmetics : {}, ids = RULES.HIT_FX.map(f => f.id);
       const owned = [...new Set(['rust', ...(Array.isArray(x.owned) ? x.owned : [])])].filter(id => ids.includes(id));
       a.cosmetics = { owned, hitFx: owned.includes(x.hitFx) ? x.hitFx : 'rust' }; }
-    a.cleared = !!a.cleared || a.progress >= RULES.STATIONS;   // cleared＝已通關；舊檔已經走完 20 站就直接補上，不要事後補播結局
+    a.cleared = !!a.cleared || a.progress >= RULES.STATIONS; a.laps = lapsOf(a); a.endless = !!a.endless && a.cleared; a.endlessBest = count(a.endlessBest);   // cleared＝已通關；舊檔已經走完 20 站就直接補上，不要事後補播結局
     // pending 是玩家可以編輯的存檔內容，這裡要擋住兩種實測過的壞資料（Codex 複檢 2-2）：
     //   entries:[null] → 收下時炸掉；卡片 id 不在卡池 → drawn() 過濾掉但券沒扣回來，憑空生券。
     //   驗不過就整個丟掉（錢在扣款時已經花掉，這跟 1.0 的 pending 語意一致）。
@@ -336,16 +341,20 @@
     return { state: { ...a, coins, [LEVEL_KEY[kind]]: L }, levels };
   }
   function cardPower(a, id) { const c = poolById()[id]; if (!c || !a.collection[id]) return 0; return RULES.POWER[c.rarity] * (1 + RULES.STAR_MUL * (a.collection[id] - 1)); }
-  const power = a => a.roster.reduce((sum, id) => sum + cardPower(a, id), 0) * trainMul('team', a.teamLevel) * boostOf(a).power;
+  const power = a => a.roster.reduce((sum, id) => sum + cardPower(a, id), 0) * trainMul('team', a.teamLevel) * boostOf(a).power * lapPower(a);
   // 血量：一般站 BASE×GROWTH^i；王站再 ×BOSS_MULS[第幾隻王]（Sakura 的王＝該區怪 ×2～6，逐隻遞增）
   const bossMulOf = i => RULES.BOSS_MULS[Math.floor(i / 4)] ?? RULES.BOSS_MULS[RULES.BOSS_MULS.length - 1];
-  const need = i => Math.round(RULES.BASE_NEED * RULES.GROWTH ** i * (isBoss(i) ? bossMulOf(i) : 1));
-  const reward = i => Math.round(need(i) * RULES.REWARD_SHARE * RULES.REWARD_GROWTH ** i);
+  // 第十輪 C 重走廢土：第幾圈（壞值當 0）→ 敵人血倍率、戰力倍率
+  const lapsOf = a => Number.isInteger(a?.laps) && a.laps > 0 ? Math.min(a.laps, RULES.LAP.MAX) : 0;
+  const lapHp = a => lapsOf(a) ? RULES.LAP.HP_FIRST * RULES.LAP.HP_GROWTH ** (lapsOf(a) - 1) : 1;
+  const lapPower = a => 1 + RULES.LAP.POWER * lapsOf(a);
+  const need = (i, a) => Math.round(RULES.BASE_NEED * RULES.GROWTH ** i * (isBoss(i) ? bossMulOf(i) : 1) * lapHp(a));
+  const reward = (i, a) => Math.round(need(i, a) * RULES.REWARD_SHARE * RULES.REWARD_GROWTH ** i);
   // 一般站一隻（含刷怪）的獎勵＝這一站的獎勵 ÷ WAVES：一站打完拿到的錢跟以前一樣，只是多花時間。
   // ⚠ 第九輪先試過每隻都給整份——錢變成 WAVES 倍、訓練長得太快，打越多隻全線反而越短（一般玩家 54 分 → 8 隻時 38 分）
-  const killReward = i => isBoss(i) ? reward(i) : Math.round(reward(i) / Math.max(1, RULES.WAVES));
+  const killReward = (i, a) => isBoss(i) ? reward(i, a) : Math.round(reward(i, a) / Math.max(1, RULES.WAVES));
   // 刷怪中的戰鬥可以直接被「再次挑戰」換掉
-  const canFight = (a, now) => (!a.stage || !!a.stage.farm) && a.progress < RULES.STATIONS && !(isBoss(a.progress) && a.cooldownUntil > now);
+  const canFight = (a, now) => (!a.stage || !!a.stage.farm) && a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) && !(isBoss(a.progress) && a.cooldownUntil > now);
   // 刷怪（第六輪，照 Sakura 的「打不過就回去刷怪」）：這一站的王輸過之後，回前一站一直打——拿那一站的獎勵、不推進度
   const canFarm = (a, now) => !a.stage && isBoss(a.progress) && a.bossFailed === a.progress && a.progress > 0 && now >= (a.farmNextAt || 0);
   function fight(a, now, farm = false) {
@@ -353,12 +362,12 @@
       if (!canFarm(a, now)) throw new Error('現在不能刷怪');
       if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
       const i = a.progress - 1;
-      return { ...a, stage: { index: i, hp: need(i), need: need(i), boss: false, farm: true, startedAt: now, deadline: null, breakUntil: 0 } };
+      return { ...a, stage: { index: i, hp: need(i, a), need: need(i, a), boss: false, farm: true, startedAt: now, deadline: null, breakUntil: 0 } };
     }
     if (!canFight(a, now)) throw new Error(a.progress >= RULES.STATIONS ? '全線已通行' : a.stage ? '戰鬥中' : '王關冷卻中');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
     const i = a.progress, boss = isBoss(i);
-    return { ...a, stage: { index: i, hp: need(i), need: need(i), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, breakUntil: 0, ...(boss ? freshMech(i) : {}) } };
+    return { ...a, stage: { index: i, hp: need(i, a), need: need(i, a), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
   }
   // 結算：回傳 { state, events:[{type:'win'|'fail', index}] }
   function settle(a, now, dt) {
@@ -388,18 +397,19 @@
       if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0 };
       if (st.hp <= 0 && st.farm) {
         // 刷怪：拿這一站的獎勵、不推進度（王那一站還等著玩家再挑戰）
-        s.coins += killReward(st.index); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
-        events.push({ type: 'farm', index: st.index, reward: killReward(st.index) });
+        s.coins += killReward(st.index, s); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
+        events.push({ type: 'farm', index: st.index, reward: killReward(st.index, s) });
       }
       else if (st.hp <= 0 && (st.wave || 1) < (st.waves || 1)) {
         // 同一站的下一隻（第九輪）：給這一隻的獎勵、滿血換下一隻，進度不動
-        s.coins += killReward(st.index);
-        s.stage = { ...st, wave: (st.wave || 1) + 1, hp: need(st.index), startedAt: now };
-        events.push({ type: 'wave', index: st.index, wave: st.wave || 1, waves: st.waves, reward: killReward(st.index) });
+        s.coins += killReward(st.index, s);
+        s.stage = { ...st, wave: (st.wave || 1) + 1, hp: need(st.index, s), startedAt: now };
+        events.push({ type: 'wave', index: st.index, wave: st.wave || 1, waves: st.waves, reward: killReward(st.index, s) });
       }
       else if (st.hp <= 0) {
-        s.coins += killReward(st.index); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null;
-        events.push({ type: 'win', index: st.index, reward: killReward(st.index) });
+        s.coins += killReward(st.index, s); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null;
+        if (s.progress > RULES.STATIONS) s.endlessBest = Math.max(s.endlessBest || 0, s.progress - RULES.STATIONS);   // 無盡模式記最遠
+        events.push({ type: 'win', index: st.index, reward: killReward(st.index, s) });
         // 全線通行只報一次；之後留在末世繼續放置與補收藏
         if (s.progress >= RULES.STATIONS && !s.cleared) { s.cleared = true; events.push({ type: 'cleared' }); }
       }
@@ -537,15 +547,30 @@
     for (const id of new Set(ids.filter(id => a.collection[id]))) starUps.push({ id, from: a.collection[id], to: next.collection[id] });
     return { state: next, accepted: true, newIds, starUps };
   }
+  // 第十輪 C 重走廢土：全線通行後重來一圈。保留收藏／隊伍／技能／券／戰績／外觀／引導；金幣、訓練、進度、王關狀態歸零
+  function replay(a) {
+    if (!a.cleared) throw new Error('全線通行之後才能重走廢土');
+    if (lapsOf(a) >= RULES.LAP.MAX) throw new Error('已經重走 ' + RULES.LAP.MAX + ' 圈，到頂了');
+    if (a.pending) throw new Error('還有沒收下的結果');
+    return { ...a, laps: lapsOf(a) + 1, progress: 0, stage: null, coins: 0, teamLevel: 0, clickLevel: 0, bossFailed: null, cooldownUntil: 0, farmNextAt: 0,
+      cleared: false, endless: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
+  }
+  // 無盡模式：全線通行後第 21 站起一直往下打（王固定是四種輪流），關掉時丟掉 20 站以後的戰鬥
+  function setEndless(a, on) {
+    if (on && !a.cleared) throw new Error('全線通行之後才能開無盡模式');
+    return { ...a, endless: !!on, stage: !on && a.progress >= RULES.STATIONS ? null : a.stage };
+  }
   const view = (a, now) => ({ coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
     skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null, cleared: !!a.cleared,
-    skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < RULES.STATIONS ? need(a.progress) : 0,
+    skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) ? need(a.progress, a) : 0,
     drawCost1: drawCost(a, 1), drawCost10: drawCost(a, 10), paidDraws: a.paidDraws || 0,
     teamLevel: a.teamLevel || 0, clickLevel: a.clickLevel || 0, teamCost: trainCost(a, 'team'), clickCost: trainCost(a, 'click'),
     teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click, boost: boostOf(a),
     exchangeToday: exchangeToday(a, now), exchangeTotal: a.exchange?.total || 0, stats: a.stats, wins: a.wins || 0, cosmetics: a.cosmetics,
-    roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS });
-  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, isBoss, canFight, canFarm, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+    roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS,
+    laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
+    canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
+  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, isBoss, canFight, canFarm, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
