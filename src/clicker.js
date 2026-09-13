@@ -523,7 +523,11 @@ window.Clicker = (() => {
     window.ClickerScene.mount(store.state.settings.scene, store.state.package.index);
     // 匯入存檔會走到這裡。舊版只掛桌邊場景與桌邊舞台，所以匯入一份末世的檔之後
     // settings.world 是 apoc，畫面卻還是桌邊的（Codex 第二輪 B2）。
-    slotsKey = ''; stage.invalidate(); coinTarget = null;
+    slotsKey = ''; stage.invalidate();
+    cancelAnimationFrame(coinRaf); coinRaf = 0; coinTarget = null; coinShown = null;
+    for (const id of ['click-rate', 'passive-rate', 'click-next', 'training-next', 'click-level', 'training-level'])
+      { const el = $(id); if (el) { el.title = ''; delete el.dataset.value; } }
+    if (numberTimer) { clearTimeout(numberTimer); numberTimer = 0; }
     if (store.state.settings.world === 'apoc') { stage.stop(); apocUI?.enter(); }
     else { apocUI?.leave(); stage.setPartners(store.state); stage.render(store.state, { instant: true }); }
     changed(); status();
@@ -670,8 +674,11 @@ window.Clicker = (() => {
       $(`${type}-one`).onclick = () => { if (apocMode()) return type === 'click' ? apocUI.buyTicket() : teamUI?.open(); upgrade(type, false); };
       $(`${type}-max`).onclick = () => { if (apocMode()) return; upgrade(type, true); };
     }
+    // 共用設定（靜音／音樂／音量／演出）在末世不要順手跑桌邊結算——那會改到另一個世界的
+    // 金額與進度（Codex 第三輪 B4）。設定本身兩個世界共用，這點沒變。
+    const withSettings = (fn) => { const s = apocMode() ? E.clone(store.state) : E.settle(store.state, Date.now()).state; fn(s); return s; };
     $('mute').onclick = $('recruit-mute').onclick = () => action(() => {
-      const s = E.settle(store.state, Date.now()).state; s.settings.muted = !s.settings.muted;
+      const s = withSettings(x => { x.settings.muted = !x.settings.muted; });
       if (commit(s)) { muteAudio(); changed(); }
     });
     $('music').onclick = () => action(() => {
@@ -691,7 +698,7 @@ window.Clicker = (() => {
       });
       input.onchange = () => action(() => { volumeDrafts.delete(`${kind}Volume`); commit(); });
     }
-    $('retry-save').onclick = () => { if (commit()) { settle(); changed(); } };
+    $('retry-save').onclick = () => { if (commit()) { if (!apocMode()) settle(); changed(); } };   // 末世不要跑桌邊結算與桌邊 stage.render（Codex 第三輪 B4）
     $('roster-open').onclick = () => showRoster();
     $('boss-challenge').onclick = () => action(()=>{ if (apocMode()) { apocUI.fight(); return; } if (stage.bossBusy || cutin.active || gacha.active) return; const now=Date.now(), p=E.bossPreview(store.state,now); if (!p) return; if (commit(p.kind==='gate' ? E.startGate(store.state,now) : E.startBoss(store.state,now))) changed(); });
     $('scene-open').title='選擇場景';
@@ -737,7 +744,8 @@ window.Clicker = (() => {
       // ⚠ 兩套 renderer 共用同一組節點，各自有「內容沒變就不重畫」的快取。換世界時節點已經被
       //   另一套換掉了，快取卻還說有效 → 技能槽會找不到自己的 <small>（null.textContent）、
       //   夥伴列會留著上一個世界的頭像。所有共用節點的快取都要在這裡作廢。（Codex 複檢 1-1）
-      slotsKey = ''; stage.invalidate(); coinTarget = null;
+      slotsKey = ''; stage.invalidate();
+      cancelAnimationFrame(coinRaf); coinRaf = 0; coinTarget = null; coinShown = null;   // 舊的金額動畫會把新世界的數字寫成 0（Codex 第三輪 A）
       // 收益文字也有快取（rate() 比對 title＋dataset.value），末世是直接寫 textContent 的，
       // 不清的話切回桌邊會留著末世的「戰力 744」（Codex 第二輪 B1）
       for (const id of ['click-rate', 'passive-rate', 'click-next', 'training-next', 'click-level', 'training-level'])
@@ -745,7 +753,10 @@ window.Clicker = (() => {
       if (numberTimer) { clearTimeout(numberTimer); numberTimer = 0; }
       if (world === 'apoc') { stage.stop(); apocUI.enter(); }
       else { apocUI.leave(); $('slots').replaceChildren(); window.ClickerScene.mount(store.state.settings.scene); stage.start(); }
-      changed(); $('tap').focus();
+      changed();
+      // 目標世界如果有沒收下的抽卡結果，要在這裡恢復——不然招募鍵因 pending 被鎖、收下畫面又沒開，
+      // 玩家只能重新載入（Codex 第三輪 B2）
+      if (store.state.pending || store.state.apoc?.pending) gacha.restore(); else $('tap').focus();
     }
     // 夥伴列的翻頁鍵在末世要翻末世的隊伍（桌邊的綁在 clicker-stage.js）
     for (const [id, dir] of [['buddy-prev', -1], ['buddy-next', 1]]) {

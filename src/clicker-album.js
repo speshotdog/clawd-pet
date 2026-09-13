@@ -59,6 +59,26 @@ window.ClickerAlbum = (() => {
       return el;
     }
 
+    // 末世版：技能槽滿了就在原地展開「要換掉哪一格」
+    function pickApocSlot(id, host, anchor) {
+      host.querySelectorAll('.slot-pick-row').forEach(el => el.remove());
+      const row = document.createElement('div'); row.className = 'slot-pick-row';
+      const a = A().normalize(store.state.apoc), map = id2 => byId(id2);
+      for (let i = 0; i < 4; i++) {
+        const cur = (a.skills || [])[i], b = document.createElement('button');
+        b.textContent = `換掉槽 ${i + 1}・${cur ? map(cur).name : '空'}`;
+        b.onclick = () => action(() => {
+          const aa = A().normalize(store.state.apoc), skills = [...(aa.skills || [null, null, null, null])];
+          skills[i] = id;
+          const next = E.clone(store.state);
+          next.apoc = A().setTeam(aa, aa.roster.includes(id) ? aa.roster : [...aa.roster, id], skills);
+          if (commit(next)) { sound('upgrade'); changed(); notice(`換進技能格 ${i + 1}`); renderBook(); openDetail(id); }
+        });
+        row.append(b);
+      }
+      const cancel = document.createElement('button'); cancel.textContent = '取消'; cancel.onclick = () => { row.remove(); anchor.focus(); };
+      row.append(cancel); anchor.after(row); row.querySelector('button')?.focus();
+    }
     // 技能槽滿了的時候，在原地展開「要換掉哪一格」；選完就裝（不用先跑去編隊卸下再回來）
     function pickSlot(id, open, host, anchor) {
       host.querySelectorAll('.slot-pick-row').forEach(el => el.remove());
@@ -242,7 +262,8 @@ window.ClickerAlbum = (() => {
             if (sk >= 0) skills[sk] = null;
             else {
               slot = skills.indexOf(null);
-              if (slot < 0) { notice('四個技能格都滿了，先卸下一個'); return; }
+              // 滿格時不要叫玩家「先去卸下一個」——在原地展開要換掉哪一格（同桌邊的 pickSlot）
+              if (slot < 0) { pickApocSlot(id, acts, eq); return; }
               skills[slot] = id;
             }
             const next = E.clone(store.state);

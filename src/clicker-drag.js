@@ -29,7 +29,7 @@
       document.querySelectorAll('.skill-slot.drop-ok').forEach(el => el.classList.remove('drop-ok'));
     }
     function cancel() { if (!drag) return; const active = drag.active; cleanup(); if (active) notice('已取消，技能未變更'); }
-    function targetsOf(d) { const s = store.state; return [...document.querySelectorAll(d.bind.targets)].filter((el, i) => !el.disabled && i < E.slotCount(s)); }
+    function targetsOf(d) { return [...document.querySelectorAll(d.bind.targets)].filter((el, i) => !el.disabled && i < slotCount()); }   // 槽數要分世界（Codex 第三輪 A）
     function start(e) {
       const d = drag; d.active = true; document.body.classList.add('dragging'); getSelection()?.removeAllRanges();
       d.src.classList.add('drag-source');
@@ -38,7 +38,7 @@
       const g = document.createElement('div'); g.className = 'drag-ghost'; g.style.width = `${d.w}px`; g.style.height = `${d.h}px`;
       g.append(card.art.create(byId(d.id))); layer.append(g); d.ghost = g;
       try { d.src.setPointerCapture(d.pid); d.captured = true; } catch {}
-      targetsOf(d).forEach((el, i) => { if (i < slotCount()) el.classList.add('drop-ok'); });   // 提示也要分世界，不然末世第四格可以放卻不亮（Codex 第二輪 B10）
+      targetsOf(d).forEach(el => el.classList.add('drop-ok'));
       place();
     }
     function hit(d, x, y) {

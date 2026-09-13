@@ -159,3 +159,11 @@ test('pending 的每一筆都從卡池重建：缺 rarity 會補回來，重複 
   assert.equal(got.pending.draw.entries[0].entry.rarity, 'mythic', 'rarity 要從卡池補回來');
   assert.ok(got.pending.draw.entries.every(e => typeof e.entry.name === 'string'));
 });
+
+test('把已經在槽 1 的卡指定到槽 2 → 是搬過去，不是清掉槽 2（Codex 第三輪 B1）', () => {
+  const a = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1, l1: 1 }, roster: ['m1', 'l1'], skills: ['m1', 'l1', null, null] });
+  const moved = A.setTeam(a, a.roster, ['m1', 'm1', null, null]);
+  assert.deepEqual(moved.skills, [null, 'm1', null, null], 'm1 搬到槽 2，槽 1 空出來');
+  // 舊檔的同卡多槽在 normalize 就要清掉
+  assert.deepEqual(A.normalize({ ...a, skills: ['m1', 'm1', 'm1', 'm1'] }).skills, ['m1', null, null, null]);
+});

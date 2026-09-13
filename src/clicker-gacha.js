@@ -292,7 +292,9 @@ window.ClickerGacha = (() => {
     $('reveal-all').onclick = () => runtime?.all();
     $('mode-select').onchange = () => {
       if (store.blocked || W().pending()) { render(); return; }
-      const s = E.settle(store.state, Date.now()).state; s.settings.mode = $('mode-select').value;
+      // 末世不要順手跑桌邊結算（Codex 第三輪 B4）：演出是共用設定，但結算不是
+      const s = apoc() ? E.clone(store.state) : E.settle(store.state, Date.now()).state;
+      s.settings.mode = $('mode-select').value;
       commit(s); render();
     };
     return { render, open, close, restore, start, collect, get active() { return !layer.hidden; },

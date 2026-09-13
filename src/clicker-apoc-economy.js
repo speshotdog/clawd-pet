@@ -54,7 +54,11 @@
     if (!Array.isArray(a.roster)) a.roster = [];
     if (!Array.isArray(a.skills)) a.skills = []; a.skills = [0, 1, 2, 3].map(i => a.skills[i] || null);
     a.roster = a.roster.filter(id => a.collection[id] > 0);
-    a.skills = a.skills.map(id => (id && a.roster.includes(id)) ? id : null);
+    { const seen = new Set();
+      a.skills = a.skills.map(id => {
+        if (!id || !a.roster.includes(id) || seen.has(id)) return null;   // 舊檔可能有同卡多槽（Codex 第三輪 B1）
+        seen.add(id); return id;
+      }); }
     if (a.stage && (typeof a.stage.hp !== 'number' || a.stage.index !== a.progress)) a.stage = null;
     if (a.stage && a.stage.boss && !a.stage.shield) { a.stage = { ...a.stage, shield: freshShield(0), breakUntil: 0 }; }   // 舊存檔的王關補上護盾
     a.ticketsBought = Number.isFinite(Number(a.ticketsBought)) ? Math.max(0, Math.floor(Number(a.ticketsBought))) : 0;   // 字串 '1e309' 會變 Infinity，券價跟著變 Infinity
@@ -170,14 +174,20 @@
   function setTeam(a, roster, skills) {
     roster = (roster || []).filter((id, i, arr) => a.collection[id] > 0 && arr.indexOf(id) === i).slice(0, 20);
     if (rosterViolations(roster).length) throw new Error('超過階級上限');
-    // 同一張卡不能同時佔兩個技能格（桌邊的 equip 有這條，末世本來沒有 → 可以把同一張塞滿四格，
-    // 冷卻還各算各的。Codex 第二輪 B14）
-    const seen = new Set();
-    skills = (skills || a.skills).map(id => {
-      if (!id || !roster.includes(id) || seen.has(id)) return null;
-      seen.add(id); return id;
-    });
+    // 同一張卡不能同時佔兩個技能格（桌邊的 equip 有這條，末世本來沒有）。
+    // ⚠ 去重要留「新指定的那一格」，不是留第一格——不然「把已經在槽 1 的 A 指定到槽 2」會變成
+    //    清掉槽 2 原本的 B、A 也沒搬過去（Codex 第三輪 B1）。所以比對舊配置，搬動而不是丟掉。
+    const before = (a.skills || []).slice(0, 4);
+    skills = (skills || a.skills || []).slice(0, 4).map(id => (id && roster.includes(id)) ? id : null);
     while (skills.length < 4) skills.push(null);
+    for (let i = 0; i < 4; i++) {
+      const id = skills[i]; if (!id) continue;
+      for (let j = 0; j < 4; j++) {
+        if (j === i || skills[j] !== id) continue;
+        // 同一張出現兩次：保留「這一次新指定的那一格」，把舊的那一格清空（＝搬過去）
+        if (before[i] === id && before[j] !== id) skills[i] = null; else skills[j] = null;
+      }
+    }
     return { ...a, roster, skills: skills.slice(0, 4) };
   }
   // 末世的抽卡：卡池是 ApocPool，貨幣是末世券，但**產出的 draw 形狀跟 1.0 的 rollPack 完全一樣**，
