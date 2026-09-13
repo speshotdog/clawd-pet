@@ -22,7 +22,7 @@ window.ClickerApocUI = (() => {
     const A = window.ApocEconomy, Pool = () => window.ApocPool || [];
     let byIdCache = null, byIdSrc = null;
     const byId = () => { const p = Pool(); if (p !== byIdSrc) { byIdSrc = p; byIdCache = Object.fromEntries(p.map(c => [c.id, c])); } return byIdCache; };
-    let lastTick = Date.now();
+    let lastTick = Date.now(), buddyPage = 0;
 
     const view = () => A.view(A.normalize(store.state.apoc), Date.now());
     // 對 s.apoc 做一次純函式變換並提交
@@ -105,11 +105,14 @@ window.ClickerApocUI = (() => {
 
     function renderBuddies(v) {
       const map = byId(), host = $('buddies');
+      // 末世可以編 20 張，只畫前十張的話後十張在主畫面看不到也拖不到（Codex 第二輪 B11）
+      const pages = Math.max(1, Math.ceil(v.roster.length / 10));
+      buddyPage = Math.min(buddyPage, pages - 1);
       host.replaceChildren();
-      $('buddy-page').textContent = `${v.roster.length}/20`;
-      $('buddy-prev').disabled = $('buddy-next').disabled = true;
+      $('buddy-page').textContent = `${buddyPage + 1}/${pages}`;
+      $('buddy-prev').disabled = buddyPage === 0; $('buddy-next').disabled = buddyPage + 1 >= pages;
       if (!v.roster.length) { host.textContent = '隊伍是空的。到「編隊」把卡放進來。'; return; }
-      for (const id of v.roster.slice(0, 10)) {
+      for (const id of v.roster.slice(buddyPage * 10, buddyPage * 10 + 10)) {
         const entry = map[id]; if (!entry) continue;
         const el = document.createElement('button'); el.className = 'buddy'; el.dataset.id = id;
         el.title = `${entry.name}・查看卡冊`; el.style.setProperty('--rarity', RARITY[entry.rarity]);
@@ -199,8 +202,10 @@ window.ClickerApocUI = (() => {
       // 1.0 的 numbers() 在末世不跑，這幾顆鍵的可用狀態要自己設，不然會卡在 HTML 的預設值
       // （#scene-open 在 HTML 裡是 disabled 的 → 末世會完全打不開場景面板）
       $('scene-open').disabled = false; $('scene-open').title = '切換主系統與場景';
-      $('roster-open').disabled = $('team-open').disabled = $('wardrobe-open').disabled = false;
-      $('stats-open').disabled = false;
+      $('roster-open').disabled = $('team-open').disabled = false;
+      // 商店賣的是桌邊的音效／特效／擺飾，花的是桌邊的幣，對末世戰力沒有任何作用——
+      // 留著只會讓玩家花錯錢、期待不存在的效果（Codex 第二輪 B8）。統計同理：那是桌邊的生涯數字。
+      hide('wardrobe-open'); hide('stats-open');
       if ($('daily-bag')) hide('daily-bag');   // 今日限定包是 1.0 的東西
     }
 
@@ -212,10 +217,20 @@ window.ClickerApocUI = (() => {
       if (store.state?.apoc?.unlocked && !store.state.apoc.gifted) apply(a => A.gift(a));
       render();
     }
-    function leave() { delete document.body.dataset.world; const e = $('apoc-enemy'); if (e) e.hidden = true; restoreLabels(); unhide(); }
+    function leave() {
+      delete document.body.dataset.world;
+      const e = $('apoc-enemy'); if (e) e.hidden = true;
+      // 王關的護盾文字借用桌邊的效果標籤，不收掉會留在桌邊（Codex 第二輪 B12）
+      const label = $('effect-label'); if (label) { label.hidden = true; label.classList.remove('broken'); }
+      restoreLabels(); unhide();
+    }
 
+    // 末世沒有離線收益：回到前景時把時間基準拉回現在，不然第一個 tick 會補結算最多 60 秒
+    //（Codex 第二輪 B5）
+    function resume() { lastTick = Date.now(); }
     return {
-      render, enter, leave, tap, tick, apply,
+      render, enter, leave, tap, tick, apply, resume,
+      page(dir) { buddyPage = Math.max(0, buddyPage + dir); render(); },
       fight: () => apply((x, n) => A.fight(x, n)),
       buyTicket: () => apply(x => A.buyTicket(x, 1)),
       drawn: ids => apply(x => A.drawn(x, ids)),

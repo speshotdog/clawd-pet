@@ -205,11 +205,17 @@ window.Clicker = (() => {
     $('owned-count').textContent = `${Object.keys(s.collection).length} / ${Object.keys(B.characters).length}`;
     const nextSlot = B.slotThresholds[E.slotCount(s)];
     $('next-goal').textContent = s.manualClicks < 50 ? '下一目標：50 點迎接玥玥' : nextSlot ? `累計 ${format(nextSlot)} 幣開下一技能槽` : '三個技能槽全部開放';
+    audioUI();
+    gacha?.render();
+  }
+  // 音量與靜音是兩個世界共用的設定，所以它的按鈕狀態不能只在桌邊的 numbers() 裡更新
+  //（末世的 changed() 會提早 return → 靜音之後按鈕的刪線與 aria-pressed 停在舊值。Codex 第二輪 B13）
+  function audioUI() {
+    const s = store.state; if (!s) return;
     $('mute').setAttribute('aria-pressed', String(s.settings.muted));
     $('music').setAttribute('aria-pressed', String(!s.settings.music));
     for (const kind of ['music','sfx']) if (document.activeElement !== $(`${kind}-volume`)) $(`${kind}-volume`).value = s.settings[`${kind}Volume`];
     for (const kind of ['music','sfx']) renderVolume(kind);
-    gacha?.render();
   }
   function renderVolume(kind) {
     const input = $(`${kind}-volume`), percent = Math.round(Number(input.value)*100);
@@ -228,6 +234,7 @@ window.Clicker = (() => {
     flag.setAttribute('aria-label',flag.title); return flag;
   }
   function renderChain() {
+    if (apocMode()) { const t = $('chain-tape'); if (t) t.hidden = true; return; }   // 桌邊的連鎖倒數不該凍在末世（Codex 第二輪 B12）
     let tape=$('chain-tape');
     if (!tape) { tape=document.createElement('div');tape.id='chain-tape';tape.setAttribute('role','status');$('slots').before(tape); }
     tape.style.left=`${$('slots').offsetLeft}px`;tape.style.top=`${$('slots').offsetTop-52}px`;
@@ -292,7 +299,7 @@ window.Clicker = (() => {
   }
   const apocMode = () => store.state?.settings.world === 'apoc';
   function changed() {
-    if (apocMode()) { apocUI?.render(); gacha?.render(); album?.refresh(); return; }   // 末世：同一組節點，另一套資料
+    if (apocMode()) { apocUI?.render(); gacha?.render(); album?.refresh(); audioUI(); return; }   // 末世：同一組節點，另一套資料
     numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); extras?.tick();
   }
   function action(fn) {
@@ -377,7 +384,7 @@ window.Clicker = (() => {
       settle(); autoTick(); changed();
     }, 1000);
     saveTimer = setInterval(() => { if (!store.blocked) commit(); }, 5000);
-    if (!gacha.active) stage.start();
+    if (!gacha.active && !apocMode()) stage.start();   // 末世不跑桌邊舞台（Codex 第二輪 B4）
   }
   function stopTimers() {
     clearInterval(tickTimer); clearInterval(saveTimer); clearTimeout(numberTimer); clearTimeout(noticeTimer);
@@ -416,7 +423,7 @@ window.Clicker = (() => {
     suspended = false;
     if (!ready) return;
     // 末世沒有離線收益，也不該在回來時跑桌邊的離線收據與桌邊舞台（Codex 複檢 1-4）
-    if (!apocMode()) { offline(); stage.render(store.state, { instant: true }); }
+    if (apocMode()) apocUI?.resume(); else { offline(); stage.render(store.state, { instant: true }); }
     window.ClickerMusic?.resume(store.state); gacha.restore(); changed(); startTimers(); muteAudio();
   }
   function applyZoom(z) {
@@ -514,10 +521,20 @@ window.Clicker = (() => {
   // 第十二輪：匯入存檔後整個畫面照新狀態重來（場景、夥伴列、舞台、待收下的招募）
   function reload() {
     window.ClickerScene.mount(store.state.settings.scene, store.state.package.index);
-    stage.setPartners(store.state); stage.render(store.state, { instant: true }); slotsKey = ''; changed(); status();
-    if (store.state.pending) gacha.restore();
+    // 匯入存檔會走到這裡。舊版只掛桌邊場景與桌邊舞台，所以匯入一份末世的檔之後
+    // settings.world 是 apoc，畫面卻還是桌邊的（Codex 第二輪 B2）。
+    slotsKey = ''; stage.invalidate(); coinTarget = null;
+    if (store.state.settings.world === 'apoc') { stage.stop(); apocUI?.enter(); }
+    else { apocUI?.leave(); stage.setPartners(store.state); stage.render(store.state, { instant: true }); }
+    changed(); status();
+    if (store.state.pending || store.state.apoc?.pending) gacha.restore();
   }
-  const card = window.GachaCard.create({ rarity: Pool.RARITY, byId: Pool.byId, canHover: () => gacha?.canHover() || !!album?.detailId || false, fatal: $('fatal'), tagFor: (entry, dup, owned) => E.tagFor(entry, dup, owned, store.state) });
+  const card = window.GachaCard.create({ rarity: Pool.RARITY, byId: Pool.byId, canHover: () => gacha?.canHover() || !!album?.detailId || false, fatal: $('fatal'), tagFor: (entry, dup, owned) => {
+    // 卡面右上角的標籤：末世的「星」就是張數，套桌邊的升星／熟練／萬用規則會寫出錯的東西
+    //（同名卡在桌邊超越五時，末世的卡面會出現「萬用 +1」。Codex 第二輪 B7）
+    if (apocMode()) return !owned ? { text: 'NEW', cls: 'new' } : { text: `★${owned} → ★${owned + 1}`, cls: 'star-up' };
+    return E.tagFor(entry, dup, owned, store.state);
+  } });
   // 保留供共用 rig 查找的結構 id；所有 url(#id) 素材引用則在每個 SVG 實例內唯一。
   let artSerial = 0;
   function isolateArt(svg) {
@@ -606,7 +623,8 @@ window.Clicker = (() => {
     document.querySelectorAll('button').forEach(el=>{if (!el.title) el.title=el.getAttribute('aria-label') || el.textContent.trim();});
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     ready = true; gacha.setReady(); stage.setPartners(store.state);
-    offline(); stage.render(store.state, { instant: true }); changed(); status();
+    if (!apocMode()) { offline(); stage.render(store.state, { instant: true }); }   // 末世沒有離線收益，不該出桌邊收據（Codex 第二輪 B4）
+    changed(); status();
     if (store.state.pending || store.state.apoc?.pending) gacha.restore(); startTimers();   // 末世的結果存在 apoc.pending（Codex 複檢 2-1）
     cleanupPage();
     // 自動修復過就要講出來——不能默默把玩家的東西重置掉還裝作沒事。
@@ -719,10 +737,20 @@ window.Clicker = (() => {
       // ⚠ 兩套 renderer 共用同一組節點，各自有「內容沒變就不重畫」的快取。換世界時節點已經被
       //   另一套換掉了，快取卻還說有效 → 技能槽會找不到自己的 <small>（null.textContent）、
       //   夥伴列會留著上一個世界的頭像。所有共用節點的快取都要在這裡作廢。（Codex 複檢 1-1）
-      slotsKey = ''; stage.invalidate();
+      slotsKey = ''; stage.invalidate(); coinTarget = null;
+      // 收益文字也有快取（rate() 比對 title＋dataset.value），末世是直接寫 textContent 的，
+      // 不清的話切回桌邊會留著末世的「戰力 744」（Codex 第二輪 B1）
+      for (const id of ['click-rate', 'passive-rate', 'click-next', 'training-next', 'click-level', 'training-level'])
+        { const el = $(id); if (el) { el.title = ''; delete el.dataset.value; } }
+      if (numberTimer) { clearTimeout(numberTimer); numberTimer = 0; }
       if (world === 'apoc') { stage.stop(); apocUI.enter(); }
       else { apocUI.leave(); $('slots').replaceChildren(); window.ClickerScene.mount(store.state.settings.scene); stage.start(); }
       changed(); $('tap').focus();
+    }
+    // 夥伴列的翻頁鍵在末世要翻末世的隊伍（桌邊的綁在 clicker-stage.js）
+    for (const [id, dir] of [['buddy-prev', -1], ['buddy-next', 1]]) {
+      const prev = $(id).onclick;
+      $(id).onclick = (e) => { if (apocMode()) { apocUI.page(dir); return; } prev?.call($(id), e); };
     }
     $('apoc-ending-close').onclick = () => { $('apoc-ending').hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };
     $('scenes-close').onclick=()=>{$('scenes').hidden=true; $('game-content').inert=gacha.active; $('scene-open').focus();};
@@ -745,7 +773,8 @@ window.Clicker = (() => {
   window.addEventListener('resize', () => {
     fitWindow();
     const now = isPortrait();
-    if (now !== wasPortrait) { wasPortrait = now; if (gacha.active && store.state?.pending) gacha.restore(); album?.relayout?.(); }
+    // 末世的結果在 apoc.pending（Codex 第二輪 B3）
+    if (now !== wasPortrait) { wasPortrait = now; if (gacha.active && (store.state?.pending || store.state?.apoc?.pending)) gacha.restore(); album?.relayout?.(); }
   });
   function closeTopPanel() {
     if (album?.escape()) return true;

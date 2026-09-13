@@ -1382,3 +1382,7 @@ body[data-world="apoc"] #chest-tag, body[data-world="apoc"] #parasite-label { di
   .team-editor .team-work { max-height:calc(100dvh - 120px); overflow-y:auto; }
   .team-editor .t20-rail.skills { position:sticky; bottom:0; z-index:2; }
 }
+
+/* 技能槽滿了的時候在原地展開「要換掉哪一格」（不用跑去編隊卸下再回來） */
+.slot-pick-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.slot-pick-row button { font-size:12px; padding:2px 8px 4px; }

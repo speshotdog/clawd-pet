@@ -149,3 +149,13 @@ test('舊檔已經走完 20 站但沒有 cleared → 直接補成已通關，不
   assert.equal(A.normalize({ ...A.fresh(), progress: 20 }).cleared, true);
   assert.equal(A.normalize({ ...A.fresh(), progress: 19 }).cleared, false);
 });
+
+test('pending 的每一筆都從卡池重建：缺 rarity 會補回來，重複 key 會被重編（Codex 第二輪 A5）', () => {
+  const base = { ...A.fresh(), unlocked: true, tickets: 10 };
+  const bad = { id: 'd1', entries: Array.from({ length: 10 }, () => ({ key: 'same', entry: { id: 'm1' } })) };
+  const got = A.normalize({ ...base, pending: { draw: bad } });
+  assert.ok(got.pending, '合法 id 的資料不該整份丟掉');
+  assert.equal(new Set(got.pending.draw.entries.map(e => e.key)).size, 10, 'key 不可以重複，否則十連只畫得出一張');
+  assert.equal(got.pending.draw.entries[0].entry.rarity, 'mythic', 'rarity 要從卡池補回來');
+  assert.ok(got.pending.draw.entries.every(e => typeof e.entry.name === 'string'));
+});

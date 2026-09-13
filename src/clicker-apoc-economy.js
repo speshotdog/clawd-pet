@@ -63,11 +63,20 @@
     //   entries:[null] → 收下時炸掉；卡片 id 不在卡池 → drawn() 過濾掉但券沒扣回來，憑空生券。
     //   驗不過就整個丟掉（券在扣款時已經花掉，這跟 1.0 的 pending 語意一致）。
     {
-      const d = a.pending && a.pending.draw, ids = new Set((root.ApocPool || []).map(c => c.id));
+      const d = a.pending && a.pending.draw, pool = poolById();
       const ok = d && typeof d.id === 'string' && Array.isArray(d.entries)
         && (d.entries.length === 1 || d.entries.length === 10)
-        && d.entries.every(e => e && e.entry && typeof e.entry.id === 'string' && ids.has(e.entry.id));
+        && d.entries.every(e => e && e.entry && typeof e.entry.id === 'string' && pool[e.entry.id]);
       if (!ok) a.pending = null;
+      else {
+        // 每一筆都從卡池重建 canonical entry：存檔裡只留 id 是合法的，但卡面要 rarity／name，
+        // 缺了會在 gacha-card 直接拋錯；key 重複則會被 runtime 的 Map 合成同一張（十連只出一張）。
+        // 這兩種資料實測都通得過舊版驗證（Codex 第二輪 A5）。
+        a.pending = { draw: { ...d, entries: d.entries.map((e, i) => ({
+          key: `${d.id}:${i}`, entry: { ...pool[e.entry.id] },
+          dup: !!e.dup, owned: Math.max(0, Math.floor(Number(e.owned) || 0)),
+        })) } };
+      }
     }
     a.ticketsBought = Number.isFinite(a.ticketsBought) ? a.ticketsBought : 0;
     a.skillCd = [0, 1, 2, 3].map(i => Number(a.skillCd?.[i]) || 0);
@@ -161,7 +170,14 @@
   function setTeam(a, roster, skills) {
     roster = (roster || []).filter((id, i, arr) => a.collection[id] > 0 && arr.indexOf(id) === i).slice(0, 20);
     if (rosterViolations(roster).length) throw new Error('超過階級上限');
-    skills = (skills || a.skills).map(id => (id && roster.includes(id)) ? id : null); while (skills.length < 4) skills.push(null);
+    // 同一張卡不能同時佔兩個技能格（桌邊的 equip 有這條，末世本來沒有 → 可以把同一張塞滿四格，
+    // 冷卻還各算各的。Codex 第二輪 B14）
+    const seen = new Set();
+    skills = (skills || a.skills).map(id => {
+      if (!id || !roster.includes(id) || seen.has(id)) return null;
+      seen.add(id); return id;
+    });
+    while (skills.length < 4) skills.push(null);
     return { ...a, roster, skills: skills.slice(0, 4) };
   }
   // 末世的抽卡：卡池是 ApocPool，貨幣是末世券，但**產出的 draw 形狀跟 1.0 的 rollPack 完全一樣**，

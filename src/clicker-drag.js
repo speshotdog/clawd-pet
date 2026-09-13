@@ -38,7 +38,7 @@
       const g = document.createElement('div'); g.className = 'drag-ghost'; g.style.width = `${d.w}px`; g.style.height = `${d.h}px`;
       g.append(card.art.create(byId(d.id))); layer.append(g); d.ghost = g;
       try { d.src.setPointerCapture(d.pid); d.captured = true; } catch {}
-      targetsOf(d).forEach(el => el.classList.add('drop-ok'));
+      targetsOf(d).forEach((el, i) => { if (i < slotCount()) el.classList.add('drop-ok'); });   // 提示也要分世界，不然末世第四格可以放卻不亮（Codex 第二輪 B10）
       place();
     }
     function hit(d, x, y) {

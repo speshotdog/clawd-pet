@@ -59,6 +59,22 @@ window.ClickerAlbum = (() => {
       return el;
     }
 
+    // 技能槽滿了的時候，在原地展開「要換掉哪一格」；選完就裝（不用先跑去編隊卸下再回來）
+    function pickSlot(id, open, host, anchor) {
+      host.querySelectorAll('.slot-pick-row').forEach(el => el.remove());
+      const row = document.createElement('div'); row.className = 'slot-pick-row';
+      const s = store.state;
+      for (let i = 0; i < open; i++) {
+        const cur = s.skillSlots[i], b = document.createElement('button');
+        b.textContent = `換掉槽 ${i + 1}・${cur ? Pool.byId[cur].name.replace('（原版）', '') : '空'}`;
+        b.onclick = () => action(() => {
+          if (commit(E.equip(store.state, i, id, Date.now()))) { changed(); notice(`${Pool.byId[id].name} 換進技能槽 ${i + 1}，等待 30 秒`); openDetail(id); renderBook(); }
+        });
+        row.append(b);
+      }
+      const cancel = document.createElement('button'); cancel.textContent = '取消'; cancel.onclick = () => { row.remove(); anchor.focus(); };
+      row.append(cancel); anchor.after(row); row.querySelector('button')?.focus();
+    }
     // ---------- 卡冊 ----------
     function refreshTrainAll() {
       const s = store.state, P = window.ClickerPrestige;
@@ -277,13 +293,16 @@ window.ClickerAlbum = (() => {
         const occupied = s.skillSlots.indexOf(id), open = E.slotCount(s);
         const free = s.skillSlots.findIndex((v, i) => i < open && !v);
         const btn = document.createElement('button');
-        btn.textContent = occupied >= 0 ? `已在技能槽 ${occupied + 1}` : '裝備技能';
-        btn.disabled = !owned || occupied >= 0 || store.blocked || !inTeam || free < 0;
+        btn.textContent = occupied >= 0 ? `已在技能槽 ${occupied + 1}` : free >= 0 ? '裝備技能' : '換掉一個技能';
+        btn.disabled = !owned || occupied >= 0 || store.blocked || !inTeam;
         btn.title = !owned ? '招募後才能裝備' : !inTeam ? '要先編入隊伍'
-          : free < 0 ? `${open} 個技能槽都滿了，到「編隊」換掉一個` : `放進技能槽 ${free + 1}，等待 30 秒`;
+          : free >= 0 ? `放進技能槽 ${free + 1}，等待 30 秒` : '技能槽滿了，按一下挑要換掉哪一個';
         if (targetSlot !== null) btn.classList.add('target-slot');
         btn.onclick = () => action(() => {
-          const slot = targetSlot !== null && !s.skillSlots[targetSlot] ? targetSlot : free;
+          // 滿槽時不要把主要操作變灰——那正是最需要替換的時候（Codex 第二輪 A10）。
+          // 槽滿就在原地展開一排「換掉槽 N」，選完直接裝。
+          let slot = targetSlot !== null && !s.skillSlots[targetSlot] ? targetSlot : free;
+          if (slot < 0) { pickSlot(id, open, buttons, btn); return; }
           if (commit(E.equip(store.state, slot, id, Date.now()))) { changed(); notice(`${Pool.byId[id].name} 裝備至槽 ${slot + 1}，等待 30 秒`); openDetail(id); renderBook(); }
         });
         buttons.append(btn);

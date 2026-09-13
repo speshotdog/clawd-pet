@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]; SRC = ROOT / 'src'
 OUT = ROOT / '_art' / 'out' / 'ui-audit'; OUT.mkdir(parents=True, exist_ok=True)
 
 SEED_HOME = """() => { const S=ClickerSave,E=ClickerEconomy,B=ClickerBalance; const s=S.fresh(Date.now());
-  const ids=Object.keys(B.characters); s.collection=Object.fromEntries(ids.map(i=>[i,8])); s.dust={...s.collection};
+  const ids=Object.keys(B.characters); s.collection=Object.fromEntries(ids.map(i=>[i,15])); s.dust={...s.collection};   // 15 張：再抽到一張就升 5★，結算一定有東西可講
   s.coins=1e14; s.lifetimeCoins=1e15; s.manualClicks=50; s.claimedMilestones=['tutorial50'];
   s.trainingLevel=30; s.clickLevel=80; s.marks=40; s.marksClaimed=60; s.universalDust=88;
   s.bossWins=['backyard','kitchen','market','factory','nightmarket','fridge','city']; s.settings.scene='city';
@@ -87,7 +87,12 @@ AUDIT_JS = r"""(label)=>{
     if(!/^(button|select|input)$/i.test(e.tagName)) continue;
     if(e.disabled||isHit(e)) continue;
     const r=e.getBoundingClientRect(); const x=r.left+r.width/2, y=r.top+r.height/2;
-    if(x<0||y<0||x>innerWidth||y>innerHeight) continue;
+    if(x<0||y<0||x>innerWidth||y>innerHeight){
+      // 在可捲的容器裡（例如直式的夥伴列是一條左右滑的）捲一下就點得到，不算問題
+      const inScroller=(()=>{let p=e.parentElement; while(p&&p!==document.documentElement){
+        const c=getComputedStyle(p); if(/auto|scroll/.test(c.overflowX+c.overflowY)) return true; p=p.parentElement;} return false;})();
+      if(!inScroller) problems.push({kind:'按鈕在畫面外', el:desc(e), detail:`中心 ${Math.round(x)},${Math.round(y)} / 畫面 ${innerWidth}×${innerHeight}`});
+      continue;}
     const hit=document.elementFromPoint(x,y);
     if(!hit) continue;
     if(hit!==e && !e.contains(hit) && !hit.contains(e))
@@ -171,8 +176,9 @@ def main():
                 if not pg.locator('#collect').is_hidden(): break
             scan('招募總覽', '#cards .card')
             pg.eval_on_selector('#collect', 'e=>e.click()'); pg.wait_for_timeout(1100)
-            if not pg.locator('#draw-summary').is_hidden():
-                scan('抽卡結算', '#draw-summary-body .draw-line'); pg.eval_on_selector('#draw-summary-ok', 'e=>e.click()')
+            # 五連一定會有新夥伴或升星，結算就一定要出現——「有才掃」等於沒驗（Codex 第二輪 A11）
+            scan('抽卡結算', ['#draw-summary-body .draw-line', '#draw-summary-ok'])
+            pg.eval_on_selector('#draw-summary-ok', 'e=>e.click()')
             pg.wait_for_timeout(1200)
 
             # ---- 末世（從場景面板走過去）
@@ -185,6 +191,27 @@ def main():
                                                   ('scene-open', 'scenes-close', '末世場景', '#scenes .scene-ticket')]:
                 pg.eval_on_selector(f'#{opener}', 'e=>e.click()'); scan(label, expect)
                 pg.eval_on_selector(f'#{closer}', 'e=>e.click()'); pg.wait_for_timeout(400)
+            # 末世的卡片詳情與編隊挑選器（第一輪漏掉的畫面）
+            pg.eval_on_selector('#roster-open', 'e=>e.click()'); pg.wait_for_timeout(700)
+            pg.evaluate("()=>document.querySelector('.album-slot:not(.locked)')?.click()")
+            scan('末世卡片詳情', '#album-detail .detail-info')
+            pg.eval_on_selector('#roster-close', 'e=>e.click()'); pg.wait_for_timeout(400)
+            pg.eval_on_selector('#team-open', 'e=>e.click()'); pg.wait_for_timeout(700)
+            pg.evaluate("()=>document.querySelector('#t20-skills .skill-slot')?.click()")
+            scan('末世技能挑選器', '#t20-picker-grid .team-proxy')
+            pg.evaluate("()=>document.getElementById('t20-picker-close')?.click()"); pg.wait_for_timeout(300)
+            pg.eval_on_selector('#team-close', 'e=>e.click()'); pg.wait_for_timeout(400)
+            # 末世結局
+            pg.evaluate("()=>{const a=Clicker.state.apoc; a.progress=19; a.stage=null; a.cleared=false;}"); pg.wait_for_timeout(1200)
+            pg.eval_on_selector('#boss-challenge', 'e=>e.click()'); pg.wait_for_timeout(500)
+            pg.evaluate("()=>{if(Clicker.state.apoc.stage) Clicker.state.apoc.stage.hp=1;}")
+            for _ in range(30):
+                pg.evaluate("()=>document.getElementById('tap').click()"); pg.wait_for_timeout(40)
+                if pg.evaluate("()=>Clicker.state.apoc.progress") >= 20: break
+            pg.wait_for_timeout(900)
+            scan('末世結局', '#apoc-ending-close')
+            pg.eval_on_selector('#apoc-ending-close', 'e=>e.click()'); pg.wait_for_timeout(500)
+            pg.evaluate("()=>{const a=Clicker.state.apoc; a.progress=2; a.stage=null;}"); pg.wait_for_timeout(1000)
             pg.eval_on_selector('#draw-five', 'e=>e.click()'); pg.wait_for_timeout(900)
             for _ in range(6):
                 if pg.locator('#skip').is_visible(): pg.locator('#skip').click()
@@ -195,9 +222,8 @@ def main():
             pg.reload(); pg.wait_for_function('window.Clicker?.state'); pg.wait_for_timeout(2200)
             scan('末世重開後的待收下', '#collect')
             pg.eval_on_selector('#collect', 'e=>e.click()'); pg.wait_for_timeout(1000)
-            if not pg.locator('#draw-summary').is_hidden():
-                scan('末世抽卡結算', '#draw-summary-body .draw-line')
-                pg.eval_on_selector('#draw-summary-ok', 'e=>e.click()'); pg.wait_for_timeout(800)
+            scan('末世抽卡結算', ['#draw-summary-body .draw-line', '#draw-summary-ok'])
+            pg.eval_on_selector('#draw-summary-ok', 'e=>e.click()'); pg.wait_for_timeout(800)
             # 切回原本的桌邊場景：共用節點的快取與還原有沒有做好
             go_world('city')
             scan('切回桌邊', HOME_MAIN)
