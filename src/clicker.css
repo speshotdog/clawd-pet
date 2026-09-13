@@ -1273,8 +1273,6 @@ body[data-world="apoc"] #recruit-open { display:none; }
 body[data-world="apoc"] #shop h2 { color:#DDE6F4; }
 body[data-world="apoc"] #shop h2 small { color:#8FA3BE; }
 body[data-world="apoc"] .recruit small, body[data-world="apoc"] .upgrade p { color:#9FB3CE; }
-/* 十連的價格在 1.0 是絕對定位疊在鍵上；末世的鍵比較窄，改成排在字後面 */
-body[data-world="apoc"] .draw-five-price { position:static; display:inline; margin-left:6px; }
 /* 技能名字的小紙片、槽章：換深色 */
 body[data-world="apoc"] .skill-name, body[data-world="apoc"] .skill-slot small,
 body[data-world="apoc"] .slot-stamp, body[data-world="apoc"] .parasite-stamp {
@@ -1356,3 +1354,16 @@ body[data-world="apoc"] #apoc-ending { background:#22304A; border-color:#0C1119;
   /* 分享鍵在橫式是絕對定位在 left:604px（畫面外）；直式釘在畫面右上角 */
   #team #share-offer { position:fixed; left:auto; right:10px; top:calc(64px + env(safe-area-inset-top)); height:auto; padding:3px 12px 5px; z-index:20; }
 }
+
+/* 末世：編隊畫面裡的技能格／挑選器／卡面底也要換深色（第一版漏掉，還是米色紙） */
+body[data-world="apoc"] #t20-skills .skill-slot,
+body[data-world="apoc"] #t20-picker, body[data-world="apoc"] #t20-picker-grid .team-proxy,
+body[data-world="apoc"] .picker-heading, body[data-world="apoc"] .picker-actions,
+body[data-world="apoc"] .detail-actions button, body[data-world="apoc"] .team-roster-head {
+  background:#22304A; border-color:#4A628A; color:#DDE6F4; }
+body[data-world="apoc"] #t20-skills .skill-slot .slot-name,
+body[data-world="apoc"] #t20-skills .skill-slot small { color:#DDE6F4; }
+body[data-world="apoc"] #t20-picker::backdrop { background:#0E1520CC; }
+/* 1.0 專屬的東西在末世一律不出現 */
+body[data-world="apoc"] #daily-bag, body[data-world="apoc"] #daily-timer,
+body[data-world="apoc"] #chest-tag, body[data-world="apoc"] #parasite-label { display:none !important; }

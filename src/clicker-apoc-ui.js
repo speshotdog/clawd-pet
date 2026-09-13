@@ -190,6 +190,12 @@ window.ClickerApocUI = (() => {
       $('passive-rate').textContent = `每秒 ${format(v.power * A.RULES.IDLE_COINS)}`;
       $('next-goal').textContent = v.progress >= v.stations ? '全線已通行' : `第 ${Math.min(v.progress + 1, v.stations)} / ${v.stations} 站・收藏 ${v.owned.length} / ${Pool().length} 張`;
       $('owned-count').textContent = `${v.owned.length} / ${Pool().length}`;
+      // 1.0 的 numbers() 在末世不跑，這幾顆鍵的可用狀態要自己設，不然會卡在 HTML 的預設值
+      // （#scene-open 在 HTML 裡是 disabled 的 → 末世會完全打不開場景面板）
+      $('scene-open').disabled = false; $('scene-open').title = '切換主系統與場景';
+      $('roster-open').disabled = $('team-open').disabled = $('wardrobe-open').disabled = false;
+      $('stats-open').disabled = false;
+      $('daily-bag')?.setAttribute('hidden', '');   // 今日限定包是 1.0 的東西
     }
 
     // 進入／離開末世：只換 body 的旗標與一次重繪，版面節點完全共用
