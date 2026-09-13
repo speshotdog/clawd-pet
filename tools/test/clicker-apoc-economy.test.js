@@ -33,12 +33,11 @@ test('一般關：放置＋點擊打到 0 就通關、拿獎勵、進度 +1', ()
   assert.deepEqual(r.events[0], { type: 'win', index: 0, reward: A.reward(0) }); assert.equal(r.state.progress, 1); assert.equal(r.state.stage, null);
   assert.ok(r.state.coins >= A.reward(0));
 });
-test('王關時限（預設關閉，RULES.BOSS_TIME 給值才生效）：時間到失敗、進冷卻、之後才能再打', () => {
+test('王關時限（第四輪使用者：統一 60 秒）：時間到失敗、進冷卻、之後才能再打；一般關沒有時限', () => {
   const now = 1e6;
-  // 預設是關的：王關不給 deadline，永遠不會因為時間到而失敗
-  assert.equal(R.BOSS_TIME, 0);
-  assert.equal(A.fight({ ...A.gift(A.fresh()), progress: 3 }, now).stage.deadline, null);
-  const saved = R.BOSS_TIME; R.BOSS_TIME = 60000;
+  assert.equal(R.BOSS_TIME, 60000, '王關一律 60 秒');
+  assert.equal(A.fight(A.gift(A.fresh()), now).stage.deadline, null, '一般關沒有時限');
+  const saved = R.BOSS_TIME;
   try {
     let a = A.fight({ ...A.gift(A.fresh()), progress: 3 }, now);
     assert.ok(a.stage.boss); assert.equal(a.stage.deadline, now + R.BOSS_TIME);
@@ -137,6 +136,30 @@ test('王關節奏：點滿 15 下破防 8 秒、全傷害 ×2，破防結束重
   assert.equal(after.stage.shield.cycle, 1);
   assert.equal(after.stage.shield.need, Math.round(R.SHIELD.TAPS * R.SHIELD.GROWTH));
 });
+// --- 第五輪 Codex 必修：舊存檔換算、舊王關給一次期限、逾時不能判勝
+test('舊存檔的戰鬥照剩餘比例換算成新版血量（只換一次）；舊王關沒有期限的第一次結算給 60 秒、之後不續時', () => {
+  const n3 = A.need(3);
+  const old = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3,
+    stage: { index: 3, hp: 1296000, need: 2592000, boss: true, startedAt: 0, deadline: null, shield: { taps: 0, need: 15, cycle: 0 }, breakUntil: 0 } });
+  assert.equal(old.stage.need, n3); assert.ok(Math.abs(old.stage.hp - n3 * .5) < 1e-6, '半血換成新版的半血');
+  assert.equal(A.normalize(old).stage.hp, old.stage.hp, '換算只做一次');
+  const r1 = A.settle(old, 1000000, 0);
+  assert.equal(r1.state.stage.deadline, 1000000 + R.BOSS_TIME, '第一次結算給完整 60 秒');
+  const r2 = A.settle(A.normalize(r1.state), 1000500, 0);
+  assert.equal(r2.state.stage.deadline, 1000000 + R.BOSS_TIME, '重新載入不會續時');
+});
+test('期限過了的點擊不算傷害、放置只算到期限為止——逾時不能被判勝；期限前的致死照樣算贏', () => {
+  let a = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 3 }), 0);
+  const p = A.power(a), late = a.stage.deadline + 10000;
+  const one = { ...a, stage: { ...a.stage, hp: 1 } };
+  assert.equal(A.tapDamage(one, late), 0);
+  assert.equal(A.settle(A.tap(one, late), late, 0).events[0].type, 'fail', '王剩 1 滴，期限過後才點：判輸');
+  // 期限前 1 秒進來、隔了 11 秒才結算：只算 1 秒的放置
+  const five = { ...a, stage: { ...a.stage, hp: p * R.SHIELD.IDLE_MUL * 5 } };
+  assert.equal(A.settle(five, a.stage.deadline + 10000, 11).events[0].type, 'fail');
+  const half = { ...a, stage: { ...a.stage, hp: p * R.SHIELD.IDLE_MUL * .5 } };
+  assert.equal(A.settle(half, a.stage.deadline - 500, 1).events[0].type, 'win', '期限前合法的致死');
+});
 test('一般關沒有護盾，放置照原速', () => {
   let a = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'] });
   a = A.fight(a, 0); assert.equal(a.stage.boss, false); assert.equal(a.stage.shield, null);
@@ -218,4 +241,30 @@ test('把已經在槽 1 的卡指定到槽 2 → 是搬過去，不是清掉槽 
   assert.deepEqual(moved.skills, [null, 'm1', null, null], 'm1 搬到槽 2，槽 1 空出來');
   // 舊檔的同卡多槽在 normalize 就要清掉
   assert.deepEqual(A.normalize({ ...a, skills: ['m1', 'm1', 'm1', 'm1'] }).skills, ['m1', null, null, null]);
+});
+
+// Codex 5b 必修：王關期限附近的勝負判定
+function bossAt100() {
+  const i = [...Array(R.STATIONS).keys()].find(A.isBoss);
+  const a = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: i });
+  assert.equal(A.power(a), 100);
+  return A.fight(a, 0);   // deadline = 60000
+}
+test('破防跟王關期限同時結束：期限前那段照破防 ×2 算，不會被整段算成護盾倍率（Codex 5b 必修 2）', () => {
+  const a = bossAt100(); a.stage = { ...a.stage, hp: 100, breakUntil: R.BOSS_TIME };
+  const late = A.settle(a, R.BOSS_TIME + 1, 2);   // 58.001～60 秒是破防：100×2×1.999 ≈ 400 > 100
+  assert.equal(late.events[0].type, 'win');
+  const early = A.settle(a, R.BOSS_TIME - 1, 2);
+  assert.equal(early.events[0].type, 'win', '期限前結算也一樣贏');
+  // 切段：破防 1 秒＋護盾 1 秒
+  const b = bossAt100(); b.stage = { ...b.stage, hp: 1e6, breakUntil: 10000 };
+  const mixed = A.settle(b, 11000, 2).state.stage;
+  assert.ok(Math.abs((1e6 - mixed.hp) - 100 * (R.SHIELD.BREAK_MUL + R.SHIELD.IDLE_MUL)) < 1e-6, String(1e6 - mixed.hp));
+  assert.equal(mixed.breakUntil, 0, '破防結束後重新起盾');
+});
+test('逾時後才結算：期限前還沒算的放置傷害照算，夠打死就贏；只拿 dt 0 結算會吞掉它（Codex 5b 必修 1，UI 點擊要先補算）', () => {
+  const a = bossAt100(); a.stage = { ...a.stage, hp: 10 };
+  // 上次結算在 59 秒，期限 60 秒：期限前還有 1 秒 ×IDLE_MUL 的放置傷害
+  assert.equal(A.settle(a, R.BOSS_TIME + 500, 1.5).events[0].type, 'win');
+  assert.equal(A.settle(A.tap(a, R.BOSS_TIME + 1), R.BOSS_TIME + 1, 0).events[0].type, 'fail');
 });

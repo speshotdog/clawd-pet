@@ -81,6 +81,10 @@ with sync_playwright() as p:
     check(pg.locator('iframe:not(#apoc-ceremony-frame)').count() == 0, '沒有其他 iframe')
     check(pg.locator('#apoc-enemy').is_visible(), '舞台上有怪')
     check(pg.evaluate("()=>!!Clicker.state.apoc.stage"), '戰鬥畫面上自動開打')
+    # 第五輪使用者：「2.0 似乎沒有顯示被動傷害，能加回來嗎」→ 每秒結算時在怪旁邊冒被動傷害
+    pg.wait_for_timeout(2600)
+    passive = pg.evaluate("()=>[...document.querySelectorAll('#floaters .apoc-passive')].map(e=>e.textContent)")
+    check(len(passive) > 0 and all(x.startswith('-') for x in passive), f'戰鬥中每秒冒被動傷害數字：{passive[:3]}')
     check(pg.locator('#bag').is_hidden() or not pg.locator('#bag').is_visible(), '1.0 的零食包收起來了')
 
     # ---- 卡片是末世卡

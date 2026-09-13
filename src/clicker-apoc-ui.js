@@ -54,7 +54,7 @@ window.ClickerApocUI = (() => {
       } catch (err) { if (!silent) notice(err.message); return []; }
       for (const ev of events) {
         if (ev.type === 'win') { sound('upgrade'); notice(`通過第 ${ev.index + 1} 站・＋${format(ev.reward)} 末世金幣`); }
-        else if (ev.type === 'fail') notice('王關失敗');
+        else if (ev.type === 'fail') notice(`王關失敗，${Math.round(A.RULES.BOSS_COOLDOWN / 1000)} 秒後可以再次挑戰`);
         else if (ev.type === 'cleared') {
           const v = view();
           $('apoc-ending-text').textContent = `二十站都打通了。收藏 ${v.owned.length} / ${(root.ApocPool || []).length} 張，戰力 ${format(v.power)}。`;
@@ -97,6 +97,21 @@ window.ClickerApocUI = (() => {
         : [{ transform: 'translateY(0) scale(.6)', opacity: 1 }, { transform: 'translateY(-4px) scale(1.18)', opacity: 1, offset: .06 },
            { transform: 'translateY(-8px) scale(1)', opacity: 1, offset: .14 }, { transform: 'translateY(-44px)', opacity: 1, offset: .72 }, { transform: 'translateY(-60px)', opacity: 0 }];
       el.animate(frames, { duration: kind === 'break' || kind === 'kill' ? 1000 : 720, easing: 'linear' }).finished.then(() => el.remove(), () => el.remove());
+    }
+    // 被動傷害浮字（使用者第五輪：「2.0 似乎沒有顯示被動傷害，能加回來嗎」）：照 1.0 的 floatPassive——
+    // 怪的右側、每秒一個、往上疊著慢慢淡出；減少動畫時原地淡入淡出（讀數是資訊不是裝飾，1.0 第 21 輪的教訓）。
+    function floatPassive(amount) {
+      if ($('game-content').classList.contains('map-open') || !$('recruit-layer').hidden || !$('apoc-enemy') || $('apoc-enemy').hidden) return;
+      const p = hitPoint(null), list = $('floaters');
+      // 滿了只換掉舊的被動數字；全是點擊數字就這一秒不飄（Codex 5b：不能刪掉還沒播完的破盾／擊倒數字）
+      while (list.querySelectorAll('.floater').length >= 12) { const old = list.querySelector('.apoc-passive'); if (!old) return; old.remove(); }
+      const el = document.createElement('span'); el.className = 'floater passive apoc-passive'; el.textContent = `-${format(amount)}`;
+      el.style.left = `${p.fl.x + 96}px`; el.style.top = `${p.fl.y + 20}px`;
+      list.append(el);
+      const frames = reduced.matches
+        ? [{ opacity: 0 }, { opacity: .9, offset: .12 }, { opacity: .9, offset: .72 }, { opacity: 0 }]
+        : [{ transform: 'translateY(0)', opacity: 0 }, { transform: 'translateY(-4px)', opacity: .9, offset: .12 }, { transform: 'translateY(-30px)', opacity: .9, offset: .62 }, { transform: 'translateY(-42px)', opacity: 0 }];
+      el.animate(frames, { duration: 2600, easing: 'linear' }).finished.then(() => el.remove(), () => el.remove());
     }
     function impactAt(at, k = 1) {
       const el = document.createElement('img'); el.src = 'clicker-fx-impact-burst.png'; el.alt = ''; el.className = 'small-impact apoc-hit-impact';
@@ -166,17 +181,27 @@ window.ClickerApocUI = (() => {
       const before = store.state.apoc;
       const b = boosted(A.normalize(before)), now = Date.now(), idx = b.stage.index;
       const dmg = A.tapDamage(b, now), crit = (b.fx?.clickLeft || 0) > 0, boss = !!b.stage.boss, wasBroken = now < (b.stage.breakUntil || 0);
-      const events = apply((x, n) => A.settle(A.tap(x, n), n, 0), true);
+      const events = apply((x, n) => {
+        // 期限已過、下一次 tick 還沒來：先把上次結算到期限為止的放置傷害補算、分出勝負，這一下不算（Codex 5b 必修 1：
+        // 以前直接 settle(…, 0)，那一段合法的放置傷害被吞掉，本來會贏的判成輸）。補算過就把 tick 的基準往前推，不重複算
+        if (x.stage?.deadline && n >= x.stage.deadline) { const r = A.settle(x, n, Math.min(60, (n - lastTick) / 1000)); lastTick = n; return r; }
+        return A.settle(A.tap(x, n), n, 0);
+      }, true);
       if (!events.length && store.state.apoc === before) return;   // commit 被擋（存檔鎖住之類）就不演
       const after = store.state.apoc, won = events.some(e => e.type === 'win');
+      if (!(dmg > 0) && !won) return;   // 期限已過的點擊不算傷害，也不演受擊（下一次結算判輸）
       const broke = boss && !wasBroken && !won && after.stage?.index === idx && (after.stage.breakUntil || 0) > now;
       sound(broke ? 'skill' : crit ? 'skill' : 'click');
       const kind = won ? 'kill' : broke ? 'break' : crit ? 'crit' : boss && !wasBroken ? 'shield' : 'hit';
-      hitFx(null, kind, broke ? `破盾！-${format(dmg)}` : `-${format(dmg)}`);
+      hitFx(null, kind, broke ? `破盾！-${format(dmg)}` : dmg > 0 ? `-${format(dmg)}` : '擊倒！');   // dmg 0 還贏＝期限前的放置傷害補算打死的
     }
     function tick() {
       const now = Date.now(), dt = Math.min(60, (now - lastTick) / 1000); lastTick = now;
+      const was = store.state.apoc?.stage, hp0 = was?.hp, idx0 = was?.index;
       const events = apply((x, n) => A.settle(x, n, dt), true);
+      // 被動傷害：這一秒的結算沒有點擊，同一場戰鬥少掉的血就是隊伍放著打的量
+      const st = store.state.apoc?.stage;
+      if (st && was && st.index === idx0 && hp0 - st.hp > 0) floatPassive(hp0 - st.hp);
       // 放著被隊伍打死也要有擊倒演出（點死的那一下由 tap() 自己演）；地圖蓋著舞台時不演
       if (events.some(e => e.type === 'win') && !$('game-content').classList.contains('map-open') && $('recruit-layer').hidden) hitFx(null, 'kill', '擊倒！');
       autoFight();
@@ -197,6 +222,7 @@ window.ClickerApocUI = (() => {
       el.hidden = v.progress >= v.stations;
 
       document.querySelector('.package-meter').hidden = false;
+      const failed = !v.stage && store.state.apoc?.bossFailed === v.progress;   // 這一站的王輸過（輸了從滿血重來，第五輪使用者不要保留血量）
       const hp = v.stage ? Math.max(0, v.stage.hp) : v.need, max = v.stage ? v.stage.need : v.need;
       $('package-label').textContent = v.progress >= v.stations ? '全線已通行' : `第 ${i + 1} 站${boss ? '・王關' : ''}`;
       $('package-progress').max = 1; $('package-progress').value = max ? Math.min(1, 1 - hp / max) : 0;
@@ -207,21 +233,30 @@ window.ClickerApocUI = (() => {
       const broken = !!(v.stage && v.stage.breakUntil > Date.now());
       label.hidden = !(v.stage && v.stage.boss);
       if (!label.hidden) {
-        label.textContent = broken
+        // 王關 60 秒倒數放最前面，跟破防秒數分開寫（Codex 第五輪必修 1：看不到倒數就直接判輸）
+        const left = v.stage.deadline ? Math.max(0, Math.ceil((v.stage.deadline - Date.now()) / 1000)) : null;
+        label.textContent = (left !== null ? `王關剩 ${left} 秒｜` : '') + (broken
           ? `破防！全傷害 ×2・剩 ${Math.max(0, Math.ceil((v.stage.breakUntil - Date.now()) / 1000))} 秒`
-          : `護盾：再點 ${Math.max(0, (sh ? sh.need - sh.taps : 0))} 下破盾`;
+          : `護盾：再點 ${Math.max(0, (sh ? sh.need - sh.taps : 0))} 下破盾`);
         label.classList.toggle('broken', broken);
+        label.classList.toggle('urgent', left !== null && left <= 10);
       }
 
       // 「開戰」沿用 1.0 的挑戰鍵
       const go = $('boss-challenge');
       go.hidden = !!v.stage || v.progress >= v.stations;
       go.disabled = !v.canFight || !(v.power > 0) || store.blocked;
-      go.textContent = !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? '再次挑戰' : '挑戰王關') : '開戰';
+      // 冷卻中寫出還要等幾秒，不然停用的「再次挑戰」看起來像壞掉（Codex 第五輪）
+      const wait = Math.max(0, Math.ceil((v.cooldownUntil - Date.now()) / 1000));
+      go.textContent = !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? (wait ? `再次挑戰・${wait}秒` : '再次挑戰') : '挑戰王關') : '開戰';
       go.classList.toggle('glow', !!(v.canFight && v.power > 0));
       $('boss-estimate').hidden = true;
       $('package-result').textContent = v.progress >= v.stations ? '全線已通行。'
-        : v.stage ? '點怪攻擊；隊伍放著也會打。' : '按「開戰」開始。';
+        : v.stage ? '點怪攻擊；隊伍放著也會打。'
+        : failed ? (v.canFight ? '王關失敗，按「再次挑戰」重打。' : '王關失敗，冷卻結束後按「再次挑戰」重打。')
+        : '按「開戰」開始。';
+      // 1.0 的這一格平常透明、只在完成一包時閃一下；末世輸了王要一直看得到（Codex 5b）
+      $('package-result').classList.toggle('apoc-shown', failed && v.progress < v.stations);
     }
 
     function renderBuddies(v) {
@@ -504,9 +539,10 @@ window.ClickerApocUI = (() => {
     function leave() {
       buddyKey = slotKey = shopKey = '';
       delete document.body.dataset.world; delete document.body.dataset.apocTheme;
+      $('package-result').classList.remove('apoc-shown');
       const e = $('apoc-enemy'); if (e) { e.hidden = true; e.getAnimations().forEach(a => a.cancel()); }
       // 受擊特效是末世自己畫的，切回桌邊要收乾淨（粒子 scope 只清自己的，不會動到 1.0 的）
-      fx?.stop(); fx = null; document.querySelectorAll('#floaters .apoc-hit, #floaters .apoc-hit-impact').forEach(el => el.remove());
+      fx?.stop(); fx = null; document.querySelectorAll('#floaters .apoc-hit, #floaters .apoc-hit-impact, #floaters .apoc-passive').forEach(el => el.remove());
       // 王關的護盾文字借用桌邊的效果標籤，不收掉會留在桌邊（Codex 第二輪 B12）
       const label = $('effect-label'); if (label) { label.hidden = true; label.classList.remove('broken'); }
       $('apoc-exchange')?.remove();

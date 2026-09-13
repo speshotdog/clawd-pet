@@ -136,3 +136,4 @@ body[data-world="apoc"][data-apoc-theme] #game #apoc-ending button { color:var(-
 /* 王關的護盾／破防標籤：clicker.css 的末世深藍版是淺字，壓在紙色票券上幾乎看不到（使用者第四輪截圖）→ 深墨字 */
 body[data-world="apoc"][data-apoc-theme] #effect-label { background:transparent; color:var(--t-text); font-weight:700; }
 body[data-world="apoc"][data-apoc-theme] #effect-label.broken { background:#E0B33C; color:#2A1C12; border-color:var(--paper-edge); }
+body[data-world="apoc"][data-apoc-theme] #effect-label.urgent { color:#B3261E; }   /* 王關剩 10 秒以內：紅字提醒 */

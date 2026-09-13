@@ -19,18 +19,27 @@ for (const k of ['TAPS', 'GROWTH', 'IDLE_MUL', 'BREAK_MS', 'BREAK_MUL']) if (pro
 for (const [kind, pre] of [['team', 'TEAM'], ['click', 'CLICK']]) for (const k of ['MUL', 'COST', 'GROWTH']) R.TRAIN[kind][k] = env(`${pre}_${k}`, R.TRAIN[kind][k]);
 
 const SESSION_MIN = Number(process.argv[2] || 20), SESSIONS = Number(process.argv[3] || 3), DAYS = Number(process.argv[4] || 14);
-const TAPS_PER_SEC = 6, STEP = 1000;   // 一秒一格
+// 真人節奏可覆寫（第四輪使用者：「難度可能偏難」——原本假設每秒 6 下、技能一好就放，比真人勤快）
+//   CPS＝在戰鬥中每秒點幾下；SKILLS=0 表示不放技能；IDLE_SHARE＝在場時間裡真的在點的比例（其他時間放著）
+const TAPS_PER_SEC = env('CPS', 6), USE_SKILLS = env('SKILLS', 1) > 0, TAP_SHARE = env('TAP_SHARE', 1), STEP = 1000;
 let seed = 20260913;
 const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
 
 function run(SESSION_MIN, SESSIONS, DAYS, { oneP = env('ONE_P', 0), oneCoins = env('ONE_COINS', 0), trainShare = env('TRAIN_SHARE', .25) } = {}) {
 seed = 20260913;
 let a = A.gift(A.normalize({ ...A.fresh(), unlocked: true }));
+// 1.0 的印記／祝福加成（第四輪起直接套進 2.0）：ONE_BOOST＝戰力倍率（收益祝福 Lv10 ≈ 2）；Codex 第五輪指出模擬沒算
+a = { ...a, boost: { power: env('ONE_BOOST', 1), click: 1, skill: 1, cd: 1 } };
 let now = 0, played = 0, draws = 0, bossFails = 0, done = null, exchanged = 0, one = oneCoins;
 const log = [];
 function spend() {
   // 真人不會等打完才抽：湊到十連就抽（戰鬥中也能抽）
-  if (a.coins >= A.drawCost(a, 10)) { a = A.purchaseDraw(a, 10, now, rnd); a = A.collectDraw(a, a.pending.draw.id, now).state; draws += 10; }
+  if (a.coins >= A.drawCost(a, 10)) {
+    a = A.purchaseDraw(a, 10, now, rnd); a = A.collectDraw(a, a.pending.draw.id, now).state; draws += 10;
+    // 技能格：放戰力最高的 4 張（以前模擬器從來沒裝技能，SKILLS=1 其實沒有技能可放）
+    const top = [...a.roster].sort((x, y) => A.cardPower(a, y) - A.cardPower(a, x)).slice(0, 4);
+    a = A.setTeam(a, a.roster, top);
+  }
   const cheap = A.drawCost({ ...a, tickets: 0 }, 10) * trainShare;
   for (const kind of ['click', 'team']) while (A.trainCost(a, kind) <= Math.min(a.coins, cheap)) a = A.train(a, kind).state;
 }
@@ -42,8 +51,8 @@ for (let day = 1; day <= DAYS && !done; day++) {
       spend();
       if (!a.stage && A.canFight(a, now)) { try { a = A.fight(a, now); } catch {} }
       if (a.stage) {
-        for (let k = 0; k < TAPS_PER_SEC; k++) a = A.tap(a, now);
-        for (let slot = 0; slot < 4; slot++) if (A.canSkill(a, slot, now)) a = A.useSkill(a, slot, now);
+        if (t % 100 < TAP_SHARE * 100) for (let k = 0; k < TAPS_PER_SEC; k++) a = A.tap(a, now);
+        if (USE_SKILLS) for (let slot = 0; slot < 4; slot++) if (A.canSkill(a, slot, now)) a = A.useSkill(a, slot, now);
       }
       const r = A.settle(a, now, 1); a = r.state;
       for (const ev of r.events) {

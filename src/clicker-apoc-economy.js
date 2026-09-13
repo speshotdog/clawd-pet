@@ -16,7 +16,16 @@
     CLICK_SHARE: .5,         // 一下＝每秒戰力的一半
     // 2026-09-13 之後這一輪定案：用 tools/sim/apoc.js 掃出來的（目標＝一天三段 20 分鐘、20 站 3～5 天）。
     // ⚠ 末世沒有離線收益，所以「幾天」＝「玩了幾段」，不是掛機天數。
-    BASE_NEED: 600000, GROWTH: 1.20, BOSS_MUL: 2.5,
+    // 第四輪使用者：「難度可能偏難」。以一般玩家（每秒 3 下、在場一半時間在點）量：600000／1.20 是第 1 站 9 分、全線第 12 天 686 分。
+    // 使用者選「放寬」＋「王關統一 60 秒，幫我把難度調整」＋「不要保留血量，直接調整血量」。輸了從滿血重來，
+    // 所以王血要壓到慢的玩家 60 秒內也打得完；王血壓低後總時間掉太多，一般站血量拉回 300000 補回來。
+    // 王血倍率掃描（tools/sim/apoc.js，一天三段 20 分，技能格裝戰力前 4 張）：
+    //   ×.25 一般玩家卡第 15 站；×.07 每秒 3 下／五成時間 141 分，但每秒 2 下／四成時間就掉到第 12 天、輸 267 次（懸崖）；
+    //   ×.05 前面都第 3 天，只剩「每秒 2 下、三成時間、不放技能」卡到第 12 天；×.04 連它都第 4 天 199 分、輸 4 次；×.03 跟 ×.04 幾乎一樣。
+    // 定案 ×.04：一般（CPS=3 TAP_SHARE=0.5）第 1 站 3 分、第 3 天 142 分、輸 2 次、抽 140 次；每秒 2 下／四成時間 172 分、輸 0 次；
+    //   勤快（CPS=6）第 2 天 61 分；帶 1.0 加成 ×2（收益祝福 Lv10）一般 69 分、勤快第 1 天 31 分。
+    //   護盾的放置倍率與破盾下數對輸幾次幾乎沒影響（掃過 0.35～1.0、10～15 下），卡的是王血跟 60 秒的比例。
+    BASE_NEED: 300000, GROWTH: 1.17, BOSS_MUL: .04,
     REWARD_SHARE: .02,       // 通關獎勵＝血量 ×0.02 末世金幣
     IDLE_COINS: .01,         // 放置產出＝每秒戰力 ×0.01
     // 抽卡價隨「已經付費抽過幾次」往上走（同 1.0 的招募費用），不然放置金幣是跟戰力一起指數長的，
@@ -28,10 +37,11 @@
     // tools/sim/apoc.js 掃出來的（第三輪）：不訓練 218 分鐘；這組 201 分鐘・第 4 天・抽 200 次，跟改版前 202 分鐘同節奏，
     // 一輪大約練到全隊 Lv2、點擊 Lv3——訓練是「卡關時補一把」，不是主線（主線還是抽卡）。
     TRAIN: { team: { MUL: .03, COST: 40000, GROWTH: 2 }, click: { MUL: .05, COST: 20000, GROWTH: 2 } },
-    // 王關**沒有時限**（BOSS_TIME 0 就是關掉）。模擬器量過：後段一站本來就要幾分鐘，
-    // 再壓一個 60／120 秒的限時，王關一定是一道硬牆——一輪 20 站可以失敗八百多次。
-    // 王的難度改由護盾承擔：要人在場一直點，不能純掛機。時限與冷卻的程式留著，數字歸零。
-    BOSS_TIME: 0, BOSS_COOLDOWN: 60000,
+    // 第三輪一度把王關時限關掉（當時王血是一般站 ×2.5，60 秒一定是硬牆）；第五輪王血壓到 ×.04 之後加回。
+    // 第四輪使用者：「第一次遭遇應該直接進入關卡，失敗之後才會在右上方有進入選項」＋「統一 60」→ 王關一律 60 秒，輸了冷卻 60 秒後手動「再次挑戰」。
+    BOSS_TIME: 60000, BOSS_COOLDOWN: 60000,
+    // ⚠ 第五輪試過「輸了保留部分傷害」（照 1.0 的裂痕），使用者：「我不想要保留血量的機制，直接調整血量就好」→ 拿掉。
+    //   輸了就從滿血重來，所以王血一定要壓到一般玩家 60 秒內打得完（見 BOSS_MUL 的註解）。
     // 王關機制（使用者 2026-09-13：護盾＋節奏，節奏用「點擊次數」而不是計時器，而且不要太嚴苛）：
     //   王有護盾，護盾在場時放置傷害只剩三成五（不是零，放著還是會動）；
     //   累積 TAPS 下點擊破盾 → BREAK_MS 毫秒破防，全部傷害 ×2；破防結束重新起盾，需要的點擊數 ×GROWTH。
@@ -99,11 +109,18 @@
       }); }
     if (a.stage && (typeof a.stage.hp !== 'number' || a.stage.index !== a.progress)) a.stage = null;
     if (a.stage && a.stage.boss && !a.stage.shield) { a.stage = { ...a.stage, shield: freshShield(0), breakUntil: 0 }; }   // 舊存檔的王關補上護盾
+    // 舊存檔的戰鬥還是舊血量（第五輪改了 BASE_NEED／GROWTH／BOSS_MUL，Codex 第五輪必修 2）：照剩下的血佔幾成換算成新版血量。
+    // 換算後 need 就等於新版，所以只會換一次；王關的 60 秒期限在第一次結算時才給（settle 裡），這裡不碰期限，避免每次載入就續時。
+    if (a.stage && a.stage.need !== need(a.stage.index)) {
+      const n = need(a.stage.index), ratio = a.stage.need > 0 ? Math.max(0, Math.min(1, a.stage.hp / a.stage.need)) : 1;
+      a.stage = { ...a.stage, need: n, hp: n * ratio };
+    }
     // 舊檔的「買過幾張券」就是當時的抽卡價格進度，搬成付費抽數，價格不會倒退
     a.paidDraws = count(raw.paidDraws !== undefined ? raw.paidDraws : raw.ticketsBought); delete a.ticketsBought;
     a.teamLevel = count(a.teamLevel); a.clickLevel = count(a.clickLevel);
     delete a.boost;   // 1.0 加成是執行期現算的，存檔裡的舊值一律不信
     a.bossFailed = Number.isInteger(a.bossFailed) && a.bossFailed === a.progress ? a.bossFailed : null;   // 只記「目前這一站的王輸過」
+    delete a.bossCarry;   // 保留血量的機制拿掉了（第五輪使用者），上一版存檔留下的欄位丟掉
     a.onePeak = Number.isFinite(Number(a.onePeak)) && Number(a.onePeak) > 0 ? Number(a.onePeak) : 0;   // 桌邊歷史最高每秒收益（換券定價基準，換桌布不歸零）
     { const x = a.exchange && typeof a.exchange === 'object' ? a.exchange : {};
       a.exchange = { day: Number.isFinite(x.day) ? x.day : null, count: count(x.count), total: count(x.total) }; }
@@ -173,9 +190,20 @@
     if (dt > 0) s.coins += p * RULES.IDLE_COINS * dt;
     if (s.stage) {
       let st = { ...s.stage };
-      // 破防時間到 → 重新起盾，下一輪要的點擊數 ×GROWTH
+      // 舊存檔的王關沒有期限：第一次結算時給一個完整的 60 秒。只在 deadline 是空的時候給，給過就存下來，不會無限續時
+      if (st.boss && RULES.BOSS_TIME && !st.deadline) st.deadline = now + RULES.BOSS_TIME;
+      // 放置傷害只算到期限為止（Codex 第五輪必修 3：逾時之後才進來的這一段不能拿來打贏）。期限前合法的致死照樣算贏。
+      // 這一段依「破防結束、技能到期、王關期限」切開，各段用當時的倍率（Codex 5b 必修 2：期限前的破防 ×2 被整段算成護盾倍率）
+      const t0 = now - dt * 1000, tEnd = st.deadline ? Math.min(now, st.deadline) : now;
+      if (tEnd > t0) {
+        const cuts = [t0, ...[st.breakUntil, a.fx?.powerUntil].filter(t => t > t0 && t < tEnd), tEnd].sort((x, y) => x - y);
+        for (let k = 1; k < cuts.length; k++) {
+          const mid = (cuts[k - 1] + cuts[k]) / 2;
+          st.hp -= power(a) * powerMul(a, mid) * bossMul(st, mid, false) * (cuts[k] - cuts[k - 1]) / 1000;
+        }
+      }
+      // 破防時間到 → 重新起盾，下一輪要的點擊數 ×GROWTH（傷害算完才換，破防那段才吃得到 ×2）
       if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0, shield: freshShield((st.shield?.cycle || 0) + 1) };
-      if (dt > 0) st.hp -= p * dt * bossMul(st, now, false);
       if (st.hp <= 0) {
         s.coins += reward(st.index); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null;
         events.push({ type: 'win', index: st.index, reward: reward(st.index) });
@@ -189,10 +217,11 @@
     return { state: s, events };
   }
   // 這一下點擊的傷害（畫面浮字要跟實際扣血一致，打死那一下也要顯示整下的量，不是剩下的血）
-  const tapDamage = (a, now) => !a.stage ? 0 : power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click
+  const tapDamage = (a, now) => !a.stage || (a.stage.deadline && now >= a.stage.deadline) ? 0 : power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click
     * (a.fx?.clickLeft > 0 ? (a.fx.clickMul || 1) : 1) * bossMul(a.stage, now, true);
   function tap(a, now) {
     if (!a.stage) return a;
+    if (a.stage.deadline && now >= a.stage.deadline) return a;   // 期限過了的點擊不算（結算時會判輸）
     const dmg = tapDamage(a, now);
     // 次數型增益（尾巴節拍／一口氣開封）在這裡消耗一格
     let fx = { ...a.fx };

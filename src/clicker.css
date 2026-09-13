@@ -1264,10 +1264,18 @@ body[data-world="apoc"] #stage-fit { filter:none; }
   filter:drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
 #apoc-enemy.boss { width:210px; height:200px; top:140px; }
 /* 怪鳥與灰狼的圖是 4 格橫排的動畫表（clicker-scene.js frames:4），整張放進來會變成「一排三四隻」；只取第一格 */
-#apoc-enemy[src="clicker-monster-bird.png"], #apoc-enemy[src="clicker-monster-wolf.png"] { object-view-box:inset(0 75% 0 0);
-  animation:apoc-sprite4 520ms steps(4, jump-none) infinite; }   /* 使用者第四輪：「這不是動圖」→ 照 1.0 的王：4 格、每格 130ms */
-@keyframes apoc-sprite4 { from { object-view-box:inset(0 75% 0 0); } to { object-view-box:inset(0 0 0 75%); } }
+/* 怪鳥與灰狼是 4 格橫排的動畫表。使用者第四輪：「這不是動圖」→ 逐格播；接著回報「看得到切邊、還會有別的東西跑進來」。
+   ⚠ 不要用取景範圍（object-view-box）做動畫：切格的瞬間會被補間，取景框滑到兩格之間，隔壁格的黑線跟著跑進來。
+   改用 1.0 的王驗證過的做法：動畫表當背景、background-position 用 steps() 一格一格硬切；<img> 本身的內容推到框外不畫。
+   框的長寬比照單格（怪鳥 291×300、灰狼 391×300），圖才不會被壓扁。 */
+#apoc-enemy[src="clicker-monster-bird.png"], #apoc-enemy[src="clicker-monster-wolf.png"] {
+  object-position:-10000px 0; background-repeat:no-repeat; background-size:400% 100%; background-position:0% 0;
+  animation:boss-frames 520ms steps(4, jump-none) infinite; }
+#apoc-enemy[src="clicker-monster-bird.png"] { background-image:url("clicker-monster-bird.png"); width:194px; height:200px; }
+#apoc-enemy[src="clicker-monster-wolf.png"] { background-image:url("clicker-monster-wolf.png"); width:261px; height:200px; }
 @media (prefers-reduced-motion: reduce) { #apoc-enemy[src="clicker-monster-bird.png"], #apoc-enemy[src="clicker-monster-wolf.png"] { animation:none; } }
+/* 輸了王的說明要一直看得到（1.0 這格平常透明、只閃一下）；apoc-ui 只在末世輸了王時掛 .apoc-shown */
+body[data-world="apoc"] #package-result.apoc-shown { opacity:1; left:442px; top:96px; width:140px; }   /* 放在「再次挑戰」鍵正下方，不蓋到王 */
 /* 紙票券的貼圖在深色下是一塊土黃，全部換成純色板（尺寸不動） */
 body[data-world="apoc"] .package-meter, body[data-world="apoc"] .price-ticket,
 body[data-world="apoc"] #notice, body[data-world="apoc"] .buddy-header h2,
