@@ -57,9 +57,19 @@
     a.skills = a.skills.map(id => (id && a.roster.includes(id)) ? id : null);
     if (a.stage && (typeof a.stage.hp !== 'number' || a.stage.index !== a.progress)) a.stage = null;
     if (a.stage && a.stage.boss && !a.stage.shield) { a.stage = { ...a.stage, shield: freshShield(0), breakUntil: 0 }; }   // 舊存檔的王關補上護盾
-    a.ticketsBought = Math.max(0, Math.floor(Number(a.ticketsBought) || 0));
-    a.cleared = !!a.cleared;
-    if (!a.pending || !a.pending.draw || !Array.isArray(a.pending.draw.entries)) a.pending = null;
+    a.ticketsBought = Number.isFinite(Number(a.ticketsBought)) ? Math.max(0, Math.floor(Number(a.ticketsBought))) : 0;   // 字串 '1e309' 會變 Infinity，券價跟著變 Infinity
+    a.cleared = !!a.cleared || a.progress >= RULES.STATIONS;   // cleared＝已通關；舊檔已經走完 20 站就直接補上，不要事後補播結局
+    // pending 是玩家可以編輯的存檔內容，這裡要擋住兩種實測過的壞資料（Codex 複檢 2-2）：
+    //   entries:[null] → 收下時炸掉；卡片 id 不在卡池 → drawn() 過濾掉但券沒扣回來，憑空生券。
+    //   驗不過就整個丟掉（券在扣款時已經花掉，這跟 1.0 的 pending 語意一致）。
+    {
+      const d = a.pending && a.pending.draw, ids = new Set((root.ApocPool || []).map(c => c.id));
+      const ok = d && typeof d.id === 'string' && Array.isArray(d.entries)
+        && (d.entries.length === 1 || d.entries.length === 10)
+        && d.entries.every(e => e && e.entry && typeof e.entry.id === 'string' && ids.has(e.entry.id));
+      if (!ok) a.pending = null;
+    }
+    a.ticketsBought = Number.isFinite(a.ticketsBought) ? a.ticketsBought : 0;
     a.skillCd = [0, 1, 2, 3].map(i => Number(a.skillCd?.[i]) || 0);
     a.fx = { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, ...(a.fx || {}) };
     return a;
@@ -136,7 +146,8 @@
   }
   // 招募頁抽完回報卡片 id：券在這裡扣（頁面只是演出）
   function drawn(a, ids) {
-    const pool = poolById(); ids = ids.filter(id => pool[id]);
+    const pool = poolById();
+    if (ids.some(id => !pool[id])) throw new Error('卡片不在末世卡池裡');   // 以前是默默過濾掉 → 券沒扣回來會憑空變多
     if (!ids.length) return a;
     if (a.tickets < ids.length) throw new Error('末世券不足');
     const collection = { ...a.collection }; for (const id of ids) collection[id] = (collection[id] || 0) + 1;

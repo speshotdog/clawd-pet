@@ -1327,7 +1327,13 @@ body[data-world="apoc"] .slot-empty { font-size:26px; color:#5C7CB8; }
 .draw-faces figure { margin:0; width:52px; text-align:center; font-size:11px; line-height:1.2; }
 .draw-faces figure > :first-child { width:52px; height:52px; object-fit:contain; display:block; }
 #draw-summary-ok { align-self:center; min-width:140px; height:40px; font-size:16px; }
-body[data-world="apoc"] #draw-summary { background:#22304A; border-color:#0C1119; color:#DDE6F4; }
+/* ⚠ 上面 `#game #draw-summary ...` 把標題／內文／名字寫死成 var(--ink)，末世的 --ink 是 #0C1119，
+   壓在 #22304A 的底上等於看不見。這裡要用同等以上的 specificity 逐個蓋回來（Codex 複檢 3-4）。 */
+body[data-world="apoc"] #game #draw-summary { background:#22304A; border-color:#0C1119; }
+body[data-world="apoc"] #game #draw-summary,
+body[data-world="apoc"] #game #draw-summary h2,
+body[data-world="apoc"] #game #draw-summary .draw-line span,
+body[data-world="apoc"] #game #draw-summary figcaption { color:#DDE6F4; }
 body[data-world="apoc"] .draw-line b { background:#0E1520; color:#DDE6F4; }
 
 /* 末世的編隊畫面：跟卡冊一樣換深色 */
@@ -1367,3 +1373,12 @@ body[data-world="apoc"] #t20-picker::backdrop { background:#0E1520CC; }
 /* 1.0 專屬的東西在末世一律不出現 */
 body[data-world="apoc"] #daily-bag, body[data-world="apoc"] #daily-timer,
 body[data-world="apoc"] #chest-tag, body[data-world="apoc"] #parasite-label { display:none !important; }
+
+@media (max-aspect-ratio: 3/4) {
+  /* UI 體檢（逐軸版）抓到的兩個手機版問題：底部的東西掉出畫面，點不到。 */
+  /* 場景面板：內容變高（七站＋末世）之後「回到桌邊」被推出畫面 */
+  #scenes { max-height:calc(100dvh - 24px); overflow-y:auto; }
+  /* 編隊：技能槽那一列被推到畫面外，整個工作區改成可捲 */
+  .team-editor .team-work { max-height:calc(100dvh - 120px); overflow-y:auto; }
+  .team-editor .t20-rail.skills { position:sticky; bottom:0; z-index:2; }
+}

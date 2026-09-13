@@ -605,7 +605,7 @@ window.Clicker = (() => {
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) ['topbar','stage','shop','team'].map($).concat(document.querySelector('footer')).forEach((el,i)=>el.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,delay:i*60,fill:'backwards',easing:'ease-out'}));
     ready = true; gacha.setReady(); stage.setPartners(store.state);
     offline(); stage.render(store.state, { instant: true }); changed(); status();
-    if (store.state.pending) gacha.restore(); startTimers();
+    if (store.state.pending || store.state.apoc?.pending) gacha.restore(); startTimers();   // 末世的結果存在 apoc.pending（Codex 複檢 2-1）
     cleanupPage();
     // 自動修復過就要講出來——不能默默把玩家的東西重置掉還裝作沒事。
     // 原本那份沒被覆蓋，留在 clicker_save_broken 底下。
@@ -714,8 +714,12 @@ window.Clicker = (() => {
       if (!commit(next)) return;
       for (const id of ['scenes','roster','stats','wardrobe','prestige','team-editor','share','pick100']) $(id).hidden = true;
       album?.close?.(); $('game-content').inert = false;
+      // ⚠ 兩套 renderer 共用同一組節點，各自有「內容沒變就不重畫」的快取。換世界時節點已經被
+      //   另一套換掉了，快取卻還說有效 → 技能槽會找不到自己的 <small>（null.textContent）、
+      //   夥伴列會留著上一個世界的頭像。所有共用節點的快取都要在這裡作廢。（Codex 複檢 1-1）
+      slotsKey = ''; stage.invalidate();
       if (world === 'apoc') { stage.stop(); apocUI.enter(); }
-      else { apocUI.leave(); window.ClickerScene.mount(store.state.settings.scene); stage.start(); }
+      else { apocUI.leave(); $('slots').replaceChildren(); window.ClickerScene.mount(store.state.settings.scene); stage.start(); }
       changed(); $('tap').focus();
     }
     $('apoc-ending-close').onclick = () => { $('apoc-ending').hidden = true; $('game-content').inert = gacha.active; $('tap').focus(); };

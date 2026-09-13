@@ -5,6 +5,17 @@
 // ghost 是同一張頭像的複本，放在 body 的 fixed 覆層、pointer-events:none。命中用矩形判（舞台技能槽本身是 pointer-events:none）。
 (function (root) {
   function create({ $, store, commit, changed, notice, sound, card, E, Pool }) {
+    // 拖曳也要分世界：影像走哪個卡池、能拖到第幾格、落帳寫到哪（Codex 複檢 1-3）
+    const A = () => window.ApocEconomy;
+    const apoc = () => store.state?.settings.world === 'apoc';
+    const byId = id => apoc() ? ((window.ApocPool || []).find(c => c.id === id) || Pool.byId[id]) : Pool.byId[id];
+    const slotCount = () => apoc() ? 4 : E.slotCount(store.state);
+    function equipApoc(index, id) {
+      const next = E.clone(store.state), a = A().normalize(next.apoc);
+      const skills = [...(a.skills || [null, null, null, null])]; skills[index] = id;
+      const roster = a.roster.includes(id) ? a.roster : [...a.roster, id];
+      next.apoc = A().setTeam(a, roster, skills); return next;
+    }
     const THRESHOLD = 8;
     let drag = null, suppressClick = false;
     const layer = document.createElement('div'); layer.id = 'drag-layer'; layer.setAttribute('aria-hidden', 'true'); document.body.append(layer);
@@ -25,7 +36,7 @@
       const img = d.src.querySelector('.buddy-portrait') || d.src, r = img.getBoundingClientRect();
       d.w = r.width; d.h = r.height; d.gx = e.clientX - r.left; d.gy = e.clientY - r.top;
       const g = document.createElement('div'); g.className = 'drag-ghost'; g.style.width = `${d.w}px`; g.style.height = `${d.h}px`;
-      g.append(card.art.create(Pool.byId[d.id])); layer.append(g); d.ghost = g;
+      g.append(card.art.create(byId(d.id))); layer.append(g); d.ghost = g;
       try { d.src.setPointerCapture(d.pid); d.captured = true; } catch {}
       targetsOf(d).forEach(el => el.classList.add('drop-ok'));
       place();
@@ -33,7 +44,7 @@
     function hit(d, x, y) {
       let found = null;
       [...document.querySelectorAll(d.bind.targets)].forEach((el, i) => {
-        if (el.disabled || i >= E.slotCount(store.state)) return; const r = el.getBoundingClientRect();
+        if (el.disabled || i >= slotCount()) return; const r = el.getBoundingClientRect();
         if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) found = { el, index: i };
       });
       return found;
@@ -68,8 +79,9 @@
       if (!target) { notice('已取消，技能未變更'); return; }
       if (d.bind.drop) { d.bind.drop(target.index, id); return; }
       try {
-        const next = E.equip(store.state, target.index, id, Date.now());
-        if (commit(next)) { changed(); sound('upgrade'); notice(`${Pool.byId[id].name} 裝備至槽 ${target.index + 1}，等待 30 秒`); }
+        // 末世要寫回 s.apoc（兩個卡池有 44 個同名 id，直接呼叫 E.equip 會改到桌邊的技能槽）
+        const next = apoc() ? equipApoc(target.index, id) : E.equip(store.state, target.index, id, Date.now());
+        if (commit(next)) { changed(); sound('upgrade'); notice(`${byId(id).name} 裝備至槽 ${target.index + 1}${apoc() ? '' : '，等待 30 秒'}`); }
       } catch (err) { notice(err.message); }
     });
     addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.pid) cancel(); });

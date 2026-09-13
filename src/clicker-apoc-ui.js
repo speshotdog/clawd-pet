@@ -134,8 +134,9 @@ window.ClickerApocUI = (() => {
         const left = Math.max(0, Math.ceil(((v.skillCd && v.skillCd[i] || 0) - now) / 1000));
         if (entry) b.append(card.art.create(entry));
         else { const plus = document.createElement('span'); plus.className = 'slot-empty'; plus.textContent = '＋'; b.append(plus); }
-        b.disabled = !def || !!left || !v.stage || store.blocked;
-        b.title = def ? `${def.card}・${def.text}` : '到「編隊」把卡放進獨立技能格';
+        // 空格要能點（點了就去編隊）；只有「發動技能」才受戰鬥中／冷卻限制（Codex 複檢 3-3）
+        b.disabled = store.blocked || (!!def && (!!left || !v.stage));
+        b.title = def ? `${def.card}・${def.text}` : '點一下去編隊，把卡放進獨立技能格';
         b.onclick = () => def ? apply((x, n) => A.useSkill(x, i, n)) : openTeam();
         const name = document.createElement('span'); name.className = 'skill-name';
         name.textContent = def ? (left ? `${def.name}・${left}s` : def.name) : '選夥伴';
@@ -152,12 +153,12 @@ window.ClickerApocUI = (() => {
       $('click-next').textContent = `末世金幣 ${format(v.coins)}`;
       $('click-price').textContent = format(v.ticketCost);
       $('click-one').textContent = '換券！'; $('click-one').disabled = v.coins < v.ticketCost || store.blocked;
-      $('click-max').hidden = true;
+      hide('click-max');
       $('training-level').textContent = `${v.roster.length} / 20`;
       $('training-next').textContent = `戰力 ${format(v.power)}・點一下 ${format(v.power * A.RULES.CLICK_SHARE)}`;
-      $('training-ticket').hidden = true;
+      hide('training-ticket');
       $('training-one').textContent = '去編隊'; $('training-one').disabled = false;
-      $('training-max').hidden = true;
+      hide('training-max');
       // 三張卡的標題也要換成末世的說法，不然會留著「攻擊力／全隊訓練／幫忙拆包」。
       // ⚠ 這是改 1.0 的靜態文字，所以第一次改之前要把原文存起來，leave() 要還回去，
       //   不然從末世切回桌邊會看到「末世券」掛在攻擊力那張卡上。
@@ -166,6 +167,11 @@ window.ClickerApocUI = (() => {
       setLabel(document.querySelector('#shop .recruit small'), '隊伍裡的卡才有戰力');
     }
 
+    // 末世藏起來的 1.0 元件：離開時要一起還原，不然桌邊的「最多」與訓練價牌會永遠消失
+    //（Codex 複檢 1-2）
+    const hidden = new Set();
+    function hide(id) { const el = $(id); if (el && !el.hidden) { el.hidden = true; hidden.add(id); } }
+    function unhide() { for (const id of hidden) { const el = $(id); if (el) el.hidden = false; } hidden.clear(); }
     // 只換「第一個文字節點」，不動裡面的 <small>／<b>；原文記在 dataset 裡等 leave() 還原
     function setLabel(host, text) {
       if (!host) return;
@@ -195,7 +201,7 @@ window.ClickerApocUI = (() => {
       $('scene-open').disabled = false; $('scene-open').title = '切換主系統與場景';
       $('roster-open').disabled = $('team-open').disabled = $('wardrobe-open').disabled = false;
       $('stats-open').disabled = false;
-      $('daily-bag')?.setAttribute('hidden', '');   // 今日限定包是 1.0 的東西
+      if ($('daily-bag')) hide('daily-bag');   // 今日限定包是 1.0 的東西
     }
 
     // 進入／離開末世：只換 body 的旗標與一次重繪，版面節點完全共用
@@ -206,7 +212,7 @@ window.ClickerApocUI = (() => {
       if (store.state?.apoc?.unlocked && !store.state.apoc.gifted) apply(a => A.gift(a));
       render();
     }
-    function leave() { delete document.body.dataset.world; const e = $('apoc-enemy'); if (e) e.hidden = true; restoreLabels(); }
+    function leave() { delete document.body.dataset.world; const e = $('apoc-enemy'); if (e) e.hidden = true; restoreLabels(); unhide(); }
 
     return {
       render, enter, leave, tap, tick, apply,

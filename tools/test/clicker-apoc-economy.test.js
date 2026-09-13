@@ -126,3 +126,26 @@ test('技能由卡的稀有度決定；神話＝次數型 ×10、史詩＝全隊
   assert.equal(d.skillCd[2], R.SKILLS.rare.cd);
   assert.ok(!A.canSkill(d, 0, 0) && A.canSkill(d, 0, d.skillCd[0]));
 });
+
+// --- Codex 複檢 2-2：pending 是玩家能改的存檔內容，壞資料要擋在 normalize
+test('normalize 擋掉壞掉的 pending：entries 有 null、卡片不在卡池、張數不對', () => {
+  const base = { ...A.fresh(), unlocked: true, tickets: 10 };
+  const draw = ids => ({ id: 'x', entries: ids.map((id, i) => ({ key: `x:${i}`, entry: { id }, dup: false, owned: 0 })) });
+  assert.equal(A.normalize({ ...base, pending: { draw: { id: 'x', entries: [null] } } }).pending, null, 'entries 有 null');
+  assert.equal(A.normalize({ ...base, pending: { draw: draw(['missing']) } }).pending, null, '卡片不在末世卡池');
+  assert.equal(A.normalize({ ...base, pending: { draw: draw(['m1', 'm2', 'l1']) } }).pending, null, '張數不是 1 或 10');
+  assert.ok(A.normalize({ ...base, pending: { draw: draw(['m1']) } }).pending, '單抽是合法的');
+});
+test('未知卡片不會憑空生券（以前是默默過濾掉、券卻沒扣回來）', () => {
+  const a = { ...A.fresh(), tickets: 10 };
+  assert.throws(() => A.drawn(a, ['missing']), /不在末世卡池/);
+  assert.equal(A.drawn({ ...a }, ['m1']).tickets, 9);
+});
+test('ticketsBought 非有限數要歸零，否則券價會變 Infinity', () => {
+  assert.equal(A.normalize({ ...A.fresh(), ticketsBought: '1e309' }).ticketsBought, 0);
+  assert.ok(Number.isFinite(A.ticketCost(A.normalize({ ...A.fresh(), ticketsBought: '1e309' }), 1)));
+});
+test('舊檔已經走完 20 站但沒有 cleared → 直接補成已通關，不事後補播結局', () => {
+  assert.equal(A.normalize({ ...A.fresh(), progress: 20 }).cleared, true);
+  assert.equal(A.normalize({ ...A.fresh(), progress: 19 }).cleared, false);
+});

@@ -783,7 +783,9 @@ window.ClickerStage = (() => {
     }
     // 第十二輪 extras（每日一包、徽章、碎冰）借用舞台的粒子、浮字與震動
     const spawn = p => fx?.spawn(p);
-    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, autoClick, shell, spawn, float, floatPassive, rateStamp, shake, motion, get running() { return running; }, get bossBusy() {return bossBusy;}, get frozen() { return frozen; } };
+    return { start, stop, click, render, skill, join, setPartners, freeze, preview, confetti, autoClick, shell, spawn, float, floatPassive, rateStamp, shake, motion, get running() { return running; }, get bossBusy() {return bossBusy;}, get frozen() { return frozen; },
+      // 換世界時夥伴列的節點被另一套 renderer 換掉了，快取必須作廢，不然會留著上一個世界的頭像
+      invalidate() { teamKey = ''; } };
   }
   return { create };
 })();

@@ -70,6 +70,10 @@ window.ClickerAlbum = (() => {
     function renderBook(instant = false) {
       const s = store.state; if (!s) return;
       IDS = allIds(); PAGES = Math.ceil(IDS.length / PER_PAGE);
+      // 翻頁動畫用 fill:forwards 把出去的那一頁停在 rotateY(±90)（＝寬度 0），
+      // 正常收尾時會被 cancel 掉；但只要中途被打斷（連點下一頁、面板重開）就會卡住，
+      // 那一頁從此隱形。不在翻頁中的時候一律清乾淨，才有穩定的靜止狀態。
+      if (!flipping) for (const id of ['album-left', 'album-right']) $(id).getAnimations().forEach(a => a.cancel());
       // 末世的卡冊只有「卡」這一件事：1.0 的粉塵罐、平均訓練、派遣、推薦組合都收起來
       for (const id of ['train-all', 'dust-open', 'recommend-open', 'recall-all', 'collect-open']) $(id).hidden = apoc() || $(id).hidden;
       if (apoc()) {
@@ -136,11 +140,18 @@ window.ClickerAlbum = (() => {
       flipping = true;
       // 直式只有左頁，出去與進來都是同一片
       const outEl = $(wide() && dir > 0 ? 'album-right' : 'album-left');
+      // ⚠ 出去的那一頁用 fill:forwards 停在 rotateY(±90)（視覺寬度 0）。
+      //   本來是等「進來」那一頁播完才 cancel，但只要中途被打斷（連點下一頁、面板重開、
+      //   最後一跨頁右頁只有一張卡）就會留在 90 度——那一頁從此隱形，而且 inline style 蓋不掉它
+      //   （動畫贏過 inline，只有 !important 贏得過動畫）。實測：收藏卡排到最後一頁時看不到。
+      //   改成「換完內容就立刻把出去那頁的動畫收掉」，靜止狀態不再依賴任何還活著的動畫物件。
+      const settle = () => { flipping = false; for (const id of ['album-left', 'album-right']) $(id).getAnimations().forEach(a => a.cancel()); };
       outEl.animate([{ transform: 'rotateY(0)' }, { transform: `rotateY(${dir > 0 ? -90 : 90}deg)` }], { duration: 120, easing: 'ease-in', fill: 'forwards' }).finished.then(() => {
         renderBook(); sound('page');
+        outEl.getAnimations().forEach(a => a.cancel());
         const incoming = $(wide() && dir < 0 ? 'album-right' : 'album-left');
-        incoming.animate([{ transform: `rotateY(${dir > 0 ? 90 : -90}deg)` }, { transform: 'rotateY(0)' }], { duration: 120, easing: 'ease-out' }).finished.then(() => { outEl.getAnimations().forEach(a => a.cancel()); flipping = false; }).catch(() => { flipping = false; });
-      }).catch(() => { flipping = false; });
+        incoming.animate([{ transform: `rotateY(${dir > 0 ? 90 : -90}deg)` }, { transform: 'rotateY(0)' }], { duration: 120, easing: 'ease-out' }).finished.then(settle).catch(settle);
+      }).catch(settle);
     }
     function open(selected = null, slot = null) {
       targetSlot = slot; $('recommendations')?.remove();

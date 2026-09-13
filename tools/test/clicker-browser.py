@@ -197,7 +197,9 @@ def round6(context):
     assert page.locator('#audio-panel').is_hidden()
     page.locator('#tap').click()
     page.wait_for_timeout(80)
-    assert page.locator('.floater').last.evaluate('(e)=>getComputedStyle(e).fontSize') == '26px'
+    # ⚠ 被動浮字（.floater.passive，18px）每秒都會冒一顆，`.floater` 的最後一顆不一定是剛剛點出來的那顆。
+    #   這裡要量的是點擊浮字，選擇器要排除被動的。
+    assert page.locator('.floater:not(.passive)').last.evaluate('(e)=>getComputedStyle(e).fontSize') == '26px'
     assert page.locator('.floater b').last.evaluate('(e)=>getComputedStyle(e).webkitTextStrokeWidth') == '1.2px'
     page.screenshot(path=str(OUT / 'round6-floater.png'))
     # Sample actual AudioParams in the audio clock; no fake timers or gain mocks.

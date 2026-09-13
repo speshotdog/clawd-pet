@@ -17,6 +17,7 @@ window.ClickerGacha = (() => {
     //（它是照分頁分批的，第二次查的時候頁面已經翻到別批了）→ getBoundingClientRect of null。
     const dedupe = (list) => { const seen = new Set(); return list.filter(e => !seen.has(e.id) && seen.add(e.id)); };
     const layer = $('recruit-layer');
+    let pendingSummaryJoins = null;   // 結算卡按「繼續」之前，先收著這一抽要播入隊的夥伴
     // 兩個主系統共用這一層：差別只有「錢是什麼」「卡池是什麼」「落帳寫到哪」。
     const A = () => window.ApocEconomy;
     const apoc = () => store.state?.settings.world === 'apoc';
@@ -85,6 +86,9 @@ window.ClickerGacha = (() => {
       if (W().pending()) return;
       cleanup(); layer.hidden = true; $('game-content').inert = false; $('recruit-entry').hidden = false;
       $('collect').hidden = $('collect-again').hidden = $('skip').hidden = $('reveal-all').hidden = true;
+      // 結算卡與它的待播入隊也要一起收掉，不然下次打開招募會帶著上一次的結算（Codex 複檢 1-5）
+      $('draw-summary').hidden = true;
+      if (pendingSummaryJoins) { pendingJoins.push(...pendingSummaryJoins); pendingSummaryJoins = null; }
       resumeStage(); previousFocus?.focus();
       if (pendingJoins.length) { const all = pendingJoins; pendingJoins = []; joined(dedupe(all)); }
     }
@@ -266,7 +270,6 @@ window.ClickerGacha = (() => {
       $('draw-summary').hidden = false; $('draw-summary-ok').focus();
       return true;
     }
-    let pendingSummaryJoins = null;
     $('draw-summary-ok').onclick = () => {
       $('draw-summary').hidden = true;
       const entries = pendingSummaryJoins || []; pendingSummaryJoins = null;
