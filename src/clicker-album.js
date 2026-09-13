@@ -208,18 +208,27 @@ window.ClickerAlbum = (() => {
             if (commit(next)) { sound('upgrade'); changed(); renderBook(); openDetail(id); }
           });
           acts.append(t);
-          for (let i = 0; i < 4; i++) {
-            const b = document.createElement('button'); b.textContent = `裝到技能格 ${i + 1}`;
-            b.disabled = (a.skills || [])[i] === id;
-            b.onclick = () => action(() => {
-              const next = E.clone(store.state), aa = A().normalize(next.apoc);
-              const roster = aa.roster.includes(id) ? aa.roster : [...aa.roster, id];
-              const skills = [...(aa.skills || [null, null, null, null])]; skills[i] = id;
-              next.apoc = A().setTeam(aa, roster, skills);
-              if (commit(next)) { sound('upgrade'); changed(); renderBook(); openDetail(id); }
-            });
-            acts.append(b);
-          }
+          // 四顆「裝到技能格 N」是同一個決定的四個選項，而且跟編隊重複——收成一顆，
+          //（Codex 複檢 3-1）按了才問要放哪一格；已經裝好的那格直接讓它退出。
+          const sk = (a.skills || []).indexOf(id);
+          const eq = document.createElement('button');
+          eq.textContent = sk >= 0 ? `從技能格 ${sk + 1} 卸下` : '裝備技能';
+          eq.onclick = () => action(() => {
+            const aa = A().normalize(store.state.apoc);
+            const skills = [...(aa.skills || [null, null, null, null])];
+            let slot = sk;
+            if (sk >= 0) skills[sk] = null;
+            else {
+              slot = skills.indexOf(null);
+              if (slot < 0) { notice('四個技能格都滿了，先卸下一個'); return; }
+              skills[slot] = id;
+            }
+            const next = E.clone(store.state);
+            const roster = aa.roster.includes(id) ? aa.roster : [...aa.roster, id];
+            next.apoc = A().setTeam(aa, roster, skills);
+            if (commit(next)) { sound('upgrade'); changed(); notice(sk >= 0 ? '已卸下' : `裝到技能格 ${slot + 1}`); renderBook(); openDetail(id); }
+          });
+          acts.append(eq);
         }
         const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail();
         acts.append(back); right.append(acts);
@@ -256,13 +265,21 @@ window.ClickerAlbum = (() => {
       for (const [k, v] of rows) { const r = document.createElement('p'); const b = document.createElement('b'); b.textContent = k; const span = document.createElement('span'); span.textContent = v; r.append(b, span); info.append(r); }
       right.append(info);
       const buttons = document.createElement('div'); buttons.className = 'detail-buttons';
-      for (let i = 0; i < s.skillSlots.length; i++) {
-        const btn = document.createElement('button'), occupied = s.skillSlots.indexOf(id);
-        btn.textContent = i >= E.slotCount(s) ? `槽${i + 1} 未開` : occupied === i ? `已在槽 ${i + 1}` : `裝備至槽 ${i + 1}`;
-        btn.disabled = !owned || i >= E.slotCount(s) || occupied >= 0 || store.blocked || !inTeam;
-        if (owned && !inTeam && occupied < 0) btn.title = '要先編入隊伍';
-        btn.classList.toggle('target-slot', targetSlot === i);
-        btn.onclick = () => action(() => { if (commit(E.equip(store.state, i, id, Date.now()))) { changed(); notice(`${Pool.byId[id].name} 裝備至槽 ${i + 1}，等待 30 秒`); openDetail(id); renderBook(); } });
+      // 三顆「裝備至槽 N」是同一個決定的三個選項，跟編隊畫面也重複——收成一顆，
+      // 自動放進第一個空槽（Codex 複檢 3-1）。哪一格裝了誰在「編隊」看得到。
+      {
+        const occupied = s.skillSlots.indexOf(id), open = E.slotCount(s);
+        const free = s.skillSlots.findIndex((v, i) => i < open && !v);
+        const btn = document.createElement('button');
+        btn.textContent = occupied >= 0 ? `已在技能槽 ${occupied + 1}` : '裝備技能';
+        btn.disabled = !owned || occupied >= 0 || store.blocked || !inTeam || free < 0;
+        btn.title = !owned ? '招募後才能裝備' : !inTeam ? '要先編入隊伍'
+          : free < 0 ? `${open} 個技能槽都滿了，到「編隊」換掉一個` : `放進技能槽 ${free + 1}，等待 30 秒`;
+        if (targetSlot !== null) btn.classList.add('target-slot');
+        btn.onclick = () => action(() => {
+          const slot = targetSlot !== null && !s.skillSlots[targetSlot] ? targetSlot : free;
+          if (commit(E.equip(store.state, slot, id, Date.now()))) { changed(); notice(`${Pool.byId[id].name} 裝備至槽 ${slot + 1}，等待 30 秒`); openDetail(id); renderBook(); }
+        });
         buttons.append(btn);
       }
       const grow = document.createElement('div'); grow.className = 'detail-grow';

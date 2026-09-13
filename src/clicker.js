@@ -388,7 +388,7 @@ window.Clicker = (() => {
   function suspend() {
     if (suspended) return; suspended = true; jlog(`suspend (document.hidden=${document.hidden})`);
     window.ClickerMusic?.suspend();
-    if (store.state && !store.blocked) { store.stage(E.abandonBoss(store.state,Date.now())); settle(); commit(); }
+    if (store.state && !store.blocked && !apocMode()) { store.stage(E.abandonBoss(store.state,Date.now())); settle(); commit(); }   // 末世不跑桌邊結算
     stopTimers(); gacha?.suspend(); extras?.suspend?.(); audio?.stop(0); audio = null;
     const ac = window.GachaAudio.ensure(); ac?.suspend().catch(() => {});
   }
@@ -415,7 +415,9 @@ window.Clicker = (() => {
     if (!visible || !suspended) return;
     suspended = false;
     if (!ready) return;
-    offline(); window.ClickerMusic?.resume(store.state); gacha.restore(); stage.render(store.state, { instant: true }); changed(); startTimers(); muteAudio();
+    // 末世沒有離線收益，也不該在回來時跑桌邊的離線收據與桌邊舞台（Codex 複檢 1-4）
+    if (!apocMode()) { offline(); stage.render(store.state, { instant: true }); }
+    window.ClickerMusic?.resume(store.state); gacha.restore(); changed(); startTimers(); muteAudio();
   }
   function applyZoom(z) {
     z = Math.max(.75, Math.floor((Number.isFinite(z) && z > 0 ? z : 1) / .25) * .25);
