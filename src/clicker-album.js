@@ -183,7 +183,13 @@ window.ClickerAlbum = (() => {
       const h = document.createElement('h3'); h.textContent = byId(id).name; right.append(h);
       if (isCollect(id)) {   // 收藏卡：只有說明與返回
         const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = '收藏卡'; right.append(tier);
-        const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到收藏卡'; back.onclick = () => { closeDetail(true); openCollect(); }; right.append(back);
+        // 精裝版（three.js 的那一頁）本來只有 iframe 殼進得去；殼拿掉之後改從這裡開，
+        // 不然那張卡最有價值的東西就永遠看不到了。
+        const deluxe = document.createElement('button'); deluxe.className = 'grow-btn';
+        deluxe.textContent = '看精裝版'; deluxe.title = '打開會轉的 3D 收藏卡';
+        deluxe.onclick = () => window.open(`apoc/${id}.html`, '_blank', 'noopener');
+        right.append(deluxe);
+        const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); right.append(back);
         root.append(left, right); big.style.transform = 'scale(1.15)'; refreshKey = stateKey(); return;
       }
       if (apoc()) {
