@@ -124,8 +124,15 @@ window.ApocCollectFace = (() => {
       altTint.style.opacity = alt ? '.72' : '0';
       card.dataset.face = alt ? 'alt' : 'idle';
     }
+    // 卡冊那一格的縮圖不載替身（B2）：那裡點一下是「開詳情」，替身動作根本沒有機會被看到，
+    // 卻會為了它拉一支 2.5 MB／90 幀的 WebP 下來解碼。收藏卡頁（.collect-slot）、詳情（#album-detail）、
+    // 放大層（#card-zoom）照播。⚠ 卡面在 shadow root 裡，要從 root.host 往外找才看得到外面的類別。
+    const thumbOnly = () => {
+      const h = root.host;
+      return !!h && !!h.closest('.album-slot') && !h.closest('.collect-slot, #album-detail, #card-zoom');
+    };
     async function trigger() {
-      if (busy || !resolve('alt')) return;
+      if (busy || !resolve('alt') || thumbOnly()) return;
       busy = true;
       altImg.src = resolve('alt');
       try { await altImg.decode(); } catch { release(); return; }

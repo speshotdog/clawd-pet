@@ -111,7 +111,7 @@
 
   // ======================= 瀏覽器：UI =======================
   let instance = null;
-  function create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin, cleanupPage }) {
+  function create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin, cleanupPage, recentNotices }) {
     const $ = id => document.getElementById(id), Pool = root.GachaPool, S = root.ClickerSave;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const RIBBON = ['#EF8E8E', '#E9B94E', '#94BED0', '#B8A2CF', '#9BAF6B'];
@@ -341,6 +341,59 @@
       notice('存檔已匯入');
     }
     async function copyText(text, ok = '已複製') { try { await navigator.clipboard.writeText(text); $('io-status').textContent = ok; } catch { $('io-status').textContent = '無法自動複製，請全選文字後手動複製。'; $('io-text').select(); } }
+    // ---------- 複製診斷（任務書 A5）----------
+    // 回報問題時要的環境與進度：版本、瀏覽器、螢幕、減少動態、在哪個世界、末世進度、印記與神器、收藏、最近三則提示。
+    // 不含任何存檔字串（那是「匯出存檔」那顆的事），貼到聊天室不會把整份存檔外流。
+    function diagnostics() {
+      const s = store.state || {}, a = s.apoc || {};
+      // 版本號＝dist 掛在 script／link 上的 ?v=。優先看 clicker.js 那一支；
+      // ⚠ 現在 tools/export-web.py 只幫 index.html 的資源加 ?v=，clicker.html 的 script 是沒有版本的，
+      //   所以這裡再退一步找整頁任何一個 ?v=，都沒有就回 null（從 src/ 直接開也是 null）。
+      const tagged = [...document.querySelectorAll('script[src],link[href]')].map(el => el.getAttribute('src') || el.getAttribute('href') || '');
+      const src = tagged.find(v => /clicker\.js(\?|$)/.test(v)) || '';
+      const found = src.match(/[?&]v=([^&]*)/) || tagged.map(v => v.match(/[?&]v=([^&]*)/)).find(Boolean);
+      const version = (found && found[1]) || null;
+      const count = obj => Object.values(obj || {}).reduce((x, y) => x + (Number(y) || 0), 0);
+      return {
+        version, script: src, page: location.pathname + location.search,
+        ua: navigator.userAgent,
+        dpr: window.devicePixelRatio,
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+        world: s.settings?.world ?? null,
+        apoc: { progress: a.progress ?? null, laps: a.laps ?? null, revisitAt: a.revisitAt ?? null, cleared: !!a.cleared, endless: !!a.endless },
+        marks: s.marks ?? null, marksClaimed: s.marksClaimed ?? null, markShop: s.markShop || {}, artifacts: s.artifacts || {},
+        collection: { kinds: Object.keys(s.collection || {}).length, cards: count(s.collection), apocKinds: Object.keys(a.collection || {}).length, apocCards: count(a.collection) },
+        notices: (recentNotices ? recentNotices() : []).slice(-3),
+        at: new Date().toISOString(),
+      };
+    }
+    function copyDiagnostics() {
+      const text = JSON.stringify(diagnostics(), null, 2);
+      $('save-io').hidden = false; $('import-check').hidden = true; $('import-confirm').hidden = true; $('io-copy').hidden = false;
+      $('io-text').readOnly = true; $('io-text').value = text; $('io-status').textContent = '診斷資訊：複製給我們就好，這段不含存檔內容。';
+      revealIO();
+      return copyText(text, '診斷已複製，貼給我們就好（不含存檔內容）。');
+    }
+    // ---------- 這次更新改了什麼（任務書 A5）----------
+    // 存檔的 seenNotes 對不上 update-notes.js 的 VERSION 就彈一次；按「知道了」寫回去。
+    function updateNotes() {
+      const N = root.ClickerUpdateNotes, s = store.state;
+      if (!N || !s || store.blocked) return false;
+      if (s.seenNotes === N.VERSION) return false;
+      if (!$('update-notes')) return false;
+      $('update-notes-title').textContent = N.title || '這次更新改了什麼';
+      const list = document.createElement('ul');
+      for (const line of N.items || []) { const li = document.createElement('li'); li.textContent = line; list.append(li); }
+      $('update-notes-text').replaceChildren(list);
+      openPanel('update-notes');
+      return true;
+    }
+    function seenUpdateNotes() {
+      const N = root.ClickerUpdateNotes, s = store.state;
+      if (N && s && s.seenNotes !== N.VERSION) { const next = E.clone(s); next.seenNotes = N.VERSION; commit(next); }
+      closePanel('update-notes');
+    }
 
     // ---------- 分享卡 ----------
     const images = new Map();
@@ -462,6 +515,7 @@
     function openPanel(id) { $(id).hidden = false; $('game-content').inert = true; $(`${id}-close`).focus(); }
     function closePanel(id) { $(id).hidden = true; $('game-content').inert = !!gacha?.active; $('tap').focus(); }
     function escape() {
+      { const un = $('update-notes'); if (un && !un.hidden) { seenUpdateNotes(); return true; } }
       for (const id of ['share', 'pick100', 'daily-done']) if (!$(id).hidden) { closePanel(id); return true; }
       return false;
     }
@@ -470,6 +524,8 @@
     $('badge-share').onclick = () => { closePanel('stats'); openShare('packs', { packages: totalPackages(store.state) }); };
     $('pick100-open').onclick = () => { closePanel('stats'); openPick(); };
     $('io-export').onclick = showExport; $('io-import').onclick = showImport; $('io-copy').onclick = () => copyText($('io-text').value);
+    if ($('io-diag')) $('io-diag').onclick = copyDiagnostics;
+    if ($('update-notes-close')) $('update-notes-close').onclick = seenUpdateNotes;
     // 大掃除補償：手動叫出來（使用者 2026-09-14：「在統計裡面新增手動觸發的按鈕」）。
     // force=true：已經看過的也要能再開，當初按「保留進度」的人還能改選「從零開始」。
     { const el = $('cleanup-open');
@@ -498,7 +554,7 @@
     // 隱藏時把分享鍵與徽章彈窗的計時器清掉（閒置狀態不能留任何 timer）
     // ⚠ 真兇：以前這裡把 popTimer 清掉卻沒把徽章彈窗收起來——拿到徽章 1.8 秒內切分頁／縮視窗，彈窗就永遠留在舞台上（要重整才會消失）
     function suspend() { clearTimeout(offerTimer); offerTimer = 0; clearTimeout(popTimer); popTimer = 0; offer.hidden = true; pop.hidden = true; }
-    instance = { tick, afterClick: renderFrost, afterBurst, decorate, openWall, openShare, openPick, escape, badgeEarned, suspend, badgeNode, get share() { return share; }, compose };
+    instance = { tick, afterClick: renderFrost, afterBurst, decorate, openWall, openShare, openPick, escape, badgeEarned, suspend, badgeNode, diagnostics, copyDiagnostics, updateNotes, get share() { return share; }, compose };
     decorate(); renderDaily(true); renderFrost();
     return instance;
   }

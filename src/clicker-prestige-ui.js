@@ -123,7 +123,10 @@ window.ClickerPrestigeUI = (() => {
       $('stage').append(el); commit();
       setTimeout(() => el.remove(), 20000);
     }
-    return { open, close, render, hint };
+    // 2.0 的導線：末世的第四技能格／派遣位都是在這裡買的，但 2.0 玩家想不到要先進「換桌布」。
+    // 技能格與末世商店直接呼叫這一顆，開在「神器與商店」分頁（任務書 A4）。
+    function openMarks() { open('marks'); }
+    return { open, openMarks, close, render, hint };
   }
   return { create };
 })();

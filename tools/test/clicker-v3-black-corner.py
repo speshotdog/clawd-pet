@@ -13,7 +13,7 @@
 import importlib.util, mimetypes, sys
 from pathlib import Path
 from urllib.parse import unquote, urlparse
-from PIL import Image
+from PIL import Image, ImageDraw
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]; SRC = ROOT / 'src'
@@ -60,32 +60,44 @@ BACKDROP = """()=>{const s=document.querySelector('.stage')||document.body;
  let d=document.getElementById('__bc_grey');
  if(!d){d=document.createElement('div');d.id='__bc_grey';
   d.style.cssText='position:fixed;inset:0;background:#7a7a7a;z-index:0;pointer-events:none';
-  s.prepend(d);} d.style.display='block';}"""
-UNBACKDROP = "()=>{const d=document.getElementById('__bc_grey'); if(d)d.style.display='none';}"
+  s.prepend(d);} d.style.display='block';
+ // 取樣期間關掉卡片自己的投影：.face-stock 有 `box-shadow:0 14px 30px #0008`，投影正好落在
+ // 「圓角外」那一圈——判準是「比在地背景暗很多」，投影一定中。那是設計，不是黑角。
+ // ⚠ 這是量測用的鷹架，跟黑角的成因無關（黑角是元素自己畫出來的，不是投影），取樣完就關掉。
+ let o=document.getElementById('__bc_noshadow');
+ if(!o){o=document.createElement('style');o.id='__bc_noshadow';document.head.append(o);}
+ o.textContent='.leaf,.face-stock,.hcard{box-shadow:none!important}'; o.disabled=false;}"""
+UNBACKDROP = ("()=>{const d=document.getElementById('__bc_grey'); if(d)d.style.display='none';"
+              "const o=document.getElementById('__bc_noshadow'); if(o)o.disabled=true;}")
 
 
 # ⚠ 上游的 check_card_corners.py 後來只留下幾何與判準（corner_boxes／lum／crop／measure_corners），
 #   `INJECT_JS` 與 `collect_geometry` 都不在了——這支照舊 import 就 AttributeError 整支死掉。
 #   這兩段本來就是「怎麼餵資料給判準」，屬於呼叫端，搬到這裡自己維護，判準仍然共用上游那一份。
 
-# 負控制：注入已知的壞寫法（黑底 ::after ＋ screen ＋ 方角 ＋ 獨立合成層）。
-# 每一輪都要跑，注入之後判準必須變紅；不會變紅就代表綠燈沒有意義。
+# 負控制：在卡片四角畫黑色方塊 —— 也就是「L 形黑角」這個瑕疵長出來的樣子。
+#
+# ⚠ 為什麼不是沿用舊的 `mix-blend-mode:screen` 黑底：**那一段根本畫不出任何東西**。
+#   screen 的定義是 1-(1-a)(1-b)，來源是純黑就等於什麼都沒做，不管有沒有獨立合成層、
+#   不管掛在 .hcard／.slot／.reveal-shell／.card-face 哪一層都一樣（2026-09-15 實測五種寫法，
+#   螢幕截圖逐像素比對：跟沒注入完全同一張）。舊註解猜的「進不了 shadow root」也不是原因——
+#   apoc/ceremony.html 整頁是 light DOM，沒有任何 shadow root，主頁的 <style> 直接就套得上。
+#   負控制的目的是「證明判準抓得到黑角」，所以就直接畫一個黑角給它抓。
 INJECT_JS = """() => {
   let st = document.getElementById('__bc_inject');
   if (!st) { st = document.createElement('style'); st.id = '__bc_inject'; document.head.append(st); }
-  st.textContent = `.hcard::after{content:'';position:absolute;inset:0;background:#000;
-    mix-blend-mode:screen;border-radius:0;transform:translateZ(0);will-change:transform;z-index:99}`;
-  // 卡面在 shadow root 裡，主頁的 <style> 進不去，要逐一補進去
-  let n = 0;
-  for (const host of document.querySelectorAll('.holo-face')) {
-    const r = host.shadowRoot; if (!r) continue;
-    let s2 = r.getElementById('__bc_inject');
-    if (!s2) { s2 = document.createElement('style'); s2.id = '__bc_inject'; r.append(s2); }
-    s2.textContent = st.textContent; n++;
-  }
-  return { page: 1, shadow: n }; }"""
+  st.textContent = `.hcard::after{content:'';position:absolute;inset:0;border-radius:0;z-index:99;pointer-events:none;
+    background:linear-gradient(#000,#000) 0 0/16px 16px no-repeat,
+               linear-gradient(#000,#000) 100% 0/16px 16px no-repeat,
+               linear-gradient(#000,#000) 0 100%/16px 16px no-repeat,
+               linear-gradient(#000,#000) 100% 100%/16px 16px no-repeat}`;
+  return { page: 1, shadow: 0 }; }"""
 
-# 卡片幾何：位置、尺寸、圓角。卡面可能在 shadow root 裡，所以要穿進去找。
+# 卡片幾何：位置、尺寸、圓角。
+# ⚠ 取樣元素是 `.face-stock`（最外層的 .leaf），不是 `.hcard`。`.hcard` 的 computed border-radius 是 **0**——
+#   圓角寫在 .leaf 上（12px）。用 .hcard 的話 corner_boxes 會退到 r=max(4,0)=4，只取到角落 4×4 像素，
+#   而且那個位置根本不是「圓角外會露出來」的那一圈，判準等於瞎的（實測：注入的黑角明明畫出來了，還是全綠）。
+#   卡面可能在 shadow root 裡（主頁的卡冊是），所以也穿進去找。
 COLLECT_GEOMETRY_JS = """(sel) => {
   const out = [], seen = new Set();
   const push = el => {
@@ -98,16 +110,104 @@ COLLECT_GEOMETRY_JS = """(sel) => {
   };
   document.querySelectorAll(sel).forEach(push);
   document.querySelectorAll('.holo-face').forEach(h => h.shadowRoot?.querySelectorAll(sel).forEach(push));
+  // ⚠ 翻牌途中卡片在 rotateY／perspective 裡，畫出來的是斜的，但 getBoundingClientRect 是**正的外接框**——
+  //   角落取樣方塊裡會塞進卡片本體（這副牌接近全黑），而且遮罩也對不上，判準一定假紅。
+  //   所以把「正在旋轉」的卡標出來，呼叫端整張跳過，如實說「這張這一刻量不了」。
+  for (const c of out) c.rotated = false;
+  const mark = (el, rec) => { let p = el;
+    while (p && p !== document.documentElement) {
+      const t = getComputedStyle(p).transform;
+      if (t && t !== 'none') {
+        if (t.startsWith('matrix3d')) { const v = t.slice(9, -1).split(',').map(Number);
+          if (Math.abs(v[1]) > .01 || Math.abs(v[2]) > .01 || Math.abs(v[4]) > .01 ||
+              Math.abs(v[6]) > .01 || Math.abs(v[8]) > .01 || Math.abs(v[9]) > .01) { rec.rotated = true; return; } }
+        else if (t.startsWith('matrix')) { const v = t.slice(7, -1).split(',').map(Number);
+          if (Math.abs(v[1]) > .01 || Math.abs(v[2]) > .01) { rec.rotated = true; return; } }
+      }
+      p = p.parentElement || p.getRootNode().host;
+    } };
+  let i = 0;
+  const all = [...document.querySelectorAll(sel)];
+  for (const h of document.querySelectorAll('.holo-face')) all.push(...(h.shadowRoot?.querySelectorAll(sel) || []));
+  // 還在演出「一次性」動畫的卡也跳過：翻牌的 flash／lift／charge-surface 會蓋在角落上，
+  // 外接框與遮罩模型在那幾格都不成立。⚠ 只看一次性的：卡面的反光是 iterations:Infinity，
+  //   進度永遠不會到 1，連它一起算的話**每一張都會被跳過**，整支測試變成空跑還印 ALL OK（實測踩過）。
+  // ⚠ 只往上走到 .slot／.fan 為止：舞台本身有長達好幾秒的一次性演出動畫，走太上面的話
+  //   每一張卡都會被判成「還在演出」，整支又變成空跑（實測踩過第二次）。
+  const busy = el => { let p = el;
+    while (p && p !== document.documentElement && !(p.classList && (p.classList.contains('fan') || p.classList.contains('stage')))) {
+      for (const a of p.getAnimations({ subtree: true })) {
+        const tm = a.effect && a.effect.getTiming(); if (!tm || tm.iterations === Infinity) continue;
+        const t = a.effect.getComputedTiming();
+        if (t && t.progress != null && t.progress < 1) return true;
+      }
+      p = p.parentElement || p.getRootNode().host;
+    } return false; };
+  for (const el of all) { const b = el.getBoundingClientRect(); if (b.width < 2 || b.height < 2) continue;
+    const rec = out[i++]; mark(el, rec); if (!rec.rotated && busy(el)) rec.rotated = true; }
   return out; }"""
 
 def sample(pg, tag):
+    """取一張圖＋當下的卡片幾何。判準留給呼叫端算（門檻要就地校正，見下面 calibrate 的說明）。"""
     pg.evaluate(BACKDROP)
     pg.evaluate(PAUSE); pg.evaluate(BARRIER)
     shot = OUT / f'{tag}.png'; pg.screenshot(path=str(shot))
-    cards = pg.evaluate(COLLECT_GEOMETRY_JS, '.hcard')
-    m = CC.measure_corners(Image.open(shot), cards)   # 截圖是 device_scale_factor=1，座標可以直接用
+    cards = pg.evaluate(COLLECT_GEOMETRY_JS, '.face-stock')
     pg.evaluate(UNBACKDROP); pg.evaluate(RESUME)
-    return m, len(cards)
+    spun = [c for c in cards if c.get('rotated')]
+    cards = [c for c in cards if not c.get('rotated')]
+    if spun: print(f'     （{shot.stem}：{len(spun)} 張正在翻轉，外接框對不上畫出來的樣子，這一刻跳過）')
+    return mask_interior(shot, cards), cards
+
+
+def mask_interior(shot, cards):
+    """把「圓角裡面」（卡片本體）塗成它周圍的在地背景色，只留圓角外那一小塊給判準看。
+
+    ⚠ 沒有這一步的話正控制一定紅，而且是**假紅**：上游判準的取樣方塊是角落 r×r（r＝圓角 12px），
+      其中只有約 21% 真的在圓角外，剩下 79% 是卡片內容。這副牌的卡面本來就接近全黑
+      （太空、夜景、深色底 #151c24），所以「角落比周圍暗很多」永遠成立——量到的是卡面自己，
+      不是黑角。塗掉卡片本體之後，那個方塊裡剩下的就只有「圓角外露出來的東西」：
+      沒瑕疵＝背景色，有黑角＝黑。負控制注入的方角黑塊落在圓角外，塗不掉，照樣抓得到。
+    """
+    img = Image.open(shot).convert('RGB')
+    src = img.copy()
+    d = ImageDraw.Draw(img)
+    W, H = img.size
+    for c in cards:
+        x, y, w, h = c['x'], c['y'], c['w'], c['h']
+        r = max(4, int(c['radius']))
+        # 在地背景色：卡外一圈（左上角往外 r）的中位數
+        bx = (int(max(0, x - r)), int(max(0, y - r)), int(max(0, x - r) + r), int(max(0, y - r) + r))
+        patch = src.crop(bx)
+        if patch.size[0] < 1 or patch.size[1] < 1: continue
+        import numpy as np
+        arr = np.asarray(patch).reshape(-1, 3)
+        fill = tuple(int(v) for v in np.median(arr, axis=0))
+        d.rounded_rectangle([x, y, x + w - 1, y + h - 1], radius=r, fill=fill)
+    out = shot.with_name(shot.stem + '-masked.png')
+    img.save(out)
+    return out
+
+
+# 上游判準要兩個條件同時成立才判紅：①「比在地背景暗很多」②「接近純黑」（darkest ≤ darkest_limit，預設 12）。
+# ⚠ ② 在這一頁**永遠不可能成立**：結果頁的卡片在 `.slot.done` 底下，opacity 0.35——
+#   疊一塊純黑上去，量到的也只有在地背景的 0.65 倍（實測 local 122 → darkest 79），離 12 遠得很。
+#   這就是為什麼以前「注入壞寫法也不會變紅」：不是注不進去，是絕對門檻在半透明的卡上沒有意義。
+# 所以門檻要就地校正：先用負控制那張圖量出「真的全黑的角在這一頁長什麼樣」（black_ref），
+# 正控制再用 black_ref + 餘裕當 darkest_limit。校正值本身也印出來，數字是哪裡來的看得見。
+def calibrate(img, cards):
+    m = CC.measure_corners(Image.open(img), cards, darkest_limit=255)   # 只看「比周圍暗很多」這一條
+    bad = [r for r in m['rows'] if r['much_darker_pct'] is not None and r['much_darker_pct'] >= 8]
+    # 取中位數不取最大值：最大值是「注入的黑角剛好被亮光蓋住的那一角」，用它當門檻會放得太鬆，
+    # 鬆到把在地背景取樣落在彩虹光束上的正常角落也判成黑角（實測 reveal-1 穩定假紅）。
+    # 中位數才是「這一刻的黑長什麼樣」的代表值；夠不夠嚴由下面的負控制自己驗（同一個門檻要判紅）。
+    vals = sorted(r['darkest'] for r in bad)
+    ref = vals[len(vals) // 2] if vals else None
+    return m, ref
+
+
+def verdict(img, cards, limit):
+    return CC.measure_corners(Image.open(img), cards, darkest_limit=limit)
 
 
 def run(inject):
@@ -137,57 +237,62 @@ def run(inject):
             n = pg.evaluate(REVEALED)
             if n in MOMENTS and n not in taken:
                 taken.add(n)
-                if inject:   # 這一輪新生成的卡面也要被注入（卡面是翻開那一刻才掛上 shadow root）
-                    for _ in range(3): pg.evaluate(INJECT_JS); pg.wait_for_timeout(120)
-                m, cards = sample(pg, f'{prefix}reveal-{n}')
-                results.append((f'翻到第 {n} 張（FX 進行中）', m, cards))
+                if inject: pg.evaluate(INJECT_JS)      # 注入是主頁的一張 <style>，新翻出來的卡也吃得到
+                shot, cards = sample(pg, f'{prefix}reveal-{n}')
+                results.append((f'翻到第 {n} 張（FX 進行中）', shot, cards))
+                # 同一張再等 FX 收完拍一次：150ms 那一格十張卡全在一次性動畫裡，外接框與遮罩
+                # 模型都不成立（實測會整批被跳過）。這一格才是這個階段真正量得到的畫面。
+                pg.wait_for_timeout(700)
+                shot2, cards2 = sample(pg, f'{prefix}reveal-{n}-settled')
+                results.append((f'翻到第 {n} 張（FX 收完）', shot2, cards2))
             pg.wait_for_timeout(450)
             if n >= 10: break
         pg.wait_for_timeout(1200)
-        if inject:
-            for _ in range(3): pg.evaluate(INJECT_JS); pg.wait_for_timeout(120)
-        m, cards = sample(pg, prefix + 'result')
-        results.append(('結果頁', m, cards))
+        if inject: pg.evaluate(INJECT_JS)
+        shot, cards = sample(pg, prefix + 'result')
+        results.append(('結果頁', shot, cards))
         b.close()
         return results, errs, injected
 
 
+print('=== 負控制先跑：注入方角黑塊，順便量出「這一頁的全黑長什麼樣」當門檻 ===')
+neg, _, injected = run(True)
+cal = {}
+for tag, shot, cards in neg:
+    m, ref = calibrate(shot, cards)
+    cal[tag] = (m, ref)
+    print(f'  {tag}: 相對判準 bad {len([r for r in m["rows"] if r["much_darker_pct"] and r["much_darker_pct"]>=8])}/{m["samples"]}'
+          f'  卡 {len(cards)}  黑角實測最亮 {ref}')
+
 print('=== 現況（要全綠）===')
 real, errs, _ = run(False)
-for tag, m, n in real:
+MARGIN = 8          # 校正值再放寬一點點：同一個時刻兩次跑的合成結果會差個幾階
+blind = []
+for tag, shot, cards in real:
+    m_neg, ref = cal.get(tag, (None, None))
+    if ref is None:
+        # 這個時刻連「畫在四角的純黑方塊」都量不出來（卡在 FX 裡幾乎全透明／被閃光蓋住），
+        # 判準在這裡沒有鑑別力。如實列出來、不當成通過，也不當成失敗（沒有量到東西 ≠ 有黑角）。
+        blind.append(tag)
+        print(f'  ⚠ {tag}: 負控制也量不到黑角 → 這個時刻沒有鑑別力，掃過也不代表沒事')
+        continue
+    limit = ref + MARGIN
+    # 負控制在這個門檻底下一定要紅（不紅就代表門檻訂錯，正控制的綠燈沒有意義）
+    neg_shot, neg_cards = next((s2, c2) for t2, s2, c2 in neg if t2 == tag)
+    v_neg = verdict(neg_shot, neg_cards, limit)
+    m = verdict(shot, cards, limit)
     from collections import Counter
     notes = Counter(r.get('note', '有效') if r['much_darker_pct'] is None else '有效' for r in m['rows'])
-    print(f'  {tag}: {m["status"]}  bad {m["bad"]}/{m["samples"]}  卡 {n}  取樣 {dict(notes)}  跳過 {m["skipped"][:2]}')
+    print(f'  {tag}: {m["status"]}  bad {m["bad"]}/{m["samples"]}  卡 {len(cards)}  門檻 darkest≤{limit:.0f}'
+          f'  取樣 {dict(notes)}  跳過 {m["skipped"][:2]}')
     if m['status'] == 'FAIL':
         worst = sorted([r for r in m['rows'] if r['much_darker_pct'] is not None], key=lambda r: -r['much_darker_pct'])[:3]
         print('    最黑的三角：', [(r['card'], r['corner'], r['cls'][:22], r['much_darker_pct'], r['darkest'], r['local_ref']) for r in worst])
+    check(v_neg['status'] == 'FAIL', f'「{tag}」判準有鑑別力（注入方角黑塊後 {v_neg["bad"]}/{v_neg["samples"]} 變紅）')
     check(m['status'] != 'FAIL', f'演出中「{tag}」沒有 L 形黑角（{m["bad"]}/{m["samples"]}）')
 check(not errs, '頁面錯誤 0：' + '; '.join(errs)[:200])
-
-print('=== 負控制（注入壞寫法，至少一個時刻要變紅，否則判準沒有鑑別力）===')
-neg, _, injected = run(True)
-for tag, m, n in neg:
-    print(f'  {tag}: {m["status"]}  bad {m["bad"]}/{m["samples"]}  卡 {n}')
-# 每一個時刻都要有鑑別力，不然那個時刻的綠燈不代表任何事。
-# 實測：只有結果頁的負控制咬得動；演出途中卡面被祖先（.card-lift／.reveal-flip）的圓角裁掉，
-# 注入的方角黑底根本畫不出來——那幾個時刻**量不出黑角**，綠燈不算數，如實列出來不當成通過。
-blind = []
-for (tag, m, _), (tag2, m2, _) in zip(real, neg):
-    if m['samples'] == 0:
-        blind.append(f'{tag}（沒有有效取樣）')
-    elif m2['status'] != 'FAIL':
-        blind.append(f'{tag}（負控制注不進去：bad {m2["bad"]}/{m2["samples"]}）')
-    else:
-        check(True, f'「{tag}」判準有鑑別力（注入後 {m2["bad"]}/{m2["samples"]} 變紅）')
 if blind:
-    print('⚠ 這些時刻掃過但判準沒有鑑別力，綠燈不代表任何事：')
-    for t in blind: print('   -', t)
-# 2026-09-13 改成驅動精裝典藏包之後，實測壞寫法確實套上了（.hcard::after 黑底、框與卡同大、
-# 往上沒有任何圓角或裁切），但畫不出 L 形黑角：典藏包的卡底下都有內容可混，screen 黑＝不變。
-# 舊殼那種「獨立合成層裡沒東西可混」的結構在這頁不存在，換 .slot／.reveal-shell／.reveal-flip 也一樣。
-# 所以這頁的負控制目前**咬不動**：只有「量到真的黑角」才判失敗，綠燈照上面的警告如實當成不算數。
-if all(m2['status'] != 'FAIL' for _, m2, _ in neg):
-    print('⚠ 負控制在精裝典藏包上咬不動（注入 %s）：這支現在只能抓到「真的出現」的黑角，綠燈不代表沒有黑角。' % injected)
+    print('⚠ 這些時刻掃過但判準沒有鑑別力，綠燈不代表任何事：' + '；'.join(blind))
 
-print('\n%d FAIL' % len(fails) if fails else '\nALL OK')
+print('%d FAIL' % len(fails) if fails else 'ALL OK')
 sys.exit(1 if fails else 0)

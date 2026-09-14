@@ -67,7 +67,10 @@ window.Clicker = (() => {
     if (store.state.settings.muted || hiddenNow()) ac.suspend().catch(() => {});
     else ac.resume().catch(() => {});
   }
+  // 最近三則提示：診斷用（任務書 A5）。浮動訊息 1.4 秒就消失，玩家回報時只記得「有跳一行字」
+  const noticeLog = [];
   function notice(text) {
+    noticeLog.push(String(text)); if (noticeLog.length > 3) noticeLog.shift();
     $('notice').textContent = text; $('notice').hidden = false; clearTimeout(noticeTimer);
     if (!hiddenNow()) noticeTimer = setTimeout(() => { $('notice').hidden = true; noticeTimer = 0; }, 1400);
   }
@@ -653,11 +656,13 @@ window.Clicker = (() => {
       },
       joined(entries) { stage.join(store.state, entries); },
     });
-    extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin, cleanupPage });
+    extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin, cleanupPage, recentNotices: () => noticeLog.slice(-3) });
     dragUI = window.ClickerDrag.create({ $, store, commit, changed, notice, sound, card, E, Pool });   // v3：夥伴列拖到技能槽
     teamUI = window.ClickerTeamUI.create({ $, store, commit, changed, action, notice, sound, card, E, B, Pool, format, drag: dragUI });
     apocUI = window.ClickerApocUI.create({ $, store, commit, changed, notice, format, card, sound, cutin,
-      openRoster: (id) => showRoster(id), openTeam: () => teamUI?.open() });
+      openRoster: (id) => showRoster(id), openTeam: () => teamUI?.open(),
+      // 2.0 的第四技能格／派遣位是在 1.0 的印記商店買的：末世要有一條進得去的路（任務書 A4）
+      openMarks: () => prestigeUI?.openMarks() });
     apocMap = window.ClickerApocMap.create({ $, apocUI, format, refit: () => fitStage() }); apocMap.bind();
     // 末世的主畫面是關卡地圖（使用者：「切換後就是之前做的關卡地圖」）；點站進去才是 1.0 那套戰鬥畫面
     // 使用者第四輪：「末世地圖的預設畫面是戰鬥畫面，不是選擇關卡，每次都要按進入戰鬥很麻煩」→ 進末世直接是戰鬥畫面，自動開打
@@ -670,7 +675,8 @@ window.Clicker = (() => {
     if (!apocMode()) { offline(); stage.render(store.state, { instant: true }); }   // 末世沒有離線收益，不該出桌邊收據（Codex 第二輪 B4）
     changed(); status();
     if (store.state.pending || store.state.apoc?.pending) gacha.restore(); startTimers();   // 末世的結果存在 apoc.pending（Codex 複檢 2-1）
-    cleanupPage();
+    // 大掃除頁優先（那頁要玩家二選一）；沒有的話才彈「這次更新改了什麼」（任務書 A5）
+    if (!cleanupPage()) extras.updateNotes();
     // 自動修復過就要講出來——不能默默把玩家的東西重置掉還裝作沒事。
     // 原本那份沒被覆蓋，留在 clicker_save_broken 底下。
     if (store.repaired) {

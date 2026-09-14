@@ -48,10 +48,43 @@ FACE = """(sel) => {
     specialCss: /holo-special\.css/.test(host.dataset.holoSheets || '') || [...r.querySelectorAll('link')].some(l => /holo-special\.css/.test(l.href)),
     tint: r.querySelectorAll('.special-tint').length,
     hearts: r.querySelectorAll('.gift-hearts > i').length,
+    // ⚠ 「愛心在」不等於「愛心會動」：holo-special.css 有一條 .r-special .gift-hearts>i{animation:none}，
+    //   樣式表改成 adoptedStyleSheets 之後它排在 enhance() 注入的 <style> 後面，把 16 顆愛心的動畫全壓死
+    //   （線上實測 getAnimations() 全 0、animationName 'none'，一聲不吭）。所以要直接量「有沒有動畫在跑」。
+    heartAnims: [...r.querySelectorAll('.gift-hearts > i')].filter(h => h.getAnimations().length > 0).length,
+    allAnims: card.getAnimations({ subtree: true }).length,
     name: r.querySelector('.face-name')?.textContent || '',
     iframes: document.querySelectorAll(sel + ' iframe').length,
     plain: !!document.querySelector(sel + ' .character-png'),
   }; }"""
+
+# 已經載進來的替身動作有幾張（穿 shadow root）。2.5 MB／90 幀，卡冊縮圖不准載。
+ALT_LOADED = """()=>{ const imgs=[...document.querySelectorAll('img')];
+  for (const h of document.querySelectorAll('*')) if (h.shadowRoot) imgs.push(...h.shadowRoot.querySelectorAll('img'));
+  return imgs.filter(i=>/collect-alt/.test(i.currentSrc||i.src||'')).length; }"""
+
+
+def check_album_thumb(pg, world):
+    """1.0 的卡冊把收藏卡排在最後一頁。那一格的縮圖點下去是「開詳情」，替身動作根本看不到，
+       所以不准為了它拉 2.5 MB 下來（B2）。⚠ 這一格跟收藏卡頁同樣是 .album-slot，
+       靠 .collect-slot／#album-detail／#card-zoom 區分，所以這條一定要真的驗。"""
+    pg.evaluate("() => [...document.querySelectorAll('button')].find(b => /名冊|卡冊/.test(b.textContent)).click()")
+    pg.wait_for_timeout(1000)
+    found = False
+    for _ in range(24):
+        if pg.evaluate("()=>!!document.querySelector('.album-slot[data-id=\"mohuashaonv\"] .holo-face')"): found = True; break
+        pg.evaluate("()=>document.getElementById('album-next')?.click()"); pg.wait_for_timeout(450)
+    check(found, f'{world}：卡冊裡找得到收藏卡那一格')
+    if found:
+        before = pg.evaluate(ALT_LOADED)
+        # ⚠ 一定要點 shadow root 裡的 .hcard（處理器掛在那裡）。點 host 不會往下傳，
+        #   這條就會變成永遠綠的假驗證——我第一版就是這樣，0 → 0 但其實什麼都沒點到。
+        pg.evaluate("()=>document.querySelector('.album-slot[data-id=\"mohuashaonv\"] .holo-face')?.shadowRoot?.querySelector('.hcard')?.click()")
+        pg.wait_for_timeout(2500)
+        after = pg.evaluate(ALT_LOADED)
+        check(after == before, f'{world}：卡冊縮圖不載替身動作（{before} → {after}）')
+    for _ in range(3): pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
+
 
 def run(pg, world):
     # 卡冊 → 收藏卡 → 點開詳情
@@ -65,6 +98,8 @@ def run(pg, world):
     grid = pg.evaluate(FACE, '.collect-page .album-slot')
     check(grid.get('rarity') == 'r-special' and grid.get('hearts') == 16,
           f'{world}：卡冊格子上的收藏卡是原生精裝卡面（{grid}）')
+    check(grid.get('heartAnims') == 16 and grid.get('allAnims', 0) > 0,
+          f'{world}：卡冊格子上的 16 顆愛心真的在動（heartAnims {grid.get("heartAnims")} / allAnims {grid.get("allAnims")}）')
     check(grid.get('iframes') == 0 and not grid.get('plain'),
           f'{world}：沒有 iframe、也沒有退回 1.0 平面卡面（{grid}）')
 
@@ -73,6 +108,18 @@ def run(pg, world):
     face = pg.evaluate(FACE, '#album-detail')
     check(face.get('rarity') == 'r-special' and face.get('specialCss') and face.get('name') == '魔花少女',
           f'{world}：詳情頁的收藏卡是原生精裝卡面（{face}）')
+    check(face.get('heartAnims') == 16 and face.get('allAnims', 0) > 0,
+          f'{world}：詳情頁的 16 顆愛心真的在動（heartAnims {face.get("heartAnims")} / allAnims {face.get("allAnims")}）')
+
+    # 替身動作（2.5 MB／90 幀）：詳情頁點卡片要真的載、真的疊上去（B2 的延遲載入不能把它弄不見）。
+    # ⚠ 一定要點 shadow root 裡的 .hcard（處理器在那裡），而且要在**詳情頁**點——
+    #   收藏卡頁格子上點下去會冒泡到 .album-slot 那顆按鈕、整張卡被換掉，替身 decode 完發現卡已離開 DOM 就自己釋放了。
+    pg.evaluate("() => document.querySelector('#album-detail .holo-face')?.shadowRoot?.querySelector('.hcard')?.click()")
+    pg.wait_for_timeout(2500)
+    alt = pg.evaluate(ALT_LOADED)
+    check(alt >= 1, f'{world}：詳情頁點卡片會載入替身動作（實得 {alt}）')
+    check(pg.evaluate("()=>document.querySelector('#album-detail .holo-face')?.shadowRoot?.querySelector('.hcard')?.dataset.face || ''") == 'alt',
+          f'{world}：替身動作真的疊上去了（data-face=alt）')
 
     # 不准有開外部分頁的鍵
     btns = pg.evaluate("() => [...document.querySelectorAll('#album-detail button')].map(b => b.textContent.trim())")
@@ -167,6 +214,7 @@ with sync_playwright() as p:
         pg.goto('http://clicker.test/clicker.html'); pg.wait_for_function('window.Clicker?.state')
         pg.evaluate(SEED.replace('WORLD', world)); pg.reload()
         pg.wait_for_function('window.Clicker?.state'); pg.wait_for_timeout(2200)
+        if world == 'home': check_album_thumb(pg, label)   # 收藏卡只在 1.0 的卡冊格子裡出現
         run(pg, label)
         check_mask(pg, label)
         check(not errors, f'{label}：沒有 pageerror：{errors[:2]}')

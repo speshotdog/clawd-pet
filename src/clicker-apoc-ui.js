@@ -44,7 +44,7 @@ window.ClickerApocUI = (() => {
     ring.append(art); return ring;
   }
 
-  function create({ $, store, commit, changed, notice, format, card, sound, openRoster, openTeam, cutin }) {
+  function create({ $, store, commit, changed, notice, format, card, sound, openRoster, openTeam, openMarks, cutin }) {
     const root = window;
     const A = window.ApocEconomy, Pool = () => window.ApocPool || [];
     let byIdCache = null, byIdSrc = null;
@@ -270,6 +270,10 @@ window.ClickerApocUI = (() => {
 
     // 使用者第四輪：「打死上一隻怪物之後，下一隻出現，然後就無法點了」——以前要再按一次「開戰」。
     // 戰鬥畫面上一律自動接下一站；地圖、招募層、結局畫面開著，或隊伍是空的就不自動。
+    // 「常駐」的那一站：全線通行、沒開無盡，而且回顧停在收益站（incomeIndex）上。
+    // 場上有 stage 時直接看 stage.resident；重生空檔 stage 是 null，只能從這裡認。
+    const residentSpot = a => a.stage ? !!a.stage.resident
+      : !!a.cleared && !a.endless && a.progress >= A.RULES.STATIONS && a.revisitAt === A.incomeIndex(a);
     function autoFight() {
       const a = store.state?.apoc; if (!a?.unlocked || a.stage || store.blocked) return false;
       if ($('game-content').classList.contains('map-open') || !$('recruit-layer').hidden || !$('apoc-ending').hidden) return false;
@@ -283,13 +287,18 @@ window.ClickerApocUI = (() => {
       //   而且進度會一路衝上去（實測 8 → 19）。
       if (Number.isInteger(a.revisitAt)) {
         if (Date.now() < (a.farmNextAt || 0)) return false;
-        apply((x, n) => A.revisit(x, n, x.revisitAt), true); return !!store.state.apoc?.stage;
+        // 重生空檔（1 秒）裡 stage 是 null，resident 旗標跟著不見了——常駐的那一站要從狀態自己認出來，
+        // 不然重生回來的是「會走路」的回顧，走完一段就撞上第 19 站的機制王（任務書 A2）。
+        // 手動「重打這一站」不會誤判：走完一段之後 settle 已經把 revisitAt 推到下一站，對不上常駐站。
+        apply((x, n) => A.revisit(x, n, x.revisitAt, { walk: !residentSpot(x) }), true); return !!store.state.apoc?.stage;
       }
       if (!v.canFight) {
         // 全線通行之後場上不要空著（使用者指定）：常駐一隻珍母在最後一個小怪站，讓玩家點著賺錢。
         // 用回顧那條路走，所以獎勵、點擊、放置傷害全部沿用，不必另寫一套。
+        // walk:false ＝常駐：永遠留在這一站。以前用會走路的回顧，18 → 19（真・滅世珍獸，60 秒機制王）→ 18 一直循環，
+        // 掛機賺錢的人被 60 秒王打斷（任務書 A2）。
         if (a.cleared && !a.endless && a.progress >= A.RULES.STATIONS && Date.now() >= (a.farmNextAt || 0)) {
-          apply((x, n) => A.revisit(x, n, A.incomeIndex(x)), true); return !!store.state.apoc?.stage;
+          apply((x, n) => A.revisit(x, n, A.incomeIndex(x), { walk: false }), true); return !!store.state.apoc?.stage;
         }
         return false;
       }
@@ -589,8 +598,9 @@ window.ClickerApocUI = (() => {
         if (locked) { const lock = document.createElement('span'); lock.className = 'slot-empty slot-locked'; lock.textContent = '🔒'; b.append(lock); }
         else if (entry) b.append(stickerOf(entry));
         else { const plus = document.createElement('span'); plus.className = 'slot-empty'; plus.textContent = '＋'; b.append(plus); }
-        b.title = locked ? '第四技能格：到「換桌布」的印記商店買「第四技能槽」（3 印記）' : def ? `${def.card}・${def.text}` : '點一下去編隊，把卡放進獨立技能格';
-        b.onclick = () => locked ? notice('第四技能格要在印記商店解鎖（換桌布 → 神器與商店）') : def ? cast(i) : openTeam();
+        // 上鎖的第四格直接把印記商店開起來（任務書 A4）：只丟一句「去印記商店買」，2.0 玩家想不到那是「換桌布」面板
+        b.title = locked ? '第四技能格：點一下直接去印記商店買「第四技能槽」（3 印記）' : def ? `${def.card}・${def.text}` : '點一下去編隊，把卡放進獨立技能格';
+        b.onclick = () => locked ? (notice('第四技能格在印記商店解鎖'), openMarks?.()) : def ? cast(i) : openTeam();
         const name = document.createElement('span'); name.className = 'skill-name';
         wrap.append(b, name); host.append(wrap);
       }
@@ -704,6 +714,13 @@ window.ClickerApocUI = (() => {
       btn.disabled = store.blocked || !(s.coins >= cost);
       btn.onclick = () => { exchangeTicket(); renderShopPanel(); };
       ex.append(line, btn);
+      // 印記商店的導線（任務書 A4）：第四技能槽、派遣位、王關 +15 秒這些都在 1.0 的印記商店，
+      // 但 2.0 玩家要先想到「換桌布」那個面板才找得到。這裡放一顆直達鍵。
+      const mk = sec('印記商店', '第四技能槽、第 4 個派遣位、王關 +15 秒、離線 12 小時都在 1.0 的印記商店（換桌布 → 神器與商店），用印記買。');
+      const goMk = document.createElement('button'); goMk.type = 'button'; goMk.id = 'apoc-marks-go'; goMk.textContent = '前往';
+      goMk.title = '打開印記商店（換桌布 → 神器與商店）';
+      goMk.onclick = () => { $('wardrobe').hidden = true; openMarks?.(); };
+      mk.append(goMk);
       const fxSec = sec('受擊特效', '點怪時碎片與火花的顏色。花末世金幣，沒有數值效果。');
       const grid = document.createElement('div'); grid.className = 'apoc-shop-grid'; fxSec.append(grid);
       for (const item of A.RULES.HIT_FX) {

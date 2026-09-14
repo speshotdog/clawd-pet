@@ -48,10 +48,10 @@ def open_page(p):
 with sync_playwright() as p:
     b, pg, errors = open_page(p)
     pg.click('#prestige-open'); pg.wait_for_timeout(400)
-    summary = pg.text_content('#prestige-summary'); check('本輪已拿 3 / 12' in summary and '/ 100' in summary, '摘要：' + summary)
+    summary = pg.text_content('#prestige-summary'); check('本輪已拿 2 / 8' in summary and '/ 150' in summary, '摘要：' + summary)   # 印記重設計：包數不給、每輪 8、生涯 150
     ledger = pg.evaluate("()=>[...document.querySelectorAll('.run-ledger li')].map(li=>li.className+':'+li.textContent)")
     check(len(ledger) == 9 and sum(1 for x in ledger if x.startswith('done')) == 3, '本輪帳 9 列、3 列完成：' + ' | '.join(ledger)[:200])
-    go = pg.text_content('#prestige-go'); check('領 3 顆' in go, '換桌布鍵：' + go)
+    go = pg.text_content('#prestige-go'); check('領 2 顆' in go, '換桌布鍵：' + go)
     pg.screenshot(path=str(OUT / '1-prestige-tab.png'))
     pg.click('.prestige-tabs button:nth-child(2)'); pg.wait_for_timeout(300)
     arts = pg.evaluate("()=>[...document.querySelectorAll('.mark-ticket.artifact')].map(t=>({id:t.dataset.item,disabled:t.disabled,text:t.querySelector('b').textContent,cost:t.querySelector('i').textContent}))")
@@ -67,7 +67,7 @@ with sync_playwright() as p:
     pg.click('.prestige-tabs button:nth-child(1)'); pg.wait_for_timeout(300)
     pg.click('#prestige-go'); pg.wait_for_timeout(200); pg.click('#prestige-go'); pg.wait_for_timeout(2500)
     st = pg.evaluate("()=>({run:Clicker.state.runWins, packs:Clicker.state.runPacks, marks:Clicker.state.marks, claimed:Clicker.state.marksClaimed, champs:Clicker.state.champions, tap:Clicker.state.artifacts.tap, scene:Clicker.state.settings.scene})")
-    check(st['run'] == [] and st['packs'] < 10 and st['marks'] == 8 and st['claimed'] == 12, '換桌布後：本輪歸零、印記 5+3=8、累計 12 ' + str(st))
+    check(st['run'] == [] and st['packs'] < 10 and st['marks'] == 7 and st['claimed'] == 11, '換桌布後：本輪歸零、印記 5+2=7、累計 11 ' + str(st))
     check(len(st['champs']) == 2 and st['tap'] == 2 and st['scene'] == 'backyard', '當家重抽、神器保留、回後院 ' + str(st))
     pg.screenshot(path=str(OUT / '3-after.png'))
     check(not errors, '頁面錯誤 0：' + '; '.join(errors)[:300])

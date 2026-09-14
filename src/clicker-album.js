@@ -353,10 +353,11 @@ window.ClickerAlbum = (() => {
           if (away && sk < 0) { eq.disabled = true; eq.title = '派遣中，回來才能裝'; }
           acts.append(eq);
           // 第十輪 D 派遣：不在隊上的卡出去，回來帶末世金幣（小機率帶券）；時間到在 clicker-apoc-ui.js 的 tick 自動收回
-          const job = (a.dispatch || []).find(d => d.id === id), D = A().RULES.DISPATCH, used = (a.dispatch || []).length;
+          // 印記重設計：派遣位數要看兌換「派遣位 +1」（dispatch4），不能用常數（Opus 群組 A 回報：買了第 4 位這裡仍只給 3）
+          const job = (a.dispatch || []).find(d => d.id === id), D = A().RULES.DISPATCH, used = (a.dispatch || []).length, slots = D.SLOTS + (s.markShop?.dispatch4 ? 1 : 0);
           const go = document.createElement('button');
-          go.textContent = job ? `派遣中・${Math.max(1, Math.ceil((job.until - Date.now()) / 60000))} 分後回來` : inTeam ? '派遣（要先離隊）' : `派遣 ${D.MS / 3600000} 小時（${used}/${D.SLOTS}）`;
-          go.disabled = !!job || inTeam || used >= D.SLOTS || store.blocked;
+          go.textContent = job ? `派遣中・${Math.max(1, Math.ceil((job.until - Date.now()) / 60000))} 分後回來` : inTeam ? '派遣（要先離隊）' : `派遣 ${D.MS / 3600000} 小時（${used}/${slots}）${!s.markShop?.dispatch4 && used >= slots ? '・印記商店可買第 4 位' : ''}`;
+          go.disabled = !!job || inTeam || used >= slots || store.blocked;
           go.title = `回來帶約 ${format(A().dispatchCoins(a, id))} 末世金幣，${Math.round(D.TICKET * 100)}% 機率多一張券`;
           go.onclick = () => action(() => {
             const next = E.clone(store.state); next.apoc = A().startDispatch(A().normalize(next.apoc), id, Date.now());

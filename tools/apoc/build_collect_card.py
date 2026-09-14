@@ -56,19 +56,46 @@ def save_uri(uri, dest_dir, stem):
         except Exception: pass
     return dest, frames
 
+def _blocks(css):
+    """把一段 CSS 切成最上層的區塊：(前綴, 內容) —— 前綴是選擇器或 at-rule 的頭。
+       用括號配對切，不用正規式：正規式表達不了巢狀的 at-rule（見下面 special_css 的教訓）。"""
+    out, depth, start, head = [], 0, 0, None
+    for i, ch in enumerate(css):
+        if ch == '{':
+            depth += 1
+            if depth == 1: head = css[start:i]; body_start = i + 1
+        elif ch == '}':
+            depth -= 1
+            if depth == 0:
+                out.append((head.strip(), css[body_start:i])); start = i + 1
+    return out
+
+
 def special_css(html):
     """挑出 `.r-special` 的規則。整頁 CSS 有 1.2 MB，但其中只有兩個 style 區塊碰這個階級，
        其餘是共用的卡面 CSS（src/apoc/holo.css 已經有了）與這一頁自己的頁面外觀（body／h1／.hint）。
-       頁面外觀不要搬——搬過去會把卡冊的底色一起換掉。"""
+       頁面外觀不要搬——搬過去會把卡冊的底色一起換掉。
+
+    ⚠ 第一版用一條正規式掃 `選擇器{宣告}`，**表達不了巢狀的 at-rule**：
+      `@media(prefers-reduced-motion:reduce){ .r-special .gift-hearts>i{animation:none} … }`
+      被拆成「@media 那一行（選擇器裡沒有 r-special，丟掉）」＋「裡面那幾條規則（照收）」，
+      於是「只有關掉動態才生效」的 animation:none 變成**無條件**套用。
+      結果：收藏卡的 16 顆愛心永遠不動（getAnimations() 全 0、computed animationName 'none'），
+      而且一聲不吭——CSS 沒有錯誤、卡面照畫，只是少了整層動畫。
+      所以 at-rule 一定要連著外殼一起搬。"""
     out = []
     for css in re.findall(r'<style[^>]*>(.*?)</style>', html, re.S):
         if 'r-special' not in css: continue
-        for rule in re.finditer(r'(@keyframes\s+[\w-]+\s*\{(?:[^{}]|\{[^{}]*\})*\})|([^{}]+)\{([^{}]*)\}', css):
-            if rule.group(1):
-                out.append(rule.group(1)); continue
-            sel = (rule.group(2) or '').strip()
-            if 'r-special' not in sel: continue          # 只要這個階級的
-            out.append(f'{sel}{{{rule.group(3)}}}')
+        for head, body in _blocks(css):
+            if head.startswith('@keyframes'):
+                out.append(f'{head}{{{body}}}'); continue
+            if head.startswith('@'):                     # @media／@supports⋯⋯：遞迴挑，外殼保留
+                inner = [f'{h}{{{b}}}' for h, b in _blocks(body)
+                         if h.startswith('@keyframes') or 'r-special' in h]
+                if inner: out.append(head + '{\n ' + '\n '.join(inner) + '}')
+                continue
+            if 'r-special' not in head: continue          # 只要這個階級的
+            out.append(f'{head}{{{body}}}')
     return '\n'.join(out)
 
 def main():

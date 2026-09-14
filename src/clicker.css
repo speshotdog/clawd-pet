@@ -854,6 +854,8 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
    這裡的動畫是角色在原地的逐格動作（不是位移、不是視差），前庭風險低；
    減速到兩倍慢就好，不要關掉。 */
 #boss-health { width:calc(var(--boss-w,260px) + 40px); }
+/* 滿版王（滅世珍獸 632 寬、中心 316）：血條 left:-20px 會跑到 #game 的畫布外被切掉（Opus 群組 B B1 量到 x=35 < 40）。收進舞台裡。 */
+#boss-view.full-board #boss-health { left:20px; width:calc(var(--boss-w,632px) - 64px); }
 #stage > #boss-challenge.long { font-size:13px; line-height:15px; white-space:normal; padding:2px 8px; }
 #stage[data-scene="nightmarket"] .desk-mat { filter:brightness(.72) saturate(.8); }
 #stage[data-scene="factory"] .desk-mat { filter:grayscale(.6); }

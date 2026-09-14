@@ -41,6 +41,30 @@ window.ClickerHolo = (() => {
     for (const n of names) if (!sheets[n]) { const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = url(n); sh.append(link); }
     return adopted;
   }
+  // adoptedStyleSheets 在 cascade 裡排在 shadow root 裡的 <style> **之後**（規範：adopted 最後套用），
+  // 所以第十二輪下半場改用 adopted 之後，收藏卡的加工樣式（collect-face.js `enhance()` 注入的 <style>）
+  // 反而排在 holo.css／holo-special.css **前面**——跟獨立頁的順序相反（原頁的加工樣式在 <head> 最後）。
+  // 這裡把加工用的 <style> 也轉成 CSSStyleSheet 接在 adopted 最後面，順序回到「holo → special → 卡自己的加工」。
+  //
+  // ⚠ 誠實記錄：這**不是**「16 顆愛心不動」的原因（2026-09-15 一度以為是）。加工樣式裡只有 @keyframes
+  //   （名字還是每張卡自己的 gift-rise-<tag>-<i>），沒有任何 animation 宣告，所以順序根本影響不到它。
+  //   真兇是 tools/apoc/build_collect_card.py 把 @media(prefers-reduced-motion:reduce) 拆平了，見那支的註解。
+  //   保留這段是為了跟獨立頁同一個順序，不是為了修愛心。
+  function adoptInlineStyles(sh) {
+    // 退回 <link> 的那條路（樣式表還沒抓到）本來順序就對，動了反而會壞：<link> 是非同步的，
+    // 把 <style> 抽走變成 adopted 之後，加工樣式會比 <link> 早生效。
+    if (!canAdopt || !sh.adoptedStyleSheets.length || sh.querySelector('link')) return 0;
+    const extra = [];
+    for (const st of [...sh.querySelectorAll('style')]) {
+      try {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(absolutize(st.textContent, document.baseURI));
+        extra.push(sheet); st.remove();
+      } catch (e) { console.warn('ClickerHolo 加工樣式轉 adopted 失敗，留著原來的 <style>', e); }
+    }
+    if (extra.length) sh.adoptedStyleSheets = [...sh.adoptedStyleSheets, ...extra];
+    return extra.length;
+  }
   const ready = () => !!(window.HoloCardFace && window.ApocPool);
   // 收藏卡（魔花少女）：不在卡池裡、素材與遮罩是另一組、階級是這張卡自己新增的「特殊」。
   // 使用者 2026-09-14：「收藏卡的品質要跟 2.0 的卡冊一樣好」——所以走的是**同一個 face()**，
@@ -77,7 +101,7 @@ window.ClickerHolo = (() => {
     host.dataset.holoSheets = attachSheets(sh, collect ? ['holo.css', 'holo-special.css'] : ['holo.css']).join(' ');
     const f = window.HoloCardFace.create(entry, { masks: m, resolve });
     sh.append(f);
-    if (collect) host._collect = CF().enhance(f, sh, resolve, ++collectSeq);
+    if (collect) { host._collect = CF().enhance(f, sh, resolve, ++collectSeq); host.dataset.holoInline = String(adoptInlineStyles(sh)); }
     window.HoloCardFace.observe(f); window.HoloCardFace.refit(f);
     window.HoloCardFace.paint(f, entry.rarity, 0, 0, { tilt });
     host._face = f; host._born = Date.now();

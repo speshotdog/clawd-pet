@@ -288,6 +288,7 @@
   const poolById = () => { const src = root.ApocPool || []; if (src !== poolCacheSrc) { poolCacheSrc = src; poolCache = Object.fromEntries(src.map(c => [c.id, c])); } return poolCache; };
   const count = v => Number.isFinite(Number(v)) ? Math.max(0, Math.floor(Number(v))) : 0;   // 存檔可編輯：'1e309' 會變 Infinity，價格跟著變 Infinity
   const dayKey = now => Math.floor(now / 86400000);   // 同 1.0 派遣的日界
+  const ROSTER_MAX = 20;   // 隊伍上限（同 1.0）
   function fresh() {
     return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, dust: {}, universalDust: 0, transcend: {}, bossDust: [], pity: 0, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
       paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, revisitAt: null, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
@@ -345,8 +346,9 @@
     if (a.stage && (typeof a.stage.hp !== 'number' || (a.stage.farm ? !farmOk(a.stage) : a.stage.index !== a.progress))) a.stage = null;
     // 刷怪場一律不是王；**回顧的王站例外**（第十二輪下半：回顧走到區段的王就是真王，帶期限與機制）。
     // ⚠ 這一行以前無條件清 boss:false，線上實測變成「回顧永遠沒有王、每殺一隻停 1 秒」（使用者：「怪物會生很慢、看不到王」）。
+    // ⚠ resident（常駐）也要留著：清掉的話重整之後那一隻又會開始往下走，走到王站（任務書 A2）
     if (a.stage?.farm) { const rb = !!a.stage.revisit && isBoss(a.stage.index);
-      a.stage = { ...a.stage, farm: true, boss: rb, deadline: rb ? (a.stage.deadline || null) : null, breakUntil: rb ? (a.stage.breakUntil || 0) : 0 }; }
+      a.stage = { ...a.stage, farm: true, boss: rb, resident: !!a.stage.revisit && !!a.stage.resident, deadline: rb ? (a.stage.deadline || null) : null, breakUntil: rb ? (a.stage.breakUntil || 0) : 0 }; }
     // 第十輪：舊存檔的王關是護盾版（shield），換成這一隻王自己的機制狀態
     if (a.stage && a.stage.boss && (a.stage.mech === undefined || !a.stage.minions || !a.stage.shell || !a.stage.rhythm || !a.stage.order)) {
       a.stage = { ...a.stage, ...freshMech(a.stage.index, need(a.stage.index, a)), breakUntil: 0 };
@@ -422,7 +424,8 @@
       const id = RULES.GIFT.card;
       a.dust = { ...(a.dust || {}) }; a.dust[id] = dustOf(a, id) + 1;   // 開門禮也要落地粉塵，不然第一次抽到重複會少算
       a.collection[id] = (a.collection[id] || 0) + 1;
-      if (!a.roster.includes(id)) a.roster = [...a.roster, id];
+      // 隊伍上限 20：滿了就只給券與卡，不入隊（不然開門禮會變成「隊伍 21/20」，編隊頁一直紅字）
+      if (!a.roster.includes(id) && a.roster.length < ROSTER_MAX) a.roster = [...a.roster, id];
     }
     return a;
   }
@@ -514,7 +517,10 @@
   // 王關打到一半不能落跑（不然跑一趟地圖就能躲掉 60 秒判輸）；小怪站隨時可以走，本來就沒有輸贏。
   // 正規的王關打到一半不能走；回顧中的王沒有輸贏（逾時只是重來），隨時可以走。
   const canRevisit = (a, i) => Number.isInteger(i) && i >= 0 && i < a.progress && !(a.stage && a.stage.boss && !a.stage.revisit);
-  function revisit(a, now, i) {
+  // walk:false ＝「常駐」：永遠留在這一站，打完一輪 WAVES 隻不往下走（settle 不推 revisitAt）。
+  // 全線通行後 autoFight 用它在場上留一隻小怪讓玩家點著賺錢——以前用會走路的回顧，
+  // 走到第 19 站就是真・滅世珍獸（60 秒機制王），掛機的人被 18 → 19 → 18 一直打斷（2026-09-15 任務書 A2）。
+  function revisit(a, now, i, { walk = true } = {}) {
     if (!canRevisit(a, i)) throw new Error(a.stage?.boss ? '王關進行中' : '這一站還沒走過');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
     // farm:true ＝ 結算時給這一站的獎勵、不推進度（跟王關失敗的刷怪走同一條路）
@@ -523,7 +529,7 @@
     // 使用者 2026-09-14 晚：「回顧打完小怪會切到王嗎？我希望是這樣，等於那關從走但保留整體進度」——
     // 所以回顧是**一條路**：小怪站照正規打 WAVES 隻，打完往下一站走，打到這一區段的王就結束回顧（settle 裡推 revisitAt）。
     const boss = isBoss(i);
-    return { ...a, revisitAt: i, stage: { index: i, hp: need(i, a), need: need(i, a), boss, farm: true, revisit: true, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now,
+    return { ...a, revisitAt: i, stage: { index: i, hp: need(i, a), need: need(i, a), boss, farm: true, revisit: true, resident: !walk, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now,
       deadline: boss && RULES.BOSS_TIME ? now + bossTimeOf(a) : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
   }
   const leaveRevisit = a => a.revisitAt === null || a.revisitAt === undefined ? a : { ...a, revisitAt: null, stage: a.stage?.revisit ? null : a.stage };
@@ -576,7 +582,8 @@
         // 刷怪：拿這一站的獎勵、不推進度（王那一站還等著玩家再挑戰）
         s.coins += killReward(st.index, s); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
         // 回顧：往下一站走；打完這一區段的王（或走到目前站前一站）就結束回顧，autoFight 會接回目前站／全破後的常駐
-        if (st.revisit) s.revisitAt = isBoss(st.index) || st.index + 1 >= s.progress ? null : st.index + 1;
+        // 常駐（revisit 的 walk:false）就永遠留在同一站，不往下走、也不結束回顧
+        if (st.revisit && !st.resident) s.revisitAt = isBoss(st.index) || st.index + 1 >= s.progress ? null : st.index + 1;
         events.push({ type: 'farm', index: st.index, reward: killReward(st.index, s) });
       }
       else if (st.hp <= 0 && (st.wave || 1) < (st.waves || 1)) {
@@ -676,7 +683,7 @@
       s.collection[id] = (s.collection[id] || 0) + 1;
       if (isMaxed(s, id)) s.universalDust = (s.universalDust || 0) + dustRate(id);
       else s.dust[id] = before + 1;
-      if (!s.roster.includes(id) && !dispatchedApoc(a, id) && s.roster.length < 20 && !rosterViolations(s.roster.concat(id)).length) s.roster.push(id);   // 新卡自動入隊（同 1.0）
+      if (!s.roster.includes(id) && !dispatchedApoc(a, id) && s.roster.length < ROSTER_MAX && !rosterViolations(s.roster.concat(id)).length) s.roster.push(id);   // 新卡自動入隊（同 1.0）
     }
     autoGrow(s, ids);
     return s;
@@ -810,7 +817,8 @@
     if (!(a.collection[id] > 0)) throw new Error('還沒抽到這張');
     if (a.roster.includes(id)) throw new Error('隊伍裡的卡不能派遣，先移出隊伍');
     if (dispatchedApoc(a, id)) throw new Error('已經在派遣中');
-    if ((a.dispatch || []).length >= dispatchSlots(a)) throw new Error('派遣位子滿了（' + dispatchSlots(a) + ' 個）');
+    // 還沒買第 4 位就順便講一聲去哪買（任務書 A4：印記商店的導線）
+    if ((a.dispatch || []).length >= dispatchSlots(a)) throw new Error('派遣位子滿了（' + dispatchSlots(a) + ' 個）' + (boostOf(a).dispatch4 ? '' : '（印記商店可買第 4 位）'));
     return { ...a, dispatch: [...(a.dispatch || []), { id, startedAt: now, until: now + RULES.DISPATCH.MS }] };
   }
   const dispatchCoins = (a, id) => Math.round(killReward(incomeIndex(a), a) * RULES.DISPATCH.KILLS * (RULES.DISPATCH.RARITY[poolById()[id]?.rarity] || 1));

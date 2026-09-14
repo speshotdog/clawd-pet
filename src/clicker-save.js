@@ -11,6 +11,9 @@
       package: E.newPackage('backyard'), claimedMilestones: [],
       boss: null, bossWins: [], bossCracks: {}, bossCooldownUntil: 0, bossResult: null, scenePackages: {}, freeDraws: 0, usedFreeDraws: 0,
       chain: {count:1,expiresAt:0}, daily: null, badges: [], pick100: null,
+      // 全新存檔直接蓋上目前的更新說明版本：沒玩過的人不需要看「這次改了什麼」。
+      // 只有這個欄位缺（在 update-notes 上線之前就存在的存檔）才會在載入時彈一次說明。
+      seenNotes: (typeof root !== 'undefined' && root.ClickerUpdateNotes?.VERSION) || null,
       marks: 0, marksClaimed: 0, prestiges: 0, markShop: {}, dustTrades: 0, autoClick: 0, autoRemainder: 0, autoClicks: 0, partnerLevels: {}, deco: [], decoShown: [], peakRate: 0, peakRateStamp: 0, blessing: 0, prestigeHintDate: null,
       missed: 0, sweep: {last:null,count:0,at:0}, gift: null, nextGiftAt: 0, giftResult: null,
       skillSlots: [null, null, null], cooldownUntil: {}, slotReadyAt: [0, 0, 0], effects: [],
@@ -221,6 +224,7 @@
     }
     // ---- v3 欄位：缺的補預設；隊伍／派遣不合法就靜默修正（不進 REPAIRS，那張表只准放暫時狀態）
     s.artifacts ??= {}; s.collectibles ??= [];
+    s.seenNotes ??= null;   // 看過哪一版的「這次更新改了什麼」（update-notes.js 的 VERSION）；不驗證內容，對不上就再彈一次
     s.apoc ??= { unlocked: false, tutorial: 0 }; s.apoc.unlocked ??= false; s.apoc.tutorial ??= 0;
     if (globalThis.ApocEconomy) s.apoc = globalThis.ApocEconomy.normalize(s.apoc);   // v3 末世經濟欄位（coins／tickets／progress／collection／roster／stage）
     if (Array.isArray(s.bossWins) && s.bossWins.includes('city')) s.apoc.unlocked = true;

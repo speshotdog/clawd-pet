@@ -742,3 +742,41 @@ test('印記重設計：神器與兌換在 2.0 的套用點（王關 +15 秒、�
   const dust2 = A.settle({ ...w2, stage: { ...A.fight(w2, 0).stage, hp: 0, minions: { left: 0, max: 1, hp: 0, nextAt: 0 } } }, 1000, 0).events.find(e => e.type === 'dust');
   assert.equal(dust2.amount, dust0.amount + 2, '粉塵祝福：王首勝多 1 顆/級');
 });
+
+// --- 2026-09-15 任務書 A2：全破後的常駐怪不要走到王
+test('常駐（revisit walk:false）：永遠留在同一站，不會走到第 19 站的機制王', () => {
+  const now = 1e6;
+  const base = A.normalize({ ...A.gift(A.fresh()), cleared: true, progress: 20 });
+  assert.equal(A.incomeIndex(base), 18, '全線通行的收益站是第 19 站（index 18）');
+  let a = A.revisit(base, now, 18, { walk: false });
+  assert.equal(a.stage.resident, true); assert.equal(a.stage.boss, false); assert.equal(a.stage.waves, R.WAVES);
+  // 連殺 WAVES 隻：進度不動，回顧站也不往前推
+  for (let w = 0; w < R.WAVES; w++) a = A.settle({ ...a, stage: { ...a.stage, hp: 0 } }, now + 1000 * (w + 1), 0).state;
+  assert.equal(a.revisitAt, 18, '常駐打完一輪還是留在原站');
+  assert.equal(a.stage, null); assert.equal(a.progress, 20);
+  // 重生：還是第 19 站的小怪
+  const again = A.revisit(a, now + 60000, a.revisitAt, { walk: false });
+  assert.equal(again.stage.index, 18); assert.equal(again.stage.boss, false); assert.equal(again.stage.resident, true);
+  assert.equal(A.normalize(again).stage.resident, true, 'normalize 要保留 stage.resident');
+  // 手動「重打這一站」（預設 walk:true）照舊走完一段 → 下一站是王
+  let m = A.revisit(base, now, 18);
+  assert.equal(!!m.stage.resident, false);
+  for (let w = 0; w < R.WAVES; w++) m = A.settle({ ...m, stage: { ...m.stage, hp: 0 } }, now + 1000 * (w + 1), 0).state;
+  assert.equal(m.revisitAt, 19, '走完一段會往下一站走');
+  const boss = A.revisit(m, now + 60000, m.revisitAt);
+  assert.equal(boss.stage.index, 19); assert.equal(boss.stage.boss, true);
+});
+
+// --- 2026-09-15 任務書 A3：「隊伍 21/20」
+test('開門禮：隊伍已滿 20 張就只給券與卡，不入隊', () => {
+  const full = Array.from({ length: 20 }, (_, i) => `x${i}`);
+  const a = A.gift({ ...A.fresh(), roster: full, collection: Object.fromEntries(full.map(id => [id, 1])) });
+  assert.equal(a.roster.length, 20, '隊伍不會變成 21');
+  assert.ok(!a.roster.includes('pufayueyue'));
+  assert.equal(a.collection.pufayueyue, 1, '卡照給');
+  assert.equal(a.tickets, 10, '券照給');
+  assert.equal(a.dust.pufayueyue, 1, '粉塵照給');
+  // 還有位子就照舊入隊
+  const room = A.gift({ ...A.fresh(), roster: full.slice(0, 19), collection: Object.fromEntries(full.slice(0, 19).map(id => [id, 1])) });
+  assert.equal(room.roster.length, 20); assert.ok(room.roster.includes('pufayueyue'));
+});

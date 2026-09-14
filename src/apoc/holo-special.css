@@ -120,9 +120,10 @@
  rgba(255,255,255,.62) 86%,rgba(255,255,255,.95) 100%);
  clip-path:polygon(50% 20%,65% 5%,82% 5%,97% 20%,100% 38%,92% 55%,50% 95%,8% 55%,0% 38%,3% 20%,18% 5%,35% 5%)}
 @keyframes gift-sway{from{transform:translateX(calc(-1 * var(--swing)))}to{transform:translateX(var(--swing))}}
-.r-special .card-lift{transition:none!important}
-.r-special .gift-hearts>i{animation:none;transform:translateY(var(--rest));opacity:var(--peak)}
-.r-special .gift-hearts b{animation:none;transform:none}
+@media(prefers-reduced-motion:reduce){
+ .r-special .card-lift{transition:none!important}
+ .r-special .gift-hearts>i{animation:none;transform:translateY(var(--rest));opacity:var(--peak)}
+ .r-special .gift-hearts b{animation:none;transform:none}}
 .hcard.r-special .face-plate{background:linear-gradient(to top,rgba(28,7,20,.72),rgba(43,15,36,.50) 52%,rgba(58,21,48,.15))!important}
 .r-special .gift-hearts{clip-path:none!important}
 .hcard.r-special .face-name{background-image:conic-gradient(from var(--phase),#ffe0f0,#ffffff 14%,#cfe6ff 28%,#efdcff 42%,#ffffff 54%,#ffd8ee 68%,#d6f6ff 82%,#ffe0f0)!important;background-size:230% 230%!important;background-position:calc(50% + var(--gift-edge,0)*34%) 50%!important}
