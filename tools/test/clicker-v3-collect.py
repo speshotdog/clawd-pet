@@ -17,6 +17,8 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[2]; SRC = ROOT / 'src'
 OUT = ROOT / '_art/out/v3-collect'; OUT.mkdir(parents=True, exist_ok=True)
 fails = []
+DEEP_GRID = "() => { const deep = el => { if (!el) return ''; let t = el.textContent || ''; el.querySelectorAll('*').forEach(n => { if (n.shadowRoot) t += ' ' + n.shadowRoot.textContent; }); return t.replace(/\\s+/g, ' ').trim(); }; const slot = [...document.querySelectorAll('.album-slot')].find(x => x.querySelector('.card.locked')); if (!slot) return null; return { grid: deep(slot), id: slot.dataset.id }; }"
+DEEP_DETAIL = "() => { const deep = el => { if (!el) return ''; let t = el.textContent || ''; el.querySelectorAll('*').forEach(n => { if (n.shadowRoot) t += ' ' + n.shadowRoot.textContent; }); return t.replace(/\\s+/g, ' ').trim(); }; return { h3: (document.querySelector('#album-detail h3') || {}).textContent || '', card: deep(document.querySelector('#album-detail .detail-card')), zoom: deep(document.getElementById('card-zoom')) }; }"
 def check(ok, msg):
     print(('ok   ' if ok else 'FAIL ') + msg)
     if not ok: fails.append(msg)
@@ -104,6 +106,34 @@ def check_fonts():
 
 check_fonts()
 
+
+def check_mask(pg, world):
+    """還沒抽到的卡不准露出名字（使用者 2026-09-14 選「全遮」，而且「放大預覽的部分也要遮」）。
+       ⚠ 2.0 的精裝卡面在 shadow root 裡，從外面 textContent 讀不到——要穿進去看，
+         不然這條會變成永遠綠的假驗證。"""
+    pg.evaluate("() => [...document.querySelectorAll('button')].find(b => /名冊|卡冊/.test(b.textContent)).click()")
+    pg.wait_for_timeout(1100)
+    g = pg.evaluate(DEEP_GRID)
+    if not g:
+        check(False, f'{world}：卡冊裡找得到還沒抽到的卡')
+        return
+    real = pg.evaluate(f"() => (window.ApocPool||[]).concat(Object.values(GachaPool.byId||{{}})).find(c => c.id === '{g['id']}')?.name || ''")
+    check('？？？' in g['grid'], f"{world}：卡冊格子上的未獲得卡是「？？？」（實得 {g['grid'][:24]}）")
+    check(real and real not in g['grid'], f"{world}：卡面沒有露出真名「{real}」")
+
+    pg.evaluate("() => document.querySelector('.album-slot .card.locked')?.closest('.album-slot')?.click()")
+    pg.wait_for_timeout(900)
+    d = pg.evaluate(DEEP_DETAIL)
+    check('？？？' in d['h3'], f"{world}：詳情頁標題是「？？？」（實得 {d['h3']}）")
+    check(real not in d['card'], f"{world}：詳情頁的大卡沒有露出真名（實得 {d['card'][:24]}）")
+    pg.evaluate("() => [...document.querySelectorAll('#album-detail button')].find(b => /放大/.test(b.textContent))?.click()")
+    pg.wait_for_timeout(1100)
+    d2 = pg.evaluate(DEEP_DETAIL)
+    check(d2['zoom'] and real not in d2['zoom'], f"{world}：放大預覽也遮住了（實得 {d2['zoom'][:36]}）")
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
+
 with sync_playwright() as p:
     b = p.chromium.launch()
     for world, label in (('home', '1.0'), ('apoc', '2.0')):
@@ -121,6 +151,7 @@ with sync_playwright() as p:
         pg.evaluate(SEED.replace('WORLD', world)); pg.reload()
         pg.wait_for_function('window.Clicker?.state'); pg.wait_for_timeout(2200)
         run(pg, label)
+        check_mask(pg, label)
         check(not errors, f'{label}：沒有 pageerror：{errors[:2]}')
         ctx.close()
     b.close()

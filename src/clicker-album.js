@@ -78,15 +78,21 @@ window.ClickerAlbum = (() => {
       } else { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; wrap.append(q); }
       return wrap;
     }
+    // 還沒抽到的卡：卡面上的名字也要遮掉。以前卡面照樣印「珍母／傳說」，可是卡片下面那行是「？？？」，
+    // 前後不一致（朋友回報；使用者 2026-09-14 選「全遮」）。遮的是**名字**，稀有度留著——
+    // 卡冊本來就照稀有度排，那不是祕密。
+    const MASK = '？？？';
+    const maskEntry = (entry, owned) => owned ? entry : { ...entry, name: MASK };
     function makeCard(s, id) {
       if (isCollect(id)) return deluxeCard(id);   // 收藏卡只有精裝版，兩個世界都一樣
-      const entry = byId(id);
+      const owned = !!have(s, id);
+      const entry = maskEntry(byId(id), owned);
       // 末世的卡一律用精裝卡面（使用者：所有卡都是精裝版）
       if (apoc() && window.ClickerHolo?.ready()) {
         const wrap = document.createElement('div'); wrap.className = 'card flipped album-card holo-card';
-        wrap.classList.toggle('locked', !have(s, id));
+        wrap.classList.toggle('locked', !owned);
         const face = window.ClickerHolo.face(entry); if (face) wrap.append(face);
-        if (!have(s, id)) { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; wrap.append(q); }
+        if (!owned) { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; wrap.append(q); }
         return wrap;
       }
       const el = card.create({ ...entry, rarity: apoc() ? entry.rarity : E.rarity(s, id) }, { tag: false });
@@ -267,7 +273,8 @@ window.ClickerAlbum = (() => {
       const big = makeCard(s, id); big.classList.add('detail-card'); left.append(big, zoomButton(id));
       if (apoc()) window.ClickerHolo?.interactive(big.querySelector('.holo-face'));   // 拿在手上看：拖曳轉動、反光跟著游標
       const right = document.createElement('div'); right.className = 'detail-right';
-      const h = document.createElement('h3'); h.textContent = byId(id).name; right.append(h);
+      // 詳情頁標題也遮（不然點開locked卡還是看得到名字）
+      const h = document.createElement('h3'); h.textContent = maskEntry(byId(id), !!have(s, id)).name; right.append(h);
       if (isCollect(id)) {   // 收藏卡：只有說明與返回
         const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = '收藏卡'; right.append(tier);
         // ⚠ 以前這裡有一顆「看精裝版」＝ window.open(`apoc/${id}.html`) 開外部分頁。
@@ -473,7 +480,8 @@ window.ClickerAlbum = (() => {
       const holder = document.createElement('div'); holder.className = 'zoom-card';
       let face = null;
       if (isCollect(id)) holder.append(deluxeCard(id));   // 收藏卡只有精裝版，1.0 也用同一套
-      else if (apoc() && window.ClickerHolo?.ready() && (face = window.ClickerHolo.face(byId(id)))) holder.append(face);
+      // 放大預覽也要遮（使用者：「放大預覽的部分也要遮」）——1.0 走下面的 makeCard 已經遮過了
+      else if (apoc() && window.ClickerHolo?.ready() && (face = window.ClickerHolo.face(maskEntry(byId(id), !!have(store.state, id))))) holder.append(face);
       else if (apoc()) { const blank = document.createElement('span'); blank.className = 'apoc-face-blank'; holder.append(blank); }   // 末世不准退回 1.0 卡面
       else { const el = makeCard(s, id); el.classList.add('zoom-face'); holder.append(el); }
       const hint = document.createElement('p'); hint.className = 'zoom-hint';

@@ -642,19 +642,26 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 /* 編隊上限：一條 20 格長條＋一行圖例（2026-09-14 使用者：「一行就好，格子用顏色區別然後加字」）。
    格子照實際隊伍組成上色、上限畫成分隔線；累加上限的語意就是「前 N 格」。 */
 #t20-caps { display:block; width:100%; }
-.caps-bar { display:grid; grid-template-columns:repeat(var(--count,20),1fr); gap:2px; margin-bottom:6px; width:100%; }
+.caps-bar { display:grid; grid-template-columns:repeat(var(--count,20),1fr); gap:4px; margin-bottom:6px; width:100%; }   /* gap 4px：上限線畫在這條縫裡 */
 .caps-bar i { display:block; height:10px; border-radius:2px; background:#e6d6bf; border:1px solid #c9ae86; }
-.caps-bar i.cap-edge { margin-right:4px; box-shadow:3px 0 0 -1px #8a6a48; }   /* 上限線畫在格子右側 */
+/* 上限線畫在格子之間的縫裡。
+   ⚠ 不可以用 margin-right 撐開：格子是 grid 的等寬軌道，margin 是從**自己那一格**裡扣，
+     第 2／6／12 格就會變成半格寬（使用者 2026-09-14：「為什麼會有半格的？」）。
+   ⚠ 也不要用 box-shadow 疊在格子上——那會在右緣壓出一道亮邊，看起來像格子沒填滿。 */
+.caps-bar i.cap-edge { position:relative; }
+.caps-bar i.cap-edge::after { content:''; position:absolute; top:-3px; bottom:-3px; right:-3px; width:2px; background:#8a6a48; border-radius:1px; }
 .caps-legend { display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; font-size:11px; line-height:15px; }
 .capacity-row { display:flex; align-items:center; gap:4px; padding:1px 4px; border-radius:6px; white-space:nowrap; }
 .capacity-row .dot { width:9px; height:9px; border-radius:2px; border:1px solid #c9ae86; flex:none; }
 .capacity-row .digits { font-variant-numeric:tabular-nums; font-weight:700; }
-/* 階級配色：長條與圖例共用同一組。
+/* 階級配色：**直接用卡面那組**（gacha-card.css 的 :root），不要自己另外調一套。
+   精良 #0070dd 藍／史詩 #a335ee 紫／傳說 #ff8000 橘／神話 彩虹漸層。
    ⚠ 權重要壓過 `.caps-bar i`（0,1,1），只寫 [data-tier=…]（0,1,0）會被它蓋掉、格子全是灰的。 */
-.caps-bar i[data-tier="mythic"],    .capacity-row .dot[data-tier="mythic"]    { background:#B48BFF; border-color:#6C4BB8; }
-.caps-bar i[data-tier="legendary"], .capacity-row .dot[data-tier="legendary"] { background:#E9B94E; border-color:#A67C1E; }
-.caps-bar i[data-tier="epic"],      .capacity-row .dot[data-tier="epic"]      { background:#7FB8D6; border-color:#3E7EA0; }
-.caps-bar i[data-tier="rare"],      .capacity-row .dot[data-tier="rare"]      { background:#8FBF6B; border-color:#5C8A3C; }
+.caps-bar i[data-tier="rare"],      .capacity-row .dot[data-tier="rare"]      { background:var(--c-rare); border-color:#004e9b; }
+.caps-bar i[data-tier="epic"],      .capacity-row .dot[data-tier="epic"]      { background:var(--c-epic); border-color:#6f21a5; }
+.caps-bar i[data-tier="legendary"], .capacity-row .dot[data-tier="legendary"] { background:var(--c-legendary); border-color:#b35a00; }
+/* 神話：整條彩虹壓進一格才看得出是彩虹；拉開（220%）只會看到中間那段淡黃，整格像沒上色 */
+.caps-bar i[data-tier="mythic"],    .capacity-row .dot[data-tier="mythic"]    { background:var(--mythic-rainbow); background-size:100% 100%; border-color:#a91686; }
 .capacity-row.affected { background:rgba(242,178,51,.24); }
 .capacity-row.violated { background:rgba(224,69,58,.22); color:#a3231b; }
 .capacity-errors { min-height:1.2em; font-size:12px; color:#a3231b; }
