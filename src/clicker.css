@@ -937,7 +937,7 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
    ② 百分比高度解不出來（那一行的高其實是被內容撐出來的，不是 1fr 的確定值），
       實測整張卡塌成 0×0。
    面板在遊戲座標裡是固定的，所以直接給 px：桌機留 320 高、直式改用寬度定（那邊是寬度先卡住）。 */
-.collect-grid .album-slot .card { width:auto; height:296px; aspect-ratio:5/7; transform:none; }   /* 320 會壓到「回到卡冊」 */
+.collect-grid .album-slot .card { width:auto; height:278px; aspect-ratio:5/7; transform:none; }   /* 再高會壓到「回到卡冊」 */
 /* 卡面自己就印著名字與稀有度，下面再放一行名字是多的，而且會頂到「回到卡冊」 */
 .collect-grid .album-meta { display:none; }
 /* v3 拖曳：夥伴列 → 技能槽（照 team20.css） */

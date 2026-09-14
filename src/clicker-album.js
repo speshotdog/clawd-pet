@@ -491,6 +491,10 @@ window.ClickerAlbum = (() => {
       const close = document.createElement('button'); close.type = 'button'; close.className = 'zoom-close'; close.textContent = '關閉'; close.onclick = () => closeZoom();
       layer.append(holder, hint, close);
       layer.onclick = e => { if (e.target === layer) closeZoom(); };
+      // ⚠ 放大層是一片鋪滿的半透明遮罩，底下的舞台還在全速跑，整個畫面每幀都要重合成
+      //   ——實測 FPS 從 59 掉到 26。招募層本來就會 pauseStage()，放大層漏了。
+      //   （量過不是「兩份精裝卡同時跑」造成的：把底下那份整個從 DOM 移掉，FPS 一樣是 26。）
+      stage?.stop?.();
       $('game').append(layer);
       if (face) { window.ClickerHolo.refit(face); window.ClickerHolo.interactive(face); }
       // 1.0 的卡：量原本的高度，整張等比放大到放大框的高度（內部是固定像素排版，不能直接撐大）
@@ -500,6 +504,7 @@ window.ClickerAlbum = (() => {
     }
     function closeZoom() {
       const z = $('card-zoom'); if (!z) return false; z.remove();
+      stage?.start?.();   // 收起放大層＝回到遊戲，舞台要動回來
       if (zoomReturn?.isConnected) zoomReturn.focus(); zoomReturn = null;
       return true;
     }

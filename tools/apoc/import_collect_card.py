@@ -20,14 +20,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEST = ROOT / 'src' / 'apoc' / 'mohuashaonv.html'
-DEFAULT_SRC = Path(r'D:\claude\clawd-pet-gift\_art\holo-test\gift-mohuashaonv.html')
+# 使用者 2026-09-14 指定：最新版在他桌面，不是 holo-gift 分支上那份
+DEFAULT_SRC = Path(r'C:\Users\ASUS User VII\Desktop\新卡\u04g\魔花少女卡面莓紫.html')
 
 EMBED = ('\n<!-- 嵌入模式（?embed=1）：卡冊直接嵌這一頁當卡面，只留卡本身。'
          '由 tools/apoc/import_collect_card.py 補上，原始頁沒有這段。 -->\n'
          '<style>html[data-embed]{color-scheme:light}'
          'html[data-embed] body{padding:0;min-height:0;height:100vh;background:transparent;gap:0;overflow:hidden}'
          'html[data-embed] body:before,html[data-embed] h1,html[data-embed] .hint{display:none}'
-         'html[data-embed] .stage{width:auto;height:94vh;max-width:94vw;filter:drop-shadow(0 6px 12px #0000007a)}</style>\n'
+         # ⚠ .stage 不要留 drop-shadow：那是整張卡的 alpha 遮罩，半徑再小都要每幀重算，
+         #   實測放大預覽因此掉 10 fps（20 → 29）。卡片本來就在深色底上，那圈外陰影看不出來。
+         'html[data-embed] .stage{width:auto;height:94vh;max-width:94vw;filter:none}</style>\n'
          '<script>if(/[?&]embed=/.test(location.search))document.documentElement.setAttribute("data-embed","1")</script>\n')
 
 def main():
@@ -41,9 +44,11 @@ def main():
         print('  來源已經有嵌入模式，不重複注入')
     else:
         # 注入點：<h1> 之前（嵌入模式要藏的就是 h1／hint／留白）
-        m = re.search(r'\n<h1[ >]', html)
+        # 注入點：<h1> 之前，或 <div class="stage"> 之前。
+        # ⚠ 使用者桌面那份（莓紫）沒有 <h1>——它是純卡片頁，沒有標題與說明，只有 .stage。
+        m = re.search(r'\n<h1[ >]', html) or re.search(r'\n<div class="stage"', html)
         if not m:
-            print('✗ 找不到 <h1> 當注入點，頁面結構可能變了——先看過再改這支腳本'); sys.exit(1)
+            print('✗ 找不到注入點（<h1> 或 <div class="stage">），頁面結構變了——先看過再改這支腳本'); sys.exit(1)
         html = html[:m.start()] + EMBED + html[m.start():]
         print('  已注入嵌入模式')
 
