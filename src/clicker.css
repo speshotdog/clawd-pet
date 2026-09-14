@@ -903,10 +903,23 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .team-row .grow-btn.team { background:#dff3e4; } .team-row .grow-btn.dispatch { background:#e9e4f7; }
 #team-summary b { font-size:13px; }
 #recall-all { background:#e9e4f7; }
-.collect-page { padding:8px 16px; display:grid; gap:12px; }
+/* 收藏卡頁（使用者 2026-09-14：「當成獨立頁面處理」「非常的模糊」）。
+   ⚠ 糊的根因是卡冊縮圖那套：`.album-slot .card` 是 150×210 再 transform:scale(.6)。
+   精裝卡是 iframe，**內部就照 150px 排版**，之後顯示多大都是把 150px 的畫面拉大。
+   這一頁通常只有一兩張卡，所以讓它照真實尺寸畫大張（不用 transform），iframe 內部才會用大尺寸排版。 */
+.collect-page { padding:8px 16px; display:grid; grid-template-rows:auto 1fr auto; gap:12px; height:100%; box-sizing:border-box;
+  flex:1 1 auto; min-width:0; }   /* #album-detail 是 flex，不撐開的話整頁會縮成內容寬、靠左貼著 */
 .collect-page h3 { margin:0; }
-.collect-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
-.collect-grid .album-slot { position:relative; }
+.collect-grid { display:flex; flex-wrap:wrap; gap:24px; justify-content:center; align-items:center; min-height:0; }
+/* ⚠ 尺寸用絕對 px，不要用 vw／vh 也不要用百分比高度：
+   ① 遊戲是一個被縮放的 960×640 盒子，視窗單位跟它無關——實測 30vw 在桌機是 425px（撐爆面板）、
+      在手機只有 117px（比原本的縮圖還小）；
+   ② 百分比高度解不出來（那一行的高其實是被內容撐出來的，不是 1fr 的確定值），
+      實測整張卡塌成 0×0。
+   面板在遊戲座標裡是固定的，所以直接給 px：桌機留 320 高、直式改用寬度定（那邊是寬度先卡住）。 */
+.collect-grid .album-slot .card { width:auto; height:296px; aspect-ratio:5/7; transform:none; }   /* 320 會壓到「回到卡冊」 */
+/* 卡面自己就印著名字與稀有度，下面再放一行名字是多的，而且會頂到「回到卡冊」 */
+.collect-grid .album-meta { display:none; }
 /* v3 拖曳：夥伴列 → 技能槽（照 team20.css） */
 #drag-layer { position:fixed; inset:0; z-index:200; pointer-events:none; }
 .drag-ghost { position:absolute; left:0; top:0; will-change:translate; filter:drop-shadow(0 6px 8px rgba(0,0,0,.35)); }
@@ -1052,6 +1065,10 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
      橫式是 36px 高的框配 24px 行高（1.5 倍）看起來剛好，直式照同樣比例縮：15/20，框 30px。 */
   #shop .upgrade h2, #shop .recruit h2 { font-size:15px; line-height:20px; padding:5px 10px; }
   #shop .upgrade h2 small { font-size:10px; }
+  /* 收藏卡頁：直式是寬度先卡住，改用寬度定尺寸。
+     ⚠ 不能用百分比（外層 flex item 沒有確定寬度，會循環解成 38px）；
+       但直式的 #game 就是整個畫面、沒有縮放，所以這裡 vw 是有意義的（桌機那邊才不行）。 */
+  .collect-grid .album-slot .card { width:min(280px, 78vw); height:auto; }
   /* 窄手機（實測 360px）：三欄的固有寬度加起來比列還寬，最右邊的「五連」鍵被切掉
      （使用者：「部分手機的UI還是會稍微突出」）。
      根因是中間那欄用 `1fr`——1fr 的自動最小值是 min-content，而標題 white-space:nowrap，
