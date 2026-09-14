@@ -642,6 +642,7 @@ test('回顧：從那一站往下重走到這一段的王為止，拿獎勵、�
   const rb = A.revisit(out.state, 3000, out.state.revisitAt);
   assert.equal(rb.stage.boss, true); assert.ok(rb.stage.deadline > 3000); assert.ok(rb.stage.minions, '有王的機制');
   assert.equal(A.canRevisit(rb, 1), true, '回顧中的王隨時可以走');
+  { const n = A.normalize(rb); assert.equal(n.stage.boss, true, '重開／每次 commit 的 normalize 不能把回顧的王清掉'); assert.equal(n.stage.deadline, rb.stage.deadline); assert.equal(A.normalize(r).stage.waves, R.WAVES, 'normalize 不能把回顧小怪站的 WAVES 壓成 1'); }
   const timeout = A.settle(rb, rb.stage.deadline + 1, 0);
   assert.equal(timeout.state.stage, null); assert.equal(timeout.state.bossFailed, null, '回顧的王逾時不算輸');
   assert.equal(timeout.state.revisitAt, 3, '逾時留在回顧，等重生再來');

@@ -36,8 +36,9 @@
   scenes.kitchen = {
     name: '廚房流理台', unlockPackages: 0, requirementMul: 8, rewardMul: 1.5, bagSkin: 1,
     unlock: { packages: 50, boss: 'backyard' }, enemy: { shell: [.75,.5,.25], timer: null, regen: null }, affinity: ['zhenzhen2','fox'],
-    // 狼比較寬（391），用預設中心 460 右緣會跑到 655、超出 608 的舞台，所以中心左移到 400
-    boss: { ...BOSS_BASE, name: '偷嘴灰狼', sprite: 'clicker-monster-wolf.png', frames: 4, size: [391, 300], center: 400 },
+    // 狼原圖 391×300 太大：中心 400 時左緣 204，把第 3、4 顆技能鍵整個蓋住（使用者 2026-09-14）。
+    // 縮成 320×245、中心 440 → 左緣 280、右緣 600（舞台 608），只跟第 4 顆鍵擦到邊，技能鍵另外提到王的上面（clicker.css #slots）。
+    boss: { ...BOSS_BASE, name: '偷嘴灰狼', sprite: 'clicker-monster-wolf.png', frames: 4, size: [320, 245], center: 440 },
     palette: { mat: '#B9A58A', sky: '#F3E7D3' },
     music: { theme: 'shop', seed: 'zhenmu-kitchen-1', gen: { density:50, rhythm:55, speed:45, drama:35, mood:65, hook:60, smooth:55 } },
     layers: [

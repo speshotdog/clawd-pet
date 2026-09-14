@@ -290,7 +290,10 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 /* ⚠ #slots 已經不是 #stage 的子元素（第三十三輪搬出去的）。
    橫式維持一模一樣的畫面位置：舞台原點是 (16,72)、原本槽在舞台內 (28,224)，所以是 (44,296)。
    它跟 #stage 同一個定位祖先（#game），所以這組座標可以直接對得上。 */
-#slots { position:absolute; left:44px; top:296px; bottom:auto; width:auto; gap:16px; z-index:9; }
+/* ⚠ 技能鍵要在王的上面（王 #boss-view 是 z-index:13、pointer-events:auto、rect 是整張王圖）：
+   偷嘴灰狼 391 寬從 x=204 起，第 3、4 顆技能鍵整顆落在它的 rect 裡，按下去都被王吃掉
+   （使用者 2026-09-14：「這個大小會讓玩家按不到技能」）。滿版的滅世珍獸早就是 z-index:8 讓給技能鍵，其他王也一樣讓。 */
+#slots { position:absolute; left:44px; top:296px; bottom:auto; width:auto; gap:16px; z-index:14; }
 /* 容器與槽間空隙不吃點擊：實測拆包鍵上有 3.1% 的面積被它們靜默吞掉——
    點下去既沒拆包也沒放技能，什麼都不會發生，比誤放技能更難察覺。只有按鈕本身可點。 */
 #slots, .skill-slot { pointer-events:none; } #game .skill-use { pointer-events:auto; }

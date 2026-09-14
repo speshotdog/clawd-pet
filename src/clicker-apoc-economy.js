@@ -336,7 +336,10 @@
     // 以前只認「王輸過時的前一站」，回顧模式重整後會被清掉。
     const farmOk = st => st.index >= 0 && st.index < a.progress;
     if (a.stage && (typeof a.stage.hp !== 'number' || (a.stage.farm ? !farmOk(a.stage) : a.stage.index !== a.progress))) a.stage = null;
-    if (a.stage?.farm) a.stage = { ...a.stage, farm: true, boss: false, deadline: null, breakUntil: 0 };
+    // 刷怪場一律不是王；**回顧的王站例外**（第十二輪下半：回顧走到區段的王就是真王，帶期限與機制）。
+    // ⚠ 這一行以前無條件清 boss:false，線上實測變成「回顧永遠沒有王、每殺一隻停 1 秒」（使用者：「怪物會生很慢、看不到王」）。
+    if (a.stage?.farm) { const rb = !!a.stage.revisit && isBoss(a.stage.index);
+      a.stage = { ...a.stage, farm: true, boss: rb, deadline: rb ? (a.stage.deadline || null) : null, breakUntil: rb ? (a.stage.breakUntil || 0) : 0 }; }
     // 第十輪：舊存檔的王關是護盾版（shield），換成這一隻王自己的機制狀態
     if (a.stage && a.stage.boss && (a.stage.mech === undefined || !a.stage.minions || !a.stage.shell || !a.stage.rhythm || !a.stage.order)) {
       a.stage = { ...a.stage, ...freshMech(a.stage.index, need(a.stage.index, a)), breakUntil: 0 };
@@ -344,7 +347,8 @@
     if (a.stage && a.stage.boss) a.stage = cleanMech(a.stage);   // 壞掉的機制欄位重建（Codex 第十輪 A 必修 4）
     if (a.stage) delete a.stage.shield;
     // 一站幾隻（第九輪）：王站與刷怪固定 1 隻；一般站照現在的 WAVES，目前第幾隻夾在 1～waves
-    if (a.stage) { const waves = a.stage.boss || a.stage.farm ? 1 : RULES.WAVES;
+    // 回顧的小怪站跟正規一樣打 WAVES 隻（第十二輪下半）；王站與王關失敗的刷怪固定 1 隻
+    if (a.stage) { const waves = a.stage.boss || (a.stage.farm && !a.stage.revisit) ? 1 : RULES.WAVES;
       a.stage = { ...a.stage, waves, wave: Math.max(1, Math.min(waves, count(a.stage.wave) || 1)) }; }
     // 舊存檔的戰鬥還是舊血量（第五輪改了 BASE_NEED／GROWTH／BOSS_MUL，Codex 第五輪必修 2）：照剩下的血佔幾成換算成新版血量。
     // 換算後 need 就等於新版，所以只會換一次；王關的 60 秒期限在第一次結算時才給（settle 裡），這裡不碰期限，避免每次載入就續時。
