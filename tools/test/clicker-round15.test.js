@@ -18,7 +18,7 @@ test('round15: weights total 1000, exact stratified base rates 69.5/25/5/0.5', (
   for(let i=0;i<1000;i++) counts[roll((i+.5)/1000).draw.entries[0].entry.rarity]++;
   assert.deepEqual(counts,Pool.GAME_POLICY.weights);
 });
-test('round15: soft/hard pity retain mythic .3%（2026-09-15 由 .5% 調降）, legendary-or-higher resets pity', () => {
+test('round15: soft/hard pity retain mythic .5%, legendary-or-higher resets pity', () => {
   for(const pity of [0,29,30,38,39]) {
     let mythics=0;
     for(let i=0;i<1000;i++) { const r=roll((i+.5)/1000,pity), rarity=r.draw.entries[0].entry.rarity;
@@ -26,7 +26,7 @@ test('round15: soft/hard pity retain mythic .3%（2026-09-15 由 .5% 調降）, 
       if(Pool.rank(rarity)<=Pool.rank('legendary')) assert.equal(r.nextPity,0);
       if(pity===39) assert.ok(['legendary','mythic'].includes(rarity));
     }
-    assert.equal(mythics,3);
+    assert.equal(mythics,5);
   }
   const policy={...Pool.GAME_POLICY, pity:{unit:'pack',hard:1},packMinRarity:'epic'};
   assert.equal(roll(.052,0,policy).draw.entries[0].entry.rarity,'mythic');

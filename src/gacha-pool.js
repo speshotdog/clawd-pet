@@ -90,7 +90,7 @@
   // 保底按「張」算：第 30 張起每張傳說率 +5%（第 30 張 10%、第 31 張 15%…），第 40 張必出。
   const GAME_POLICY = Object.freeze({
     candidates: CHARACTER_IDS,
-    weights: { rare: 697, epic: 250, legendary: 50, mythic: 3 },   // 神話 0.5% → 0.3%（使用者 2026-09-15，難度不動）
+    weights: { rare: 695, epic: 250, legendary: 50, mythic: 5 },   // 1.0 神話維持 0.5%（使用者 2026-09-15 定案；2.0 的表在 clicker-apoc-economy.js RATES，是 0.3%）
     pity: { unit: 'draw', hard: 40, softStart: 30, softStep: 0.05 },
   });
 
