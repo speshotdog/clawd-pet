@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "zhenmu-dots-balance",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8124",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "dist-web"
+      ],
+      "port": 8124,
+      "autoPort": false
+    }
+  ]
+}

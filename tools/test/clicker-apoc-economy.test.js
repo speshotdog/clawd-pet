@@ -573,5 +573,5 @@ test('抽卡結算：升星只報到滿星，之後報突破', () => {
   const pack = { draw: { id: 'x', entries: [0, 1].map(k => ({ key: 'x:' + k, entry: { id: 'pufayueyue', rarity: 'rare', name: '普發玥玥' }, dup: true, owned: 8 })) } };
   const r = A.collectDraw({ ...a, pending: pack }, 'x', 0);
   assert.deepEqual(r.starUps, [], '已經滿星就不該再報升星');
-  assert.deepEqual(r.grows, [{ id: 'pufayueyue', from: 0, to: 1 }]);
+  assert.deepEqual(r.grows, [{ id: 'pufayueyue', kind: 'transcend', from: 0, to: 1 }]);
 });

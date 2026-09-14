@@ -155,7 +155,10 @@ with sync_playwright() as p:
     # ---- 卡冊與編隊都是 1.0 那一套
     pg.eval_on_selector('#roster-open', 'e=>e.click()'); pg.wait_for_timeout(900)
     check(pg.locator('.album-slot').count() > 0, '末世卡冊打得開（%d 格）' % pg.locator('.album-slot').count())
-    check(pg.locator('#train-all').is_hidden() and pg.locator('#dust-open').is_hidden(), '1.0 的粉塵罐／平均訓練在末世收起來')
+    # 第十一輪改了：末世**有**萬用粉塵罐（兌換所是卡冊全收集唯一不看運氣的路），
+    # 收起來的只剩 1.0 專屬的平均訓練／推薦組合／收回派遣。細部驗收在 clicker-v3-growth.py。
+    check(pg.locator('#train-all').is_hidden(), '1.0 的平均訓練在末世收起來')
+    check(not pg.locator('#dust-open').is_hidden(), '末世看得到萬用粉塵罐（第十一輪）')
     pg.evaluate("()=>document.querySelector('.album-slot:not(.locked)')?.click()"); pg.wait_for_timeout(700)
     btns = [t.strip() for t in pg.locator('#album-detail button').all_inner_texts()]
     # 第十輪 D 使用者要 2.0 也有派遣（「派遣拿金幣，低機率拿到卷」）：派遣鍵要有，1.0 的升階／超越照樣不准出現

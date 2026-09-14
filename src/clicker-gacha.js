@@ -29,7 +29,7 @@ window.ClickerGacha = (() => {
       label: (n) => apocPrice(n, `${n === 1 ? '單抽' : '十連'} · `),
       counts: [1, 10],
       purchase: (n, now) => { const next = E.clone(store.state); next.apoc = A().purchaseDraw(A().normalize(next.apoc), n, now); return next; },
-      collect: (id, now) => { const next = E.clone(store.state); const r = A().collectDraw(A().normalize(next.apoc), id, now); next.apoc = r.state; return { state: next, accepted: r.accepted, newIds: r.newIds, starUps: r.starUps }; },
+      collect: (id, now) => { const next = E.clone(store.state); const r = A().collectDraw(A().normalize(next.apoc), id, now); next.apoc = r.state; return { state: next, accepted: r.accepted, newIds: r.newIds, starUps: r.starUps, grows: r.grows, universalDust: r.universalDust }; },   // 第十一輪：突破徽章與溢出的萬用粉塵也要帶出去（以前被這一層吃掉）
       blocked: () => false,
     } : {
       pending: () => store.state?.pending || null,
@@ -205,7 +205,9 @@ window.ClickerGacha = (() => {
       const grows = new Map();
       for (const g of r.grows || []) { const key = `${g.kind}:${g.id}`, cur = grows.get(key); grows.set(key, { ...g, from: cur ? cur.from : g.from }); }
       for (const g of grows.values()) put(ids.lastIndexOf(g.id), g.kind === 'promote'
-        ? { kind: 'promote', text: `升階 ${RAR[g.to] || ''}` } : { kind: 'transcend', text: `超越 ${g.to}${g.awakened ? '・覺醒' : ''}` });
+        ? { kind: 'promote', text: `升階 ${RAR[g.to] || ''}` }
+        // 末世叫「突破」不叫「超越」（第十一輪使用者：「所有卡片都抽到滿星突破」）
+        : { kind: 'transcend', text: `${apoc() ? '突破' : '超越'} ${g.to}${g.awakened ? '・覺醒' : ''}` });
       return { badges, dust: r.universalDust || 0 };
     }
     function badgeNode(list) {

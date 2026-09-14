@@ -32,17 +32,30 @@ window.ClickerAlbum = (() => {
 
     // ---------- 共用零件 ----------
     function starRow(s, id) {
-      const n = E.stars(E.dust(s, id)), t = s.transcend?.[id] || 0, row = document.createElement('div'); row.className = E.rarity(s,id) === 'mythic' ? 'star-row mythic-stars' : 'star-row';
+      // 末世（第十一輪）：星級來自累計粉塵、突破 0～5；桌邊維持原本的 dust／transcend
+      const ap = apoc() ? A().normalize(s.apoc) : null;
+      const n = ap ? Math.max(1, A().starsAt(ap, id)) : E.stars(E.dust(s, id));
+      const t = ap ? A().transcendOf(ap, id) : (s.transcend?.[id] || 0);
+      const row = document.createElement('div'); row.className = (ap ? byId(id)?.rarity : E.rarity(s, id)) === 'mythic' ? 'star-row mythic-stars' : 'star-row';
       for (let i = 0; i < n; i++) { const img = new Image(); img.src = i < t ? 'clicker-star-gem.png' : 'clicker-star.png'; img.alt = ''; img.className = i < t ? 'gem' : ''; row.append(img); }
-      row.setAttribute('aria-label', `${n} 星${t ? `・超越 ${t}` : ''}`); return row;
+      row.setAttribute('aria-label', `${n} 星${t ? `・${ap ? '突破' : '超越'} ${t}` : ''}`); return row;
     }
     function nextStep(s, id) {
+      if (apoc()) return apocStep(A().normalize(s.apoc), id);
       if (!s.collection[id]) return '尚未招募';
       const d = E.dust(s, id), st = E.stars(d);
       if (st < 5) return `升星 ${d}/${B.stars[st]}`;
       if (E.tier(s, id) < 2) return `升階 ${E.availableDust(s, id)}/${E.promotionCost(s, id)}`;
       const t = s.transcend?.[id] || 0;
       return t < 5 ? `超越 ${E.availableDust(s, id)}/${E.transcendCost(s, id)}` : '滿養';
+    }
+    // 末世的下一步：還沒抽到也要講得出來（兌換所可以直接換出這張卡，是卡冊全收集唯一不看運氣的路）
+    function apocStep(a, id) {
+      const AE = A(), d = AE.dustOf(a, id), st = AE.starsAt(a, id);
+      if (!a.collection[id]) return `尚未抽到（兌換 ${AE.dustRate(id)} 顆萬用粉塵）`;
+      if (st < AE.maxStars()) return `升星 ${d}/${AE.RULES.GROW.STARS[st]}`;
+      if (AE.isMaxed(a, id)) return '滿養';
+      return `突破 ${AE.availableDust(a, id)}/${AE.transcendCost(a, id)}`;
     }
     function tierName(s, id) {
       const cur = E.rarity(s, id), o = ORIGIN[E.origin(id)], t = s.transcend?.[id] || 0;
@@ -131,16 +144,19 @@ window.ClickerAlbum = (() => {
       // 那一頁從此隱形。不在翻頁中的時候一律清乾淨，才有穩定的靜止狀態。
       if (!flipping) for (const id of ['album-left', 'album-right']) $(id).getAnimations().forEach(a => a.cancel());
       // 末世的卡冊只有「卡」這一件事：1.0 的粉塵罐、平均訓練、派遣、推薦組合都收起來
-      for (const id of ['train-all', 'dust-open', 'recommend-open', 'recall-all']) $(id).hidden = apoc() || $(id).hidden;
+      for (const id of ['train-all', 'recommend-open', 'recall-all']) $(id).hidden = apoc() || $(id).hidden;
       // 收藏卡卡冊：兩個世界都看得到（使用者第三輪：「之前說的收藏卡的卡冊做去哪了？」）。
       // ⚠ 這顆鍵以前兩邊都沒打開過——桌邊只把收藏卡排在最後一頁，末世的卡冊只列末世卡池，所以末世完全看不到。
       { const n = (s.collectibles || []).filter(id => Pool.byId[id]).length;
         $('collect-open').hidden = !n; $('collect-open').textContent = `收藏卡 ${n}`; }
       if (apoc()) {
         const a = A().normalize(s.apoc), owned = Object.keys(a.collection).filter(k => a.collection[k] > 0).length;
-        $('team-summary').innerHTML = `隊伍 <b>${a.roster.length}/20</b>・收藏 <b>${owned}/${IDS.length}</b>`;
-        $('team-summary').title = '只有隊伍裡的卡有戰力。同一張再抽到就多一星（每星 +25%）。';
-        for (const id of ['train-all', 'dust-open', 'recommend-open', 'recall-all']) $(id).hidden = true;
+        const maxed = IDS.filter(id => A().isMaxed(a, id)).length;
+        $('team-summary').innerHTML = `隊伍 <b>${a.roster.length}/20</b>・收藏 <b>${owned}/${IDS.length}</b>・滿養 <b>${maxed}/${IDS.length}</b>`;
+        $('team-summary').title = `重複卡變成該夥伴的粉塵：${A().starCap()} 顆滿星（每星 +25%），之後五級突破（每級 +10%），共 ${A().fullDust()} 顆滿養。`;
+        for (const id of ['train-all', 'recommend-open', 'recall-all']) $(id).hidden = true;
+        // 第十一輪：末世也有萬用粉塵罐（而且是卡冊全收集唯一不看運氣的路），所以粉塵罐不再收起來
+        $('dust-open').hidden = false; $('dust-count').textContent = a.universalDust || 0;
       } else {
         for (const id of ['train-all', 'dust-open', 'recommend-open']) $(id).hidden = false;
         refreshTrainAll();
@@ -239,7 +255,8 @@ window.ClickerAlbum = (() => {
     function stateKey() {
       const s = store.state;
       if (apoc()) { const a = A().normalize(s.apoc); return JSON.stringify(['apoc', a.collection, a.roster, a.skills, a.dispatch, a.dispatch.length ? Math.floor(Date.now() / 60000) : 0]); }   // 派遣中每分鐘重畫一次倒數（Codex 10D 值得修）
-      return JSON.stringify([s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && !isCollect(detailId) && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
+      return JSON.stringify([s.apoc?.dust, s.apoc?.universalDust, s.apoc?.transcend, s.apoc?.collection,
+        s.collection, s.dust, s.universalDust, s.promotions, s.transcend, s.skillSlots, s.partnerLevels, s.owned?.wardrobe, s.settings.clickSound, s.settings.clickFx, s.deco, s.coins >= E.wardrobePrice(s), s.coins >= window.ClickerPrestige.decoPrice(s), detailId && !isCollect(detailId) && s.coins >= window.ClickerPrestige.trainCost(s.partnerLevels?.[detailId] || 0, detailId)]);
     }
     function openDetail(id, animate = true) {
       const s = store.state; detailId = id; closeDustShop();
@@ -514,19 +531,40 @@ window.ClickerAlbum = (() => {
       const s = store.state, root = $('dust-shop');
       const scrollTop = keep ? (root.querySelector('.dust-list')?.scrollTop || 0) : 0;
       root.replaceChildren(); root.hidden = false;
-      const h = document.createElement('h3'); h.textContent = `萬用粉塵 ${s.universalDust || 0} 顆`; root.append(h);
-      const hint = document.createElement('p'); hint.textContent = '兌換成指定夥伴的粉塵：精良 1:1、史詩 2:1、傳說 3:1。萬用粉塵來自每隻王首勝、每日一包與滿養夥伴的重複卡。'; root.append(hint);
+      // 第十一輪：兩個世界共用這個罐子。兩邊唯一不同的是——**末世沒有的卡也能換**，
+      // 換到第一顆就等於拿到這張卡（神話率 0.25% 分給 14 張，不給這條路的話卡冊全收集是結構上不可能的）。
+      const ap = apoc() ? A().normalize(s.apoc) : null, AE = A();
+      const have0 = ap ? (ap.universalDust || 0) : (s.universalDust || 0);
+      const h = document.createElement('h3'); h.textContent = `萬用粉塵 ${have0} 顆`; root.append(h);
+      const hint = document.createElement('p');
+      hint.textContent = ap
+        ? `兌換成指定夥伴的粉塵：精良 1:1、史詩 2:1、傳說 4:1、神話 10:1。還沒抽到的卡也換得出來。萬用粉塵來自每隻王首勝、無盡模式推進、派遣，與滿養夥伴的重複卡。`
+        : '兌換成指定夥伴的粉塵：精良 1:1、史詩 2:1、傳說 3:1。萬用粉塵來自每隻王首勝、每日一包與滿養夥伴的重複卡。';
+      root.append(hint);
       const list = document.createElement('div'); list.className = 'dust-list';
-      for (const id of CHAR_IDS) {
-        const row = document.createElement('div'); row.className = 'dust-row'; const rate = E.exchangeRate(id);
-        row.append(card.art.create(Pool.byId[id]));
-        const name = document.createElement('b'); name.textContent = `${Pool.byId[id].name}`; row.append(name);
-        const have = document.createElement('small'); have.textContent = s.collection[id] ? `${E.dust(s, id)} 顆・${nextStep(s, id)}` : '尚未招募'; row.append(have);
+      for (const id of (ap ? apocIds() : CHAR_IDS)) {
+        const entry = ap ? byId(id) : Pool.byId[id];
+        if (!entry) continue;
+        const row = document.createElement('div'); row.className = 'dust-row';
+        const rate = ap ? AE.dustRate(id) : E.exchangeRate(id);
+        // 末世用圓形貼紙頭像（1.0 的 card.art 查不到末世卡，會留一個 43px 的空洞；
+        // 而且「2.0 不准出現任何 1.0 卡面」是使用者第三輪的硬規定）
+        row.append(ap ? window.ClickerApocUI.sticker(entry) : card.art.create(entry));
+        const name = document.createElement('b'); name.textContent = `${entry.name}`; row.append(name);
+        const small = document.createElement('small');
+        small.textContent = ap ? (ap.collection[id] ? `${AE.dustOf(ap, id)}/${AE.fullDust()} 顆・${apocStep(ap, id)}` : '尚未抽到')
+                               : (s.collection[id] ? `${E.dust(s, id)} 顆・${nextStep(s, id)}` : '尚未招募');
+        row.append(small);
         for (const n of [1, 5]) {
           const btn = document.createElement('button'); btn.textContent = `+${n}（${rate * n}）`;
-          btn.disabled = !s.collection[id] || (s.universalDust || 0) < rate * n || s.transcend?.[id] === 5 || store.blocked;
+          btn.disabled = store.blocked || have0 < rate * n
+            || (ap ? AE.isMaxed(ap, id) : (!s.collection[id] || s.transcend?.[id] === 5));
           btn.dataset.dust = `${id}:${n}`;
-          btn.onclick = () => action(() => { if (commit(E.exchange(store.state, id, rate * n, Date.now()))) { changed(); sound('upgrade'); openDustShop({ id, n }); renderBook(); } });
+          btn.onclick = () => action(() => {
+            const next = ap ? (() => { const c = E.clone(store.state); c.apoc = AE.exchangeDust(AE.normalize(c.apoc), id, n).state; return c; })()
+                            : E.exchange(store.state, id, rate * n, Date.now());
+            if (commit(next)) { changed(); sound('upgrade'); openDustShop({ id, n }); renderBook(); }
+          });
           row.append(btn);
         }
         list.append(row);

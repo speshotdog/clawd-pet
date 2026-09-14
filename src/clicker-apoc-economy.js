@@ -679,7 +679,8 @@
     }
     // addCards 已經自動突破過了，這裡比對前後差出「這一批推到第幾級」給結算徽章用
     // （不能再呼叫一次 autoGrow——粉塵已經扣掉，第二次一定回空陣列）
-    const grows = [...new Set(ids)].filter(id => transcendOf(next, id) > transcendOf(a, id)).map(id => ({ id, from: transcendOf(a, id), to: transcendOf(next, id) }));
+    const grows = [...new Set(ids)].filter(id => transcendOf(next, id) > transcendOf(a, id))
+      .map(id => ({ id, kind: 'transcend', from: transcendOf(a, id), to: transcendOf(next, id) }));   // kind 是結算徽章在分類用的（1.0 另有 promote）
     const gained = (next.universalDust || 0) - (a.universalDust || 0);
     return { state: next, accepted: true, newIds, starUps, grows, universalDust: gained };
   }
@@ -728,7 +729,13 @@
     return { state: { ...a, coins: a.coins + coins, tickets: a.tickets + tickets, universalDust: (a.universalDust || 0) + dust,
       dispatch: a.dispatch.filter(d => d.until > now), dispatchDone: (a.dispatchDone || 0) + done.length }, rewards };
   }
-  const view = (a, now) => ({ coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
+  // 第十一輪：畫面要畫星／突破／粉塵，這些都從 view 帶出去（UI 不直接讀存檔）
+  const growView = a => ({
+    stars: Object.fromEntries(Object.keys(a.collection || {}).filter(id => a.collection[id] > 0).map(id => [id, Math.max(1, starsAt(a, id))])),
+    transcend: { ...(a.transcend || {}) }, dust: { ...(a.dust || {}) },
+    universalDust: a.universalDust || 0, maxStars: maxStars(), fullDust: fullDust(),
+  });
+  const view = (a, now) => ({ ...growView(a), coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
     skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null, cleared: !!a.cleared,
     skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) ? need(a.progress, a) : 0,
     drawCost1: drawCost(a, 1), drawCost10: drawCost(a, 10), paidDraws: a.paidDraws || 0,

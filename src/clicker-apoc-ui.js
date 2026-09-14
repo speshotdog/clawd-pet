@@ -28,6 +28,17 @@ window.ClickerApocUI = (() => {
   const enemyArt = (i, boss) => boss ? BOSSES[Math.floor(i / 4) % BOSSES.length] : { src: MOBS[i % MOBS.length], frames: 1 };
 
 
+  const blankFace = () => { const el = document.createElement('span'); el.className = 'apoc-face-blank'; return el; };
+  // 圓形貼紙頭像：外圈稀有度色、裡面是精裝卡的主體圖，取景由 tools/apoc/build_sticker.py 算好（window.ApocSticker）。
+  // 技能格與粉塵兌換所共用（第十一輪）——兩邊都不能退回 1.0 卡面（使用者：「2.0 不准出現任何 1.0 卡面」）。
+  function sticker(entry) {
+    const ring = document.createElement('span'); ring.className = 'apoc-sticker'; ring.dataset.rarity = entry.rarity;
+    const art = document.createElement('i'), crop = (window.ApocSticker || {})[entry.id];
+    if (crop) { const [file, size, x, y] = crop; art.style.backgroundImage = `url("apoc/${file}")`; art.style.backgroundSize = `${size}% auto`; art.style.backgroundPosition = `${x}% ${y}%`; }
+    else art.append(blankFace());
+    ring.append(art); return ring;
+  }
+
   function create({ $, store, commit, changed, notice, format, card, sound, openRoster, openTeam, cutin }) {
     const root = window;
     const A = window.ApocEconomy, Pool = () => window.ApocPool || [];
@@ -40,7 +51,7 @@ window.ClickerApocUI = (() => {
 
     // 末世的卡一律用精裝卡面（HoloCardFace）。拿不到就放一塊空白底，**不准退回 1.0 的卡面**
     //（使用者 09-13：「2.0 不准出現任何 1.0 卡面」）
-    const blank = () => { const el = document.createElement('span'); el.className = 'apoc-face-blank'; return el; };
+    const blank = blankFace;
     const faceOf = (entry) => (window.ClickerHolo && window.ClickerHolo.ready() && window.ClickerHolo.face(entry)) || blank();
     // 1.0 的印記／祝福加成直接套進 2.0（使用者第四輪）。算法照 1.0 的 rates()：
     //   全隊戰力 ×（印記倍率 × 收益祝福）、點擊再 ×（1＋10%×攻擊力祝福）、技能效果 ×（1＋5%×技能祝福）、冷卻 ×（1−2%×冷卻祝福）。
@@ -493,7 +504,10 @@ window.ClickerApocUI = (() => {
         el.title = `${entry.name}・查看卡冊`; el.style.setProperty('--rarity', RARITY[entry.rarity]);
         const portrait = document.createElement('span'); portrait.className = 'buddy-portrait holo-slot'; portrait.append(faceOf(entry));
         const name = document.createElement('b'); name.textContent = entry.name;
-        const stars = document.createElement('span'); stars.textContent = `★${v.collection[id] || 1}`;
+        // 第十一輪：星數不再等於張數（8 顆粉塵封頂 5★），滿星之後改顯示突破級數
+        const st = v.stars?.[id] || 1, tr = v.transcend?.[id] || 0;
+        const stars = document.createElement('span'); stars.className = 'buddy-stars'; stars.textContent = tr ? `★${st}＋${tr}` : `★${st}`;
+        stars.title = tr ? `${st} 星・突破 ${tr}` : `${st} 星`;
         el.append(portrait, name, stars);
         const slot = v.skills.indexOf(id);
         if (slot >= 0) { const stamp = document.createElement('small'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${slot + 1}`; el.append(stamp); }
@@ -541,13 +555,7 @@ window.ClickerApocUI = (() => {
     }
     // 技能格是圓形貼紙頭像（使用者第三輪：「技能格不要把整張卡放上去（不好看）」，跟 1.0 一樣）：
     // 外圈稀有度色、裡面是精裝卡的主體圖，取景由 tools/apoc/build_sticker.py 算好（window.ApocSticker）。
-    function stickerOf(entry) {
-      const ring = document.createElement('span'); ring.className = 'apoc-sticker'; ring.dataset.rarity = entry.rarity;
-      const art = document.createElement('i'), crop = (window.ApocSticker || {})[entry.id];
-      if (crop) { const [file, size, x, y] = crop; art.style.backgroundImage = `url("apoc/${file}")`; art.style.backgroundSize = `${size}% auto`; art.style.backgroundPosition = `${x}% ${y}%`; }
-      else art.append(blank());   // 沒有取景資料也不准退回 1.0 卡面
-      ring.append(art); return ring;
-    }
+    const stickerOf = sticker;
 
     // 每秒只更新會變的：冷卻秒數與可按狀態（不重建節點，焦點與拖曳才不會被打斷）
     function updateSlots(v, now) {
@@ -793,5 +801,5 @@ window.ClickerApocUI = (() => {
       get view() { return view(); },
     };
   }
-  return { create, enemyArt };
+  return { create, enemyArt, sticker };
 })();

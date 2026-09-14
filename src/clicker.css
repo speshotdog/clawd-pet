@@ -552,6 +552,11 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .dust-list { flex:1; min-height:0; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; }
 .dust-row { display:grid; grid-template-columns:30px 60px 1fr auto auto; align-items:center; gap:5px; font-size:12px; }
 .dust-row svg { width:28px!important; height:28px!important; margin:0!important; filter:none!important; }
+/* 末世兌換所的圓形貼紙頭像（第十一輪）。
+   ⚠ .apoc-sticker 本體是 position:absolute; inset:7px——那是為技能格那種「有定位父層的小方格」寫的。
+   直接放進 .dust-row 的 grid 格子裡會脫離版面、跑去撐滿最近的定位祖先（整個卡冊面板），
+   變成一顆蓋住全畫面的大圓。這裡要把它壓回文件流並自己給尺寸。 */
+.dust-row .apoc-sticker { position:static; inset:auto; width:28px; height:28px; padding:2px; flex:0 0 auto; }
 #game .dust-row button { font-size:11px; padding:1px 6px 3px; }
 #game #dust-shop > button:last-child { align-self:flex-end; }
 /* 商店：置中的懸浮視窗（2026-09-08 使用者要求，「不要做在左上角」）。
