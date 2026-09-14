@@ -444,10 +444,18 @@ window.Clicker = (() => {
     // 設在 #stage-fit 上它們讀不到，var(--stage-fit,1) 會退回 1、608px 寬直接撐出畫面。
     const host = $('game');
     if (!isPortrait()) {
-      for (const v of ['--stage-fit', '--cutin-fit', '--gacha-fit', '--gacha-top']) host.style.removeProperty(v);
+      for (const v of ['--stage-fit', '--cutin-fit', '--gacha-fit', '--gacha-top', '--stage-x', '--stage-y']) host.style.removeProperty(v);
       return;
     }
     host.style.setProperty('--stage-fit', fit.clientWidth / 608);
+    // 粒子畫布與浮字層要蓋在**舞台上**。它們是 #stage 的兄弟（offsetParent 是 #game-content），
+    // 直式只寫了 left:0;top:0 → 整層釘在畫面左上角，而舞台在 y=376，
+    // 於是點擊的金幣與浮字全部噴在拆包區那一帶（實測落點差 376px，使用者：「點擊特效沒有在點擊區域上」）。
+    // 這裡把舞台相對 offsetParent 的位置發布成 CSS 變數，直式的 CSS 拿去當 left/top。
+    { const layer = $('floaters'), anchor = layer && layer.offsetParent;
+      if (anchor) { const sr = fit.getBoundingClientRect(), ar = anchor.getBoundingClientRect();
+        host.style.setProperty('--stage-x', `${sr.left - ar.left}px`);
+        host.style.setProperty('--stage-y', `${sr.top - ar.top}px`); } }
     // 切入演出是 960×640 的座標系，直式縮到畫面寬當成中央的一條橫幅
     host.style.setProperty('--cutin-fit', host.clientWidth / 960);
     // 招募演出：直式換成 560×900 的直box，等比縮進「頂欄與收下鍵之間」那段，再水平置中。

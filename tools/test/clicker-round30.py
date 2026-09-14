@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """第三十輪驗收（2026-09-08 使用者定案四項）：
-粉塵兌換改遞增價、更衣室改成兩層商店、桌面裝飾預設不擺、前兩站換成會動的怪。
+粉塵兌換（第十一輪已停售，這裡改驗「真的停售了」）、更衣室改成兩層商店、桌面裝飾預設不擺、前兩站換成會動的怪。
 用法：PYTHONIOENCODING=utf-8 python tools/test/clicker-round30.py"""
 import mimetypes, sys
 from pathlib import Path
@@ -107,20 +107,19 @@ def main():
         pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
         check(pg.evaluate("document.getElementById('wardrobe').hidden"), 'Esc 第二次才關掉商店')
 
-        # ---- 四、粉塵兌換遞增價 ----
+        # ---- 四、粉塵兌換已停售（第十一輪使用者：「我希望印記商店的粉塵兌換也移除」）----
+        # 原本這一段驗的是「遞增價」。整個功能拿掉之後，改驗兩件事：
+        #   ① 呼叫 tradeDust 一定拋「停售」且不動到狀態；② 印記商店裡沒有那個入口。
         price = pg.evaluate("""() => { const P=ClickerPrestige, s=Clicker.state;
-          const before = P.dustTradeCost(s,1);
-          const t = P.tradeDust(s,1,Date.now());
-          return {first: before, dust: t.universalDust, trades: t.dustTrades,
-                  next: P.dustTradeCost(t,1), ten: P.dustTradeCost(s,10),
-                  mythic: P.dustTradeCost(s,320)}; }""")
-        check(price['first'] == 1 and price['next'] == 2,
-              f"第 1 次 {price['first']} 印記、第 2 次 {price['next']} 印記（會遞增）")
-        check(price['dust'] == 5 and price['trades'] == 1,
-              f"一次換 {price['dust']} 粉塵，兌換次數記到 {price['trades']}")
-        check(price['ten'] == 55, f"一口氣換 10 次要 {price['ten']} 印記（1+2+…+10）")
-        check(price['mythic'] == 320 * 321 // 2,
-              f"湊滿一張神話（320 次）要 {price['mythic']} 印記（舊制固定價只要 320）")
+          const before = JSON.stringify([s.marks, s.universalDust, s.dustTrades]);
+          let err = '沒有擋'; try { P.tradeDust(s, 1, Date.now()); } catch (e) { err = e.message; }
+          return { err, changed: JSON.stringify([s.marks, s.universalDust, s.dustTrades]) !== before,
+                   cost10: P.dustTradeCost(s, 10) }; }""")
+        check('停售' in price['err'], f"粉塵兌換已停售（實得「{price['err']}」）")
+        check(not price['changed'], '停售的呼叫沒有動到存檔')
+        check(price['cost10'] == 55, f"dustTradeCost 保留給舊存檔對帳（10 次 {price['cost10']} 印記）")
+        entries = pg.evaluate("() => document.querySelectorAll('[data-item=\"dustTrade\"]').length")
+        check(entries == 0, f'印記商店裡沒有粉塵兌換的入口（實得 {entries} 個）')
 
         # ---- 五、前兩站的王換成會動的怪 ----
         pg.wait_for_function('!document.getElementById("boss-challenge").hidden', timeout=20000)
