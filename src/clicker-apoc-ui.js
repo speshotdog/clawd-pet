@@ -19,11 +19,16 @@ window.ClickerApocUI = (() => {
   // 滅世珍獸企劃當時「素材未定」，用 1.0 滅世都市的滅世珍獸本體：原圖是有 REC 取景框與大樓的整張畫，放上來像貼一張照片，
   // 裁掉取景框、四周橢圓淡出（apoc/boss/boss5-mieshi.png）。aspect＝單格寬／高，h＝舞台上的顯示高度。
   const BOSSES = [
-    { name: '灰狼犬', src: 'apoc/boss/boss1-wolfdog.png', frames: 5, ms: 100, aspect: 205 / 180, h: 190 },
-    { name: '貼紙羊', src: 'apoc/boss/boss2-sticker-sheep.png', frames: 7, ms: 100, aspect: 338 / 300, h: 230 },
-    { name: '扛槌兔', src: 'apoc/boss/boss3-hammer-bunny.png', frames: 9, ms: 130, aspect: 360 / 300, h: 230 },
-    { name: '雞頭合成怪', src: 'apoc/boss/boss4-chicken-chimera.png', frames: 1, aspect: 260 / 280, h: 230 },
-    { name: '真・滅世珍獸', src: 'apoc/boss/boss5-mieshi.png', frames: 1, aspect: 430 / 335, h: 250 },
+    // 2026-09-14 使用者：「檢查還有沒有關卡的怪物會覆蓋到技能欄位」——技能鍵在 y 224～288，怪的下緣要 ≤ ENEMY_FLOOR。
+    // 王的高度縮 10～15%，位置改由高度算（下面 renderStage：top = ENEMY_FLOOR − h/2），不再寫死 top:140。
+    { name: '灰狼犬', src: 'apoc/boss/boss1-wolfdog.png', frames: 5, ms: 100, aspect: 205 / 180, h: 180 },
+    { name: '貼紙羊', src: 'apoc/boss/boss2-sticker-sheep.png', frames: 7, ms: 100, aspect: 338 / 300, h: 200 },
+    { name: '扛槌兔', src: 'apoc/boss/boss3-hammer-bunny.png', frames: 9, ms: 130, aspect: 360 / 300, h: 200 },
+    { name: '雞頭合成怪', src: 'apoc/boss/boss4-chicken-chimera.png', frames: 1, aspect: 260 / 280, h: 200 },
+    { name: '真・滅世珍獸', src: 'apoc/boss/boss5-mieshi.png', frames: 1, aspect: 430 / 335, h: 210 },
+  ];
+  const ENEMY_FLOOR = 218;   // 怪的下緣（舞台座標），技能鍵上緣是 224，留 6px 餘裕（含四捨五入）
+  const _unused = [
   ];
   const enemyArt = (i, boss) => boss ? BOSSES[Math.floor(i / 4) % BOSSES.length] : { src: MOBS[i % MOBS.length], frames: 1 };
 
@@ -449,6 +454,7 @@ window.ClickerApocUI = (() => {
         el.style.backgroundImage = art.frames > 1 ? `url("${art.src}")` : '';
         el.style.setProperty('--frames', art.frames); el.style.setProperty('--frame-ms', `${art.ms || 100}ms`);
         el.style.height = art.h ? `${art.h}px` : ''; el.style.width = art.h ? `${Math.round(art.h * art.aspect)}px` : '';
+        el.style.top = art.h ? `${ENEMY_FLOOR - art.h / 2}px` : '';   // 王依高度貼齊技能鍵上緣（translate -50% 是以中心定位）
       }
       el.classList.toggle('boss', !!boss);
       // 回顧／常駐的那隻也是怪：場上有 stage 就不算走完（不然全線通行之後怪會被藏起來）

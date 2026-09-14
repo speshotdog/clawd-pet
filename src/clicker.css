@@ -293,7 +293,7 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 /* ⚠ 技能鍵要在王的上面（王 #boss-view 是 z-index:13、pointer-events:auto、rect 是整張王圖）：
    偷嘴灰狼 391 寬從 x=204 起，第 3、4 顆技能鍵整顆落在它的 rect 裡，按下去都被王吃掉
    （使用者 2026-09-14：「這個大小會讓玩家按不到技能」）。滿版的滅世珍獸早就是 z-index:8 讓給技能鍵，其他王也一樣讓。 */
-#slots { position:absolute; left:44px; top:296px; bottom:auto; width:auto; gap:16px; z-index:14; }
+#slots { position:absolute; left:44px; top:296px; bottom:auto; width:auto; gap:12px; z-index:14; }   /* gap 16→12：四顆鍵右緣 348→336，王的左緣統一 ≥ 340 */
 /* 容器與槽間空隙不吃點擊：實測拆包鍵上有 3.1% 的面積被它們靜默吞掉——
    點下去既沒拆包也沒放技能，什麼都不會發生，比誤放技能更難察覺。只有按鈕本身可點。 */
 #slots, .skill-slot { pointer-events:none; } #game .skill-use { pointer-events:auto; }
@@ -820,7 +820,7 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 #gift-timer.urgent i { filter:saturate(1.6) brightness(1.05); }
 #gift-timer b { position:absolute; left:0; right:0; top:-16px; text-align:center; font-size:12px; line-height:14px; }
 /* 王包本體依場景換圖與尺寸（--boss-w／--boss-h），底邊仍貼桌面、中心預設 x 460（寬王可用 --boss-cx 左移，不出舞台） */
-#boss-view { left:calc(var(--boss-cx,460px) - var(--boss-w,260px) / 2); top:calc(360px - var(--boss-h,300px)); width:var(--boss-w,260px); height:var(--boss-h,300px); }
+#boss-view { left:calc(var(--boss-cx,470px) - var(--boss-w,260px) / 2);   /* 預設中心 460→470：預設 260 寬的王（罐頭、冰磚、禮包）左緣 340 不壓技能鍵 */ top:calc(360px - var(--boss-h,300px)); width:var(--boss-w,260px); height:var(--boss-h,300px); }
 /* 滅世珍獸是「整張圖就是王」，鋪滿整個版面。z-index 要降到技能槽（9）底下，
    不然技能鍵、夥伴圓鈕全被王的圖蓋住點不到（第二十二輪 Playwright 驗收抓到的）。 */
 #boss-view.full-board { z-index:8; }
@@ -1418,7 +1418,7 @@ body[data-world="apoc"] #stage-fit { filter:none; }
 /* 使用者第三輪：怪要置中在舞台（608×360 的正中；技能格在左下，所以中心略往上）。
    ⚠ 置中用獨立的 `translate` 屬性，不能寫在 transform 裡：點擊的 WAAPI 動畫會整個蓋掉 transform，
      translate(-50%,-50%) 一起消失 → 一點怪就往右下跳半個身體、跑出舞台（使用者回報「點下去怪跑出螢幕外」）。 */
-#apoc-enemy { position:absolute; left:304px; top:150px; width:150px; height:160px;
+#apoc-enemy { position:absolute; left:304px; top:140px; width:150px; height:160px;   /* 中心 150→140：下緣 220 不壓技能鍵（y 224 起） */
   translate:-50% -50%; object-fit:contain; pointer-events:none; z-index:4;
   filter:drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
 #apoc-enemy.boss { width:210px; height:200px; top:140px; }

@@ -15,7 +15,8 @@
       // frames 交給 CSS 用 steps() 播；罐子仍留給中後期的站。
       // ⚠ 別的場景是用 { ...scenes.backyard.boss } 繼承基準值的，所以**基底一定要不帶 sprite**——
       // 直接把 sprite 寫在 backyard 上的話，冰箱那種展開繼承的站會沿用到鳥的動畫（實測中過一次）。
-      boss: { ...BOSS_BASE, name: '啄包怪鳥', sprite: 'clicker-monster-bird.png', frames: 4, size: [291, 300], center: 440 },
+      // 技能鍵佔 x 44～336（clicker.css #slots）：所有王的左緣 ≥ 340、右緣 ≤ 604，才不會壓到技能鍵（2026-09-14 使用者要求全關卡檢查）
+      boss: { ...BOSS_BASE, name: '啄包怪鳥', sprite: 'clicker-monster-bird.png', frames: 4, size: [260, 268], center: 470 },
       palette: { mat: '#8FA56E', sky: '#CFE7F5' },
       music: { theme: 'picnic', seed: 'zhenmu-backyard-1', gen: { density: 45, rhythm: 40, speed: 35, drama: 30, mood: 70, hook: 60, smooth: 65 } },
       layers: [
@@ -38,7 +39,7 @@
     unlock: { packages: 50, boss: 'backyard' }, enemy: { shell: [.75,.5,.25], timer: null, regen: null }, affinity: ['zhenzhen2','fox'],
     // 狼原圖 391×300 太大：中心 400 時左緣 204，把第 3、4 顆技能鍵整個蓋住（使用者 2026-09-14）。
     // 縮成 320×245、中心 440 → 左緣 280、右緣 600（舞台 608），只跟第 4 顆鍵擦到邊，技能鍵另外提到王的上面（clicker.css #slots）。
-    boss: { ...BOSS_BASE, name: '偷嘴灰狼', sprite: 'clicker-monster-wolf.png', frames: 4, size: [320, 245], center: 440 },
+    boss: { ...BOSS_BASE, name: '偷嘴灰狼', sprite: 'clicker-monster-wolf.png', frames: 4, size: [264, 202], center: 472 },
     palette: { mat: '#B9A58A', sky: '#F3E7D3' },
     music: { theme: 'shop', seed: 'zhenmu-kitchen-1', gen: { density:50, rhythm:55, speed:45, drama:35, mood:65, hook:60, smooth:55 } },
     layers: [
@@ -61,7 +62,7 @@
     thief: { sprite:'monster-1.png', everyMs:[60000,120000], hits:5, reward:20 },
     name: '便利商店貨架', unlockPackages: 0, requirementMul: 64, rewardMul: 2, bagSkin: 0,
     unlock: { packages: 60, boss: 'kitchen' }, enemy: { shell: null, timer: null, regen: null, triple: true }, affinity: ['dog', 'jiaobu2'],
-    boss: boss('大三連包', 'clicker-boss3-pack.png', [320, 150], 440),   // 寬王：中心左移到 440，右緣 600 不出舞台
+    boss: boss('大三連包', 'clicker-boss3-pack.png', [264, 124], 472),   // 寬王：縮到 264 才不壓技能鍵（左緣 340），右緣 604 不出舞台
     palette: { mat: '#C9D3DA', sky: '#EEF3F6' },
     music: { theme: 'market', seed: 'zhenmu-market-1', gen: { density: 55, rhythm: 60, speed: 55, drama: 30, mood: 75, hook: 65, smooth: 50 } },
     layers: [
@@ -78,7 +79,7 @@
     thief: { sprite:'monster-2.png', everyMs:[60000,120000], hits:5, reward:20 },
     name: '零食工廠', unlockPackages: 0, requirementMul: 500, rewardMul: 2.5, bagSkin: 0,
     unlock: { packages: 70, boss: 'market' }, enemy: { shell: null, timer: 20, regen: null }, affinity: ['lk', 'jiaobu'],
-    boss: boss('大輸送箱', 'clicker-boss4-crate.png', [260, 285]),
+    boss: boss('大輸送箱', 'clicker-boss4-crate.png', [260, 285], 470),
     palette: { mat: '#9DA3A8', sky: '#DCE1E4' },
     music: { theme: 'factory', seed: 'zhenmu-factory-1', gen: { density: 65, rhythm: 75, speed: 65, drama: 45, mood: 50, hook: 60, smooth: 35 } },
     layers: [
