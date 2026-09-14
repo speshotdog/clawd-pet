@@ -297,13 +297,18 @@
       $('save-io').hidden = true; $('import-check').hidden = true; $('import-confirm').hidden = true; $('io-text').value = ''; $('io-status').textContent = '';
       openPanel('stats');
     }
+    // 徽章牆很長，匯出／匯入的文字框與按鈕在最底下——面板可以捲動之後還是要自己捲過去，
+    // 不然按了「匯入存檔」畫面看起來什麼都沒發生（使用者 2026-09-14 回報「匯入存檔被擋住」）。
+    function revealIO() { requestAnimationFrame(() => $('save-io').scrollIntoView({ block: 'end', behavior: 'smooth' })); }
     function showExport() {
       $('save-io').hidden = false; $('import-check').hidden = true; $('import-confirm').hidden = true; $('io-copy').hidden = false;
       $('io-text').readOnly = true; $('io-text').value = encodeSave(store.state); $('io-status').textContent = '複製這串文字，就是你的存檔。'; $('io-text').select();
+      revealIO();
     }
     function showImport() {
       $('save-io').hidden = false; $('import-check').hidden = false; $('import-confirm').hidden = true; $('io-copy').hidden = true;
       $('io-text').readOnly = false; $('io-text').value = ''; $('io-status').textContent = '把存檔字串貼進來，先「檢查」再決定要不要覆蓋。'; $('io-text').focus();
+      revealIO();
     }
     let importCandidate = null;
     function checkImport() {
@@ -313,7 +318,8 @@
         importCandidate = v;
         $('io-status').textContent = `存檔 OK：${format(info.coins)} 幣、已拆 ${info.packages} 包、夥伴 ${info.partners} / ${Object.keys(B.characters).length}、場景 ${info.scene}、存檔時間 ${new Date(info.savedAt).toLocaleString('zh-TW')}。確定要覆蓋現在的存檔嗎？`;
         $('import-confirm').hidden = false;
-      } catch (err) { $('io-status').textContent = `無法匯入：${err.message}`; }
+        revealIO();   // 「確定覆蓋」是驗過才出現的，多這一顆會把整排再往下推（手機實測會切掉 3px）
+      } catch (err) { $('io-status').textContent = `無法匯入：${err.message}`; revealIO(); }
     }
     function confirmImport() {
       if (!importCandidate) return;

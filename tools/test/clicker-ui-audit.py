@@ -211,6 +211,16 @@ def main():
             for opener, closer, label, expect in PANELS:
                 pg.eval_on_selector(f'#{opener}', 'e=>e.click()'); scan(label, expect)
                 pg.eval_on_selector(f'#{closer}', 'e=>e.click()'); pg.wait_for_timeout(400)
+            # 統計・匯入存檔：徽章牆很長，文字框與「檢查／確定覆蓋」在最底下。
+            # 桌機的面板是固定高度（.panel 的 inset），第十輪加了數字格之後這一排整個掉到面板外——
+            # 貼完存檔沒有按鈕可以按（2026-09-14 使用者回報）。這一格就是擋這個回歸的。
+            pg.eval_on_selector('#stats-open', 'e=>e.click()'); pg.wait_for_timeout(600)
+            pg.eval_on_selector('#io-import', 'e=>e.click()'); pg.wait_for_timeout(500)
+            pg.evaluate("()=>{const t=document.getElementById('io-text'); t.value='w'.repeat(600); t.dispatchEvent(new Event('input',{bubbles:true}));}")
+            pg.wait_for_timeout(400)
+            scan('統計・匯入存檔', ['#save-io #io-text', '#save-io #import-check'])
+            pg.eval_on_selector('#stats-close', 'e=>e.click()'); pg.wait_for_timeout(400)
+
             pg.eval_on_selector('#roster-open', 'e=>e.click()'); pg.wait_for_timeout(600)
             pg.evaluate("()=>document.querySelector('.album-slot:not(.locked)')?.click()"); scan('卡片詳情', '#album-detail .detail-info')
             pg.keyboard.press('Escape'); pg.keyboard.press('Escape'); pg.wait_for_timeout(500)

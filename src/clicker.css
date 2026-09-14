@@ -1425,8 +1425,13 @@ body[data-world="apoc"] #game-content #slots .skill-use:disabled { background:tr
   #stats-tiles .stat-tile { padding:4px 2px; gap:0; }
   #game #stats-tiles .stat-tile b { font-size:14px; }
   #stats-tiles .stat-tile small { font-size:10px; }
-  #stats.badge-wall { overflow-y:auto; }
 }
+/* 戰績／徽章牆面板要能捲動——**桌機也要**。
+   ⚠ 這條原本只寫在上面那個直式 media query 裡（第十輪加數字格時只修了直式），
+   桌機 1280×860 的面板是固定高度（.panel 的 inset），內容一多就直接掉到面板外：
+   按「匯入存檔」之後文字框在 746–826、「檢查」鍵在 833–871，而面板底只到 778——
+   **貼完存檔根本沒有按鈕可以按**（2026-09-14 使用者回報）。A/B 驗過 7e2c423 也是壞的。 */
+#stats.badge-wall { overflow-y:auto; overscroll-behavior:contain; }
 /* 1.0 的分類頁是置中的格子；末世商店是兩段由上往下的清單，要撐滿、靠左、從頂端排（不然兩段各自置中、縮排對不齊、上面空一大片） */
 #shop-cats:has(.apoc-shop-sec) { display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; align-content:start; gap:14px; }
 #shop-cats .apoc-shop-sec { grid-column:1 / -1; justify-self:stretch; width:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:flex-start; gap:6px; padding:6px 4px; min-width:0; }
