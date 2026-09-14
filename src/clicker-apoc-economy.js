@@ -719,7 +719,7 @@
   }
   // 末世的抽卡：卡池是 ApocPool，付的是券／末世金幣，但**產出的 draw 形狀跟 1.0 的 rollPack 完全一樣**，
   // 所以招募層、五種演出、收下流程全部共用（使用者：兩邊邏輯不要差太多）。
-  const RATES = [['mythic', .0025], ['legendary', .04], ['epic', .20], ['rare', .7575]];
+  const RATES = [['mythic', .003], ['legendary', .04], ['epic', .20], ['rare', .757]];   // 神話 .25% → .3%（使用者 2026-09-15：「神話機率調到 0.3%」）；1.0 那張表也是 .3%
   function rollPack(a, count, rng = Math.random, id = `apoc-${Date.now().toString(36)}-${Math.floor(rng() * 1e6).toString(36)}`) {
     const pool = {}; for (const c of (root.ApocPool || [])) (pool[c.rarity === 'common' ? 'rare' : c.rarity] ||= []).push(c);
     const owned = { ...a.collection };
