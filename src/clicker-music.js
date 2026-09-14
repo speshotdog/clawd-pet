@@ -17,8 +17,13 @@ function track(song, mixer, filtered = false) {
 // 現在該放哪一首（第八輪：兩個世界共用這支）。1.0＝掛上的場景曲＋共用的 lastboss 技能曲；
 // 末世＝這一站自己的曲＋神話技能曲（clicker-apoc-map.js 的 MUSIC／MYTHIC_MUSIC）。key 不同就換曲。
 const HOME_SKILL = { theme: 'lastboss', gen: { density:70, rhythm:75, speed:70, drama:85, mood:60, hook:75, smooth:40 } };
+// 抽卡介面自己的曲（使用者 2026-09-14：「抽卡的介面有自己的 BGM」）。招募層／精裝典藏包開著就放這首，兩個世界共用；
+// 關掉就回到場景曲。主題由使用者從候選試聽裡挑（candidates：casino 地下賭場／alchemy 鍊金工房／festival 祭典之夜／musicbox 音樂盒回憶／shop 溫馨小店）。
+const GACHA_MUSIC = { theme: 'casino', gen: { density:60, rhythm:65, speed:60, drama:40, mood:75, hook:80, smooth:55 }, seed: 'gacha-lobby' };
+const gachaOpen = () => ['recruit-layer', 'apoc-ceremony'].some(id => { const el = document.getElementById(id); return el && !el.hidden; });
 function current(s) {
   const map = window.ClickerApocMap;
+  if (gachaOpen()) return { key: 'gacha', music: GACHA_MUSIC, skill: s.settings.world === 'apoc' && map?.MYTHIC_MUSIC ? map.MYTHIC_MUSIC : HOME_SKILL };
   if (s.settings.world === 'apoc' && map?.musicFor) { const music = map.musicFor(s.apoc); return { key: `apoc:${music.seed}`, music, skill: map.MYTHIC_MUSIC }; }
   const scene = document.getElementById('stage').dataset.scene || s.settings.scene;
   return { key: `home:${scene}`, music: window.ClickerScene.resolve(scene, s.package.index).music, skill: HOME_SKILL };

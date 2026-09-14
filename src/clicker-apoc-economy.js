@@ -498,12 +498,17 @@
   // 回顧（第十二輪，使用者指定）：走過的站可以無限重打，拿那一站的獎勵、進度不動。
   // 全線通行之後也靠這條在場上常駐一隻珍母，讓玩家點著賺錢，不要空在那。
   // 王關打到一半不能落跑（不然跑一趟地圖就能躲掉 60 秒判輸）；小怪站隨時可以走，本來就沒有輸贏。
-  const canRevisit = (a, i) => Number.isInteger(i) && i >= 0 && i < a.progress && !(a.stage && a.stage.boss);
+  // 正規的王關打到一半不能走；回顧中的王沒有輸贏（逾時只是重來），隨時可以走。
+  const canRevisit = (a, i) => Number.isInteger(i) && i >= 0 && i < a.progress && !(a.stage && a.stage.boss && !a.stage.revisit);
   function revisit(a, now, i) {
     if (!canRevisit(a, i)) throw new Error(a.stage?.boss ? '王關進行中' : '這一站還沒走過');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
     // farm:true ＝ 結算時給這一站的獎勵、不推進度（跟王關失敗的刷怪走同一條路）
-    return { ...a, revisitAt: i, stage: { index: i, hp: need(i, a), need: need(i, a), boss: false, farm: true, revisit: true, startedAt: now, deadline: null, breakUntil: 0 } };
+    // 王站回顧就是真的王（機制、護盾、60 秒期限都在）——使用者 2026-09-14：「重打這一站似乎不會真的重打那站，根本遇不到王」。
+    // 逾時不算輸（不記 bossFailed、不進冷卻），只是等重生再來一隻。
+    const boss = isBoss(i);
+    return { ...a, revisitAt: i, stage: { index: i, hp: need(i, a), need: need(i, a), boss, farm: true, revisit: true, startedAt: now,
+      deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
   }
   const leaveRevisit = a => a.revisitAt === null || a.revisitAt === undefined ? a : { ...a, revisitAt: null, stage: a.stage?.revisit ? null : a.stage };
   function fight(a, now, farm = false) {
@@ -570,6 +575,8 @@
         if (s.progress >= RULES.STATIONS && !s.cleared) { s.cleared = true; events.push({ type: 'cleared' }); }
       }
       // 輸過就記下這一站：之後不自動開打，等玩家按右上角的「再次挑戰」（使用者第四輪：第一次遭遇直接進，失敗之後才有進入選項）
+      // 回顧中的王逾時：不算輸（不記 bossFailed、不冷卻），等重生再來一隻
+      else if (st.deadline && now >= st.deadline && st.farm) { s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN; }
       else if (st.deadline && now >= st.deadline) { s.stage = null; s.cooldownUntil = now + RULES.BOSS_COOLDOWN; s.bossFailed = st.index; events.push({ type: 'fail', index: st.index }); }
       else s.stage = st;
     }

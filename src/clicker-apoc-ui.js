@@ -459,7 +459,7 @@ window.ClickerApocUI = (() => {
       const failed = (!v.stage || !!v.stage.farm) && store.state.apoc?.bossFailed === v.progress;   // 這一站的王輸過（輸了從滿血重來；第六輪起在前一站刷怪）
       const idleNeed = (farmGap || revGap) ? A.need(i, { laps: v.laps }) : v.need;   // 第二圈的刷怪空檔也要帶圈數（Codex 10C 值得修）
       const hp = v.stage ? Math.max(0, v.stage.hp) : idleNeed, max = v.stage ? v.stage.need : idleNeed;
-      $('package-label').textContent = over ? (v.endless ? '無盡模式到底了' : '全線已通行') : `${i >= v.stations ? '無盡・' : ''}第 ${i + 1} 站${boss ? '・王關' : rev ? (v.progress >= v.stations ? '・常駐' : '・回顧') : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
+      $('package-label').textContent = over ? (v.endless ? '無盡模式到底了' : '全線已通行') : `${i >= v.stations ? '無盡・' : ''}第 ${i + 1} 站${boss ? (rev ? '・王關回顧' : '・王關') : rev ? (v.progress >= v.stations ? '・常駐' : '・回顧') : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
       $('package-progress').max = 1; $('package-progress').value = max ? Math.min(1, 1 - hp / max) : 0;
       $('package-number').textContent = over ? (v.endless ? `${A.RULES.ENDLESS_MAX} 站` : `${v.stations} / ${v.stations}`) : `${format(hp)} / ${format(max)}`;
 
@@ -489,6 +489,9 @@ window.ClickerApocUI = (() => {
       // 「開戰」沿用 1.0 的挑戰鍵
       const go = $('boss-challenge');
       go.hidden = (!!v.stage && !v.stage.farm) || over;   // 刷怪中也要看得到「再次挑戰」
+      // 全線通行後的常駐怪（回顧路）：這顆鍵按下去是 fight()，而 canFight 早就是 false（進度 20/20），
+      // 使用者 2026-09-14：「最後的開戰不能點」——沒有目標站可回，直接藏掉。
+      if (rev && v.progress >= v.stations && !v.endless) go.hidden = true;
       if (rev && v.progress < v.stations) { go.hidden = false; }   // 回顧中留一個回得去的鍵
       go.disabled = (rev ? false : !v.canFight) || !(v.power > 0) || store.blocked;
       // 冷卻中寫出還要等幾秒，不然停用的「再次挑戰」看起來像壞掉（Codex 第五輪）

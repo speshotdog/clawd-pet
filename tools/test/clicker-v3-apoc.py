@@ -199,7 +199,7 @@ with sync_playwright() as p:
           return {
             rarity: [...card.classList].find(c => c.startsWith('r-')),
             gem: card.classList.contains('gem-faceted'),
-            specialCss: [...r.querySelectorAll('link')].some(l => /holo-special\.css/.test(l.href)),
+            specialCss: /holo-special\.css/.test(host.dataset.holoSheets || '') || [...r.querySelectorAll('link')].some(l => /holo-special\.css/.test(l.href)),   // 第十二輪下半：樣式表改同步掛（adoptedStyleSheets），<link> 只剩退路
             tint: r.querySelectorAll('.special-tint').length,
             bgTint: r.querySelectorAll('.bg-tint').length,
             hearts: r.querySelectorAll('.gift-hearts > i').length,

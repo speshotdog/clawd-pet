@@ -1707,9 +1707,10 @@ body[data-world="apoc"] #shop .recruit #draw-one .draw-five-price { display:bloc
   body[data-world="apoc"] #shop .recruit #draw-one .draw-five-price { font-size:10px; }
   /* 夥伴列兩端有 14／20px 的淡出遮罩，第一張卡的名字被吃掉一半：左右留出同樣的空間 */
   body[data-world="apoc"] #buddies { padding-inline:16px 22px; box-sizing:border-box; }
-  /* 編隊第一排卡片的編號（01、02…）掛在卡片上緣外面，被格線容器的上緣切掉：往下讓一點 */
-  body[data-world="apoc"] #t20-grid { padding-top:10px; }
 }
+/* 編隊第一排卡片的編號（01、02…）掛在卡片上緣外面（.proxy-index top:-4px），被 overflow:auto 的格線容器上緣切掉。
+   本來只在直式讓位，2026-09-14 使用者橫式（1440 寬）截圖一樣被切：兩種都讓。 */
+body[data-world="apoc"] #t20-grid { padding-top:10px; }
 #apoc-ceremony iframe { display:block; width:100%; height:100%; border:0; }
 
 /* 直式的關卡地圖 */

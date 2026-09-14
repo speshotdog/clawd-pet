@@ -107,7 +107,7 @@ window.ClickerApocMap = (() => {
       const go = $('map-enter');
       // 第十二輪（使用者：「要讓回家可以回到過去，打當時的怪物重複玩，不要鎖住」）：
       // 走過的站不再是死的，按下去就回去重打；目前站照舊。
-      const here = view.revisitAt === selected && !!view.stage, bossing = !!view.stage?.boss;
+      const here = view.revisitAt === selected && !!view.stage, bossing = !!view.stage?.boss && !view.stage?.revisit;   // 回顧中的王隨時可以走
       go.disabled = (!done && !current) || !(view.power > 0) || here || (done && bossing) || (current && !view.canFight && !view.stage);
       go.textContent = !(view.power > 0) ? '先去編隊'
         : done ? (here ? '回顧中' : bossing ? '王關進行中' : '重打這一站')

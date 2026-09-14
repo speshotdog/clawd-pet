@@ -4,7 +4,7 @@
 //
 // ⚠ 為什麼要用 shadow root：精裝卡面的 CSS 有 60 KB、選擇器（.leaf、.face-art、.foil-*⋯⋯）
 //   跟 1.0 的樣式沒有命名空間，直接放進主頁一定互相打架。team20 當初就是用 shadow root 隔離的，
-//   這裡沿用同一招。CSS 走 <link>，瀏覽器只會抓一次。
+//   這裡沿用同一招。CSS 用 constructable stylesheet 同步掛（見下面 attachSheets 的說明）。
 //
 // 素材：`tools/apoc/build_holo.py` 把卡圖、遮罩、字型從內嵌 data URI 拆成 src/apoc/ 底下的檔案，
 //       對照表在 window.ApocAssets（卡圖）與 window.ApocMasks（遮罩）。
@@ -19,6 +19,28 @@ window.ClickerHolo = (() => {
     return maskCache;
   }
   const assetUrl = (n) => url((window.ApocAssets || {})[n] || n);
+  // 卡面的樣式表用 constructable stylesheet **同步**掛進 shadow root。
+  // ⚠ 以前是每張卡塞一個 <link>：瀏覽器非同步套用，從卡建好到樣式生效之間整張卡是裸的——
+  //   600×840 的卡圖用原尺寸畫出來、名字跟稀有度擠成一行。實測真 Chrome 一次翻頁 8 張卡裸 8～9 格（約 130ms），
+  //   慢一點的機器更久，看起來就是「翻頁／點開卡面就破圖」（使用者 2026-09-14 回報，四種環境都靠 16ms 取樣才抓到）。
+  //   同步掛載就沒有這個空窗。樣式表裡的相對網址（fonts/、art/）要先改成絕對網址，
+  //   因為 replaceSync 的文字是用**頁面**當基準，不是 apoc/holo.css。還沒抓到之前退回 <link>。
+  const SHEET_NAMES = ['holo.css', 'holo-special.css'];
+  const canAdopt = typeof CSSStyleSheet !== 'undefined' && 'replaceSync' in CSSStyleSheet.prototype && 'adoptedStyleSheets' in ShadowRoot.prototype;
+  const sheets = {};   // 檔名 → CSSStyleSheet（還沒到的沒有鍵）
+  const absolutize = (css, base) => css.replace(/url\(\s*(['"]?)(?!data:|https?:|\/|#)([^'")]+)\1\s*\)/g, (m, q, path) => `url("${new URL(path, base).href}")`);
+  async function loadSheet(name) {
+    const href = url(name), res = await fetch(href); if (!res.ok) throw new Error(`${name} ${res.status}`);
+    const sheet = new CSSStyleSheet(); sheet.replaceSync(absolutize(await res.text(), href)); sheets[name] = sheet;
+  }
+  const sheetsReady = canAdopt ? Promise.allSettled(SHEET_NAMES.map(n => loadSheet(n).catch(e => { console.warn('ClickerHolo 樣式表', e); throw e; }))) : Promise.resolve([]);
+  // 回傳實際同步掛上的檔名（測試用 host.dataset.holoSheets 看）；沒掛上的補 <link>
+  function attachSheets(sh, names) {
+    const adopted = names.filter(n => sheets[n]);
+    if (adopted.length) sh.adoptedStyleSheets = adopted.map(n => sheets[n]);
+    for (const n of names) if (!sheets[n]) { const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = url(n); sh.append(link); }
+    return adopted;
+  }
   const ready = () => !!(window.HoloCardFace && window.ApocPool);
   // 收藏卡（魔花少女）：不在卡池裡、素材與遮罩是另一組、階級是這張卡自己新增的「特殊」。
   // 使用者 2026-09-14：「收藏卡的品質要跟 2.0 的卡冊一樣好」——所以走的是**同一個 face()**，
@@ -51,9 +73,8 @@ window.ClickerHolo = (() => {
     if (m.frame) host.style.setProperty('--frame-mask', `url("${m.frame}")`);
     if (m.glitter) host.style.setProperty('--glitter-mask', `url("${m.glitter}")`);
     const sh = host.attachShadow({ mode: 'open' });
-    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = url('holo.css'); sh.append(link);
     // 共用的 holo.css 沒有 .r-special（原頁註解：「只寫在這一頁」），收藏卡要多掛一張
-    if (collect) { const sp = document.createElement('link'); sp.rel = 'stylesheet'; sp.href = url('holo-special.css'); sh.append(sp); }
+    host.dataset.holoSheets = attachSheets(sh, collect ? ['holo.css', 'holo-special.css'] : ['holo.css']).join(' ');
     const f = window.HoloCardFace.create(entry, { masks: m, resolve });
     sh.append(f);
     if (collect) host._collect = CF().enhance(f, sh, resolve, ++collectSeq);
@@ -94,5 +115,5 @@ window.ClickerHolo = (() => {
   }
   // 卡面的字級是用容器寬度算的，容器改變大小要重量一次
   function refit(host) { sweepCollect(); if (host && host._face) window.HoloCardFace.refit(host._face); }
-  return { face, refit, ready, interactive, isCollect, sweepCollect };
+  return { face, refit, ready, interactive, isCollect, sweepCollect, sheetsReady };
 })();

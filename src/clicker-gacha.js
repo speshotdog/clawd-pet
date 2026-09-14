@@ -60,6 +60,7 @@ window.ClickerGacha = (() => {
         clearTimeout(closing); host.classList.remove('closing');
         if (host.hidden) previousFocus = document.activeElement;
         host.hidden = false; $('game-content').inert = true; pauseStage();
+        window.ClickerMusic?.sync(store.state);   // 典藏包也算抽卡介面：放 GACHA_MUSIC
       };
       addEventListener('message', (e) => {
         if (e.source !== frame.contentWindow) return;   // 只認自己的 iframe
@@ -83,7 +84,7 @@ window.ClickerGacha = (() => {
         close() {
           if (W().pending()) return;
           host.classList.add('closing'); $('game-content').inert = false; resumeStage();
-          clearTimeout(closing); closing = setTimeout(() => { host.hidden = true; host.classList.remove('closing'); }, 280);
+          clearTimeout(closing); closing = setTimeout(() => { host.hidden = true; host.classList.remove('closing'); window.ClickerMusic?.sync(store.state); }, 280);
           previousFocus?.focus?.(); render();
         },
         // 典藏包按「收下」就自己清場了；主頁落帳不成時用它把同一批結果放回結果頁（淡出也要收回來）
@@ -158,6 +159,7 @@ window.ClickerGacha = (() => {
       if (!store.state || !ready || W().blocked() || (!apoc() && !canOpen())) return;   // v3：路障小王不鎖招募（重開時也要進得來收下 pending）
       previousFocus = document.activeElement; layer.hidden = false; $('game-content').inert = true;
       pauseStage(); window.GachaFx.init($('fx'), $('fx-under')); $('mode-select').focus(); render();
+      window.ClickerMusic?.sync(store.state);   // 抽卡介面自己的 BGM（clicker-music.js 的 GACHA_MUSIC）
     }
     function cleanup() {
       mode?.dispose(); mode = null; runtime?.stop(); runtime = null;
@@ -170,6 +172,7 @@ window.ClickerGacha = (() => {
       cleanup(); layer.hidden = true; $('game-content').inert = false; $('recruit-entry').hidden = false;
       $('collect').hidden = $('collect-again').hidden = $('skip').hidden = $('reveal-all').hidden = true;
       resumeStage(); previousFocus?.focus();
+      window.ClickerMusic?.sync(store.state);   // 回到場景曲
       if (pendingJoins.length) { const all = pendingJoins; pendingJoins = []; joined(dedupe(all)); }
     }
     function summary() {

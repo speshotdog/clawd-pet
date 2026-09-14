@@ -45,7 +45,7 @@ FACE = """(sel) => {
   if (!card) return { err: 'shadow root 裡沒有 .hcard' };
   return {
     rarity: [...card.classList].find(c => c.startsWith('r-')),
-    specialCss: [...r.querySelectorAll('link')].some(l => /holo-special\.css/.test(l.href)),
+    specialCss: /holo-special\.css/.test(host.dataset.holoSheets || '') || [...r.querySelectorAll('link')].some(l => /holo-special\.css/.test(l.href)),
     tint: r.querySelectorAll('.special-tint').length,
     hearts: r.querySelectorAll('.gift-hearts > i').length,
     name: r.querySelector('.face-name')?.textContent || '',
