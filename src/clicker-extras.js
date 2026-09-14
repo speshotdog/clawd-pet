@@ -241,7 +241,10 @@
         pop.replaceChildren(badgeNode(id, 96)); const name = document.createElement('b'); name.textContent = b.name; pop.append(name); pop.hidden = false;
         clearTimeout(popTimer);
         motion(pop, [{ transform: 'scale(0) rotate(-12deg)' }, { transform: 'scale(1.18) rotate(3deg)', offset: .7 }, { transform: 'scale(1) rotate(0)' }], 220, 'cubic-bezier(.2,1.4,.4,1)').finished.then(() => { stage.shake(4, 120); sound('badge'); }).catch(() => {});
-        popTimer = setTimeout(() => { motion(pop, [{ opacity: 1 }, { opacity: 0 }], 260).finished.then(() => { pop.hidden = true; }).catch(() => { pop.hidden = true; }); }, 1800);
+        // 收掉的路不能只靠動畫的 finished：切分頁時 stopTimers() 會把整份文件的動畫全 cancel，
+        // 之後再 animate 的 finished 有可能永遠不回來（使用者 2026-09-15：「成就卡住不會消失，要重整才會不見」）。
+        // 所以淡出之後再補一個硬的 hidden，兩條路誰先到都行。
+        popTimer = setTimeout(() => { motion(pop, [{ opacity: 1 }, { opacity: 0 }], 260).finished.then(() => { pop.hidden = true; }).catch(() => { pop.hidden = true; }); setTimeout(() => { pop.hidden = true; }, 400); }, 1800);
       }
       // 第 100 包的 12 選 1 不再自動彈出（會蓋到王包／禮包），改由徽章牆的按鈕手動開
       if (id === 'pack100') notice('第 100 包！到徽章牆選一位夥伴，送該角色粉塵 1 顆');
@@ -493,7 +496,8 @@
       renderDaily(); renderFrost();
     }
     // 隱藏時把分享鍵與徽章彈窗的計時器清掉（閒置狀態不能留任何 timer）
-    function suspend() { clearTimeout(offerTimer); offerTimer = 0; clearTimeout(popTimer); popTimer = 0; offer.hidden = true; }
+    // ⚠ 真兇：以前這裡把 popTimer 清掉卻沒把徽章彈窗收起來——拿到徽章 1.8 秒內切分頁／縮視窗，彈窗就永遠留在舞台上（要重整才會消失）
+    function suspend() { clearTimeout(offerTimer); offerTimer = 0; clearTimeout(popTimer); popTimer = 0; offer.hidden = true; pop.hidden = true; }
     instance = { tick, afterClick: renderFrost, afterBurst, decorate, openWall, openShare, openPick, escape, badgeEarned, suspend, badgeNode, get share() { return share; }, compose };
     decorate(); renderDaily(true); renderFrost();
     return instance;
