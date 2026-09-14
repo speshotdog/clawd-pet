@@ -459,7 +459,7 @@ window.ClickerApocUI = (() => {
       const failed = (!v.stage || !!v.stage.farm) && store.state.apoc?.bossFailed === v.progress;   // 這一站的王輸過（輸了從滿血重來；第六輪起在前一站刷怪）
       const idleNeed = (farmGap || revGap) ? A.need(i, { laps: v.laps }) : v.need;   // 第二圈的刷怪空檔也要帶圈數（Codex 10C 值得修）
       const hp = v.stage ? Math.max(0, v.stage.hp) : idleNeed, max = v.stage ? v.stage.need : idleNeed;
-      $('package-label').textContent = over ? (v.endless ? '無盡模式到底了' : '全線已通行') : `${i >= v.stations ? '無盡・' : ''}第 ${i + 1} 站${boss ? (rev ? '・王關回顧' : '・王關') : rev ? (v.progress >= v.stations ? '・常駐' : '・回顧') : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
+      $('package-label').textContent = over ? (v.endless ? '無盡模式到底了' : '全線已通行') : `${i >= v.stations ? '無盡・' : ''}第 ${i + 1} 站${boss ? (rev ? '・王關回顧' : '・王關') : rev ? `${v.progress >= v.stations ? '・常駐' : '・回顧'}${v.stage?.waves > 1 ? ` ${v.stage.wave}/${v.stage.waves}` : ''}` : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
       $('package-progress').max = 1; $('package-progress').value = max ? Math.min(1, 1 - hp / max) : 0;
       $('package-number').textContent = over ? (v.endless ? `${A.RULES.ENDLESS_MAX} 站` : `${v.stations} / ${v.stations}`) : `${format(hp)} / ${format(max)}`;
 
@@ -501,7 +501,7 @@ window.ClickerApocUI = (() => {
       $('boss-estimate').hidden = true;
       $('package-result').textContent = over ? (v.endless ? '無盡模式到底了。' : '全線已通行。')
         : failed ? (v.canFight ? '王關失敗：在前一站刷錢變強，準備好就按「再次挑戰」。' : '王關失敗：先在前一站刷錢變強，冷卻結束後可以「再次挑戰」。')
-        : rev ? (v.progress >= v.stations ? '全線已通行：這一隻會一直在，點著賺錢就好。' : `回顧第 ${i + 1} 站：打不完，也不會推進度。要回去推進度就按下面的「回到目前站」。`)
+        : rev ? (v.progress >= v.stations ? '全線已通行：這一隻會一直在，點著賺錢就好。' : `回顧第 ${i + 1} 站：從這裡往下走到這一段的王為止，不會推進度。要回去推進度就按下面的「回到目前站」。`)
         : v.stage ? '點怪攻擊；隊伍放著也會打。'
         : '按「開戰」開始。';
       // 1.0 的這一格平常透明、只在完成一包時閃一下；末世輸了王要一直看得到（Codex 5b）

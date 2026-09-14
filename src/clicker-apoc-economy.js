@@ -506,8 +506,10 @@
     // farm:true ＝ 結算時給這一站的獎勵、不推進度（跟王關失敗的刷怪走同一條路）
     // 王站回顧就是真的王（機制、護盾、60 秒期限都在）——使用者 2026-09-14：「重打這一站似乎不會真的重打那站，根本遇不到王」。
     // 逾時不算輸（不記 bossFailed、不進冷卻），只是等重生再來一隻。
+    // 使用者 2026-09-14 晚：「回顧打完小怪會切到王嗎？我希望是這樣，等於那關從走但保留整體進度」——
+    // 所以回顧是**一條路**：小怪站照正規打 WAVES 隻，打完往下一站走，打到這一區段的王就結束回顧（settle 裡推 revisitAt）。
     const boss = isBoss(i);
-    return { ...a, revisitAt: i, stage: { index: i, hp: need(i, a), need: need(i, a), boss, farm: true, revisit: true, startedAt: now,
+    return { ...a, revisitAt: i, stage: { index: i, hp: need(i, a), need: need(i, a), boss, farm: true, revisit: true, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now,
       deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
   }
   const leaveRevisit = a => a.revisitAt === null || a.revisitAt === undefined ? a : { ...a, revisitAt: null, stage: a.stage?.revisit ? null : a.stage };
@@ -550,9 +552,17 @@
       if (st.boss) st = respawn(st, tEnd);
       // 破防時間到（傷害算完才清，破防那段才吃得到 ×2）
       if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0 };
-      if (st.hp <= 0 && st.farm) {
+      if (st.hp <= 0 && st.farm && st.revisit && (st.wave || 1) < (st.waves || 1)) {
+        // 回顧的小怪站跟正規一樣打滿 WAVES 隻，進度不動
+        s.coins += killReward(st.index, s);
+        s.stage = { ...st, wave: (st.wave || 1) + 1, hp: need(st.index, s), startedAt: now };
+        events.push({ type: 'wave', index: st.index, wave: st.wave || 1, waves: st.waves, reward: killReward(st.index, s) });
+      }
+      else if (st.hp <= 0 && st.farm) {
         // 刷怪：拿這一站的獎勵、不推進度（王那一站還等著玩家再挑戰）
         s.coins += killReward(st.index, s); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
+        // 回顧：往下一站走；打完這一區段的王（或走到目前站前一站）就結束回顧，autoFight 會接回目前站／全破後的常駐
+        if (st.revisit) s.revisitAt = isBoss(st.index) || st.index + 1 >= s.progress ? null : st.index + 1;
         events.push({ type: 'farm', index: st.index, reward: killReward(st.index, s) });
       }
       else if (st.hp <= 0 && (st.wave || 1) < (st.waves || 1)) {

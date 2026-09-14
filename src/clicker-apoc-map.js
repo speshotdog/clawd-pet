@@ -103,7 +103,7 @@ window.ClickerApocMap = (() => {
         : `路上的小怪。前方的痕跡：${OMENS[s.segment]}。`;
       $('map-next').textContent = current && !done
         ? `需要 ${format(view.need)} 傷害・目前戰力 ${format(view.power)}`
-        : done ? (view.revisitAt === selected ? '回顧中：正在重打這一站。' : '走過的站可以無限重打，拿一樣的錢，進度不會動。') : '';
+        : done ? (view.revisitAt === selected ? '回顧中：正在重打這一站。' : '從這一站往下重走，打到這一區段的王為止；拿一樣的錢，進度不會動。') : '';
       const go = $('map-enter');
       // 第十二輪（使用者：「要讓回家可以回到過去，打當時的怪物重複玩，不要鎖住」）：
       // 走過的站不再是死的，按下去就回去重打；目前站照舊。

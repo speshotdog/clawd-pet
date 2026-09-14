@@ -611,7 +611,7 @@ test('舊存檔遷移：超過滿養的重複卡折成萬用粉塵，不會白�
 
 // --- 第十二輪（使用者：「要讓回家可以回到過去，打當時的怪物重複玩，不要鎖住」
 //                       「全破之後常駐一隻珍母，讓玩家點擊打怪賺錢，不要就空在那」）
-test('回顧：走過的站可以無限重打，拿那一站的獎勵、進度不動；王關打到一半不能落跑', () => {
+test('回顧：從那一站往下重走到這一段的王為止，拿獎勵、進度不動；正規王關打到一半不能落跑', () => {
   const base = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 5 });
   assert.equal(A.canRevisit(base, 2), true);
   assert.equal(A.canRevisit(base, 5), false, '目前站不算回顧');
@@ -622,16 +622,33 @@ test('回顧：走過的站可以無限重打，拿那一站的獎勵、進度�
   assert.equal(r.revisitAt, 2);
   assert.equal(r.stage.index, 2); assert.equal(r.stage.farm, true); assert.equal(r.stage.revisit, true);
   assert.equal(r.stage.boss, false); assert.equal(r.stage.deadline, null);
+  assert.equal(r.stage.waves, R.WAVES, '回顧的小怪站跟正規一樣要打滿 WAVES 隻');
   assert.equal(A.normalize(r).stage.index, 2, '重開之後回顧還在');
   assert.equal(A.normalize(r).revisitAt, 2);
 
-  // 打死：拿第 3 站的獎勵、進度不動
-  const dying = { ...r, stage: { ...r.stage, hp: 1 } };
-  const out = A.settle(dying, 1000, 1);
-  assert.deepEqual(out.events.map(e => e.type), ['farm']);
+  // 打死第一隻：拿獎勵、換下一隻，進度與回顧點都不動
+  let out = A.settle({ ...r, stage: { ...r.stage, hp: 1 } }, 1000, 1);
+  assert.deepEqual(out.events.map(e => e.type), ['wave']);
   assert.equal(out.state.progress, 5, '回顧不推進度');
-  assert.equal(out.state.revisitAt, 2, '打死之後還留在回顧模式，等重生');
+  assert.equal(out.state.revisitAt, 2); assert.equal(out.state.stage.wave, 2);
   assert.ok(out.state.coins > r.coins);
+  // 打滿 WAVES 隻：這一站清完，回顧點往下一站走（使用者：「等於那關從走，但保留整體進度」）
+  for (let k = 2; k < R.WAVES; k++) out = A.settle({ ...out.state, stage: { ...out.state.stage, hp: 0 } }, 1000 + k, 0);   // dt=0 沒有放置傷害，直接把血歸零
+  out = A.settle({ ...out.state, stage: { ...out.state.stage, hp: 0 } }, 2000, 0);
+  assert.deepEqual(out.events.map(e => e.type), ['farm']);
+  assert.equal(out.state.stage, null); assert.equal(out.state.revisitAt, 3, '往下一站走');
+  assert.equal(out.state.progress, 5, '回顧不推進度');
+  // 下一站是這一段的王：回顧的王是真的王（機制、期限），打贏就結束回顧；逾時不算輸
+  const rb = A.revisit(out.state, 3000, out.state.revisitAt);
+  assert.equal(rb.stage.boss, true); assert.ok(rb.stage.deadline > 3000); assert.ok(rb.stage.minions, '有王的機制');
+  assert.equal(A.canRevisit(rb, 1), true, '回顧中的王隨時可以走');
+  const timeout = A.settle(rb, rb.stage.deadline + 1, 0);
+  assert.equal(timeout.state.stage, null); assert.equal(timeout.state.bossFailed, null, '回顧的王逾時不算輸');
+  assert.equal(timeout.state.revisitAt, 3, '逾時留在回顧，等重生再來');
+  const win = A.settle({ ...rb, stage: { ...rb.stage, hp: 0, minions: { ...rb.stage.minions, left: 0 } } }, 3500, 0);
+  assert.equal(win.state.progress, 5, '回顧打贏王也不推進度');
+  assert.equal(win.state.revisitAt, null, '這一段的王打完＝回顧結束');
+  out = { state: A.revisit(base, 0, 2) };   // 下面「回到目前站」的檢查用一個還在回顧中的狀態
 
   // 回到目前站＝離開回顧
   const back = A.fight(out.state, out.state.cooldownUntil + 1);
