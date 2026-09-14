@@ -5,7 +5,10 @@
 以前：`makeCard()` 只有在末世才回 `deluxeCard()`，1.0 退回平面的 1.0 卡面；
       詳情頁那顆「看精裝版」是 `window.open('apoc/mohuashaonv.html')` 開外部分頁。
 
-現在：兩個世界的收藏卡都是精裝頁（`?embed=1` 內嵌），放大走跟末世卡同一個 `#card-zoom` 層。
+第十二輪：收藏卡改成**原生精裝卡面**（ClickerHolo → HoloCardFace，跟 2.0 那 71 張同一條路），
+      不再嵌 iframe。使用者：「收藏卡的品質要跟 2.0 的卡冊一樣好」。
+      iframe 那條路是模糊、掉 FPS、字型不對的共同根因：150px 寬的 iframe 會用 150px 的版面視口算版再放大。
+      兩個世界都一樣，放大走跟末世卡同一個 `#card-zoom` 層。
 
 用法：PYTHONIOENCODING=utf-8 python tools/test/clicker-v3-collect.py
 """
@@ -34,10 +37,21 @@ SEED = """() => { const S=ClickerSave,B=ClickerBalance; const s=S.fresh(Date.now
   s.settings.world='WORLD';
   S.validate(s,GachaPool); sessionStorage.setItem('test-seed',JSON.stringify(s)); }"""
 
-FACE = ("() => { const el = document.querySelector('#album-detail .detail-left .card, #album-detail .card'); "
-        "if (!el) return null; const f = el.querySelector('iframe'); "
-        "return { deluxe: el.classList.contains('deluxe-card'), iframe: f ? f.getAttribute('src') : null, "
-        "plain: !!el.querySelector('.character-png') }; }")
+# ⚠ 卡面在 shadow root 裡，外面的 querySelector 看不到——一定要穿進 shadowRoot 量。
+FACE = """(sel) => {
+  const host = document.querySelector(sel + ' .holo-face');
+  if (!host || !host.shadowRoot) return { err: '沒有原生卡面' };
+  const r = host.shadowRoot, card = r.querySelector('.hcard');
+  if (!card) return { err: 'shadow root 裡沒有 .hcard' };
+  return {
+    rarity: [...card.classList].find(c => c.startsWith('r-')),
+    specialCss: [...r.querySelectorAll('link')].some(l => /holo-special\.css/.test(l.href)),
+    tint: r.querySelectorAll('.special-tint').length,
+    hearts: r.querySelectorAll('.gift-hearts > i').length,
+    name: r.querySelector('.face-name')?.textContent || '',
+    iframes: document.querySelectorAll(sel + ' iframe').length,
+    plain: !!document.querySelector(sel + ' .character-png'),
+  }; }"""
 
 def run(pg, world):
     # 卡冊 → 收藏卡 → 點開詳情
@@ -45,19 +59,20 @@ def run(pg, world):
     pg.wait_for_timeout(1000)
     co = pg.locator('#collect-open')
     check(not co.is_hidden(), f'{world}：卡冊看得到「收藏卡」入口')
-    co.click(); pg.wait_for_timeout(900)
+    co.click(); pg.wait_for_timeout(1200)
 
-    # 卡冊格子上的收藏卡就要是精裝版
-    grid = pg.evaluate("() => { const el = [...document.querySelectorAll('.album-slot .card')].find(c => c.classList.contains('collect')); "
-                       "return el ? { deluxe: el.classList.contains('deluxe-card'), iframe: !!el.querySelector('iframe'), plain: !!el.querySelector('.character-png') } : null; }")
-    check(grid and grid['deluxe'] and grid['iframe'], f'{world}：卡冊格子上的收藏卡是精裝版（{grid}）')
-    check(grid and not grid['plain'], f'{world}：收藏卡沒有退回 1.0 平面卡面（{grid}）')
+    # 卡冊格子上的收藏卡就要是原生精裝卡面
+    grid = pg.evaluate(FACE, '.collect-page .album-slot')
+    check(grid.get('rarity') == 'r-special' and grid.get('hearts') == 16,
+          f'{world}：卡冊格子上的收藏卡是原生精裝卡面（{grid}）')
+    check(grid.get('iframes') == 0 and not grid.get('plain'),
+          f'{world}：沒有 iframe、也沒有退回 1.0 平面卡面（{grid}）')
 
-    pg.evaluate("() => document.querySelector('.album-slot .card.collect')?.closest('.album-slot')?.click()")
-    pg.wait_for_timeout(900)
-    face = pg.evaluate(FACE)
-    check(face and face['deluxe'] and face['iframe'] and 'embed=1' in face['iframe'],
-          f'{world}：詳情頁的收藏卡是內嵌精裝頁（{face}）')
+    pg.evaluate("() => document.querySelector('.collect-page .album-slot')?.click()")
+    pg.wait_for_timeout(1200)
+    face = pg.evaluate(FACE, '#album-detail')
+    check(face.get('rarity') == 'r-special' and face.get('specialCss') and face.get('name') == '魔花少女',
+          f'{world}：詳情頁的收藏卡是原生精裝卡面（{face}）')
 
     # 不准有開外部分頁的鍵
     btns = pg.evaluate("() => [...document.querySelectorAll('#album-detail button')].map(b => b.textContent.trim())")
@@ -69,14 +84,16 @@ def run(pg, world):
     # 放大：走 2.0 的內嵌檢視層，不是新分頁
     before = len(pg.context.pages)
     pg.evaluate("() => [...document.querySelectorAll('#album-detail button')].find(b => /放大/.test(b.textContent)).click()")
-    pg.wait_for_timeout(1000)
+    pg.wait_for_timeout(1200)
     check(len(pg.context.pages) == before, f'{world}：按放大**沒有**開新分頁（{before} → {len(pg.context.pages)}）')
-    zoom = pg.evaluate("() => { const z = document.getElementById('card-zoom'); if (!z) return null; "
-                       "const f = z.querySelector('iframe'); const hint = z.querySelector('.zoom-hint'); "
-                       "return { open: true, iframe: f ? f.getAttribute('src') : null, hint: hint ? hint.textContent.trim() : '' }; }")
-    check(zoom and zoom['open'], f'{world}：放大層打開了（{zoom}）')
-    check(zoom and zoom['iframe'] and 'embed=1' in zoom['iframe'], f'{world}：放大層裡就是那張精裝頁（{zoom}）')
-    check(zoom and '拖曳轉動' in zoom['hint'], f'{world}：提示字講的是會動的精裝卡（{zoom and zoom["hint"]}）')
+    zoom = pg.evaluate(FACE, '#card-zoom')
+    check(zoom.get('rarity') == 'r-special' and zoom.get('iframes') == 0,
+          f'{world}：放大層裡是原生精裝卡面、沒有 iframe（{zoom}）')
+    hint = pg.evaluate("() => document.querySelector('#card-zoom .zoom-hint')?.textContent.trim() || ''")
+    check('拖曳轉動' in hint, f'{world}：提示字講的是會動的精裝卡（{hint}）')
+    # 可以拿在手上看：interactive() 有掛上去（跟 2.0 那 71 張一樣）
+    inter = pg.evaluate("() => !!document.querySelector('#card-zoom .holo-face.holo-interactive')")
+    check(inter, f'{world}：放大層的收藏卡可以拖曳轉動（holo-interactive）')
     pg.screenshot(path=str(OUT / f'zoom-{world}.png'))
     pg.keyboard.press('Escape'); pg.wait_for_timeout(500)
     pg.keyboard.press('Escape'); pg.wait_for_timeout(500)

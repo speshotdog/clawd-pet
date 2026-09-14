@@ -185,24 +185,59 @@ with sync_playwright() as p:
     pg.eval_on_selector('#album-detail .detail-back', 'e=>e.click()'); pg.wait_for_timeout(500)
     if pg.evaluate("()=>(Clicker.state.collectibles||[]).length") and pg.locator('#collect-open').is_visible():
         pg.eval_on_selector('#collect-open', 'e=>e.click()'); pg.wait_for_timeout(2500)
-        src = pg.evaluate("()=>document.querySelector('.collect-page .deluxe-card iframe')?.getAttribute('src')")
-        check(src == 'apoc/mohuashaonv.html?embed=1', f'收藏卡卡冊：魔花少女嵌精裝版 {src}')
-        # 只看 src 不夠：上一版 src 對、但嵌入模式沒生效（標題＋深紫底還在、卡被擠到下半截），檢查照樣全綠。
-        # 所以要進 iframe 裡看：嵌入旗標、標題藏起來、卡撐滿框。
-        def deluxe_ok(sel):
-            fr = next((f for f in pg.frames if 'mohuashaonv.html?embed=1' in f.url and f.parent_frame == pg.main_frame
-                       and pg.evaluate("(s)=>!!document.querySelector(s)", sel)), None)
-            if not fr: return 'iframe 沒載入'
-            fr.wait_for_function("()=>document.getElementById('stage')?.offsetHeight>0", timeout=15000)
-            return fr.evaluate("()=>{const r=document.getElementById('stage').getBoundingClientRect();"
-                               "return {embed:document.documentElement.getAttribute('data-embed'), h1:getComputedStyle(document.querySelector('h1')).display,"
-                               "fill:Math.round(r.height/innerHeight*100)}}")
-        d = deluxe_ok('.collect-page .deluxe-card iframe')
-        check(isinstance(d, dict) and d['embed'] == '1' and d['h1'] == 'none' and d['fill'] >= 85, f'收藏卡縮圖真的是嵌入模式（沒有標題、卡撐滿框）{d}')
+        # 第十二輪：收藏卡改成**原生卡面**（跟 2.0 那 71 張同一條路），不再嵌 iframe。
+        # 使用者：「收藏卡的品質要跟 2.0 的卡冊一樣好」。所以要驗的是「它真的是 HoloCardFace」，
+        # 而且獨立頁在 create() 之後補的三樣加工一件不漏（兩層特殊反光、替身動作的圖層、愛心）。
+        # ⚠ 卡面在 shadow root 裡，外面的 querySelector 看不到——一定要穿進 shadowRoot 量。
+        PROBE = """(sel)=>{
+          const host = document.querySelector(sel + ' .holo-face');
+          if (!host) return { err: '沒有 .holo-face' };
+          const r = host.shadowRoot; if (!r) return { err: '沒有 shadow root' };
+          const card = r.querySelector('.hcard');
+          if (!card) return { err: 'shadow root 裡沒有 .hcard' };
+          const cs = getComputedStyle(card), box = card.getBoundingClientRect();
+          return {
+            rarity: [...card.classList].find(c => c.startsWith('r-')),
+            gem: card.classList.contains('gem-faceted'),
+            specialCss: [...r.querySelectorAll('link')].some(l => /holo-special\.css/.test(l.href)),
+            tint: r.querySelectorAll('.special-tint').length,
+            bgTint: r.querySelectorAll('.bg-tint').length,
+            hearts: r.querySelectorAll('.gift-hearts > i').length,
+            label: r.querySelector('.face-rarity')?.textContent || '',
+            name: r.querySelector('.face-name')?.textContent || '',
+            font: cs.getPropertyValue('--card-font').trim(),
+            w: Math.round(box.width), h: Math.round(box.height),
+            iframes: document.querySelectorAll(sel + ' iframe').length,
+          }; }"""
+        d = pg.evaluate(PROBE, '.collect-page .album-slot')
+        check(d.get('rarity') == 'r-special' and d.get('gem'), f'收藏卡是原生精裝卡面（{d.get("rarity")}、gem-faceted={d.get("gem")}）')
+        check(d.get('specialCss'), '「特殊」階級的樣式表有掛進 shadow root（共用的 holo.css 沒有 .r-special）')
+        check(d.get('iframes') == 0, f'收藏卡沒有 iframe 了（{d.get("iframes")}）')
+        # 這三樣是 card-face.js（凍結檔）不會做、要事後補掛的。少任何一樣就是「還原得不完整」。
+        check(d.get('tint') == 2, f'兩層主體特殊反光都在（待機＋替身各一，實得 {d.get("tint")}）')
+        check(d.get('bgTint') == 1, f'背景的特殊反光在（實得 {d.get("bgTint")}）')
+        check(d.get('hearts') == 16, f'16 顆飄浮愛心都在（實得 {d.get("hearts")}）')
+        check('特殊' in d.get('label', ''), f'階級標籤是「特殊」（{d.get("label")}）')
+        check(d.get('name') == '魔花少女', f'卡面名字（{d.get("name")}）')
+        # 字型：獨立頁是 body.font-system，shadow root 裡收不到 body 的類別，要改寫成卡面自己的規則
+        check('JhengHei' in d.get('font', ''), f'卡面字型跟獨立頁一致（--card-font = {d.get("font")}）')
+        check(d.get('w', 0) > 40 and d.get('h', 0) > 40, f'卡面有量得到的尺寸（{d.get("w")}×{d.get("h")}）')
         check(not pg.evaluate(NO_OLD), '收藏卡卡冊沒有 1.0 卡面：' + str(pg.evaluate(NO_OLD))[:160])
+        # 版面：卡不能壓到「回到卡冊」，說明牌不能溢出頁面（第十二輪重排成展示櫃版型）
+        lay = pg.evaluate("""()=>{
+          const page = document.querySelector('.collect-page'), card = document.querySelector('.collect-grid .album-slot .card'),
+                back = document.querySelector('.collect-page .detail-back'), plate = document.querySelector('.collect-plate');
+          if (!page || !card || !back || !plate) return { err: 'missing' };
+          const p = page.getBoundingClientRect(), c = card.getBoundingClientRect(), b = back.getBoundingClientRect(), t = plate.getBoundingClientRect();
+          return { overlap: Math.round(c.bottom - b.top), outX: Math.round(Math.max(t.right - p.right, p.left - t.left)),
+                   outY: Math.round(t.bottom - p.bottom), cardH: Math.round(c.height) }; }""")
+        check(lay.get('overlap', 99) <= 0, f'卡片沒有壓到「回到卡冊」（重疊 {lay.get("overlap")}px、卡高 {lay.get("cardH")}）')
+        check(lay.get('outX', 99) <= 0 and lay.get('outY', 99) <= 0, f'說明牌沒有溢出頁面（{lay}）')
         pg.screenshot(path=str(OUT / '3b-collect.png'))
         pg.eval_on_selector('.collect-page .album-slot', 'e=>e.click()'); pg.wait_for_timeout(2500)
-        check(pg.locator('#album-detail .deluxe-card iframe').count() == 1 and not pg.evaluate(NO_OLD), '收藏卡詳情：精裝版、沒有 1.0 卡面')
+        dd = pg.evaluate(PROBE, '#album-detail')
+        check(dd.get('rarity') == 'r-special' and dd.get('hearts') == 16 and not pg.evaluate(NO_OLD),
+              f'收藏卡詳情：原生精裝卡面、沒有 1.0 卡面（{ {k: dd.get(k) for k in ("rarity", "hearts", "iframes")} }）')
         pg.screenshot(path=str(OUT / '3c-collect-detail.png'))
     else: check(False, '種子存檔要有收藏卡，收藏卡卡冊的鍵要看得到')
     pg.eval_on_selector('#roster-close', 'e=>e.click()'); pg.wait_for_timeout(500)

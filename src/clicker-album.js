@@ -39,9 +39,14 @@ window.ClickerAlbum = (() => {
       const t = ap ? A().transcendOf(ap, id) : (s.transcend?.[id] || 0);
       const n = ap ? Math.max(1, A().starsAt(ap, id)) + t : E.stars(E.dust(s, id));
       const row = document.createElement('div'); row.className = (ap ? byId(id)?.rarity : E.rarity(s, id)) === 'mythic' ? 'star-row mythic-stars' : 'star-row';
-      for (let i = 0; i < n; i++) {
-        const gem = ap ? i >= n - t : i < t;   // 末世：突破的那幾顆排在後面（第 6～10 顆）
-        const img = new Image(); img.src = gem ? 'clicker-star-gem.png' : 'clicker-star.png'; img.alt = ''; img.className = gem ? 'gem' : ''; row.append(img);
+      // 第十二輪（使用者：「10 星在卡冊裡不好看，參考薑餅人王國」，選了 A 版）：
+      // **格子永遠 5 個**，不隨星數變長——卡位只有 90px 寬，10 顆 13px 的星要 140px，一定擠爆。
+      // 1～5 顆金星依序亮；第 6～10 星不是多長一顆，而是把金星從左邊一顆一顆換成寶石星。
+      const SLOTS = 5, lit = Math.min(n, SLOTS), gems = Math.max(0, n - SLOTS);
+      for (let i = 0; i < SLOTS; i++) {
+        const gem = i < gems;
+        const img = new Image(); img.src = gem ? 'clicker-star-gem.png' : 'clicker-star.png'; img.alt = '';
+        img.className = `${gem ? 'gem' : ''}${i < lit ? '' : ' off'}`.trim(); row.append(img);
       }
       row.setAttribute('aria-label', ap ? `${n} 星` : `${n} 星${t ? `・超越 ${t}` : ''}`); return row;
     }
@@ -66,16 +71,28 @@ window.ClickerAlbum = (() => {
       const cur = E.rarity(s, id), o = ORIGIN[E.origin(id)], t = s.transcend?.[id] || 0;
       return `${RAR[cur]}${cur !== Pool.byId[id].rarity ? `（${o}出身）` : ''}${t ? `・超越 ${t}` : ''}${t === 5 ? '・覺醒' : ''}`;
     }
-    // 收藏卡的精裝版：直接嵌精裝頁（?embed=1 只留卡本身）。使用者 09-13：「2.0 不准出現任何 1.0 卡面，
-    // 魔花少女是之前花最多心力做的卡」；09-14 再確認：**魔花少女／收藏卡只有精裝版**，
-    // 所以 1.0 也一律用這個，沒有精裝頁的收藏卡寧可顯示問號也不退回 1.0 卡面。
-    const DELUXE = { mohuashaonv: 'apoc/mohuashaonv.html' };
+    // 收藏卡的精裝版。使用者 09-13：「2.0 不准出現任何 1.0 卡面，魔花少女是之前花最多心力做的卡」；
+    // 09-14 再確認：**魔花少女／收藏卡只有精裝版**，所以 1.0 也一律用這個，
+    // 沒有素材的收藏卡寧可顯示問號也不退回 1.0 卡面。
+    //
+    // ⚠ 第十二輪改成**原生渲染**（ClickerHolo → HoloCardFace），不再嵌 iframe。
+    //   使用者：「卡片沒有完整還原精裝卡該有的品質」「為什麼 2.0 的顯示都很正常，1.0 這邊這麼醜」
+    //   「你直接把 2.0 的程式碼拿來用不就好了」。iframe 那條路是模糊、掉 FPS、字型不對的共同根因：
+    //   150px 寬的 iframe 會用 150px 的版面視口算版再放大，而 2.0 的 71 張卡從來就不走那條路。
+    // 收藏卡的位子表：拿到的畫卡，沒拿到的留灰位子。`how` 是取得方式，寫在卡片下面當線索。
+    const COLLECT_SLOTS = [
+      { id: 'mohuashaonv', tier: '特殊 / SPECIAL', how: '大掃除・選「從零開始」',
+        text: '舊時代收掉的那一天發的紀念卡。魔花少女是這條線上做最久的一張卡面，做成收藏卡留著。' },
+    ];
+    const collectFace = (id) => {
+      const entry = window.ApocCollect?.entries?.[id];
+      return entry && window.ClickerHolo?.ready() ? window.ClickerHolo.face(entry) : null;
+    };
     function deluxeCard(id) {
-      const wrap = document.createElement('div'); wrap.className = 'card flipped album-card collect deluxe-card';
-      if (DELUXE[id]) {
-        const f = document.createElement('iframe'); f.src = `${DELUXE[id]}?embed=1`; f.title = `${Pool.byId[id].name}・精裝`;
-        f.tabIndex = -1; f.setAttribute('scrolling', 'no'); wrap.append(f);
-      } else { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; wrap.append(q); }
+      const wrap = document.createElement('div'); wrap.className = 'card flipped album-card collect holo-card';
+      const face = collectFace(id);
+      if (face) wrap.append(face);
+      else { const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; wrap.append(q); }
       return wrap;
     }
     // 還沒抽到的卡：卡面上的名字也要遮掉。以前卡面照樣印「珍母／傳說」，可是卡片下面那行是「？？？」，
@@ -451,14 +468,46 @@ window.ClickerAlbum = (() => {
       const s = store.state; detailId = null; closeDustShop();
       const root = $('album-detail'); root.replaceChildren(); root.hidden = false;
       const wrap = document.createElement('div'); wrap.className = 'collect-page';
-      const h = document.createElement('h3'); h.textContent = '收藏卡'; wrap.append(h);
-      const grid = document.createElement('div'); grid.className = 'collect-grid';
       const ids = (s.collectibles || []).filter(id => Pool.byId[id]);
-      if (!ids.length) { const empty = document.createElement('p'); empty.textContent = '還沒有收藏卡。'; grid.append(empty); }
-      for (const id of ids) {
-        const slot = document.createElement('button'); slot.className = 'album-slot'; slot.dataset.id = id; slot.type = 'button'; slot.title = Pool.byId[id].name;
-        slot.append(makeCard(s, id)); const meta = document.createElement('div'); meta.className = 'album-meta'; const line = document.createElement('small'); line.textContent = Pool.byId[id].name; meta.append(line); slot.append(meta);
-        slot.onclick = () => openDetail(id); grid.append(slot);
+      // 使用者第十二輪：「版面空、卡孤零零」——一張卡浮在一整頁的正中間。
+      // 補成一個像樣的展示頁：標題列寫收藏進度，卡旁邊給一段由來與怎麼看，
+      // 還沒拿到的收藏卡留成灰位子（看得到「還有東西可以收」，不然頁面永遠只有一張卡）。
+      const head = document.createElement('div'); head.className = 'collect-head';
+      const h = document.createElement('h3'); h.textContent = '收藏卡';
+      const count = document.createElement('span'); count.className = 'collect-count';
+      count.textContent = `${ids.length} / ${COLLECT_SLOTS.length} 張・不入隊、不算戰力，是紀念用的`;
+      head.append(h, count); wrap.append(head);
+
+      // 展示櫃版型：左邊一張大卡，右邊一塊說明牌（名稱／階級／取得方式／怎麼看）。
+      // 以前是一張卡浮在一整頁的正中央，所以使用者說「版面空、卡孤零零」。
+      const grid = document.createElement('div'); grid.className = 'collect-grid';
+      for (const def of COLLECT_SLOTS) {
+        const got = ids.includes(def.id);
+        const item = document.createElement('div'); item.className = 'collect-item' + (got ? '' : ' empty');
+
+        const slot = document.createElement('button'); slot.className = 'album-slot collect-slot'; slot.dataset.id = def.id; slot.type = 'button';
+        slot.title = got ? Pool.byId[def.id].name : '還沒拿到';
+        if (got) { slot.append(makeCard(s, def.id)); slot.onclick = () => openDetail(def.id); }
+        else {
+          const ph = document.createElement('div'); ph.className = 'card flipped album-card collect collect-empty';
+          const q = document.createElement('b'); q.className = 'album-unknown'; q.textContent = '?'; ph.append(q); slot.append(ph);
+          slot.disabled = true;
+        }
+        item.append(slot);
+
+        const plate = document.createElement('div'); plate.className = 'collect-plate';
+        const nm = document.createElement('b'); nm.className = 'collect-name'; nm.textContent = got ? Pool.byId[def.id].name : '？？？'; plate.append(nm);
+        const tier = document.createElement('span'); tier.className = 'collect-tier'; tier.textContent = def.tier; plate.append(tier);
+        for (const [k, v] of [['取得', def.how], ['說明', got ? def.text : '還沒拿到這張。']]) {
+          const row = document.createElement('p'); row.className = 'collect-row';
+          const key = document.createElement('i'); key.textContent = k; row.append(key, document.createTextNode(v));
+          plate.append(row);
+        }
+        if (got) { const tip = document.createElement('p'); tip.className = 'collect-tip';
+          tip.textContent = '點卡片進詳情，按「放大」可以拖曳轉動、滑過看反光；在放大畫面點一下卡，她會做一個動作。';
+          plate.append(tip); }
+        item.append(plate);
+        grid.append(item);
       }
       wrap.append(grid);
       const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); wrap.append(back);
@@ -479,7 +528,9 @@ window.ClickerAlbum = (() => {
       layer.setAttribute('role', 'dialog'); layer.setAttribute('aria-modal', 'true'); layer.setAttribute('aria-label', `${byId(id).name}・放大欣賞`);
       const holder = document.createElement('div'); holder.className = 'zoom-card';
       let face = null;
-      if (isCollect(id)) holder.append(deluxeCard(id));   // 收藏卡只有精裝版，1.0 也用同一套
+      // 收藏卡只有精裝版，1.0 也用同一套。放大層直接掛卡面本身，這樣才吃得到 refit／interactive
+      // （拖曳轉動、反光跟游標）——跟 2.0 那 71 張走的是同一段程式。
+      if (isCollect(id)) { face = collectFace(id); if (face) holder.append(face); else holder.append(deluxeCard(id)); }
       // 放大預覽也要遮（使用者：「放大預覽的部分也要遮」）——1.0 走下面的 makeCard 已經遮過了
       else if (apoc() && window.ClickerHolo?.ready() && (face = window.ClickerHolo.face(maskEntry(byId(id), !!have(store.state, id))))) holder.append(face);
       else if (apoc()) { const blank = document.createElement('span'); blank.className = 'apoc-face-blank'; holder.append(blank); }   // 末世不准退回 1.0 卡面
@@ -504,6 +555,7 @@ window.ClickerAlbum = (() => {
     }
     function closeZoom() {
       const z = $('card-zoom'); if (!z) return false; z.remove();
+      window.ClickerHolo?.sweepCollect?.();   // 收藏卡的替身動畫（2.5 MB）當場放掉，不要等下一次建卡
       stage?.start?.();   // 收起放大層＝回到遊戲，舞台要動回來
       if (zoomReturn?.isConnected) zoomReturn.focus(); zoomReturn = null;
       return true;
@@ -516,7 +568,7 @@ window.ClickerAlbum = (() => {
       const face = holder?.querySelector(':scope > .holo-face'); if (face) window.ClickerHolo?.refit(face);
     }
     function closeDetail(instant = false) {
-      closeZoom();
+      closeZoom(); window.ClickerHolo?.sweepCollect?.();
       stopBlink(); detailId = null; refreshKey = stateKey(); const root = $('album-detail'); if (root.hidden) return;
       if (instant || reduced.matches) { root.hidden = true; root.replaceChildren(); return; }
       root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160 }).finished.then(() => { root.hidden = true; root.replaceChildren(); }).catch(() => { root.hidden = true; });

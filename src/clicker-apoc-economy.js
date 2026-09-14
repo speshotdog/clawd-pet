@@ -283,7 +283,7 @@
   const dayKey = now => Math.floor(now / 86400000);   // 同 1.0 派遣的日界
   function fresh() {
     return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, dust: {}, universalDust: 0, transcend: {}, bossDust: [], pity: 0, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
-      paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
+      paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, revisitAt: null, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
       pending: null, cleared: false, laps: 0, endless: false, endlessBest: 0, seenAt: 0, dispatch: [], dispatchDone: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
   function normalize(a) {
@@ -332,7 +332,9 @@
         seen.add(id); return id;
       }); }
     // 刷怪中的戰鬥是前一站：只有「這一站是王、而且輸過」才合法（第六輪）；其他進度不符的戰鬥丟掉
-    const farmOk = st => st.index === a.progress - 1 && isBoss(a.progress) && raw.bossFailed === a.progress;
+    // 走過的站都可以刷（第十二輪，使用者：「要讓回家可以回到過去，打當時的怪物重複玩，不要鎖住」）。
+    // 以前只認「王輸過時的前一站」，回顧模式重整後會被清掉。
+    const farmOk = st => st.index >= 0 && st.index < a.progress;
     if (a.stage && (typeof a.stage.hp !== 'number' || (a.stage.farm ? !farmOk(a.stage) : a.stage.index !== a.progress))) a.stage = null;
     if (a.stage?.farm) a.stage = { ...a.stage, farm: true, boss: false, deadline: null, breakUntil: 0 };
     // 第十輪：舊存檔的王關是護盾版（shield），換成這一隻王自己的機制狀態
@@ -353,6 +355,13 @@
     // 舊檔的「買過幾張券」就是當時的抽卡價格進度，搬成付費抽數，價格不會倒退
     a.paidDraws = count(raw.paidDraws !== undefined ? raw.paidDraws : raw.ticketsBought); delete a.ticketsBought;
     a.teamLevel = Math.min(RULES.TRAIN_MAX, count(a.teamLevel)); a.clickLevel = Math.min(RULES.TRAIN_MAX, count(a.clickLevel));
+    // 回顧：選了哪一站就一直重打那一站，不推進度。進度往前走之後失效（例如輪迴回到第 0 站）
+    a.revisitAt = Number.isInteger(raw.revisitAt) && raw.revisitAt >= 0 && raw.revisitAt < a.progress ? raw.revisitAt : null;
+    // 場上那一場如果是回顧，revisitAt 就以它為準——兩者不能各說各話。
+    // （Codex 複查指出：壞存檔可能出現「stage.revisit 為真但 revisitAt 是 null」，
+    //   那樣打完一隻之後不會再重生，玩家會停在一個不會前進、也沒人接手的舊站。）
+    if (a.stage?.revisit) a.revisitAt = a.stage.index;
+    else if (a.revisitAt !== null && a.stage && !a.stage.farm) a.revisitAt = null;   // 場上是正規戰鬥＝已經離開回顧
     a.farmNextAt = Number.isFinite(Number(a.farmNextAt)) && Number(a.farmNextAt) > 0 ? Number(a.farmNextAt) : 0;
     delete a.boost;   // 1.0 加成是執行期現算的，存檔裡的舊值一律不信
     a.bossFailed = Number.isInteger(a.bossFailed) && a.bossFailed === a.progress ? a.bossFailed : null;   // 只記「目前這一站的王輸過」
@@ -486,7 +495,19 @@
   const canFight = (a, now) => (!a.stage || !!a.stage.farm) && a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) && !(isBoss(a.progress) && a.cooldownUntil > now);
   // 刷怪（第六輪，照 Sakura 的「打不過就回去刷怪」）：這一站的王輸過之後，回前一站一直打——拿那一站的獎勵、不推進度
   const canFarm = (a, now) => !a.stage && isBoss(a.progress) && a.bossFailed === a.progress && a.progress > 0 && now >= (a.farmNextAt || 0);
+  // 回顧（第十二輪，使用者指定）：走過的站可以無限重打，拿那一站的獎勵、進度不動。
+  // 全線通行之後也靠這條在場上常駐一隻珍母，讓玩家點著賺錢，不要空在那。
+  // 王關打到一半不能落跑（不然跑一趟地圖就能躲掉 60 秒判輸）；小怪站隨時可以走，本來就沒有輸贏。
+  const canRevisit = (a, i) => Number.isInteger(i) && i >= 0 && i < a.progress && !(a.stage && a.stage.boss);
+  function revisit(a, now, i) {
+    if (!canRevisit(a, i)) throw new Error(a.stage?.boss ? '王關進行中' : '這一站還沒走過');
+    if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
+    // farm:true ＝ 結算時給這一站的獎勵、不推進度（跟王關失敗的刷怪走同一條路）
+    return { ...a, revisitAt: i, stage: { index: i, hp: need(i, a), need: need(i, a), boss: false, farm: true, revisit: true, startedAt: now, deadline: null, breakUntil: 0 } };
+  }
+  const leaveRevisit = a => a.revisitAt === null || a.revisitAt === undefined ? a : { ...a, revisitAt: null, stage: a.stage?.revisit ? null : a.stage };
   function fight(a, now, farm = false) {
+    a = leaveRevisit(a);   // 回到目前站＝離開回顧
     if (farm) {
       if (!canFarm(a, now)) throw new Error('現在不能刷怪');
       if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
@@ -717,12 +738,15 @@
     if (lapsOf(a) >= RULES.LAP.MAX) throw new Error('已經重走 ' + RULES.LAP.MAX + ' 圈，到頂了');
     if (a.pending) throw new Error('還有沒收下的結果');
     // 第十一輪：王首勝的粉塵每一圈重算（重走廢土是「再打一次」，回饋感要跟著回來）
-    return { ...a, laps: lapsOf(a) + 1, progress: 0, stage: null, coins: 0, teamLevel: 0, clickLevel: 0, bossFailed: null, cooldownUntil: 0, farmNextAt: 0, bossDust: [],
+    return { ...a, laps: lapsOf(a) + 1, progress: 0, stage: null, coins: 0, teamLevel: 0, clickLevel: 0, bossFailed: null, cooldownUntil: 0, farmNextAt: 0, revisitAt: null, bossDust: [],
       cleared: false, endless: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
   // 無盡模式：全線通行後第 21 站起一直往下打（王固定是四種輪流），關掉時丟掉 20 站以後的戰鬥
   function setEndless(a, on) {
     if (on && !a.cleared) throw new Error('全線通行之後才能開無盡模式');
+    // ⚠ 開無盡之前一定要先離開回顧：全線通行後場上常駐的那隻是回顧（revisitAt 有值），
+    //   留著的話 UI 的自動接關會一直重開那一隻，無盡的第 21 站永遠打不到。
+    if (on) a = leaveRevisit(a);
     return { ...a, endless: !!on, stage: !on && a.progress >= RULES.STATIONS ? null : a.stage };
   }
   // ---- 第十輪 D 離線與派遣
@@ -762,10 +786,13 @@
     transcend: { ...(a.transcend || {}) }, dust: { ...(a.dust || {}) },
     universalDust: a.universalDust || 0, maxStars: maxStars(), fullDust: fullDust(),
   });
-  const view = (a, now) => ({ ...growView(a), coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
+  const view = (a, now) => ({ ...growView(a), revisitAt: a.revisitAt ?? null, coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
     skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null, cleared: !!a.cleared,
     skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) ? need(a.progress, a) : 0,
     drawCost1: drawCost(a, 1), drawCost10: drawCost(a, 10), paidDraws: a.paidDraws || 0,
+    // 「下一抽付現要多少」——不看手上的券。drawCost1 有券時會算成 0（因為那一抽不用付），
+    // 拿它去寫「下一抽 X」會印出 0（第十二輪修）。
+    drawCostNext: Math.round(RULES.DRAW_COST * RULES.DRAW_GROWTH ** (a.paidDraws || 0)),
     teamLevel: a.teamLevel || 0, clickLevel: a.clickLevel || 0, teamCost: trainCost(a, 'team'), clickCost: trainCost(a, 'click'),
     teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click, boost: boostOf(a),
     exchangeToday: exchangeToday(a, now), exchangeTotal: a.exchange?.total || 0, stats: a.stats, wins: a.wins || 0, cosmetics: a.cosmetics,
@@ -773,7 +800,7 @@
     dispatch: a.dispatch || [], dispatchSlots: RULES.DISPATCH.SLOTS, dispatchDone: a.dispatchDone || 0,
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
-  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
     starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, isMaxed, dustRate, fullDust, starCap, exchangeDust, winDust };

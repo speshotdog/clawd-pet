@@ -60,6 +60,17 @@ footer { position: absolute; left: 16px; top: 592px; width: 928px; height: 32px;
 #notice { position: absolute; z-index: 75; top: 66px; left: 180px; right: 180px; padding: 10px 18px; background: #54382b; color: #fff3d7; border-radius: 9px; text-align: center; pointer-events: none; }
 #raw-save { width: 100%; height: 140px; user-select: text; margin-top: 15px; } #save-error { z-index: 90; top: 100px; } #fatal { position: absolute; z-index: 85; inset: 70px 40px auto; padding: 20px; color: #7c281f; background: #fff3df; border: 2px solid #7c281f; white-space: pre-wrap; }
 @media (prefers-reduced-motion: reduce) { #game *, #game *::before, #game *::after { animation-duration: .01s !important; transition-duration: .01s !important; } }
+/* 例外：角色的逐格動作（動畫表）不在「減少動態」的範圍。
+   朋友回報「打王的時候路障小王不會動」——根因就是上面那條 !important 的全域規則，
+   它把 #game 裡每一個動畫都壓成 0.01s，王整隻定格，看起來像壞掉。
+   逐格動作是角色在原地演，不是位移也不是視差，前庭風險低；照無障礙常見作法**減速一半**，不要停掉。
+   ⚠ 一定要 !important，而且要寫在上面那條之後——否則會被它壓掉（這就是先前每張卡各自寫
+     `animation:none` 其實從來沒生效的原因：真正在作用的一直是那條全域規則）。 */
+@media (prefers-reduced-motion: reduce) {
+  #game #boss-image.sprite { animation-duration:calc(var(--boss-frames,4) * 260ms) !important; }
+  #game #gate-preview.sprite { animation-duration:calc(var(--boss-frames,4) * 260ms) !important; }
+  #game #apoc-enemy.apoc-sprite { animation-duration:calc(var(--frames) * var(--frame-ms) * 2) !important; }
+}
 
 /* 傳說揭曉整桌震：與演示區 gacha.css 相同的 keyframes */
 .table.shake { animation: clicker-shake .5s cubic-bezier(.36,.07,.19,.97) both; }
@@ -498,8 +509,12 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 #cutin.mythic #cutin-panel { background:linear-gradient(115deg,#ffc6ec,#fff0b6,#c3f5e7,#d7cbff); }
 #cutin.mythic #cutin-stripes { background:var(--stripe); opacity:.5; }
 .album-card.locked .face-art .character-png { opacity:.3; }
-.mythic-stars { background:var(--mythic-rainbow); border-radius:5px; }
-.mythic-stars img { mix-blend-mode:luminosity; }
+/* 神話的彩虹底牌：第十二輪改成「墊在後面」。
+   以前是 background 直接鋪 ＋ img 走 luminosity 混合——那會把金星與寶石星的顏色整個吃掉，
+   一排看起來就是一團彩虹（使用者回報「10 星在卡冊裡不好看」的一半原因在這）。 */
+.mythic-stars { position:relative; padding:0 3px; border-radius:6px; }
+.mythic-stars::before { content:''; position:absolute; inset:0; border-radius:6px; background:var(--mythic-rainbow); opacity:.45; }
+.mythic-stars img { position:relative; mix-blend-mode:normal; }
 @media (prefers-reduced-motion:reduce) { #cutin-actor .character-png { transform:none; } }
 .recommend-portraits .missing { filter:grayscale(1); opacity:.35; }
 
@@ -528,6 +543,9 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .album-meta { max-width:100%; display:flex; flex-direction:column; align-items:center; gap:1px; font-size:11px; line-height:13px; color:#30251F; }
 .star-row { width:fit-content; display:flex; gap:1px; height:14px; align-items:center; }
 .star-row img { height:13px; width:auto; }
+/* 還沒點亮的格子：留在原地當空位，不要讓星數變長（第十二輪 A 版） */
+.star-row img.off { filter:grayscale(1) brightness(1.75); opacity:.42; }
+.mythic-stars img.off { mix-blend-mode:normal; }
 .album-slot .slot-stamp { position:absolute; right:8px; top:6px; font-style:normal; z-index:6; }
 #game .page-corner { position:absolute; top:50%; width:52px; height:52px; padding:0; transform:translateY(-50%); font-size:34px; font-weight:800; color:#30251F; --button-bg:#FBEED0; }
 #game #album-next { right:10px; } #game #album-prev { left:10px; }
@@ -825,7 +843,10 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
    0、1/n、2/n…，每一幀都差了 1/n 個身位，畫面上就會看到幀跟幀的接縫。
    jump-none 給的正好是 0/(n−1)…(n−1)/(n−1)，剛好對齊每一幀。 */
 @keyframes boss-frames { from { background-position-x:0%; } to { background-position-x:100%; } }
-@media (prefers-reduced-motion: reduce) { #boss-image.sprite { animation:none; background-position-x:0%; } }
+/* 減少動態：王**不要整隻定格**。朋友回報「打王的時候路障小王不會動」——
+   手機開省電模式就會送出 prefers-reduced-motion，整隻王凍成一張圖，看起來像壞掉。
+   這裡的動畫是角色在原地的逐格動作（不是位移、不是視差），前庭風險低；
+   減速到兩倍慢就好，不要關掉。 */
 #boss-health { width:calc(var(--boss-w,260px) + 40px); }
 #stage > #boss-challenge.long { font-size:13px; line-height:15px; white-space:normal; padding:2px 8px; }
 #stage[data-scene="nightmarket"] .desk-mat { filter:brightness(.72) saturate(.8); }
@@ -937,8 +958,31 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
    ② 百分比高度解不出來（那一行的高其實是被內容撐出來的，不是 1fr 的確定值），
       實測整張卡塌成 0×0。
    面板在遊戲座標裡是固定的，所以直接給 px：桌機留 320 高、直式改用寬度定（那邊是寬度先卡住）。 */
-.collect-grid .album-slot .card { width:auto; height:278px; aspect-ratio:5/7; transform:none; }   /* 再高會壓到「回到卡冊」 */
+.collect-grid .album-slot { flex:none; }
+.collect-grid .album-slot .card { width:auto; height:268px; aspect-ratio:5/7; transform:none;
+  /* ⚠ 一定要清掉 .album-slot .card 的 margin-bottom:-84px（卡冊縮圖用它把 scale(.6) 之後的空白吃掉）。
+     這裡沒有縮放，留著會把說明牌往上拉 84px：直排時名字／階級／取得那三行直接被卡片蓋住
+     （截圖才看得出來，DOM 量到的尺寸全是對的）。 */
+  margin-bottom:0; }
+.collect-grid .album-slot .holo-card { position:relative; }   /* 再高會壓到「回到卡冊」 */
 /* 卡面自己就印著名字與稀有度，下面再放一行名字是多的，而且會頂到「回到卡冊」 */
+/* 收藏卡展示頁（第十二輪：使用者「版面空、卡孤零零」）＝展示櫃：左邊大卡、右邊說明牌。 */
+.collect-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.collect-count { font-size:12px; color:#6B563F; }
+.collect-item { display:flex; align-items:center; gap:22px; max-width:600px; }
+/* 說明牌自己帶底板。⚠ 不能只靠世界主題配字色：直式時 .collect-page／#album-detail 的背景是
+   透明的（被直式的面板規則蓋掉），末世的淺色字就直接落在米色紙上，整段看不見（實測截圖）。
+   自己有底板之後，兩個世界、兩種方向都保證有對比。 */
+.collect-plate { display:flex; flex-direction:column; gap:4px; min-width:0; max-width:300px; text-align:left;
+  padding:10px 13px; border:2px solid #C9A978; border-radius:12px; background:#FFF6E6e0; }
+body[data-world="apoc"] .collect-plate { border-color:#4A628A; background:#16202Fe6; }
+.collect-name { font-size:18px; line-height:1.2; color:#30251F; }
+.collect-tier { font-size:11px; letter-spacing:.08em; color:#7A6348; margin-bottom:4px; }
+.collect-row { margin:0; font-size:12px; line-height:1.5; color:#30251F; }
+.collect-row i { display:inline-block; min-width:32px; margin-right:6px; font-style:normal; color:#7A6348; }
+.collect-tip { margin:6px 0 0; font-size:11px; line-height:1.5; color:#7A6348; }
+.collect-empty { display:grid; place-items:center; width:100%; height:100%; border:2px dashed #B99A6E; border-radius:10px; background:#00000010; }
+.collect-item.empty .album-unknown { position:static; transform:none; font-size:44px; color:#B99A6E; text-shadow:none; }
 .collect-grid .album-meta { display:none; }
 /* v3 拖曳：夥伴列 → 技能槽（照 team20.css） */
 #drag-layer { position:fixed; inset:0; z-index:200; pointer-events:none; }
@@ -970,7 +1014,6 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
 #stage > #gate-block { position:absolute; left:330px; top:120px; width:200px; z-index:9; display:grid; justify-items:center; gap:2px; font-size:14px; line-height:1.2; text-align:center; color:#3b2a1a; text-shadow:0 1px 0 #fff, 0 0 4px #fff; }
 #gate-preview { background-repeat:no-repeat; background-size:contain; background-position:center bottom; opacity:.92; filter:drop-shadow(0 4px 4px rgba(0,0,0,.35)); }
 #gate-preview.sprite { background-size:calc(var(--boss-frames,4) * 100%) 100%; background-position-x:0%; background-image:var(--boss-sprite); animation:boss-frames calc(var(--boss-frames,4) * 130ms) steps(var(--boss-frames,4), jump-none) infinite; }
-@media (prefers-reduced-motion: reduce) { #gate-preview.sprite { animation:none; } }
 #gate-block small { font-size:11px; color:#7a5a3a; }
 #boss-view.gate #boss-image { transform:translateY(40px); }
 @media (prefers-reduced-motion: reduce) { #stage > #boss-challenge.glow { animation:none; } }
@@ -1094,7 +1137,16 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
   /* 收藏卡頁：直式是寬度先卡住，改用寬度定尺寸。
      ⚠ 不能用百分比（外層 flex item 沒有確定寬度，會循環解成 38px）；
        但直式的 #game 就是整個畫面、沒有縮放，所以這裡 vw 是有意義的（桌機那邊才不行）。 */
-  .collect-grid .album-slot .card { width:min(280px, 78vw); height:auto; }
+  /* 直式的收藏卡頁：展示櫃要改成「上卡下牌」的直排。
+     ⚠ 橫式那套（卡 280px ＋ 說明牌 300px）在手機上一定爆：可用寬只有 314–344px，
+       flex 會把說明牌壓成 52px、整排右溢 48–78px，360px 的機器連卡都壓到「回到卡冊」
+       （GPT 複查指出、實測確認）。卡也要縮，不然 5:7 撐出 392px 高，頁面只有 575px。 */
+  .collect-item { flex-direction:column; gap:8px; align-items:center; max-width:100%; }
+  .collect-plate { max-width:100%; text-align:center; }
+  .collect-row i { min-width:0; }
+  .collect-grid { gap:12px; align-content:center; }
+  .collect-grid .album-slot .card { width:min(164px, 46vw); height:auto; }
+  .collect-tip { display:none; }   /* 直式沒有滑鼠，「滑過看反光」那句用不上，而且最占高度 */
   /* 窄手機（實測 360px）：三欄的固有寬度加起來比列還寬，最右邊的「五連」鍵被切掉
      （使用者：「部分手機的UI還是會稍微突出」）。
      根因是中間那欄用 `1fr`——1fr 的自動最小值是 min-content，而標題 white-space:nowrap，
@@ -1373,7 +1425,6 @@ body[data-world="apoc"] #stage-fit { filter:none; }
    寬高也由 JS 照單格比例設在 style 上（置中靠上面的 translate，不受影響） */
 #apoc-enemy.apoc-sprite { object-position:-10000px 0; background-repeat:no-repeat; background-size:calc(var(--frames) * 100%) 100%; background-position:0% 0;
   animation:boss-frames calc(var(--frames) * var(--frame-ms)) steps(var(--frames), jump-none) infinite; }
-@media (prefers-reduced-motion: reduce) { #apoc-enemy.apoc-sprite { animation:none; } }
 /* 輸了王的說明要一直看得到（1.0 這格平常透明、只閃一下）；apoc-ui 只在末世輸了王時掛 .apoc-shown */
 body[data-world="apoc"] #package-result.apoc-shown { opacity:1; left:442px; top:96px; width:140px; }   /* 放在「再次挑戰」鍵正下方，不蓋到王 */
 /* 1.0 的標籤欄固定 72px、超出藏起來：末世的「第 3 站・刷怪中」「第 4 站・王關」會被切成「第 3 站・」，改成跟著字長 */
@@ -1416,6 +1467,13 @@ body[data-world="apoc"] #recruit-hint { color:#C6D4E8; }
 body[data-world="apoc"] #recruit-entry h2, body[data-world="apoc"] #recruit-entry p { color:#DDE6F4; }
 /* 卡冊在末世也換深色：書本的紙貼圖換成深色板 */
 body[data-world="apoc"] #album-book, body[data-world="apoc"] .album-page,
+/* ⚠ .collect-count 直接寫在頁面上，而 .collect-page 的背景在兩種方向都是透明的（米色紙），
+   所以它不能跟著世界換成淺色——換了就看不見。只有在自己有底板的說明牌裡才用淺色。 */
+body[data-world="apoc"] .collect-tier,
+body[data-world="apoc"] .collect-row i, body[data-world="apoc"] .collect-tip { color:#A79579; }
+body[data-world="apoc"] .collect-name, body[data-world="apoc"] .collect-row { color:#EFE3CE; }
+body[data-world="apoc"] .collect-empty { border-color:#5A4A3A; background:#ffffff08; }
+body[data-world="apoc"] .collect-item.empty .album-unknown { color:#5A4A3A; }
 body[data-world="apoc"] #album-detail, body[data-world="apoc"] .collect-page {
   border-image:none !important; background:#16202F; border:3px solid #4A628A; border-radius:14px; }
 body[data-world="apoc"] .album-page::before, body[data-world="apoc"] .album-page::after,
@@ -1454,7 +1512,11 @@ body[data-world="apoc"] #apoc-ending { background:#22304A; border-color:#0C1119;
   #scene-tickets { grid-template-columns:1fr; gap:8px; }
   .scene-ticket { width:auto; }
   /* 徽章牆本來是九欄，直式塞不下 */
-  #badge-grid { grid-template-columns:repeat(5,1fr); }
+  /* ⚠ 1fr 的最小值是內容寬度，不是 0：徽章圖是寫死的 --size:64px，360px 的機器上每格只有 ~63px，
+     格子撐不下去就整排往右溢出（實測 360×740 右邊三顆被切掉）。minmax(0,1fr) ＋ 讓圖跟著格子縮。 */
+  #badge-grid { grid-template-columns:repeat(5,minmax(0,1fr)); }
+  .badge-cell { min-width:0; }
+  .badge-cell .badge-icon { width:min(var(--size,64px), 100%); height:auto; aspect-ratio:1; }
   /* 分享鍵在橫式是絕對定位在 left:604px，直式那是畫面外；直式收進標題列右邊 */
   /* 分享鍵在橫式是絕對定位在 left:604px（畫面外）；直式釘在畫面右上角 */
   #team #share-offer { position:fixed; left:auto; right:10px; top:calc(64px + env(safe-area-inset-top)); height:auto; padding:3px 12px 5px; z-index:20; }
@@ -1528,6 +1590,19 @@ body[data-world="apoc"] #game-content #slots .skill-use:disabled { background:tr
    按「匯入存檔」之後文字框在 746–826、「檢查」鍵在 833–871，而面板底只到 778——
    **貼完存檔根本沒有按鈕可以按**（2026-09-14 使用者回報）。A/B 驗過 7e2c423 也是壞的。 */
 #stats.badge-wall { overflow-y:auto; overscroll-behavior:contain; }
+/* 存檔那一區捲到底時，最後一排會頂在面板的虛線內框上（outline-offset:-7px）＋直式面板底邊，
+   看起來就是「被遮住」（2026-09-14 使用者回報「手機的存檔頁面還是有遮擋」，實測「檢查」鍵
+   底邊離視窗只剩 3～4px，剛好壓在框上）。留一段底部空間，並讓 scrollIntoView 也認這段空間。 */
+#stats.badge-wall { padding-bottom:34px; scroll-padding-bottom:34px; }
+#save-io { scroll-margin-bottom:34px; }
+/* 直式的面板是從底部推上來的整頁，底邊就是螢幕邊：再多留一點，順便避開手機的手勢條 */
+@media (max-aspect-ratio: 3/4) {
+  #game #stats.badge-wall { padding-bottom:calc(46px + env(safe-area-inset-bottom, 0px)); scroll-padding-bottom:calc(46px + env(safe-area-inset-bottom, 0px)); }
+  #save-io { scroll-margin-bottom:calc(46px + env(safe-area-inset-bottom, 0px)); }
+  /* 「檢查／確定覆蓋／狀態」那一排在窄螢幕會被狀態字擠成一長條，換行排 */
+  #save-io .io-row { flex-wrap:wrap; row-gap:6px; }
+  #save-io #io-status { flex:1 0 100%; order:9; line-height:1.4; }
+}
 /* 1.0 的分類頁是置中的格子；末世商店是兩段由上往下的清單，要撐滿、靠左、從頂端排（不然兩段各自置中、縮排對不齊、上面空一大片） */
 #shop-cats:has(.apoc-shop-sec) { display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; align-content:start; gap:14px; }
 #shop-cats .apoc-shop-sec { grid-column:1 / -1; justify-self:stretch; width:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:flex-start; gap:6px; padding:6px 4px; min-width:0; }
@@ -1537,10 +1612,9 @@ body[data-world="apoc"] #game-content #slots .skill-use:disabled { background:tr
 #game #apoc-exchange { grid-column:2; justify-self:start; min-width:0; max-width:100%; padding:0; font-size:12px; line-height:1.3;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }   /* min-width:0：不准把招募卡的中間欄撐寬（直式會把十連鍵擠出畫面） */
 .apoc-face-blank { display:block; width:100%; height:100%; border-radius:8px; background:#3B2A1C; }
-/* 末世收藏卡：嵌精裝頁當卡面（iframe 自己是透明底） */
-.deluxe-card { position:relative; aspect-ratio:5/7; background:transparent !important; border:0 !important; box-shadow:none !important; }
-.deluxe-card iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:transparent; color-scheme:light; }
-.album-slot .deluxe-card iframe { pointer-events:none; }
+/* 末世收藏卡：第十二輪改成原生卡面（跟 2.0 的 71 張同一條路），不再嵌 iframe。
+   .holo-card 的樣式已經涵蓋，這裡只留一條：卡冊格子裡的那張不吃點擊（點的是整個格子）。 */
+.album-slot .collect .holo-face { pointer-events:none; }
 body[data-world="apoc"] #game #slots .skill-slot { background:transparent; border:0; }   /* 深藍版留下的方塊底，會在圓貼紙後面墊一塊深色 */
 body[data-world="apoc"] #slots .skill-slot[data-state="unavailable"] .skill-use { filter:saturate(.35); }
 body[data-world="apoc"] #slots .skill-slot[data-state="cooldown"] .skill-use::after { inset:10px; }   /* 跟著貼紙內縮 */
@@ -1623,7 +1697,7 @@ body[data-world="apoc"] #slots .skill-slot[data-state="cooldown"] .skill-use::af
 #apoc-ceremony:not([hidden]) { animation:apoc-ceremony-in .22s ease-out; }
 #apoc-ceremony.closing { opacity:0; pointer-events:none; }
 @keyframes apoc-ceremony-in { from { opacity:0; } to { opacity:1; } }
-@media not all and (max-aspect-ratio: 3/4) { body[data-world="apoc"] #shop .recruit { grid-template-rows:40px 42px auto auto auto; } }   /* 橫式限定（直式有自己的兩列）：進入招募是兩行字，1.0 的 38px 列裝不下、按鈕底邊壓到機率行 */
+@media not all and (max-aspect-ratio: 3/4) { body[data-world="apoc"] #shop .recruit > img { height:40px; } }   /* 橫式限定（直式有自己的兩列）：進入招募是兩行字，1.0 的 38px 列裝不下、按鈕底邊壓到機率行 */
 body[data-world="apoc"] #shop .recruit #draw-one { min-width:150px; height:auto; min-height:0; padding-block:2px; line-height:1.05; font-size:14px; }   /* 第十輪截圖：固定高度時小字「差 923」掉出底邊；但撐到 44px 又比 38px 那列高、蓋住下面的機率行 → 壓緊到兩行剛好 */
 /* 「進入招募」下面一行小字寫可不可以抽；UI 體檢：跟標題擠同一行時直式會出界 */
 body[data-world="apoc"] #shop .recruit #draw-one .draw-five-price { display:block; font-size:11px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
@@ -1800,3 +1874,14 @@ body[data-world="apoc"] #effect-label.omen { color:#8E1B12; font-weight:900; }
 @media (max-aspect-ratio: 3/4) { #badge-grid .apoc-badge-cell small { font-size:13px; } }
 /* 第十輪 D 截圖：卡冊詳情的按鈕是紙片貼圖（border-image fill 蓋住背景色），停用時看起來跟可按的一樣 → 淡一點 */
 body[data-world="apoc"] #game .detail-actions button:disabled { opacity:.55; cursor:not-allowed; }
+
+/* 抽卡漲價的說明（第十二輪，朋友回饋「單抽不就很虧」）：只有付金幣那一抽才漲，用券不算。
+   跟 #single-note 同一欄，字要小、要能換行，不然直式會把十連鍵擠出畫面。 */
+#draw-growth { grid-column:1 / -1; font-size:11px; line-height:1.4; color:#6B563F; text-align:center; }
+#draw-growth:empty { display:none; }
+/* 招募卡是兩個世界共用的節點：萬一沒被收掉，也不要讓 2.0 的規則出現在桌邊 */
+body:not([data-world="apoc"]) #draw-growth { display:none; }
+/* ⚠ 招募卡在 2.0 本來是「固定高 132px ＋ 五個固定列」，多一行字就會把「用桌邊金幣換券」壓扁
+   （UI 體檢：內容 16px 被塞進 11px 的框）。2.0 改成高度由內容決定、列也自動排。 */
+body[data-world="apoc"] #shop .recruit { height:auto; min-height:132px; grid-template-rows:none; grid-auto-rows:min-content; }
+body[data-world="apoc"] #draw-growth { color:#A79579; }

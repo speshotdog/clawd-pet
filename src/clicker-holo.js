@@ -20,25 +20,43 @@ window.ClickerHolo = (() => {
   }
   const assetUrl = (n) => url((window.ApocAssets || {})[n] || n);
   const ready = () => !!(window.HoloCardFace && window.ApocPool);
+  // 收藏卡（魔花少女）：不在卡池裡、素材與遮罩是另一組、階級是這張卡自己新增的「特殊」。
+  // 使用者 2026-09-14：「收藏卡的品質要跟 2.0 的卡冊一樣好」——所以走的是**同一個 face()**，
+  // 只是換一組素材對照表、多掛一張 holo-special.css，再補上獨立頁在 create() 之後做的加工。
+  const CF = () => window.ApocCollectFace;
+  const isCollect = (entry) => !!(entry && CF()?.has(entry.id));
+  let collectSeq = 0;
   // HoloCardFace.observe() 用強引用的 Set 持有卡面，翻頁、換詳情、拖曳結束後不解除就一直留著（Codex 複檢 C）。
   // 呼叫端不會通知「這張卡被拿掉了」，所以每次建新卡時順手清：離開 DOM 超過 5 秒的才清——
   // 剛建好還沒掛上去的卡也是 isConnected=false，不能馬上清。
   const live = new Set();
   function prune(now) {
-    for (const h of live) if (!h.isConnected && now - h._born > 5000) { window.HoloCardFace.unobserve(h._face); live.delete(h); }
+    for (const h of live) if (!h.isConnected && now - h._born > 5000) { window.HoloCardFace.unobserve(h._face); h._collect?.stop(); live.delete(h); }
+  }
+  // 收藏卡帶著 2.5 MB 的替身動畫，不能等下一次建卡順手清（關掉卡冊之後就不會再建卡了）。
+  // 它只會有一兩張，所以離開 DOM 就直接收——比 prune 的 5 秒寬限積極。
+  function sweepCollect() {
+    for (const h of live) if (h._collect && !h.isConnected) { window.HoloCardFace.unobserve(h._face); h._collect.stop(); live.delete(h); }
   }
 
   // 回傳一個「填滿容器」的精裝卡面。容器自己要有尺寸與 position（.hcard 是 inset:0）。
   function face(entry, { tilt = false } = {}) {
     if (!ready() || !entry) return null;
-    const host = document.createElement('span'); host.className = 'holo-face';
-    const m = maskUrls();
+    const collect = isCollect(entry);
+    if (collect) CF().register();      // LABEL／ZLIFT／TILT 補上「特殊」這一階（card-face.js 是凍結檔）
+    const host = document.createElement('span'); host.className = 'holo-face' + (collect ? ' holo-collect' : '');
+    const D = collect ? window.ApocCollect : null;
+    const m = collect ? Object.fromEntries(Object.entries(D.masks).map(([k, v]) => [k, url(v)])) : maskUrls();
+    const resolve = collect ? (n) => url(D.assets[n] || n) : assetUrl;
     if (m.frame) host.style.setProperty('--frame-mask', `url("${m.frame}")`);
     if (m.glitter) host.style.setProperty('--glitter-mask', `url("${m.glitter}")`);
     const sh = host.attachShadow({ mode: 'open' });
     const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = url('holo.css'); sh.append(link);
-    const f = window.HoloCardFace.create(entry, { masks: m, resolve: assetUrl });
+    // 共用的 holo.css 沒有 .r-special（原頁註解：「只寫在這一頁」），收藏卡要多掛一張
+    if (collect) { const sp = document.createElement('link'); sp.rel = 'stylesheet'; sp.href = url('holo-special.css'); sh.append(sp); }
+    const f = window.HoloCardFace.create(entry, { masks: m, resolve });
     sh.append(f);
+    if (collect) host._collect = CF().enhance(f, sh, resolve, ++collectSeq);
     window.HoloCardFace.observe(f); window.HoloCardFace.refit(f);
     window.HoloCardFace.paint(f, entry.rarity, 0, 0, { tilt });
     host._face = f; host._born = Date.now();
@@ -75,6 +93,6 @@ window.ClickerHolo = (() => {
     host.classList.add('holo-interactive');
   }
   // 卡面的字級是用容器寬度算的，容器改變大小要重量一次
-  function refit(host) { if (host && host._face) window.HoloCardFace.refit(host._face); }
-  return { face, refit, ready, interactive };
+  function refit(host) { sweepCollect(); if (host && host._face) window.HoloCardFace.refit(host._face); }
+  return { face, refit, ready, interactive, isCollect, sweepCollect };
 })();

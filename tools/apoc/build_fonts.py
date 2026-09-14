@@ -17,7 +17,7 @@ Arial／微軟正黑，卡上的「魔花少女」用的根本不是設計時的
 
 用法：python tools/apoc/build_fonts.py
 產出：src/apoc/fonts/holo-0.woff2（Sans）、holo-1.woff2（Serif），
-      並把 src/apoc/mohuashaonv.html 裡的內嵌 data URI 換成參照這兩個檔。
+      holo.css 的 @font-face 直接指這兩個檔（卡面在 shadow root 裡也吃得到）。
 """
 import base64, io, re, sys
 from pathlib import Path
@@ -33,6 +33,8 @@ SOURCES = [('holo-0.woff2', Path(r'C:\Windows\Fonts\NotoSansTC-VF.ttf')),
 # 字集：卡池的所有卡名＋稀有度字樣＋精裝頁自己的文字，寧可多給不要少給。
 ASCII = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz /·°↻★☆＋+-−×.,:;!?()[]％%\'"、。《》「」…—'
 
+NON_ASCII = '[^' + chr(0) + '-' + chr(0x7f) + ']'   # 非 ASCII 的字（用 chr 組，避免跳脫字元在編輯時被吃掉）
+
 def collect_chars():
     chars = set(ASCII)
     # ① 末世卡池的卡名（src/apoc/pool.js 是 window.ApocPool=[...] 的 JSON）
@@ -42,7 +44,13 @@ def collect_chars():
     for f in ('gacha-pool.js', 'clicker-balance.js'):
         p = SRC / f
         if p.exists(): chars |= set(re.findall(r'[^\x00-\x7f]', p.read_text(encoding='utf-8')))
-    # ③ 精裝頁自己的文字（卡框上的稀有度、標語…）
+    # ③ 收藏卡（魔花少女）的卡名與「特殊」這個階級標籤。
+    # ⚠ 第十二輪把獨立頁退役之後，這些字只存在 collect.js／collect-face.js／holo-special.css 裡，
+    #   漏掉這一條，卡面上的「魔花少女」「特殊」就會掉進 fallback 字型（字型不一致，肉眼看得出來）。
+    for f in ('collect.js', 'collect-face.js', 'holo-special.css'):
+        p = APOC / f
+        if p.exists(): chars |= set(re.findall(NON_ASCII, p.read_text(encoding='utf-8')))
+    # ④ 精裝頁自己的文字（卡框上的稀有度、標語…）
     for p in list(APOC.glob('*.html')) + [APOC / 'holo.css']:
         if p.exists(): chars |= set(re.findall(r'[^\x00-\x7f]', p.read_text(encoding='utf-8')))
     # 控制字元與代理對不要進去
@@ -91,21 +99,15 @@ def verify(paths, chars):
         print(f'  {p.name}：{len(cm)} 個碼位；子集弄丟 {len(dropped)} 字 {"".join(dropped[:10])}'
               f'；原始字型本來就沒有 {len(absent)} 字 {"".join(absent[:10])}')
         if len(cm) < 100 or dropped: bad.append((p.name, len(cm), dropped[:10]))
+        # 卡面上一定會出現的字，缺一個就是整排掉 fallback（第十二輪新增這道明確檢查）
+        must = '魔花少女特殊神話傳說史詩精良'
+        miss = [c for c in must if ord(c) not in cm]
+        if miss: bad.append((p.name, '卡面必備字缺漏', ''.join(miss)))
     return bad
 
-def relink_inline():
-    """把 mohuashaonv.html 內嵌的 data URI 換成參照 fonts/ 底下的實體檔。
-       那兩段 base64 就是上游沒 populate 產出的空字型，留著只會繼續蓋掉正確的字型。"""
-    p = APOC / 'mohuashaonv.html'
-    html = io.open(p, encoding='utf-8', newline='').read()
-    n = 0
-    for i, family in enumerate(['Holo Noto Sans', 'Holo Noto Serif']):
-        pat = re.compile(r'(font-family:"' + re.escape(family) + r'";src:url\()"data:font/woff2;base64,[A-Za-z0-9+/=]+"')
-        html, k = pat.subn(lambda m: m.group(1) + f'"fonts/holo-{i}.woff2"', html)
-        n += k
-    io.open(p, 'w', encoding='utf-8', newline='').write(html)
-    print(f'  {p.name}：換掉 {n} 個內嵌字型 → fonts/holo-*.woff2')
-    return n
+# ⚠ 第十二輪拿掉了 relink_inline()：收藏卡已經改成原生卡面（ClickerHolo → HoloCardFace），
+#   src/apoc/mohuashaonv.html（10.5 MB 的獨立頁）連同它內嵌的那兩個空字型一起退役了。
+#   字型子集本身還在用——holo.css 的 @font-face 指的就是 fonts/holo-*.woff2。
 
 if __name__ == '__main__':
     chars = collect_chars()
@@ -113,7 +115,6 @@ if __name__ == '__main__':
     FONTS.mkdir(parents=True, exist_ok=True)
     paths = build(chars)
     bad = verify(paths, chars)
-    relink_inline()
     if bad:
         print('✗ 子集不完整：', bad); sys.exit(1)
     print('✓ 字型子集完成')

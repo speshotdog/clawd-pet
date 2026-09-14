@@ -34,6 +34,9 @@ MAKE_V2 = """() => {
   s.coins = 1e9; s.lifetimeCoins = 1e12; s.manualClicks = 500; s.packages = 200;
   s.claimedMilestones = ['tutorial50'];
   s.prestiges = 6; s.marksClaimed = 90000; s.marks = 50000; s.blessing = 40;
+  // 買過「第四技能槽」：fresh() 固定給 3 格，但 validate 要求買過 slot4 就得是 4 格。
+  // 「從零開始」把 markShop 搬過去卻沒補格子的話，commit 會失敗、按鈕按下去毫無反應（Codex 複查指出）。
+  s.markShop = { slot4: true }; s.skillSlots = [null, null, null, null]; s.slotReadyAt = [0, 0, 0, 0];
   s.version = 2; delete s.legacy;
   return X.encodeSave(s);
 }"""
@@ -59,7 +62,7 @@ with sync_playwright() as p:
         else: r.fulfill(status=404, body='missing')
     ctx.route('**/*', route)
     pg = ctx.new_page(); errors = []
-    pg.on('pageerror', lambda e: errors.append(str(e)))
+    pg.on('pageerror', lambda e: errors.append((getattr(e, 'stack', None) or str(e))[:700]))
     pg.goto('http://clicker.test/clicker.html'); pg.wait_for_function('window.Clicker?.state'); pg.wait_for_timeout(1800)
 
     # ---- ④ 全新存檔（沒有 legacy）不該有那顆鍵
@@ -87,12 +90,22 @@ with sync_playwright() as p:
     got = pg.evaluate("""() => ({ collectibles: Clicker.state.collectibles || [], badges: (Clicker.state.badges||[]).includes('oldtimes'),
       reset: Clicker.state.legacy?.reset === true, snapshot: !!Clicker.state.legacy?.snapshot,
       coins: Clicker.state.coins, cards: Object.keys(Clicker.state.collection || {}).length,
+      marks: Clicker.state.marks, marksClaimed: Clicker.state.marksClaimed, blessing: Clicker.state.blessing, prestiges: Clicker.state.prestiges,
+      slots: (Clicker.state.skillSlots||[]).length, slot4: !!Clicker.state.markShop?.slot4,
       reward: !document.getElementById('reward').hidden })""")
     check('mohuashaonv' in got['collectibles'], f"拿到魔花少女收藏卡（{got['collectibles']}）")
     check(got['badges'], '拿到徽章「舊時代的珍母」')
     check(got['reset'] and got['snapshot'], '舊進度封存成 legacy.snapshot（徽章牆的「舊時代的相簿」要用）')
     check(got['cards'] == 0 and got['coins'] == 0, f"進度真的歸零（夥伴 {got['cards']} 隻、幣 {got['coins']}）")
-    check(got['reward'], '有跳出獎勵視窗')
+    # 第十二輪回報：「朋友按放棄進度後只有拿到成就跟卡，沒有印記」——fresh() 把印記歸零了
+    check(got['marksClaimed'] > 0 and got['marks'] > 0,
+          f"印記照帶（claimed {got['marksClaimed']}、手上 {got['marks']}）")
+    check(got['slots'] == 4 and got['slot4'],
+          f"買過 slot4 的人重來之後技能槽還是 4 格（實得 {got['slots']} 格、slot4={got['slot4']}）")
+    check(got['blessing'] > 0 and got['prestiges'] > 0,
+          f"祝福等級與輪迴次數照帶（Lv.{got['blessing']}、輪迴 {got['prestiges']}）")
+    dbg = pg.evaluate("()=>({ cleanup: document.getElementById('cleanup').hidden, reward: document.getElementById('reward').hidden, blocked: Clicker.state ? 'ok' : 'no-state' })")
+    check(got['reward'], f'有跳出獎勵視窗（{dbg}、錯誤 {errors[:2]}）')
     pg.screenshot(path=str(OUT / 'reward.png'))
     pg.click('#reward-ok'); pg.wait_for_timeout(800)
 

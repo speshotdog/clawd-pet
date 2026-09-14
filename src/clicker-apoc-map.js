@@ -97,17 +97,22 @@ window.ClickerApocMap = (() => {
       $('map-section').textContent = `0${s.segment + 1} / ${SECTIONS[s.segment]}・${MECHANICS[s.segment]}`;
       $('map-title').textContent = `${String(selected + 1).padStart(2, '0')} ${s.name}`;
       const done = selected < progress, current = selected === progress;
-      $('map-status').textContent = done ? '已通行' : current ? (view.stage ? '戰鬥中' : '目前位置')
+      $('map-status').textContent = done ? (view.revisitAt === selected ? '已通行・回顧中' : '已通行') : current ? (view.stage ? '戰鬥中' : '目前位置')
         : `未解鎖・先過第 ${selected} 站`;
       $('map-desc').textContent = s.boss ? `區段王・${MECHANICS[s.segment]}。打贏才能進下一個區段。`
         : `路上的小怪。前方的痕跡：${OMENS[s.segment]}。`;
       $('map-next').textContent = current && !done
         ? `需要 ${format(view.need)} 傷害・目前戰力 ${format(view.power)}`
-        : done ? '這一站已經走過了。' : '';
+        : done ? (view.revisitAt === selected ? '回顧中：正在重打這一站。' : '走過的站可以無限重打，拿一樣的錢，進度不會動。') : '';
       const go = $('map-enter');
-      go.disabled = !current || !(view.power > 0) || (!view.canFight && !view.stage);
-      go.textContent = view.stage && current ? '回到戰鬥' : !(view.power > 0) ? '先去編隊' : s.boss ? '挑戰王關' : '進入戰鬥';
-      $('map-back').disabled = selected === Math.min(progress, 19);
+      // 第十二輪（使用者：「要讓回家可以回到過去，打當時的怪物重複玩，不要鎖住」）：
+      // 走過的站不再是死的，按下去就回去重打；目前站照舊。
+      const here = view.revisitAt === selected && !!view.stage, bossing = !!view.stage?.boss;
+      go.disabled = (!done && !current) || !(view.power > 0) || here || (done && bossing) || (current && !view.canFight && !view.stage);
+      go.textContent = !(view.power > 0) ? '先去編隊'
+        : done ? (here ? '回顧中' : bossing ? '王關進行中' : '重打這一站')
+        : view.stage && current ? '回到戰鬥' : s.boss ? '挑戰王關' : '進入戰鬥';
+      $('map-back').disabled = selected === Math.min(progress, 19) && (view.revisitAt === null || view.revisitAt === undefined);
       render();
     }
 
@@ -159,10 +164,15 @@ window.ClickerApocMap = (() => {
       bind() {
         $('map-enter').onclick = () => {
           const view = v();
-          if (!view.stage) apocUI.fight();
+          if (selected < view.progress) apocUI.revisit(selected);        // 回去重打走過的站
+          else if (!view.stage) apocUI.fight();
           close(); apocUI.render();
         };
-        $('map-back').onclick = () => { selected = Math.min(v().progress, 19); details(); scrollTo(selected); };
+        // 「回到目前站」＝結束回顧、鏡頭回到進度所在的那一站
+        $('map-back').onclick = () => {
+          if (v().revisitAt !== null && v().revisitAt !== undefined) apocUI.fight();
+          selected = Math.min(v().progress, 19); details(); scrollTo(selected);
+        };
       },
     };
   }

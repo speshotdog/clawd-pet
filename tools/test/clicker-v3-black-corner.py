@@ -18,8 +18,19 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]; SRC = ROOT / 'src'
 OUT = ROOT / '_art' / 'out' / 'black-corner'; OUT.mkdir(parents=True, exist_ok=True)
-CHECKER = Path(r'D:/claude研究/clawd-pet-50/_art/holo-test/check_card_corners.py')
+# 判準腳本在隔壁的 clawd-pet-50 worktree。⚠ 不要寫死絕對路徑：它搬過一次家
+# （D:\claude研究\ → D:\claude\），這支就整整壞在 FileNotFoundError 上沒人發現。
+def _find_checker():
+    rel = Path('clawd-pet-50/_art/holo-test/check_card_corners.py')
+    for base in (ROOT.parent, ROOT.parent.parent, Path(r'D:/claude'), Path(r'D:/claude研究')):
+        p = base / rel
+        if p.exists(): return p
+    return None
+CHECKER = _find_checker()
 
+if CHECKER is None:
+    print('SKIP 找不到判準腳本 clawd-pet-50/_art/holo-test/check_card_corners.py——這支需要隔壁的 worktree')
+    sys.exit(0)
 spec = importlib.util.spec_from_file_location('check_card_corners', CHECKER)
 CC = importlib.util.module_from_spec(spec); spec.loader.exec_module(CC)
 
@@ -53,16 +64,48 @@ BACKDROP = """()=>{const s=document.querySelector('.stage')||document.body;
 UNBACKDROP = "()=>{const d=document.getElementById('__bc_grey'); if(d)d.style.display='none';}"
 
 
-# 判準的壞寫法注入找的是舊殼的 .card-face；精裝典藏包的卡面根節點是 .hcard（HoloCardFace），
-# 同一個壞寫法（::after 黑底 screen 在獨立合成層）改掛到 .hcard 上
-INJECT_JS = CC.INJECT_JS.replace('.card-face', '.hcard')
+# ⚠ 上游的 check_card_corners.py 後來只留下幾何與判準（corner_boxes／lum／crop／measure_corners），
+#   `INJECT_JS` 與 `collect_geometry` 都不在了——這支照舊 import 就 AttributeError 整支死掉。
+#   這兩段本來就是「怎麼餵資料給判準」，屬於呼叫端，搬到這裡自己維護，判準仍然共用上游那一份。
+
+# 負控制：注入已知的壞寫法（黑底 ::after ＋ screen ＋ 方角 ＋ 獨立合成層）。
+# 每一輪都要跑，注入之後判準必須變紅；不會變紅就代表綠燈沒有意義。
+INJECT_JS = """() => {
+  let st = document.getElementById('__bc_inject');
+  if (!st) { st = document.createElement('style'); st.id = '__bc_inject'; document.head.append(st); }
+  st.textContent = `.hcard::after{content:'';position:absolute;inset:0;background:#000;
+    mix-blend-mode:screen;border-radius:0;transform:translateZ(0);will-change:transform;z-index:99}`;
+  // 卡面在 shadow root 裡，主頁的 <style> 進不去，要逐一補進去
+  let n = 0;
+  for (const host of document.querySelectorAll('.holo-face')) {
+    const r = host.shadowRoot; if (!r) continue;
+    let s2 = r.getElementById('__bc_inject');
+    if (!s2) { s2 = document.createElement('style'); s2.id = '__bc_inject'; r.append(s2); }
+    s2.textContent = st.textContent; n++;
+  }
+  return { page: 1, shadow: n }; }"""
+
+# 卡片幾何：位置、尺寸、圓角。卡面可能在 shadow root 裡，所以要穿進去找。
+COLLECT_GEOMETRY_JS = """(sel) => {
+  const out = [], seen = new Set();
+  const push = el => {
+    if (seen.has(el)) return; seen.add(el);
+    const b = el.getBoundingClientRect(), cs = getComputedStyle(el);
+    if (b.width < 2 || b.height < 2) return;
+    out.push({ x: b.x, y: b.y, w: b.width, h: b.height,
+               radius: parseFloat(cs.borderTopLeftRadius) || 0,
+               cls: (el.className || '').toString() });
+  };
+  document.querySelectorAll(sel).forEach(push);
+  document.querySelectorAll('.holo-face').forEach(h => h.shadowRoot?.querySelectorAll(sel).forEach(push));
+  return out; }"""
 
 def sample(pg, tag):
     pg.evaluate(BACKDROP)
     pg.evaluate(PAUSE); pg.evaluate(BARRIER)
     shot = OUT / f'{tag}.png'; pg.screenshot(path=str(shot))
-    cards = CC.collect_geometry(pg, '.hcard')
-    m = CC.measure_corners(Image.open(shot), cards, dpr=1.0)
+    cards = pg.evaluate(COLLECT_GEOMETRY_JS, '.hcard')
+    m = CC.measure_corners(Image.open(shot), cards)   # 截圖是 device_scale_factor=1，座標可以直接用
     pg.evaluate(UNBACKDROP); pg.evaluate(RESUME)
     return m, len(cards)
 

@@ -321,7 +321,9 @@ test('王輸過：回前一站刷怪（拿前一站獎勵、不推進度），�
   let f = A.fight(lost, R.BOSS_TIME, true);
   assert.equal(f.stage.index, 2); assert.equal(f.stage.farm, true); assert.equal(f.stage.boss, false); assert.equal(f.stage.deadline, null);
   assert.equal(A.normalize(f).stage.index, 2, '重新載入：刷怪的戰鬥留著');
-  assert.equal(A.normalize({ ...f, bossFailed: null }).stage, null, '沒輸過卻在刷怪＝壞資料');
+  // 第十二輪：走過的站都能重打（回顧），所以「沒輸過卻在刷怪」不再是壞資料——沒走過的站才是
+  assert.equal(A.normalize({ ...f, bossFailed: null }).stage.index, 2, '走過的站本來就能刷');
+  assert.equal(A.normalize({ ...f, stage: { ...f.stage, index: 5 } }).stage, null, '還沒走到的站在刷怪＝壞資料');
   assert.equal(A.canFight(f, R.BOSS_TIME + 1000), false, '冷卻中不能挑戰');
   const coins = f.coins, dying = { ...f, stage: { ...f.stage, hp: 1 } };
   const r = A.settle(dying, R.BOSS_TIME + 1000, 1);
@@ -605,4 +607,77 @@ test('舊存檔遷移：超過滿養的重複卡折成萬用粉塵，不會白�
   assert.equal(A.normalize(old).universalDust, a.universalDust);
   // 已經有 dust 欄位的新存檔不再折算
   assert.equal(A.normalize({ collection: { pufayueyue: 99 }, dust: { pufayueyue: full }, universalDust: 7 }).universalDust, 7);
+});
+
+// --- 第十二輪（使用者：「要讓回家可以回到過去，打當時的怪物重複玩，不要鎖住」
+//                       「全破之後常駐一隻珍母，讓玩家點擊打怪賺錢，不要就空在那」）
+test('回顧：走過的站可以無限重打，拿那一站的獎勵、進度不動；王關打到一半不能落跑', () => {
+  const base = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 5 });
+  assert.equal(A.canRevisit(base, 2), true);
+  assert.equal(A.canRevisit(base, 5), false, '目前站不算回顧');
+  assert.equal(A.canRevisit(base, 9), false, '沒走過的站不能回顧');
+  assert.throws(() => A.revisit(base, 0, 9), /還沒走過/);
+
+  const r = A.revisit(base, 0, 2);
+  assert.equal(r.revisitAt, 2);
+  assert.equal(r.stage.index, 2); assert.equal(r.stage.farm, true); assert.equal(r.stage.revisit, true);
+  assert.equal(r.stage.boss, false); assert.equal(r.stage.deadline, null);
+  assert.equal(A.normalize(r).stage.index, 2, '重開之後回顧還在');
+  assert.equal(A.normalize(r).revisitAt, 2);
+
+  // 打死：拿第 3 站的獎勵、進度不動
+  const dying = { ...r, stage: { ...r.stage, hp: 1 } };
+  const out = A.settle(dying, 1000, 1);
+  assert.deepEqual(out.events.map(e => e.type), ['farm']);
+  assert.equal(out.state.progress, 5, '回顧不推進度');
+  assert.equal(out.state.revisitAt, 2, '打死之後還留在回顧模式，等重生');
+  assert.ok(out.state.coins > r.coins);
+
+  // 回到目前站＝離開回顧
+  const back = A.fight(out.state, out.state.cooldownUntil + 1);
+  assert.equal(back.revisitAt, null); assert.equal(back.stage.index, 5);
+
+  // 王關進行中不能落跑（不然跑一趟地圖就能躲掉 60 秒判輸）
+  const bossing = A.fight(A.normalize({ ...base, progress: 3 }), 0);
+  assert.equal(bossing.stage.boss, true);
+  assert.equal(A.canRevisit(bossing, 1), false);
+  assert.throws(() => A.revisit(bossing, 0, 1), /王關進行中/);
+
+  // 輪迴回到第 0 站：回顧點失效
+  assert.equal(A.normalize({ ...r, progress: 0 }).revisitAt, null);
+});
+
+test('「下一抽付現」不受手上的券影響（有券時 drawCost1 是 0，拿去寫價錢會印出 0）', () => {
+  const a = A.normalize({ ...A.fresh(), unlocked: true, tickets: 18, paidDraws: 0 });
+  assert.equal(A.view(a, 0).drawCost1, 0, '有券：這一抽不用付錢');
+  assert.equal(A.view(a, 0).drawCostNext, R.DRAW_COST, '但「券用完後一抽」還是原價');
+  const paid = A.normalize({ ...a, tickets: 0, paidDraws: 10 });
+  assert.equal(A.view(paid, 0).drawCostNext, Math.round(R.DRAW_COST * R.DRAW_GROWTH ** 10));
+  assert.equal(A.view(paid, 0).drawCostNext, A.view(paid, 0).drawCost1, '沒券時兩者一致');
+});
+
+test('開無盡模式會先離開回顧（不然常駐的那一隻會把第 21 站擋住）', () => {
+  const base = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: R.STATIONS, cleared: true });
+  const standing = A.revisit(base, 0, A.incomeIndex(base));   // 全線通行後場上常駐的那一隻
+  assert.equal(standing.revisitAt, A.incomeIndex(base));
+  const on = A.setEndless(standing, true);
+  assert.equal(on.revisitAt, null, '開無盡＝離開回顧');
+  assert.equal(on.stage, null, '常駐的那一隻要收掉');
+  assert.equal(A.canFight(on, 0), true, '接下來打得到第 21 站');
+  // 輪迴也要清掉
+  assert.equal(A.replay(A.normalize({ ...standing, cleared: true })).revisitAt, null);
+});
+
+test('normalize 會把 revisitAt 與場上的回顧對齊（壞存檔不能各說各話）', () => {
+  const base = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 5 });
+  const r = A.revisit(base, 0, 2);
+  // ① stage 是回顧、revisitAt 卻是 null → 以 stage 為準補回來
+  assert.equal(A.normalize({ ...r, revisitAt: null }).revisitAt, 2);
+  // ② revisitAt 指到別站 → 也以 stage 為準
+  assert.equal(A.normalize({ ...r, revisitAt: 4 }).revisitAt, 2);
+  // ③ 場上是正規戰鬥（不是 farm）→ revisitAt 一定要清掉
+  const fighting = A.fight(base, 0);
+  assert.equal(A.normalize({ ...fighting, revisitAt: 2 }).revisitAt, null);
+  // ④ 沒有場次、只是在等重生 → revisitAt 留著（autoFight 靠它接下一隻）
+  assert.equal(A.normalize({ ...r, stage: null }).revisitAt, 2);
 });

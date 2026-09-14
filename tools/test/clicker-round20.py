@@ -73,7 +73,9 @@ def main():
         pg.evaluate('Clicker.state.clickLevel=100')
         pg.locator('#tap').click()
         click=pg.locator('.floater:not(.passive)').last.evaluate("e=>({size:getComputedStyle(e).fontSize,color:getComputedStyle(e).color,stroke:getComputedStyle(e.querySelector('b')).webkitTextStrokeWidth})")
-        check(click=={'size':'42px','color':'rgb(239, 142, 142)','stroke':'2px'},f'ratio ≥200 點擊浮字 {click}')
+        # 基準重寫：clicker-stage.js 第七輪「數字大一號」把 ratio≥200 的點擊浮字從 42px 改成 46px，
+        # 這條斷言一直停在舊值（程式才是對的，測試沒跟上）。
+        check(click=={'size':'46px','color':'rgb(239, 142, 142)','stroke':'2px'},f'ratio ≥200 點擊浮字 {click}')
         pg.screenshot(path=str(OUT/'r20-floaters.png'))
         pg.evaluate("""() => {
           const s=Clicker.state; s.collection={yueyue2:1}; s.skillSlots=[null,null,null]; s.cooldownUntil={}; s.slotReadyAt=[0,0,0]; s.effects=[]; s.clickLevel=0; s.partnerLevels={};
@@ -112,16 +114,14 @@ def main():
         pg.eval_on_selector('[data-item="blessing"]','el=>el.click()'); pg.wait_for_timeout(250)
         after=pg.evaluate('({marks:Clicker.state.marks,blessing:Clicker.state.blessing})')
         check(after['blessing']==before['blessing']+1 and after['marks']==before['marks']-(before['blessing']+1),f'祝福 +1、扣 {before["blessing"]+1} 印記 {before}→{after}')
-        # 兌換：萬用粉塵 ×1／×10
-        for n in (1,10):
-            before=pg.evaluate('({marks:Clicker.state.marks,dust:Clicker.state.universalDust})')
-            cost=pg.evaluate(f'ClickerPrestige.dustTradeCost(Clicker.state,{n})')
-            per=pg.evaluate('ClickerPrestige.DUST_PER_TRADE')
-            pg.eval_on_selector(f'[data-item="dustTrade"][data-quantity="{n}"]','el=>el.click()'); pg.wait_for_timeout(250)
-            after=pg.evaluate('({marks:Clicker.state.marks,dust:Clicker.state.universalDust})')
-            check(after['dust']==before['dust']+per*n and after['marks']==before['marks']-cost,f'萬用粉塵 ×{n} 入帳（扣 {cost} 印記、+{per*n} 粉塵）')
-        pg.locator('[data-item="dustTrade"][data-quantity="10"]').scroll_into_view_if_needed()
-        check(pg.locator('[data-item="dustTrade"][data-quantity="10"]').evaluate("e=>{const r=e.getBoundingClientRect(),p=document.getElementById('prestige-body').getBoundingClientRect();return r.top>=p.top&&r.bottom<=p.bottom}") ,'兌換商品捲動後完整留在面板內')
+        # 兌換：第十一輪整段下架（使用者：「我希望印記商店的粉塵兌換也移除」）。
+        # ⚠ 這支以前上面斷言「已下架」、下面還在點那顆按鈕，自相矛盾——按鈕找不到就整支炸掉。
+        #   現在改成驗「下架之後的行為」：UI 沒有那個商品，直接呼叫 API 也會被擋、印記與粉塵都不動。
+        before=pg.evaluate('({marks:Clicker.state.marks,dust:Clicker.state.universalDust})')
+        err=pg.evaluate("()=>{ try { ClickerPrestige.tradeDust(Clicker.state,1); return null; } catch(e){ return e.message; } }")
+        after=pg.evaluate('({marks:Clicker.state.marks,dust:Clicker.state.universalDust})')
+        check(err and '停售' in err, f'直接呼叫 tradeDust 會被擋（{err}）')
+        check(after==before, f'被擋下來之後印記與粉塵都沒動 {before}→{after}')
         pg.screenshot(path=str(OUT/'r20-mark-shop.png'))
         pg.keyboard.press('Escape')
         pg.evaluate("document.getElementById('floaters').replaceChildren(); testStage.freeze(true); testStage.floatPassive(100); testStage.float(1e9,true,{x:485,y:240})")

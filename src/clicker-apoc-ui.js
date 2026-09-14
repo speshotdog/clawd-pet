@@ -261,7 +261,21 @@ window.ClickerApocUI = (() => {
       const v = view(); if (!(v.power > 0)) return false;
       // 這一站的王輸過：回前一站刷怪變強（第六輪，照 Sakura Clicker），準備好玩家自己按「再次挑戰」
       if (A.isBoss(a.progress) && a.bossFailed === a.progress) { apply((x, n) => A.fight(x, n, true), true); return !!store.state.apoc?.stage; }
-      if (!v.canFight) return false;
+      // 回顧走過的站（第十二輪）：選了就一直重打那一站，打死一隻等 FARM_RESPAWN 再來一隻。
+      // ⚠ 重生空檔要直接回 false，不能往下掉：掉下去會去打「目前站」，回顧模式一秒就被自己取消，
+      //   而且進度會一路衝上去（實測 8 → 19）。
+      if (Number.isInteger(a.revisitAt)) {
+        if (Date.now() < (a.farmNextAt || 0)) return false;
+        apply((x, n) => A.revisit(x, n, x.revisitAt), true); return !!store.state.apoc?.stage;
+      }
+      if (!v.canFight) {
+        // 全線通行之後場上不要空著（使用者指定）：常駐一隻珍母在最後一個小怪站，讓玩家點著賺錢。
+        // 用回顧那條路走，所以獎勵、點擊、放置傷害全部沿用，不必另寫一套。
+        if (a.cleared && !a.endless && a.progress >= A.RULES.STATIONS && Date.now() >= (a.farmNextAt || 0)) {
+          apply((x, n) => A.revisit(x, n, A.incomeIndex(x)), true); return !!store.state.apoc?.stage;
+        }
+        return false;
+      }
       apply((x, n) => A.fight(x, n), true);
       return !!store.state.apoc?.stage;
     }
@@ -422,8 +436,10 @@ window.ClickerApocUI = (() => {
       }
       // 刷怪兩場之間有 1 秒空檔（Codex 第六輪必修：限制刷怪重新開場）：空檔照樣畫前一站、寫刷怪中，不要閃成王
       const farmGap = !v.stage && store.state.apoc?.bossFailed === v.progress && A.isBoss(v.progress) && v.progress > 0 && (v.endless || v.progress < v.stations);
-      const i = v.stage ? v.stage.index : farmGap ? v.progress - 1 : v.progress;
-      const boss = v.stage ? v.stage.boss : farmGap ? false : A.isBoss(i);
+      // 回顧的重生空檔（1 秒）也要維持在回顧的那一站，不然標籤會閃回「第 N 站・按開戰開始」
+      const revGap = !v.stage && Number.isInteger(v.revisitAt), rev = !!v.stage?.revisit || revGap;
+      const i = v.stage ? v.stage.index : revGap ? v.revisitAt : farmGap ? v.progress - 1 : v.progress;
+      const boss = v.stage ? v.stage.boss : (revGap || farmGap) ? false : A.isBoss(i);
       $('stage').dataset.apocSeg = String(Math.floor(Math.min(i, 19) / 4) + 1);   // 舞台背景跟著這一段的地景換（apoc/theme.css）
       const art = enemyArt(Math.min(i, 19), boss);
       if (el.getAttribute('src') !== art.src) {
@@ -435,14 +451,15 @@ window.ClickerApocUI = (() => {
         el.style.height = art.h ? `${art.h}px` : ''; el.style.width = art.h ? `${Math.round(art.h * art.aspect)}px` : '';
       }
       el.classList.toggle('boss', !!boss);
-      const over = v.progress >= (v.endless ? A.RULES.ENDLESS_MAX : v.stations);   // 第十輪 C：無盡模式第 21 站起照樣有怪；打到 ENDLESS_MAX 才算到底（Codex 10C 值得修）
+      // 回顧／常駐的那隻也是怪：場上有 stage 就不算走完（不然全線通行之後怪會被藏起來）
+      const over = !v.stage && !revGap && v.progress >= (v.endless ? A.RULES.ENDLESS_MAX : v.stations);   // 第十輪 C：無盡模式第 21 站起照樣有怪；打到 ENDLESS_MAX 才算到底（Codex 10C 值得修）
       el.hidden = over;
 
       document.querySelector('.package-meter').hidden = false;
       const failed = (!v.stage || !!v.stage.farm) && store.state.apoc?.bossFailed === v.progress;   // 這一站的王輸過（輸了從滿血重來；第六輪起在前一站刷怪）
-      const idleNeed = farmGap ? A.need(i, { laps: v.laps }) : v.need;   // 第二圈的刷怪空檔也要帶圈數（Codex 10C 值得修）
+      const idleNeed = (farmGap || revGap) ? A.need(i, { laps: v.laps }) : v.need;   // 第二圈的刷怪空檔也要帶圈數（Codex 10C 值得修）
       const hp = v.stage ? Math.max(0, v.stage.hp) : idleNeed, max = v.stage ? v.stage.need : idleNeed;
-      $('package-label').textContent = over ? (v.endless ? '無盡模式到底了' : '全線已通行') : `${i >= v.stations ? '無盡・' : ''}第 ${i + 1} 站${boss ? '・王關' : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
+      $('package-label').textContent = over ? (v.endless ? '無盡模式到底了' : '全線已通行') : `${i >= v.stations ? '無盡・' : ''}第 ${i + 1} 站${boss ? '・王關' : rev ? (v.progress >= v.stations ? '・常駐' : '・回顧') : (v.stage?.farm || farmGap) ? '・刷怪中' : v.stage?.waves > 1 ? `・${v.stage.wave}/${v.stage.waves}` : ''}`;
       $('package-progress').max = 1; $('package-progress').value = max ? Math.min(1, 1 - hp / max) : 0;
       $('package-number').textContent = over ? (v.endless ? `${A.RULES.ENDLESS_MAX} 站` : `${v.stations} / ${v.stations}`) : `${format(hp)} / ${format(max)}`;
 
@@ -472,14 +489,16 @@ window.ClickerApocUI = (() => {
       // 「開戰」沿用 1.0 的挑戰鍵
       const go = $('boss-challenge');
       go.hidden = (!!v.stage && !v.stage.farm) || over;   // 刷怪中也要看得到「再次挑戰」
-      go.disabled = !v.canFight || !(v.power > 0) || store.blocked;
+      if (rev && v.progress < v.stations) { go.hidden = false; }   // 回顧中留一個回得去的鍵
+      go.disabled = (rev ? false : !v.canFight) || !(v.power > 0) || store.blocked;
       // 冷卻中寫出還要等幾秒，不然停用的「再次挑戰」看起來像壞掉（Codex 第五輪）
       const wait = Math.max(0, Math.ceil((v.cooldownUntil - Date.now()) / 1000));
-      go.textContent = !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? (wait ? `再次挑戰・${wait}秒` : '再次挑戰') : '挑戰王關') : '開戰';
+      go.textContent = rev && v.progress < v.stations ? '回到目前站' : !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? (wait ? `再次挑戰・${wait}秒` : '再次挑戰') : '挑戰王關') : '開戰';
       go.classList.toggle('glow', !!(v.canFight && v.power > 0));
       $('boss-estimate').hidden = true;
       $('package-result').textContent = over ? (v.endless ? '無盡模式到底了。' : '全線已通行。')
         : failed ? (v.canFight ? '王關失敗：在前一站刷錢變強，準備好就按「再次挑戰」。' : '王關失敗：先在前一站刷錢變強，冷卻結束後可以「再次挑戰」。')
+        : rev ? (v.progress >= v.stations ? '全線已通行：這一隻會一直在，點著賺錢就好。' : `回顧第 ${i + 1} 站：打不完，也不會推進度。要回去推進度就按下面的「回到目前站」。`)
         : v.stage ? '點怪攻擊；隊伍放著也會打。'
         : '按「開戰」開始。';
       // 1.0 的這一格平常透明、只在完成一包時閃一下；末世輸了王要一直看得到（Codex 5b）
@@ -593,7 +612,16 @@ window.ClickerApocUI = (() => {
         $(`${type}-one`).disabled = $(`${type}-max`).disabled = v.coins < cost || store.blocked;
       }
       $('draw-price').textContent = v.tickets ? `券 ×${v.tickets}` : format(v.drawCost1);
-      $('draw-ticket').title = `末世券只能用桌邊金幣換；抽卡先用券，不夠才付末世金幣（下一抽 ${format(v.drawCost1)}）`;
+      $('draw-ticket').title = `末世券只能用桌邊金幣換；抽卡先用券，不夠才付末世金幣（下一抽付現 ${format(v.drawCostNext)}）`;
+      // 朋友回饋：「我發現只是抽卡而已，下一次抽卡也會變貴，這樣單抽不就很虧」。
+      // 其實只有**付金幣**的那一抽才會漲（用券抽不算 paidDraws），而且十連的每抽均價跟單抽一樣——
+      // 漲價是按「第幾次付費抽」算的，不是按「按了幾次按鈕」。這件事以前只寫在 tooltip 裡，等於沒講。
+      let note = $('draw-growth');
+      if (!note) { note = document.createElement('small'); note.id = 'draw-growth'; $('single-note').after(note); }
+      const pct = ((A.RULES.DRAW_GROWTH - 1) * 100).toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+      note.textContent = v.tickets
+        ? `用券抽不漲價（還有 ${v.tickets} 張）；券用完後一抽 ${format(v.drawCostNext)}`
+        : `每付費抽一次漲 ${pct}%・十連 ${format(v.drawCost10)}（每抽 ${format(Math.round(v.drawCost10 / 10))}，跟單抽一樣）`;
       // 換券入口：招募卡下面一行小字（樣張 A）→ 打開商店的兌換所
       let link = $('apoc-exchange');
       if (!link) { link = document.createElement('button'); link.id = 'apoc-exchange'; link.type = 'button'; link.className = 'text-button'; link.onclick = () => openShop(); $('recruit-open').after(link); }
@@ -784,6 +812,7 @@ window.ClickerApocUI = (() => {
       // 王關的護盾文字借用桌邊的效果標籤，不收掉會留在桌邊（Codex 第二輪 B12）
       const label = $('effect-label'); if (label) { label.hidden = true; label.classList.remove('broken'); }
       $('apoc-exchange')?.remove();
+      $('draw-growth')?.remove();   // 抽卡漲價說明是 2.0 的規則，切回桌邊要收掉（招募卡是兩個世界共用的）
       restoreLabels(); restoreButtons(); unhide();
     }
 
@@ -798,6 +827,7 @@ window.ClickerApocUI = (() => {
       exchange: exchangeTicket,
       page(dir) { buddyPage = Math.max(0, buddyPage + dir); buddyKey = ''; render(); },
       fight: () => apply((x, n) => A.fight(x, n)),
+      revisit: i => apply((x, n) => A.revisit(x, n, i)),
       drawn: ids => apply(x => A.drawn(x, ids)),
       get view() { return view(); },
     };

@@ -289,7 +289,11 @@ window.Clicker = (() => {
       el.dataset.ready = String(available); el.dataset.state = !id ? 'empty' : remaining ? 'cooldown' : available ? 'ready' : 'unavailable';
       el.style.setProperty('--cooldown', `${Math.min(1,remaining / (s.slotReadyAt[i] > (s.cooldownUntil[id] || 0) ? 30 : def?.cd || 30)) * 360}deg`);
       if (available && !wasReady) pulse(button,[{transform:'scale(1)'},{transform:'scale(1.12)',offset:.5},{transform:'scale(1)'}],240);
-      const detail = i >= E.slotCount(s) ? `累積 ${format(B.slotThresholds[i])} 幣解鎖` : effect ? `${effect.remaining !== undefined ? `餘 ${effect.remaining} 次` : effect.kind === 'clickTime' ? `點擊 ×${effect.multiplier}` : `+${format(effect.value)}/秒`}・${Math.max(0,Math.ceil((effect.expiresAt-t)/1000))} 秒` : !def ? '點我選一位夥伴' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
+      // ⚠ 買過「第四技能槽」時，slotCount 是「過了幾個門檻 ＋ 1」，所以第 i 格要看的是
+      //   slotThresholds[i-1] 而不是 [i]；直接用 [i] 的話第四格會讀到 undefined，
+      //   format(undefined) 丟例外，整個 renderSlots 當場中斷（大掃除重來時必踩）。
+      const lockAt = B.slotThresholds[i - (s.markShop?.slot4 ? 1 : 0)];
+      const detail = i >= E.slotCount(s) ? (lockAt === undefined ? '尚未解鎖' : `累積 ${format(lockAt)} 幣解鎖`) : effect ? `${effect.remaining !== undefined ? `餘 ${effect.remaining} 次` : effect.kind === 'clickTime' ? `點擊 ×${effect.multiplier}` : `+${format(effect.value)}/秒`}・${Math.max(0,Math.ceil((effect.expiresAt-t)/1000))} 秒` : !def ? '點我選一位夥伴' : !def.kind ? '後續開放' : remaining ? `冷卻 ${remaining} 秒` : id === 'zhenmu' && Object.keys(s.collection).length < 2 ? '需要另一位夥伴' : '可以發動';
       el.querySelector('small').textContent = effect?.remaining !== undefined ? `餘 ${effect.remaining} 次` : remaining ? `${remaining}s` : '';
       const tip = def ? `${def.skill}\n${skillTip(s,id)}${def.kind ? '' : '\n（後續開放）'}` : (i >= E.slotCount(s) ? detail : '點我選一位夥伴');
       if (button.title !== tip) {button.title = tip;button.dataset.tooltip = tip;}   // title 不隨冷卻秒數改寫，hover 提示才不會每秒閃
@@ -511,7 +515,9 @@ window.Clicker = (() => {
     const tidy = [`印記 ${L.marksClaimed.toLocaleString('zh-TW')} → ${(s.marksClaimed).toLocaleString('zh-TW')}（新版印記照「每輪做到的事」算，每輪最多 ${B.V3.MARKS_PER_RUN} 枚）`,
       `收益祝福 Lv.${L.blessing.toLocaleString('zh-TW')} → Lv.${s.blessing}（已用 ${artsSpent} 枚幫你買到；手上還有 ${s.marks} 枚可以投其他神器）`,
       `永久倍率：拿掉（以前是 ×${(1 + .5 * Math.sqrt(L.marksClaimed)).toFixed(0)}，所有王都變成秒殺）`];
-    const gifts = ['徽章「舊時代的珍母」', '魔花少女・精裝收藏卡（末世的收藏卡分頁）', '⚠ 只有選「從零開始」才拿得到：夥伴、粉塵、徽章、幣全部歸零']; 
+    const gifts = ['徽章「舊時代的珍母」', '魔花少女・精裝收藏卡（末世的收藏卡分頁）',
+      `印記 ${s.marksClaimed.toLocaleString('zh-TW')} 枚與神器等級照帶（輪迴紀錄不歸零）`,
+      '⚠ 只有選「從零開始」才拿得到：夥伴、粉塵、幣全部歸零'];
     const why = `新印記 ＝ 換桌布次數 ${L.prestiges} × 每輪上限 ${B.V3.MARKS_PER_RUN} ＝ ${L.prestiges * B.V3.MARKS_PER_RUN} 枚（反推不到的一律給上界，寧可多給）。祝福第 L 級收 L 枚，先幫你買到買不起為止。永久倍率的根因：它跟生涯幣掛鉤、又乘回幣上，兩條互餵沒有頂；新版換成有頂的神器。`;
     $('cleanup-body').innerHTML = `<div class="cleanup-cols">
       <div><b>保留</b><ul>${kept.map(t => `<li>${t}</li>`).join('')}</ul></div>
@@ -530,6 +536,17 @@ window.Clicker = (() => {
       fresh.settings = { ...fresh.settings, muted: s.settings.muted, music: s.settings.music, musicVolume: s.settings.musicVolume, sfxVolume: s.settings.sfxVolume };
       // 進度快照：卡片、星、升階、超越、訓練、徽章——放在 legacy.snapshot，徽章牆的「舊時代的相簿」可以回味
       const snapshot = { takenAt: Date.now(), collection: { ...s.collection }, dust: { ...s.dust }, promotions: { ...s.promotions }, transcend: { ...s.transcend }, partnerLevels: { ...s.partnerLevels }, badges: [...s.badges], lifetimeCoins: s.lifetimeCoins, prestiges: L.prestiges, packages: window.ClickerExtras.totalPackages ? window.ClickerExtras.totalPackages(s) : 0 };
+      // 印記那一套要帶過來（第十二輪回報：「按放棄進度後只有拿到成就跟卡，沒有印記」）。
+      // ⚠ 以前這裡只帶 settings／legacy／收藏卡，marksClaimed 跟著 fresh() 變成 0——
+      //   可是大掃除頁的「整理」欄才剛跟玩家講他換算後有幾枚印記、祝福幾級，等於當面跳票。
+      //   印記是「輪迴做過幾輪」的紀錄，跟要放棄的夥伴／粉塵／幣是兩回事，本來就該保留。
+      fresh.prestiges = s.prestiges; fresh.marksClaimed = s.marksClaimed; fresh.marks = s.marks;
+      fresh.markShop = { ...s.markShop }; fresh.blessing = s.blessing; fresh.artifacts = { ...s.artifacts };
+      fresh.dustTrades = s.dustTrades || 0;
+      // ⚠ 買過「第四技能槽」的話，validate 會要求 skillSlots／slotReadyAt 長度是 4（clicker-save.js:121）。
+      //   fresh() 固定給 3 格，光搬 markShop 過來會讓這份新存檔驗證不過——commit 回 false，
+      //   按鈕按下去什麼事都不會發生，玩家等於卡住（Codex 複查指出，已寫成測試）。
+      if (fresh.markShop.slot4) { fresh.skillSlots = [null, null, null, null]; fresh.slotReadyAt = [0, 0, 0, 0]; }
       fresh.legacy = { ...L, seen: Date.now(), reset: true, snapshot }; fresh.collectibles = ['mohuashaonv'];
       const checked = window.ClickerExtras.checkBadges ? window.ClickerExtras.checkBadges(fresh).state : fresh;
       if (commit(checked)) { $('cleanup').hidden = true; reload(); rewardPage(); }

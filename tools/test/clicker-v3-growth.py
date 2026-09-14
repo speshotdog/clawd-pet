@@ -14,7 +14,10 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[2]; SRC = ROOT / 'src'
 OUT = ROOT / '_art/out/v3-growth'; OUT.mkdir(parents=True, exist_ok=True)
 fails = []
-STAR_ROW_JS = "() => { const r = document.querySelector('#album-detail .star-row'); if (!r) return null; const box = r.getBoundingClientRect(), host = r.closest('#album-detail').getBoundingClientRect(); return { n: r.querySelectorAll('img').length, gems: r.querySelectorAll('img.gem').length, w: Math.round(box.width), fits: box.right <= host.right + 1 && box.left >= host.left - 1 }; }"
+# 第十二輪（使用者：「10 星在卡冊裡不好看，參考薑餅人王國」，選了 A 版）：
+# 星格**永遠 5 個**，1～5 亮金星、第 6～10 星把金星從左邊一顆顆換成寶石星。
+# 卡位只有 90px 寬，10 顆 13px 的星要 140px，一定擠爆——所以不再用「星數＝圖片數」來驗。
+STAR_ROW_JS = "() => { const r = document.querySelector('#album-detail .star-row'); if (!r) return null; const box = r.getBoundingClientRect(), host = r.closest('#album-detail').getBoundingClientRect(); const im = [...r.querySelectorAll('img')]; return { n: im.length, gems: im.filter(e => e.classList.contains('gem')).length, off: im.filter(e => e.classList.contains('off')).length, w: Math.round(box.width), fits: box.right <= host.right + 1 && box.left >= host.left - 1 }; }"
 CLICK_BUDDY_JS = '() => document.querySelector(\'#buddies .buddy[data-id="%s"]\').click()'
 def check(ok, msg):
     print(('ok   ' if ok else 'FAIL ') + msg)
@@ -72,9 +75,10 @@ with sync_playwright() as p:
     pg.evaluate(CLICK_BUDDY_JS % mid)
     pg.wait_for_timeout(900)
     row = pg.evaluate(STAR_ROW_JS)
-    check(row and row['n'] == 10, '滿養那張是 10 顆星（實得 %s）' % (row,))
-    check(row and row['gems'] == 5, '第 6～10 顆畫成寶石星（實得 %s）' % (row,))
-    check(row and row['fits'], '10 顆星沒有撐出詳情卡（實得 %s）' % (row,))
+    check(row and row['n'] == 5, '星格永遠 5 個（實得 %s）' % (row,))
+    check(row and row['gems'] == 5 and row['off'] == 0, '★10＝5 顆全是寶石星、沒有空格（實得 %s）' % (row,))
+    check(row and row['fits'], '星列沒有撐出詳情卡（實得 %s）' % (row,))
+    check(row and row['w'] <= 95, '星列塞得進 90px 的卡位（實得 %spx）' % (row and row['w'],))
     pg.screenshot(path=str(OUT / 'stars10.png'))
     pg.keyboard.press('Escape'); pg.wait_for_timeout(500)
 

@@ -76,7 +76,13 @@ with sync_playwright() as p:
     st = pg.evaluate("()=>({hidden:document.getElementById('cleanup').hidden, reset:Clicker.state.legacy.reset, seen:!!Clicker.state.legacy.seen, badges:Clicker.state.badges, col:Clicker.state.collectibles, partners:Object.keys(Clicker.state.collection).length, coins:Clicker.state.coins, marks:Clicker.state.marksClaimed, legacyMarks:Clicker.state.legacy.marksClaimed})")
     check(st['hidden'] and st['reset'] is True and st['seen'], '從零開始：頁關閉、legacy.reset=true ' + str({k:st[k] for k in ('reset','seen')}))
     check('oldtimes' in st['badges'] and st['col'] == ['mohuashaonv'], '徽章與魔花少女入袋 ' + str((st['badges'], st['col'])))
-    check(st['partners'] == 0 and st['coins'] == 0 and st['marks'] == 0 and st['legacyMarks'] == 1069453, '進度歸零、舊數字仍封存 ' + str((st['partners'], st['coins'], st['marks'])))
+    # ⚠ 第十二輪：印記**不再歸零**。使用者回報「朋友按放棄進度後只有拿到成就跟卡，沒有印記」——
+    #   以前這裡建的是一份純 fresh() 存檔，marksClaimed 跟著變 0，
+    #   可是大掃除頁的「整理」欄才剛跟玩家講他換算後有幾枚印記、祝福幾級，等於當面跳票。
+    #   印記是「輪迴做過幾輪」的紀錄，跟要放棄的夥伴／粉塵／幣是兩回事。
+    check(st['partners'] == 0 and st['coins'] == 0, '夥伴與幣歸零 ' + str((st['partners'], st['coins'])))
+    check(st['marks'] > 0, f"印記照帶、沒有歸零（實得 {st['marks']}）")
+    check(st['legacyMarks'] == 1069453, f"舊數字仍封存在 legacy（實得 {st['legacyMarks']}）")
     check(not pg.evaluate("()=>document.getElementById('reward').hidden") and '魔花少女' in pg.text_content('#reward') and '舊時代的珍母' in pg.text_content('#reward'), '獎勵視窗：卡與徽章')
     pg.screenshot(path=str(OUT / '3-reset.png'))
     pg.click('#reward-ok'); pg.wait_for_timeout(300); check(pg.evaluate("()=>document.getElementById('reward').hidden"), '收下 → 關閉')
