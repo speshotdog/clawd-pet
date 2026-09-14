@@ -153,7 +153,11 @@ window.ApocCollectFace = (() => {
     }
     show(false);
     card.style.cursor = 'pointer';
-    card.addEventListener('click', trigger, { signal: ac.signal });
+    // ⚠ 拖曳轉動放開時也會冒一個 click：以前每拖一次都觸發替身（拉 2.5 MB／90 幀 WebP 解碼＋整輪動畫），
+    //   拖起來就「卡」（使用者 2026-09-15）。按下到放開移動超過 8px 就當拖曳，不算點。
+    let down = null;
+    card.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; }, { signal: ac.signal });
+    card.addEventListener('click', e => { const d = down; down = null; if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 8) return; trigger(); }, { signal: ac.signal });
     return {
       trigger, show,
       /** 卡片下架：解監聽、停計時，並且**確實**把 2.5 MB 的動畫來源放掉。 */

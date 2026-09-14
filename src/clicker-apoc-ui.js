@@ -544,7 +544,6 @@ window.ClickerApocUI = (() => {
       const wait = Math.max(0, Math.ceil((v.cooldownUntil - Date.now()) / 1000));
       go.textContent = rev && v.progress < v.stations ? '回到目前站' : !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? (wait ? `再次挑戰・${wait}秒` : '再次挑戰') : '挑戰王關') : '開戰';
       go.classList.toggle('glow', !!(v.canFight && v.power > 0));
-      $('boss-estimate').hidden = true;
       $('package-result').textContent = over ? (v.endless ? '無盡模式到底了。' : '全線已通行。')
         : failed ? (v.canFight ? '王關失敗：在前一站刷錢變強，準備好就按「再次挑戰」。' : '王關失敗：先在前一站刷錢變強，冷卻結束後可以「再次挑戰」。')
         : rev ? (v.progress >= v.stations ? '全線已通行：這一隻會一直在，點著賺錢就好。' : `回顧第 ${i + 1} 站：從這裡往下走到這一段的王為止，不會推進度。要回去推進度就按下面的「回到目前站」。`)

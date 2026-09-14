@@ -175,8 +175,7 @@ window.Clicker = (() => {
     if (show && challenge.hidden) { pulse(challenge,[{transform:'rotate(-3deg) scale(0)'},{transform:'rotate(-3deg) scale(1.1)',offset:.7},{transform:'rotate(-3deg) scale(1)'}],260); sound('upgrade'); }
     challenge.hidden=!show; challenge.disabled=store.blocked || !!cutin?.active || !!gacha?.active || !!stage?.bossBusy || !!cooling;
     challenge.classList.toggle('glow', !!preview && preview.ratio>=.9 && !cooling);
-    const est=$('boss-estimate'); est.hidden=!show;
-    if (show) { const pct=Math.min(999,Math.round(preview.ratio*100)); est.querySelector('span').textContent=cooling ? `冷卻 ${Math.ceil((preview.cooldownUntil-now)/1000)} 秒` : `≈ ${pct}%`; est.querySelector('i').style.width=`${Math.min(100,pct)}%`; est.classList.toggle('ok',pct>=100); est.classList.toggle('near',pct>=90 && pct<100); }
+    // 「30 秒火力 ≈ N%」的估算框已移除（使用者 2026-09-15：「這個 UI 有點無意義」）；挑戰鍵的 glow 仍照 preview.ratio 亮
     const gateBlock=$('gate-block'); gateBlock.hidden=!(preview?.kind==='gate' && !s.boss);
     if (!gateBlock.hidden) {
       $('gate-label').innerHTML=`第 ${preview.index} 包路障${preview.lost ? '<br><small>守住了，準備好再點「挑戰」</small>' : ''}`;

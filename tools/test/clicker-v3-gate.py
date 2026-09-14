@@ -51,7 +51,6 @@ def open_page(p, strong=False):
 
 STATE = """()=>{const s=Clicker.state; return {gate:s.package.gate||null, boss:s.boss?{gate:s.boss.gate,need:s.boss.need,dealt:s.boss.dealt}:null, idx:s.package.index, coins:s.coins,
   btn:{hidden:document.getElementById('boss-challenge').hidden, disabled:document.getElementById('boss-challenge').disabled, text:document.getElementById('boss-challenge').textContent, glow:document.getElementById('boss-challenge').classList.contains('glow')},
-  est:{hidden:document.getElementById('boss-estimate').hidden, text:document.getElementById('boss-estimate').querySelector('span').textContent},
   block:{hidden:document.getElementById('gate-block').hidden, text:document.getElementById('gate-label').textContent},
   banner:document.getElementById('boss-banner').textContent, bossView:document.getElementById('boss-view').hidden}}"""
 
@@ -68,16 +67,17 @@ with sync_playwright() as p:
     check(d['boss'] is None and d['gate'] and d['gate'].get('lost') is True, '30 秒沒打完：停在路障、lost=true ' + str(d['gate']))
     check(not d['btn']['hidden'], '挑戰鍵留著')
     check(not d['block']['hidden'] and '路障' in d['block']['text'], '路障佔位出現：' + d['block']['text'])
-    check(not d['est']['hidden'] and '冷卻' in d['est']['text'], '火力預估顯示冷卻：' + d['est']['text'])
+    # 「30 秒火力」估算框已移除（2026-09-15）；冷卻改看挑戰鍵停用
+    check(d['btn']['disabled'], '冷卻中挑戰鍵停用：' + d['btn']['text'])
     pg.screenshot(path=str(OUT / '2-gate-lost.png'))
     pg.wait_for_timeout(31000)
-    d = pg.evaluate(STATE); check(d['boss'] is None, '冷卻後沒有自動再打'); check(not d['btn']['disabled'] and '%' in d['est']['text'], '冷卻後挑戰鍵可按、預估 ' + d['est']['text'])
+    d = pg.evaluate(STATE); check(d['boss'] is None, '冷卻後沒有自動再打'); check(not d['btn']['disabled'], '冷卻後挑戰鍵可按')
     check(not errors, '頁面錯誤 0（弱）：' + '; '.join(errors)[:300])
     b.close()
     # 第二頁：變強了（輸過一次的路障 + 攻擊力 40 級）→ 預估 ≥100%、鍵發光；點挑戰打贏、橫幅寫獎金
     b, pg, errors = open_page(p, strong=True)
     d = pg.evaluate(STATE); check(d['boss'] is None and d['gate'] and d['gate'].get('lost'), '強：路障在、沒自動打 ' + str(d['gate']))
-    check(d['btn']['glow'] and '%' in d['est']['text'], '強：預估 ' + d['est']['text'] + ' 鍵發光=' + str(d['btn']['glow']))
+    check(d['btn']['glow'], '強：挑戰鍵發光=' + str(d['btn']['glow']))
     pg.screenshot(path=str(OUT / '3-gate-ready.png'))
     pg.click('#boss-challenge'); pg.wait_for_timeout(700)
     d = pg.evaluate(STATE); check(d['boss'] is not None and d['boss']['gate'] == 10, '點挑戰 → 開打 ' + str(d['boss']))

@@ -35,9 +35,12 @@ window.ClickerHolo = (() => {
   }
   const sheetsReady = canAdopt ? Promise.allSettled(SHEET_NAMES.map(n => loadSheet(n).catch(e => { console.warn('ClickerHolo 樣式表', e); throw e; }))) : Promise.resolve([]);
   // 回傳實際同步掛上的檔名（測試用 host.dataset.holoSheets 看）；沒掛上的補 <link>
+  // 執行期補一張小表：拖曳中（host 掛 .holo-dragging）把愛心的飄浮動畫暫停——16 顆各自的 transform 動畫跟拖曳重畫搶合成層。
+  // 放在 clicker-holo 而不是 holo-special.css，因為那張是 build_collect_card.py 的產出（不能手改）。
+  const runtimeSheet = (() => { if (!canAdopt) return null; const st = new CSSStyleSheet(); st.replaceSync(':host(.holo-dragging) .gift-hearts>i{animation-play-state:paused}'); return st; })();
   function attachSheets(sh, names) {
     const adopted = names.filter(n => sheets[n]);
-    if (adopted.length) sh.adoptedStyleSheets = adopted.map(n => sheets[n]);
+    if (adopted.length) sh.adoptedStyleSheets = [...adopted.map(n => sheets[n]), ...(runtimeSheet ? [runtimeSheet] : [])];
     for (const n of names) if (!sheets[n]) { const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = url(n); sh.append(link); }
     return adopted;
   }
@@ -118,19 +121,26 @@ window.ClickerHolo = (() => {
       face.style.setProperty('--rx', rx + 'deg'); face.style.setProperty('--ry', ry + 'deg'); };
     const stop = () => { cancelAnimationFrame(raf); raf = 0; };
     const release = () => {
-      drag = null; stop(); const r0x = rx, r0y = ry, x0 = lx, y0 = ly, t0 = performance.now();
+      drag = null; stop(); host.classList.remove('holo-dragging'); if (moveRaf) { cancelAnimationFrame(moveRaf); moveRaf = 0; pending = null; } const r0x = rx, r0y = ry, x0 = lx, y0 = ly, t0 = performance.now();
       const step = (now) => { const p = Math.min(1, (now - t0) / 280), k = Math.pow(1 - p, 4);
         rx = r0x * k; ry = r0y * k; paint(x0 * k, y0 * k); raf = p < 1 ? requestAnimationFrame(step) : 0; };
       raf = requestAnimationFrame(step);
     };
     host.style.touchAction = 'none';
-    host.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); stop(); drag = { x: e.clientX, y: e.clientY, rx, ry }; host.setPointerCapture(e.pointerId); });
+    host.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); stop(); drag = { x: e.clientX, y: e.clientY, rx, ry }; host.classList.add('holo-dragging'); host.setPointerCapture(e.pointerId); });
+    // 拖曳的重畫合併到 rAF：滑鼠一秒可以送 120+ 個 pointermove，每個都 paint（十幾個 CSS 變數＋整張卡的合成層）
+    // 在收藏卡（16 顆愛心＋兩層 multiply 反光）上會掉格（使用者 2026-09-15：「魔花少女沒辦法流暢拖移角度，會卡」）。
+    // 一格只畫最後一個位置；拖曳中 host 掛 .holo-dragging，CSS 把愛心動畫暫停。
+    let moveRaf = 0, pending = null;
+    const flush = () => { moveRaf = 0; const e = pending; pending = null; if (!e) return;
+      const b = host.getBoundingClientRect();
+      if (drag) { rx = Math.max(-18, Math.min(18, drag.rx - (e.y - drag.y) * .2)); ry = Math.max(-18, Math.min(18, drag.ry + (e.x - drag.x) * .2)); }
+      paint((e.x - b.left) / b.width * 2 - 1, (e.y - b.top) / b.height * 2 - 1); };
     host.addEventListener('pointermove', e => {
       // 回正途中游標只是經過（沒在拖）就讓它回完，不然卡會停在半途（Codex 複檢 B2）
       if (!drag && raf) return;
-      stop(); const b = host.getBoundingClientRect();
-      if (drag) { rx = Math.max(-18, Math.min(18, drag.rx - (e.clientY - drag.y) * .2)); ry = Math.max(-18, Math.min(18, drag.ry + (e.clientX - drag.x) * .2)); }
-      paint((e.clientX - b.left) / b.width * 2 - 1, (e.clientY - b.top) / b.height * 2 - 1);
+      stop(); pending = { x: e.clientX, y: e.clientY };
+      if (!moveRaf) moveRaf = requestAnimationFrame(flush);
     });
     host.addEventListener('pointerup', e => { if (host.hasPointerCapture(e.pointerId)) host.releasePointerCapture(e.pointerId); release(); });
     host.addEventListener('pointercancel', release);
