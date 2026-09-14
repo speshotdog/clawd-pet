@@ -46,16 +46,37 @@
       const slot = skills().indexOf(id); if (slot >= 0) b.append(el('i', 'slot-stamp', `槽${slot + 1}`));
       b.onclick = handler; return b;
     }
-    // ---- 累加上限列（同 team20 renderCapacity）
+    // ---- 累加上限：一條 20 格的長條（使用者 2026-09-14：「可能一行就好，格子用顏色區別然後加字」）
+    // 以前是四條列各一行，「神話＋傳說」「神話＋傳說＋史詩」在窄欄被截成「神話…」「神…」，
+    // 看起來像四條都是神話（朋友回報「字跑不出來而且都是神話」）。
+    // 現在：格子照實際隊伍組成上色、上限畫成分隔線（累加上限就是「前 N 格」）、底下一行短圖例。
+    const TIERS = ['mythic', 'legendary', 'epic', 'rare'];
     function renderCapacity(ids = team()) {
-      const n = counts(ids), rows = $('t20-caps'); rows.replaceChildren();
-      LABELS.forEach((label, i) => {
-        const row = el('div', 'capacity-row'); row.dataset.row = i;
-        row.append(el('span', '', label), el('span', 'digits', `${n[i]} / ${LIMITS[i]}`));
-        const seg = el('span', 'segments'); seg.style.setProperty('--count', LIMITS[i]); seg.setAttribute('aria-hidden', 'true');
-        for (let j = 0; j < LIMITS[i]; j++) seg.append(el('i', j < n[i] ? 'filled' : ''));
-        row.append(seg); rows.append(row);
+      const n = counts(ids), host = $('t20-caps'); host.replaceChildren();
+      const total = LIMITS[LIMITS.length - 1];
+      const per = TIERS.map((_, i) => n[i] - (i ? n[i - 1] : 0));   // 每一階實際幾張（n 是累加的）
+      const bar = el('div', 'caps-bar'); bar.style.setProperty('--count', total); bar.setAttribute('aria-hidden', 'true');
+      let at = 0;
+      for (let j = 0; j < total; j++) {
+        while (at < TIERS.length && per.slice(0, at + 1).reduce((a, b) => a + b, 0) <= j) at++;
+        const cell = el('i', j < n[n.length - 1] ? 'filled' : '');
+        if (j < n[n.length - 1]) cell.dataset.tier = TIERS[Math.min(at, TIERS.length - 1)];
+        // 上限線：畫在第 2／6／12 格之後（最後一格是隊伍尾端，不用畫）
+        if (LIMITS.includes(j + 1) && j + 1 < total) cell.classList.add('cap-edge');
+        bar.append(cell);
+      }
+      host.append(bar);
+      const legend = el('div', 'caps-legend');
+      LIMITS.forEach((lim, i) => {
+        const chip = el('span', 'capacity-row'); chip.dataset.row = i;
+        chip.title = `${LABELS[i]}合計上限 ${lim}`;
+        chip.append(el('i', 'dot'));
+        chip.lastChild.dataset.tier = TIERS[i];
+        // 第四條的意思是「全隊」（累加到 20），不是「精良」——色塊仍用精良色對應長條尾段
+        chip.append(el('b', '', i === LIMITS.length - 1 ? '全隊' : RAR[TIERS[i]]), el('span', 'digits', `${n[i]}/${lim}`));
+        legend.append(chip);
       });
+      host.append(legend);
     }
     function clearOperation() { clearTimeout(previewTimer); pending = null; $('t20-errors').textContent = ''; document.querySelectorAll('#t20-caps .capacity-row').forEach(r => r.classList.remove('affected', 'violated')); }
     // ---- 隊伍網格（10 張一頁）

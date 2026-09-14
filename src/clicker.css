@@ -639,15 +639,24 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .team-work { flex:1; min-height:0; display:grid; grid-template-columns:1fr 250px; gap:10px; }
 .team-main { min-height:0; display:grid; grid-template-rows:auto 1fr auto; gap:8px; min-width:0; }
 .t20-rail { border:2px solid #96714f; border-radius:12px; background:rgba(255,248,236,.85); padding:4px 8px; min-height:0; }
-.capacity-row { display:grid; grid-template-columns:110px 52px 1fr; align-items:center; gap:8px; font-size:11px; line-height:16px; padding:1px 0; border-radius:6px; }
-.capacity-row .digits { font-variant-numeric:tabular-nums; font-weight:700; text-align:right; }
-.capacity-row .segments { display:grid; grid-template-columns:repeat(var(--count,20),1fr); gap:2px; }
-.capacity-row .segments i { display:block; height:6px; border-radius:2px; background:#e6d6bf; border:1px solid #c9ae86; }
-.capacity-row .segments i.filled { background:#2fae72; border-color:#1f7a4f; }
-.capacity-row.affected { background:rgba(242,178,51,.18); }
-.capacity-row.affected .segments i:not(.filled) { border-color:#f2b233; }
-.capacity-row.violated { background:rgba(224,69,58,.18); color:#a3231b; }
-.capacity-row.violated .segments i.filled { background:#e0453a; border-color:#a3231b; }
+/* 編隊上限：一條 20 格長條＋一行圖例（2026-09-14 使用者：「一行就好，格子用顏色區別然後加字」）。
+   格子照實際隊伍組成上色、上限畫成分隔線；累加上限的語意就是「前 N 格」。 */
+#t20-caps { display:block; width:100%; }
+.caps-bar { display:grid; grid-template-columns:repeat(var(--count,20),1fr); gap:2px; margin-bottom:6px; width:100%; }
+.caps-bar i { display:block; height:10px; border-radius:2px; background:#e6d6bf; border:1px solid #c9ae86; }
+.caps-bar i.cap-edge { margin-right:4px; box-shadow:3px 0 0 -1px #8a6a48; }   /* 上限線畫在格子右側 */
+.caps-legend { display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; font-size:11px; line-height:15px; }
+.capacity-row { display:flex; align-items:center; gap:4px; padding:1px 4px; border-radius:6px; white-space:nowrap; }
+.capacity-row .dot { width:9px; height:9px; border-radius:2px; border:1px solid #c9ae86; flex:none; }
+.capacity-row .digits { font-variant-numeric:tabular-nums; font-weight:700; }
+/* 階級配色：長條與圖例共用同一組。
+   ⚠ 權重要壓過 `.caps-bar i`（0,1,1），只寫 [data-tier=…]（0,1,0）會被它蓋掉、格子全是灰的。 */
+.caps-bar i[data-tier="mythic"],    .capacity-row .dot[data-tier="mythic"]    { background:#B48BFF; border-color:#6C4BB8; }
+.caps-bar i[data-tier="legendary"], .capacity-row .dot[data-tier="legendary"] { background:#E9B94E; border-color:#A67C1E; }
+.caps-bar i[data-tier="epic"],      .capacity-row .dot[data-tier="epic"]      { background:#7FB8D6; border-color:#3E7EA0; }
+.caps-bar i[data-tier="rare"],      .capacity-row .dot[data-tier="rare"]      { background:#8FBF6B; border-color:#5C8A3C; }
+.capacity-row.affected { background:rgba(242,178,51,.24); }
+.capacity-row.violated { background:rgba(224,69,58,.22); color:#a3231b; }
 .capacity-errors { min-height:1.2em; font-size:12px; color:#a3231b; }
 .team-roster-head { display:flex; align-items:center; gap:10px; font-size:12px; margin-bottom:3px; }
 .team-roster-head .pager { display:flex; align-items:center; gap:4px; }
@@ -1650,12 +1659,14 @@ body[data-world="apoc"] #share-offer { display:none; }   /* 分享提示是桌�
 .skill-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
 .skill-grid .skill-slot { min-width:0; }
 .skill-grid .skill-slot .slot-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-/* 四條累加上限壓成一排四格：標籤＋數字一行、下面一條細格子（違規／受影響的標色邏輯不變） */
-#t20-caps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
-#t20-caps .capacity-row { display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto 6px; column-gap:6px; row-gap:3px; align-items:baseline; font-size:11px; }
-#t20-caps .capacity-row > span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#t20-caps .capacity-row .segments { grid-column:1 / -1; display:flex; gap:1px; height:6px; }
-#t20-caps .capacity-row .segments i { flex:1; min-width:0; height:6px; border-radius:1px; }
+/* 累加上限改成一條長條＋一行圖例（2026-09-14）。
+   ⚠ 這裡原本是「壓成一排四格」的舊版，而且對標籤下了 text-overflow:ellipsis——
+     那就是朋友看到「字跑不出來而且都是神話」的來源（「神話＋傳說」被截成「神話…」）。
+     規則本體在檔案前面的 .caps-bar／.caps-legend，這一段只留直式的微調。 */
+@media (max-aspect-ratio: 3/4) {
+  .caps-legend { gap:3px 8px; font-size:10px; }
+  .caps-bar i { height:9px; }
+}
 /* 末世：隊伍成員直接是精裝卡（不要奶油色的框）；卡本身就有框，詳情區也不要再框一次 */
 /* ⚠ 要帶 #game：1.0 的「#game button」有 id 權重，會把奶油色底與 3px 框畫回來 */
 body[data-world="apoc"] #game .team-proxy { --button-bg:transparent; background:transparent; border:0; box-shadow:none; padding:0; gap:2px; }

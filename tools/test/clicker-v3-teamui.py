@@ -29,7 +29,18 @@ with sync_playwright() as p:
     b, pg, errors = open_page(p)
     pg.click('#team-open'); pg.wait_for_timeout(400)
     caps = pg.evaluate("()=>[...document.querySelectorAll('#t20-caps .capacity-row .digits')].map(e=>e.textContent)")
-    check(caps == ['2 / 2', '6 / 6', '6 / 12', '12 / 20'], '累加上限列 ' + str(caps))
+    # 2026-09-14 改成一條長條＋一行圖例（使用者：「一行就好，格子用顏色區別然後加字」），
+    # 數字不再有空格；順便驗長條真的是 20 格、而且照階級上色（舊版四條列會把標籤截成「神話…」）
+    check(caps == ['2/2', '6/6', '6/12', '12/20'], '累加上限 ' + str(caps))
+    bar = pg.evaluate("""()=>{const c=document.getElementById('t20-caps');
+      return { cells: c.querySelectorAll('.caps-bar i').length,
+               tiers: [...new Set([...c.querySelectorAll('.caps-bar i[data-tier]')].map(e=>e.dataset.tier))],
+               labels: [...c.querySelectorAll('.capacity-row b')].map(e=>e.textContent),
+               cut: [...c.querySelectorAll('b,.digits')].filter(e=>e.scrollWidth>e.clientWidth+1).map(e=>e.textContent) }; }""")
+    check(bar['cells'] == 20, f"上限長條是 20 格（實得 {bar['cells']}）")
+    check(len(bar['tiers']) >= 2, f"格子照階級上色（實得 {bar['tiers']}）")
+    check(bar['labels'] == ['神話', '傳說', '史詩', '全隊'], f"圖例四個短標籤（實得 {bar['labels']}）")
+    check(not bar['cut'], f"標籤沒有被截斷（實得 {bar['cut']}）")
     check(pg.text_content('#t20-count').strip() == '12 / 20', '隊伍 12/20')
     check(pg.evaluate("()=>document.querySelectorAll('#t20-grid .team-proxy:not([hidden])').length") == 10 and pg.text_content('#t20-page').strip() == '1 / 2', '10 張一頁、共 2 頁')
     pg.screenshot(path=str(OUT / '1-editor.png'))
