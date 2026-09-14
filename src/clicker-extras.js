@@ -111,7 +111,7 @@
 
   // ======================= 瀏覽器：UI =======================
   let instance = null;
-  function create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin }) {
+  function create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin, cleanupPage }) {
     const $ = id => document.getElementById(id), Pool = root.GachaPool, S = root.ClickerSave;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const RIBBON = ['#EF8E8E', '#E9B94E', '#94BED0', '#B8A2CF', '#9BAF6B'];
@@ -293,6 +293,12 @@
         el.title = `${b.name}：${b.desc}`; el.append(badgeNode(b.id)); const name = document.createElement('small'); name.textContent = b.name; el.append(name); grid.append(el);
       }
       $('pick100-open').hidden = !canPick(s);
+      // 大掃除補償：只有從舊版遷移過來的存檔才有（legacy）。已經看過也留著，
+      // 玩家可能當初按了「保留進度」、後來想改選「從零開始」。
+      { const el = $('cleanup-open');
+        if (el) { el.hidden = !s.legacy;
+          // 標籤固定五個字：360px 的工具列四顆鍵剛好塞滿，加「（已看過）」會擠
+          el.title = s.legacy?.seen ? '已經看過了，可以再開一次改選' : '從舊版遷移過來的補償，還沒領'; } }
       $('badge-count').textContent = `${s.badges.length} / ${BADGES.length}`;
       $('save-io').hidden = true; $('import-check').hidden = true; $('import-confirm').hidden = true; $('io-text').value = ''; $('io-status').textContent = '';
       openPanel('stats');
@@ -324,7 +330,12 @@
     function confirmImport() {
       if (!importCandidate) return;
       if (!store.commit(importCandidate)) { $('io-status').textContent = `寫入失敗：${store.error?.message || ''}`; return; }
-      importCandidate = null; closePanel('stats'); reload(); notice('存檔已匯入');
+      importCandidate = null; closePanel('stats'); reload();
+      // ⚠ 匯入一份 v2 舊存檔時，validate() 會就地遷移並寫上 legacy（大掃除補償還沒領），
+      //   但 cleanupPage() 只在遊戲啟動時跑過一次——以前要玩家自己重新整理才看得到補償頁，
+      //   朋友匯入之後都以為沒有（使用者 2026-09-14 回報）。這裡補叫一次。
+      if (cleanupPage && cleanupPage()) return;
+      notice('存檔已匯入');
     }
     async function copyText(text, ok = '已複製') { try { await navigator.clipboard.writeText(text); $('io-status').textContent = ok; } catch { $('io-status').textContent = '無法自動複製，請全選文字後手動複製。'; $('io-text').select(); } }
 
@@ -456,6 +467,13 @@
     $('badge-share').onclick = () => { closePanel('stats'); openShare('packs', { packages: totalPackages(store.state) }); };
     $('pick100-open').onclick = () => { closePanel('stats'); openPick(); };
     $('io-export').onclick = showExport; $('io-import').onclick = showImport; $('io-copy').onclick = () => copyText($('io-text').value);
+    // 大掃除補償：手動叫出來（使用者 2026-09-14：「在統計裡面新增手動觸發的按鈕」）。
+    // force=true：已經看過的也要能再開，當初按「保留進度」的人還能改選「從零開始」。
+    { const el = $('cleanup-open');
+      if (el) el.onclick = () => {
+        closePanel('stats');
+        if (!(cleanupPage && cleanupPage(true))) notice('這份存檔不是從舊版遷移過來的，沒有大掃除補償');
+      }; }
     $('import-check').onclick = checkImport; $('import-confirm').onclick = confirmImport;
     offer.onclick = () => { if (share) openShare(share.kind, share.data); };
 

@@ -498,9 +498,10 @@ window.Clicker = (() => {
     }
     $('memento').hidden = false; $('game-content').inert = true; $('memento-close').focus();
   }
-  function cleanupPage() {
+  // force＝從戰績頁的「大掃除補償」鍵手動叫出來（已經看過也要能再開，玩家可能當初按錯或想改選）
+  function cleanupPage(force = false) {
     const s = store.state, L = s.legacy;
-    if (!L || L.seen) return;
+    if (!L || (L.seen && !force)) return false;
     const kept = [`夥伴 ${Object.keys(s.collection).filter(id => s.collection[id] > 0).length} 隻、星與超越`, `徽章 ${s.badges.length} 枚、更衣室、桌面裝飾`, `輪迴 ${L.prestiges} 次的紀錄、王的勝利`];
     const artsSpent = (s.blessing || 0) * ((s.blessing || 0) + 1) / 2;
     const tidy = [`印記 ${L.marksClaimed.toLocaleString('zh-TW')} → ${(s.marksClaimed).toLocaleString('zh-TW')}（新版印記照「每輪做到的事」算，每輪最多 ${B.V3.MARKS_PER_RUN} 枚）`,
@@ -529,6 +530,7 @@ window.Clicker = (() => {
       const checked = window.ClickerExtras.checkBadges ? window.ClickerExtras.checkBadges(fresh).state : fresh;
       if (commit(checked)) { $('cleanup').hidden = true; reload(); rewardPage(); }
     };
+    return true;
   }
   // 第十二輪：匯入存檔後整個畫面照新狀態重來（場景、夥伴列、舞台、待收下的招募）
   function reload() {
@@ -630,7 +632,7 @@ window.Clicker = (() => {
       },
       joined(entries) { stage.join(store.state, entries); },
     });
-    extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin });
+    extras = window.ClickerExtras.create({ store, card, commit, changed, action, notice, format, sound, stage, reload, gacha, cutin, cleanupPage });
     dragUI = window.ClickerDrag.create({ $, store, commit, changed, notice, sound, card, E, Pool });   // v3：夥伴列拖到技能槽
     teamUI = window.ClickerTeamUI.create({ $, store, commit, changed, action, notice, sound, card, E, B, Pool, format, drag: dragUI });
     apocUI = window.ClickerApocUI.create({ $, store, commit, changed, notice, format, card, sound, cutin,
