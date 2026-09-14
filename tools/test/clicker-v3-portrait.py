@@ -19,6 +19,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[2]; SRC = ROOT / 'src'
 OUT = ROOT / '_art/out/v3-portrait'; OUT.mkdir(parents=True, exist_ok=True)
 fails = []
+ROWS_JS = "() => { const out = []; for (const row of document.querySelectorAll('#shop .upgrade, #shop .recruit')) { const rr = row.getBoundingClientRect(); for (const el of row.querySelectorAll('.purchase > *, h2')) { const cs = getComputedStyle(el); if (cs.display === 'none') continue; const r = el.getBoundingClientRect(); if (r.width < 3) continue; if (r.right > rr.right + 1 || r.left < rr.left - 1 || r.bottom > rr.bottom + 1) out.push({ sel: el.id ? '#'+el.id : el.tagName.toLowerCase(), txt: (el.textContent||'').trim().slice(0,10), out: Math.round(Math.max(r.right - rr.right, rr.left - r.left, r.bottom - rr.bottom)) }); } } const price = [...document.querySelectorAll('#shop .price-ticket b')].map(el => ({ txt: (el.textContent||'').trim(), cut: el.scrollWidth > el.clientWidth + 1 })); return { out, price, doc: document.documentElement.scrollWidth, view: innerWidth }; }"
 def check(ok, msg):
     print(('ok   ' if ok else 'FAIL ') + msg)
     if not ok: fails.append(msg)
@@ -85,6 +86,19 @@ with sync_playwright() as p:
     # 版面不能因為特效層而橫向撐開（960×640 的畫布要被 #fx-clip 裁住）
     wide = pg.evaluate("() => ({ doc: document.documentElement.scrollWidth, view: innerWidth })")
     check(wide['doc'] <= wide['view'] + 1, f'特效層沒有把畫面撐出橫向捲動（{wide}）')
+
+
+    # ---- ④ 升級／招募列在各種手機寬度都塞得下（使用者：「部分手機的UI還是會稍微突出」）
+    # 360px 實測過的原因：中間那欄用 1fr（自動最小值＝min-content，而標題 nowrap 不肯縮），
+    # 右欄的「五連」鍵就被擠出列外 3px；票根的 min-width 92px 也吃掉購買區一半。
+    for w in (320, 360, 375, 393, 412, 430):
+        pg.set_viewport_size({'width': w, 'height': 780}); pg.wait_for_timeout(700)
+        g = pg.evaluate(ROWS_JS)
+        check(not g['out'], f'{w}px：升級／招募列沒有元素戳出列外（{g["out"][:3]}）')
+        cut = [p for p in g['price'] if p['cut']]
+        check(not cut, f'{w}px：價格沒有被票根的膠帶邊蓋掉（{cut}）')
+        check(g['doc'] <= g['view'] + 1, f'{w}px：沒有橫向捲動（{g["doc"]} / {g["view"]}）')
+    pg.set_viewport_size({'width': 390, 'height': 844}); pg.wait_for_timeout(700)
 
     # ---- ③ 神器商店
     pg.evaluate("() => document.getElementById('prestige-open').click()"); pg.wait_for_timeout(800)

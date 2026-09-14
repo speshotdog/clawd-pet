@@ -1052,6 +1052,28 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
      橫式是 36px 高的框配 24px 行高（1.5 倍）看起來剛好，直式照同樣比例縮：15/20，框 30px。 */
   #shop .upgrade h2, #shop .recruit h2 { font-size:15px; line-height:20px; padding:5px 10px; }
   #shop .upgrade h2 small { font-size:10px; }
+  /* 窄手機（實測 360px）：三欄的固有寬度加起來比列還寬，最右邊的「五連」鍵被切掉
+     （使用者：「部分手機的UI還是會稍微突出」）。
+     根因是中間那欄用 `1fr`——1fr 的自動最小值是 min-content，而標題 white-space:nowrap，
+     所以那一欄不肯縮，右欄就被擠出去。改成 minmax(0,1fr) 讓它可以縮，標題改成縮不下時上省略號。 */
+  /* 標題欄要有下限，不然 320px 時「招募夥伴」會被縮成「招」 */
+  #shop .upgrade, #shop .recruit { grid-template-columns:30px minmax(78px,1fr) auto; column-gap:7px; }
+  @media (max-width:340px) { #shop .upgrade, #shop .recruit { grid-template-columns:30px minmax(56px,1fr) auto; } }
+  #shop .upgrade h2, #shop .recruit h2 { max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+  #shop .purchase { gap:5px; min-width:0; }
+  /* 價格不准被犧牲：讓位的順序是「標題（上省略號）→ 購買區字級」，錢一定要看得完整
+     （第一版讓價格 min-width:0，結果 360px 時「6,047」被截成「6,04」）。 */
+  #shop .price-ticket { flex:none; }
+  /* 很窄的手機（≤380）：標題有了下限之後換購買區要讓位，字與內距一起縮 */
+  @media (max-width:380px) {
+    #game #shop .purchase button { font-size:11px; padding:2px 7px 4px; }
+    /* min-width 是 92/80px（桌機票根的尺寸），窄機要放掉，不然它一個人佔掉購買區的一半 */
+    /* 票根的 border-image 左右各畫 10px，內距比它窄的話數字最後一位會被膠帶邊蓋住
+       （360px 實測「6,047」看起來像「6,04」）。所以內距不能小於 10px。 */
+    #shop .price-ticket { font-size:11px; min-width:0; padding:3px 10px; }
+    #shop .price-ticket img { width:15px; height:15px; }
+    #shop .purchase { gap:4px; }
+  }
 
   /* 神器與商店：直式改成一列一張。
      ⚠ 桌機是 grid-template-columns:1fr 1fr，但 .mark-list 沒有 min-width:0，
