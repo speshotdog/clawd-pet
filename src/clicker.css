@@ -1834,6 +1834,15 @@ body[data-world="apoc"] #game .team-proxy .proxy-name { position:relative; z-ind
 #apoc-minions { pointer-events:none; display:flex; gap:4px; transform:translate(-50%, 0); width:auto; height:auto; }
 #apoc-minions i { display:block; flex:none; width:46px; height:40px;   /* flex:none：外層是 0 寬的定位錨點，預設會把小狗縮成 0 寬（測試抓到的） */ background:url('apoc/boss/boss1-wolfdog.png') 0 0 / 500% 100% no-repeat; filter:drop-shadow(0 3px 2px rgba(0,0,0,.5)); }
 #apoc-enemy.far { opacity:.6; scale:.72; filter:drop-shadow(0 8px 10px rgba(0,0,0,.55)) saturate(.7); transition:scale .3s, opacity .3s; }
+/* 滿版王（真・滅世珍獸，使用者 2026-09-15：「整個畫面都是王關」）：跟 1.0 滅世都市的滿版王同一張 632×360 圖，鋪滿舞台，
+   墊在技能鍵（z:14）、HUD 與狗群（z:6）下面。狗群在場時不再縮遠（far），只降一點飽和度表示「還打不到」。 */
+#apoc-enemy.full-board { left:-12px; top:0; translate:0 0; width:632px; height:360px; object-fit:cover; z-index:4; filter:none; scale:1; transform-origin:50% 60%; }
+#apoc-enemy.full-board.far { opacity:.92; scale:1; filter:saturate(.7) brightness(.85); }
+#stage.apoc-final::after { content:''; position:absolute; inset:0; z-index:5; pointer-events:none;
+  box-shadow:inset 0 0 90px 30px rgba(60, 8, 8, .7); animation:apoc-final 1.6s ease-in-out infinite alternate; }
+@keyframes apoc-final { from { opacity:.55; } to { opacity:1; } }
+#stage > #apoc-flash { position:absolute; inset:0; z-index:7; pointer-events:none; background:#fff6e6; opacity:0; }
+@media (prefers-reduced-motion: reduce) { #stage.apoc-final::after { animation:none; opacity:.8; } }
 #apoc-enemy.shelled { filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 6px #FFFFFF) drop-shadow(0 0 14px #BFD4E6) drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
 #apoc-enemy.breaking { filter:drop-shadow(0 0 10px #FFB347) drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
 @media (prefers-reduced-motion: reduce) { #apoc-beat.on::before { animation-duration:calc(var(--beat-ms, 1170ms) * 1); } #apoc-parts button.next { animation:none; } }

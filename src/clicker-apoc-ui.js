@@ -25,7 +25,9 @@ window.ClickerApocUI = (() => {
     { name: '貼紙羊', src: 'apoc/boss/boss2-sticker-sheep.png', frames: 7, ms: 100, aspect: 338 / 300, h: 200 },
     { name: '扛槌兔', src: 'apoc/boss/boss3-hammer-bunny.png', frames: 9, ms: 130, aspect: 360 / 300, h: 200 },
     { name: '雞頭合成怪', src: 'apoc/boss/boss4-chicken-chimera.png', frames: 1, aspect: 260 / 280, h: 200 },
-    { name: '真・滅世珍獸', src: 'apoc/boss/boss5-mieshi.png', frames: 1, aspect: 430 / 335, h: 210 },
+    // 使用者 2026-09-15：「真・滅世珍獸排場大一點，整個畫面都是王關」——照 1.0 滅世都市的滿版王：用同一張 632×360 整幅圖鋪滿舞台（full:true），
+    // 尺寸與位置由 clicker.css #apoc-enemy.full-board 管，不走 ENEMY_FLOOR 那套；舞台加 apoc-final 暗角脈動。
+    { name: '真・滅世珍獸', src: 'clicker-boss7-mieshi.png', frames: 1, full: true },
   ];
   const ENEMY_FLOOR = 218;   // 怪的下緣（舞台座標），技能鍵上緣是 224，留 6px 餘裕（含四捨五入）
   const _unused = [
@@ -250,6 +252,12 @@ window.ClickerApocUI = (() => {
       H.coins(fx, cv, H.COINS[level], { canvas: $('click-fx'), stage: $('stage'), wallet: document.querySelector('.wallet img'), floor: document.querySelector('.package-meter'), u });
     }
     const HIT_LEVEL = { hit: 0, shield: 0, crit: 1, break: 2, kill: 3 };
+    // 滿版王的受擊閃光：舞台上一層白色淡入淡出（不動 DOM 結構，用 #stage 的 --flash 變數配 CSS）
+    let flashEl = null;
+    function flashStage(alpha) {
+      if (!flashEl) { flashEl = document.createElement('div'); flashEl.id = 'apoc-flash'; $('stage').append(flashEl); }
+      flashEl.animate([{ opacity: alpha }, { opacity: 0 }], { duration: 180, easing: 'ease-out' });
+    }
     function hitFx(point, kind, text) {
       const p = hitPoint(point), el = $('apoc-enemy');
       floatText(text, p.fl, kind);
@@ -261,6 +269,13 @@ window.ClickerApocUI = (() => {
       if (level) impactAt(p.fl, [0, 1, 1.4, 1.7][level]);
       shakeStage([2, 5, 8, 11][level], [90, 180, 240, 300][level]);   // 第七輪：每一下都有輕微震動（樣品 B／C），越重震越大
       if (!el) return;
+      if (el.classList.contains('full-board')) {   // 滿版王：整張圖佔滿舞台，縮 5% 會晃到頭暈；改成微縮＋整面閃光＋更重的震動
+        shakeStage([4, 7, 10, 13][level], [110, 200, 260, 320][level]);
+        if (kind === 'kill') el.animate([{ opacity: 1, filter: 'brightness(2.6)' }, { opacity: 0, filter: 'brightness(3)' }], 700);
+        else el.animate([{ transform: 'scale(1)', filter: 'brightness(1)' }, { transform: kind === 'hit' || kind === 'shield' ? 'scale(1.012)' : 'scale(1.025)', filter: `brightness(${kind === 'shield' ? 1.4 : 1.9})`, offset: .3 }, { transform: 'scale(1)', filter: 'brightness(1)' }], kind === 'hit' || kind === 'shield' ? 140 : 220);
+        flashStage(kind === 'hit' || kind === 'shield' ? .18 : .32);
+        return;
+      }
       const shade = 'drop-shadow(0 8px 10px rgba(0,0,0,.55))';
       if (kind === 'kill') el.animate([{ transform: 'scale(1)', opacity: 1, filter: `brightness(2.4) ${shade}` }, { transform: 'scale(1.22)', opacity: 0, offset: .45 },
         { transform: 'scale(.85)', opacity: 0, offset: .55 }, { transform: 'scale(1)', opacity: 1 }], 620);
@@ -418,7 +433,9 @@ window.ClickerApocUI = (() => {
       dogs.hidden = !dogCount || !eb;
       if (!dogs.hidden) {
         if (dogs.childElementCount !== dogCount) dogs.replaceChildren(...Array.from({ length: dogCount }, () => { const i = document.createElement('i'); return i; }));
-        dogs.style.left = `${eb.l}px`; dogs.style.top = `${eb.t + eb.h * .42}px`;
+        // 滿版王（真・滅世珍獸）的框是整個舞台，錨點會跑到左上；狗群固定排在右下（技能鍵 x 44～336、y 224～288 之外）
+        if (enemy.classList.contains('full-board')) { dogs.style.left = '345px'; dogs.style.top = '250px'; }   // 五隻 50px 從 345 排到 595，不出舞台（實測 470 會被右緣切掉兩隻）
+        else { dogs.style.left = `${eb.l}px`; dogs.style.top = `${eb.t + eb.h * .42}px`; }
       }
       if (enemy) {
         enemy.classList.toggle('far', dogCount > 0);
@@ -476,8 +493,10 @@ window.ClickerApocUI = (() => {
         el.style.setProperty('--frames', art.frames); el.style.setProperty('--frame-ms', `${art.ms || 100}ms`);
         el.style.height = art.h ? `${art.h}px` : ''; el.style.width = art.h ? `${Math.round(art.h * art.aspect)}px` : '';
         el.style.top = art.h ? `${ENEMY_FLOOR - art.h / 2}px` : '';   // 王依高度貼齊技能鍵上緣（translate -50% 是以中心定位）
+        el.classList.toggle('full-board', !!art.full);
       }
       el.classList.toggle('boss', !!boss);
+      $('stage').classList.toggle('apoc-final', !!boss && !!art.full && !!v.stage);   // 滿版王：整個舞台就是王關
       // 回顧／常駐的那隻也是怪：場上有 stage 就不算走完（不然全線通行之後怪會被藏起來）
       const over = !v.stage && !revGap && v.progress >= (v.endless ? A.RULES.ENDLESS_MAX : v.stations);   // 第十輪 C：無盡模式第 21 站起照樣有怪；打到 ENDLESS_MAX 才算到底（Codex 10C 值得修）
       el.hidden = over;
@@ -846,7 +865,7 @@ window.ClickerApocUI = (() => {
       for (const id of ['apoc-parts', 'apoc-beat', 'apoc-minions']) { const x = $(id); if (x) x.hidden = true; }   // 第十輪王關機制的畫面不留到桌邊
       mechKey = '';
       // 第十輪 B：預告暗紅圈、引導紙片也不留到桌邊
-      $('stage').classList.remove('apoc-omen', 'coaching'); const coachEl = $('apoc-coach'); if (coachEl) coachEl.hidden = true;
+      $('stage').classList.remove('apoc-omen', 'apoc-final', 'coaching'); const coachEl = $('apoc-coach'); if (coachEl) coachEl.hidden = true;
       // 受擊特效是末世自己畫的，切回桌邊要收乾淨（粒子 scope 只清自己的，不會動到 1.0 的）
       fx?.stop(); fx = null; document.querySelectorAll('#floaters .apoc-hit, #floaters .apoc-hit-impact, #floaters .apoc-passive').forEach(el => el.remove());
       // 王關的護盾文字借用桌邊的效果標籤，不收掉會留在桌邊（Codex 第二輪 B12）
