@@ -521,20 +521,38 @@ test('星級看累計粉塵，滿星之後才會自動突破，滿養封頂', ()
   // 戰力＝底 60 ×（1+.25×4）×（1+.1×5）
   assert.equal(A.cardPower(a, 'pufayueyue'), 60 * 2 * 1.5);
 });
-test('兌換所：沒有的卡也能用萬用粉塵換出來（卡冊全收集唯一不看運氣的路）', () => {
+test('兌換所只補已經抽到過的卡（使用者退掉「沒有的卡也能換」，要保住第一次抽到的重量）', () => {
   let a = A.gift(A.fresh());
   assert.equal(A.dustRate('m1'), R.GROW.DUST.mythic);
-  assert.throws(() => A.exchangeDust({ ...a, universalDust: 0 }, 'm1', 1), /不足/);
+  assert.throws(() => A.exchangeDust({ ...a, universalDust: 999 }, 'm1', 1), /還沒抽到/);
   assert.throws(() => A.exchangeDust({ ...a, universalDust: 999 }, 'zzz', 1), /不在末世卡池/);
-  assert.throws(() => A.exchangeDust({ ...a, universalDust: 999 }, 'm1', 0), /數量/);
-  const r = A.exchangeDust({ ...a, universalDust: 30 }, 'm1', 1);
-  assert.equal(r.state.universalDust, 30 - R.GROW.DUST.mythic);
-  assert.equal(r.state.collection.m1, 1, '換到第一顆＝拿到這張卡');
-  assert.ok(r.state.roster.includes('m1'), '跟抽到一樣會自動入隊');
-  // 換到滿養就不能再換（避免萬用粉塵無處可去時被吃掉）
-  const done = A.exchangeDust({ ...a, universalDust: 9999 }, 'm1', A.fullDust());
-  assert.ok(A.isMaxed(done.state, 'm1'));
-  assert.throws(() => A.exchangeDust(done.state, 'm1', 1), /滿養/);
+  assert.throws(() => A.exchangeDust({ ...a, universalDust: 999 }, 'pufayueyue', 0), /數量/);
+  assert.throws(() => A.exchangeDust({ ...a, universalDust: 0 }, 'pufayueyue', 1), /不足/);
+  // 已經有的卡才補得下去
+  const r = A.exchangeDust({ ...a, universalDust: 30 }, 'pufayueyue', 3);
+  assert.equal(r.state.universalDust, 30 - 3 * A.dustRate('pufayueyue'));
+  assert.equal(A.dustOf(r.state, 'pufayueyue'), 1 + 3);
+  assert.equal(r.state.collection.pufayueyue, 1, '兌換補的是粉塵，不是張數');
+  // 補到滿養就不能再補
+  const done = A.exchangeDust({ ...a, universalDust: 9999 }, 'pufayueyue', A.fullDust() - 1);
+  assert.ok(A.isMaxed(done.state, 'pufayueyue'));
+  assert.throws(() => A.exchangeDust(done.state, 'pufayueyue', 1), /滿養/);
+});
+test('保底：連續 AT 次沒有新卡，下一張保證是還沒有的卡', () => {
+  const AT = R.GROW.PITY.AT;
+  let a = A.gift(A.fresh());
+  // 只有一張卡的假卡池太小，這裡用真的規則：手動把 pity 推到門檻前一格
+  a = { ...a, pity: AT - 1 };
+  const rng = () => 0;   // 固定亂數：正常路徑只會抽到 rare 的第一張
+  const pack = A.rollPack(a, 1, rng);
+  const got = pack.entries[0].entry.id;
+  assert.ok(!a.collection[got], `保底那一張要是還沒有的卡（實得 ${got}）`);
+  // 抽到新卡之後計數歸零
+  const after = A.addCards(a, [got]);
+  assert.equal(after.pity, 0);
+  // 抽到重複的會往上加
+  assert.equal(A.addCards({ ...a, pity: 3 }, ['pufayueyue']).pity, 4);
+  assert.equal(A.normalize({ ...a, pity: AT + 999 }).pity, AT, '壞存檔的保底計數夾在門檻');
 });
 test('打王首勝掉萬用粉塵，只掉一次；無盡模式每站都掉；重走廢土重算', () => {
   const i = 3, now = 1e6;                       // 第 4 站＝第一隻王

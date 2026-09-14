@@ -206,8 +206,8 @@ window.ClickerGacha = (() => {
       for (const g of r.grows || []) { const key = `${g.kind}:${g.id}`, cur = grows.get(key); grows.set(key, { ...g, from: cur ? cur.from : g.from }); }
       for (const g of grows.values()) put(ids.lastIndexOf(g.id), g.kind === 'promote'
         ? { kind: 'promote', text: `升階 ${RAR[g.to] || ''}` }
-        // 末世叫「突破」不叫「超越」（第十一輪使用者：「所有卡片都抽到滿星突破」）
-        : { kind: 'transcend', text: `${apoc() ? '突破' : '超越'} ${g.to}${g.awakened ? '・覺醒' : ''}` });
+        // 末世的突破就是第 6～10 顆星，徽章直接寫星數（使用者：「★5＋5 我希望直接改成 6~10」）
+        : { kind: 'transcend', text: apoc() ? `★${5 + g.to}` : `超越 ${g.to}${g.awakened ? '・覺醒' : ''}` });
       return { badges, dust: r.universalDust || 0 };
     }
     function badgeNode(list) {

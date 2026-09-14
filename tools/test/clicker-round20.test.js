@@ -23,15 +23,18 @@ test('round20: three blessings cost six marks and multiply P and D by 1.3', () =
   assert.equal(E.markMul(s),E.markMul(before)); S.validate(s,Pool);
 });
 // 2026-09-08：粉塵兌換從「固定 1 印記換 5 粉塵」改成遞增價（第 n 次要 n 印記）。
-// v3（2026-09-12）：招募券停售（印記換免費抽等於把卡池買下來）；粉塵兌換的遞增價不變。
-test('round20: repeat dust accounts for marks; draw tickets are discontinued', () => {
-  let s=seed();
-  s=P.tradeDust(s);        // 第 1 次：1 印記
-  s=P.tradeDust(s,5);      // 第 2~6 次：2+3+4+5+6 = 20 印記
+// v3（2026-09-12）：招募券停售（印記換免費抽等於把卡池買下來）。
+// 第十一輪（2026-09-14）：**粉塵兌換也一起停售**（使用者：「我希望印記商店的粉塵兌換也移除」）——
+// 理由同招募券，印記產出是 √生涯收入，留這條路等於可以把卡池買下來。
+test('round20: 印記商店的粉塵兌換與招募券都已停售', () => {
+  const s=seed(), before=E.clone(s);
+  assert.throws(()=>P.tradeDust(s),/停售/);
+  assert.throws(()=>P.tradeDust(s,5),/停售/);
   assert.throws(()=>P.buyDrawTicket(s,2),/停售/);
-  assert.equal(s.marks,30-1-20); assert.equal(s.universalDust,30); assert.equal(s.dustTrades,6);
-  assert.equal(s.freeDraws,0);
-  assert.equal(s.marksClaimed,30); S.validate(s,Pool);
+  assert.deepEqual(s,before,'停售的東西不可以動到狀態');
+  // 舊存檔的 dustTrades 仍要通過驗證（marksClaimed 的對帳要用）
+  const old={...seed(), dustTrades:6, marks:30-21, universalDust:30};
+  S.validate(old,Pool);
 });
 test('round20/v3: blessing caps at Lv.20 (×3.0)', () => {
   let s=seed(); s.marks=s.marksClaimed=300;
@@ -40,25 +43,20 @@ test('round20/v3: blessing caps at Lv.20 (×3.0)', () => {
   assert.throws(()=>P.buyBlessing(s),/滿級/); S.validate(s,Pool);
   assert.throws(()=>S.validate({...s,blessing:21},Pool),/收益祝福/);
 });
-test('round20: 粉塵兌換是遞增價，買得越多下一次越貴', () => {
+test('round20: dustTradeCost 留著給舊存檔對帳（停售之後仍要算得出已花掉的印記）', () => {
   const s=seed();
   assert.equal(P.dustTradeCost(s,1),1);
   assert.equal(P.dustTradeCost(s,10),55);           // 1+2+...+10
   const t={...s, dustTrades:10};
   assert.equal(P.dustTradeCost(t,1),11);            // 第 11 次要 11 印記
   assert.equal(P.dustTradeCost(t,5),11+12+13+14+15);
-  // 形狀才是重點：湊滿一張神話（1600 粉塵＝320 次）舊制只要 320 印記，新制要五萬多
-  assert.equal(P.dustTradeCost(s,320), 320*321/2);
-  assert.ok(P.dustTradeCost(s,320) > 320 * 100, '遞增價必須遠高於舊的固定價，否則等於沒改');
-  // 印記不夠就要擋下來，而且不可以動到原本的狀態
-  const poor={...seed(), marks:5, marksClaimed:5}, before=E.clone(poor);
-  assert.throws(()=>P.tradeDust(poor,5),/印記不足/);   // 第 1~5 次要 15 印記
-  assert.deepEqual(poor,before);
 });
 test('round20: insufficient marks and invalid quantities reject without mutation', () => {
   const s=S.fresh(0), before=E.clone(s);
-  for(const buy of [P.buyBlessing,P.tradeDust]) assert.throws(()=>buy(s),/印記不足/);
-  for(const buy of [P.tradeDust]) for(const n of [0,-1,.5,NaN,Infinity]) assert.throws(()=>buy(s,n),/數量/);
+  assert.throws(()=>P.buyBlessing(s),/印記不足/);
+  assert.throws(()=>P.tradeDust(s),/停售/);
+  // 粉塵兌換停售之後，任何數量都是「停售」——數量檢查已經沒有東西可以擋了
+  for(const n of [0,-1,.5,NaN,Infinity]) assert.throws(()=>P.tradeDust(s,n),/停售/);
   assert.deepEqual(s,before);
 });
 test('round20: new save fields migrate and validate, including blessing spending', () => {

@@ -36,9 +36,9 @@
     // 戰力→金幣→抽卡→戰力 會直接跑掉：模擬器量到一輪 20 站可以抽到一千七百次。
     //   第十一輪把 DRAW_GROWTH 從 1.02 降到 1.006：目標函數換成「兩週養滿 71 張」之後，1.02 在第 4 天就讓抽卡實質停住
     //   （第 1260 抽單價 1000×1.02^1260≈3.8e13，收入只跟站數走 2.1^站，兩條指數在第 30 站附近交叉）。
-    //   掃描（KEEP=1、一般玩家、30 天，看「全滿養在第幾天」）：1.006→10 天／1.007→14 天／1.008→19 天／1.012→28 天。
+    //   掃描（KEEP=1、一般玩家、30 天，看「全滿養在第幾天」）：王粉塵砍成 150 之後 1.004→8 天／1.0055→14 天／1.006→16 天／1.007→21 天。
     //   ⚠ 這個參數非常敏感（千分之一就差四天），改它一定要重跑 tools/sim/apoc.js 的多種子驗證。
-    DRAW_COST: 1000, DRAW_GROWTH: 1.007, STATIONS: 20,
+    DRAW_COST: 1000, DRAW_GROWTH: 1.0055, STATIONS: 20,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）：使用者「玩家玩兩週才有辦法把所有卡片都抽到滿星突破、卡冊全收集」。
     //   星級門檻是「累計粉塵」（抽到重複＝+1 粉塵，同 1.0 的 dust）；滿星之後才能突破，突破吃掉滿星門檻以上的粉塵。
     //   ⚠ 神話率 0.25% 分給 14 張＝每張 0.018%，「14 張神話各抽到一張」期望要 18,200 抽（兩週預算只有 1,260）——
@@ -50,9 +50,18 @@
       // 萬用粉塵匯率：已滿養的卡再抽到就換成這麼多萬用粉塵，兌換所也用同一張表（價值守恆，不做懲罰性折損）。
       // 數字是抽中機率的倒數比例（1 : 2.2 : 4.4 : 25）壓過的——神話不壓的話會獨自吃掉一半以上的預算。
       DUST: { common: 1, rare: 1, epic: 2, legendary: 4, mythic: 10 },
-      BOSS: [30, 60, 120, 240, 480],   // 五隻王首勝送的萬用粉塵（照 1.0「王首勝 +3」的語意放大到 2.0 量級）
+      // 五隻王首勝送的萬用粉塵。第十一輪一開始是 [30,60,120,240,480]（合計 930），
+      // 使用者實測後：「到後面不就可以快速把卡都生滿，我認為這樣給太多」
+      // 「如果抽卡漲價幅度調緩了，就不用給這麼多粉塵」→ 砍成合計 150（原本的 16%）。
+      // 王的回饋感靠「有掉東西」，不是靠「掉很多」。
+      BOSS: [10, 20, 30, 40, 50],
       ENDLESS: { BASE: 20, GROWTH: 1.15 },   // 無盡模式每推進一站送 BASE×GROWTH^(第幾站)
       DISPATCH: 3,                     // 派遣回來的萬用粉塵（再 ×DISPATCH.RARITY）
+      // 保底：連續抽 AT 次都沒有新卡，下一張保證是「還沒有的卡」（抽中就歸零）。
+      // 使用者把「兌換所可以生出沒有的卡」退掉之後，這是卡冊全收集唯一還走得通的路——
+      // 神話率 0.25% 分給 14 張＝每張 0.018%，純靠運氣「14 張各抽到一張」期望 18,200 抽。
+      // 保底放在抽卡裡而不是兌換所裡，是為了保住「第一次抽到」的重量（使用者原話）。
+      PITY: { AT: 180 },
     },
     // 第十輪 C 重走廢土（使用者：「兩個都做」，幅度交給模擬器）：全線通行後重來一圈，保留收藏、金幣與訓練歸零；
     //   第 n 圈敵人血與獎勵 ×HP_FIRST×HP_GROWTH^(n−1)、戰力 ×(1＋POWER×n)，最多 MAX 圈。
@@ -273,7 +282,7 @@
   const count = v => Number.isFinite(Number(v)) ? Math.max(0, Math.floor(Number(v))) : 0;   // 存檔可編輯：'1e309' 會變 Infinity，價格跟著變 Infinity
   const dayKey = now => Math.floor(now / 86400000);   // 同 1.0 派遣的日界
   function fresh() {
-    return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, dust: {}, universalDust: 0, transcend: {}, bossDust: [], roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
+    return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, dust: {}, universalDust: 0, transcend: {}, bossDust: [], pity: 0, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
       paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
       pending: null, cleared: false, laps: 0, endless: false, endlessBest: 0, seenAt: 0, dispatch: [], dispatchDone: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
@@ -307,6 +316,7 @@
       }
     }
     a.universalDust = count(a.universalDust);
+    a.pity = Math.min(count(a.pity), RULES.GROW.PITY.AT);   // 保底計數：連續幾次沒抽到新卡
     // 哪幾隻王的首勝粉塵已經發過（重走廢土每一圈重算，見 replay）
     a.bossDust = [...new Set((Array.isArray(a.bossDust) ? a.bossDust : []).filter(n => Number.isInteger(n) && n >= 0 && n <= RULES.ENDLESS_MAX))];
     if (!Array.isArray(a.roster)) a.roster = [];
@@ -438,20 +448,18 @@
     const stars = Math.max(1, starsAt(a, id));
     return RULES.POWER[c.rarity] * (1 + RULES.STAR_MUL * (stars - 1)) * (1 + G().TRANSCEND_MUL * transcendOf(a, id));
   }
-  // 兌換所：花萬用粉塵換指定卡的粉塵。**沒有的卡也能換**——換到第一顆就等於拿到這張卡，
-  // 這是「卡冊全收集」唯一不看運氣的路（見 RULES.GROW 的註解）。
+  // 兌換所：花萬用粉塵補**已經抽到過**的卡的粉塵。
+  // ⚠ 第一版是「沒有的卡也能換」，使用者退掉：「這個我不要，這樣才有顯得第一次抽到的重要性」。
+  //   第一張一律要從抽卡出來；運氣卡死的部分改由保底處理（見 RULES.GROW.PITY 與 rollPack）。
   function exchangeDust(a, id, n = 1) {
     if (!poolById()[id]) throw new Error('卡片不在末世卡池裡');
     if (!Number.isSafeInteger(n) || n < 1) throw new Error('數量不對');
+    if (!a.collection[id]) throw new Error('還沒抽到這張卡');
     if (isMaxed(a, id)) throw new Error('這張已經滿養了');
     const cost = dustRate(id) * n;
     if ((a.universalDust || 0) < cost) throw new Error('萬用粉塵不足');
     const s = { ...a, universalDust: a.universalDust - cost, dust: { ...(a.dust || {}) }, collection: { ...a.collection }, transcend: { ...(a.transcend || {}) } };
     s.dust[id] = dustOf(s, id) + n;
-    if (!s.collection[id]) {   // 換到第一顆＝拿到這張卡（比照 addCards 的自動入隊）
-      s.collection[id] = 1;
-      if (!s.roster.includes(id) && !dispatchedApoc(s, id) && s.roster.length < 20 && !rosterViolations(s.roster.concat(id)).length) s.roster = [...s.roster, id];
-    }
     const grows = autoGrow(s, [id]);
     return { state: s, grows };
   }
@@ -612,6 +620,7 @@
       // ⚠ 粉塵要先算再加張數：dustOf 對舊存檔會 fallback 到 collection[id]，
       //   先 collection++ 的話這一張會被算兩次（一次張數、一次 fallback）。
       const before = dustOf(s, id);
+      s.pity = s.collection[id] ? (s.pity || 0) + 1 : 0;   // 抽到新卡就歸零（rollPack 照這個數字決定要不要保底）
       s.collection[id] = (s.collection[id] || 0) + 1;
       if (isMaxed(s, id)) s.universalDust = (s.universalDust || 0) + dustRate(id);
       else s.dust[id] = before + 1;
@@ -656,12 +665,21 @@
     const pool = {}; for (const c of (root.ApocPool || [])) (pool[c.rarity === 'common' ? 'rare' : c.rarity] ||= []).push(c);
     const owned = { ...a.collection };
     const entries = [];
+    let pity = a.pity || 0;
     for (let i = 0; i < count; i++) {
-      let r = rng(), acc = 0, rarity = 'rare';
-      for (const [name, p] of RATES) { acc += p; if (r < acc) { rarity = name; break; } }
-      const list = pool[rarity] && pool[rarity].length ? pool[rarity] : pool.rare;
-      const entry = list[Math.floor(rng() * list.length)];
+      let entry;
+      // 保底：連續 AT 次沒新卡，這一張直接從「還沒有的卡」裡挑（均勻，不特別偏神話——
+      // 後期沒有的本來就幾乎都是神話，不需要再加權）
+      const miss = pity + 1 >= RULES.GROW.PITY.AT ? (root.ApocPool || []).filter(c => !owned[c.id]) : [];
+      if (miss.length) entry = miss[Math.floor(rng() * miss.length)];
+      else {
+        let r = rng(), acc = 0, rarity = 'rare';
+        for (const [name, p] of RATES) { acc += p; if (r < acc) { rarity = name; break; } }
+        const list = pool[rarity] && pool[rarity].length ? pool[rarity] : pool.rare;
+        entry = list[Math.floor(rng() * list.length)];
+      }
       const had = owned[entry.id] || 0; owned[entry.id] = had + 1;
+      pity = had > 0 ? pity + 1 : 0;
       entries.push(Object.freeze({ key: `${id}:${i}`, entry: Object.freeze({ ...entry }), dup: had > 0, owned: had }));
     }
     return Object.freeze({ id, entries: Object.freeze(entries), visualSeed: Math.floor(rng() * 2 ** 31) });

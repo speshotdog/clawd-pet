@@ -14,6 +14,8 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[2]; SRC = ROOT / 'src'
 OUT = ROOT / '_art/out/v3-growth'; OUT.mkdir(parents=True, exist_ok=True)
 fails = []
+STAR_ROW_JS = "() => { const r = document.querySelector('#album-detail .star-row'); if (!r) return null; const box = r.getBoundingClientRect(), host = r.closest('#album-detail').getBoundingClientRect(); return { n: r.querySelectorAll('img').length, gems: r.querySelectorAll('img.gem').length, w: Math.round(box.width), fits: box.right <= host.right + 1 && box.left >= host.left - 1 }; }"
+CLICK_BUDDY_JS = '() => document.querySelector(\'#buddies .buddy[data-id="%s"]\').click()'
 def check(ok, msg):
     print(('ok   ' if ok else 'FAIL ') + msg)
     if not ok: fails.append(msg)
@@ -61,10 +63,20 @@ with sync_playwright() as p:
     buddies = pg.evaluate("() => [...document.querySelectorAll('#buddies .buddy')].map(el => [el.dataset.id, el.querySelector('.buddy-stars')?.textContent || ''])")
     txt = dict(buddies)
     mid = maxed[0][0] if maxed else None
-    check(mid in txt and txt[mid] == '★5＋5', f'滿養那張顯示 ★5＋5（實得 {txt.get(mid)!r}）')
+    check(mid in txt and txt[mid] == '★10', f'滿養那張顯示 ★10（使用者：星數是一條連續的 1～10；實得 {txt.get(mid)!r}）')
     check(txt and all(t.startswith('★') for t in txt.values()), f'夥伴列每一張都有星數（實得 {txt}）')
-    over = [ (i, t) for i, t in txt.items() if t.replace('★','').split('＋')[0].isdigit() and int(t.replace('★','').split('＋')[0]) > 5 ]
-    check(not over, f'沒有任何一張顯示超過 ★5（舊版張數當星數會出現 ★30）：{over}')
+    over = [ (i, t) for i, t in txt.items() if t.replace('★','').isdigit() and int(t.replace('★','')) > 10 ]
+    check(not over, f'沒有任何一張顯示超過 ★10（舊版張數當星數會出現 ★30）：{over}')
+
+    # ---- 滿養那張的星列：10 顆星（前 5 顆普通星、第 6～10 顆寶石星），而且不能撐破詳情卡
+    pg.evaluate(CLICK_BUDDY_JS % mid)
+    pg.wait_for_timeout(900)
+    row = pg.evaluate(STAR_ROW_JS)
+    check(row and row['n'] == 10, '滿養那張是 10 顆星（實得 %s）' % (row,))
+    check(row and row['gems'] == 5, '第 6～10 顆畫成寶石星（實得 %s）' % (row,))
+    check(row and row['fits'], '10 顆星沒有撐出詳情卡（實得 %s）' % (row,))
+    pg.screenshot(path=str(OUT / 'stars10.png'))
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(500)
 
     # ---- 卡冊：標題列要有「滿養 n/71」，而且末世也看得到粉塵罐
     pg.evaluate("() => [...document.querySelectorAll('button')].find(b => /名冊/.test(b.textContent)).click()")
@@ -85,14 +97,19 @@ with sync_playwright() as p:
     check(box and 16 <= box['w'] <= 48 and 16 <= box['h'] <= 48, f'貼紙尺寸正常（實得 {box}）')
     check(pg.evaluate("() => !document.querySelector('#dust-shop .character-png')"), '兌換所沒有出現 1.0 卡面')
 
-    # 沒抽到的卡也要能換——這是卡冊全收集唯一不看運氣的路
+    # 沒抽到的卡**不能**換（使用者：「這樣才有顯得第一次抽到的重要性」）；已經抽到的才補得下去
     missing = pg.evaluate("() => { const a=window.Clicker.state.apoc; return window.ApocPool.map(c=>c.id).find(id => !a.collection[id]); }")
-    btn = pg.locator(f'#dust-shop [data-dust="{missing}:1"]')
-    check(btn.count() == 1 and btn.is_enabled(), '還沒抽到的卡，兌換鍵是可以按的')
+    miss_btn = pg.locator(f'#dust-shop [data-dust="{missing}:1"]')
+    check(miss_btn.count() == 1 and miss_btn.is_disabled(), '還沒抽到的卡，兌換鍵是按不下去的')
+    owned = pg.evaluate("() => { const a=window.Clicker.state.apoc, A=ApocEconomy; return Object.keys(a.collection).find(id => !A.isMaxed(a,id)); }")
+    btn = pg.locator(f'#dust-shop [data-dust="{owned}:1"]')
+    check(btn.count() == 1 and btn.is_enabled(), '已經抽到、還沒滿養的卡，兌換鍵可以按')
+    d0 = pg.evaluate(f"() => ApocEconomy.dustOf(window.Clicker.state.apoc, '{owned}')")
     btn.click(); pg.wait_for_timeout(600)
-    got = pg.evaluate(f"() => {{ const a=window.Clicker.state.apoc; return [a.collection['{missing}']||0, a.universalDust]; }}")
-    check(got[0] == 1, f'換到第一顆就等於拿到這張卡（實得 {got[0]}）')
+    got = pg.evaluate(f"() => {{ const a=window.Clicker.state.apoc; return [ApocEconomy.dustOf(a,'{owned}'), a.universalDust, a.collection['{missing}']||0]; }}")
+    check(got[0] == d0 + 1, f'兌換補的是粉塵（{d0} → {got[0]}）')
     check(got[1] < 500, f'萬用粉塵有扣（實得 {got[1]}）')
+    check(got[2] == 0, '沒抽到的卡不會因為兌換而憑空出現')
     pg.screenshot(path=str(OUT / 'dust-shop.png'))
 
     # ---- 版面：兌換所不能有字被裁或跑出面板

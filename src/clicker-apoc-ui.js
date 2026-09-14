@@ -504,10 +504,11 @@ window.ClickerApocUI = (() => {
         el.title = `${entry.name}・查看卡冊`; el.style.setProperty('--rarity', RARITY[entry.rarity]);
         const portrait = document.createElement('span'); portrait.className = 'buddy-portrait holo-slot'; portrait.append(faceOf(entry));
         const name = document.createElement('b'); name.textContent = entry.name;
-        // 第十一輪：星數不再等於張數（8 顆粉塵封頂 5★），滿星之後改顯示突破級數
+        // 第十一輪：星數不再等於張數（8 顆粉塵封頂 5★），突破接在後面變成第 6～10 顆星。
+        // 使用者：「★5＋5 我希望直接改成 6~10」——畫面上是一條連續的 1～10。
         const st = v.stars?.[id] || 1, tr = v.transcend?.[id] || 0;
-        const stars = document.createElement('span'); stars.className = 'buddy-stars'; stars.textContent = tr ? `★${st}＋${tr}` : `★${st}`;
-        stars.title = tr ? `${st} 星・突破 ${tr}` : `${st} 星`;
+        const stars = document.createElement('span'); stars.className = 'buddy-stars'; stars.textContent = `★${st + tr}`;
+        stars.title = tr ? `${st + tr} 星（前 5 星靠升星，第 6～10 星靠突破）` : `${st} 星`;
         el.append(portrait, name, stars);
         const slot = v.skills.indexOf(id);
         if (slot >= 0) { const stamp = document.createElement('small'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${slot + 1}`; el.append(stamp); }

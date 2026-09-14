@@ -34,11 +34,16 @@ window.ClickerAlbum = (() => {
     function starRow(s, id) {
       // 末世（第十一輪）：星級來自累計粉塵、突破 0～5；桌邊維持原本的 dust／transcend
       const ap = apoc() ? A().normalize(s.apoc) : null;
-      const n = ap ? Math.max(1, A().starsAt(ap, id)) : E.stars(E.dust(s, id));
+      // 末世是一條連續的 1～10 星：前 5 顆靠粉塵升星，第 6～10 顆是突破（畫成寶石星做區別）。
+      // 使用者：「★5＋5 我希望直接改成 6~10」——所以總數就是 星+突破，不再寫成「5＋5」。
       const t = ap ? A().transcendOf(ap, id) : (s.transcend?.[id] || 0);
+      const n = ap ? Math.max(1, A().starsAt(ap, id)) + t : E.stars(E.dust(s, id));
       const row = document.createElement('div'); row.className = (ap ? byId(id)?.rarity : E.rarity(s, id)) === 'mythic' ? 'star-row mythic-stars' : 'star-row';
-      for (let i = 0; i < n; i++) { const img = new Image(); img.src = i < t ? 'clicker-star-gem.png' : 'clicker-star.png'; img.alt = ''; img.className = i < t ? 'gem' : ''; row.append(img); }
-      row.setAttribute('aria-label', `${n} 星${t ? `・${ap ? '突破' : '超越'} ${t}` : ''}`); return row;
+      for (let i = 0; i < n; i++) {
+        const gem = ap ? i >= n - t : i < t;   // 末世：突破的那幾顆排在後面（第 6～10 顆）
+        const img = new Image(); img.src = gem ? 'clicker-star-gem.png' : 'clicker-star.png'; img.alt = ''; img.className = gem ? 'gem' : ''; row.append(img);
+      }
+      row.setAttribute('aria-label', ap ? `${n} 星` : `${n} 星${t ? `・超越 ${t}` : ''}`); return row;
     }
     function nextStep(s, id) {
       if (apoc()) return apocStep(A().normalize(s.apoc), id);
@@ -52,10 +57,10 @@ window.ClickerAlbum = (() => {
     // 末世的下一步：還沒抽到也要講得出來（兌換所可以直接換出這張卡，是卡冊全收集唯一不看運氣的路）
     function apocStep(a, id) {
       const AE = A(), d = AE.dustOf(a, id), st = AE.starsAt(a, id);
-      if (!a.collection[id]) return `尚未抽到（兌換 ${AE.dustRate(id)} 顆萬用粉塵）`;
-      if (st < AE.maxStars()) return `升星 ${d}/${AE.RULES.GROW.STARS[st]}`;
-      if (AE.isMaxed(a, id)) return '滿養';
-      return `突破 ${AE.availableDust(a, id)}/${AE.transcendCost(a, id)}`;
+      if (!a.collection[id]) return '尚未抽到';
+      if (st < AE.maxStars()) return `升星 ★${st + 1}　${d}/${AE.RULES.GROW.STARS[st]}`;
+      if (AE.isMaxed(a, id)) return '滿養 ★10';
+      return `升星 ★${st + AE.transcendOf(a, id) + 1}　${AE.availableDust(a, id)}/${AE.transcendCost(a, id)}`;
     }
     function tierName(s, id) {
       const cur = E.rarity(s, id), o = ORIGIN[E.origin(id)], t = s.transcend?.[id] || 0;
@@ -182,19 +187,16 @@ window.ClickerAlbum = (() => {
           const slot = document.createElement('button'); slot.className = 'album-slot'; slot.dataset.id = id; slot.type = 'button';
           if (isCollect(id)) { slot.setAttribute('aria-label', `${Pool.byId[id].name}・收藏卡`); slot.title = '收藏卡・絕版'; slot.append(makeCard(s, id)); const meta = document.createElement('div'); meta.className = 'album-meta'; const line = document.createElement('small'); line.textContent = '收藏卡・絕版'; meta.append(line); slot.append(meta); slot.onclick = () => openDetail(id); el.append(slot); return; }
           if (apoc()) {
-            // 末世：一張卡只有「有幾張＝幾星」與「在不在隊上」兩件事，不要把 1.0 的粉塵／派遣搬過來
-            const a = A().normalize(s.apoc), n = have(s, id), entry = byId(id);
-            const hint = n ? `${entry.name}・★${n}・戰力 ${format(A().cardPower(a, id))}` : `${entry.name}・還沒抽到`;
+            // 末世：星星是一條連續的 1～10（前 5 顆靠粉塵升星、第 6～10 顆是突破），加上「在不在隊上」。
+            // ⚠ 第十一輪之前這裡是「張數＝星數」，一張抽了 30 次的卡會畫成「★×30」——那個語意已經沒有了。
+            const a = A().normalize(s.apoc), owned = have(s, id), entry = byId(id);
+            const n = owned ? A().starsAt(a, id) + A().transcendOf(a, id) : 0;
+            const hint = owned ? `${entry.name}・★${n}・${apocStep(a, id)}・戰力 ${format(A().cardPower(a, id))}` : `${entry.name}・還沒抽到`;
             slot.setAttribute('aria-label', hint); slot.title = hint;
             slot.append(makeCard(s, id));
             const meta = document.createElement('div'); meta.className = 'album-meta';
-            // 星星用 1.0 的星星圖示（使用者：「卡冊星星請直接用圖示」）；張數多到排不下時改成一顆星＋×張數
-            if (n) { const row = document.createElement('div'); row.className = 'star-row apoc-stars';
-              const icons = n <= 5 ? n : 1;
-              for (let k = 0; k < icons; k++) { const img = new Image(); img.src = 'clicker-star.png'; img.alt = ''; row.append(img); }
-              if (n > 5) { const x = document.createElement('b'); x.textContent = `×${n}`; row.append(x); }
-              row.setAttribute('aria-label', `${n} 星`); meta.append(row); }
-            const line = document.createElement('small'); line.textContent = n ? `戰力 ${format(A().cardPower(a, id))}` : '？？？'; meta.append(line);
+            if (n) meta.append(starRow(s, id));
+            const line = document.createElement('small'); line.textContent = owned ? `戰力 ${format(A().cardPower(a, id))}` : '？？？'; meta.append(line);
             const sk = (a.skills || []).indexOf(id);
             if (sk >= 0) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp'; stamp.textContent = `槽${sk + 1}`; slot.append(stamp); }
             else if ((a.roster || []).includes(id)) { const stamp = document.createElement('i'); stamp.className = 'slot-stamp team-stamp'; stamp.textContent = '隊'; slot.append(stamp); }
@@ -278,16 +280,20 @@ window.ClickerAlbum = (() => {
         root.append(left, right); big.style.transform = 'scale(1.15)'; refreshKey = stateKey(); return;
       }
       if (apoc()) {
-        const a = A().normalize(s.apoc), n = have(s, id), entry = byId(id), inTeam = a.roster.includes(id);
+        const a = A().normalize(s.apoc), owned = have(s, id), entry = byId(id), inTeam = a.roster.includes(id);
+        // 第十一輪：星數 = 升星（前 5 顆，吃粉塵）＋ 突破（第 6～10 顆）。以前這裡直接把張數當星數。
+        const n = owned ? A().starsAt(a, id) + A().transcendOf(a, id) : 0;
         const tier = document.createElement('div'); tier.className = 'detail-tier';
         tier.textContent = `${RAR[entry.rarity] || entry.rarity}${n ? `・★${n}` : ''}`; right.append(tier);
+        if (n) right.append(starRow(s, id));
         const info = document.createElement('div'); info.className = 'detail-info';
         const add = (k, v) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; info.append(dt, dd); };
         if (n) {
-          add('戰力', `${format(A().cardPower(a, id))}（${n} 張・每多一張 +25%）`);
+          add('戰力', `${format(A().cardPower(a, id))}（★${n}：每星 +25%、每突破 +10%）`);
+          add('粉塵', `${A().dustOf(a, id)} / ${A().fullDust()} 顆・${apocStep(a, id)}`);
           add('編隊', inTeam ? `在隊伍裡（${a.roster.indexOf(id) + 1} / 20）` : ((a.dispatch || []).some(d => d.id === id) ? '派遣中（不算戰力）' : '不在隊伍（不算戰力）'));
           const sk = (a.skills || []).indexOf(id); add('獨立技能', sk >= 0 ? `技能格 ${sk + 1}` : '沒有裝');
-        } else add('狀態', '還沒抽到');
+        } else add('狀態', '還沒抽到（第一張只能從招募抽出來）');
         right.append(info);
         const acts = document.createElement('div'); acts.className = 'detail-actions';
         if (n) {
@@ -538,7 +544,7 @@ window.ClickerAlbum = (() => {
       const h = document.createElement('h3'); h.textContent = `萬用粉塵 ${have0} 顆`; root.append(h);
       const hint = document.createElement('p');
       hint.textContent = ap
-        ? `兌換成指定夥伴的粉塵：精良 1:1、史詩 2:1、傳說 4:1、神話 10:1。還沒抽到的卡也換得出來。萬用粉塵來自每隻王首勝、無盡模式推進、派遣，與滿養夥伴的重複卡。`
+        ? `兌換成指定夥伴的粉塵：精良 1:1、史詩 2:1、傳說 4:1、神話 10:1。只能補「已經抽到過」的卡——第一張一律要從招募抽出來（連續 ${AE.RULES.GROW.PITY.AT} 次沒新卡會保底）。萬用粉塵來自每隻王首勝、無盡模式推進、派遣，與滿養夥伴的重複卡。`
         : '兌換成指定夥伴的粉塵：精良 1:1、史詩 2:1、傳說 3:1。萬用粉塵來自每隻王首勝、每日一包與滿養夥伴的重複卡。';
       root.append(hint);
       const list = document.createElement('div'); list.className = 'dust-list';
@@ -558,7 +564,7 @@ window.ClickerAlbum = (() => {
         for (const n of [1, 5]) {
           const btn = document.createElement('button'); btn.textContent = `+${n}（${rate * n}）`;
           btn.disabled = store.blocked || have0 < rate * n
-            || (ap ? AE.isMaxed(ap, id) : (!s.collection[id] || s.transcend?.[id] === 5));
+            || (ap ? (!ap.collection[id] || AE.isMaxed(ap, id)) : (!s.collection[id] || s.transcend?.[id] === 5));
           btn.dataset.dust = `${id}:${n}`;
           btn.onclick = () => action(() => {
             const next = ap ? (() => { const c = E.clone(store.state); c.apoc = AE.exchangeDust(AE.normalize(c.apoc), id, n).state; return c; })()

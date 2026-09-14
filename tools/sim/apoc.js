@@ -21,6 +21,9 @@ if (process.env.BOSS_MULS) R.BOSS_MULS = process.env.BOSS_MULS.split(',').map(Nu
 // 第十輪王關機制：MECH_IDLE_MUL／MECH_BREAK_MUL…覆寫 BOSS_MECH 頂層數字；ACC＝玩家踩中拍子／點對部位的機率
 for (const k of ['IDLE_MUL', 'BREAK_MS', 'BREAK_MUL', 'ROTATE_MS']) if (process.env['MECH_' + k] !== undefined) R.BOSS_MECH[k] = Number(process.env['MECH_' + k]);
 // 第十輪 D：DISPATCH=0 關掉派遣；DISPATCH_KILLS／DISPATCH_TICKET 覆寫派遣收益
+// 第十一輪：養成旋鈕 PITY_AT（保底門檻）、BOSS_DUST（五隻王首勝的萬用粉塵，逗號分隔）
+if (process.env.PITY_AT !== undefined) R.GROW.PITY.AT = Number(process.env.PITY_AT);
+if (process.env.BOSS_DUST) R.GROW.BOSS = process.env.BOSS_DUST.split(',').map(Number);
 if (process.env.DISPATCH_KILLS !== undefined) R.DISPATCH.KILLS = Number(process.env.DISPATCH_KILLS);
 if (process.env.DISPATCH_TICKET !== undefined) R.DISPATCH.TICKET = Number(process.env.DISPATCH_TICKET);
 for (const [kind, pre] of [['team', 'TEAM'], ['click', 'CLICK']]) for (const k of ['MUL', 'COST', 'GROWTH']) R.TRAIN[kind][k] = env(`${pre}_${k}`, R.TRAIN[kind][k]);
@@ -52,8 +55,9 @@ const log = [];
 const ALL = () => (global.ApocPool || []);
 function spendDust() {
   for (;;) {
-    const inTeam = a.roster.filter(id => !A.isMaxed(a, id));
-    const rest = ALL().map(c => c.id).filter(id => !A.isMaxed(a, id) && !a.roster.includes(id));
+    // ⚠ 兌換所只補「已經抽到過」的卡（使用者退掉了「沒有的卡也能換」），沒抽到的一律跳過
+    const inTeam = a.roster.filter(id => a.collection[id] > 0 && !A.isMaxed(a, id));
+    const rest = ALL().map(c => c.id).filter(id => a.collection[id] > 0 && !A.isMaxed(a, id) && !a.roster.includes(id));
     // 隊上：先餵匯率低的（同樣一顆萬用粉塵，換便宜的卡拿到的粉塵一樣多，但便宜的卡先滿養才能早點溢出）
     const pick = [...inTeam, ...rest].sort((x, y) => A.dustRate(x) - A.dustRate(y))
       .find(id => (a.universalDust || 0) >= A.dustRate(id));

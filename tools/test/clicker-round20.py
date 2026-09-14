@@ -103,7 +103,9 @@ def main():
         # 基準重寫：v3 D 路把商店改成「神器／永久／兌換」三段，祝福變成神器的一條線，
         # 招募券下架（DESIGN-balance-v3 §D）——原本的 blessing／drawTicket 商品已經不存在
         heads=pg.locator('#prestige-body h3').all_text_contents()
-        check([h for h in heads if h in ('神器（每級價＝下一級的等級）','永久','兌換')]==['神器（每級價＝下一級的等級）','永久','兌換'],f'商店分神器／永久／兌換 {heads}')
+        # 第十一輪：「兌換」整段拿掉了（使用者：「我希望印記商店的粉塵兌換也移除」）
+        check([h for h in heads if h in ('神器（每級價＝下一級的等級）','永久')]==['神器（每級價＝下一級的等級）','永久'],f'商店分神器／永久 {heads}')
+        check('兌換' not in heads and pg.locator('[data-item="dustTrade"]').count()==0,f'粉塵兌換已下架 {heads}')
         check(pg.locator('[data-item="drawTicket"]').count()==0,'招募券已下架')
         # 祝福：神器線，第 r 級收 r 枚
         before=pg.evaluate('({marks:Clicker.state.marks,blessing:Clicker.state.blessing})')

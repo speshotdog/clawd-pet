@@ -79,14 +79,10 @@
     const done = s.dustTrades || 0;
     return n * done + n * (n + 1) / 2;
   }
-  function tradeDust(state, n = 1, now = state.settledAt) {
-    if (!Number.isSafeInteger(n) || n < 1) throw new Error('兌換數量無效');
-    const s = E.settle(state, now).state;
-    const cost = dustTradeCost(s, n);
-    if ((s.marks || 0) < cost) throw new Error('印記不足');
-    s.marks -= cost; s.dustTrades = (s.dustTrades || 0) + n;
-    s.universalDust = (s.universalDust || 0) + DUST_PER_TRADE * n; return s;
-  }
+  // 第十一輪停售（使用者：「我希望印記商店的粉塵兌換也移除」）。理由同招募券——
+  // 印記產出是 √生涯收入，留一條印記→粉塵的路等於可以把整個卡池買下來。
+  // dustTradeCost／DUST_PER_TRADE 保留：clicker-save 的 marksClaimed 對帳仍要用舊存檔的 dustTrades。
+  function tradeDust() { throw new Error('粉塵兌換已停售'); }
   // v3：招募券拿掉（使用者 2026-09-12）——印記換免費抽等於把整個卡池買下來
   function buyDrawTicket() { throw new Error('招募券已停售'); }
   const autoClickCost = (L) => Math.ceil(5000 * 2.2 ** L);

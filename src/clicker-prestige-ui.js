@@ -60,19 +60,10 @@ window.ClickerPrestigeUI = (() => {
         list.append(t);
       }
       body.append(list);
-      const heading2 = document.createElement('h3'); heading2.textContent = '兌換'; body.append(heading2);
-      const repeat = document.createElement('div'); repeat.className = 'mark-list';
-      for (const item of B.blessings.filter(b => b.id === 'dustTrade')) {
-        for (const n of [1,10]) {
-          const cost = P.dustTradeCost(s, n);
-          const t = document.createElement('button'); t.className = 'mark-ticket'; t.dataset.item = item.id; t.dataset.quantity = n;
-          t.innerHTML = `<img src="clicker-ui-stamp-transcend.png" alt="" /><span><b>${item.name}${n > 1 ? ' ×10' : ''}（已換 ${s.dustTrades || 0} 次 → +${P.DUST_PER_TRADE * n} 粉塵）</b><small>${item.desc}</small></span><i>${cost} 印記</i>`;
-          t.disabled = s.marks < cost || store.blocked;
-          t.onclick = () => action(() => { if (commit(P.tradeDust(store.state, n, Date.now()))) { sound('upgrade'); changed(); notice(`${item.name}${n > 1 ? ' ×10' : ''}`); render(); } });
-          repeat.append(t);
-        }
-      }
-      body.append(repeat);
+      // 印記換粉塵已停售（第十一輪使用者：「我希望印記商店的粉塵兌換也移除」）。
+      // 理由同招募券：印記產出是 √生涯收入，開一條印記→粉塵的路等於可以把卡池買下來，
+      // 而 2.0 的養成已經有自己的粉塵來源（重複卡、王首勝、無盡、派遣）。
+      // 舊存檔的 dustTrades 仍留在存檔裡（clicker-save 的 marksClaimed 對帳要用），只是不能再換。
     }
     function renderFinger(s, body) {
       const L = s.autoClick || 0, price = P.autoClickCost(L);
