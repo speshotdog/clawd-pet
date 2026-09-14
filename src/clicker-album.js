@@ -67,7 +67,8 @@ window.ClickerAlbum = (() => {
       return `${RAR[cur]}${cur !== Pool.byId[id].rarity ? `（${o}出身）` : ''}${t ? `・超越 ${t}` : ''}${t === 5 ? '・覺醒' : ''}`;
     }
     // 收藏卡的精裝版：直接嵌精裝頁（?embed=1 只留卡本身）。使用者 09-13：「2.0 不准出現任何 1.0 卡面，
-    // 魔花少女是之前花最多心力做的卡」——末世裡一律用這個，沒有精裝頁的收藏卡寧可顯示問號也不退回 1.0 卡面。
+    // 魔花少女是之前花最多心力做的卡」；09-14 再確認：**魔花少女／收藏卡只有精裝版**，
+    // 所以 1.0 也一律用這個，沒有精裝頁的收藏卡寧可顯示問號也不退回 1.0 卡面。
     const DELUXE = { mohuashaonv: 'apoc/mohuashaonv.html' };
     function deluxeCard(id) {
       const wrap = document.createElement('div'); wrap.className = 'card flipped album-card collect deluxe-card';
@@ -78,8 +79,7 @@ window.ClickerAlbum = (() => {
       return wrap;
     }
     function makeCard(s, id) {
-      if (isCollect(id) && apoc()) return deluxeCard(id);
-      if (isCollect(id)) { const el = card.create({ ...Pool.byId[id] }, { tag: false }); el.classList.add('flipped', 'album-card', 'collect'); return el; }
+      if (isCollect(id)) return deluxeCard(id);   // 收藏卡只有精裝版，兩個世界都一樣
       const entry = byId(id);
       // 末世的卡一律用精裝卡面（使用者：所有卡都是精裝版）
       if (apoc() && window.ClickerHolo?.ready()) {
@@ -270,12 +270,10 @@ window.ClickerAlbum = (() => {
       const h = document.createElement('h3'); h.textContent = byId(id).name; right.append(h);
       if (isCollect(id)) {   // 收藏卡：只有說明與返回
         const tier = document.createElement('div'); tier.className = 'detail-tier'; tier.textContent = '收藏卡'; right.append(tier);
-        // 精裝版（three.js 的那一頁）本來只有 iframe 殼進得去；殼拿掉之後改從這裡開，
-        // 不然那張卡最有價值的東西就永遠看不到了。
-        const deluxe = document.createElement('button'); deluxe.className = 'grow-btn';
-        deluxe.textContent = '看精裝版'; deluxe.title = '打開會轉的 3D 收藏卡';
-        deluxe.onclick = () => window.open(`apoc/${id}.html`, '_blank', 'noopener');
-        right.append(deluxe);
+        // ⚠ 以前這裡有一顆「看精裝版」＝ window.open(`apoc/${id}.html`) 開外部分頁。
+        //   使用者 09-14：「他的放大比較 2.0 的檢視方式，不要外部開 HTML」——整顆拿掉。
+        //   卡片下面（detail-left）本來就有「放大」鍵，走的是跟末世卡同一個 #card-zoom 內嵌層
+        //   （裡面就是同一張精裝頁，拖得動、有反光），不需要在右欄再放一顆。
         const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); right.append(back);
         root.append(left, right); big.style.transform = 'scale(1.15)'; refreshKey = stateKey(); return;
       }
@@ -474,12 +472,14 @@ window.ClickerAlbum = (() => {
       layer.setAttribute('role', 'dialog'); layer.setAttribute('aria-modal', 'true'); layer.setAttribute('aria-label', `${byId(id).name}・放大欣賞`);
       const holder = document.createElement('div'); holder.className = 'zoom-card';
       let face = null;
-      if (isCollect(id) && apoc()) holder.append(deluxeCard(id));
+      if (isCollect(id)) holder.append(deluxeCard(id));   // 收藏卡只有精裝版，1.0 也用同一套
       else if (apoc() && window.ClickerHolo?.ready() && (face = window.ClickerHolo.face(byId(id)))) holder.append(face);
       else if (apoc()) { const blank = document.createElement('span'); blank.className = 'apoc-face-blank'; holder.append(blank); }   // 末世不准退回 1.0 卡面
       else { const el = makeCard(s, id); el.classList.add('zoom-face'); holder.append(el); }
       const hint = document.createElement('p'); hint.className = 'zoom-hint';
-      hint.textContent = apoc() ? '拖曳轉動・滑過看反光・點背景關閉' : '點背景關閉';
+      // ⚠ 判斷依據是「這張是不是會動的精裝卡」，不是「在哪個世界」——
+      //   收藏卡在 1.0 也是精裝頁（可以拖曳轉動），照舊寫法會給它「點背景關閉」這種不完整的提示
+      hint.textContent = (apoc() || isCollect(id)) ? '拖曳轉動・滑過看反光・點背景關閉' : '點背景關閉';
       const close = document.createElement('button'); close.type = 'button'; close.className = 'zoom-close'; close.textContent = '關閉'; close.onclick = () => closeZoom();
       layer.append(holder, hint, close);
       layer.onclick = e => { if (e.target === layer) closeZoom(); };
