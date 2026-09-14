@@ -498,3 +498,80 @@ test('第十輪 D 派遣：隊外的卡才能派、位子有限；時間到收�
   const bad = A.normalize({ ...a, dispatch: [{ id: 'm1', startedAt: 0, until: 5 }, { id: 'zzz', startedAt: 0, until: R.DISPATCH.MS }, null, { id: 'pufayueyue', startedAt: 0, until: R.DISPATCH.MS }] });
   assert.equal(bad.dispatch.length, 0);
 });
+
+// ---- 第十一輪 養成：粉塵／星級／突破／兌換所／王掉粉塵（DESIGN-2026-09-14-apoc-growth.md）
+test('星級看累計粉塵，滿星之後才會自動突破，滿養封頂', () => {
+  const cap = A.starCap(), full = A.fullDust();
+  assert.equal(cap, 8); assert.equal(full, 22);
+  let a = A.gift(A.fresh());           // 開門禮已經有一張 pufayueyue
+  assert.equal(A.dustOf(a, 'pufayueyue'), 1, '開門禮要落地粉塵，不然第一次重複會少算');
+  a = A.drawn({ ...a, tickets: 7 }, Array(7).fill('pufayueyue'));
+  assert.equal(A.dustOf(a, 'pufayueyue'), 8); assert.equal(A.starsAt(a, 'pufayueyue'), 5);
+  assert.equal(A.transcendOf(a, 'pufayueyue'), 0, '滿星當下還沒有多的粉塵可以突破');
+  a = A.drawn({ ...a, tickets: 2 }, ['pufayueyue', 'pufayueyue']);
+  assert.equal(A.transcendOf(a, 'pufayueyue'), 1, '多 2 顆粉塵＝自動突破第 1 級');
+  a = A.drawn({ ...a, tickets: 12 }, Array(12).fill('pufayueyue'));
+  assert.ok(A.isMaxed(a, 'pufayueyue')); assert.equal(A.dustOf(a, 'pufayueyue'), full);
+  assert.equal(A.transcendOf(a, 'pufayueyue'), 5);
+  // 滿養之後再抽到：粉塵不再長，改成溢出萬用粉塵
+  const before = a.universalDust || 0;
+  a = A.drawn({ ...a, tickets: 3 }, Array(3).fill('pufayueyue'));
+  assert.equal(A.dustOf(a, 'pufayueyue'), full);
+  assert.equal(a.universalDust - before, 3 * A.dustRate('pufayueyue'));
+  // 戰力＝底 60 ×（1+.25×4）×（1+.1×5）
+  assert.equal(A.cardPower(a, 'pufayueyue'), 60 * 2 * 1.5);
+});
+test('兌換所：沒有的卡也能用萬用粉塵換出來（卡冊全收集唯一不看運氣的路）', () => {
+  let a = A.gift(A.fresh());
+  assert.equal(A.dustRate('m1'), R.GROW.DUST.mythic);
+  assert.throws(() => A.exchangeDust({ ...a, universalDust: 0 }, 'm1', 1), /不足/);
+  assert.throws(() => A.exchangeDust({ ...a, universalDust: 999 }, 'zzz', 1), /不在末世卡池/);
+  assert.throws(() => A.exchangeDust({ ...a, universalDust: 999 }, 'm1', 0), /數量/);
+  const r = A.exchangeDust({ ...a, universalDust: 30 }, 'm1', 1);
+  assert.equal(r.state.universalDust, 30 - R.GROW.DUST.mythic);
+  assert.equal(r.state.collection.m1, 1, '換到第一顆＝拿到這張卡');
+  assert.ok(r.state.roster.includes('m1'), '跟抽到一樣會自動入隊');
+  // 換到滿養就不能再換（避免萬用粉塵無處可去時被吃掉）
+  const done = A.exchangeDust({ ...a, universalDust: 9999 }, 'm1', A.fullDust());
+  assert.ok(A.isMaxed(done.state, 'm1'));
+  assert.throws(() => A.exchangeDust(done.state, 'm1', 1), /滿養/);
+});
+test('打王首勝掉萬用粉塵，只掉一次；無盡模式每站都掉；重走廢土重算', () => {
+  const i = 3, now = 1e6;                       // 第 4 站＝第一隻王
+  assert.equal(A.winDust(A.fresh(), 0), 0, '一般站不掉粉塵');
+  assert.equal(A.winDust(A.fresh(), i), R.GROW.BOSS[0]);
+  assert.equal(A.winDust({ ...A.fresh(), bossDust: [i] }, i), 0, '首勝之後不再掉');
+  assert.equal(A.winDust(A.fresh(), R.STATIONS), R.GROW.ENDLESS.BASE, '無盡第一站');
+  assert.ok(A.winDust(A.fresh(), R.STATIONS + 5) > R.GROW.ENDLESS.BASE, '無盡越後面越多');
+  let a = A.gift({ ...A.fresh(), progress: i, unlocked: true });
+  a = A.fight(a, now);
+  assert.equal(a.stage.mech, 0, '第一隻王是狗群');
+  // 狗群擋在前面，王不會掉血——先把狗清乾淨（不然 hp 設成 1 也打不到王，這一站永遠不會贏）
+  a = { ...a, stage: { ...a.stage, hp: 1, minions: { ...a.stage.minions, left: 0, nextAt: 0 } } };
+  const r = A.settle(a, now + 1000, 1);
+  const ev = r.events.find(e => e.type === 'dust');
+  assert.deepEqual({ amount: ev.amount, boss: ev.boss }, { amount: R.GROW.BOSS[0], boss: true });
+  assert.equal(r.state.universalDust, R.GROW.BOSS[0]);
+  assert.deepEqual(r.state.bossDust, [i]);
+  assert.deepEqual(A.replay({ ...r.state, cleared: true, pending: null }).bossDust, [], '重走廢土每一圈重算');
+});
+test('normalize：舊存檔張數搬成粉塵、突破級數買不起就砍掉', () => {
+  // 舊存檔（第十輪以前）只有 collection，沒有 dust
+  const old = A.normalize({ collection: { pufayueyue: 5, m1: 40 }, roster: ['pufayueyue'] });
+  assert.equal(old.dust.pufayueyue, 5);
+  assert.equal(old.dust.m1, A.fullDust(), '超過滿養的張數夾到滿養，不會變成無限戰力');
+  // 手改存檔：粉塵只有 8（剛好滿星）卻寫了突破 5 → 買得起幾級就留幾級
+  const cheat = A.normalize({ collection: { pufayueyue: 1 }, dust: { pufayueyue: 8 }, transcend: { pufayueyue: 5 } });
+  assert.equal(cheat.transcend.pufayueyue, undefined);
+  const ok = A.normalize({ collection: { pufayueyue: 1 }, dust: { pufayueyue: 12 }, transcend: { pufayueyue: 5 } });
+  assert.equal(ok.transcend.pufayueyue, 2, '8+2+2=12 只買得起兩級');
+  assert.equal(A.normalize({ universalDust: -5 }).universalDust, 0);
+});
+test('抽卡結算：升星只報到滿星，之後報突破', () => {
+  let a = A.gift(A.fresh());
+  a = A.drawn({ ...a, tickets: 7 }, Array(7).fill('pufayueyue'));   // 8 粉塵＝滿星
+  const pack = { draw: { id: 'x', entries: [0, 1].map(k => ({ key: 'x:' + k, entry: { id: 'pufayueyue', rarity: 'rare', name: '普發玥玥' }, dup: true, owned: 8 })) } };
+  const r = A.collectDraw({ ...a, pending: pack }, 'x', 0);
+  assert.deepEqual(r.starUps, [], '已經滿星就不該再報升星');
+  assert.deepEqual(r.grows, [{ id: 'pufayueyue', from: 0, to: 1 }]);
+});

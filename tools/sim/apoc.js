@@ -27,6 +27,9 @@ for (const [kind, pre] of [['team', 'TEAM'], ['click', 'CLICK']]) for (const k o
 
 const SESSION_MIN = Number(process.argv[2] || 20), SESSIONS = Number(process.argv[3] || 3), DAYS = Number(process.argv[4] || 14);
 const TAPS_PER_SEC = env('CPS', 6), USE_SKILLS = env('SKILLS', 1) > 0, TAP_SHARE = env('TAP_SHARE', 1), DRAW_UNTIL = env('DRAW_UNTIL', 60), ACC = env('ACC', .7);
+// KEEP=1：全線通行不收工，自動開無盡模式一直玩到 DAYS 用完，用來量「養滿要多久」（第十一輪）。
+// 這個模式下 DRAW_UNTIL 失效——玩家會一直抽下去，因為抽卡是唯一的養成來源。
+const KEEP = env('KEEP', 0) > 0;
 const SEED = env('SEED', 20260913);   // 換抽卡運氣：門檻對抽到什麼很敏感，定案前要多跑幾個種子
 let seed = SEED;
 const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
@@ -36,11 +39,35 @@ seed = SEED;
 let a = A.gift(A.normalize({ ...A.fresh(), unlocked: true }));
 a = { ...a, boost: { power: env('ONE_BOOST', 1), click: 1, skill: 1, cd: 1 } };   // 1.0 的印記／祝福加成（第四輪起直接套進 2.0）
 let now = 0, played = 0, draws = 0, bossFails = 0, farms = 0, done = null, exchanged = 0, one = oneCoins, lastFail = null, dispatched = 0;
+let stop = false, collectedAt = null, maxedAt = null, day = 0;
+const dustFrom = { boss: 0, endless: 0, dispatch: 0, draw: 0 };   // 萬用粉塵的四個來源（驗收判準：王要佔 15～30%）
+const mark = () => {
+  const all = (global.ApocPool || []);
+  if (!collectedAt && all.length && all.every(c => a.collection[c.id] > 0)) collectedAt = { day, min: Math.round(played / 60) };
+  if (!maxedAt && all.length && all.every(c => A.isMaxed(a, c.id))) maxedAt = { day, min: Math.round(played / 60) };
+};
 const log = [];
-function spend() {
+// 第十一輪：萬用粉塵的花法。價值守恆（換出去與換進來同一張匯率表），所以「花在誰身上」不影響總量，
+// 只影響戰力長得快不快——玩家模型就先餵隊上的卡（有戰力），隊上都滿養了再去補卡冊（純收集）。
+const ALL = () => (global.ApocPool || []);
+function spendDust() {
   for (;;) {
-    if (!a.pending && a.coins >= A.drawCost(a, 10) && Object.keys(a.collection).length < DRAW_UNTIL) {
-      a = A.purchaseDraw(a, 10, now, rnd); a = A.collectDraw(a, a.pending.draw.id, now).state; draws += 10;
+    const inTeam = a.roster.filter(id => !A.isMaxed(a, id));
+    const rest = ALL().map(c => c.id).filter(id => !A.isMaxed(a, id) && !a.roster.includes(id));
+    // 隊上：先餵匯率低的（同樣一顆萬用粉塵，換便宜的卡拿到的粉塵一樣多，但便宜的卡先滿養才能早點溢出）
+    const pick = [...inTeam, ...rest].sort((x, y) => A.dustRate(x) - A.dustRate(y))
+      .find(id => (a.universalDust || 0) >= A.dustRate(id));
+    if (!pick) break;
+    a = A.exchangeDust(a, pick, 1).state;
+  }
+}
+function spend() {
+  spendDust();
+  for (;;) {
+    if (!a.pending && a.coins >= A.drawCost(a, 10) && (KEEP || Object.keys(a.collection).length < DRAW_UNTIL)) {
+      a = A.purchaseDraw(a, 10, now, rnd);
+      { const r = A.collectDraw(a, a.pending.draw.id, now); dustFrom.draw += r.universalDust || 0; a = r.state; }
+      draws += 10;
       const top = [...a.roster].sort((x, y) => A.cardPower(a, y) - A.cardPower(a, x)).slice(0, 4);
       a = A.setTeam(a, a.roster, top); continue;
     }
@@ -49,18 +76,18 @@ function spend() {
     break;
   }
 }
-for (let day = 1; day <= DAYS && !done; day++) {
-  for (let s = 0; s < SESSIONS && !done; s++) {
+for (day = 1; day <= DAYS && !stop; day++) {
+  for (let s = 0; s < SESSIONS && !stop; s++) {
     // 第十輪 D 派遣：每場開頭收回到期的、把隊外的卡（稀有度高的先）派滿位子（Codex 10D 值得修：平衡要算進派遣）
     if (env('DISPATCH', 1) > 0) {
-      a = A.collectDispatch(a, now, rnd).state;
+      { const r = A.collectDispatch(a, now, rnd); dustFrom.dispatch += r.rewards.reduce((x, y) => x + (y.dust || 0), 0); a = r.state; }
       const RANKS = { mythic: 0, legendary: 1, epic: 2, rare: 3, common: 4 }, pool = Object.fromEntries((global.ApocPool || []).map(c => [c.id, c]));
       const idle = Object.keys(a.collection).filter(id => a.collection[id] > 0 && !a.roster.includes(id) && !(a.dispatch || []).some(d => d.id === id))
         .sort((x, y) => (RANKS[pool[x]?.rarity] ?? 9) - (RANKS[pool[y]?.rarity] ?? 9));
       for (const id of idle) { if ((a.dispatch || []).length >= R.DISPATCH.SLOTS) break; a = A.startDispatch(a, id, now); dispatched++; }
     }
     if (oneP > 0) for (;;) { const c = A.exchangeCost(a, oneP, now); if (!(c <= one)) break; const r = A.exchange(a, one, oneP, now); a = r.state; one -= r.cost; exchanged++; }
-    for (let t = 0; t < SESSION_MIN * 60 && !done; t++) {
+    for (let t = 0; t < SESSION_MIN * 60 && !stop; t++) {
       now += 1000; played += 1;
       spend();
       if (!a.stage) {
@@ -92,17 +119,23 @@ for (let day = 1; day <= DAYS && !done; day++) {
         if (USE_SKILLS) for (let slot = 0; slot < 4; slot++) if (A.canSkill(a, slot, now)) a = A.useSkill(a, slot, now);
       }
       const st = a.stage, r = A.settle(a, now, 1); a = r.state;
+      for (const ev of r.events) if (ev.type === 'dust') dustFrom[ev.boss ? 'boss' : 'endless'] += ev.amount;
+      if (r.events.some(e => e.type === 'dust')) spendDust();   // 打王／無盡掉的粉塵當場換掉
       for (const ev of r.events) {
         if (ev.type === 'fail') { bossFails++; lastFail = { i: ev.index, power: A.power(a), dealt: 1 - st.hp / st.need }; }
         if (ev.type === 'win') { lastFail = null; log.push({ station: ev.index + 1, min: +(played / 60).toFixed(1), day, power: Math.round(A.power(a)), owned: Object.keys(a.collection).length, draws, team: a.teamLevel, click: a.clickLevel }); }
       }
-      if (a.progress >= R.STATIONS) done = { day, min: Math.round(played / 60) };
+      mark();
+      if (a.progress >= R.STATIONS) {
+        if (!done) done = { day, min: Math.round(played / 60) };
+        if (KEEP) { if (!a.endless) a = A.setEndless(a, true); } else stop = true;
+      }
     }
     now += 6 * 3600 * 1000; one += oneP * 6 * 3600;   // 下線 6 小時；1.0 那邊回桌邊一次補 6 小時離線
     if (env('OFFLINE', 1) > 0) a = A.offline(a, now).state;   // 第十輪 D：末世離線收益（OFFLINE=0 關掉對照）
   }
 }
-return { done, log, a, played, bossFails, farms, draws, exchanged, dispatched };
+return { done, log, a, played, bossFails, farms, draws, exchanged, dispatched, collectedAt, maxedAt, dustFrom };
 }
 if (require.main !== module) { module.exports = { run, RULES: R }; return; }
 const res = run(SESSION_MIN, SESSIONS, DAYS);

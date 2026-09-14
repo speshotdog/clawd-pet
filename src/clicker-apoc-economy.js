@@ -34,7 +34,26 @@
     IDLE_COINS: .01,         // 放置產出＝每秒戰力 ×0.01
     // 抽卡價隨「已經付費抽過幾次」往上走（同 1.0 的招募費用），不然放置金幣是跟戰力一起指數長的，
     // 戰力→金幣→抽卡→戰力 會直接跑掉：模擬器量到一輪 20 站可以抽到一千七百次。
-    DRAW_COST: 1000, DRAW_GROWTH: 1.02, STATIONS: 20,
+    //   第十一輪把 DRAW_GROWTH 從 1.02 降到 1.006：目標函數換成「兩週養滿 71 張」之後，1.02 在第 4 天就讓抽卡實質停住
+    //   （第 1260 抽單價 1000×1.02^1260≈3.8e13，收入只跟站數走 2.1^站，兩條指數在第 30 站附近交叉）。
+    //   掃描（KEEP=1、一般玩家、30 天，看「全滿養在第幾天」）：1.006→10 天／1.007→14 天／1.008→19 天／1.012→28 天。
+    //   ⚠ 這個參數非常敏感（千分之一就差四天），改它一定要重跑 tools/sim/apoc.js 的多種子驗證。
+    DRAW_COST: 1000, DRAW_GROWTH: 1.007, STATIONS: 20,
+    // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）：使用者「玩家玩兩週才有辦法把所有卡片都抽到滿星突破、卡冊全收集」。
+    //   星級門檻是「累計粉塵」（抽到重複＝+1 粉塵，同 1.0 的 dust）；滿星之後才能突破，突破吃掉滿星門檻以上的粉塵。
+    //   ⚠ 神話率 0.25% 分給 14 張＝每張 0.018%，「14 張神話各抽到一張」期望要 18,200 抽（兩週預算只有 1,260）——
+    //     所以卡冊全收集不可能靠運氣，一定要有兌換所這條不看運氣的路（同 1.0 的萬用粉塵換指定卡）。
+    GROW: {
+      STARS: [1, 2, 3, 5, 8],          // 累計粉塵 → 1★～5★（8 顆滿星）
+      TRANSCEND: [2, 2, 3, 3, 4],      // 滿星之後五級突破各要幾顆粉塵（累計 14 → 滿養 22）
+      TRANSCEND_MUL: .10,              // 每突破一級 +10% 戰力
+      // 萬用粉塵匯率：已滿養的卡再抽到就換成這麼多萬用粉塵，兌換所也用同一張表（價值守恆，不做懲罰性折損）。
+      // 數字是抽中機率的倒數比例（1 : 2.2 : 4.4 : 25）壓過的——神話不壓的話會獨自吃掉一半以上的預算。
+      DUST: { common: 1, rare: 1, epic: 2, legendary: 4, mythic: 10 },
+      BOSS: [30, 60, 120, 240, 480],   // 五隻王首勝送的萬用粉塵（照 1.0「王首勝 +3」的語意放大到 2.0 量級）
+      ENDLESS: { BASE: 20, GROWTH: 1.15 },   // 無盡模式每推進一站送 BASE×GROWTH^(第幾站)
+      DISPATCH: 3,                     // 派遣回來的萬用粉塵（再 ×DISPATCH.RARITY）
+    },
     // 第十輪 C 重走廢土（使用者：「兩個都做」，幅度交給模擬器）：全線通行後重來一圈，保留收藏、金幣與訓練歸零；
     //   第 n 圈敵人血與獎勵 ×HP_FIRST×HP_GROWTH^(n−1)、戰力 ×(1＋POWER×n)，最多 MAX 圈。
     //   scratchpad ngplus_sim.js 一般玩家：HP_FIRST 3／4／6／10／16 第二圈 59／51／76／109／137 分 → 取 10（第一圈 146，第二圈快約 25%，之後 48→41→40）
@@ -254,13 +273,33 @@
   const count = v => Number.isFinite(Number(v)) ? Math.max(0, Math.floor(Number(v))) : 0;   // 存檔可編輯：'1e309' 會變 Infinity，價格跟著變 Infinity
   const dayKey = now => Math.floor(now / 86400000);   // 同 1.0 派遣的日界
   function fresh() {
-    return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
+    return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, dust: {}, universalDust: 0, transcend: {}, bossDust: [], roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
       paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
       pending: null, cleared: false, laps: 0, endless: false, endlessBest: 0, seenAt: 0, dispatch: [], dispatchDone: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
   function normalize(a) {
     const f = fresh(), raw = a || {}; a = { ...f, ...raw };
     if (!a.collection || typeof a.collection !== 'object') a.collection = {};
+    // 第十一輪養成欄位。舊存檔沒有 dust：那時候「張數就是星數」，所以直接把張數當累計粉塵搬過來
+    //   （dustOf 的 fallback 也是這樣，但這裡要落地成真欄位，不然第一次抽到重複就會從 0 重算）。
+    // ⚠ 要看 raw.dust 不是 a.dust：a 已經跟 fresh() 合併過，沒有粉塵的舊存檔在這裡會是空物件（truthy），
+    //   拿它當「有粉塵」判斷會讓整批舊存檔的粉塵歸零。
+    { const raw0 = a.collection, d = raw.dust && typeof raw.dust === 'object' ? raw.dust : null;
+      a.dust = {};
+      for (const id of Object.keys(raw0)) { const n = count(d ? d[id] : raw0[id]); if (n > 0) a.dust[id] = Math.min(n, fullDust()); }
+    }
+    { const t = raw.transcend && typeof raw.transcend === 'object' ? raw.transcend : {};
+      a.transcend = {};
+      for (const id of Object.keys(a.collection)) {
+        const v = Math.min(count(t[id]), RULES.GROW.TRANSCEND.length);
+        // 突破級數不能比粉塵買得起的多（手改存檔會憑空多戰力）：逐級回推，買不起就砍掉
+        let lv = v; while (lv > 0 && dustOf(a, id) < starCap() + RULES.GROW.TRANSCEND.slice(0, lv).reduce((x, y) => x + y, 0)) lv--;
+        if (lv > 0) a.transcend[id] = lv;
+      }
+    }
+    a.universalDust = count(a.universalDust);
+    // 哪幾隻王的首勝粉塵已經發過（重走廢土每一圈重算，見 replay）
+    a.bossDust = [...new Set((Array.isArray(a.bossDust) ? a.bossDust : []).filter(n => Number.isInteger(n) && n >= 0 && n <= RULES.ENDLESS_MAX))];
     if (!Array.isArray(a.roster)) a.roster = [];
     if (!Array.isArray(a.skills)) a.skills = []; a.skills = [0, 1, 2, 3].map(i => a.skills[i] || null);
     a.roster = a.roster.filter(id => a.collection[id] > 0);
@@ -337,7 +376,12 @@
   function gift(a) {
     if (a.gifted) return a;
     a = { ...a, gifted: true, collection: { ...a.collection }, tickets: a.tickets + RULES.GIFT.tickets };
-    if (poolById()[RULES.GIFT.card]) { a.collection[RULES.GIFT.card] = (a.collection[RULES.GIFT.card] || 0) + 1; if (!a.roster.includes(RULES.GIFT.card)) a.roster = [...a.roster, RULES.GIFT.card]; }
+    if (poolById()[RULES.GIFT.card]) {
+      const id = RULES.GIFT.card;
+      a.dust = { ...(a.dust || {}) }; a.dust[id] = dustOf(a, id) + 1;   // 開門禮也要落地粉塵，不然第一次抽到重複會少算
+      a.collection[id] = (a.collection[id] || 0) + 1;
+      if (!a.roster.includes(id)) a.roster = [...a.roster, id];
+    }
     return a;
   }
   // ---- 訓練
@@ -352,7 +396,56 @@
     if (!levels) throw new Error(L >= RULES.TRAIN_MAX ? '已經練到頂了' : `末世金幣不足，下一級要 ${Math.round(t.COST * t.GROWTH ** L)}`);
     return { state: { ...a, coins, [LEVEL_KEY[kind]]: L }, levels };
   }
-  function cardPower(a, id) { const c = poolById()[id]; if (!c || !a.collection[id]) return 0; return RULES.POWER[c.rarity] * (1 + RULES.STAR_MUL * (a.collection[id] - 1)); }
+  // ---- 養成：粉塵／星級／突破（第十一輪，DESIGN-2026-09-14-apoc-growth.md）
+  const G = () => RULES.GROW;
+  const starCap = () => G().STARS[G().STARS.length - 1];                    // 滿星要的粉塵（8）
+  const fullDust = () => starCap() + G().TRANSCEND.reduce((x, y) => x + y, 0);   // 滿養要的粉塵（22）
+  const starsOf = n => n < 1 ? 0 : G().STARS.filter(t => n >= t).length;    // 累計粉塵 → 幾顆星
+  const maxStars = () => G().STARS.length;
+  // 舊存檔沒有 dust：張數就是粉塵（跟 1.0 的 dust() 同一招）
+  const dustOf = (a, id) => a.dust?.[id] ?? a.collection?.[id] ?? 0;
+  const starsAt = (a, id) => starsOf(dustOf(a, id));
+  const transcendOf = (a, id) => a.transcend?.[id] || 0;
+  const spentDust = (a, id) => G().TRANSCEND.slice(0, transcendOf(a, id)).reduce((x, y) => x + y, 0);
+  // 可花的粉塵＝累計粉塵扣掉「維持滿星的那 8 顆」與已經花在突破上的（同 1.0 availableDust 的語意）
+  const availableDust = (a, id) => Math.max(0, dustOf(a, id) - starCap() - spentDust(a, id));
+  const transcendCost = (a, id) => G().TRANSCEND[transcendOf(a, id)] || 0;
+  const dustRate = id => G().DUST[poolById()[id]?.rarity] ?? 1;
+  const isMaxed = (a, id) => transcendOf(a, id) >= G().TRANSCEND.length && dustOf(a, id) >= fullDust();
+  const canTranscend = (a, id) => starsAt(a, id) >= maxStars() && transcendCost(a, id) > 0 && availableDust(a, id) >= transcendCost(a, id);
+  // 收下時自動升（第〇之五輪定案：升階／超越改成收下時自動做，詳情頁不再放那兩顆鍵）
+  function autoGrow(a, ids) {
+    const grows = [];
+    for (const id of [...new Set(ids)]) {
+      while (canTranscend(a, id)) {
+        a.transcend = { ...(a.transcend || {}), [id]: transcendOf(a, id) + 1 };
+        grows.push({ id, to: transcendOf(a, id) });
+      }
+    }
+    return grows;
+  }
+  function cardPower(a, id) {
+    const c = poolById()[id]; if (!c || !a.collection[id]) return 0;
+    const stars = Math.max(1, starsAt(a, id));
+    return RULES.POWER[c.rarity] * (1 + RULES.STAR_MUL * (stars - 1)) * (1 + G().TRANSCEND_MUL * transcendOf(a, id));
+  }
+  // 兌換所：花萬用粉塵換指定卡的粉塵。**沒有的卡也能換**——換到第一顆就等於拿到這張卡，
+  // 這是「卡冊全收集」唯一不看運氣的路（見 RULES.GROW 的註解）。
+  function exchangeDust(a, id, n = 1) {
+    if (!poolById()[id]) throw new Error('卡片不在末世卡池裡');
+    if (!Number.isSafeInteger(n) || n < 1) throw new Error('數量不對');
+    if (isMaxed(a, id)) throw new Error('這張已經滿養了');
+    const cost = dustRate(id) * n;
+    if ((a.universalDust || 0) < cost) throw new Error('萬用粉塵不足');
+    const s = { ...a, universalDust: a.universalDust - cost, dust: { ...(a.dust || {}) }, collection: { ...a.collection }, transcend: { ...(a.transcend || {}) } };
+    s.dust[id] = dustOf(s, id) + n;
+    if (!s.collection[id]) {   // 換到第一顆＝拿到這張卡（比照 addCards 的自動入隊）
+      s.collection[id] = 1;
+      if (!s.roster.includes(id) && !dispatchedApoc(s, id) && s.roster.length < 20 && !rosterViolations(s.roster.concat(id)).length) s.roster = [...s.roster, id];
+    }
+    const grows = autoGrow(s, [id]);
+    return { state: s, grows };
+  }
   const power = a => a.roster.reduce((sum, id) => sum + cardPower(a, id), 0) * trainMul('team', a.teamLevel) * boostOf(a).power * lapPower(a);
   // 血量：一般站 BASE×GROWTH^i；王站再 ×BOSS_MULS[第幾隻王]（Sakura 的王＝該區怪 ×2～6，逐隻遞增）
   const bossMulOf = i => RULES.BOSS_MULS[Math.floor(i / 4)] ?? RULES.BOSS_MULS[RULES.BOSS_MULS.length - 1];
@@ -366,6 +459,13 @@
   // ⚠ 第九輪先試過每隻都給整份——錢變成 WAVES 倍、訓練長得太快，打越多隻全線反而越短（一般玩家 54 分 → 8 隻時 38 分）
   const killReward = (i, a) => isBoss(i) ? reward(i, a) : Math.round(reward(i, a) / Math.max(1, RULES.WAVES));
   // 刷怪中的戰鬥可以直接被「再次挑戰」換掉
+  // 第十一輪：打贏一站送多少萬用粉塵。王只有首勝給（每圈重算），無盡模式每推進一站都給。
+  //   使用者：「也要顧及打怪收益與打王的回饋感」——以前王只給金幣，回饋是間接的；現在王直接掉養成資源。
+  function winDust(a, i) {
+    if (i >= RULES.STATIONS) return Math.round(RULES.GROW.ENDLESS.BASE * RULES.GROW.ENDLESS.GROWTH ** (i - RULES.STATIONS));
+    if (!isBoss(i) || (a.bossDust || []).includes(i)) return 0;
+    return RULES.GROW.BOSS[Math.min(RULES.GROW.BOSS.length - 1, Math.floor(i / 4))] || 0;
+  }
   const canFight = (a, now) => (!a.stage || !!a.stage.farm) && a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) && !(isBoss(a.progress) && a.cooldownUntil > now);
   // 刷怪（第六輪，照 Sakura 的「打不過就回去刷怪」）：這一站的王輸過之後，回前一站一直打——拿那一站的獎勵、不推進度
   const canFarm = (a, now) => !a.stage && isBoss(a.progress) && a.bossFailed === a.progress && a.progress > 0 && now >= (a.farmNextAt || 0);
@@ -422,6 +522,12 @@
         s.coins += killReward(st.index, s); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null;
         if (s.progress > RULES.STATIONS) s.endlessBest = Math.max(s.endlessBest || 0, s.progress - RULES.STATIONS);   // 無盡模式記最遠
         events.push({ type: 'win', index: st.index, reward: killReward(st.index, s) });
+        { const d = winDust(s, st.index);
+          if (d > 0) {
+            s.universalDust = (s.universalDust || 0) + d;
+            if (st.index < RULES.STATIONS) s.bossDust = [...(s.bossDust || []), st.index];   // 王首勝只發一次
+            events.push({ type: 'dust', index: st.index, amount: d, boss: st.index < RULES.STATIONS });
+          } }
         // 全線通行只報一次；之後留在末世繼續放置與補收藏
         if (s.progress >= RULES.STATIONS && !s.cleared) { s.cleared = true; events.push({ type: 'cleared' }); }
       }
@@ -490,10 +596,20 @@
   function addCards(a, ids) {
     const pool = poolById();
     if (ids.some(id => !pool[id])) throw new Error('卡片不在末世卡池裡');   // 以前是默默過濾掉 → 券沒扣回來會憑空變多
-    const collection = { ...a.collection }; for (const id of ids) collection[id] = (collection[id] || 0) + 1;
-    let roster = [...a.roster];
-    for (const id of ids) if (!roster.includes(id) && !dispatchedApoc(a, id) && roster.length < 20 && !rosterViolations(roster.concat(id)).length) roster.push(id);   // 新卡自動入隊（同 1.0）
-    return { ...a, collection, roster };
+    // 第十一輪：張數（collection）與粉塵（dust）分家——collection 是「抽到過幾張」（卡冊顯示用），
+    // dust 才是養成貨幣。已經滿養的卡再抽到不再累積粉塵，改成溢出萬用粉塵（同 1.0 receive 的語意）。
+    const s = { ...a, collection: { ...a.collection }, dust: { ...(a.dust || {}) }, transcend: { ...(a.transcend || {}) }, roster: [...a.roster] };
+    for (const id of ids) {
+      // ⚠ 粉塵要先算再加張數：dustOf 對舊存檔會 fallback 到 collection[id]，
+      //   先 collection++ 的話這一張會被算兩次（一次張數、一次 fallback）。
+      const before = dustOf(s, id);
+      s.collection[id] = (s.collection[id] || 0) + 1;
+      if (isMaxed(s, id)) s.universalDust = (s.universalDust || 0) + dustRate(id);
+      else s.dust[id] = before + 1;
+      if (!s.roster.includes(id) && !dispatchedApoc(a, id) && s.roster.length < 20 && !rosterViolations(s.roster.concat(id)).length) s.roster.push(id);   // 新卡自動入隊（同 1.0）
+    }
+    autoGrow(s, ids);
+    return s;
   }
   // 直接用券把卡落帳（測試與模擬器用；遊戲裡走 purchaseDraw → collectDraw）
   function drawn(a, ids) {
@@ -554,17 +670,26 @@
     const ids = a.pending.draw.entries.map(e => e.entry.id);
     const next = addCards({ ...a, pending: null }, ids);
     const newIds = [...new Set(ids.filter(id => !a.collection[id]))];
-    // 末世的「星」就是張數，所以重複＝升星；結算提示用得到
+    // 第十一輪：重複卡加的是粉塵，星級由累計粉塵換算——所以升星要比對 starsAt，不是比對張數
+    // （8 粉塵就滿星，之後的重複是在推突破，不能再報「升星」）。
     const starUps = [];
-    for (const id of new Set(ids.filter(id => a.collection[id]))) starUps.push({ id, from: a.collection[id], to: next.collection[id] });
-    return { state: next, accepted: true, newIds, starUps };
+    for (const id of new Set(ids.filter(id => a.collection[id]))) {
+      const from = starsAt(a, id), to = starsAt(next, id);
+      if (to > from) starUps.push({ id, from, to });
+    }
+    // addCards 已經自動突破過了，這裡比對前後差出「這一批推到第幾級」給結算徽章用
+    // （不能再呼叫一次 autoGrow——粉塵已經扣掉，第二次一定回空陣列）
+    const grows = [...new Set(ids)].filter(id => transcendOf(next, id) > transcendOf(a, id)).map(id => ({ id, from: transcendOf(a, id), to: transcendOf(next, id) }));
+    const gained = (next.universalDust || 0) - (a.universalDust || 0);
+    return { state: next, accepted: true, newIds, starUps, grows, universalDust: gained };
   }
   // 第十輪 C 重走廢土：全線通行後重來一圈。保留收藏／隊伍／技能／券／戰績／外觀／引導；金幣、訓練、進度、王關狀態歸零
   function replay(a) {
     if (!a.cleared) throw new Error('全線通行之後才能重走廢土');
     if (lapsOf(a) >= RULES.LAP.MAX) throw new Error('已經重走 ' + RULES.LAP.MAX + ' 圈，到頂了');
     if (a.pending) throw new Error('還有沒收下的結果');
-    return { ...a, laps: lapsOf(a) + 1, progress: 0, stage: null, coins: 0, teamLevel: 0, clickLevel: 0, bossFailed: null, cooldownUntil: 0, farmNextAt: 0,
+    // 第十一輪：王首勝的粉塵每一圈重算（重走廢土是「再打一次」，回饋感要跟著回來）
+    return { ...a, laps: lapsOf(a) + 1, progress: 0, stage: null, coins: 0, teamLevel: 0, clickLevel: 0, bossFailed: null, cooldownUntil: 0, farmNextAt: 0, bossDust: [],
       cleared: false, endless: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
   // 無盡模式：全線通行後第 21 站起一直往下打（王固定是四種輪流），關掉時丟掉 20 站以後的戰鬥
@@ -595,9 +720,13 @@
   function collectDispatch(a, now, rng = Math.random) {
     const done = (a.dispatch || []).filter(d => d.until <= now);
     if (!done.length) return { state: a, rewards: [] };
-    let coins = 0, tickets = 0;
-    const rewards = done.map(d => { const c = dispatchCoins(a, d.id), t = rng() < RULES.DISPATCH.TICKET ? 1 : 0; coins += c; tickets += t; return { id: d.id, coins: c, ticket: t }; });
-    return { state: { ...a, coins: a.coins + coins, tickets: a.tickets + tickets, dispatch: a.dispatch.filter(d => d.until > now), dispatchDone: (a.dispatchDone || 0) + done.length }, rewards };
+    let coins = 0, tickets = 0, dust = 0;
+    // 第十一輪：派遣除了金幣與券，也帶萬用粉塵回來（稀有度越高帶越多，同 dispatchCoins 的倍率表）
+    const rewards = done.map(d => { const c = dispatchCoins(a, d.id), t = rng() < RULES.DISPATCH.TICKET ? 1 : 0,
+      u = Math.round(RULES.GROW.DISPATCH * (RULES.DISPATCH.RARITY[poolById()[d.id]?.rarity] || 1));
+      coins += c; tickets += t; dust += u; return { id: d.id, coins: c, ticket: t, dust: u }; });
+    return { state: { ...a, coins: a.coins + coins, tickets: a.tickets + tickets, universalDust: (a.universalDust || 0) + dust,
+      dispatch: a.dispatch.filter(d => d.until > now), dispatchDone: (a.dispatchDone || 0) + done.length }, rewards };
   }
   const view = (a, now) => ({ coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
     skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null, cleared: !!a.cleared,
@@ -611,6 +740,8 @@
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
   root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
-    drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul };
+    drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul,
+    // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
+    starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, isMaxed, dustRate, fullDust, starCap, exchangeDust, winDust };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
