@@ -40,7 +40,7 @@ const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff
 function run(SESSION_MIN, SESSIONS, DAYS, { oneP = env('ONE_P', 0), oneCoins = env('ONE_COINS', 0) } = {}) {
 seed = SEED;
 let a = A.gift(A.normalize({ ...A.fresh(), unlocked: true }));
-a = { ...a, boost: { power: env('ONE_BOOST', 1), click: 1, skill: 1, cd: 1 } };   // 1.0 的印記／祝福加成（第四輪起直接套進 2.0）
+a = { ...a, boost: { power: env('ONE_BOOST', 1), click: env('ONE_CLICK', 1), skill: env('ONE_SKILL', 1), cd: env('ONE_CD', 1) } };   // 1.0 的印記／祝福加成（第四輪起直接套進 2.0）；印記重設計（2026-09-15）用四個旋鈕掃 2.0 該吃幾成
 let now = 0, played = 0, draws = 0, bossFails = 0, farms = 0, done = null, exchanged = 0, one = oneCoins, lastFail = null, dispatched = 0;
 let stop = false, collectedAt = null, maxedAt = null, day = 0;
 const dustFrom = { boss: 0, endless: 0, dispatch: 0, draw: 0 };   // 萬用粉塵的四個來源（驗收判準：王要佔 15～30%）
@@ -144,6 +144,7 @@ return { done, log, a, played, bossFails, farms, draws, exchanged, dispatched, c
 if (require.main !== module) { module.exports = { run, RULES: R }; return; }
 const res = run(SESSION_MIN, SESSIONS, DAYS);
 const { done, log, a: end, played: secs, bossFails: fails } = res;
+if (res.collectedAt || res.maxedAt) console.log(`全收集：${res.collectedAt ? '第 ' + res.collectedAt.day + ' 天' : '沒到'}；全滿養：${res.maxedAt ? '第 ' + res.maxedAt.day + ' 天' : '沒到'}`);
 console.log(`場次 ${SESSION_MIN} 分 × ${SESSIONS}／天　BASE_NEED=${R.BASE_NEED} GROWTH=${R.GROWTH} BOSS_MULS=${R.BOSS_MULS} REWARD=${R.REWARD_SHARE}×${R.REWARD_GROWTH} TEAM=${JSON.stringify(R.TRAIN.team)} CLICK=${JSON.stringify(R.TRAIN.click)}`);
 console.log('站　 累計分鐘  第幾天  戰力          卡種  抽數  全隊Lv 點擊Lv');
 for (const l of log) console.log(`${String(l.station).padStart(2)}   ${String(l.min).padStart(7)}  ${String(l.day).padStart(5)}   ${String(l.power).padStart(11)}  ${String(l.owned).padStart(4)}  ${String(l.draws).padStart(4)}  ${String(l.team).padStart(5)} ${String(l.click).padStart(6)}`);
