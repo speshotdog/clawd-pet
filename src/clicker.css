@@ -426,6 +426,10 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .scene-outgoing { position:absolute; inset:0; z-index:1; clip-path:inset(24px round 5px); pointer-events:none; filter:saturate(.78) contrast(.92) brightness(1.04); }
 #stage > #boss-challenge { pointer-events:auto; position:absolute; left:470px; top:40px; width:120px; height:48px; z-index:12; transform:rotate(-3deg); border:0; border-image:none; box-shadow:none; outline:none; background:transparent url('clicker-ui-boss-btn.png') center/100% 100% no-repeat; padding:4px; font-size:16px; }
 #boss-view { position:absolute; left:330px; top:60px; width:260px; height:300px; z-index:13; transform-origin:50% 100%; }
+/* 打王時背景的珍母淡出，打完淡回來（clicker-stage.js 的 layout() 掛 .boss-on） */
+#hero { transition:opacity .28s ease; }
+#stage.boss-on #hero { opacity:0; }
+@media (prefers-reduced-motion:reduce) { #hero { transition:none; } }
 #boss-image { width:260px; height:300px; object-fit:contain; }
 #boss-health { position:absolute; left:-20px; bottom:-16px; width:300px; height:14px; background:#745E4A; border:2px solid #FFF6E6; border-radius:6px; }
 #boss-health i { display:block; height:100%; background:#E9B94E; border-radius:4px; }
@@ -1065,6 +1069,12 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
      橫式是 36px 高的框配 24px 行高（1.5 倍）看起來剛好，直式照同樣比例縮：15/20，框 30px。 */
   #shop .upgrade h2, #shop .recruit h2 { font-size:15px; line-height:20px; padding:5px 10px; }
   #shop .upgrade h2 small { font-size:10px; }
+  /* 直式的王會掉出舞台：王圖比 #boss-view 再往下 50px，血條又掛在 bottom:-16px，
+     兩個都跑到舞台外面去跟夥伴列擠在一起（使用者：「手機模式下 BOSS 位置很歪」）。
+     舞台在直式只有 360 高（遊戲座標），所以把王整個往上挪、縮一號，讓圖與血條都待在舞台內。 */
+  #boss-view { top:18px; height:240px; }
+  #boss-image { width:100%; height:100%; }
+
   /* 收藏卡頁：直式是寬度先卡住，改用寬度定尺寸。
      ⚠ 不能用百分比（外層 flex item 沒有確定寬度，會循環解成 38px）；
        但直式的 #game 就是整個畫面、沒有縮放，所以這裡 vw 是有意義的（桌機那邊才不行）。 */

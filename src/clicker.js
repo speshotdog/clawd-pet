@@ -299,7 +299,11 @@ window.Clicker = (() => {
   }
   const apocMode = () => store.state?.settings.world === 'apoc';
   function changed() {
-    if (store.state) $('mode-open').hidden = !store.state.apoc?.unlocked;   // 末世沒解鎖就只有一個模式，這顆鍵沒意義
+    // ⚠ 以前是「末世沒解鎖就把這顆鍵藏起來」，結果玩家**完全不知道有 2.0、也不知道怎麼去**
+    //   （使用者 2026-09-14：「嚴重問題 手機版找不到地方進入2.0」——其實桌機也一樣，
+    //    那個存檔只是還沒打贏滅世珍獸）。模式面板本來就會把末世畫成鎖住的卡並寫明解鎖條件，
+    //   所以這顆鍵一直顯示就好，門檻不變。
+    if (store.state) $('mode-open').hidden = false;
     if (apocMode()) { apocUI?.render(); apocMap?.sync(); gacha?.render(); album?.refresh(); audioUI(); return; }   // 末世：同一組節點，另一套資料
     numbers(true); renderSlots(); renderChain(); stage?.render(store.state); album?.refresh(); extras?.tick();
   }

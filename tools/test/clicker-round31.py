@@ -91,9 +91,13 @@ def main():
         check(base['portrait'], '390×844 會切到直式版面')
         check(not base['scroll'], '整頁不出現捲軸')
         check(base['slots'] == 4, f"技能槽 4 格都排得下（印記商店的 slot4）：{base['slots']} 格")
-        # 頁尾：換桌布／編隊／名冊／商店；「模式」只在末世解鎖後出現（09-13 起模式是頂層大選項）
-        want = 4 + (1 if pg.evaluate("()=>!!Clicker.state.apoc?.unlocked") else 0)
-        check(base['tabs'] == want, f"底部 {want} 個分頁都排得下：{base['tabs']} 個")
+        # 頁尾：模式／換桌布／編隊／名冊／商店，五顆。
+        # ⚠ 「模式」以前只在末世解鎖後才出現，結果玩家完全不知道有 2.0、也不知道怎麼去
+        #   （使用者 2026-09-14：「嚴重問題 手機版找不到地方進入2.0」）。改成一直顯示，
+        #   沒解鎖時模式面板把末世畫成鎖住的卡並寫明「打贏第七站的滅世珍獸解鎖」，門檻不變。
+        check(base['tabs'] == 5, f"底部 5 個分頁都排得下：{base['tabs']} 個")
+        check(pg.evaluate("()=>!document.getElementById('mode-open').hidden"),
+              '「模式」鍵一直看得到（末世沒解鎖也要看得到，不然找不到 2.0 的入口）')
         check(not base['wide'], f"沒有元素撐出畫面寬：{base['wide'] or '沒有'}")
         check(abs(base['stageAspect'] - 608/360) < .02,
               f"舞台維持 608:360 的比例（實測 {base['stageAspect']}），內部座標系不用改")

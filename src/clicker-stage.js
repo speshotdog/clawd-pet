@@ -334,6 +334,9 @@ window.ClickerStage = (() => {
     function layout(s) {
       const kind = enemyOf(s), boss = !!s.boss || bossBusy;
       $('stage').dataset.enemy = kind;
+      // 打王時把背景的珍母收起來，打完自己回來（使用者 2026-09-14：「打王的時候幫我嘗試隱藏背景珍母，打完再恢復」）。
+      // 用 class 不用 hidden：淡出淡入才不會一閃一閃；#tap 是另一個節點，藏了主角照樣點得到。
+      $('stage').classList.toggle('boss-on', boss);
       $('bag').hidden = kind === 'triple'; $('triple').hidden = kind !== 'triple';
       $('belt').hidden = kind !== 'timer' || boss;
       document.querySelectorAll('.sub-hot').forEach(el => { el.hidden = kind !== 'triple' || boss; });
