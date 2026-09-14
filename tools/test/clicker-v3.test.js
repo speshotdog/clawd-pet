@@ -120,13 +120,13 @@ test('v3 大掃除：v2 存檔重算印記、祝福買到頂、原值封存、�
   s.skillSlots = [null, null, null, null]; s.slotReadyAt = [0, 0, 0, 0]; s.bossWins = ['backyard', 'kitchen'];
   const v = S.validate(JSON.parse(JSON.stringify(s)), Pool);
   assert.equal(v.version, 3); assert.deepEqual(v.legacy, { ...v.legacy, marksClaimed: 1069453, blessing: 1462, marks: 500, prestiges: 12, lifetimeCoins: 1.1e20 });
-  assert.equal(v.blessing, 16); assert.equal(v.marks, 144 - 136, '12 輪 × 12 = 144 枚：買到 Lv.16 花 136、剩 8'); assert.equal(v.marksClaimed, 144 + 6 + 6, '已買的商店 6 與粉塵兌換 6 照舊承認');
-  near(E.blessMul(v), 2.6); assert.equal(E.markMul(v), 1);
+  assert.equal(v.blessing, 13); assert.equal(v.marks, 96 - 91, '12 輪 × 8 = 96 枚：買到 Lv.13 花 91、剩 5'); assert.equal(v.marksClaimed, 96 + 6 + 6, '已買的商店 6 與粉塵兌換 6 照舊承認');
+  near(E.blessMul(v), 2.3); assert.equal(E.markMul(v), 1);   // 12 輪 × 8 枚買到 Lv.13
   assert.equal(v.champions.length, 2); assert.deepEqual(v.champions, S.validate(JSON.parse(JSON.stringify(s)), Pool).champions, '同一份存檔抽到同樣的當家');
   assert.deepEqual(v.roster, ['zhenmu', 'yueyue2']); assert.deepEqual(v.runWins, []); assert.equal(v.settings.autoChallenge, true);
   S.validate(JSON.parse(JSON.stringify(v)), Pool);
   const few = S.fresh(0); few.version = 2; few.prestiges = 1; few.collection = { zhenmu: 1 }; few.dust = { zhenmu: 1 };
-  const f = S.validate(JSON.parse(JSON.stringify(few)), Pool); assert.equal(f.blessing, 4); assert.equal(f.marks, 2);   // 12 枚：1+2+3+4 = 10，剩 2
+  const f = S.validate(JSON.parse(JSON.stringify(few)), Pool); assert.equal(f.blessing, 3); assert.equal(f.marks, 2);   // 8 枚：1+2+3 = 6，剩 2
 });
 test('v3 商店：點擊附加 5%→10%→15%、要先買前一項；招募券停售', () => {
   let s = seed({ marks: 6, marksClaimed: 6 }); const d0 = E.rates(s).D, P0 = E.rates(s).P;
@@ -149,7 +149,7 @@ test('D 路神器：7 條線第 r 級收 r 枚、各有頂；效果進 rates／�
   assert.equal(s.artifacts.cd, 10); assert.throws(() => P.buyArtifact({ ...s, marks: 100 }, 'cd', 0), /滿級/);
   let o = { ...s, settledAt: 0 }; const off = E.settle(o, 3600000, { offline: true }); near(off.earned, E.rates(o).P * 3600 * 1.1, 1e-6);
   s.bossWins = ['backyard']; s.runWins = ['backyard']; const r = P.prestige(s, 0, () => .5); assert.equal(r.state.universalDust, 3 + 1);
-  const capped = P.prestige({ ...s, marksClaimed: 99 }, 0, () => .5); assert.equal(capped.gained, 1, '總量上限 100');
+  const capped = P.prestige({ ...s, marksClaimed: 149 }, 0, () => .5); assert.equal(capped.gained, 1, '總量上限 150');
 });
 
 test('v3 小王不鎖招募：路障擋著也能抽，抽出來的 pending 存得進去', () => {

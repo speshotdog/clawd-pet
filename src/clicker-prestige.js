@@ -5,9 +5,9 @@
   const B = node ? require('./clicker-balance.js') : root.ClickerBalance;
   const E = node ? require('./clicker-economy.js') : root.ClickerEconomy;
   const THRESHOLD = 1e8;   // 舊版門檻，v3 只留給遷移對照
-  // v3 §四：印記改成「本輪做到的事」的計數，不看幣——本輪打贏的大王每隻 1、本輪累計 100／300 包各 1、
-  // 本輪打贏滅世珍獸再 +3，每輪上限 12。產出線性於進度、有頂，才不會再出現 ×76,000。
-  const marksTotal = (s) => Math.min(B.V3.MARKS_PER_RUN, (s.runWins || []).length + ((s.runPacks || 0) >= 100 ? 1 : 0) + ((s.runPacks || 0) >= 300 ? 1 : 0) + ((s.runWins || []).includes('city') ? 3 : 0));
+  // v3 §四：印記改成「本輪做到的事」的計數，不看幣——本輪打贏的大王每隻 1、本輪打贏滅世珍獸再 +3，每輪上限 MARKS_PER_RUN（8）。
+  // 印記重設計（2026-09-15）拿掉 100／300 包的 +1：包數是刷得出來的，王不是。產出線性於進度、有頂，才不會再出現 ×76,000。
+  const marksTotal = (s) => Math.min(B.V3.MARKS_PER_RUN, (s.runWins || []).length + ((s.runWins || []).includes('city') ? 3 : 0));
   const marksAvailable = (s) => marksTotal(s);
   const markMul = (s) => 1 + B.MARK_MUL_COEF * Math.sqrt(s.marksClaimed || 0);
   function canPrestige(s) {
@@ -34,7 +34,6 @@
     s.bossCracks = {}; s.bossCooldownUntil = 0; s.bossResult = null; s.gift = null; s.boss = null;
     delete s.thief;
     s.effects = []; s.cooldownUntil = {}; s.slotReadyAt = s.slotReadyAt.map(() => 0); s.chain = { count: 1, expiresAt: 0 };
-    if (s.markShop?.starter5) s.freeDraws = (s.freeDraws || 0) + 5;
     s.universalDust = (s.universalDust || 0) + 3 + (s.artifacts?.dust || 0);   // 粉塵祝福
     s.runWins = []; s.runPacks = 0; s.runGates = 0; delete s.energized;
     s.champions = pickChampions(s, rng);

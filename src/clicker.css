@@ -1497,6 +1497,7 @@ body[data-world="apoc"] .package-meter { background:#16203000; border-color:#4A6
 body[data-world="apoc"] #effect-label { background:#22304A; border-color:#4A628A; color:#DDE6F4; }
 body[data-world="apoc"] #effect-label.broken { background:#E0B33C; color:#0C1119; border-color:#0C1119; }
 body[data-world="apoc"] .slot-empty { font-size:26px; color:#5C7CB8; }
+body[data-world="apoc"] .slot-locked { font-size:20px; filter:grayscale(1); opacity:.7; }   /* 印記重設計：第四技能格未買「第四技能槽」 */
 
 
 /* 末世的編隊畫面：跟卡冊一樣換深色 */

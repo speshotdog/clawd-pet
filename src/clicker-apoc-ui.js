@@ -61,10 +61,16 @@ window.ClickerApocUI = (() => {
     // 1.0 的印記／祝福加成直接套進 2.0（使用者第四輪）。算法照 1.0 的 rates()：
     //   全隊戰力 ×（印記倍率 × 收益祝福）、點擊再 ×（1＋10%×攻擊力祝福）、技能效果 ×（1＋5%×技能祝福）、冷卻 ×（1−2%×冷卻祝福）。
     //   每次都從 1.0 的存檔現算（1.0 買了祝福，2.0 馬上吃到），不寫進末世存檔。
+    // 印記重設計（2026-09-15，DESIGN-2026-09-14-marks）：神器在 2.0 的強度改成 B.ARTIFACT_APOC（戰力類每級只吃 1/5）。
+    // ⚠ 以前是全額（收益 ×(1+.1L)、攻擊 ×(1+.1L)），而 2.0 的兩週日曆是用「沒有神器」算的——
+    //   模擬顯示 2.0 吃到 ×1.2 全破就從第 5～7 天縮到第 3 天，這就是失衡的根源。
+    // 四個兌換解鎖（slot4／bossTime／offline12／tapShare／dispatch4）也從 1.0 的 markShop 讀，兩個世界共用。
     function oneBoost(s) {
-      const E = window.ClickerEconomy, art = id => s?.artifacts?.[id] || 0;
-      if (!E || !s) return { power: 1, click: 1, skill: 1, cd: 1 };
-      return { power: E.markMul(s) * E.blessMul(s), click: 1 + .1 * art('tap'), skill: 1 + .05 * art('skill'), cd: 1 - .02 * art('cd') };
+      const B = window.ClickerBalance, art = id => s?.artifacts?.[id] || 0, K = B?.ARTIFACT_APOC, shop = s?.markShop || {};
+      if (!B || !K || !s) return { power: 1, click: 1, skill: 1, cd: 1, offline: 1, ticket: 0, dust: 0, slot4: true, bossTime: false, offline12: false, tapShare: 0, dispatch4: false };
+      return { power: 1 + K.blessing * (s.blessing || 0), click: 1 + K.tap * art('tap'), skill: 1 + K.skill * art('skill'), cd: 1 - K.cd * art('cd'),
+        offline: 1 + K.offline * art('offline'), ticket: K.chest * art('chest'), dust: K.dust * art('dust'),
+        slot4: !!shop.slot4, bossTime: !!shop.bossTime, offline12: !!shop.offline12, tapShare: (shop.tapShare1 ? 1 : 0) + (shop.tapShare2 ? 1 : 0), dispatch4: !!shop.dispatch4 };
     }
     const boosted = (a, s = store.state) => { a.boost = oneBoost(s); return a; };
     const view = () => A.view(boosted(A.normalize(store.state.apoc)), Date.now());
@@ -76,6 +82,11 @@ window.ClickerApocUI = (() => {
         const next = JSON.parse(JSON.stringify(s)); const r = fn(boosted(A.normalize(next.apoc), s), Date.now());
         if (r && r.state) { next.apoc = r.state; events = r.events || []; } else next.apoc = r;
         delete next.apoc.boost;   // 加成是現算的，不寫進存檔
+        // 印記重設計：2.0 的里程碑印記在這裡入帳（錢包在 1.0 的存檔上，上限 MARKS_TOTAL_CAP）
+        { const m = A.markMilestones(next.apoc);
+          if (m.gained > 0) { const B = window.ClickerBalance, room = Math.max(0, (B?.MARKS_TOTAL_CAP ?? Infinity) - (next.marksClaimed || 0)), got = Math.min(m.gained, room);
+            next.apoc = m.state; next.marks = (next.marks || 0) + got; next.marksClaimed = (next.marksClaimed || 0) + got;
+            events = [...events, { type: 'marks', gained: got, notes: m.notes, capped: got < m.gained }]; } }
         if (!commit(next)) return [];
       } catch (err) { if (!silent) notice(err.message); return []; }
       for (const ev of events) {
@@ -83,6 +94,7 @@ window.ClickerApocUI = (() => {
         else if (ev.type === 'fail') notice(`王關失敗：回前一站刷錢變強，${Math.round(A.RULES.BOSS_COOLDOWN / 1000)} 秒後可以再次挑戰`);
         else if (ev.type === 'cleared') { showEnding(); sound('transcend'); }
         else if (ev.type === 'offline') showOffline(ev);
+        else if (ev.type === 'marks') { notice(`印記 +${ev.gained}：${ev.notes.join('、')}${ev.capped ? '（已達生涯上限）' : ''}`); if (ev.gained > 0) { try { sound('badge'); } catch {} } }   // ⚠ 初始化的第一次 apply 就可能入帳（舊存檔補發），這時舞台還沒建好，不能碰 DOM 特效
       }
       changed();   // 讓招募層等其他模組也跟著重畫（價目、按鈕的可按狀態都在那邊算）
       return events;
@@ -565,7 +577,7 @@ window.ClickerApocUI = (() => {
 
     function renderSlots(v) {
       const map = byId(), host = $('slots'), now = Date.now();
-      const key = JSON.stringify([v.skills, v.skillDefs.map(d => d && d.name)]);
+      const key = JSON.stringify([v.skills, v.skillDefs.map(d => d && d.name), v.skillSlots]);
       if (key === slotKey && host.dataset.world === 'apoc') { updateSlots(v, now); return; }
       slotKey = key;
       host.replaceChildren(); host.dataset.world = 'apoc';
@@ -573,10 +585,12 @@ window.ClickerApocUI = (() => {
         const id = v.skills[i], def = v.skillDefs[i], entry = id ? map[id] : null;
         const wrap = document.createElement('article'); wrap.className = 'skill-slot';
         const b = document.createElement('button'); b.className = 'skill-use'; b.dataset.slot = i;
-        if (entry) b.append(stickerOf(entry));
+        const locked = i === 3 && v.skillSlots < 4;   // 印記重設計：第四格要在印記商店買「第四技能槽」
+        if (locked) { const lock = document.createElement('span'); lock.className = 'slot-empty slot-locked'; lock.textContent = '🔒'; b.append(lock); }
+        else if (entry) b.append(stickerOf(entry));
         else { const plus = document.createElement('span'); plus.className = 'slot-empty'; plus.textContent = '＋'; b.append(plus); }
-        b.title = def ? `${def.card}・${def.text}` : '點一下去編隊，把卡放進獨立技能格';
-        b.onclick = () => def ? cast(i) : openTeam();
+        b.title = locked ? '第四技能格：到「換桌布」的印記商店買「第四技能槽」（3 印記）' : def ? `${def.card}・${def.text}` : '點一下去編隊，把卡放進獨立技能格';
+        b.onclick = () => locked ? notice('第四技能格要在印記商店解鎖（換桌布 → 神器與商店）') : def ? cast(i) : openTeam();
         const name = document.createElement('span'); name.className = 'skill-name';
         wrap.append(b, name); host.append(wrap);
       }
@@ -595,7 +609,7 @@ window.ClickerApocUI = (() => {
         const def = v.skillDefs[i], until = v.skillCd && v.skillCd[i] || 0, left = Math.max(0, Math.ceil((until - now) / 1000));
         // 空格要能點（點了就去編隊）；只有「發動技能」才受戰鬥中／冷卻限制（Codex 複檢 3-3）
         b.disabled = store.blocked || (!!def && (!!left || !v.stage));
-        if (name) name.textContent = def ? (left ? `${def.name}・${left}s` : def.name) : '選夥伴';
+        if (name) name.textContent = (i === 3 && v.skillSlots < 4) ? '未解鎖' : def ? (left ? `${def.name}・${left}s` : def.name) : '選夥伴';
         // 冷卻用 1.0 同一個圓形遮罩（.skill-slot[data-state="cooldown"] .skill-use::after 讀 --cooldown）
         slot.dataset.state = !def ? 'empty' : left ? 'cooldown' : v.stage ? 'ready' : 'unavailable';
         const total = def ? A.RULES.SKILLS[def.rarity]?.cd || 60000 : 1;
@@ -778,7 +792,7 @@ window.ClickerApocUI = (() => {
       renderStage(v); renderBuddies(v); renderSlots(v); renderShop(v); renderShopPanel();
       $('coins').textContent = format(v.coins);
       $('click-rate').textContent = `戰力 ${format(v.power)}`;
-      $('passive-rate').textContent = `每秒 ${format(v.power * A.RULES.IDLE_COINS)}`;
+      $('passive-rate').textContent = `每秒 ${format(v.power * A.RULES.IDLE_COINS)}・印記 ${store.state.marks || 0}`;   // 印記重設計：2.0 頂列看得到印記
       $('next-goal').textContent = v.endless && v.progress >= v.stations ? (v.progress >= A.RULES.ENDLESS_MAX ? `無盡到底・最遠 ＋${v.endlessBest}` : `無盡 第 ${v.progress + 1} 站・最遠 ＋${v.endlessBest}`) : v.progress >= v.stations ? '全線已通行' : `${v.laps ? `第 ${v.laps + 1} 圈・` : ''}第 ${Math.min(v.progress + 1, v.stations)} / ${v.stations} 站・收藏 ${v.owned.length} / ${Pool().length} 張`;
       $('owned-count').textContent = `${v.owned.length} / ${Pool().length}`;
       // 1.0 的 numbers() 在末世不跑，這幾顆鍵的可用狀態要自己設，不然會卡在 HTML 的預設值

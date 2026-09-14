@@ -37,10 +37,17 @@ const SEED = env('SEED', 20260913);   // 換抽卡運氣：門檻對抽到什麼
 let seed = SEED;
 const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
 
+const MARKS_ON = env('MARKS', 0) > 0, K = { blessing: env('K_BLESS', .02), tap: env('K_TAP', .02) }, CAP = env('MARKS_CAP', 150);
 function run(SESSION_MIN, SESSIONS, DAYS, { oneP = env('ONE_P', 0), oneCoins = env('ONE_COINS', 0) } = {}) {
 seed = SEED;
 let a = A.gift(A.normalize({ ...A.fresh(), unlocked: true }));
-a = { ...a, boost: { power: env('ONE_BOOST', 1), click: env('ONE_CLICK', 1), skill: env('ONE_SKILL', 1), cd: env('ONE_CD', 1) } };   // 1.0 的印記／祝福加成（第四輪起直接套進 2.0）；印記重設計（2026-09-15）用四個旋鈕掃 2.0 該吃幾成
+// 印記重設計（2026-09-15）：MARKS=1 打開印記模型——入場帶 START_MARKS 枚、2.0 里程碑／重走照 RULES.MARKS 入帳、
+// 印記一到手就砸「收益」「攻擊」兩條神器（最壞情況：全拿去買戰力），倍率照 ARTIFACT_APOC（戰力每級 +2%）。
+let marks = env('START_MARKS', 0), claimed = marks, bless = 0, tapLv = 0, spentLog = [];
+const boostNow = () => ({ power: env('ONE_BOOST', 1) * (MARKS_ON ? 1 + K.blessing * bless : 1), click: env('ONE_CLICK', 1) * (MARKS_ON ? 1 + K.tap * tapLv : 1), skill: env('ONE_SKILL', 1), cd: env('ONE_CD', 1), slot4: env('SLOT4', 1) > 0 });
+function buyArtifacts() { for (;;) { const next = bless <= tapLv ? 'bless' : 'tap', lv = (next === 'bless' ? bless : tapLv) + 1; if (lv > 20 || marks < lv) break; marks -= lv; if (next === 'bless') bless = lv; else tapLv = lv; } }
+if (MARKS_ON) buyArtifacts();
+a = { ...a, boost: boostNow() };
 let now = 0, played = 0, draws = 0, bossFails = 0, farms = 0, done = null, exchanged = 0, one = oneCoins, lastFail = null, dispatched = 0;
 let stop = false, collectedAt = null, maxedAt = null, day = 0;
 const dustFrom = { boss: 0, endless: 0, dispatch: 0, draw: 0 };   // 萬用粉塵的四個來源（驗收判準：王要佔 15～30%）
@@ -123,6 +130,7 @@ for (day = 1; day <= DAYS && !stop; day++) {
         if (USE_SKILLS) for (let slot = 0; slot < 4; slot++) if (A.canSkill(a, slot, now)) a = A.useSkill(a, slot, now);
       }
       const st = a.stage, r = A.settle(a, now, 1); a = r.state;
+      if (MARKS_ON) { const m = A.markMilestones(a); if (m.gained) { const got = Math.min(m.gained, Math.max(0, CAP - claimed)); marks += got; claimed += got; a = m.state; buyArtifacts(); spentLog.push({ day, notes: m.notes, bless, tapLv }); } a = { ...a, boost: boostNow() }; }
       for (const ev of r.events) if (ev.type === 'dust') dustFrom[ev.boss ? 'boss' : 'endless'] += ev.amount;
       if (r.events.some(e => e.type === 'dust')) spendDust();   // 打王／無盡掉的粉塵當場換掉
       for (const ev of r.events) {
@@ -139,11 +147,12 @@ for (day = 1; day <= DAYS && !stop; day++) {
     if (env('OFFLINE', 1) > 0) a = A.offline(a, now).state;   // 第十輪 D：末世離線收益（OFFLINE=0 關掉對照）
   }
 }
-return { done, log, a, played, bossFails, farms, draws, exchanged, dispatched, collectedAt, maxedAt, dustFrom };
+return { done, log, a, played, bossFails, farms, draws, exchanged, dispatched, collectedAt, maxedAt, dustFrom, marks: { marks, claimed, bless, tapLv, spentLog } };
 }
 if (require.main !== module) { module.exports = { run, RULES: R }; return; }
 const res = run(SESSION_MIN, SESSIONS, DAYS);
 const { done, log, a: end, played: secs, bossFails: fails } = res;
+if (MARKS_ON) console.log(`印記模型：入場 ${env('START_MARKS', 0)} 枚，累計 ${res.marks.claimed}，收益祝福 L${res.marks.bless}、攻擊 L${res.marks.tapLv}，最後倍率 ×${(1 + K.blessing * res.marks.bless).toFixed(2)}／×${(1 + K.tap * res.marks.tapLv).toFixed(2)}`);
 if (res.collectedAt || res.maxedAt) console.log(`全收集：${res.collectedAt ? '第 ' + res.collectedAt.day + ' 天' : '沒到'}；全滿養：${res.maxedAt ? '第 ' + res.maxedAt.day + ' 天' : '沒到'}`);
 console.log(`場次 ${SESSION_MIN} 分 × ${SESSIONS}／天　BASE_NEED=${R.BASE_NEED} GROWTH=${R.GROWTH} BOSS_MULS=${R.BOSS_MULS} REWARD=${R.REWARD_SHARE}×${R.REWARD_GROWTH} TEAM=${JSON.stringify(R.TRAIN.team)} CLICK=${JSON.stringify(R.TRAIN.click)}`);
 console.log('站　 累計分鐘  第幾天  戰力          卡種  抽數  全隊Lv 點擊Lv');

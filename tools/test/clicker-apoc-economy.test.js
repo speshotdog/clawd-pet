@@ -699,3 +699,46 @@ test('normalize 會把 revisitAt 與場上的回顧對齊（壞存檔不能各�
   // ④ 沒有場次、只是在等重生 → revisitAt 留著（autoFight 靠它接下一隻）
   assert.equal(A.normalize({ ...r, stage: null }).revisitAt, 2);
 });
+
+// ---- 印記重設計（2026-09-15，DESIGN-2026-09-14-marks）：2.0 的來源、神器與兌換在 2.0 的套用點 ----
+test('印記重設計：里程碑只給一次（王首勝只算第一圈、全破、全收集、全滿養、重走每圈）', () => {
+  const base = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1 }, roster: ['m1'], progress: 4, bossDust: [3] });
+  let m = A.markMilestones(base);
+  assert.equal(m.gained, R.MARKS.BOSS_FIRST); assert.deepEqual(m.state.marksGiven.boss, [3]);
+  assert.equal(A.markMilestones(m.state).gained, 0, '同一件事不給第二次');
+  assert.deepEqual(A.normalize(m.state).marksGiven.boss, [3], 'normalize 保留已發過的紀錄');
+  // 全破 + 重走一圈：cleared 5、LAP 4；重走清掉 bossDust，但王首勝不會再給
+  let a = A.normalize({ ...m.state, progress: R.STATIONS, cleared: true, bossDust: [3, 7, 11, 15, 19] });
+  m = A.markMilestones(a); assert.equal(m.gained, R.MARKS.CLEARED + R.MARKS.BOSS_FIRST * 4); a = m.state;
+  a = A.replay(a); assert.deepEqual(a.bossDust, []);
+  m = A.markMilestones(a); assert.equal(m.gained, R.MARKS.LAP, '重走一圈 +LAP'); a = m.state;
+  a = A.normalize({ ...a, progress: R.STATIONS, cleared: true, bossDust: [3, 7] });
+  assert.equal(A.markMilestones(a).gained, 0, '第二圈的王首勝不再給印記');
+  // 全收集 + 全滿養（測試卡池 6 張）
+  const full = A.fullDust(), all = Object.fromEntries(globalThis.ApocPool.map(c => [c.id, full]));
+  a = A.normalize({ ...a, collection: all, dust: all, transcend: Object.fromEntries(globalThis.ApocPool.map(c => [c.id, R.GROW.TRANSCEND.length])) });
+  m = A.markMilestones(a); assert.equal(m.gained, R.MARKS.COLLECTED + R.MARKS.MAXED);
+  assert.equal(A.markMilestones(m.state).gained, 0);
+});
+test('印記重設計：神器與兌換在 2.0 的套用點（王關 +15 秒、離線 12 小時與離線祝福、派遣位、點擊佔比、第四格鎖）', () => {
+  const base = A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1, m2: 1 }, roster: ['m1', 'm2'], progress: 3 });
+  const plain = { ...base, boost: { power: 1, click: 1, skill: 1, cd: 1, offline: 1, ticket: 0, dust: 0, slot4: false, bossTime: false, offline12: false, tapShare: 0, dispatch4: false } };
+  const rich = { ...base, boost: { ...plain.boost, offline: 1.5, dust: 2, slot4: true, bossTime: true, offline12: true, tapShare: 2, dispatch4: true } };
+  assert.equal(A.fight(plain, 0).stage.deadline, R.BOSS_TIME); assert.equal(A.fight(rich, 0).stage.deadline, R.BOSS_TIME + 15000);
+  assert.equal(A.clickShare(plain), R.CLICK_SHARE); assert.ok(Math.abs(A.clickShare(rich) - (R.CLICK_SHARE + .1)) < 1e-9);
+  assert.equal(A.dispatchSlots(plain), R.DISPATCH.SLOTS); assert.equal(A.dispatchSlots(rich), R.DISPATCH.SLOTS + 1);
+  assert.equal(A.view(plain, 0).skillSlots, 3); assert.equal(A.view(rich, 0).skillSlots, 4);
+  // 第四格沒買：放了卡也不算技能
+  const withSkill = { ...plain, skills: [null, null, null, 'm1'] };
+  assert.equal(A.view(withSkill, 0).skillDefs[3], null); assert.ok(A.view({ ...withSkill, boost: rich.boost }, 0).skillDefs[3]);
+  // 離線：上限 8 → 12 小時、離線祝福 ×1.5
+  const seen = { ...plain, seenAt: 1, coins: 0 }, seenRich = { ...rich, seenAt: 1, coins: 0 };
+  const o8 = A.offline(seen, 1 + 20 * 3600000), o12 = A.offline({ ...seenRich, boost: { ...rich.boost, offline: 1 } }, 1 + 20 * 3600000);
+  assert.equal(o8.events[0].secs, 8 * 3600); assert.equal(o12.events[0].secs, 12 * 3600);
+  const o12b = A.offline(seenRich, 1 + 20 * 3600000); assert.ok(Math.abs(o12b.state.coins / o12.state.coins - 1.5) < .01, '離線祝福 ×1.5');
+  // 王首勝粉塵 + 粉塵祝福
+  const w0 = A.normalize({ ...plain, progress: 3 }), w2 = { ...w0, boost: rich.boost };
+  const dust0 = A.settle({ ...w0, stage: { ...A.fight(w0, 0).stage, hp: 0, minions: { left: 0, max: 1, hp: 0, nextAt: 0 } } }, 1000, 0).events.find(e => e.type === 'dust');
+  const dust2 = A.settle({ ...w2, stage: { ...A.fight(w2, 0).stage, hp: 0, minions: { left: 0, max: 1, hp: 0, nextAt: 0 } } }, 1000, 0).events.find(e => e.type === 'dust');
+  assert.equal(dust2.amount, dust0.amount + 2, '粉塵祝福：王首勝多 1 顆/級');
+});

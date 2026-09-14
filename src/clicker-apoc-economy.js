@@ -91,6 +91,8 @@
     // 第三輪一度把王關時限關掉（當時王血是一般站 ×2.5，60 秒一定是硬牆）；第五輪王血壓到 ×.04 之後加回。
     // 第四輪使用者：「第一次遭遇應該直接進入關卡，失敗之後才會在右上方有進入選項」＋「統一 60」→ 王關一律 60 秒，輸了冷卻 60 秒後手動「再次挑戰」。
     BOSS_TIME: 60000, BOSS_COOLDOWN: 60000,
+    // 印記重設計（2026-09-15）：2.0 的印記來源，全部一次性或有頂（五王首勝只算第一圈、重走每圈給、上限 LAP.MAX 圈）
+    MARKS: { BOSS_FIRST: 2, CLEARED: 5, COLLECTED: 5, MAXED: 10, LAP: 4 },
     // 刷怪兩場之間至少隔 1 秒（Codex 第六輪必修：一擊必殺時連點可以 750ms 刷 6 場；模擬器也是一秒一場）
     FARM_RESPAWN: 1000,
     // ⚠ 第五輪試過「輸了保留部分傷害」（照 1.0 的裂痕），使用者：「我不想要保留血量的機制，直接調整血量就好」→ 拿掉。
@@ -270,9 +272,14 @@
     }
     return oneSkills[c.name] || null;
   };
-  const skillOf = (a, slot) => { const id = a.skills?.[slot]; const c = id ? poolById()[id] : null; if (!c) return null; const base = RULES.SKILLS[c.rarity]; return { slot, id, card: c, ...base, name: oneSkillName(c) || base.name }; };
+  const skillOf = (a, slot) => { if (slot === 3 && !boostOf(a).slot4) return null; const id = a.skills?.[slot]; const c = id ? poolById()[id] : null; if (!c) return null; const base = RULES.SKILLS[c.rarity]; return { slot, id, card: c, ...base, name: oneSkillName(c) || base.name }; };
   // 1.0 的印記／祝福加成（使用者第四輪：「1.0 的印記加成直接套進 2.0」）。畫面層每次從 1.0 存檔現算後掛在 a.boost，不寫進存檔。
-  const NO_BOOST = { power: 1, click: 1, skill: 1, cd: 1 };
+  // 印記重設計：加成物件多了離線倍率、派遣券機率加成、王首勝粉塵加成，與四個兌換解鎖旗標。
+  // 純邏輯（測試、模擬）沒有 1.0 存檔時 slot4 視為已開，畫面層一律由 oneBoost() 照 markShop 覆寫。
+  const NO_BOOST = { power: 1, click: 1, skill: 1, cd: 1, offline: 1, ticket: 0, dust: 0, slot4: true, bossTime: false, offline12: false, tapShare: 0, dispatch4: false };
+  const bossTimeOf = a => RULES.BOSS_TIME + (boostOf(a).bossTime ? 15000 : 0);
+  const clickShare = a => RULES.CLICK_SHARE + .05 * (boostOf(a).tapShare || 0);
+  const dispatchSlots = a => RULES.DISPATCH.SLOTS + (boostOf(a).dispatch4 ? 1 : 0);
   const boostOf = a => a.boost || NO_BOOST;
   const powerMul = (a, now) => (a.fx && now < (a.fx.powerUntil || 0)) ? (a.fx.powerMul || 1) : 1;
   // ⚠ 這個表每次點擊都會被查好幾十次（power() → cardPower() → poolById()），
@@ -324,7 +331,7 @@
     a.roster = a.roster.filter(id => a.collection[id] > 0);
     // 第十輪 D：派遣中的卡（壞資料整筆丟：沒抽到、在隊上、重複、時間不對）；離線基準時間
     { const seen = new Set(); a.dispatch = (Array.isArray(a.dispatch) ? a.dispatch : []).filter(d => d && typeof d.id === 'string' && a.collection[d.id] > 0 && !a.roster.includes(d.id) && !seen.has(d.id) && seen.add(d.id)
-        && Number.isFinite(d.startedAt) && Number.isFinite(d.until) && d.until - d.startedAt === RULES.DISPATCH.MS).slice(0, RULES.DISPATCH.SLOTS).map(d => ({ id: d.id, startedAt: d.startedAt, until: d.until })); }
+        && Number.isFinite(d.startedAt) && Number.isFinite(d.until) && d.until - d.startedAt === RULES.DISPATCH.MS).slice(0, RULES.DISPATCH.SLOTS + 1).map(d => ({ id: d.id, startedAt: d.startedAt, until: d.until })); }   // +1：買了派遣位的存檔（normalize 沒有 boost 資訊，不能把第 4 個砍掉）
     a.dispatchDone = count(a.dispatchDone); a.seenAt = Number.isFinite(Number(a.seenAt)) && Number(a.seenAt) > 0 ? Number(a.seenAt) : 0;
     { const seen = new Set();
       a.skills = a.skills.map(id => {
@@ -367,6 +374,9 @@
     if (a.stage?.revisit) a.revisitAt = a.stage.index;
     else if (a.revisitAt !== null && a.stage && !a.stage.farm) a.revisitAt = null;   // 場上是正規戰鬥＝已經離開回顧
     a.farmNextAt = Number.isFinite(Number(a.farmNextAt)) && Number(a.farmNextAt) > 0 ? Number(a.farmNextAt) : 0;
+    // 印記重設計：已經發過的 2.0 里程碑（markMilestones 用它保證每件事只給一次）
+    { const g = raw.marksGiven && typeof raw.marksGiven === 'object' ? raw.marksGiven : {};
+      a.marksGiven = { boss: [...new Set((Array.isArray(g.boss) ? g.boss : []).filter(n => Number.isInteger(n) && n >= 0 && n < RULES.STATIONS))], cleared: !!g.cleared, collected: !!g.collected, maxed: !!g.maxed, laps: Math.min(RULES.LAP.MAX, count(g.laps)) }; }
     delete a.boost;   // 1.0 加成是執行期現算的，存檔裡的舊值一律不信
     a.bossFailed = Number.isInteger(a.bossFailed) && a.bossFailed === a.progress ? a.bossFailed : null;   // 只記「目前這一站的王輸過」
     delete a.bossCarry;   // 保留血量的機制拿掉了（第五輪使用者），上一版存檔留下的欄位丟掉
@@ -494,7 +504,7 @@
   function winDust(a, i) {
     if (i >= RULES.STATIONS) return Math.round(RULES.GROW.ENDLESS.BASE * RULES.GROW.ENDLESS.GROWTH ** (i - RULES.STATIONS));
     if (!isBoss(i) || (a.bossDust || []).includes(i)) return 0;
-    return RULES.GROW.BOSS[Math.min(RULES.GROW.BOSS.length - 1, Math.floor(i / 4))] || 0;
+    return (RULES.GROW.BOSS[Math.min(RULES.GROW.BOSS.length - 1, Math.floor(i / 4))] || 0) + (boostOf(a).dust || 0);   // 粉塵祝福：王首勝多 1 顆/級
   }
   const canFight = (a, now) => (!a.stage || !!a.stage.farm) && a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) && !(isBoss(a.progress) && a.cooldownUntil > now);
   // 刷怪（第六輪，照 Sakura 的「打不過就回去刷怪」）：這一站的王輸過之後，回前一站一直打——拿那一站的獎勵、不推進度
@@ -514,7 +524,7 @@
     // 所以回顧是**一條路**：小怪站照正規打 WAVES 隻，打完往下一站走，打到這一區段的王就結束回顧（settle 裡推 revisitAt）。
     const boss = isBoss(i);
     return { ...a, revisitAt: i, stage: { index: i, hp: need(i, a), need: need(i, a), boss, farm: true, revisit: true, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now,
-      deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
+      deadline: boss && RULES.BOSS_TIME ? now + bossTimeOf(a) : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
   }
   const leaveRevisit = a => a.revisitAt === null || a.revisitAt === undefined ? a : { ...a, revisitAt: null, stage: a.stage?.revisit ? null : a.stage };
   function fight(a, now, farm = false) {
@@ -528,7 +538,7 @@
     if (!canFight(a, now)) throw new Error(a.progress >= RULES.STATIONS ? '全線已通行' : a.stage ? '戰鬥中' : '王關冷卻中');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
     const i = a.progress, boss = isBoss(i);
-    return { ...a, stage: { index: i, hp: need(i, a), need: need(i, a), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + RULES.BOSS_TIME : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
+    return { ...a, stage: { index: i, hp: need(i, a), need: need(i, a), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + bossTimeOf(a) : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
   }
   // 結算：回傳 { state, events:[{type:'win'|'fail', index}] }
   function settle(a, now, dt) {
@@ -539,7 +549,7 @@
     if (s.stage) {
       let st = { ...s.stage };
       // 舊存檔的王關沒有期限：第一次結算時給一個完整的 60 秒。只在 deadline 是空的時候給，給過就存下來，不會無限續時
-      if (st.boss && RULES.BOSS_TIME && !st.deadline) st.deadline = now + RULES.BOSS_TIME;
+      if (st.boss && RULES.BOSS_TIME && !st.deadline) st.deadline = now + bossTimeOf(a);
       // 放置傷害只算到期限為止（Codex 第五輪必修 3：逾時之後才進來的這一段不能拿來打贏）。期限前合法的致死照樣算贏。
       // 這一段依「破防結束、技能到期、王關期限」切開，各段用當時的倍率（Codex 5b 必修 2：期限前的破防 ×2 被整段算成護盾倍率）
       const t0 = now - dt * 1000, tEnd = st.deadline ? Math.min(now, st.deadline) : now;
@@ -597,7 +607,7 @@
     return { state: s, events };
   }
   // 這一下點擊的傷害（畫面浮字要跟實際扣血一致，打死那一下也要顯示整下的量，不是剩下的血）
-  const tapDamage = (a, now) => !a.stage || (a.stage.deadline && now >= a.stage.deadline) ? 0 : power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click
+  const tapDamage = (a, now) => !a.stage || (a.stage.deadline && now >= a.stage.deadline) ? 0 : power(a) * powerMul(a, now) * clickShare(a) * trainMul('click', a.clickLevel) * boostOf(a).click
     * (a.fx?.clickLeft > 0 ? (a.fx.clickMul || 1) : 1) * tapMul(a.stage, now);
   // opt.part：王④部位圓鈕（head／body／tail）；點空白處不帶
   function tap(a, now, opt = {}) {
@@ -754,6 +764,20 @@
     return { state: next, accepted: true, newIds, starUps, grows, universalDust: gained };
   }
   // 第十輪 C 重走廢土：全線通行後重來一圈。保留收藏／隊伍／技能／券／戰績／外觀／引導；金幣、訓練、進度、王關狀態歸零
+  // 印記重設計（2026-09-15）：2.0 的印記來源。純函式，只回報「這次新達成了什麼、該給幾枚」，
+  // 錢包（s.marks）在 1.0 的存檔上，由畫面層（clicker-apoc-ui apply）入帳、上限由 MARKS_TOTAL_CAP 管。
+  // 每件事只給一次：發過的記在 a.marksGiven（王首勝只算第一圈——replay 會清 bossDust，但 marksGiven.boss 不清）。
+  function markMilestones(a) {
+    const M = RULES.MARKS, g = a.marksGiven || { boss: [], cleared: false, collected: false, maxed: false, laps: 0 };
+    const boss = [...g.boss]; let cleared = g.cleared, collected = g.collected, maxed = g.maxed, laps = g.laps, gained = 0; const notes = [];
+    for (const i of (a.bossDust || [])) if (isBoss(i) && !boss.includes(i)) { boss.push(i); gained += M.BOSS_FIRST; notes.push(`第 ${i + 1} 站王首勝 +${M.BOSS_FIRST}`); }
+    if (a.cleared && !cleared) { cleared = true; gained += M.CLEARED; notes.push(`全線通行 +${M.CLEARED}`); }
+    const all = (root.ApocPool || []).map(c => c.id);
+    if (!collected && all.length && all.every(id => a.collection[id] > 0)) { collected = true; gained += M.COLLECTED; notes.push(`卡冊全收集 +${M.COLLECTED}`); }
+    if (!maxed && all.length && all.every(id => isMaxed(a, id))) { maxed = true; gained += M.MAXED; notes.push(`全滿養 +${M.MAXED}`); }
+    const L = lapsOf(a); if (L > laps) { gained += M.LAP * (L - laps); notes.push(`重走廢土第 ${L} 圈 +${M.LAP * (L - laps)}`); laps = L; }
+    return { state: gained ? { ...a, marksGiven: { boss, cleared, collected, maxed, laps } } : a, gained, notes };
+  }
   function replay(a) {
     if (!a.cleared) throw new Error('全線通行之後才能重走廢土');
     if (lapsOf(a) >= RULES.LAP.MAX) throw new Error('已經重走 ' + RULES.LAP.MAX + ' 圈，到頂了');
@@ -776,8 +800,9 @@
   function offline(a, now) {
     const O = RULES.OFFLINE, seen = a.seenAt || 0, elapsed = seen > 0 ? Math.max(0, now - seen) : 0, p = power(a);
     if (elapsed < O.MIN_MS || !(p > 0)) return { state: { ...a, seenAt: now }, events: [] };
-    const secs = Math.min(elapsed, O.MAX_MS) / 1000, i = incomeIndex(a);
-    const kills = Math.floor(p * secs * O.SHARE / need(i, a)), earned = Math.floor(p * RULES.IDLE_COINS * secs * O.SHARE + kills * killReward(i, a));
+    const maxMs = boostOf(a).offline12 ? 12 * 3600000 : O.MAX_MS;   // 兌換「離線 12 小時」兩個世界共用
+    const secs = Math.min(elapsed, maxMs) / 1000, i = incomeIndex(a);
+    const kills = Math.floor(p * secs * O.SHARE / need(i, a)), earned = Math.floor((p * RULES.IDLE_COINS * secs * O.SHARE + kills * killReward(i, a)) * (boostOf(a).offline || 1));   // 離線祝福全額
     return { state: { ...a, coins: a.coins + earned, seenAt: now }, events: [{ type: 'offline', elapsed, secs, index: i, kills, earned }] };
   }
   const dispatchedApoc = (a, id) => (a.dispatch || []).some(d => d.id === id);
@@ -785,7 +810,7 @@
     if (!(a.collection[id] > 0)) throw new Error('還沒抽到這張');
     if (a.roster.includes(id)) throw new Error('隊伍裡的卡不能派遣，先移出隊伍');
     if (dispatchedApoc(a, id)) throw new Error('已經在派遣中');
-    if ((a.dispatch || []).length >= RULES.DISPATCH.SLOTS) throw new Error('派遣位子滿了（' + RULES.DISPATCH.SLOTS + ' 個）');
+    if ((a.dispatch || []).length >= dispatchSlots(a)) throw new Error('派遣位子滿了（' + dispatchSlots(a) + ' 個）');
     return { ...a, dispatch: [...(a.dispatch || []), { id, startedAt: now, until: now + RULES.DISPATCH.MS }] };
   }
   const dispatchCoins = (a, id) => Math.round(killReward(incomeIndex(a), a) * RULES.DISPATCH.KILLS * (RULES.DISPATCH.RARITY[poolById()[id]?.rarity] || 1));
@@ -795,7 +820,7 @@
     if (!done.length) return { state: a, rewards: [] };
     let coins = 0, tickets = 0, dust = 0;
     // 第十一輪：派遣除了金幣與券，也帶萬用粉塵回來（稀有度越高帶越多，同 dispatchCoins 的倍率表）
-    const rewards = done.map(d => { const c = dispatchCoins(a, d.id), t = rng() < RULES.DISPATCH.TICKET ? 1 : 0,
+    const rewards = done.map(d => { const c = dispatchCoins(a, d.id), t = rng() < RULES.DISPATCH.TICKET + (boostOf(a).ticket || 0) ? 1 : 0,   // 寶箱祝福：派遣券機率 +1%/級
       u = Math.round(RULES.GROW.DISPATCH * (RULES.DISPATCH.RARITY[poolById()[d.id]?.rarity] || 1));
       coins += c; tickets += t; dust += u; return { id: d.id, coins: c, ticket: t, dust: u }; });
     return { state: { ...a, coins: a.coins + coins, tickets: a.tickets + tickets, universalDust: (a.universalDust || 0) + dust,
@@ -815,13 +840,13 @@
     // 拿它去寫「下一抽 X」會印出 0（第十二輪修）。
     drawCostNext: Math.round(RULES.DRAW_COST * RULES.DRAW_GROWTH ** (a.paidDraws || 0)),
     teamLevel: a.teamLevel || 0, clickLevel: a.clickLevel || 0, teamCost: trainCost(a, 'team'), clickCost: trainCost(a, 'click'),
-    teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * RULES.CLICK_SHARE * trainMul('click', a.clickLevel) * boostOf(a).click, boost: boostOf(a),
+    teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * clickShare(a) * trainMul('click', a.clickLevel) * boostOf(a).click, boost: boostOf(a),
     exchangeToday: exchangeToday(a, now), exchangeTotal: a.exchange?.total || 0, stats: a.stats, wins: a.wins || 0, cosmetics: a.cosmetics,
     roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS,
-    dispatch: a.dispatch || [], dispatchSlots: RULES.DISPATCH.SLOTS, dispatchDone: a.dispatchDone || 0,
+    dispatch: a.dispatch || [], dispatchSlots: dispatchSlots(a), dispatchDone: a.dispatchDone || 0, skillSlots: boostOf(a).slot4 ? 4 : 3, marksGiven: a.marksGiven || null,
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
-  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
     starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, isMaxed, dustRate, fullDust, starCap, exchangeDust, winDust };

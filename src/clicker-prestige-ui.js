@@ -29,7 +29,7 @@ window.ClickerPrestigeUI = (() => {
         <p class="prestige-faster">下一輪會更快：贏過的 ${halved} 站門檻減半，神器加成照算，夥伴、粉塵、卡片全部帶著走。</p>
         <div class="prestige-cols"><div><b>${inApoc ? '1.0 會清除' : '會清除'}</b><ul><li>錢幣、攻擊力、全隊訓練</li><li>電動手指、夥伴訓練</li><li>當輪包數，回到後院草地</li><li>王包裂痕、技能效果與冷卻</li></ul></div>
         <div><b>會保留</b><ul><li>夥伴、粉塵、升階、超越、編隊</li><li>保底與抽數、王的勝利紀錄</li><li>徽章、更衣室、桌面裝飾、派遣</li><li>印記、神器、商店</li></ul></div></div>
-        <p>換桌布另送萬用粉塵 ${3 + (s.artifacts?.dust || 0)} 顆${s.markShop?.starter5 ? '，以及開局五連' : ''}；本輪當家會重抽。</p>`;
+        <p>換桌布另送萬用粉塵 ${3 + (s.artifacts?.dust || 0)} 顆；本輪當家會重抽。</p>`;
       body.append(note);
       const row = document.createElement('div'); row.className = 'prestige-actions';
       const go = document.createElement('button'); go.id = 'prestige-go'; go.textContent = why || `換桌布（領 ${gained} 顆印記）`; go.disabled = !!why || store.blocked;

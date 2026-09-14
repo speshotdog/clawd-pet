@@ -109,7 +109,11 @@
     check(Number.isFinite(E.requirement(s.package.index, s.settings?.scene)) && Object.values(E.rates(s)).every(number), '數值溢出');
     check(Array.isArray(s.claimedMilestones) && s.claimedMilestones.every((v) => v === 'tutorial50') && new Set(s.claimedMilestones).size === s.claimedMilestones.length, '獎勵紀錄');
     check(s.manualClicks < 50 ? !s.claimedMilestones.includes('tutorial50') : s.claimedMilestones.includes('tutorial50') && s.collection.yueyue2 > 0, '教學獎勵');
-    s.marks ??= 0; s.marksClaimed ??= 0; s.prestiges ??= 0; s.markShop ??= {}; s.dustTrades ??= 0; s.autoClick ??= 0; s.autoRemainder ??= 0; s.autoClicks ??= 0; s.partnerLevels ??= {}; s.deco ??= []; s.decoShown ??= []; s.peakRate ??= 0; s.prestigeHintDate ??= null;
+    s.marks ??= 0; s.marksClaimed ??= 0; s.prestiges ??= 0; s.markShop ??= {};
+    // 印記重設計（2026-09-15）：退役的六項兌換原價退回（marksClaimed 不動、marks 加回、鍵刪掉，對帳式左右同減）；
+    // finger14 退役後電動手指上限回 10，超過的部分壓回來
+    if (object(s.markShop)) for (const [id, cost] of Object.entries(B.RETIRED_MARKS || {})) if (s.markShop[id]) { delete s.markShop[id]; s.marks = (s.marks || 0) + cost; s.markRefunds = (s.markRefunds || 0) + cost; }
+    if (Number.isFinite(s.autoClick) && s.autoClick > B.autoClickCap(s)) s.autoClick = B.autoClickCap(s); s.dustTrades ??= 0; s.autoClick ??= 0; s.autoRemainder ??= 0; s.autoClicks ??= 0; s.partnerLevels ??= {}; s.deco ??= []; s.decoShown ??= []; s.peakRate ??= 0; s.prestigeHintDate ??= null;
     check(integer(s.dustTrades) && integer(s.marks) && integer(s.marksClaimed) && s.marks <= s.marksClaimed && integer(s.prestiges) && integer(s.autoClick) && s.autoClick <= B.autoClickCap(s) && number(s.autoRemainder) && s.autoRemainder < 1 && integer(s.autoClicks), '輪迴與電動手指');
     check(object(s.markShop) && Object.entries(s.markShop).every(([id, v]) => B.marks.some(m => m.id === id) && v === true) && s.marksClaimed >= s.marks + s.blessing * (s.blessing + 1) / 2 + Object.values(s.artifacts || {}).reduce((sum, r) => sum + r * (r + 1) / 2, 0) + s.dustTrades * (s.dustTrades + 1) / 2 + Object.keys(s.markShop).reduce((sum, id) => sum + B.marks.find(m => m.id === id).cost, 0), '印記商店');
     check(object(s.partnerLevels) && Object.entries(s.partnerLevels).every(([id, L]) => known(id) && (s.collection[id] > 0 || L === 0) && integer(L) && L <= 200), '夥伴訓練');

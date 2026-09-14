@@ -32,22 +32,16 @@ test('round17: four PNG cards, skill snapshots, old save fields and equipped tra
  s.transcend.jiaotou=3; assert.equal(E.skillAt(s,'jiaotou').trait.clickMul,2.05); assert.equal(B.characters.jiaotou.trait.clickMul,1.5);
  s.dust.jiaotou=1; s.transcend.jiaotou=0; assert.equal(E.skillAt(s,'jiaotou').trait.clickMul,1.5);
 });
-test('round17: finger14 purchase and save validation use 14 cap, default is 10', () => {
- let s=marked('finger14'); s.coins=s.lifetimeCoins=1e10; s=P.buyAutoClick(s,0,true).state; assert.equal(s.autoClick,14); S.validate(s,Pool); assert.equal(P.autoClicks(s,1),7);
- delete s.markShop.finger14; assert.throws(()=>S.validate(s,Pool)); assert.equal(B.autoClickMax,10);
+test('印記重設計：退役項目載入時原價退回、電動手指壓回 10；daily 獎勵回 1', () => {
+ let s=seed(); s.markShop={finger14:true}; s.marks=0; s.marksClaimed=3; s.coins=s.lifetimeCoins=1e10; s.autoClick=14;   // 舊存檔：買過退役的 finger14（商店已經沒有它，不能用 buyMark）
+ const claimed=s.marksClaimed; const v=S.validate(s,Pool);
+ assert.equal(v.markShop.finger14,undefined,'退役鍵刪掉'); assert.equal(v.marks,3,'原價 3 退回'); assert.equal(v.marksClaimed,claimed,'累計不動'); assert.equal(v.autoClick,10,'上限回 10'); assert.equal(v.markRefunds,3);
+ assert.equal(B.autoClickCap(v),10); assert.equal(B.autoClickMax,10);
+ const d=seed(); d.markShop={daily2:true}; d.marksClaimed=2; const rolled=X.dailyRoll(S.validate(d,Pool)); const r=X.dailyBurst(rolled,rolled.daily.need).state; assert.equal(r.freeDraws,1); assert.equal(r.universalDust,1);
 });
 test('round17: bossTime adds ten seconds while capacity HP stays fixed', () => {
  const s=marked('bossTime'); s.package.index=51; const a=E.startBoss(s,0); delete s.markShop.bossTime; const b=E.startBoss(s,0);
  assert.equal(a.boss.endsAt,40000); assert.equal(b.boss.endsAt,30000); assert.equal(a.boss.need,b.boss.need); S.validate(a,Pool);
-});
-test('round17: offline15 multiplies only offline coins including capped settlement', () => {
- const s=marked('offline15'), plain=E.clone(s); delete plain.markShop.offline15;
- const a=E.settle(s,10000,{offline:true}), b=E.settle(plain,10000,{offline:true}); near(a.earned,b.earned*1.5); assert.deepEqual(a.state.package,b.state.package);
- near(E.settle(s,10000).earned,E.settle(plain,10000).earned);
-});
-test('round17: daily2 doubles reward draws dust and coins', () => {
- const s=X.dailyRoll(marked('daily2')), before=s.coins, r=X.dailyBurst(s,s.daily.need).state;
- assert.equal(r.freeDraws,2); assert.equal(r.universalDust,2); assert.equal(r.coins-before,s.daily.need*2); assert.deepEqual(r.package,s.package); S.validate(r,Pool);
 });
 test('round17: thief cadence, entry delay, five hits, coins only and no repeat reward', () => {
  const opts={rng:()=>0}; let s=E.settle(seed(),0,opts).state; s=E.settle(s,59999,opts).state; assert.equal(s.thief.active,false);

@@ -433,7 +433,6 @@
     const completed = grant(s, earned - kept, options.offline ? 'offline' : 'passive', ev);
     if (s.boss && now >= s.boss.endsAt) finishBoss(s,false,now);
     s.settledAt = Math.max(s.settledAt, now);
-    if (options.offline && s.markShop?.offline15) { grant(s, earned * .5, 'offline', {coinsOnly:true}); earned *= 1.5; }
     if (options.offline && art(s, 'offline')) { const extra = earned * .1 * art(s, 'offline'); grant(s, extra, 'offline', {coinsOnly:true}); earned += extra; }   // D 路離線祝福
     stampDeadline(s, now);
     tickGift(s, now, options);
@@ -508,7 +507,7 @@
     if (s.pending || slot >= slotCount(s) || !s.collection[id] || !def?.kind) throw new Error('技能尚未開放');
     if ((s.cooldownUntil[id] || 0) > t || s.slotReadyAt[slot] > t) throw new Error('技能冷卻中');
     const count = s.chain && t < s.chain.expiresAt && s.chain.count < 3 ? s.chain.count+1 : 1;
-    const windowMs = Math.max(8000, ...activeBonds(s).map(b=>b.effect.chainWindowMs || 0)) + (s.markShop?.chain2 ? 2000 : 0);
+    const windowMs = Math.max(8000, ...activeBonds(s).map(b=>b.effect.chainWindowMs || 0));
     const chainMul = [1,1.3,1.6][count-1];
     s.chain = {count,expiresAt:t+windowMs};
     const effect = { chain:count, params:{...def,desc:undefined}, source: id, kind: def.kind, startedAt: t, expiresAt: t + (def.duration || 0) * 1000 };
@@ -628,7 +627,7 @@
       stampDeadline(s, now, true); return;
     }
     const cfg=Scenes(b.scene).boss;
-    const crack=won?0:Math.min(cfg.crackMax,b.dealt/b.need*(s.markShop?.crack75 ? .75 : cfg.crackKeep));
+    const crack=won?0:Math.min(cfg.crackMax,b.dealt/b.need*cfg.crackKeep);
     s.bossCracks ||= {}; s.bossCracks[b.scene]=crack; s.boss=null;
     s.bossResult={scene:b.scene,won,crack,at:now,next:nextScene(b.scene)};
     if (won) {

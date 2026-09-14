@@ -143,13 +143,14 @@ with sync_playwright() as p:
     p0 = pg.evaluate("()=>{const A=ApocEconomy;return A.power(A.normalize(Clicker.state.apoc));}")
     rate = lambda: float(''.join(ch for ch in pg.locator('#click-rate').inner_text() if ch.isdigit() or ch == '.'))
     r0 = rate()
-    m0 = pg.evaluate("()=>ClickerEconomy.markMul(Clicker.state)*ClickerEconomy.blessMul(Clicker.state)")
+    # 印記重設計（2026-09-15）：神器在 2.0 只吃 1/5（B.ARTIFACT_APOC.blessing＝.02/級），不再是 1.0 的 blessMul 全額
+    m0 = pg.evaluate("()=>1+ClickerBalance.ARTIFACT_APOC.blessing*(Clicker.state.blessing||0)")
     # ⚠ 收益祝福 Lv5 要先領過 1+2+3+4+5＝15 枚印記，只設 blessing 會存檔驗證失敗（印記商店）、消費鎖住、末世停止重畫（實測）
     pg.evaluate("()=>{const s=Clicker.state; s.marksClaimed=Math.max(s.marksClaimed||0,15); s.blessing=5;}"); pg.wait_for_timeout(1600)
     check(pg.locator('#retry-save').is_hidden(), '設了收益祝福之後存檔沒有鎖住')
-    m1 = pg.evaluate("()=>ClickerEconomy.markMul(Clicker.state)*ClickerEconomy.blessMul(Clicker.state)")
+    m1 = pg.evaluate("()=>1+ClickerBalance.ARTIFACT_APOC.blessing*(Clicker.state.blessing||0)")
     r1 = rate()
-    check(abs(r1 / r0 - m1 / m0) < .02, f'1.0 的印記×收益祝福（×{m1 / m0:.2f}）套進 2.0 戰力：{r0} → {r1}')
+    check(abs(r1 / r0 - m1 / m0) < .02, f'1.0 的收益祝福以 1/5 強度套進 2.0 戰力（×{m1 / m0:.2f}）：{r0} → {r1}')
     pg.evaluate("()=>{Clicker.state.blessing=0;}"); pg.wait_for_timeout(1200)
 
     # ---- 卡冊與編隊都是 1.0 那一套

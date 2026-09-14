@@ -136,26 +136,28 @@
       {id:'spark',name:'小閃電',file:'clicker-fx-spark.png',color:'#E9B94E',blend:'lighter'}, {id:'snow',name:'雪花',file:'clicker-fx-snow.png',color:'#FFFFFF'},
     ],
   };
+  // 印記兌換（2026-09-15 重設計，DESIGN-2026-09-14-marks）：只留「改變規則的永久解鎖」，而且每一項在 1.0 與 2.0 都要有意義。
+  // 砍掉的六項（finger14／offline15／daily2／chain2／starter5／crack75）在 RETIRED_MARKS，舊存檔載入時原價退回。
   const marks = [
-    { id:'finger14', name:'電動手指擴充', cost:3, desc:'電動手指上限 10 → 14' },
-    { id:'bossTime', name:'王包 +10 秒', cost:3, desc:'限時 30 → 40 秒，血量不變' },
-    { id:'offline15', name:'離線收益 ×1.5', cost:4, desc:'離線金幣 ×1.5，包進度不變' },
-    { id:'daily2', name:'每日包雙倍', cost:2, desc:'免費單抽 +2、萬用粉塵 +2、獎勵金幣 ×2' },
-    { id:'slot4', name:'第四技能槽', cost:3, desc:'三槽變四槽，連鎖窗可接到第四個（×1.9）' },
-    { id:'offline12', name:'離線 12 小時', cost:2, desc:'離線結算上限 8 → 12 小時' },
-    { id:'chain2', name:'連鎖窗 +2 秒', cost:2, desc:'與玥玥羈絆相加' },
-    { id:'starter5', name:'開局送五連', cost:1, desc:'每次換桌布後送 5 次免費招募' },
-    { id:'crack75', name:'裂痕 75% 起跳', cost:2, desc:'王包失敗保留 75% 傷害' },
-    { id:'rooftop', name:'新桌布「屋頂星空」', cost:5, desc:'第七場景，純外觀與 BGM' },
+    { id:'slot4', name:'第四技能槽', cost:3, desc:'1.0 三槽變四槽；2.0 第四格技能解鎖' },
+    { id:'bossTime', name:'王關 +時間', cost:3, desc:'1.0 王包 30 → 40 秒；2.0 王關 60 → 75 秒' },
+    { id:'offline12', name:'離線 12 小時', cost:2, desc:'兩個世界的離線結算上限 8 → 12 小時' },
     // v3 §九：點擊附加隊伍收益 5% → 10% → 15%（後期點擊不歸零，「連點＋技能才過得了王」才成立）
-    { id:'tapShare1', name:'點擊附加 +5%', cost:3, desc:'每下點擊附加的全隊收益 5% → 10%' },
-    { id:'tapShare2', name:'點擊附加再 +5%', cost:3, desc:'10% → 15%（需先買前一項）', requires:'tapShare1' },
+    { id:'tapShare1', name:'點擊附加 +5%', cost:3, desc:'1.0 每下點擊附加的全隊收益 5% → 10%；2.0 點擊佔戰力 50% → 55%' },
+    { id:'tapShare2', name:'點擊附加再 +5%', cost:3, desc:'1.0 10% → 15%；2.0 55% → 60%（需先買前一項）', requires:'tapShare1' },
+    { id:'dispatch4', name:'派遣位 +1', cost:3, desc:'2.0 派遣位 3 → 4' },
+    { id:'rooftop', name:'新桌布「屋頂星空」', cost:5, desc:'第七場景，純外觀與 BGM' },
   ];
+  const RETIRED_MARKS = { finger14: 3, offline15: 4, daily2: 2, chain2: 2, starter5: 1, crack75: 2 };
+  // 2.0 的印記來源（全部一次性或有頂）：五隻區段王首勝、全線通行、卡冊全收集、全滿養、重走廢土每圈
+  const APOC_MARKS = { BOSS_FIRST: 2, CLEARED: 5, COLLECTED: 5, MAXED: 10, LAP: 4 };
+  // 神器在 2.0 的套用強度（每級）。戰力類只吃 1/5：模擬顯示 2.0 吃到 ×1.2 全破就從第 5～7 天縮到第 3 天（見 DESIGN-marks）。
+  const ARTIFACT_APOC = { blessing: .02, tap: .02, skill: .025, cd: .01, offline: .1, chest: .01, dust: 1 };
   const BLESSING_MAX = 20;   // v3 §四：×3.0 封頂；第 L 級收 L 枚，全滿 210
   // v3 常數集中放這裡讓模擬器 A/B（DESIGN-balance-v3）
   const V3 = { GATE_EVERY: 10, GATE_MUL: 2, AREA_MUL: 1.5, BOSS_MUL: 4, GATE_SECONDS: 30, GATE_COOLDOWN: 30,
     ROSTER_LIMITS: [2, 6, 12, 20], CHAMPIONS: 2, CHAMPION_MUL: 1.5, DISPATCH_SLOTS: 3, DISPATCH_MS: 4 * 3600000, DISPATCH_DAILY: 9,
-    CHEST_RATE: .03, CHEST_MUL: 8, CHEST_MILESTONE: 150, MARKS_PER_RUN: 12,
+    CHEST_RATE: .03, CHEST_MUL: 8, CHEST_MILESTONE: 150, MARKS_PER_RUN: 8,   // 印記重設計：12 → 8（拿掉 100／300 包的 +1）
     // C 路（2026-09-12 使用者拍）：王是「賺大錢的時刻」——打贏小王給 requirement×GATE_REWARD、大王給門檻包需求×BOSS_REWARD 的幣（一次性、只進錢包）
     GATE_REWARD: 8, BOSS_REWARD: 40,
     // 30 秒火力 ≥ 血量 × GATE_SKIP 的小王直接讓路（給獎金、不演出）：剛換桌布或壓倒性強的玩家不用每 10 包看一次動畫，牆只在真的是牆時出現
@@ -176,15 +178,15 @@
     { id:'chest',    name:'寶箱祝福', per:'寶箱包機率 +1%', max:10 },
     { id:'dust',     name:'粉塵祝福', per:'每次換桌布多 1 顆萬用粉塵', max:10 },
   ];
-  const MARKS_TOTAL_CAP = 100;
+  const MARKS_TOTAL_CAP = 150;   // 印記重設計：1.0 換桌布 ≤ 100 ＋ 2.0 里程碑與重走 ≤ 70，合併上限 150
   const blessings = [
     { id:'blessing', name:'收益祝福', desc:'全隊每秒收益與攻擊力，每級 +10%（上限 Lv.20）' },
     { id:'dustTrade', name:'粉塵兌換', cost:1, desc:'換 5 萬用粉塵；每換一次下一次就貴 1 印記' },
   ];
   const autoClickMax = 10;
-  const autoClickCap = s => s.markShop?.finger14 ? 14 : autoClickMax;
+  const autoClickCap = () => autoClickMax;   // finger14 已退役（印記重設計）
   const decor = ['花盆','燈串','小鼓','風鈴','貓抓板','相框','香氛蠟燭','小旗串','多肉','留聲機'].map((name,i)=>({ id:`deco${i}`, name, file:`clicker-deco-${i}.png` }));
-  const api = { originalIds, marks, blessings, ARTIFACTS, MARKS_TOTAL_CAP, BLESSING_MAX, V3, autoClickMax, autoClickCap, decor, wardrobe, characters, MARK_MUL_COEF, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
+  const api = { originalIds, marks, RETIRED_MARKS, APOC_MARKS, ARTIFACT_APOC, blessings, ARTIFACTS, MARKS_TOTAL_CAP, BLESSING_MAX, V3, autoClickMax, autoClickCap, decor, wardrobe, characters, MARK_MUL_COEF, skillAt, bonds, recommendations, stars: [1, 2, 4, 8, 16], offlineMs: 8 * 3600000,
     modes: ['hearthstone', 'wish', 'summon', 'stage', 'rip'], slotThresholds: [0, 5000, 100000] };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ClickerBalance = api;

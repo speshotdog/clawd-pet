@@ -7,12 +7,12 @@ const seed = (over = {}) => { const s = S.fresh(0); Object.assign(s, over); retu
 const own = (s, id, n = 1) => { s.collection[id] = n; s.dust[id] = n; return s; };
 // v3（2026-09-12）：印記不再是 √生涯幣，改成「本輪做到的事」——大王每隻 1、100／300 包各 1、滅世珍獸 +3，每輪上限 12；
 // markMul 係數 0。舊規則的實測後果是 ×76,000（DESIGN-balance-v3 §一）。
-test('印記 v3：本輪王勝＋包數里程碑，每輪上限 12；沒打贏王不能換桌布；markMul 係數 0', () => {
+test('印記 v3：本輪王勝，每輪上限 8（印記重設計拿掉包數里程碑）；沒打贏王不能換桌布；markMul 係數 0', () => {
   const s = seed({ lifetimeCoins: 4e8, coins: 100 }); assert.equal(P.marksTotal(s), 0);
   assert.equal(P.canPrestige(s), '本輪至少要打贏一隻王才能換桌布');
   s.bossWins = ['backyard','kitchen']; s.runWins = ['backyard','kitchen']; s.runPacks = 120;
-  assert.equal(P.marksTotal(s), 3); assert.equal(P.marksAvailable(s), 3);
-  const r = P.prestige(own(s, 'zhenmu', 16), 0, () => .5); assert.equal(r.gained, 3); assert.equal(r.state.marks, 3); assert.equal(r.state.marksClaimed, 3);
+  assert.equal(P.marksTotal(s), 2, '包數不再給印記（刷得出來的東西不給）'); assert.equal(P.marksAvailable(s), 2);
+  const r = P.prestige(own(s, 'zhenmu', 16), 0, () => .5); assert.equal(r.gained, 2); assert.equal(r.state.marks, 2); assert.equal(r.state.marksClaimed, 2);
   assert.equal(r.state.coins, 0); assert.equal(r.state.clickLevel, 0); assert.equal(r.state.settings.scene, 'backyard'); assert.equal(r.state.dust.zhenmu, 16); assert.equal(r.state.universalDust, 3);
   assert.deepEqual(r.state.runWins, []); assert.equal(r.state.runPacks, 0); assert.deepEqual(r.state.bossWins, ['backyard','kitchen']);   // 永久解鎖留著，本輪紀錄清掉
   assert.equal(r.state.champions.length, 1);   // 只擁有 1 張就只有 1 個當家
@@ -20,7 +20,7 @@ test('印記 v3：本輪王勝＋包數里程碑，每輪上限 12；沒打贏�
   assert.throws(() => P.prestige(r.state, 0), /至少要打贏/);
   S.validate(r.state, Pool);
   const full = seed({ bossWins: ['backyard','kitchen','market','factory','nightmarket','fridge','city'], runWins: ['backyard','kitchen','market','factory','nightmarket','fridge','city'], runPacks: 400 });
-  assert.equal(P.marksTotal(full), 12);   // 7 + 1 + 1 + 3 = 12 剛好封頂
+  assert.equal(P.marksTotal(full), 8);   // 7 + 3 = 10，封頂 8
 });
 test('倍率進 rates：只剩收益祝福，marksClaimed 不再自動加成；本輪當家 ×1.5', () => {
   const s = own(seed({ marksClaimed: 4, marks: 0, lifetimeCoins: 1e9, coins: 0 }), 'yueyue2', 1);
@@ -30,13 +30,14 @@ test('倍率進 rates：只剩收益祝福，marksClaimed 不再自動加成；�
   assert.ok(Math.abs(E.rates(s).P / E.rates(base).P - 1.5) < 1e-9);
   assert.ok(Math.abs(E.skillAt(s,'yueyue2').cd / E.skillAt(base,'yueyue2').cd - .8) < 1e-9);
 });
-test('印記商店：扣印記、第四槽開一格、離線 12 小時、開局五連', () => {
+test('印記商店：扣印記、第四槽開一格、離線 12 小時；退役項目買不到', () => {
   let s = seed({ marks: 6, marksClaimed: 6, lifetimeCoins: 36e8 });
   s = P.buyMark(s, 'slot4', 0); assert.equal(s.skillSlots.length, 4); assert.equal(E.slotCount(s), 4); assert.equal(s.marks, 3);
   s = P.buyMark(s, 'offline12', 0); s.settledAt = 0; assert.equal(E.settle(s, 20 * 3600000).duration, 12 * 3600000);
-  s = P.buyMark(s, 'starter5', 0); assert.throws(() => P.buyMark(s, 'rooftop', 0), /印記不足/); assert.throws(() => P.buyMark(s, 'slot4', 0), /已經擁有/);
+  assert.throws(() => P.buyMark(s, 'dispatch4', 0), /印記不足/); assert.throws(() => P.buyMark(s, 'rooftop', 0), /印記不足/); assert.throws(() => P.buyMark(s, 'slot4', 0), /已經擁有/);
+  assert.throws(() => P.buyMark(s, 'starter5', 0), /沒有這項/, '退役項目不在商店');
   S.validate(s, Pool);
-  const r = P.prestige(Object.assign(own(s, 'zhenmu', 1), { lifetimeCoins: 49e8, bossWins: ['backyard'], runWins: ['backyard'] }), 0); assert.equal(r.state.freeDraws, 5); assert.equal(r.state.skillSlots.length, 4);
+  const r = P.prestige(Object.assign(own(s, 'zhenmu', 1), { lifetimeCoins: 49e8, bossWins: ['backyard'], runWins: ['backyard'] }), 0); assert.equal(r.state.freeDraws || 0, 0, 'starter5 退役'); assert.equal(r.state.skillSlots.length, 4);
 });
 test('電動手指：5000×2.2^L、上限 10、每秒 .5L 次帶小數累積、不算手點', () => {
   let s = seed({ coins: 1e9, lifetimeCoins: 1e9 });

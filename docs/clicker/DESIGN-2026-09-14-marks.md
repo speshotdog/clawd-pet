@@ -1,4 +1,4 @@
-# 印記系統重設計（2026-09-14 晚，提案，**未實作**）
+# 印記系統重設計（2026-09-14 晚提案；**2026-09-15 已實作**，見最下面「實作紀錄」）
 
 > 使用者：「幫我重新構思印記系統。神器我現在很滿意，但下方的兌換有一些感覺很沒用。
 > 我希望印記是稀缺資源，而且是貫穿 1.0～2.0 的共用資源，幫我合理重新設計，刪除不必要的選項，一樣可以參考 Sakura Clicker 的曲線。」
@@ -140,4 +140,32 @@
 - **神器在 2.0**：收益、攻擊兩條 **每級 +2%**（上限 ×1.4）；技能、冷卻兩條 **每級 +2.5%／−1%**（半額，上限 ×1.25／×.9）；離線、寶箱（派遣券）、粉塵三條全額。
 - **兌換**：slot4 5、bossTime 3（2.0 王關 60→75）、offline12 2、tapShare1／2 各 3、rooftop 5、dispatch4 3（派遣位 3→4）。共 24。
 - 硬規則三條照列；實作後用同一支模擬跑三個種子＋快手／很懶各一組，全破 4～6、全滿養 ≤ 14 才准上線。
+
+---
+
+# 實作紀錄（2026-09-15，使用者：「照你的建議做吧」）
+
+| 項目 | 落點 |
+|---|---|
+| 來源 1.0 | `clicker-prestige.js` marksTotal：王各 +1、滅世珍獸 +3，每輪 ≤ 8（拿掉 100／300 包）；`B.V3.MARKS_PER_RUN = 8` |
+| 來源 2.0 | `clicker-apoc-economy.js` `markMilestones(a)`（純函式）＋ `RULES.MARKS = { BOSS_FIRST 2, CLEARED 5, COLLECTED 5, MAXED 10, LAP 4 }`；發過的記在 `a.marksGiven`（王首勝只算第一圈）；入帳在 `clicker-apoc-ui.js apply()`，事件 `marks` 出浮字與提示 |
+| 生涯上限 | `MARKS_TOTAL_CAP = 150` |
+| 神器在 2.0 | `B.ARTIFACT_APOC = { blessing .02, tap .02, skill .025, cd .01, offline .1, chest .01, dust 1 }`；`oneBoost()` 照它算；離線倍率／派遣券／王首勝粉塵在 economy 的 `offline`／`collectDispatch`／`winDust` 吃 boost |
+| 兌換 | `B.marks` 剩 7 項：slot4 3、bossTime 3（2.0 王關 +15 秒）、offline12 2、tapShare1／2 各 3（2.0 點擊佔比 +5%/級）、dispatch4 3（新）、rooftop 5；slot4 **價格維持 3**（漲到 5 會讓舊存檔的印記對帳式失敗） |
+| 退役六項 | `B.RETIRED_MARKS`；`clicker-save.js validate` 載入時原價退回 `s.marks`、鍵刪掉、記 `s.markRefunds`；finger14 退役後 autoClick 壓回 10；程式裡所有讀取點清掉 |
+| 2.0 第四格 | `skillOf(a,3)` 在 `boost.slot4=false` 時回 null；`view.skillSlots` 3／4；UI 畫 🔒「未解鎖」，點了提示去印記商店 |
+| 2.0 頂列 | `#passive-rate` 後面接「・印記 N」 |
+| 模擬 | `tools/sim/apoc.js` MARKS=1 START_MARKS=n：里程碑入帳、印記全砸收益／攻擊神器（最壞情況）；K_BLESS／K_TAP 可掃 |
+
+模擬結果（CPS 3、在場一半、一天三段 20 分、三個種子）：
+
+| 玩家 | 全破 | 全收集 | 全滿養 | 最後神器倍率 |
+|---|---|---|---|---|
+| 新號 0 枚 | 5／5／5 | 5／7／6 | 11／12／12 | ×1.10／×1.10 |
+| 一輪入場 8 枚 | 5／5／4 | 5／7／7 | 12／12／11 | ×1.12／×1.10 |
+| 三輪老手 24 枚 | 4／4／4 | 5／6／5 | 11／11／11 | ×1.14／×1.12 |
+| 快手（CPS 6 全點）8 枚 | 5／5／4 | — | 12／12／11 | — |
+| 懶人（CPS 2、三成）8 枚 | 5／5／4 | — | 12／12／11 | — |
+
+三條鐵律都過（全破 4～6、全滿養 ≤ 14）。上線前實測：`tools/test/clicker-apoc-economy.test.js` 兩條新測試（里程碑只給一次、2.0 套用點）＋ round17 退款測試。
 
