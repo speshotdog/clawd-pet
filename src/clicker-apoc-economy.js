@@ -286,7 +286,16 @@
     //   拿它當「有粉塵」判斷會讓整批舊存檔的粉塵歸零。
     { const raw0 = a.collection, d = raw.dust && typeof raw.dust === 'object' ? raw.dust : null;
       a.dust = {};
-      for (const id of Object.keys(raw0)) { const n = count(d ? d[id] : raw0[id]); if (n > 0) a.dust[id] = Math.min(n, fullDust()); }
+      // 舊版「張數就是星數、每張 +25% 無上限」：一張抽了 59 次的精良卡以前是 ×15.5，現在封在 ×3.0。
+      // 直接套上去等於把既有玩家的戰力腰斬、卡在打不過的站——超出滿養的張數一律折成萬用粉塵還給玩家。
+      // 這段只在「舊存檔（沒有 dust 欄位）」跑，而且只從 collection 推導，所以重跑幾次結果都一樣（沒寫檔也不會重複加）。
+      let refund = 0;
+      for (const id of Object.keys(raw0)) {
+        const n = count(d ? d[id] : raw0[id]); if (n <= 0) continue;
+        a.dust[id] = Math.min(n, fullDust());
+        if (!d) refund += Math.max(0, n - fullDust()) * (RULES.GROW.DUST[poolById()[id]?.rarity] ?? 1);
+      }
+      if (refund) a.universalDust = count(a.universalDust) + refund;
     }
     { const t = raw.transcend && typeof raw.transcend === 'object' ? raw.transcend : {};
       a.transcend = {};

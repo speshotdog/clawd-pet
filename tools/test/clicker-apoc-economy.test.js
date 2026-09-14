@@ -575,3 +575,16 @@ test('抽卡結算：升星只報到滿星，之後報突破', () => {
   assert.deepEqual(r.starUps, [], '已經滿星就不該再報升星');
   assert.deepEqual(r.grows, [{ id: 'pufayueyue', kind: 'transcend', from: 0, to: 1 }]);
 });
+test('舊存檔遷移：超過滿養的重複卡折成萬用粉塵，不會白白蒸發，而且重跑不會重複加', () => {
+  // 舊版是「張數＝星數、每張 +25% 無上限」，直接套新規則會把既有玩家的戰力腰斬
+  const full = A.fullDust(), extra = 10;
+  const old = { collection: { pufayueyue: full + extra, m1: 3 }, roster: ['pufayueyue'] };
+  const a = A.normalize(old);
+  assert.equal(A.dustOf(a, 'pufayueyue'), full);
+  assert.equal(a.universalDust, extra * A.dustRate('pufayueyue'));
+  assert.equal(A.dustOf(a, 'm1'), 3, '沒超過滿養的照搬，不折算');
+  // 同一份原始存檔再 normalize 一次（沒有寫檔的情況）結果要一樣
+  assert.equal(A.normalize(old).universalDust, a.universalDust);
+  // 已經有 dust 欄位的新存檔不再折算
+  assert.equal(A.normalize({ collection: { pufayueyue: 99 }, dust: { pufayueyue: full }, universalDust: 7 }).universalDust, 7);
+});
