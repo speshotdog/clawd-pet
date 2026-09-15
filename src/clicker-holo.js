@@ -93,11 +93,28 @@ window.ClickerHolo = (() => {
   // CSS 擋不掉這個設定，但它只看「版面上的字級」：把小卡改成用 300px 的版面畫、再 transform 縮到格子大小，
   // 名字 25px／稀有度 14px 都在 12px 之上，縮完視覺上一模一樣。寬度 ≥120px 的卡（詳情、放大、編隊）不動。
   const COMPACT_BELOW = 120, COMPACT_BASE = 300;
+  // ⚠ 只在瀏覽器真的有「最小字型大小」時才開：iOS Safari 對 transform:scale 的層是照版面尺寸 × DPR 配記憶體，
+  //   20 張 300px 版面的 3D 卡在編隊畫面直接把分頁弄崩（使用者 2026-09-16 錄影：打開編隊 → Safari「重複發生問題」重刷）。
+  //   偵測法：塞一個 4px 字的探針，computed font-size 被拉到 4.5px 以上就是有最小字型設定。
+  const minFontClamped = (() => { try {
+    const probe = document.createElement('span'); probe.textContent = 'x'; probe.style.cssText = 'position:absolute;left:-9999px;top:0;font-size:4px;line-height:1;visibility:hidden';
+    (document.body || document.documentElement).append(probe); const fs = parseFloat(getComputedStyle(probe).fontSize); probe.remove(); return fs > 4.5;
+  } catch { return false; } })();
   let compactRO = null;
+  // 小卡換小圖：46px 的夥伴列縮圖用 600×840 的原圖是白白多解碼 2MB 一張，手機一頁幾十張就爆（iOS Safari 重刷）。
+  // apoc/art-thumb/ 是 200px 寬的同名縮圖（tools 產生）；host 寬度 <120px 換小圖、變大再換回原圖。
+  function swapArt(f, small) {
+    for (const img of f.querySelectorAll('img')) {
+      const src = img.getAttribute('src') || ''; if (!/\/apoc\/art(-thumb)?\//.test(src)) continue;
+      const want = small ? src.replace('/apoc/art/', '/apoc/art-thumb/') : src.replace('/apoc/art-thumb/', '/apoc/art/');
+      if (want !== src) img.setAttribute('src', want);
+    }
+  }
   function compact(host) {
     const f = host._face; if (!f || !host.isConnected) return;
     const w = host.clientWidth; if (!w) return;
-    if (w < COMPACT_BELOW) {
+    const small = w < COMPACT_BELOW; if (f.dataset.small !== String(small)) { f.dataset.small = String(small); swapArt(f, small); }
+    if (minFontClamped && w < COMPACT_BELOW) {
       const k = w / COMPACT_BASE;
       if (f.dataset.compact !== String(w)) { f.dataset.compact = String(w);
         f.style.inset = 'auto'; f.style.left = '0'; f.style.top = '0'; f.style.width = COMPACT_BASE + 'px'; f.style.height = (COMPACT_BASE * 7 / 5) + 'px';

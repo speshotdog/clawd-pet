@@ -84,8 +84,17 @@
       return sel;
     }
     const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
-    function portrait(id) {
+    // 挑選器一次列 71 張精裝卡，每張都是好幾層合成層——手機（尤其 iOS Safari）會被吃到重刷（使用者 2026-09-16 錄影）。
+    // 挑選器裡的卡面改成「捲到看得見才建」：先放空白底，IntersectionObserver 進視野再換成精裝卡面。
+    let lazyIO = null;
+    const lazyFaces = () => lazyIO || (lazyIO = new IntersectionObserver(list => {
+      for (const e of list) { if (!e.isIntersecting) continue; const p = e.target; lazyIO.unobserve(p);
+        const id = p.dataset.lazyId; if (!id) continue; const holo = window.ClickerHolo?.ready() ? window.ClickerHolo.face(byId(id)) : null;
+        if (holo) { p.replaceChildren(holo); p.classList.add('holo-slot'); } }
+    }, { root: null, rootMargin: '120px 0px' }));   // root 用視窗：dialog 是 fixed 在視窗裡，grid 不一定是捲動容器
+    function portrait(id, lazy = false) {
       const p = el('span', 'buddy-portrait');
+      if (apoc() && lazy) { p.classList.add('holo-slot'); p.append(el('span', 'apoc-face-blank')); p.dataset.lazyId = id; lazyFaces().observe(p); return p; }
       // 末世用精裝卡面
       const holo = apoc() && window.ClickerHolo?.ready() ? window.ClickerHolo.face(byId(id)) : null;
       // 末世拿不到精裝卡面時放空白底，不准退回 1.0 卡面（使用者 09-13）
@@ -95,7 +104,7 @@
     function proxy(id, index, handler) {
       const b = el('button', 'team-proxy'); b.type = 'button'; b.dataset.id = id;
       b.setAttribute('aria-label', `${index === null ? '候選' : String(index + 1).padStart(2, '0')} ${byId(id).name} ${RAR[byId(id).rarity]}`);
-      const img = el('span', 'proxy-image'); img.append(portrait(id));
+      const img = el('span', 'proxy-image'); img.append(portrait(id, index === null));   // 候選卡（index null）＝挑選器，卡面懶載
       if (index !== null) img.append(el('span', 'proxy-index', String(index + 1).padStart(2, '0')));
       if (!apoc()) img.append(el('span', 'proxy-symbol', SYMBOLS[byId(id).rarity]));   // 精裝卡的卡框本身就是稀有度
       b.append(img, el('span', 'proxy-name', byId(id).name.replace('（原版）', '')));
