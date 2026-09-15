@@ -29,16 +29,16 @@
       r.src = resolve(fx.ripples);
       media.append(r);
     }
-    // 前景層（瞌睡時光的杯子）：在主體前面、不動
-    if (fx.front && !media.querySelector('.fx-front')) {
-      var f = document.createElement('img');
-      f.className = 'fx-front'; f.alt = ''; f.draggable = false;
-      f.src = resolve(fx.front);
-      media.append(f);
+    // 瞌睡時光：主體逐格動畫（作者的 AVI → animated WebP）蓋在靜態主體上
+    if (fx.anim && !media.querySelector('.fx-anim')) {
+      var a = document.createElement('img');
+      a.className = 'fx-anim'; a.alt = ''; a.draggable = false;
+      a.src = resolve(fx.anim);
+      media.append(a);
+      card.dataset.anim = '';
     }
     if (fx.breathe) card.dataset.breathe = '';
     if (fx.float) card.dataset.float = '';
-    if (fx.nod) card.dataset.nod = '';
     return card;
   }
   root.HoloCardFx = { apply: apply };

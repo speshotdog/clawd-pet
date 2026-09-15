@@ -91,6 +91,12 @@ def main():
     for key in keys:
         d = save_asset(canonical[key], OUT / 'art', Path(key).stem)
         art_names[key] = 'art/' + d.name; total_art += d.stat().st_size
+    # 逐格動畫（animated WebP，fx.anim）不能過 card_assets 的無損重編碼（只會留第一格）：原檔直接複製，小卡縮圖（-thumb）同名放 art-thumb
+    for c in cards:
+        anim = (c.get('fx') or {}).get('anim')
+        if anim:
+            shutil.copy2(HOLO / anim, OUT / 'art' / anim); art_names[anim] = 'art/' + anim; total_art += (OUT / 'art' / anim).stat().st_size
+            shutil.copy2(HOLO / anim.replace('.webp', '-thumb.webp'), OUT / 'art-thumb' / anim)
     for key in list(keys) + ['frame', 'glitter']:
         if key in masks:
             d = save_asset(masks[key], OUT / 'masks', Path(key).stem)
