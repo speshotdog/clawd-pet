@@ -191,7 +191,8 @@ def main():
                 frame.wait_for_function("()=>window.ApocCeremony && ApocCeremony.state().entryPhase==='waiting'", timeout=20000)
                 scan_frame(label + '・開包')
                 frame.eval_on_selector('#entry-pack', 'e=>e.click()'); pg.wait_for_timeout(1500)
-                frame.evaluate("()=>{const b=document.getElementById('revealall'); if(b&&!b.hidden) b.click();}")
+                # 2026-09-16 起第一下是快轉（新卡會停下來翻），第二下才全部略過——這裡要的是直接到結果頁，按兩下
+                for _ in range(2): frame.evaluate("()=>{const b=document.getElementById('revealall'); if(b&&!b.hidden) b.click();}"); pg.wait_for_timeout(300)
                 frame.wait_for_function("()=>ApocCeremony.state().collectable", timeout=30000)
                 pg.wait_for_timeout(500)
                 scan_frame(label + '・結果')

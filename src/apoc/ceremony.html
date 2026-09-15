@@ -908,7 +908,7 @@ window.CeremonyAudio = (() => {
 /* Round 29: generation / revealed / complete remain the A5 ownership contract. */
 const stage=$('#stage'),fan=$('#fan'),win=$('#win'),idlepack=$('#entry-pack'),hint=$('#hint');
 const btn={p1:$('#p1'),p5:$('#p5'),p10:$('#p10'),all:$('#revealall'),fin:$('#finish')};
-let busy=false,slots=[],pending=0,tickets=30,cascading=false,skipped=false,generation=0;
+let busy=false,slots=[],pending=0,tickets=30,cascading=false,skipped=false,fastMode=false,generation=0;
 const ticketPolicy={unlimited:true,label:''};
 if(ticketPolicy.unlimited){$('#ticket').textContent='∞';const label=node('p','test-label',ticketPolicy.label);win.append(label);}
 let entryPhase='idle',packResolve=null;
@@ -980,7 +980,7 @@ function cancelWork(){
 function clearRun(){generation++;cancelWork();resetPack();packSuppressClick=false;
   for(const f of fan.querySelectorAll('.hcard'))HoloCardFace.unobserve(f);
   $('.entry-actions').classList.remove('press-feedback');win.querySelectorAll('.control-sheen').forEach(e=>e.remove());
-  fan.replaceChildren();slots=[];busy=false;skipped=false;cascading=false;pending=0;collectMarked=false;
+  fan.replaceChildren();slots=[];busy=false;skipped=false;fastMode=false;btn.all.textContent='跳過演出';cascading=false;pending=0;collectMarked=false;
   setScreen('entry');pageIndex=0;selectedIndex=0;collecting=false;btn.fin.hidden=true;btn.all.hidden=true;idlepack.style.opacity='';
   for(const [b,n] of [[btn.p1,1],[btn.p5,5],[btn.p10,10]])b.disabled=!ticketPolicy.unlimited&&tickets<n;
 }
@@ -1262,7 +1262,36 @@ function completeSlot(s){if(s.complete)return;s.flip.style.transform='';s.reveal
   if(!s.bound){s.bound=true;bindInteraction(s);}
   mark('slot-complete',s);
 }
-async function skipAll(){if(!slots.length||skipped)return;skipped=true;const prepared=ready,old=generation;
+// 跳過演出分兩段（跟 1.0 一樣，朋友 2026-09-16：「沒看過的卡她不會停留，直接跳掉」）：
+// 第一下＝快轉——沒看過的卡（badges 裡 kind:'new'）照樣翻開演出，其他直接翻正；第二下才真的全部略過。沒有新卡就直接略過。
+const isFresh=s=>(apocBadges[+s.el.dataset.i]||[]).some(b=>b.kind==='new');
+async function fastForward(fresh){const prepared=ready,old=generation;
+  generation++;const run=generation;cancelWork();cascading=false;busy=true;pending=0;
+  slots.forEach(s=>{s.run=run;s.work=null;s.rx=s.ry=0;s.resetPose?.();});pageIndex=0;selectedIndex=0;relayout();idlepack.style.opacity='0';
+  if(!slots.every(s=>s.loaded)){
+    await prepared;if(run!==generation)return;
+    try{for(const s of slots)ensureFace(s);await Promise.all([...fan.querySelectorAll('img')].map(im=>im.decode()));for(const s of slots)s.loaded=true;}
+    catch{if(run===generation)hint.textContent='素材載入失敗，請重新載入再試。';return;}
+  }
+  if(run!==generation)return;
+  mark('phase-start',null,{phase:'fast',fromRun:old});
+  for(const s of slots){s.shell.getAnimations({subtree:true}).forEach(a=>a.cancel());s.flip.style.transform='';s.el.classList.remove('is-revealing','light-owner');s.el.style.opacity='1';s.shell.style.transform='';
+    if(fresh.includes(s)){s.revealed=false;s.back.hidden=false;ensureFace(s).style.visibility='hidden';}else{s.back.hidden=true;s.face.style.visibility='visible';}
+    position(s);}
+  const fade=A(fan,[{opacity:0},{opacity:1}],{duration:180});if(!await wait(180,run)||run!==generation)return;fade.cancel();
+  for(const s of slots)if(!fresh.includes(s))completeSlot(s);
+  btn.all.textContent='全部略過';hint.textContent='沒看過的卡會停下來翻給你看';
+  cascading=true;
+  try{for(const s of fresh){if(skipped||run!==generation)break;
+    if(mobile()){selectedIndex=slots.indexOf(s);pageIndex=Math.floor(selectedIndex/5);relayout();}
+    await revealOne(s);
+  }}
+  finally{if(run===generation){cascading=false;busy=false;finishReveal();}}
+}
+async function skipAll(){if(!slots.length||skipped)return;
+  const fresh=slots.filter(s=>!s.complete&&isFresh(s));
+  if(fresh.length&&!fastMode){fastMode=true;await fastForward(fresh);return;}
+  skipped=true;const prepared=ready,old=generation;
   // Invalidate callbacks before cancelling them; keep the already drawn identities.
   generation++;const run=generation;cancelWork();cascading=false;busy=true;pending=0;
   slots.forEach(s=>{s.run=run;s.work=null;s.rx=s.ry=0;s.resetPose?.();});pageIndex=0;selectedIndex=0;relayout();idlepack.style.opacity='0';
@@ -1367,7 +1396,7 @@ window.ApocCeremony={
     if(run!==generation)return; if(!await ready)return;
     if(entryPhase!=='waiting'){requestAnimationFrame(go);return;} openPack(); skipAll();};go();},
   reset(){clearRun();hint.textContent='';},
-  state:()=>({screen,entryPhase,busy,collectable:!btn.fin.hidden,again:!apocAgain.hidden,ids:slots.map(s=>s.data.id),
+  state:()=>({screen,entryPhase,busy,collectable:!btn.fin.hidden,again:!apocAgain.hidden,ids:slots.map(s=>s.data.id),fast:fastMode,skipped,skipLabel:btn.all.textContent,complete:slots.map(s=>!!s.complete),fresh:slots.map(isFresh),
     offer:[btn.p1,btn.p5,btn.p10].map(b=>({disabled:b.disabled,label:b.querySelector('small').textContent}))}),
 };
 parent!==window&&parent.postMessage({apocCeremony:'ready'},'*');

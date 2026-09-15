@@ -88,6 +88,19 @@ window.ClickerHolo = (() => {
   function prune(now) {
     for (const h of live) if (!h.isConnected && now - h._born > 5000) { window.HoloCardFace.unobserve(h._face); h._collect?.stop(); live.delete(h); }
   }
+  // 尺寸保險：卡面的字級全靠 --cw（HoloCardFace 用 ResizeObserver 量），量不到就退回 holo.css 的預設 262px——
+  // 在 46px 寬的夥伴列上就是「阿巴阿巴／精良／RARE」整排大字疊在一起（朋友 2026-09-16 截圖，本機重現不出來）。
+  // 不管是哪條路漏掉了量測，這裡每 1.5 秒把還在畫面上的卡對一次：--cw 跟實際寬度差超過 1px 就重量、沒被觀察的補回觀察。
+  function guard() {
+    for (const h of live) {
+      const f = h._face; if (!f || !h.isConnected) continue;
+      const w = f.clientWidth; if (!w) continue;
+      const cw = parseFloat(f.style.getPropertyValue('--cw')) || 0;
+      if (Math.abs(cw - w) > 1) { window.HoloCardFace.observe(f); window.HoloCardFace.refit(f); }
+    }
+  }
+  setInterval(guard, 1500);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) guard(); });
   // 收藏卡帶著 2.5 MB 的替身動畫，不能等下一次建卡順手清（關掉卡冊之後就不會再建卡了）。
   // 它只會有一兩張，所以離開 DOM 就直接收——比 prune 的 5 秒寬限積極。
   function sweepCollect() {

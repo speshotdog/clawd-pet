@@ -148,7 +148,9 @@ window.ClickerGacha = (() => {
       for (const id of ['draw-five', 'recruit-five']) priceButton($(id), many, s, true);
       $('draw-five').hidden = apoc();   // 2.0 的十連在抽卡選單裡（典藏包入口）
       for (const id of ['pity', 'recruit-pity']) $(id).textContent = apoc()
-        ? `神話 0.25%・傳說 4%・史詩 20%` : `最多再 ${40 - s.pity.sinceLegendary} 抽必得傳說`;
+        // 機率字直接讀 RATES 表：以前寫死「0.25%」，表改成 0.3% 之後畫面還在講舊數字
+        ? (A => `神話 ${+(A.mythic * 100).toFixed(2)}%・傳說 ${+(A.legendary * 100).toFixed(1)}%・史詩 ${+(A.epic * 100).toFixed(0)}%`)(Object.fromEntries(window.ApocEconomy.RATES))
+        : `最多再 ${40 - s.pity.sinceLegendary} 抽必得傳說`;
       $('single-note').textContent = supported ? '' : '此模式限多連；單抽請切換演出。'; $('recruit-note').textContent = note;
       $('mode-select').value = s.settings.mode; $('mode-select').disabled = !!w.pending() || store.blocked;
       $('recruit-close').disabled = !!w.pending();

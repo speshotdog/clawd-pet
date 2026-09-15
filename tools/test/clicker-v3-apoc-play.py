@@ -67,7 +67,8 @@ with sync_playwright() as p:
     saved = pg.evaluate("()=>Clicker.state.apoc.pending.draw.entries.map(e=>e.entry.id)")
     check(frame.evaluate("()=>ApocCeremony.state().ids") == saved, '演出的十張＝存檔裡的十張')
     frame.eval_on_selector('#entry-pack', 'e=>e.click()'); pg.wait_for_timeout(1500)
-    frame.evaluate("()=>{const b=document.getElementById('revealall'); if(b&&!b.hidden) b.click();}")
+    # 2026-09-16 起第一下是快轉（新卡會停下來翻），第二下才全部略過——這裡要的是直接到結果頁，按兩下
+    for _ in range(2): frame.evaluate("()=>{const b=document.getElementById('revealall'); if(b&&!b.hidden) b.click();}"); pg.wait_for_timeout(300)
     frame.wait_for_function("()=>ApocCeremony.state().collectable", timeout=30000)
     inside = frame.evaluate("()=>{const w=document.getElementById('win').getBoundingClientRect();"
                             "const s=[...document.querySelectorAll('#fan .slot')].map(e=>e.getBoundingClientRect());"

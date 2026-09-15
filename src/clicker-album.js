@@ -397,6 +397,10 @@ window.ClickerAlbum = (() => {
       }
       const inTeam = E.rosterOf(s).includes(id), away = E.dispatched(s, id), job = (s.dispatch || []).find(d => d.id === id);
       if (owned) rows.push(['編隊', inTeam ? '在隊伍裡（產錢、可裝技能）' : away ? `派遣中，${Math.max(0, Math.ceil((job.until - Date.now()) / 60000))} 分鐘後回來` : '不在隊伍（不產錢；可以派遣）']);
+      // 訓練列（以前 push 在 render 之後，從來沒顯示過）。新夥伴入隊時等級直接補到全隊中位數（E.receive → medianPartnerLevel），
+      // 不寫出來玩家會以為是 bug（朋友 2026-09-16：「剛抽到青花膠但她已經 123 等了」）
+      if (owned) { const P0 = window.ClickerPrestige, L0 = s.partnerLevels?.[id] || 0, ms0 = P0.nextMilestone(L0);
+        rows.push(['訓練', `Lv.${L0}・被動 +${5 * L0}%${ms0 ? `・下一里程碑 ${ms0}` : ''}${s.collection[id] === 1 ? '（新夥伴入隊時自動補到全隊中位數等級）' : ''}`]); }
       for (const [k, v] of rows) { const r = document.createElement('p'); const b = document.createElement('b'); b.textContent = k; const span = document.createElement('span'); span.textContent = v; r.append(b, span); info.append(r); }
       right.append(info);
       const buttons = document.createElement('div'); buttons.className = 'detail-buttons';
@@ -453,7 +457,6 @@ window.ClickerAlbum = (() => {
         else if (commit(E.dispatch(store.state, id, Date.now()))) { changed(); notice(`${Pool.byId[id].name} 出發了，4 小時後回來`); openDetail(id); renderBook(); }
       });
       teamRow.append(teamBtn, goBtn); grow.after(teamRow);
-      if (owned) rows.push(['訓練', `Lv.${L}・被動 +${5 * L}%${ms ? `・下一里程碑 ${ms}` : ''}`]);
       right.append(buttons, grow, teamRow);
       for (const [dir,label] of [[-1,'上一位'],[1,'下一位']]) { const nav = document.createElement('button'), index = IDS.indexOf(id)+dir; nav.textContent = label; nav.disabled = index < 0 || index >= IDS.length; nav.onclick = () => openDetail(IDS[index]); buttons.append(nav); }
       const back = document.createElement('button'); back.className = 'detail-back'; back.textContent = '回到卡冊'; back.onclick = () => closeDetail(); right.append(back);
