@@ -727,8 +727,11 @@ body[data-world="apoc"] .recommend-slot.missing::after { content:'缺'; }
 .team-tip b { font-size:13px; color:#a04a2a; }
 .detail-skill { display:grid; gap:2px; margin:0; padding:6px 8px; font-size:11px; line-height:1.45; white-space:pre-line; color:#30251f; background:#fff7e5; border:2px dashed #96714f; border-radius:8px; }
 .detail-skill b { font-size:12px; color:#a04a2a; }
+#t20-picker-grid .team-proxy.capped { opacity:.4; filter:grayscale(.6); }
+#t20-picker-grid .team-proxy.capped::before { content:'上限'; position:absolute; left:4px; top:4px; font-size:9px; padding:1px 4px; border-radius:4px; background:#D9412F; color:#fff; z-index:2; }
 #t20-picker-grid .team-proxy[aria-selected="true"]::after { content:'✓'; position:absolute; right:4px; top:4px; width:18px; height:18px; border-radius:50%; background:#f2b233; color:#30251f; font-size:12px; font-weight:800; display:grid; place-items:center; }
 .team-proxy.shake { animation:t20-shake .35s; } @keyframes t20-shake { 25% { transform:translateX(-3px); } 75% { transform:translateX(3px); } }
+.team-first-hint { margin:0 0 6px; padding:6px 10px; font-size:12px; line-height:1.5; color:#30251f; background:#fff1d5; border:2px dashed #96714f; border-radius:8px; }
 .t20-sort { font:inherit; font-size:12px; padding:3px 6px; border:2px solid #96714f; border-radius:8px; background:#fff7e5; color:#30251f; margin-left:auto; margin-right:8px; }
 .picker-heading .t20-sort { margin-left:auto; margin-right:8px; }
 .proxy-power { position:absolute; left:3px; bottom:3px; font-size:10px; font-style:normal; font-weight:700; padding:1px 5px; border-radius:6px; background:#30251fcc; color:#ffe9a8; pointer-events:none; }
@@ -2001,7 +2004,8 @@ body:not([data-world="apoc"]) #apoc-lap-line { display:none; }
 .mutation-card.revealed { transform:rotateY(180deg); }
 .mutation-back,.mutation-front { position:absolute; inset:0; display:flex; justify-content:center; align-items:center; border:2px solid #b69b70; border-radius:10px; background:repeating-linear-gradient(45deg,#4c4138 0 8px,#55493d 8px 16px); color:#ffe3b5; backface-visibility:hidden; }
 .mutation-back { font-size:48px; }
-.mutation-front { transform:rotateY(180deg); background:#312c28; }
+.mutation-front { transform:rotateY(180deg); background:#312c28; flex-direction:column; gap:8px; padding:10px; text-align:center; }
+.mutation-desc { font-size:12px; line-height:1.4; color:#fff1d5; white-space:normal; }
 .mutation-card.unused { opacity:.35; }
 #mutation-rescue-options { display:flex; flex-wrap:wrap; gap:10px; }
 #lap-done-dust { display:inline-block; font-size:32px; color:#eebc65; }

@@ -214,11 +214,22 @@
         picks.push(id);
       }
       btn.setAttribute('aria-selected', String(picks.includes(id)));
+      refreshPickable();
       const next = [...ids, ...picks], n = counts(next);
       document.querySelectorAll('#t20-caps .capacity-row').forEach((r, i) => r.classList.toggle('affected', picks.some(p => rank(p) <= i)));
       $('t20-picker-status').textContent = picks.length ? `已選 ${picks.length} 張（隊伍 ${next.length} / 20・神話 ${n[0]}/${LIMITS[0]}・傳說 ${n[1]}/${LIMITS[1]}・史詩 ${n[2]}/${LIMITS[2]}）` : '點卡片選擇，可以一次選好幾張再按確認';
       $('t20-picker-confirm').textContent = picks.length ? `確認加入 ${picks.length} 張` : '確認';
       $('t20-picker-confirm').disabled = !picks.length;
+    }
+    // 每次勾選後把「現在再加會撞上限」的候選卡先灰掉、寫原因——不然玩家點了沒反應以為壞了（使用者 2026-09-16：「每次只能加一個卡」）
+    function refreshPickable() {
+      const base = [...team(), ...picks];
+      document.querySelectorAll('#t20-picker-grid .team-proxy').forEach(b => {
+        const id = b.dataset.id; if (!id || picks.includes(id) || team().includes(id)) { b.classList.remove('capped'); return; }
+        const next = [...base, id], full = next.length > 20, bad = violations(next);
+        b.classList.toggle('capped', full || !!bad.length);
+        b.title = full ? '隊伍已滿 20 張' : bad.length ? bad.map(i => `${LABELS[i]}已達上限 ${LIMITS[i]}`).join('；') : '';
+      });
     }
     function addMany(list) {
       clearOperation(); const s = store.state;
@@ -289,6 +300,7 @@
         grid.append(b);
       }
       if (!pool.length) grid.append(el('p', 'team-empty', mode === 'skill' ? '隊伍是空的，先編入成員' : '沒有候選'));
+      if (mode === 'add') refreshPickable();
       if (!$('t20-picker').open) $('t20-picker').showModal();
     }
     function closePicker() { clearOperation(); const d = $('t20-picker'); if (d.open) d.close(); }
@@ -321,7 +333,11 @@
     // 拖曳：從隊伍網格拖到技能槽（與舞台夥伴列共用 clicker-drag 的骨架）
     drag?.bind({ source: '#t20-grid', item: '.team-proxy', targets: '#t20-skills .skill-slot', drop: (index, id) => assignSkill(index, id), enabled: () => !$('team-editor').hidden });
     function render() { hideTip(); renderRoster(); detail(); }
-    function open() { clearOperation(); page = 0; selected = team()[0] || null; $('team-editor').hidden = false; $('team-editor').classList.remove('detail-open'); $('game-content').inert = true; render(); $('team-close').focus(); }
+    function open() { clearOperation(); page = 0; selected = team()[0] || null; $('team-editor').hidden = false;
+      // 第一次進末世的編隊指引（使用者 2026-09-16）：還沒打過任何一站時，頂欄寫清楚接下來要做什麼
+      { let hint = $('t20-first-hint'); if (!hint) { hint = el('p', 'team-first-hint'); hint.id = 't20-first-hint'; $('team-editor').querySelector('header').after(hint); }
+        const a = apoc() ? apocState() : null; hint.hidden = !(a && (a.progress || 0) === 0 && !(a.laps > 0));
+        hint.textContent = '第一次來：隊伍裡的卡才有戰力，先「＋ 新增成員」或「自動編隊」，再把最強的卡放進下面的技能槽；編好按「返回」，回戰鬥畫面按「開戰」。'; } $('team-editor').classList.remove('detail-open'); $('game-content').inert = true; render(); $('team-close').focus(); }
     function close() { closePicker(); $('team-editor').hidden = true; $('game-content').inert = false; }
     return { open, close, render, openPicker, add, remove, get isOpen() { return !$('team-editor').hidden; }, get selected() { return selected; }, get page() { return page; } };
   }

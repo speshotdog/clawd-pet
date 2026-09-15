@@ -142,10 +142,15 @@ window.ClickerApocUI = (() => {
         const el=document.createElement('div'); el.className='mutation-card';
         const back=document.createElement('span'); back.className='mutation-back'; back.textContent='？';
         const front=document.createElement('div'); front.className='mutation-front';
-        if(v.mutations[i]) chips(front,[v.mutations[i]]); else { front.textContent='未抽選'; el.classList.add('unused'); }
+        // 翻牌卡直接把效果寫在卡上（不用 hover 提示：卡是 3D 翻轉的，提示會被裁掉——使用者 2026-09-16 截圖）
+        if(v.mutations[i]) { const m=v.mutations[i]; const name=document.createElement('b'); name.className='mut-chip'+(m.positive?' positive':''); name.textContent=m.name;
+          const desc=document.createElement('small'); desc.className='mutation-desc'; desc.textContent=m.text+(m.counter?`・反制：${roles[m.counter]}`:'・正向增益');
+          front.append(name,desc); }
+        else { front.textContent='未抽選'; el.classList.add('unused'); }
         el.append(back,front); return el;
       }));
-      $('mutation-recommend').textContent='這一圈的解法：'+v.recommendations[0].name;
+      { const rec=v.recommendations[0]; const roleNames=rec.pattern?rec.pattern.map(r=>roles[r]).join(' → '):'';
+        $('mutation-recommend').textContent=`這一圈的解法：${roleNames||rec.name}（推薦組合頁第一組，可以直接套用）`; }
       $('mutation-draw').hidden=false; $('game-content').inert=true;
       requestAnimationFrame(()=>requestAnimationFrame(()=>$('mutation-cards').querySelectorAll('.mutation-card:not(.unused)').forEach(el=>el.classList.add('revealed'))));
       $('mutation-close').onclick=()=>finishDraw(); $('mutation-team').onclick=()=>finishDraw(true); $('mutation-close').focus();
@@ -517,10 +522,13 @@ window.ClickerApocUI = (() => {
     //   打過第 4 站的舊存檔（朋友試玩的存檔）不冒，免得老手被當新手
     const COACH = [
       // ⚠ 第 0 步不能等「還沒開戰」：tick 一能打就自動開戰（自動接關），第一次進來馬上就有 stage（batch_b 驗收抓到）
-      { when: () => true, text: '末世：編隊裡的卡才有戰力，隊伍會一站站打下去' },
-      { when: a => !!a.stage && !a.stage.boss && !a.stage.farm, text: '點怪就能打，隊伍放著也會打；一般站要打 5 隻' },   // Codex 10B 必修：刷怪固定一隻，不能講 5 隻
-      { when: a => a.progress >= 1, text: '打怪賺末世金幣：拿去「全隊訓練」或「進入招募」變強' },
-      { when: a => a.progress >= 3, text: '每 4 站一隻王：限時 60 秒，照提示打' },   // 手機直式兩行會剩一個字掉下去，縮短
+      // 第 0 步依狀態換字（使用者 2026-09-16：「第一次要有指引，不然編完隊不知道要幹嘛」）：
+      //   沒戰力 → 去編隊；有戰力但還沒開打 → 按開戰；打起來了 → 點怪
+      { when: () => true, text: a => !(A.power(a) > 0) ? '先按下面的「編隊」把卡放進隊伍（開門禮的普發玥玥已經在裡面）；隊伍裡的卡才有戰力'
+          : !a.stage ? '隊伍編好了：按「開戰」打第一站，之後會自動一站站往下' : '點怪就能打，隊伍放著也會打；一般站要打 5 隻' },   // Codex 10B 必修：刷怪固定一隻，不能講 5 隻
+      { when: a => a.progress >= 1, text: () => '打怪賺末世金幣：拿去「全隊訓練」變強；券拿去「進入招募」抽卡，新卡會自動入隊' },
+      { when: a => a.progress >= 2, text: () => '上面的「地圖」看整條路線；輸了可以回前一站刷錢，指到卡片看技能效果' },
+      { when: a => a.progress >= 3, text: () => '每 4 站一隻王：限時 60 秒，照提示打；「編隊」裡有推薦組合' },   // 手機直式兩行會剩一個字掉下去，縮短
     ];
     function coach(v) {
       const a = store.state.apoc, step = a?.tutorial || 0, c = a && a.progress < 4 && COACH[step];
@@ -533,7 +541,7 @@ window.ClickerApocUI = (() => {
         ok.addEventListener('click', e => { e.stopPropagation(); const at = store.state.apoc?.tutorial || 0; apply(x => ({ ...x, tutorial: Math.min(4, at + 1) }), true); render(); });
         el.append(text, ok); $('stage').append(el);
       }
-      if (el) { el.hidden = !show; if (show && el.firstChild.textContent !== c.text) el.firstChild.textContent = c.text; }
+      if (el) { el.hidden = !show; const text = show ? (typeof c.text === 'function' ? c.text(a) : c.text) : ''; if (show && el.firstChild.textContent !== text) el.firstChild.textContent = text; }
       $('stage').classList.toggle('coaching', show);
     }
     function renderStage(v) {
