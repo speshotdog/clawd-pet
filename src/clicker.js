@@ -257,7 +257,7 @@ window.Clicker = (() => {
       // 2.0：模板指定技能型別，套用時從隊伍挑該型戰力最高的卡（ApocEconomy.recommendTeam）
       const A=window.ApocEconomy, a=A.normalize(s.apoc), RAR={open:'開封',train:'加訓',reset:'重整',coin:'撿金幣',breach:'破防',idle:'放置狂熱'};
       head.append(el('h3','','推薦組合'), el('p','',`末世技能由角色決定型別，稀有度決定強度。套用會從隊伍選該型戰力最高的卡；隊伍沒有時，會從卡冊補入能入隊的夥伴。第四格在印記商店解鎖。`), close); root.append(head);
-      A.RECOMMENDATIONS.forEach((preset,index)=>{
+      A.recommendations(a).forEach((preset,index)=>{
         const r=A.recommendTeam(a,index), card=el('article','recommend-card'); card.dataset.index=index; if(r.missing.length) card.classList.add('incomplete');
         const title=el('header',''); title.append(el('b','',preset.name), el('span','tag',preset.tag), el('span','stage',preset.stage)); card.append(title);
         const row=el('div','recommend-slots');
@@ -899,6 +899,7 @@ window.Clicker = (() => {
     if (!$('reward').hidden) { $('reward-ok').click(); return true; }
 
     if (extras?.escape()) return true;
+    for (const [panel,button] of [['mutation-draw','mutation-close'],['lap-done','lap-done-next'],['mutation-rescue','mutation-rescue-close']]) if (!$(panel).hidden) { $(button).click(); return true; }
     if (!$('apoc-ending').hidden) { $('apoc-ending-close').click(); return true; }
     for (const id of ['scenes', 'roster', 'stats', 'receipt']) if (!$(id).hidden) { $(`${id}-close`).click(); return true; }
     return false;

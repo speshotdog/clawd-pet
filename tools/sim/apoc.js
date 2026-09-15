@@ -12,8 +12,9 @@
 global.window = global;
 (() => {
 require('../../src/apoc/pool.js');
-const A = require('../../src/clicker-apoc-economy.js');
+const A = require(process.env.LOOP_BASELINE === '1' ? '../../_art/out/v3-apoc-loop/economy-before.js' : '../../src/clicker-apoc-economy.js');
 const R = A.RULES;
+if (R.LOOP && process.env.LOOP_CHEST_MAX !== undefined) R.LOOP.CHEST_MAX = Number(process.env.LOOP_CHEST_MAX);
 
 const env = (k, d) => process.env[k] !== undefined ? Number(process.env[k]) : d;
 for (const k of Object.keys(R)) if (process.env[k] !== undefined && typeof R[k] === 'number') R[k] = Number(process.env[k]);
@@ -33,7 +34,8 @@ for (const [kind, pre] of [['team', 'TEAM'], ['click', 'CLICK']]) for (const k o
 
 const SESSION_MIN = Number(process.argv[2] || 20), SESSIONS = Number(process.argv[3] || 3), DAYS = Number(process.argv[4] || 14);
 const TAPS_PER_SEC = env('CPS', 6), USE_SKILLS = env('SKILLS', 1) > 0, TAP_SHARE = env('TAP_SHARE', 1), DRAW_UNTIL = env('DRAW_UNTIL', 60), ACC = env('ACC', .7);
-// KEEP=1：全線通行不收工，自動開無盡模式一直玩到 DAYS 用完，用來量「養滿要多久」（第十一輪）。
+// KEEP=1：全線通行不收工；LOOP=1（預設）重走到 10 圈再接無盡，LOOP=0 沿用直接進無盡的基準玩法。
+// LOOP_BASELINE=1 載入 _art/out/v3-apoc-loop/economy-before.js（修改前快照）；LOOP_CHEST_MAX 可比較寶箱上限。
 // 這個模式下 DRAW_UNTIL 失效——玩家會一直抽下去，因為抽卡是唯一的養成來源。
 const KEEP = env('KEEP', 0) > 0;
 const SEED = env('SEED', 20260913);   // 換抽卡運氣：門檻對抽到什麼很敏感，定案前要多跑幾個種子
@@ -52,8 +54,9 @@ function buyArtifacts() { for (;;) { const next = bless <= tapLv ? 'bless' : 'ta
 if (MARKS_ON) buyArtifacts();
 a = { ...a, boost: boostNow() };
 let now = 0, played = 0, draws = 0, bossFails = 0, farms = 0, done = null, exchanged = 0, one = oneCoins, lastFail = null, dispatched = 0;
+let lapStart = 0, lapTimes = [];
 let stop = false, collectedAt = null, maxedAt = null, day = 0;
-const dustFrom = { boss: 0, endless: 0, dispatch: 0, draw: 0 };   // 萬用粉塵的四個來源（驗收判準：王要佔 15～30%）
+const dustFrom = { boss: 0, endless: 0, dispatch: 0, draw: 0, chest: 0 };   // 萬用粉塵的四個來源（驗收判準：王要佔 15～30%）
 const mark = () => {
   const all = (global.ApocPool || []);
   if (!collectedAt && all.length && all.every(c => a.collection[c.id] > 0)) collectedAt = { day, min: Math.round(played / 60) };
@@ -122,7 +125,7 @@ for (day = 1; day <= DAYS && !stop; day++) {
             if (info && info.mech === 2) {
               const ms = info.beatMs, next = s0 + Math.ceil((at - s0) / ms) * ms;
               if (rnd() < ACC && next <= now) at = next;
-              else { const ph = ((at - s0) % ms + ms) % ms; if (Math.min(ph, ms - ph) <= R.BOSS_MECH.RHYTHM.WINDOW) at = s0 + Math.floor((at - s0) / ms) * ms + ms / 2; if (at <= prev) at = prev + 1; }
+              else { const ph = ((at - s0) % ms + ms) % ms; if (Math.min(ph, ms - ph) <= (A.mechRules ? A.mechRules(a) : R.BOSS_MECH).RHYTHM.WINDOW) at = s0 + Math.floor((at - s0) / ms) * ms + ms / 2; if (at <= prev) at = prev + 1; }
             }
             let part;
             if (info && info.mech === 3) { const parts = R.BOSS_MECH.ORDER.PARTS, wrong = parts.filter(x => x !== info.nextPart); part = rnd() < ACC ? info.nextPart : wrong[Math.floor(rnd() * wrong.length)]; }
@@ -136,7 +139,7 @@ for (day = 1; day <= DAYS && !stop; day++) {
           for (const slot of slots) if (A.canSkill(a, slot, now)) a = A.useSkill(a, slot, now);
         }
       }
-      const st = a.stage, r = A.settle(a, now, 1); a = r.state;
+      const st = a.stage, r = A.settle(a, now, 1, rnd); a = r.state;
       if (MARKS_ON) { const m = A.markMilestones(a); if (m.gained) { const got = Math.min(m.gained, Math.max(0, CAP - claimed)); marks += got; claimed += got; a = m.state; buyArtifacts(); spentLog.push({ day, notes: m.notes, bless, tapLv }); } a = { ...a, boost: boostNow() }; }
       for (const ev of r.events) if (ev.type === 'dust') dustFrom[ev.boss ? 'boss' : 'endless'] += ev.amount;
       if (r.events.some(e => e.type === 'dust')) spendDust();   // 打王／無盡掉的粉塵當場換掉
@@ -144,17 +147,21 @@ for (day = 1; day <= DAYS && !stop; day++) {
         if (ev.type === 'fail') { bossFails++; lastFail = { i: ev.index, power: A.power(a), dealt: 1 - st.hp / st.need }; }
         if (ev.type === 'win') { lastFail = null; log.push({ station: ev.index + 1, min: +(played / 60).toFixed(1), day, power: Math.round(A.power(a)), owned: Object.keys(a.collection).length, draws, team: a.teamLevel, click: a.clickLevel }); }
       }
+      if (r.events.some(e=>e.type==='cleared')) { lapTimes.push({lap:a.laps,minutes:+((played-lapStart)/60).toFixed(1)}); lapStart=played; }
+      for (const ev of r.events) if(ev.type==='cleared' && ev.entry) dustFrom.chest += ev.entry.dust;
+      if (A.swapMutation && a.bossStreak?.fails>=3 && !a.rerolled && a.mutations?.length && (!a.stage || a.stage.farm)) a=A.swapMutation(a,a.mutations.find(id=>!R.MUTATIONS.find(m=>m.id===id).positive)||a.mutations[0],rnd);
+      if (A.dropMutation && a.bossStreak?.fails>=6 && !a.dropped && a.mutations?.length && (!a.stage || a.stage.farm)) a=A.dropMutation(a,a.mutations.find(id=>!R.MUTATIONS.find(m=>m.id===id).positive)||a.mutations[0]);
       mark();
       if (a.progress >= R.STATIONS) {
         if (!done) done = { day, min: Math.round(played / 60) };
-        if (KEEP) { if (!a.endless) a = A.setEndless(a, true); } else stop = true;
+        if (KEEP) { if (env('LOOP',1)>0 && a.laps<R.LAP.MAX) { a=A.replay(a,now,rnd); lastFail=null; } else if (!a.endless) a = A.setEndless(a, true); } else stop = true;
       }
     }
     now += 6 * 3600 * 1000; one += oneP * 6 * 3600;   // 下線 6 小時；1.0 那邊回桌邊一次補 6 小時離線
     if (env('OFFLINE', 1) > 0) a = A.offline(a, now).state;   // 第十輪 D：末世離線收益（OFFLINE=0 關掉對照）
   }
 }
-return { done, log, a, played, bossFails, farms, draws, exchanged, dispatched, collectedAt, maxedAt, dustFrom, marks: { marks, claimed, bless, tapLv, spentLog } };
+return { done, log, a, played, lapTimes, bossFails, farms, draws, exchanged, dispatched, collectedAt, maxedAt, dustFrom, marks: { marks, claimed, bless, tapLv, spentLog } };
 }
 if (require.main !== module) { module.exports = { run, RULES: R }; return; }
 const res = run(SESSION_MIN, SESSIONS, DAYS);
@@ -164,6 +171,8 @@ if (res.collectedAt || res.maxedAt) console.log(`全收集：${res.collectedAt ?
 console.log(`場次 ${SESSION_MIN} 分 × ${SESSIONS}／天　BASE_NEED=${R.BASE_NEED} GROWTH=${R.GROWTH} BOSS_MULS=${R.BOSS_MULS} REWARD=${R.REWARD_SHARE}×${R.REWARD_GROWTH} TEAM=${JSON.stringify(R.TRAIN.team)} CLICK=${JSON.stringify(R.TRAIN.click)}`);
 console.log('站　 累計分鐘  第幾天  戰力          卡種  抽數  全隊Lv 點擊Lv');
 for (const l of log) console.log(`${String(l.station).padStart(2)}   ${String(l.min).padStart(7)}  ${String(l.day).padStart(5)}   ${String(l.power).padStart(11)}  ${String(l.owned).padStart(4)}  ${String(l.draws).padStart(4)}  ${String(l.team).padStart(5)} ${String(l.click).padStart(6)}`);
+console.log(`輪迴：第 ${end.laps} 圈；每圈分鐘 ${JSON.stringify(res.lapTimes)}；寶箱合計 ${end.lapChest||0}；粉塵来源 ${JSON.stringify(res.dustFrom)}`);
+console.log('圈內戰鬥紀錄：'+JSON.stringify(end.lapLog||[]));
 const boss = [4, 8, 12, 16, 20].map(s => log.find(l => l.station === s)?.min ?? '-').join('／');
 console.log(done ? `\n全線 20 站：第 ${done.day} 天、累計遊玩 ${done.min} 分鐘（王站 ${boss} 分、王關失敗 ${fails} 次、刷怪 ${res.farms} 場、換到券 ${res.exchanged} 張、派遣 ${res.dispatched} 次）`
                  : `\n${DAYS} 天內沒打完，只到第 ${end.progress} 站（累計 ${Math.round(secs / 60)} 分鐘、戰力 ${Math.round(A.power(end))}、王關失敗 ${fails} 次）`);

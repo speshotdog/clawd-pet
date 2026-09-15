@@ -20,7 +20,7 @@
       <button id="stats-open" class="topbar-side"><img class="badge" src="clicker-ui-badge-star.png" alt="" /><span>統計</span></button>
       <div class="wallet"><img src="clicker-coin.png" alt="錢幣" /><b id="coins">0</b></div>
       <button id="scene-open" class="topbar-side" disabled title="更多場景後續開放"><img class="badge" src="clicker-ui-scene.png" alt="" /><span>場景</span></button>
-      <div class="rates"><span id="click-rate">每次 1.0</span><span id="passive-rate">每秒 0.0</span></div>
+      <div class="rates"><span id="click-rate">每次 1.0</span><span id="passive-rate">每秒 0.0</span><span id="apoc-lap-line" hidden></span></div>
       <div class="audio-controls"><button id="audio-toggle" aria-label="音量設定" aria-expanded="false" aria-controls="audio-panel">♪</button>
         <div id="audio-panel" role="group" aria-label="音量設定" hidden>
           <div class="audio-row"><button id="music" type="button" aria-label="音樂靜音" aria-pressed="false">♪</button><span>音樂</span><input id="music-volume" aria-label="音樂音量" type="range" min="0" max="1" step=".01" value=".6"><output id="music-percent" for="music-volume">60%</output></div>
@@ -63,12 +63,13 @@
     <!-- 末世關卡地圖：切到末世模式後的主畫面。版面照 holo-5.0 的 map20 原型移植
          （20 站線性路線、每四站一個王、五個區段），素材由 tools/apoc/build_map.py 拆出來。 -->
     <section id="apoc-map" aria-label="末世關卡地圖" hidden>
+      <div id="map-mutations" hidden><b>廢土地圖 <span id="map-lap-badge"></span></b><div id="map-mut-chips"></div><button id="map-reroll" type="button" hidden></button></div>
       <nav id="map-rail" aria-label="區段"></nav>
       <div id="map-window"><div id="map-route"><div id="map-terrain" aria-hidden="true"></div><svg id="map-lines" aria-hidden="true"></svg></div></div>
       <aside id="map-inspector" aria-label="關卡摘要">
         <div class="map-progress"><b id="map-total">00 / 20</b> 站已通行</div>
         <small id="map-section"></small><h2 id="map-title"></h2>
-        <p id="map-status" role="status"></p><p id="map-desc"></p><p id="map-next"></p>
+        <p id="map-mutation-desc" hidden></p><p id="map-status" role="status"></p><p id="map-desc"></p><p id="map-next"></p>
         <div class="map-actions"><button id="map-enter">進入戰鬥</button><button id="map-back">回到目前站</button></div>
       </aside>
     </section>
@@ -127,7 +128,16 @@
     <div id="pick100-grid"></div>
   </section>
   <!-- 末世全線通行：只出現一次（apoc.cleared） -->
-  <section id="apoc-ending" class="small-panel" role="dialog" aria-modal="true" aria-label="末世全線通行" hidden><small>末世</small><h2>全線通行。</h2><p id="apoc-ending-text"></p><ul id="apoc-ending-stats"></ul><p id="apoc-lap-note"></p><div id="apoc-ending-actions"><button id="apoc-replay" type="button">重走廢土</button><button id="apoc-endless" type="button">無盡模式</button></div><button id="apoc-ending-close">留在末世</button></section>
+  <section id="apoc-ending" class="small-panel" role="dialog" aria-modal="true" aria-label="末世全線通行" hidden><small>末世</small><h2>全線通行。</h2><p id="apoc-ending-text"></p><ul id="apoc-ending-stats"></ul>
+    <div id="apoc-ending-actions">
+      <article class="ending-card"><h3 id="ending-lap-title">輪迴</h3><p>保留：卡冊、星、突破、派遣<br>歸零：進度、金幣、訓練</p><p id="apoc-lap-note"></p><button id="apoc-replay" type="button"></button></article>
+      <article class="ending-card"><h3>無盡模式</h3><p>第 21 站起一直往下<br>每 10 站多一個變異</p><p id="ending-endless-best"></p><button id="apoc-endless" type="button">進入無盡</button></article>
+      <article class="ending-card"><h3>留在這一圈</h3><p>場上常駐第 18 站<br>回顧任何一站</p><button id="apoc-ending-close" type="button">關閉</button></article>
+    </div></section>
+  <section id="mutation-draw" class="small-panel loop-panel" role="dialog" aria-modal="true" aria-labelledby="mutation-draw-title" hidden><small>輪迴啟程</small><h2 id="mutation-draw-title"></h2><div id="mutation-cards"></div><p id="mutation-recommend"></p><button id="mutation-team" type="button">去編隊</button><button id="mutation-close" type="button">前往地圖</button></section>
+  <section id="lap-done" class="small-panel loop-panel" role="dialog" aria-modal="true" aria-labelledby="lap-done-title" hidden><small>輪迴寶箱</small><h2 id="lap-done-title"></h2><p id="lap-done-time"></p><div id="lap-done-mutations"></div><p>寶箱開出 <b id="lap-done-dust" aria-live="polite"></b> 顆萬用粉塵</p><p id="lap-done-unlocks"></p><button id="lap-done-next" type="button">繼續</button></section>
+  <section id="mutation-rescue" class="small-panel loop-panel" role="dialog" aria-modal="true" aria-label="選擇要調整的變異" hidden><h2 id="mutation-rescue-title"></h2><div id="mutation-rescue-options"></div><button id="mutation-rescue-close" type="button">返回</button></section>
+
   <!-- 這次更新改了什麼（任務書 A5）：seenNotes 對不上 update-notes.js 的 VERSION 就彈一次 -->
   <section id="update-notes" class="small-panel" role="dialog" aria-modal="true" aria-label="這次更新改了什麼" hidden><small>更新說明</small><h2 id="update-notes-title">這次更新改了什麼</h2><div id="update-notes-text"></div><button id="update-notes-close">知道了</button></section>
   <section id="daily-done" class="small-panel" role="dialog" aria-modal="true" aria-label="今日限定包" hidden><small>今日限定包拆開了</small><h2>今天的份，收下！</h2><p id="daily-done-text"></p><button id="daily-done-close">繼續開工</button></section>

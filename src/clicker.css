@@ -1959,3 +1959,76 @@ body[data-world="apoc"] #apoc-enemy.breaking::after { content:''; position:absol
 body[data-world="apoc"] #buddies.apoc-frenzy .buddy { animation:apoc-frenzy .14s ease-in-out infinite alternate; }
 @keyframes apoc-frenzy { to { transform:scale(1.08); filter:drop-shadow(0 0 4px #ff963d); } }
 @media (prefers-reduced-motion:reduce) { body[data-world="apoc"] #buddies.apoc-frenzy .buddy { animation:none; outline:2px solid #ff963d; } }
+/* 2.0 輪迴：沿用紙張／末世配色，不新增圖像。 */
+body:not([data-world="apoc"]) #apoc-lap-line { display:none; }
+#apoc-lap-line { font-size:11px; line-height:1.4; white-space:normal; }
+.mut-wrap { position:relative; display:inline-block; }
+#game .mut-chip { margin:2px; padding:2px 7px; min-height:24px; border:1px solid #a56b64; border-radius:20px; background:#663e3c; color:#fff0e1; font-size:12px; line-height:1.4; box-shadow:none; border-image:none; }
+#game .mut-chip.positive { background:#294e40; border-color:#8aaf88; color:#e5ffe0; }
+.mut-tip { display:none; position:absolute; z-index:100; right:0; top:100%; width:200px; padding:10px; border:1px solid #ad987c; border-radius:8px; background:#302b28; color:#fff1d5; white-space:normal; font-size:13px; line-height:1.5; text-align:left; box-shadow:0 5px 15px #0005; }
+.mut-wrap:hover .mut-tip, .mut-wrap:focus-within .mut-tip, .mut-chip[aria-expanded="true"] + .mut-tip { display:block; }
+#map-mutations { grid-column:1 / -1; grid-row:1; display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:6px 10px; background:#302b28; color:#fcecc8; border-radius:9px; z-index:8; }
+#map-mutations > b { font-size:13px; } #map-lap-badge { color:#eab984; }
+#map-mut-chips { flex:1; } #map-reroll { font-size:12px; margin:0; }
+#apoc-map.has-mutations { grid-template-rows:auto 34px minmax(0,1fr); }
+#apoc-map.has-mutations #map-rail { grid-row:2; }
+#apoc-map.has-mutations #map-window { grid-row:3; }
+#apoc-map.has-mutations #map-inspector { grid-row:2 / span 2; }
+#map-mutation-desc { font-size:12px; line-height:1.5; margin:0; }
+.map-mut-icons { position:absolute; top:-16px; left:50%; transform:translateX(-50%); white-space:nowrap; border-radius:8px; background:#53352e; color:#ffe6c0; font-size:14px; padding:1px 4px; }
+.map-mut-icons:empty { display:none; }
+#game #apoc-ending { left:55px; top:85px; width:850px; max-height:610px; overflow:auto; padding:22px; box-sizing:border-box; }
+#apoc-ending-stats { display:none; }
+#apoc-ending-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:stretch; gap:12px; }
+.ending-card { padding:14px; border:1px solid #947d64; border-radius:10px; background:#0002; display:flex; flex-direction:column; min-width:0; }
+.ending-card h3 { margin:0 0 10px; font-size:20px; }
+#game .ending-card p { font-size:14px; line-height:1.7; margin:0 0 10px; }
+#game #apoc-ending-actions button { flex:0 0 auto; margin-top:auto; min-height:44px; }
+#game .loop-panel { width:620px; left:170px; top:120px; box-sizing:border-box; max-height:550px; overflow:auto; }
+#mutation-cards { display:flex; gap:12px; padding:8px 0 20px; perspective:800px; }
+.mutation-card { flex:1; min-width:0; height:170px; position:relative; transform-style:preserve-3d; transition:transform 400ms ease; }
+.mutation-card.revealed { transform:rotateY(180deg); }
+.mutation-back,.mutation-front { position:absolute; inset:0; display:flex; justify-content:center; align-items:center; border:2px solid #b69b70; border-radius:10px; background:repeating-linear-gradient(45deg,#4c4138 0 8px,#55493d 8px 16px); color:#ffe3b5; backface-visibility:hidden; }
+.mutation-back { font-size:48px; }
+.mutation-front { transform:rotateY(180deg); background:#312c28; }
+.mutation-card.unused { opacity:.35; }
+#mutation-rescue-options { display:flex; flex-wrap:wrap; gap:10px; }
+#lap-done-dust { display:inline-block; font-size:32px; color:#eebc65; }
+.count-in { animation:lap-count 400ms ease-out; }
+@keyframes lap-count { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+#apoc-lap-history { overflow-x:auto; } #apoc-lap-history table { width:100%; border-collapse:collapse; font-size:13px; }
+#apoc-lap-history th,#apoc-lap-history td { text-align:left; padding:5px; border-bottom:1px solid #9a826550; }
+#apoc-fail-rescue { position:absolute; z-index:7; left:425px; top:192px; width:175px; font-size:12px; display:flex; flex-direction:column; gap:4px; }
+#game #apoc-fail-rescue button { font-size:12px; padding:3px; white-space:normal; min-height:32px; }
+@media (max-aspect-ratio:3/4) {
+  #game #apoc-ending,#game .loop-panel { position:fixed; inset:auto 0 0; width:100%; max-height:88dvh; padding:14px; overflow:auto; }
+  #apoc-ending-actions { grid-template-columns:1fr; gap:8px; }
+  .ending-card { padding:10px; } .ending-card h3 { font-size:17px; margin-bottom:5px; }
+  #game .ending-card p { font-size:13px; margin-bottom:6px; }
+  #game #apoc-ending-actions button { width:100%; }
+  #apoc-map.has-mutations { grid-template-rows:auto 34px minmax(130px,1fr) auto; }
+  #apoc-map.has-mutations #map-inspector { grid-column:1; grid-row:4; }
+  #map-mutation-desc { max-height:55px; overflow:auto; }
+  #map-mutations { padding:4px 8px; gap:3px 8px; } #map-mutations > b { font-size:11px; }
+  #apoc-lap-line { max-width:175px; font-size:10px; } #game #apoc-lap-line .mut-chip { min-height:20px; font-size:10px; padding:0 5px; }
+  .mutation-card { height:130px; } #mutation-cards { gap:8px; }
+  .mut-tip { width:160px; } #map-mut-chips .mut-tip { left:0; right:auto; }
+}
+@media (prefers-reduced-motion:reduce) { .mutation-card { transition:none; } .count-in { animation:none; } }
+#stage > #apoc-fail-rescue { pointer-events:auto; }
+#game #apoc-fail-rescue { padding:6px; border:1px solid #917a61; border-radius:8px; background:#efdfbddd; }
+body[data-world="apoc"][data-apoc-theme] #game .mut-chip,
+body[data-world="apoc"][data-apoc-theme] #game .mut-chip:hover:enabled { border-image:none !important; background:#663e3c; color:#fff0e1; border-color:#a56b64; }
+body[data-world="apoc"][data-apoc-theme] #game .mut-chip.positive,
+body[data-world="apoc"][data-apoc-theme] #game .mut-chip.positive:hover:enabled { background:#294e40; color:#e5ffe0; border-color:#8aaf88; }
+#apoc-fail-rescue button { pointer-events:auto; }
+#game #topbar:has(#apoc-lap-line:not([hidden])) .rates { font-size:12px; line-height:14px; }
+@media (max-aspect-ratio:3/4) {
+  #game #topbar:has(#apoc-lap-line:not([hidden])) { height:64px; }
+  #game #topbar:has(#apoc-lap-line:not([hidden])) .rates { font-size:10px; line-height:13px; }
+  #game #apoc-ending,#game .loop-panel { height:auto; padding:22px; }
+  #game .loop-panel { min-height:320px; }
+  #game .loop-panel h2,#game #apoc-ending h2 { font-size:22px; }
+  #game .loop-panel p { font-size:16px; }
+  #game .loop-panel button { min-height:44px; }
+}

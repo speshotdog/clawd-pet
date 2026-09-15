@@ -49,7 +49,7 @@ window.ClickerApocMap = (() => {
   }));
 
   function create({ $, apocUI, format, refit }) {
-    let selected = 0, built = false;
+    let selected = 0, built = false, rerollArmed = false;
 
     function build() {
       const route = $('map-route'); route.replaceChildren();
@@ -94,6 +94,16 @@ window.ClickerApocMap = (() => {
 
     function details() {
       const view = v(), progress = view.progress, s = STAGES[selected];
+      $('map-mutations').hidden=!view.laps&&!view.mutations.length;
+      $('apoc-map').classList.toggle('has-mutations', !$('map-mutations').hidden);
+      $('map-lap-badge').textContent=`第 ${view.laps} 圈`;
+      apocUI.chips($('map-mut-chips'),view.mutations);
+      $('map-reroll').hidden=!view.canReroll;
+      $('map-reroll').textContent=rerollArmed?'確定重抽？':`重抽（${format(view.rerollCost)} 金幣）`;
+      $('map-reroll').title=`盤纏 ${format(view.purse)} 金幣；不足時從末世金幣扣除`;
+      $('map-reroll').onclick=()=>{ if(!rerollArmed) { rerollArmed=true; details(); return; } rerollArmed=false; apocUI.apply((a,n)=>ApocEconomy.rerollMutations(a,n)); details(); };
+      $('map-mutation-desc').hidden=!view.mutations.length;
+      $('map-mutation-desc').textContent='這一圈：'+view.mutations.map(m=>m.name+'・'+m.text).join('；');
       $('map-section').textContent = `0${s.segment + 1} / ${SECTIONS[s.segment]}・${MECHANICS[s.segment]}`;
       $('map-title').textContent = `${String(selected + 1).padStart(2, '0')} ${s.name}`;
       const done = selected < progress, current = selected === progress;
@@ -127,6 +137,11 @@ window.ClickerApocMap = (() => {
         b.setAttribute('aria-label', `第 ${i + 1} 站 ${STAGES[i].name} ${done ? '已通關' : current ? '目前站' : '未解鎖'}`);
         b.querySelector('.map-motif').className = `map-motif motif-${done ? 'check' : current ? 'paw' : 'lock'}`;
         b.querySelector('.map-label').textContent = STAGES[i].name;
+        if(STAGES[i].boss) {
+          let icon=b.querySelector('.map-mut-icons'); if(!icon) { icon=document.createElement('span'); icon.className='map-mut-icons'; b.append(icon); }
+          const symbols={thick:'⛨',haste:'⏱',pack:'🐾',shell:'◈',offbeat:'♪'};
+          icon.textContent=view.mutations.map(m=>symbols[m.id]||'✦').join(''); icon.title=view.mutations.map(m=>m.name).join('、');
+        }
       });
       // 走過的路線畫實線，沒走過的淡：用站點自己的 top 算，不量 DOM（捲動位置不影響）
       const lines = $('map-lines');
@@ -146,7 +161,7 @@ window.ClickerApocMap = (() => {
     }
 
     function open() {
-      if (!built) build();
+      rerollArmed=false; if (!built) build();
       selected = Math.min(v().progress, 19);
       $('apoc-map').hidden = false; $('stage-fit').hidden = true; $('game-content').classList.add('map-open');
       details(); scrollTo(selected);

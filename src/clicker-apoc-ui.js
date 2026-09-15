@@ -95,7 +95,7 @@ window.ClickerApocUI = (() => {
       for (const ev of events) {
         if (ev.type === 'win') { sound('upgrade'); notice(`通過第 ${ev.index + 1} 站・＋${format(ev.reward)} 末世金幣`); }
         else if (ev.type === 'fail') notice(`王關失敗：回前一站刷錢變強，${Math.round(A.RULES.BOSS_COOLDOWN / 1000)} 秒後可以再次挑戰`);
-        else if (ev.type === 'cleared') { showEnding(); sound('transcend'); }
+        else if (ev.type === 'cleared') { showLapDone(ev.entry); sound('transcend'); }
         else if (ev.type === 'offline') showOffline(ev);
         else if (ev.type === 'marks') { notice(`印記 +${ev.gained}：${ev.notes.join('、')}${ev.capped ? '（已達生涯上限）' : ''}`); if (ev.gained > 0) { try { sound('badge'); } catch {} } }   // ⚠ 初始化的第一次 apply 就可能入帳（舊存檔補發），這時舞台還沒建好，不能碰 DOM 特效
       }
@@ -104,10 +104,65 @@ window.ClickerApocUI = (() => {
     }
 
     // ---- 全線通行面板：第十輪 B 的數字、C 的重走廢土／無盡模式。打完第 20 站自動打開，戰績頁也能再打開
-    let replayArmed = false;
+    const roles = { breach:'破防型', open:'開封型', train:'加訓型', reset:'重整型', idle:'放置型', coin:'金幣型' };
+    function chips(host, mutations, prefix='') {
+      const key = JSON.stringify([mutations,prefix]); if (host.dataset.mutations === key) return;
+      host.dataset.mutations = key; host.replaceChildren(document.createTextNode(prefix));
+      for (const m of mutations) {
+        const wrap = document.createElement('span'); wrap.className='mut-wrap';
+        const b=document.createElement('button'); b.type='button'; b.className='mut-chip'+(m.positive?' positive':''); b.textContent=m.name;
+        const text=m.text+'・'+(m.counter?'反制：'+roles[m.counter]:'正向增益'); b.title=text; b.setAttribute('aria-expanded','false');
+        const tip=document.createElement('span'); tip.className='mut-tip'; tip.textContent=text;
+        b.onclick=()=>{ const open=b.getAttribute('aria-expanded')!=='true'; b.setAttribute('aria-expanded',String(open)); };
+        wrap.append(b,tip); host.append(wrap);
+      }
+    }
+    const duration = secs => `${Math.floor(secs/60)} 分 ${Math.floor(secs%60)} 秒`;
+    function showLapDone(entry) {
+      if (!entry?.lap) { showEnding(); return; }
+      $('lap-done-title').textContent=`第 ${entry.lap} 圈完成`;
+      $('lap-done-time').textContent=`用時 ${duration(entry.seconds)}・王關失敗 ${entry.bossFails} 次`;
+      chips($('lap-done-mutations'), entry.mutations.map(id=>A.RULES.MUTATIONS.find(m=>m.id===id)).filter(Boolean));
+      $('lap-done-dust').textContent=entry.dust; $('lap-done-dust').classList.remove('count-in');
+      requestAnimationFrame(()=>$('lap-done-dust').classList.add('count-in'));
+      const skins=A.RULES.HIT_FX.filter(f=>f.unlockLap===entry.lap);
+      $('lap-done-unlocks').textContent=skins.length?'解鎖配色：'+skins.map(f=>f.name).join('、'):'';
+      $('lap-done').hidden=false; $('game-content').inert=true;
+      $('lap-done-next').onclick=()=>{ $('lap-done').hidden=true; showEnding(); }; $('lap-done-next').focus();
+    }
+    function finishDraw(team=false) {
+      $('mutation-draw').hidden=true; $('game-content').inert=false; render();
+      $('scene-open').click(); if(team) $('team-open').click();
+    }
+    function showMutationDraw() {
+      const v=view(); $('mutation-draw-title').textContent=`第 ${v.laps} 圈・變異揭曉`;
+      $('mutation-cards').replaceChildren(...Array.from({length:3},(_,i)=>{
+        const el=document.createElement('div'); el.className='mutation-card';
+        const back=document.createElement('span'); back.className='mutation-back'; back.textContent='？';
+        const front=document.createElement('div'); front.className='mutation-front';
+        if(v.mutations[i]) chips(front,[v.mutations[i]]); else { front.textContent='未抽選'; el.classList.add('unused'); }
+        el.append(back,front); return el;
+      }));
+      $('mutation-recommend').textContent='這一圈的解法：'+v.recommendations[0].name;
+      $('mutation-draw').hidden=false; $('game-content').inert=true;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>$('mutation-cards').querySelectorAll('.mutation-card:not(.unused)').forEach(el=>el.classList.add('revealed'))));
+      $('mutation-close').onclick=()=>finishDraw(); $('mutation-team').onclick=()=>finishDraw(true); $('mutation-close').focus();
+    }
+    function showRescue(drop) {
+      const v=view(); $('mutation-rescue-title').textContent=drop?'少一個變異':'換一個變異（這圈免費 1 次）';
+      $('mutation-rescue-options').replaceChildren(...v.mutations.map(m=>{
+        const b=document.createElement('button'); b.type='button'; b.textContent=m.name; b.title=m.text; b.dataset.mutation=m.id;
+        b.onclick=()=>{ const before=store.state.apoc; apply(a=>drop?A.dropMutation(a,m.id):A.swapMutation(a,m.id));
+          if(before!==store.state.apoc) { $('mutation-rescue').hidden=true; $('game-content').inert=false; render(); notice(drop?'這圈已少一個變異':'變異已更換'); } };
+        return b;
+      }));
+      $('mutation-rescue').hidden=false; $('game-content').inert=true;
+      $('mutation-rescue-close').onclick=()=>{ $('mutation-rescue').hidden=true; $('game-content').inert=false; }; $('mutation-rescue-options').firstElementChild?.focus();
+    }
+
     function showEnding() {
-      const v = view(); replayArmed = false;
-      $('apoc-ending-text').textContent = `二十站都打通了${v.laps ? `（第 ${v.laps + 1} 圈）` : ''}。收藏 ${v.owned.length} / ${(root.ApocPool || []).length} 張，戰力 ${format(v.power)}。`;
+      const v = view();
+      $('apoc-ending-text').textContent = `二十站都打通了${v.laps ? `（第 ${v.laps} 圈）` : ''}。收藏 ${v.owned.length} / ${(root.ApocPool || []).length} 張，戰力 ${format(v.power)}。`;
       const st = v.stats || {};   // textContent 組，不塞 HTML
       $('apoc-ending-stats').replaceChildren(...[['打贏', `${v.wins} 場`], ['點擊', `${format(st.taps || 0)} 下`], ['最高一擊', format(st.maxHit || 0)],
         ['破防', `${st.shieldBreaks || 0} 次`], ['招募', `${st.draws || 0} 抽`], ['收藏', `${v.owned.length} 張`]].map(([k, val]) => {
@@ -159,26 +214,17 @@ window.ClickerApocUI = (() => {
     }
     const times = x => `×${Math.round(x * 100) / 100}`;
     function endingActions(v) {
-      const re = $('apoc-replay'), en = $('apoc-endless');
-      re.disabled = !v.canReplay || store.blocked; en.disabled = store.blocked;
-      re.textContent = !v.canReplay ? `重走廢土（已到 ${A.RULES.LAP.MAX} 圈）` : replayArmed ? '確定重走？' : '重走廢土';
-      en.textContent = v.endless ? '關掉無盡模式' : '無盡模式';
-      // 按兩次才重走（同商店購買）：第一次先寫清楚會歸零什麼
-      $('apoc-lap-note').textContent = replayArmed
-        ? `金幣與訓練會歸零，收藏和隊伍保留。下一圈敵人血 ${times(v.nextLapHp)}、戰力 ${times(v.nextLapPower)}。再按一次確定。`
-        : `重走廢土：保留收藏重來，下一圈敵人血 ${times(v.nextLapHp)}、戰力 ${times(v.nextLapPower)}。無盡模式：第 21 站起一直往下打${v.endlessBest ? `（最遠 ＋${v.endlessBest} 站）` : ''}。`;
-      re.onclick = () => {
-        if (!replayArmed) { replayArmed = true; endingActions(view()); return; }
-        replayArmed = false; const before = view().laps;
-        apply(x => A.replay(x));
-        if (view().laps > before) { closeEnding(); notice(`重走廢土・第 ${view().laps + 1} 圈開始`); } else endingActions(view());
-      };
-      en.onclick = () => {
-        const on = !view().endless; apply(x => A.setEndless(x, on));
-        if (view().endless === on) { closeEnding(); notice(on ? '無盡模式：第 21 站起一直往下打' : '無盡模式關掉了'); }
-      };
+      const re=$('apoc-replay'), en=$('apoc-endless'); re.disabled=!v.canReplay||store.blocked; en.disabled=store.blocked;
+      $('ending-lap-title').textContent=v.canReplay?`輪迴 第 ${v.laps+1} 圈`:'輪迴已到頂';
+      re.textContent=v.canReplay?`開始第 ${v.laps+1} 圈`:`已到 ${A.RULES.LAP.MAX} 圈`;
+      $('apoc-lap-note').textContent=`下一圈：血 ${times(v.nextLapHp)}、戰力 ${times(v.nextLapPower)}。變異 ×${v.nextMutationCount}（進去才抽）。盤纏：帶 ${format(Math.floor(v.coins*.5))} 金幣進去。`;
+      $('ending-endless-best').textContent=`最遠：第 ${v.endlessBest?20+v.endlessBest:20} 站`;
+      en.textContent=v.endless?'關掉無盡模式':'進入無盡';
+      re.onclick=()=>{ const before=view().laps; apply((x,n)=>A.replay(x,n));
+        if(view().laps>before) { $('apoc-ending').hidden=true; showMutationDraw(); } };
+      en.onclick=()=>{ const on=!view().endless; apply(x=>A.setEndless(x,on)); if(view().endless===on) closeEnding(); };
     }
-    function closeEnding() { replayArmed = false; $('apoc-ending').hidden = true; $('game-content').inert = false; render(); }
+    function closeEnding() { $('apoc-ending').hidden = true; $('game-content').inert = false; render(); }
 
     // ---- 點擊回饋（使用者第三輪：「點擊上什麼都沒有」）：跟 1.0 同一套語彙——傷害浮字、碎片＋火花、
     //      受擊閃白＋壓扁、爆擊／破盾加衝擊圖與震動。
@@ -292,7 +338,7 @@ window.ClickerApocUI = (() => {
       : !!a.cleared && !a.endless && a.progress >= A.RULES.STATIONS && a.revisitAt === A.incomeIndex(a);
     function autoFight() {
       const a = store.state?.apoc; if (!a?.unlocked || a.stage || store.blocked) return false;
-      if ($('game-content').classList.contains('map-open') || !$('recruit-layer').hidden || !$('apoc-ending').hidden) return false;
+      if ($('game-content').classList.contains('map-open') || !$('recruit-layer').hidden || !$('apoc-ending').hidden || !$('mutation-draw').hidden || !$('lap-done').hidden || !$('mutation-rescue').hidden) return false;
       // 精裝典藏包是另一層（#apoc-ceremony），還沒收下的結果也算招募中：背景不要偷偷接下一站（Codex 第四輪）
       if (!$('apoc-ceremony').hidden || a.pending) return false;
       const v = view(); if (!(v.power > 0)) return false;
@@ -555,6 +601,19 @@ window.ClickerApocUI = (() => {
         : '按「開戰」開始。';
       // 1.0 的這一格平常透明、只在完成一包時閃一下；末世輸了王要一直看得到（Codex 5b）
       $('package-result').classList.toggle('apoc-shown', failed && !over);
+      let rescue=$('apoc-fail-rescue');
+      if(!rescue) { rescue=document.createElement('div'); rescue.id='apoc-fail-rescue'; $('package-result').after(rescue); }
+      const rescueKey=JSON.stringify([failed,over,v.bossStreak,v.canSwap,v.canDrop]);
+      rescue.hidden=!failed||over;
+      if(rescue.dataset.key!==rescueKey) {
+        rescue.dataset.key=rescueKey; rescue.replaceChildren();
+        if(failed&&!over) {
+          const line=document.createElement('span'); line.textContent=`這隻王連敗 ${v.bossStreak?.fails||0} 次`; rescue.append(line);
+          for(const drop of [false,true]) if(drop?v.canDrop:v.canSwap) {
+            const b=document.createElement('button'); b.type='button'; b.id=drop?'mutation-drop':'mutation-swap'; b.textContent=drop?'少一個變異':'換一個變異（這圈免費 1 次）'; b.onpointerdown=e=>e.stopPropagation(); b.onclick=e=>{ e.stopPropagation(); showRescue(drop); }; rescue.append(b);
+          }
+        }
+      }
     }
 
     function renderBuddies(v) {
@@ -753,14 +812,15 @@ window.ClickerApocUI = (() => {
       const fxSec = sec('受擊特效', '點怪時碎片與火花的顏色。花末世金幣，沒有數值效果。');
       const grid = document.createElement('div'); grid.className = 'apoc-shop-grid'; fxSec.append(grid);
       for (const item of A.RULES.HIT_FX) {
+        const locked = item.unlockLap && !a.lapLog.some(l=>l.lap>=item.unlockLap);
         const owned = a.cosmetics.owned.includes(item.id), wearing = a.cosmetics.hitFx === item.id;
         const b = document.createElement('button'); b.type = 'button'; b.className = 'wardrobe-item'; b.dataset.key = `hitfx:${item.id}`;
         b.classList.toggle('owned', owned); b.classList.toggle('wearing', wearing);
         const sw = document.createElement('span'); sw.className = 'wardrobe-icon'; sw.textContent = '✦'; sw.style.color = item.spark;
         const nm = document.createElement('b'); nm.textContent = item.name;
         const st = document.createElement('small');
-        st.textContent = wearing ? '使用中' : owned ? '換上' : shopPending === item.id ? `確定 ${format(item.price)}？` : format(item.price);
-        b.append(sw, nm, st); b.disabled = store.blocked || (!owned && a.coins < item.price);
+        st.textContent = locked ? `第 ${item.unlockLap} 圈解鎖` : wearing ? '使用中' : owned ? '換上' : shopPending === item.id ? `確定 ${format(item.price)}？` : format(item.price);
+        b.append(sw, nm, st); b.disabled = store.blocked || locked || (!owned && a.coins < item.price);
         b.onclick = () => {
           if (!owned && shopPending !== item.id) { shopPending = item.id; renderShopPanel(); return; }   // 按兩次購買（同 1.0 商店）
           shopPending = null;
@@ -783,11 +843,18 @@ window.ClickerApocUI = (() => {
         const b = document.createElement('button'); b.type = 'button'; b.className = 'text-button apoc-lap-open'; b.textContent = '全線通行選項（重走廢土／無盡模式）';
         b.onclick = () => { $('stats').hidden = true; showEnding(); }; $('stats-body').append(document.createElement('br'), b);
       }
+      const history=document.createElement('section'); history.id='apoc-lap-history';
+      const heading=document.createElement('h3'); heading.textContent='輪迴紀錄'; history.append(heading);
+      const table=document.createElement('table'), head=document.createElement('tr');
+      for(const label of ['圈數','變異','用時','王關失敗','寶箱']) { const th=document.createElement('th'); th.textContent=label; head.append(th); } table.append(head);
+      for(const l of v.lapLog) { const tr=document.createElement('tr');
+        for(const text of [l.lap,l.mutations.map(id=>A.RULES.MUTATIONS.find(m=>m.id===id)?.name||id).join('、')||'—',duration(l.seconds),l.bossFails,l.dust+' 顆']) { const td=document.createElement('td'); td.textContent=text; tr.append(td); } table.append(tr); }
+      const best=document.createElement('p'); best.textContent=`無盡最遠 第 ${20+v.endlessBest} 站`; history.append(table,best); $('stats-body').append(history);
       // 數字格跟 1.0 統計同一套（#stats-tiles）；末世沒有徽章，徽章牆先藏起來，離開末世會還原
       const grid = $('stats-tiles'); grid.replaceChildren(); grid.hidden = false;
       for (const [k, val] of [['通過站數', `${v.progress} / ${v.stations}`], ['收藏', `${v.owned.length} / ${Pool().length}`], ['戰力', format(v.power)],
         ['抽卡次數', format(v.stats.draws)], ['點擊次數', format(v.stats.taps)], ['最高一擊', format(v.stats.maxHit)], ['破防次數', format(v.stats.shieldBreaks)],
-        ['換到的券', format(v.exchangeTotal)], ['點擊力', `Lv.${v.clickLevel}`], ['全隊訓練', `Lv.${v.teamLevel}`], ['1.0 印記加成（戰力）', `×${v.boost.power.toFixed(2)}`], [v.laps ? `重走・戰力 ${times(v.lapPower)}` : '重走廢土', v.laps ? `第 ${v.laps + 1} 圈` : '還沒重走'], ['無盡最遠', v.endlessBest ? `＋${v.endlessBest} 站` : '—']]) {
+        ['換到的券', format(v.exchangeTotal)], ['點擊力', `Lv.${v.clickLevel}`], ['全隊訓練', `Lv.${v.teamLevel}`], ['1.0 印記加成（戰力）', `×${v.boost.power.toFixed(2)}`], [v.laps ? `重走・戰力 ${times(v.lapPower)}` : '重走廢土', v.laps ? `第 ${v.laps} 圈` : '還沒重走'], ['無盡最遠', v.endlessBest ? `＋${v.endlessBest} 站` : '—']]) {
         const cell = document.createElement('div'); cell.className = 'stat-tile';
         const b = document.createElement('b'); b.textContent = val; const sm = document.createElement('small'); sm.textContent = k;
         cell.append(b, sm); grid.append(cell);
@@ -837,9 +904,10 @@ window.ClickerApocUI = (() => {
       const v = view();
       renderStage(v); renderBuddies(v); renderSlots(v); renderShop(v); renderShopPanel();
       $('coins').textContent = format(v.coins);
+      $('apoc-lap-line').hidden=!v.laps; chips($('apoc-lap-line'),v.mutations,`第 ${v.laps} 圈 ・ `);
       $('click-rate').textContent = `戰力 ${format(v.power)}`;
       $('passive-rate').textContent = `每秒 ${format(v.power * A.RULES.IDLE_COINS)}・印記 ${store.state.marks || 0}`;   // 印記重設計：2.0 頂列看得到印記
-      $('next-goal').textContent = v.endless && v.progress >= v.stations ? (v.progress >= A.RULES.ENDLESS_MAX ? `無盡到底・最遠 ＋${v.endlessBest}` : `無盡 第 ${v.progress + 1} 站・最遠 ＋${v.endlessBest}`) : v.progress >= v.stations ? '全線已通行' : `${v.laps ? `第 ${v.laps + 1} 圈・` : ''}第 ${Math.min(v.progress + 1, v.stations)} / ${v.stations} 站・收藏 ${v.owned.length} / ${Pool().length} 張`;
+      $('next-goal').textContent = v.endless && v.progress >= v.stations ? (v.progress >= A.RULES.ENDLESS_MAX ? `無盡到底・最遠 ＋${v.endlessBest}` : `無盡 第 ${v.progress + 1} 站・最遠 ＋${v.endlessBest}`) : v.progress >= v.stations ? '全線已通行' : `${v.laps ? `第 ${v.laps} 圈・` : ''}第 ${Math.min(v.progress + 1, v.stations)} / ${v.stations} 站・收藏 ${v.owned.length} / ${Pool().length} 張`;
       $('owned-count').textContent = `${v.owned.length} / ${Pool().length}`;
       // 1.0 的 numbers() 在末世不跑，這幾顆鍵的可用狀態要自己設，不然會卡在 HTML 的預設值
       // （#scene-open 在 HTML 裡是 disabled 的 → 末世會完全打不開場景面板）
@@ -867,6 +935,7 @@ window.ClickerApocUI = (() => {
       render();
     }
     function leave() {
+      $('apoc-lap-line').hidden=true; $('apoc-fail-rescue')?.remove();
       buddyKey = slotKey = shopKey = '';
       delete document.body.dataset.world; delete document.body.dataset.apocTheme; delete $('stage').dataset.apocSeg;
       $('package-result').classList.remove('apoc-shown');
@@ -892,7 +961,7 @@ window.ClickerApocUI = (() => {
     // 招募層要借 GachaFx 的全域畫布：先把末世的粒子停掉清乾淨，不然會畫到招募層上（Codex 第三輪）
     function stopFx() { fx?.stop(); fx = null; }
     return {
-      render, enter, leave, tap, tick, apply, resume, train, openShop, openStats, stopFx,
+      chips, render, enter, leave, tap, tick, apply, resume, train, openShop, openStats, stopFx,
       exchange: exchangeTicket,
       page(dir) { buddyPage = Math.max(0, buddyPage + dir); buddyKey = ''; render(); },
       fight: () => apply((x, n) => A.fight(x, n)),

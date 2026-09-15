@@ -67,6 +67,14 @@
     //   第 n 圈敵人血與獎勵 ×HP_FIRST×HP_GROWTH^(n−1)、戰力 ×(1＋POWER×n)，最多 MAX 圈。
     //   scratchpad ngplus_sim.js 一般玩家：HP_FIRST 3／4／6／10／16 第二圈 59／51／76／109／137 分 → 取 10（第一圈 146，第二圈快約 25%，之後 48→41→40）
     LAP: { MAX: 10, HP_FIRST: 10, HP_GROWTH: 1.1, POWER: .25 },
+    LOOP: { REROLL_COST: 80000, CHEST_MAX: 3, CHEST_TOTAL: 30 },
+    MUTATIONS: [
+      ['thick','厚甲','王關血量 ×1.3','breach'], ['haste','倒數','王關基本期限 60 → 45 秒，額外 15 秒照加','open'],
+      ['pack','狗海','初次狗群 5 → 8 隻，再召喚 3 → 4 隻','idle'], ['shell','硬殼','王血 25% 時再多一層外殼','open'],
+      ['offbeat','亂拍','節拍命中視窗 ±200 → ±140 毫秒','train'], ['lock','反鎖','技能冷卻 ×1.25','reset'],
+      ['famine','缺糧','站獎金 ×0.7','coin'], ['waste','荒地','放置傷害 ×0.5','open'],
+      ['harvest','豐收','站獎金 ×1.5、掉券率 ×2',null,true], ['echo','回聲','技能冷卻 ×0.8',null,true]
+    ].map(([id,name,text,counter,positive=false]) => ({id,name,text,counter,positive})),
     ENDLESS_MAX: 100,
     // 第十輪 D 離線（使用者：「離線會在該關卡持續賺錢，不會自己前進任何關卡」）：回來時補算最多 MAX_MS；
     //   收入＝（放置金幣＋一直打目前這一站的怪的擊殺獎勵）×SHARE。王站／打完全線時算前一個一般站。
@@ -133,55 +141,66 @@
       { id: 'frost', name: '冰霜碎片', price: 30000, spark: '#CFF4FF', shards: ['#7FB8D6', '#DDEFF7'], shield: '#FFFFFF' },
       { id: 'neon',  name: '霓虹殘響', price: 30000, spark: '#FF4FD8', shards: ['#5AD7FF', '#B48BFF'], shield: '#7DFF9C' },
       { id: 'ash',   name: '焦土餘燼', price: 30000, spark: '#FF7A3D', shards: ['#3B2A1C', '#6B5646'], shield: '#FFB08A' },
+      { id: 'loop3', name: '赤砂', unlockLap: 3, price: 0, spark: '#FF8B70', shards: ['#C85144','#FFD2AA'], shield: '#F5AD91' },
+      { id: 'loop6', name: '青焰', unlockLap: 6, price: 0, spark: '#7FFFE1', shards: ['#258C90','#B1FFE9'], shield: '#BCFFF2' },
+      { id: 'loop10', name: '白晝', unlockLap: 10, price: 0, spark: '#FFF4B0', shards: ['#FFFFFF','#D7B9FF'], shield: '#FFFFFF' },
     ],
   };
   const isBoss = i => i % 4 === 3;
   const DRAW_COUNTS = [1, 5, 10];   // 典藏包抽卡選單的三顆鍵（第七輪）
   // ---- 王關機制（第十輪）
-  const M = () => RULES.BOSS_MECH;
-  const seqFor = (index, round) => Array.from({ length: M().ORDER.LEN }, (_, k) => M().ORDER.PARTS[(index * 7 + round * 5 + k * k * 3 + k * 2) % M().ORDER.PARTS.length]);
-  function freshMech(i, needHp = need(i)) {
-    const hp = needHp * M().SUMMON.HP;
-    return { mech: Math.min(4, Math.floor(i / 4)), minions: { left: M().SUMMON.COUNT, max: hp, hp, nextAt: 0 }, shell: { layer: 0, hp: 0 },
+  const hasMutation = (a, id) => !!a?.mutations?.includes(id);
+  function mechRules(a) {
+    const m = RULES.BOSS_MECH;
+    if (!a?.mutations?.length) return m;
+    return { ...m, SUMMON: { ...m.SUMMON, ...(hasMutation(a,'pack') ? { COUNT: 8, AGAIN: 4 } : {}) },
+      SHELL: { ...m.SHELL, AT: hasMutation(a,'shell') ? [...m.SHELL.AT,.25].sort((x,y)=>y-x) : m.SHELL.AT },
+      RHYTHM: { ...m.RHYTHM, WINDOW: hasMutation(a,'offbeat') ? 140 : m.RHYTHM.WINDOW } };
+  }
+  const seqFor = (index, round) => Array.from({ length: mechRules().ORDER.LEN }, (_, k) => mechRules().ORDER.PARTS[(index * 7 + round * 5 + k * k * 3 + k * 2) % mechRules().ORDER.PARTS.length]);
+  function freshMech(i, needHp = need(i), st = {}) {
+    const hp = needHp * mechRules(st).SUMMON.HP;
+    return { mutations: [...(st.mutations || [])], mech: Math.min(4, Math.floor(i / 4)), minions: { left: mechRules(st).SUMMON.COUNT, max: hp, hp, nextAt: 0 }, shell: { layer: 0, hp: 0 },
       rhythm: { chain: 0 }, order: { step: 0, round: 0, seq: seqFor(i, 0) } };
   }
   // 現在是哪一種機制（滅世珍獸每 ROTATE_MS 換一種）
-  const mechAt = (st, now) => !st?.boss ? -1 : st.mech === 4 ? Math.floor(Math.max(0, now - (st.startedAt || 0)) / M().ROTATE_MS) % 4 : (st.mech ?? 0);
-  const onBeat = (st, now) => { const ms = M().RHYTHM.MS, ph = ((now - (st.startedAt || 0)) % ms + ms) % ms; return Math.min(ph, ms - ph) <= M().RHYTHM.WINDOW; };
+  const mechAt = (st, now) => !st?.boss ? -1 : st.mech === 4 ? Math.floor(Math.max(0, now - (st.startedAt || 0)) / mechRules(st).ROTATE_MS) % 4 : (st.mech ?? 0);
+  const onBeat = (st, now) => { const ms = mechRules(st).RHYTHM.MS, ph = ((now - (st.startedAt || 0)) % ms + ms) % ms; return Math.min(ph, ms - ph) <= mechRules(st).RHYTHM.WINDOW; };
   const breaking = (st, now) => now < (st?.breakUntil || 0);
   // 點一下的倍率：破防 ×2；節拍時拍子上 ×3、沒對上 ×.5
-  const tapMul = (st, now) => !st?.boss ? (breaking(st, now) ? 2 : 1) : (breaking(st, now) ? M().BREAK_MUL : 1) * (mechAt(st, now) === 2 ? (onBeat(st, now) ? M().RHYTHM.HIT_MUL : M().RHYTHM.MISS_MUL) : 1);
+  const tapMul = (st, now) => !st?.boss ? (breaking(st, now) ? 2 : 1) : (breaking(st, now) ? mechRules(st).BREAK_MUL : 1) * (mechAt(st, now) === 2 ? (onBeat(st, now) ? mechRules(st).RHYTHM.HIT_MUL : mechRules(st).RHYTHM.MISS_MUL) : 1);
   // 放置的倍率：破防 ×2；節拍與部位時放置只剩 IDLE_MUL（要人在場點）；外殼長出來時放置打不動殼
   const idleMul = (st, now) => {
     if (!st?.boss) return 1;
-    const m = mechAt(st, now), br = breaking(st, now) ? M().BREAK_MUL : 1;
+    const m = mechAt(st, now), br = breaking(st, now) ? mechRules(st).BREAK_MUL : 1;
     if (m === 1 && st.shell?.hp > 0) return 0;
-    return br * (m === 2 || m === 3 ? M().IDLE_MUL : 1);
+    return br * (m === 2 || m === 3 ? mechRules(st).IDLE_MUL : 1);
   };
   // 傷害進王：狗群先吸收、殼只吃點擊、節拍連中計數、部位順序計步。回傳 { st, broke, absorbed }
   function routeDamage(st0, d, now, byTap, part) {
     const st = { ...st0 }, m = mechAt(st, now); let broke = false;
     if (m === 0 && st.minions?.left > 0) {
       const mi = { ...st.minions }; mi.hp -= d;
-      if (mi.hp <= 0) { mi.left -= 1; mi.hp = mi.left > 0 ? mi.max : 0; if (!mi.left) mi.nextAt = now + M().SUMMON.AGAIN_MS; }
+      if (mi.hp <= 0) { mi.left -= 1; mi.hp = mi.left > 0 ? mi.max : 0; if (!mi.left) mi.nextAt = now + mechRules(st).SUMMON.AGAIN_MS; }
       st.minions = mi; return { st, broke, absorbed: true };
     }
     if (m === 1) {
-      const sh = { ...(st.shell || { layer: 0, hp: 0 }) }, AT = M().SHELL.AT;
+      const sh = { ...(st.shell || { layer: 0, hp: 0 }) }, AT = mechRules(st).SHELL.AT;
       if (sh.hp > 0) {
-        if (byTap) { sh.hp -= d; if (sh.hp <= 0) { sh.hp = 0; sh.layer += 1; st.breakUntil = now + M().SHELL.STAGGER_MS; broke = true; } }
+        if (byTap) { sh.hp -= d; if (sh.hp <= 0) { sh.hp = 0; sh.layer += 1; st.breakUntil = now + mechRules(st).SHELL.STAGGER_MS; broke = true; } }
+        if (sh.hp === 0 && sh.layer > 0 && AT[sh.layer] === AT[sh.layer - 1]) sh.hp = st.need * mechRules(st).SHELL.HP;
         st.shell = sh; return { st, broke, absorbed: true };
       }
       // 別的機制期間（滅世珍獸輪流）已經打到門檻底下：那幾層直接跳過，不要把血補回門檻
       while (sh.layer < AT.length && st.hp <= AT[sh.layer] * st.need) sh.layer += 1;
       const floor = sh.layer < AT.length ? AT[sh.layer] * st.need : -Infinity;
       st.hp = Math.max(floor, st.hp - d);
-      if (st.hp <= floor) sh.hp = st.need * M().SHELL.HP;
+      if (st.hp <= floor) sh.hp = st.need * mechRules(st).SHELL.HP;
       st.shell = sh; return { st, broke, absorbed: false };
     }
     if (m === 2 && byTap) {
       const r = { ...(st.rhythm || { chain: 0 }) };
-      if (onBeat(st, now)) { r.chain += 1; if (r.chain >= M().RHYTHM.CHAIN && !breaking(st, now)) { st.breakUntil = now + M().BREAK_MS; broke = true; r.chain = 0; } }
+      if (onBeat(st, now)) { r.chain += 1; if (r.chain >= mechRules(st).RHYTHM.CHAIN && !breaking(st, now)) { st.breakUntil = now + mechRules(st).BREAK_MS; broke = true; r.chain = 0; } }
       else r.chain = 0;
       st.rhythm = r;
     }
@@ -189,7 +208,7 @@
       const o = { ...(st.order || { step: 0, round: 0, seq: seqFor(st.index, 0) }) };
       if (part === o.seq[o.step]) {
         o.step += 1;
-        if (o.step >= o.seq.length) { o.step = 0; o.round += 1; o.seq = seqFor(st.index, o.round); if (!breaking(st, now)) { st.breakUntil = now + M().BREAK_MS; broke = true; } }
+        if (o.step >= o.seq.length) { o.step = 0; o.round += 1; o.seq = seqFor(st.index, o.round); if (!breaking(st, now)) { st.breakUntil = now + mechRules(st).BREAK_MS; broke = true; } }
       } else o.step = 0;
       st.order = o;
     }
@@ -197,10 +216,10 @@
   }
   // 狗群到點重生（只在輪到狗群的時候）
   const respawn = (st, t) => mechAt(st, t) === 0 && st.minions && !st.minions.left && st.minions.nextAt && t >= st.minions.nextAt
-    ? { ...st, minions: { ...st.minions, left: M().SUMMON.AGAIN, hp: st.minions.max, nextAt: 0 } } : st;
+    ? { ...st, minions: { ...st.minions, left: mechRules(st).SUMMON.AGAIN, hp: st.minions.max, nextAt: 0 } } : st;
   // 殼的下一條線（已經打穿的層不算）
   function shellFloor(st) {
-    const AT = M().SHELL.AT; let layer = st.shell?.layer || 0;
+    const AT = mechRules(st).SHELL.AT; let layer = st.shell?.layer || 0;
     while (layer < AT.length && st.hp <= AT[layer] * st.need) layer += 1;
     return layer < AT.length ? AT[layer] * st.need : -Infinity;
   }
@@ -237,24 +256,24 @@
   // 滅世珍獸換機制的時間點
   const rotateCuts = (st, t0, t1) => {
     if (st.mech !== 4) return [];
-    const T = M().ROTATE_MS, s = st.startedAt || 0, out = [];
+    const T = mechRules(st).ROTATE_MS, s = st.startedAt || 0, out = [];
     for (let k = Math.ceil((t0 - s) / T); s + k * T < t1 && out.length < 100; k++) if (k > 0) out.push(s + k * T);
     return out;
   };
   // 存檔可編輯（Codex 第十輪 A 必修 4）：機制狀態壞掉就重建那一塊，不要 NaN、不要點部位時丟例外
   function cleanMech(st) {
-    const f = freshMech(st.index, st.need > 0 ? st.need : need(st.index)), fin = v => Number.isFinite(Number(v)) ? Number(v) : NaN, int = v => Number.isInteger(Number(v)) ? Number(v) : NaN;
+    const f = freshMech(st.index, st.need > 0 ? st.need : need(st.index), st), fin = v => Number.isFinite(Number(v)) ? Number(v) : NaN, int = v => Number.isInteger(Number(v)) ? Number(v) : NaN;
     const out = { ...st, mech: f.mech };
-    const mi = st.minions || {}, maxCount = Math.max(M().SUMMON.COUNT, M().SUMMON.AGAIN);
+    const mi = st.minions || {}, maxCount = Math.max(mechRules(st).SUMMON.COUNT, mechRules(st).SUMMON.AGAIN);
     out.minions = int(mi.left) >= 0 && int(mi.left) <= maxCount && fin(mi.max) > 0 && fin(mi.hp) >= 0 && fin(mi.hp) <= fin(mi.max) && fin(mi.nextAt ?? 0) >= 0
       ? { left: int(mi.left), max: fin(mi.max), hp: fin(mi.hp), nextAt: fin(mi.nextAt ?? 0) } : f.minions;
     const sh = st.shell || {};
-    out.shell = int(sh.layer) >= 0 && int(sh.layer) <= M().SHELL.AT.length && fin(sh.hp) >= 0 && fin(sh.hp) <= (st.need || 0) * M().SHELL.HP * 1.0001
+    out.shell = int(sh.layer) >= 0 && int(sh.layer) <= mechRules(st).SHELL.AT.length && fin(sh.hp) >= 0 && fin(sh.hp) <= (st.need || 0) * mechRules(st).SHELL.HP * 1.0001
       ? { layer: int(sh.layer), hp: fin(sh.hp) } : f.shell;
     const r = st.rhythm || {};
-    out.rhythm = int(r.chain) >= 0 && int(r.chain) <= M().RHYTHM.CHAIN ? { chain: int(r.chain) } : f.rhythm;
-    const o = st.order || {}, P = M().ORDER.PARTS;
-    out.order = Array.isArray(o.seq) && o.seq.length === M().ORDER.LEN && o.seq.every(x => P.includes(x)) && int(o.step) >= 0 && int(o.step) < o.seq.length && int(o.round) >= 0
+    out.rhythm = int(r.chain) >= 0 && int(r.chain) <= mechRules(st).RHYTHM.CHAIN ? { chain: int(r.chain) } : f.rhythm;
+    const o = st.order || {}, P = mechRules(st).ORDER.PARTS;
+    out.order = Array.isArray(o.seq) && o.seq.length === mechRules(st).ORDER.LEN && o.seq.every(x => P.includes(x)) && int(o.step) >= 0 && int(o.step) < o.seq.length && int(o.round) >= 0
       ? { seq: [...o.seq], step: int(o.step), round: int(o.round) } : f.order;
     out.breakUntil = fin(st.breakUntil) >= 0 ? fin(st.breakUntil) : 0;
     return out;
@@ -265,10 +284,10 @@
     const m = mechAt(st, now), o = st.order || {};
     return { mech: m, rotating: st.mech === 4, breaking: breaking(st, now), breakLeft: Math.max(0, (st.breakUntil || 0) - now),
       minions: st.minions?.left || 0, respawnIn: st.minions?.left ? 0 : Math.max(0, (st.minions?.nextAt || 0) - now),
-      shellHp: st.shell?.hp || 0, shellMax: st.need * M().SHELL.HP, shellLayer: st.shell?.layer || 0, shellLayers: M().SHELL.AT.length,
-      chain: st.rhythm?.chain || 0, chainNeed: M().RHYTHM.CHAIN, onBeat: onBeat(st, now), beatMs: M().RHYTHM.MS,
-      nextPart: o.seq ? o.seq[o.step || 0] : null, step: o.step || 0, steps: o.seq?.length || M().ORDER.LEN,
-      rotateIn: st.mech === 4 ? M().ROTATE_MS - (Math.max(0, now - (st.startedAt || 0)) % M().ROTATE_MS) : 0 };
+      shellHp: st.shell?.hp || 0, shellMax: st.need * mechRules(st).SHELL.HP, shellLayer: st.shell?.layer || 0, shellLayers: mechRules(st).SHELL.AT.length,
+      chain: st.rhythm?.chain || 0, chainNeed: mechRules(st).RHYTHM.CHAIN, onBeat: onBeat(st, now), beatMs: mechRules(st).RHYTHM.MS,
+      nextPart: o.seq ? o.seq[o.step || 0] : null, step: o.step || 0, steps: o.seq?.length || mechRules(st).ORDER.LEN,
+      rotateIn: st.mech === 4 ? mechRules(st).ROTATE_MS - (Math.max(0, now - (st.startedAt || 0)) % mechRules(st).ROTATE_MS) : 0 };
   }
   // 技能名沿用 1.0（使用者第四輪：「2.0 技能雖然重新設計，但技能名稱不要改，1.0 有的名稱就直接沿用」）：
   // 同名角色用 1.0 的技能名（ClickerBalance.characters[id].skill），效果依型別與稀有度；1.0 沒有這張卡才用該型預設名字。
@@ -294,7 +313,7 @@
   ];
   // 照模板從隊伍挑卡：每格取該型「還沒被用到」的戰力最高者；隊伍裡沒有就看卡冊，塞得進隊伍就入隊
   function recommendTeam(a, index) {
-    const preset = RECOMMENDATIONS[index]; if (!preset) throw new Error('未知組合');
+    const preset = recommendations(a)[index]; if (!preset) throw new Error('未知組合');
     const slots = boostOf(a).slot4 ? 4 : 3, byRole = id => poolById()[id]?.role;
     const roster = [...a.roster], used = new Set(), skills = (a.skills || [null, null, null, null]).slice(0, 4), missing = [];
     const owned = Object.keys(a.collection).filter(id => a.collection[id] > 0 && !dispatchedApoc(a, id)).sort((x, y) => cardPower(a, y) - cardPower(a, x));
@@ -310,13 +329,13 @@
     return { preset, roster, skills, missing, slots };
   }
   // 一張卡的技能說明（編隊畫面的懸浮提示與詳情用；不看有沒有裝進槽）
-  const resistedOpen = value => value > M().RESIST.OPEN_ABOVE ? M().RESIST.OPEN_ABOVE + (value - M().RESIST.OPEN_ABOVE) * M().RESIST.OPEN_SHARE : value;
+  const resistedOpen = value => value > mechRules().RESIST.OPEN_ABOVE ? mechRules().RESIST.OPEN_ABOVE + (value - mechRules().RESIST.OPEN_ABOVE) * mechRules().RESIST.OPEN_SHARE : value;
   const skillInfo = (id, { boss = false } = {}) => {
     const c = poolById()[id]; if (!c) return null;
     const base = RULES.SKILLS[c.role]?.[c.rarity]; if (!base) return null;
     let resist = '';
     if (boss && c.role === 'open') resist = `・王關：抵抗，×${resistedOpen(base.value)}`;
-    if (boss && c.role === 'breach') resist = `・王關：抵抗，${base.ms * M().RESIST.BREACH_TIME / 1000} 秒；每場限 2 次，其後 ×1.3、3 秒`;
+    if (boss && c.role === 'breach') resist = `・王關：抵抗，${base.ms * mechRules().RESIST.BREACH_TIME / 1000} 秒；每場限 2 次，其後 ×1.3、3 秒`;
     if (boss && c.role === 'coin') resist = '・王關：抵抗，改用前一個一般站獎金';
     return { id, ...base, role: c.role, name: oneSkillName(c) || base.name, text: `${base.text}・冷卻 ${base.cd / 1000} 秒${resist}` };
   };
@@ -329,7 +348,7 @@
   // 印記重設計：加成物件多了離線倍率、派遣券機率加成、王首勝粉塵加成，與四個兌換解鎖旗標。
   // 純邏輯（測試、模擬）沒有 1.0 存檔時 slot4 視為已開，畫面層一律由 oneBoost() 照 markShop 覆寫。
   const NO_BOOST = { power: 1, click: 1, skill: 1, cd: 1, offline: 1, ticket: 0, dust: 0, slot4: true, bossTime: false, offline12: false, tapShare: 0, dispatch4: false };
-  const bossTimeOf = a => RULES.BOSS_TIME + (boostOf(a).bossTime ? 15000 : 0);
+  const bossTimeOf = a => RULES.BOSS_TIME * (hasMutation(a,'haste') ? .75 : 1) + (boostOf(a).bossTime ? 15000 : 0);
   const clickShare = a => RULES.CLICK_SHARE + .05 * (boostOf(a).tapShare || 0);
   const dispatchSlots = a => RULES.DISPATCH.SLOTS + (boostOf(a).dispatch4 ? 1 : 0);
   // a.boost 是畫面層（clicker-apoc-ui boosted()）從 1.0 的印記／神器算好掛上來的，**不存檔**。
@@ -349,10 +368,21 @@
   function fresh() {
     return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, dust: {}, universalDust: 0, transcend: {}, bossDust: [], pity: 0, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
       paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, revisitAt: null, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
+      mutations: [], baseMutations: [], purse: 0, rerolled: false, dropped: false, bossStreak: { index: null, fails: 0 }, lapLog: [], lapChest: 0, lapPlayMs: 0, lapBossFails: 0, lapStartedAt: 0, endlessMutationAt: 20,
       pending: null, cleared: false, laps: 0, endless: false, endlessBest: 0, seenAt: 0, dispatch: [], dispatchDone: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
   function normalize(a) {
     const f = fresh(), raw = a || {}; a = { ...f, ...raw };
+    const cleanMutations = xs => [...new Set((Array.isArray(xs) ? xs : []).filter(id => RULES.MUTATIONS.some(m => m.id === id)))];
+    a.mutations = lapsOf(a) || a.endless ? cleanMutations(a.mutations) : [];
+    a.baseMutations = cleanMutations(raw.baseMutations ?? a.mutations);
+    a.purse = count(a.purse); a.rerolled = !!a.rerolled; a.dropped = !!a.dropped;
+    a.lapPlayMs = count(a.lapPlayMs); a.lapBossFails = count(a.lapBossFails); a.lapStartedAt = count(a.lapStartedAt);
+    a.lapChest = Math.min(RULES.LOOP.CHEST_TOTAL, count(a.lapChest));
+    a.endlessMutationAt = Math.max(20, count(a.endlessMutationAt));
+    a.bossStreak = a.bossStreak?.index === a.progress && isBoss(a.progress) ? { index: a.progress, fails: count(a.bossStreak.fails) } : { index: null, fails: 0 };
+    a.lapLog = (Array.isArray(a.lapLog) ? a.lapLog : []).filter(x => x && Number.isInteger(x.lap) && x.lap >= 0 && x.lap <= RULES.LAP.MAX).slice(-11).map(x => ({ lap: x.lap, mutations: cleanMutations(x.mutations), seconds: count(x.seconds), bossFails: count(x.bossFails), dust: Math.min(RULES.LOOP.CHEST_MAX,count(x.dust)), at: count(x.at) }));
+    if (a.stage) a.stage = { ...a.stage, mutations: [...a.mutations] };
     if (!a.collection || typeof a.collection !== 'object') a.collection = {};
     // 第十一輪養成欄位。舊存檔沒有 dust：那時候「張數就是星數」，所以直接把張數當累計粉塵搬過來
     //   （dustOf 的 fallback 也是這樣，但這裡要落地成真欄位，不然第一次抽到重複就會從 0 重算）。
@@ -408,7 +438,7 @@
       a.stage = { ...a.stage, farm: true, boss: rb, resident: !!a.stage.revisit && !!a.stage.resident, deadline: rb ? (a.stage.deadline || null) : null, breakUntil: a.stage.breakUntil || 0 }; }
     // 第十輪：舊存檔的王關是護盾版（shield），換成這一隻王自己的機制狀態
     if (a.stage && a.stage.boss && (a.stage.mech === undefined || !a.stage.minions || !a.stage.shell || !a.stage.rhythm || !a.stage.order)) {
-      a.stage = { ...a.stage, ...freshMech(a.stage.index, need(a.stage.index, a)), breakUntil: 0 };
+      a.stage = { ...a.stage, ...freshMech(a.stage.index, need(a.stage.index, a), a), breakUntil: 0 };
     }
     if (a.stage && a.stage.boss) a.stage = cleanMech(a.stage);   // 壞掉的機制欄位重建（Codex 第十輪 A 必修 4）
     if (a.stage) delete a.stage.shield;
@@ -553,8 +583,8 @@
   const lapsOf = a => Number.isInteger(a?.laps) && a.laps > 0 ? Math.min(a.laps, RULES.LAP.MAX) : 0;
   const lapHp = a => lapsOf(a) ? RULES.LAP.HP_FIRST * RULES.LAP.HP_GROWTH ** (lapsOf(a) - 1) : 1;
   const lapPower = a => 1 + RULES.LAP.POWER * lapsOf(a);
-  const need = (i, a) => Math.round(RULES.BASE_NEED * RULES.GROWTH ** i * (isBoss(i) ? bossMulOf(i) : 1) * lapHp(a));
-  const reward = (i, a) => Math.round(need(i, a) * RULES.REWARD_SHARE * RULES.REWARD_GROWTH ** i);
+  const need = (i, a) => Math.round(RULES.BASE_NEED * RULES.GROWTH ** i * (isBoss(i) ? bossMulOf(i) : 1) * lapHp(a) * (isBoss(i) && hasMutation(a,'thick') ? 1.3 : 1));
+  const reward = (i, a) => Math.round(need(i, a) * RULES.REWARD_SHARE * RULES.REWARD_GROWTH ** i * (hasMutation(a,'famine') ? .7 : 1) * (hasMutation(a,'harvest') ? 1.5 : 1));
   // 一般站一隻（含刷怪）的獎勵＝這一站的獎勵 ÷ WAVES：一站打完拿到的錢跟以前一樣，只是多花時間。
   // ⚠ 第九輪先試過每隻都給整份——錢變成 WAVES 倍、訓練長得太快，打越多隻全線反而越短（一般玩家 54 分 → 8 隻時 38 分）
   const killReward = (i, a) => isBoss(i) ? reward(i, a) : Math.round(reward(i, a) / Math.max(1, RULES.WAVES));
@@ -587,7 +617,7 @@
     // 所以回顧是**一條路**：小怪站照正規打 WAVES 隻，打完往下一站走，打到這一區段的王就結束回顧（settle 裡推 revisitAt）。
     const boss = isBoss(i);
     return { ...a, revisitAt: i, stage: { index: i, hp: need(i, a), need: need(i, a), boss, farm: true, revisit: true, resident: !walk, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now,
-      deadline: boss && RULES.BOSS_TIME ? now + bossTimeOf(a) : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
+      deadline: boss && RULES.BOSS_TIME ? now + bossTimeOf(a) : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a), a) : {}) } };
   }
   const leaveRevisit = a => a.revisitAt === null || a.revisitAt === undefined ? a : { ...a, revisitAt: null, stage: a.stage?.revisit ? null : a.stage };
   function fight(a, now, farm = false) {
@@ -601,16 +631,17 @@
     if (!canFight(a, now)) throw new Error(a.progress >= RULES.STATIONS ? '全線已通行' : a.stage ? '戰鬥中' : '王關冷卻中');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
     const i = a.progress, boss = isBoss(i);
-    return { ...a, stage: { index: i, hp: need(i, a), need: need(i, a), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + bossTimeOf(a) : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a)) : {}) } };
+    return { ...a, bossStreak: a.bossStreak?.index === i ? a.bossStreak : { index: null, fails: 0 }, stage: { index: i, hp: need(i, a), need: need(i, a), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + bossTimeOf(a) : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a), a) : {}) } };
   }
   // 結算：回傳 { state, events:[{type:'win'|'fail', index}] }
-  function settle(a, now, dt) {
+  function settle(a, now, dt, rng = Math.random) {
     const events = []; let s = { ...a, seenAt: now };   // seenAt：最後一次結算的時間，離線收益從這裡算
     if (s.fx && s.fx.powerUntil && now >= s.fx.powerUntil) s.fx = { ...s.fx, powerUntil: 0, powerMul: 1 };
     const p = power(s) * powerMul(s, now);
     if (dt > 0) s.coins += p * RULES.IDLE_COINS * dt;
     if (s.stage) {
       let st = { ...s.stage };
+      s.lapPlayMs = (s.lapPlayMs || 0) + Math.max(0, Math.min(now, st.deadline || now) - Math.max(now - Math.max(0,dt) * 1000, st.startedAt || 0));
       // 舊存檔的王關沒有期限：第一次結算時給一個完整的 60 秒。只在 deadline 是空的時候給，給過就存下來，不會無限續時
       if (st.boss && RULES.BOSS_TIME && !st.deadline) st.deadline = now + bossTimeOf(a);
       // 放置傷害只算到期限為止（Codex 第五輪必修 3：逾時之後才進來的這一段不能拿來打贏）。期限前合法的致死照樣算贏。
@@ -620,7 +651,7 @@
         // 切段：破防結束、技能到期、滅世珍獸換機制（段內倍率與機制固定）；王的段內再照事件時間推進（idleBoss）
         const cuts = [t0, ...[st.breakUntil, st.breachFallbackUntil, a.fx?.powerUntil, a.fx?.idleUntil, ...rotateCuts(st, t0, tEnd)].filter(t => t > t0 && t < tEnd), tEnd].sort((x, y) => x - y);
         for (let k = 1; k < cuts.length; k++) {
-          const mid = (cuts[k - 1] + cuts[k]) / 2, dps = power(a) * powerMul(a, mid) * frenzyMul(a, mid) * fallbackMul(st, mid);
+          const mid = (cuts[k - 1] + cuts[k]) / 2, dps = power(a) * powerMul(a, mid) * frenzyMul(a, mid) * fallbackMul(st, mid) * (hasMutation(a,'waste') ? .5 : 1);
           if (st.boss) st = idleBoss(st, dps, cuts[k - 1], cuts[k]);
           else st.hp -= Math.min(dps * (breaking(st, mid) ? 2 : 1), damageCap(st)) * (cuts[k] - cuts[k - 1]) / 1000;
         }
@@ -650,7 +681,8 @@
         events.push({ type: 'wave', index: st.index, wave: st.wave || 1, waves: st.waves, reward: killReward(st.index, s) });
       }
       else if (st.hp <= 0) {
-        s.coins += killReward(st.index, s); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null;
+        s.coins += killReward(st.index, s); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null; s.bossStreak = { index: null, fails: 0 };
+        if (s.endless && s.progress >= 30 && s.progress % 10 === 0 && s.progress > (s.endlessMutationAt || 20)) { s.mutations = drawMutations(1, s.mutations, rng); s.endlessMutationAt = s.progress; }
         if (s.progress > RULES.STATIONS) s.endlessBest = Math.max(s.endlessBest || 0, s.progress - RULES.STATIONS);   // 無盡模式記最遠
         events.push({ type: 'win', index: st.index, reward: killReward(st.index, s) });
         { const d = winDust(s, st.index);
@@ -660,20 +692,25 @@
             events.push({ type: 'dust', index: st.index, amount: d, boss: st.index < RULES.STATIONS });
           } }
         // 全線通行只報一次；之後留在末世繼續放置與補收藏
-        if (s.progress >= RULES.STATIONS && !s.cleared) { s.cleared = true; events.push({ type: 'cleared' }); }
+        if (s.progress >= RULES.STATIONS && !s.cleared) { s.cleared = true; const dust = lapChest(s); s.lapChest = (s.lapChest || 0) + dust; s.universalDust += dust;
+          const entry = { lap: lapsOf(s), mutations: [...(s.mutations || [])], seconds: Math.floor((s.lapPlayMs || 0)/1000), bossFails: s.lapBossFails || 0, dust, at: now };
+          s.lapLog = [...(s.lapLog || []), entry];
+          const unlocked = RULES.HIT_FX.filter(f => f.unlockLap === entry.lap).map(f => f.id);
+          s.cosmetics = { ...s.cosmetics, owned: [...new Set([...s.cosmetics.owned, ...unlocked])] };
+          events.push({ type: 'cleared', entry }); }
       }
       // 輸過就記下這一站：之後不自動開打，等玩家按右上角的「再次挑戰」（使用者第四輪：第一次遭遇直接進，失敗之後才有進入選項）
       // 回顧中的王逾時：不算輸（不記 bossFailed、不冷卻），等重生再來一隻
       else if (st.deadline && now >= st.deadline && st.farm) { s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN; }
-      else if (st.deadline && now >= st.deadline) { s.stage = null; s.cooldownUntil = now + RULES.BOSS_COOLDOWN; s.bossFailed = st.index; events.push({ type: 'fail', index: st.index }); }
+      else if (st.deadline && now >= st.deadline) { s.stage = null; s.cooldownUntil = now + RULES.BOSS_COOLDOWN; s.bossFailed = st.index; s.bossStreak = { index: st.index, fails: (s.bossStreak?.index === st.index ? s.bossStreak.fails : 0) + 1 }; s.lapBossFails = (s.lapBossFails || 0) + 1; events.push({ type: 'fail', index: st.index }); }
       else s.stage = st;
     }
     return { state: s, events };
   }
   const damageCap = st => st.need * (st.boss ? RULES.TAP_CAP.BOSS : RULES.TAP_CAP.NORMAL);
-  const fallbackMul = (st, now) => now < (st?.breachFallbackUntil || 0) ? M().RESIST.FALLBACK_MUL : 1;
+  const fallbackMul = (st, now) => now < (st?.breachFallbackUntil || 0) ? mechRules().RESIST.FALLBACK_MUL : 1;
   // 狂熱把既有 .35 放置倍率提升為技能量；一般關也按同一比例加速，保留原有無技能節奏。
-  const frenzyMul = (a, now) => now < (a.fx?.idleUntil || 0) ? (a.fx.idleValue || 1) / M().IDLE_MUL : 1;
+  const frenzyMul = (a, now) => now < (a.fx?.idleUntil || 0) ? (a.fx.idleValue || 1) / mechRules().IDLE_MUL : 1;
   const rawTapDamage = (a, now) => !a.stage || a.stage.hp <= 0 || (a.stage.deadline && now >= a.stage.deadline) ? 0 : power(a) * powerMul(a, now) * clickShare(a) * trainMul('click', a.clickLevel) * boostOf(a).click
     * (a.fx?.clickLeft > 0 ? (a.stage.boss ? resistedOpen(a.fx.clickMul || 1) : (a.fx.clickMul || 1)) : 1) * tapMul(a.stage, now) * fallbackMul(a.stage, now);
   const tapDamage = (a, now) => a.stage ? Math.min(rawTapDamage(a, now), damageCap(a.stage)) : 0;
@@ -715,13 +752,13 @@
     else if (def.kind === 'idle') { fx.idleValue = def.value * k.skill; fx.idleUntil = now + def.ms; }
     else if (def.kind === 'breach' && st) {
       const count = st.skillBreaks || 0;
-      if (!st.boss || count < M().RESIST.BREACH_LIMIT) {
-        st.breakUntil = Math.max(st.breakUntil || 0, now + def.ms * k.skill * (st.boss ? M().RESIST.BREACH_TIME : 1));
-      } else st.breachFallbackUntil = now + M().RESIST.FALLBACK_MS;
+      if (!st.boss || count < mechRules().RESIST.BREACH_LIMIT) {
+        st.breakUntil = Math.max(st.breakUntil || 0, now + def.ms * k.skill * (st.boss ? mechRules().RESIST.BREACH_TIME : 1));
+      } else st.breachFallbackUntil = now + mechRules().RESIST.FALLBACK_MS;
       if (st.boss) st.skillBreaks = count + 1;
     }
     else if (def.kind === 'cool') cd = cd.map((t, i) => i === slot ? t : Math.max(now, t - def.value * k.skill));
-    cd[slot] = now + def.cd * k.cd;
+    cd[slot] = now + def.cd * k.cd * (hasMutation(a,'lock') ? 1.25 : 1) * (hasMutation(a,'echo') ? .8 : 1);
     return { ...a, stage: st, fx, skillCd: cd };
   }
   // ---- 抽卡價：n 抽裡先用券，剩下的才付末世金幣
@@ -741,6 +778,7 @@
   // ---- 末世商店的外觀（受擊特效配色）：買了永久保留，換上不花錢
   function buyCosmetic(a, id) {
     const item = RULES.HIT_FX.find(f => f.id === id); if (!item) throw new Error('沒有這個外觀');
+    if (item.unlockLap && !(a.lapLog || []).some(l => l.lap >= item.unlockLap)) throw new Error(`第 ${item.unlockLap} 圈解鎖`);
     if (a.cosmetics?.owned?.includes(id)) throw new Error('已經擁有');
     if (a.coins < item.price) throw new Error(`末世金幣不足，要 ${item.price}`);
     return { ...a, coins: a.coins - item.price, cosmetics: { ...a.cosmetics, owned: [...(a.cosmetics?.owned || ['rust']), id] } };
@@ -866,12 +904,46 @@
     const L = lapsOf(a); if (L > laps) { gained += M.LAP * (L - laps); notes.push(`重走廢土第 ${L} 圈 +${M.LAP * (L - laps)}`); laps = L; }
     return { state: gained ? { ...a, marksGiven: { boss, cleared, collected, maxed, laps } } : a, gained, notes };
   }
-  function replay(a) {
+  const mutationCount = lap => lap === 0 ? 0 : lap === 1 ? 1 : lap < 5 ? 2 : 3;
+  function drawMutations(n, existing = [], rng = Math.random) {
+    const out = [...existing], pool = RULES.MUTATIONS.map(m => m.id).filter(id => !out.includes(id));
+    while (n-- > 0 && pool.length) out.push(pool.splice(Math.min(pool.length-1, Math.max(0,Math.floor(rng()*pool.length))),1)[0]);
+    return out;
+  }
+  const mutationView = a => (a.mutations || []).map(id => RULES.MUTATIONS.find(m => m.id === id)).filter(Boolean);
+  const ROLE_NAMES = { breach:'破防型',open:'開封型',train:'加訓型',reset:'重整型',idle:'放置型',coin:'金幣型' };
+  function recommendations(a) {
+    const ms = mutationView(a); if (!ms.length) return RECOMMENDATIONS;
+    const pattern = [...new Set([...ms.map(m=>m.counter).filter(Boolean),'train','reset','open','breach'])].slice(0,4);
+    return [{ name: `第 ${lapsOf(a)} 圈：解法`, tag:'這一圈的解法', stage:'輪迴', pattern, order:pattern.map(r=>ROLE_NAMES[r]).join(' → '), desc:ms.map(m=>`${m.name} → ${ROLE_NAMES[m.counter] || '正向增益'}`).join('；') }, ...RECOMMENDATIONS];
+  }
+  const canReroll = a => lapsOf(a)>0 && a.progress===0 && !a.stage && (a.purse||0)+a.coins >= RULES.LOOP.REROLL_COST;
+  const canRescue = (a, drop=false) => !!a.mutations?.length && (drop || a.mutations.length < RULES.MUTATIONS.length) && !(drop ? a.dropped : a.rerolled) && a.bossStreak?.index===a.progress && isBoss(a.progress) && a.bossStreak.fails >= (drop ? 6 : 3) && (!a.stage || a.stage.farm);
+  function rerollMutations(a, now, rng = Math.random) {
+    if (!canReroll(a)) throw new Error('只能在第 1 站開打前，備足盤纏或金幣重抽');
+    const cost = RULES.LOOP.REROLL_COST, pursePaid = Math.min(a.purse||0,cost), mutations = drawMutations(mutationCount(lapsOf(a)),[],rng);
+    return { ...a, purse:(a.purse||0)-pursePaid, coins:a.coins-(cost-pursePaid), mutations, baseMutations:[...mutations] };
+  }
+  function changeMutation(a,id,drop,rng) {
+    if (!canRescue(a,drop) || !a.mutations.includes(id)) throw new Error('連敗次數不足，或這圈的免費機會已用完');
+    const replacement = drop ? [] : drawMutations(1,a.mutations,rng).slice(a.mutations.length);
+    if (!drop && !replacement.length) throw new Error('變異池已抽完');
+    const mutations = a.mutations.filter(m=>m!==id).concat(replacement);
+    return { ...a, mutations, baseMutations:(a.baseMutations||a.mutations).filter(m=>m!==id).concat(replacement), [drop?'dropped':'rerolled']:true, stage:null };
+  }
+  const swapMutation = (a,id,rng=Math.random) => changeMutation(a,id,false,rng);
+  const dropMutation = (a,id) => changeMutation(a,id,true);
+  function lapChest(a) {
+    if (!lapsOf(a) || (a.lapLog||[]).some(l=>l.lap===lapsOf(a))) return 0;
+    return Math.max(0,Math.min(RULES.LOOP.CHEST_TOTAL-(a.lapChest||0),Math.floor(Math.min(RULES.LOOP.CHEST_MAX,1+mutationView(a).filter(m=>!m.positive).length*.5+((a.lapPlayMs||0)<1200000?1:0)))));
+  }
+  function replay(a, now = Date.now(), rng = Math.random) {
     if (!a.cleared) throw new Error('全線通行之後才能重走廢土');
     if (lapsOf(a) >= RULES.LAP.MAX) throw new Error('已經重走 ' + RULES.LAP.MAX + ' 圈，到頂了');
     if (a.pending) throw new Error('還有沒收下的結果');
     // 第十一輪：王首勝的粉塵每一圈重算（重走廢土是「再打一次」，回饋感要跟著回來）
-    return { ...a, laps: lapsOf(a) + 1, progress: 0, stage: null, coins: 0, teamLevel: 0, clickLevel: 0, bossFailed: null, cooldownUntil: 0, farmNextAt: 0, revisitAt: null, bossDust: [],
+    const mutations = drawMutations(mutationCount(lapsOf(a) + 1), [], rng);
+    return { ...a, mutations, baseMutations: [...mutations], purse: Math.floor(a.coins * .5), rerolled: false, dropped: false, bossStreak: { index: null, fails: 0 }, lapStartedAt: now, lapPlayMs: 0, lapBossFails: 0, endlessMutationAt: 20, laps: lapsOf(a) + 1, progress: 0, stage: null, coins: 0, teamLevel: 0, clickLevel: 0, bossFailed: null, cooldownUntil: 0, farmNextAt: 0, revisitAt: null, bossDust: [],
       cleared: false, endless: false, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
   // 無盡模式：全線通行後第 21 站起一直往下打（王固定是四種輪流），關掉時丟掉 20 站以後的戰鬥
@@ -880,7 +952,7 @@
     // ⚠ 開無盡之前一定要先離開回顧：全線通行後場上常駐的那隻是回顧（revisitAt 有值），
     //   留著的話 UI 的自動接關會一直重開那一隻，無盡的第 21 站永遠打不到。
     if (on) a = leaveRevisit(a);
-    return { ...a, endless: !!on, stage: !on && a.progress >= RULES.STATIONS ? null : a.stage };
+    return { ...a, mutations: on ? a.mutations : [...(a.baseMutations || [])], baseMutations: !a.endless && on ? [...(a.mutations || [])] : a.baseMutations, endless: !!on, stage: !on && a.progress >= RULES.STATIONS ? null : a.stage };
   }
   // ---- 第十輪 D 離線與派遣
   // 算錢的那一站：目前這一站；王站、打完全線（沒開無盡）→ 往前找最近的一般站
@@ -890,7 +962,7 @@
     if (elapsed < O.MIN_MS || !(p > 0)) return { state: { ...a, seenAt: now }, events: [] };
     const maxMs = boostOf(a).offline12 ? 12 * 3600000 : O.MAX_MS;   // 兌換「離線 12 小時」兩個世界共用
     const secs = Math.min(elapsed, maxMs) / 1000, i = incomeIndex(a);
-    const kills = Math.floor(p * secs * O.SHARE / need(i, a)), earned = Math.floor((p * RULES.IDLE_COINS * secs * O.SHARE + kills * killReward(i, a)) * (boostOf(a).offline || 1));   // 離線祝福全額
+    const kills = Math.floor(p * (hasMutation(a,'waste') ? .5 : 1) * secs * O.SHARE / need(i, a)), earned = Math.floor((p * RULES.IDLE_COINS * secs * O.SHARE + kills * killReward(i, a)) * (boostOf(a).offline || 1));   // 離線祝福全額
     return { state: { ...a, coins: a.coins + earned, seenAt: now }, events: [{ type: 'offline', elapsed, secs, index: i, kills, earned }] };
   }
   const dispatchedApoc = (a, id) => (a.dispatch || []).some(d => d.id === id);
@@ -909,7 +981,7 @@
     if (!done.length) return { state: a, rewards: [] };
     let coins = 0, tickets = 0, dust = 0;
     // 第十一輪：派遣除了金幣與券，也帶萬用粉塵回來（稀有度越高帶越多，同 dispatchCoins 的倍率表）
-    const rewards = done.map(d => { const c = dispatchCoins(a, d.id), t = rng() < RULES.DISPATCH.TICKET + (boostOf(a).ticket || 0) ? 1 : 0,   // 寶箱祝福：派遣券機率 +1%/級
+    const rewards = done.map(d => { const c = dispatchCoins(a, d.id), t = rng() < Math.min(1, (RULES.DISPATCH.TICKET + (boostOf(a).ticket || 0)) * (hasMutation(a,'harvest') ? 2 : 1)) ? 1 : 0,   // 寶箱祝福：派遣券機率 +1%/級
       u = Math.round(RULES.GROW.DISPATCH * (RULES.DISPATCH.RARITY[poolById()[d.id]?.rarity] || 1));
       coins += c; tickets += t; dust += u; return { id: d.id, coins: c, ticket: t, dust: u }; });
     return { state: { ...a, coins: a.coins + coins, tickets: a.tickets + tickets, universalDust: (a.universalDust || 0) + dust,
@@ -921,7 +993,7 @@
     transcend: { ...(a.transcend || {}) }, dust: { ...(a.dust || {}) },
     universalDust: a.universalDust || 0, maxStars: maxStars(), fullDust: fullDust(),
   });
-  const view = (a, now) => ({ ...growView(a), revisitAt: a.revisitAt ?? null, coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
+  const view = (a, now) => ({ ...growView(a), mutations: mutationView(a), purse:a.purse||0, rerollCost:RULES.LOOP.REROLL_COST, canReroll:canReroll(a), canSwap:canRescue(a), canDrop:canRescue(a,true), bossStreak:a.bossStreak, lapLog:a.lapLog||[], lapChest:a.lapChest||0, nextMutationCount:mutationCount(lapsOf(a)+1), recommendations:recommendations(a), revisitAt: a.revisitAt ?? null, coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
     skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null, cleared: !!a.cleared,
     skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { ...d, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) ? need(a.progress, a) : 0,
     drawCost1: drawCost(a, 1), drawCost10: drawCost(a, 10), paidDraws: a.paidDraws || 0,
@@ -935,7 +1007,7 @@
     dispatch: a.dispatch || [], dispatchSlots: dispatchSlots(a), dispatchDone: a.dispatchDone || 0, skillSlots: boostOf(a).slot4 ? 4 : 3, marksGiven: a.marksGiven || null,
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
-  root.ApocEconomy = { RULES, RATES, setBoostProvider, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, rawTapDamage, coinGain, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { mechRules, mutationCount, drawMutations, recommendations, rerollMutations, swapMutation, dropMutation, lapChest, RULES, RATES, setBoostProvider, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, rawTapDamage, coinGain, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, skillInfo, canSkill, useSkill, powerMul,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
     starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, isMaxed, dustRate, fullDust, starCap, exchangeDust, winDust };
