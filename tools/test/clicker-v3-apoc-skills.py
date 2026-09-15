@@ -52,7 +52,7 @@ with sync_playwright() as p:
         if boss:
             check('抵抗' in pg.locator('#slots .skill-use[data-slot="0"]').get_attribute('title'), '王關 tooltip 抵抗')
             pg.evaluate("()=>{const a=Clicker.state.apoc;a.teamLevel=250;a.clickLevel=250;}")
-            cap=pg.evaluate('()=>Clicker.state.apoc.stage.need*.04');hit=click_hit();check(hit['damage']<=cap and hit['hit']['capped'] and '盾' in hit['text'],'王關浮字 ≤4% 且顯示盾',{'cap':cap,'hit':hit})
+            cap=pg.evaluate('()=>Clicker.state.apoc.stage.need*ApocEconomy.RULES.TAP_CAP.BOSS');hit=click_hit();check(hit['damage']<=cap and hit['hit']['capped'] and '盾' in hit['text'],'王關浮字 ≤ 王盾上限 且顯示盾',{'cap':cap,'hit':hit})
         pg.screenshot(path=str(OUT/('skills-boss.png' if boss else 'skills-normal.png')))
         if boss:
             pg.set_viewport_size({'width':390,'height':844});pg.wait_for_timeout(250)

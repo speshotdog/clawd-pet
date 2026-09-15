@@ -277,7 +277,9 @@ window.Clicker = (() => {
         const apply=el('button','recommend-apply',lack.length?'先裝有的':'套用'); apply.type='button';
         apply.disabled=store.blocked || !!a.pending || lack.length===r.slots;
         apply.onclick=()=>action(()=>{const next=E.clone(store.state); next.apoc=A.setTeam(A.normalize(next.apoc),r.roster,r.skills);
-          if(commit(next)){changed();showRoster();root.hidden=true;showRecommendations();notice(`已套用${preset.name}`);}});
+          if(commit(next)){changed();showRoster();root.hidden=true;showRecommendations();
+            const sw=r.roster.filter(id=>!a.roster.includes(id)).map(id=>window.ApocPool.find(c=>c.id===id).name);
+            notice(`已套用${preset.name}${sw.length?`，${sw.join('、')} 入隊`:''}，技能槽已換好`);} else notice('套用失敗：隊伍上限或派遣中，先去編隊看一下');});
         foot.append(apply); card.append(foot); list.append(card);
       });
       root.append(list); return;
@@ -790,7 +792,7 @@ window.Clicker = (() => {
     }
     $('retry-save').onclick = () => { if (commit()) { if (!apocMode()) settle(); changed(); } };   // 末世不要跑桌邊結算與桌邊 stage.render（Codex 第三輪 B4）
     $('roster-open').onclick = () => showRoster();
-    $('boss-challenge').onclick = () => action(()=>{ if (apocMode()) { apocUI.fight(); return; } if (stage.bossBusy || cutin.active || gacha.active) return; const now=Date.now(), p=E.bossPreview(store.state,now); if (!p) return; if (commit(p.kind==='gate' ? E.startGate(store.state,now) : E.startBoss(store.state,now))) changed(); });
+    $('boss-challenge').onclick = () => action(()=>{ if (apocMode()) { if ($('boss-challenge').dataset.loop) { apocUI.openEnding(); return; } apocUI.fight(); return; } if (stage.bossBusy || cutin.active || gacha.active) return; const now=Date.now(), p=E.bossPreview(store.state,now); if (!p) return; if (commit(p.kind==='gate' ? E.startGate(store.state,now) : E.startBoss(store.state,now))) changed(); });
     $('scene-open').title='選擇場景';
     $('scene-open').onclick = () => action(()=>{
       if (apocMode()) { apocMap.open(); return; }   // 末世沒有場景：這顆鍵在末世是「地圖」

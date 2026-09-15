@@ -603,13 +603,18 @@ window.ClickerApocUI = (() => {
       // 全線通行後的常駐怪（回顧路）：這顆鍵按下去是 fight()，而 canFight 早就是 false（進度 20/20），
       // 使用者 2026-09-14：「最後的開戰不能點」——沒有目標站可回，直接藏掉。
       if (rev && v.progress >= v.stations && !v.endless) go.hidden = true;
+      // 輪迴／無盡的入口（朋友 2026-09-16：「輪迴要怎麼進去，根本沒開放」——以前只藏在戰績頁一顆文字鍵）：
+      // 全線通行之後舞台這顆鍵改成「輪迴／無盡」，按下去開全線通行面板
+      const loopEntry = v.cleared && !v.endless && v.progress >= v.stations;
+      go.dataset.loop = loopEntry ? '1' : '';
       if (rev && v.progress < v.stations) { go.hidden = false; }   // 回顧中留一個回得去的鍵
-      go.disabled = (rev ? false : !v.canFight) || !(v.power > 0) || store.blocked;
+      go.disabled = loopEntry ? store.blocked : ((rev ? false : !v.canFight) || !(v.power > 0) || store.blocked);
+      if (loopEntry) { go.hidden = false; go.classList.remove('long'); }
       // 冷卻中寫出還要等幾秒，不然停用的「再次挑戰」看起來像壞掉（Codex 第五輪）
       const wait = Math.max(0, Math.ceil((v.cooldownUntil - Date.now()) / 1000));
-      go.textContent = rev && v.progress < v.stations ? '回到目前站' : !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? (wait ? `再次挑戰・${wait}秒` : '再次挑戰') : '挑戰王關') : '開戰';
-      go.classList.toggle('glow', !!(v.canFight && v.power > 0));
-      $('package-result').textContent = over ? (v.endless ? '無盡模式到底了。' : '全線已通行。')
+      go.textContent = loopEntry ? (v.laps ? `輪迴 第 ${v.laps + 1} 圈` : '輪迴／無盡') : rev && v.progress < v.stations ? '回到目前站' : !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? (wait ? `再次挑戰・${wait}秒` : '再次挑戰') : '挑戰王關') : '開戰';
+      go.classList.toggle('glow', loopEntry || !!(v.canFight && v.power > 0));
+      $('package-result').textContent = loopEntry ? '全線已通行：按「輪迴／無盡」開下一圈，或留在這裡點著賺錢。' : over ? (v.endless ? '無盡模式到底了。' : '全線已通行。')
         : failed ? (v.canFight ? '王關失敗：在前一站刷錢變強，準備好就按「再次挑戰」。' : '王關失敗：先在前一站刷錢變強，冷卻結束後可以「再次挑戰」。')
         : rev ? (v.progress >= v.stations ? '全線已通行：這一隻會一直在，點著賺錢就好。' : `回顧第 ${i + 1} 站：從這裡往下走到這一段的王為止，不會推進度。要回去推進度就按下面的「回到目前站」。`)
         : v.stage ? '點怪攻擊；隊伍放著也會打。'
@@ -978,7 +983,7 @@ window.ClickerApocUI = (() => {
     function resume() { lastTick = Date.now(); mechKey = ''; if (store.state?.settings.world === 'apoc') { offlineCheck(); render(); } }   // 第十輪 D：回到前景先補離線收益
     // 招募層要借 GachaFx 的全域畫布：先把末世的粒子停掉清乾淨，不然會畫到招募層上（Codex 第三輪）
     function stopFx() { fx?.stop(); fx = null; }
-    return {
+    return { openEnding: showEnding,
       chips, render, enter, leave, tap, tick, apply, resume, train, openShop, openStats, stopFx,
       exchange: exchangeTicket,
       page(dir) { buddyPage = Math.max(0, buddyPage + dir); buddyKey = ''; render(); },

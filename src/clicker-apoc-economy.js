@@ -129,7 +129,7 @@
       ORDER: { PARTS: ['head', 'body', 'tail'], LEN: 4 },                  // 部位：照亮起的圓鈕順序點 LEN 下破防；點錯從頭；點空白處普通傷害
     },
     // 角色定型、稀有度定量；一般與精良共用第四階。
-    TAP_CAP: { NORMAL: .10, BOSS: .04 },
+    TAP_CAP: { NORMAL: .10, BOSS: .20 },   // 王 4% → 20%（使用者 2026-09-16：「王的最大傷害盾幫我改成 20%」）
     SKILLS: Object.fromEntries(['open', 'train', 'reset', 'coin', 'breach', 'idle'].map(role => [role,
       Object.fromEntries(Object.entries({ mythic: 1.6, legendary: 1.3, epic: 1, rare: .7, common: .7 }).map(([rarity, k]) => {
         const n = x => Math.round(x * 10000) / 10000;
@@ -331,8 +331,15 @@
     for (let i = 0; i < slots; i++) {
       const want = preset.pattern[i];
       let pick = [...roster].sort((x, y) => cardPower(a, y) - cardPower(a, x)).find(id => byRole(id) === want && !used.has(id));
-      if (!pick) { const cand = owned.find(id => byRole(id) === want && !used.has(id) && !roster.includes(id) && !rosterViolations([...roster, id]).length);
-        if (cand && roster.length < 20 && !rosterViolations([...roster, cand]).length) { roster.push(cand); pick = cand; } }
+      if (!pick) {
+        const cand = owned.find(id => byRole(id) === want && !used.has(id) && !roster.includes(id));
+        if (cand && roster.length < 20 && !rosterViolations([...roster, cand]).length) { roster.push(cand); pick = cand; }
+        // 隊伍滿 20 人（或撞前綴上限）：把戰力最低、這次沒用到、不在技能槽的那位換出去
+        //（朋友 2026-09-16：「要先把編隊空出空間再按才會轉，不然沒反應」）
+        else if (cand) {
+          const victims = roster.filter(id => !used.has(id) && !(a.skills || []).includes(id)).sort((x, y) => cardPower(a, x) - cardPower(a, y));
+          for (const v of victims) { const next = roster.filter(id => id !== v).concat(cand); if (!rosterViolations(next).length) { roster.splice(0, roster.length, ...next); pick = cand; break; } }
+        } }
       if (!pick) { missing.push(i); continue; }
       used.add(pick); skills[i] = pick;
     }

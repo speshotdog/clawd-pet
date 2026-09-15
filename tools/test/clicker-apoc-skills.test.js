@@ -52,16 +52,16 @@ test('idle：15 秒狂熱，機制 .35 提升為 1；跨到期放置切段',()=>
  close(a.stage.hp-A.settle(a,16000,2).state.stage.hp,p*1.35);
  const ordinary=setup('idle');close(ordinary.stage.hp-A.settle(A.useSkill(ordinary,0,0),1000,1).state.stage.hp,A.power(ordinary)/.35);
 });
-test('TAP_CAP：點擊最後才套一般 .10、王 .04，浮字記實際剩血',()=>{
+test('TAP_CAP：點擊最後才套一般 .10、王 .20，浮字記實際剩血',()=>{
  for(const boss of [false,true]){let a=setup('open','mythic',boss);a.teamLevel=200;a.clickLevel=100;a.stage.breakUntil=10000;a=A.useSkill(a,0,0);a.fx.powerMul=2;a.fx.powerUntil=10000;
- const cap=a.stage.need*(boss?.04:.10);assert.equal(A.tapDamage(a,0),cap);const hit=A.tap(a,0);close(a.stage.hp-hit.stage.hp,cap);assert.equal(hit.lastHit.capped,true);
+ const cap=a.stage.need*(boss?A.RULES.TAP_CAP.BOSS:.10);assert.equal(A.tapDamage(a,0),cap);const hit=A.tap(a,0);close(a.stage.hp-hit.stage.hp,cap);assert.equal(hit.lastHit.capped,true);
  a.stage.hp=5;const dead=A.tap(a,0);assert.equal(dead.lastHit.damage,5);assert.equal(A.tap(dead,0),dead);}
 });
 test('TAP_CAP：放置每秒封頂，分段結算等價，機制 ×3×2 仍不穿盾',()=>{
  for(const boss of [false,true]){let a=setup('idle','mythic',boss);a.teamLevel=200;a.stage.breakUntil=10000;a=A.useSkill(a,0,0);
- const cap=a.stage.need*(boss?.04:.10),whole=A.settle(a,2000,2).state;close(a.stage.hp-whole.stage.hp,cap*2);
+ const cap=a.stage.need*(boss?A.RULES.TAP_CAP.BOSS:.10),whole=A.settle(a,2000,2).state;close(a.stage.hp-whole.stage.hp,cap*2);
  let split=a;for(let i=1;i<=8;i++)split=A.settle(split,i*250,.25).state;close(split.stage.hp,whole.stage.hp);}
- let a=setup('open','mythic',true);a.stage.mech=2;a.stage.breakUntil=10000;a.teamLevel=200;assert.equal(A.tapDamage(a,0),a.stage.need*.04);
+ let a=setup('open','mythic',true);a.stage.mech=2;a.stage.breakUntil=10000;a.teamLevel=200;assert.equal(A.tapDamage(a,0),a.stage.need*A.RULES.TAP_CAP.BOSS);
 });
 test('推薦依 role 選隊上最高戰力、數字 tooltip 與王關抵抗',()=>{
  const ids=ApocPool.map(c=>c.id);let a=A.normalize({...A.fresh(),unlocked:true,collection:Object.fromEntries(ids.map(id=>[id,1])),roster:[card('open','rare'),card('open','mythic'),card('train'),card('breach'),card('reset')]});
