@@ -727,6 +727,9 @@ body[data-world="apoc"] .recommend-slot.missing::after { content:'缺'; }
 .team-tip b { font-size:13px; color:#a04a2a; }
 .detail-skill { display:grid; gap:2px; margin:0; padding:6px 8px; font-size:11px; line-height:1.45; white-space:pre-line; color:#30251f; background:#fff7e5; border:2px dashed #96714f; border-radius:8px; }
 .detail-skill b { font-size:12px; color:#a04a2a; }
+.picker-grid .picker-section { grid-column:1 / -1; margin:6px 0 0; font-size:12px; font-weight:700; color:#7a5a3a; }
+#t20-picker-grid .team-proxy.out-cand[aria-selected="true"] { outline:3px solid #D9412F; box-shadow:0 0 8px #D9412F88; }
+#t20-picker-grid .team-proxy.out-cand[aria-selected="true"]::after { content:'出'; position:absolute; right:4px; top:4px; width:18px; height:18px; border-radius:50%; background:#D9412F; color:#fff; font-size:11px; font-weight:800; display:grid; place-items:center; }
 #t20-picker-grid .team-proxy.capped { opacity:.4; filter:grayscale(.6); }
 #t20-picker-grid .team-proxy.capped::before { content:'上限'; position:absolute; left:4px; top:4px; font-size:9px; padding:1px 4px; border-radius:4px; background:#D9412F; color:#fff; z-index:2; }
 #t20-picker-grid .team-proxy[aria-selected="true"]::after { content:'✓'; position:absolute; right:4px; top:4px; width:18px; height:18px; border-radius:50%; background:#f2b233; color:#30251f; font-size:12px; font-weight:800; display:grid; place-items:center; }

@@ -203,9 +203,23 @@
       previewTimer = setTimeout(() => { const affected = LIMITS.map((_, i) => rank(id) <= i); document.querySelectorAll('#t20-caps .capacity-row').forEach((r, i) => r.classList.toggle('affected', affected[i])); $('t20-picker-status').textContent = `${byId(id).name} · 影響：${LABELS.filter((_, i) => affected[i]).join('、')}`; }, 120);
     }
     // 多選：picks 是這次要一起加的 id；每按一次就用「隊伍＋picks」重算四條上限，撞到就標紅、不讓你選
-    let picks = [];
+    let picks = [], outs = [];   // picks＝要加進來的；outs＝替換模式要換出去的（使用者 2026-09-16：「替換也是要能批量」）
+    const baseTeam = () => team().filter(id => !outs.includes(id));
+    function toggleOut(id, btn) {
+      outs = outs.includes(id) ? outs.filter(x => x !== id) : [...outs, id];
+      btn.setAttribute('aria-selected', String(outs.includes(id)));
+      refreshPickable(); pickStatus();   // 換出之後空間變大，候選卡的灰掉狀態要重算
+    }
+    function pickStatus() {
+      const next = [...baseTeam(), ...picks], n = counts(next);
+      document.querySelectorAll('#t20-caps .capacity-row').forEach((r, i) => r.classList.toggle('affected', picks.some(p => rank(p) <= i) || outs.some(p => rank(p) <= i)));
+      const parts = []; if (outs.length) parts.push(`換出 ${outs.length}`); if (picks.length) parts.push(`換入 ${picks.length}`);
+      $('t20-picker-status').textContent = (picks.length || outs.length) ? `${parts.join('・')}（隊伍 ${next.length} / 20・神話 ${n[0]}/${LIMITS[0]}・傳說 ${n[1]}/${LIMITS[1]}・史詩 ${n[2]}/${LIMITS[2]}）` : (pickerMode === 'replace' ? '上排點要換出的成員、下排點要換入的卡，可以各選好幾張' : '點卡片選擇，可以一次選好幾張再按確認');
+      $('t20-picker-confirm').textContent = pickerMode === 'replace' ? (outs.length || picks.length ? `確認替換（出 ${outs.length}・入 ${picks.length}）` : '確認') : picks.length ? `確認加入 ${picks.length} 張` : '確認';
+      $('t20-picker-confirm').disabled = !(picks.length || outs.length);
+    }
     function togglePick(id, btn) {
-      const ids = team();
+      const ids = baseTeam();
       if (picks.includes(id)) picks = picks.filter(x => x !== id);
       else {
         const next = [...ids, ...picks, id], bad = violations(next);
@@ -214,16 +228,11 @@
         picks.push(id);
       }
       btn.setAttribute('aria-selected', String(picks.includes(id)));
-      refreshPickable();
-      const next = [...ids, ...picks], n = counts(next);
-      document.querySelectorAll('#t20-caps .capacity-row').forEach((r, i) => r.classList.toggle('affected', picks.some(p => rank(p) <= i)));
-      $('t20-picker-status').textContent = picks.length ? `已選 ${picks.length} 張（隊伍 ${next.length} / 20・神話 ${n[0]}/${LIMITS[0]}・傳說 ${n[1]}/${LIMITS[1]}・史詩 ${n[2]}/${LIMITS[2]}）` : '點卡片選擇，可以一次選好幾張再按確認';
-      $('t20-picker-confirm').textContent = picks.length ? `確認加入 ${picks.length} 張` : '確認';
-      $('t20-picker-confirm').disabled = !picks.length;
+      refreshPickable(); pickStatus();
     }
     // 每次勾選後把「現在再加會撞上限」的候選卡先灰掉、寫原因——不然玩家點了沒反應以為壞了（使用者 2026-09-16：「每次只能加一個卡」）
     function refreshPickable() {
-      const base = [...team(), ...picks];
+      const base = [...baseTeam(), ...picks];
       document.querySelectorAll('#t20-picker-grid .team-proxy').forEach(b => {
         const id = b.dataset.id; if (!id || picks.includes(id) || team().includes(id)) { b.classList.remove('capped'); return; }
         const next = [...base, id], full = next.length > 20, bad = violations(next);
@@ -231,13 +240,15 @@
         b.title = full ? '隊伍已滿 20 張' : bad.length ? bad.map(i => `${LABELS[i]}已達上限 ${LIMITS[i]}`).join('；') : '';
       });
     }
-    function addMany(list) {
+    function addMany(list, remove = []) {
       clearOperation(); const s = store.state;
-      const next = [...team(), ...list.filter(id => !team().includes(id))];
+      const next = [...team().filter(id => !remove.includes(id)), ...list.filter(id => !team().includes(id))];
       if (next.length > 20 || violations(next).length) { $('t20-picker-status').textContent = '上限變了，重新選一次'; return false; }
       let ok = false;
       action(() => { if (commit(apoc() ? writeTeam(next) : E.setRoster(s, next, Date.now()))) { ok = true; changed(); sound('upgrade'); } });
-      if (ok) { selected = list[0] || selected; renderRoster(); detail(); notice(`${list.map(id => byId(id).name).join('、')} 編入隊伍`); }
+      if (ok) { selected = list[0] || team()[0] || null; renderRoster(); detail();
+        const outNames = remove.map(id => byId(id).name).join('、'), inNames = list.map(id => byId(id).name).join('、');
+        notice(remove.length && list.length ? `${outNames} → ${inNames}` : remove.length ? `${outNames} 離開隊伍` : `${inNames} 編入隊伍`); }
       return ok;
     }
     function add(id, replace = null) {
@@ -278,9 +289,9 @@
     }
     // ---- 挑選器（同 team20 openPicker：add／replace／skill 三模式）
     function openPicker(mode, slot = 0) {
-      drag?.cancel(); clearOperation(); pending = null; picks = []; pickerMode = mode; pickerSlot = slot; $('t20-picker-confirm').textContent = '確認';
+      drag?.cancel(); clearOperation(); pending = null; picks = []; outs = mode === 'replace' && selected && team().includes(selected) ? [selected] : []; pickerMode = mode; pickerSlot = slot; $('t20-picker-confirm').textContent = '確認';
       const s = store.state, ids = team();
-      $('t20-picker-title').textContent = mode === 'skill' ? `挑選技能槽 ${slot + 1}` : mode === 'replace' ? '替換目前成員' : '新增隊伍成員';
+      $('t20-picker-title').textContent = mode === 'skill' ? `挑選技能槽 ${slot + 1}` : mode === 'replace' ? '替換成員（可批量）' : '新增隊伍成員';
       $('t20-picker-status').textContent = mode === 'skill' ? `技能槽 ${slot + 1} · 點卡片選擇；桌機也可直接從隊伍拖到技能槽` : mode === 'add' ? '點卡片選擇，可以一次選好幾張再按確認' : '選擇成員，預覽受影響的累加上限';
       $('t20-picker-confirm').disabled = true;
       const own = apoc() ? apocState().collection : s.collection;
@@ -288,11 +299,16 @@
         : Object.keys(own).filter(id => own[id] > 0 && (apoc() ? !!byId(id) : B.characters[id]))
             .sort((a, b) => rank(a) - rank(b) || power(b) - power(a));
       const grid = $('t20-picker-grid'); grid.replaceChildren();
+      if (mode === 'replace') {   // 上排：隊伍（點＝換出）；下排：候選（點＝換入）
+        grid.append(el('p', 'picker-section', '換出（點隊伍裡的成員）'));
+        for (const id of sortIds(ids)) { const b = proxy(id, ids.indexOf(id), () => toggleOut(id, b)); b.setAttribute('aria-selected', String(outs.includes(id))); b.classList.add('out-cand'); grid.append(b); }
+        grid.append(el('p', 'picker-section', '換入（點卡冊裡的卡）'));
+      }
       { const head = document.querySelector('#t20-picker .picker-heading'); const sel = sortSelect('t20-sort-picker', () => { openPicker(pickerMode, pickerSlot); }); if (sel.parentElement !== head) head.insertBefore(sel, $('t20-picker-close')); }
-      for (const id of sortIds(pool)) {
+      for (const id of sortIds(mode === 'replace' ? pool.filter(id => !ids.includes(id)) : pool)) {   // 替換模式：隊伍成員只出現在上排「換出」
         const b = proxy(id, null, () => {
           if (mode === 'skill') { pending = id; $('t20-picker-status').textContent = `技能槽 ${slot + 1} · ${byId(id).name}`; }
-          else if (mode === 'add') { togglePick(id, b); return; }   // 新增成員：多選，按一次確認一起加（參考薑餅人王國的編隊：點卡就進隊、上限條即時變）
+          else if (mode === 'add' || mode === 'replace') { togglePick(id, b); return; }   // 新增／替換：多選，按一次確認一起處理（參考薑餅人王國的編隊：點卡就進隊、上限條即時變）
           else preview(id);
           $('t20-picker-confirm').disabled = false; document.querySelectorAll('#t20-picker-grid .team-proxy').forEach(x => x.setAttribute('aria-selected', String(x === b))); });
         if (mode !== 'skill' && ids.includes(id)) b.disabled = true;
@@ -300,13 +316,13 @@
         grid.append(b);
       }
       if (!pool.length) grid.append(el('p', 'team-empty', mode === 'skill' ? '隊伍是空的，先編入成員' : '沒有候選'));
-      if (mode === 'add') refreshPickable();
+      if (mode === 'add' || mode === 'replace') { refreshPickable(); pickStatus(); }
       if (!$('t20-picker').open) $('t20-picker').showModal();
     }
     function closePicker() { clearOperation(); const d = $('t20-picker'); if (d.open) d.close(); }
     $('t20-picker-close').onclick = closePicker;
     $('t20-picker').addEventListener('close', clearOperation);
-    $('t20-picker-confirm').onclick = () => { if (pickerMode === 'add') { if (picks.length && addMany(picks)) closePicker(); return; } if (!pending) return; const id = pending, ok = pickerMode === 'skill' ? assignSkill(pickerSlot, id) : add(id, pickerMode === 'replace' ? selected : null); if (ok) closePicker(); };
+    $('t20-picker-confirm').onclick = () => { if (pickerMode === 'add' || pickerMode === 'replace') { if ((picks.length || outs.length) && addMany(picks, outs)) closePicker(); return; } if (!pending) return; const id = pending, ok = pickerMode === 'skill' ? assignSkill(pickerSlot, id) : add(id, pickerMode === 'replace' ? selected : null); if (ok) closePicker(); };
     $('t20-add').onclick = () => openPicker('add');
     $('t20-replace').onclick = () => openPicker('replace');
     $('t20-remove').onclick = remove;
