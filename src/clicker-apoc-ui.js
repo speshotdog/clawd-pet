@@ -127,6 +127,8 @@ window.ClickerApocUI = (() => {
       requestAnimationFrame(()=>$('lap-done-dust').classList.add('count-in'));
       const skins=A.RULES.HIT_FX.filter(f=>f.unlockLap===entry.lap);
       $('lap-done-unlocks').textContent=skins.length?'解鎖配色：'+skins.map(f=>f.name).join('、'):'';
+      const unlocked = A.RULES.GROW.TRANSCEND_LAP.lastIndexOf(entry.lap);
+      $('lap-done-transcend').textContent = unlocked >= 5 ? `突破上限 → 第 ${unlocked + 1} 級` : '';
       $('lap-done').hidden=false; $('game-content').inert=true;
       $('lap-done-next').onclick=()=>{ $('lap-done').hidden=true; showEnding(); }; $('lap-done-next').focus();
     }
@@ -190,6 +192,7 @@ window.ClickerApocUI = (() => {
     }
     // 第十輪 D 末世徽章牆：從存檔現算（不另存清單，壞檔也不會掉徽章）；圖示是字章，不借 1.0 的圖
     const APOC_BADGES = [
+      { name: '輪迴滿養', label: '養', test: v => Pool().length > 0 && v.fullyMaxed >= Pool().length },
       ...['灰狼犬', '貼紙羊', '扛槌兔', '雞頭合成怪', '真・滅世珍獸'].map((name, k) => ({ name: `打贏${name}`, label: `王${k + 1}`, test: v => v.progress > k * 4 + 3 || v.laps > 0 })),
       { name: '全線通行', label: '通', test: v => v.cleared || v.laps > 0 },
       { name: '重走廢土', label: '重走', test: v => v.laps >= 1 },
@@ -216,6 +219,8 @@ window.ClickerApocUI = (() => {
     function endingActions(v) {
       const re=$('apoc-replay'), en=$('apoc-endless'); re.disabled=!v.canReplay||store.blocked; en.disabled=store.blocked;
       $('ending-lap-title').textContent=v.canReplay?`輪迴 第 ${v.laps+1} 圈`:'輪迴已到頂';
+      const unlock = A.RULES.GROW.TRANSCEND_LAP.lastIndexOf(v.laps + 1);
+      $('ending-lap-unlock').textContent = v.canReplay && unlock >= 5 ? `下一圈解鎖：突破第 ${unlock + 1} 級` : '';
       re.textContent=v.canReplay?`開始第 ${v.laps+1} 圈`:`已到 ${A.RULES.LAP.MAX} 圈`;
       $('apoc-lap-note').textContent=`下一圈：血 ${times(v.nextLapHp)}、戰力 ${times(v.nextLapPower)}。變異 ×${v.nextMutationCount}（進去才抽）。盤纏：帶 ${format(Math.floor(v.coins*.5))} 金幣進去。`;
       $('ending-endless-best').textContent=`最遠：第 ${v.endlessBest?20+v.endlessBest:20} 站`;

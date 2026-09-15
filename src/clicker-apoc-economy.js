@@ -45,7 +45,8 @@
     //     所以卡冊全收集不可能靠運氣，一定要有兌換所這條不看運氣的路（同 1.0 的萬用粉塵換指定卡）。
     GROW: {
       STARS: [1, 2, 3, 5, 8],          // 累計粉塵 → 1★～5★（8 顆滿星）
-      TRANSCEND: [2, 2, 3, 3, 4],      // 滿星之後五級突破各要幾顆粉塵（累計 14 → 滿養 22）
+      TRANSCEND: [2, 2, 3, 3, 4, 8, 10, 12, 15, 20], // 前五級累計 14；十級累計 79（加滿星共 87）
+      TRANSCEND_LAP: [0, 0, 0, 0, 0, 2, 4, 6, 8, 10], // 各級解鎖圈數
       TRANSCEND_MUL: .10,              // 每突破一級 +10% 戰力
       // 萬用粉塵匯率：已滿養的卡再抽到就換成這麼多萬用粉塵，兌換所也用同一張表（價值守恆，不做懲罰性折損）。
       // 數字是抽中機率的倒數比例（1 : 2.2 : 4.4 : 25）壓過的——神話不壓的話會獨自吃掉一半以上的預算。
@@ -67,10 +68,10 @@
     //   第 n 圈敵人血與獎勵 ×HP_FIRST×HP_GROWTH^(n−1)、戰力 ×(1＋POWER×n)，最多 MAX 圈。
     //   scratchpad ngplus_sim.js 一般玩家：HP_FIRST 3／4／6／10／16 第二圈 59／51／76／109／137 分 → 取 10（第一圈 146，第二圈快約 25%，之後 48→41→40）
     // 輪迴倍率（2026-09-16 晚重調，使用者：「輪迴倍率拉高，讓玩家可以一直玩下去，為了抽卡」）：
-    //   血：第 1 圈 ×10、之後每圈 ×1.3（第 10 圈 ×106、第 20 圈 ×1460）；圈數上限 10 → 20（印記照舊只算前 10 圈）。
+    //   血：第 1 圈 ×10；十級突破後每圈 ×1.39（§32 三種子校準）；上限 20 圈，印記仍只算前 10 圈。
     //   每圈免費的戰力加成 .25 → .05：以前一圈送 25% 戰力，玩家不用抽卡也能追上，跟「輪迴是為了抽卡」相反。
     //   訓練上限跟站數綁（TRAIN_GATE，每圈重算但頂都是 88 級）→ 過了第 3～4 圈只剩卡（新卡、星、突破）能追血量，這就是抽卡的理由。
-    LAP: { MAX: 20, MARK_LAPS: 10, HP_FIRST: 10, HP_GROWTH: 1.3, POWER: .05 },
+    LAP: { MAX: 20, MARK_LAPS: 10, HP_FIRST: 10, HP_GROWTH: 1.39, POWER: .05 },
     LOOP: { REROLL_COST: 80000, CHEST_MAX: 3, CHEST_TOTAL: 30, TICKETS: 10 },   // 每圈打完送 10 張券（一次十連）：輪迴是為了抽卡，獎勵就直接是抽卡
     MUTATIONS: [
       ['thick','厚甲','王關血量 ×1.3','breach'], ['haste','倒數','王關基本期限 60 → 45 秒，額外 15 秒照加','open'],
@@ -402,12 +403,12 @@
       a.dust = {};
       // 舊版「張數就是星數、每張 +25% 無上限」：一張抽了 59 次的精良卡以前是 ×15.5，現在封在 ×3.0。
       // 直接套上去等於把既有玩家的戰力腰斬、卡在打不過的站——超出滿養的張數一律折成萬用粉塵還給玩家。
-      // 這段只在「舊存檔（沒有 dust 欄位）」跑，而且只從 collection 推導，所以重跑幾次結果都一樣（沒寫檔也不會重複加）。
+      // 舊檔從 collection 推導，新檔從 dust 讀取；截斷至輪迴滿養上限，多餘粉塵退回，重跑不重發。
       let refund = 0;
       for (const id of Object.keys(raw0)) {
         const n = count(d ? d[id] : raw0[id]); if (n <= 0) continue;
-        a.dust[id] = Math.min(n, fullDust());
-        if (!d) refund += Math.max(0, n - fullDust()) * (RULES.GROW.DUST[poolById()[id]?.rarity] ?? 1);
+        a.dust[id] = Math.min(n, fullDustLoop());
+        refund += Math.max(0, n - fullDustLoop()) * (RULES.GROW.DUST[poolById()[id]?.rarity] ?? 1);
       }
       if (refund) a.universalDust = count(a.universalDust) + refund;
     }
@@ -545,7 +546,8 @@
   // ---- 養成：粉塵／星級／突破（第十一輪，DESIGN-2026-09-14-apoc-growth.md）
   const G = () => RULES.GROW;
   const starCap = () => G().STARS[G().STARS.length - 1];                    // 滿星要的粉塵（8）
-  const fullDust = () => starCap() + G().TRANSCEND.reduce((x, y) => x + y, 0);   // 滿養要的粉塵（22）
+  const fullDustLoop = () => starCap() + G().TRANSCEND.reduce((x, y) => x + y, 0);   // 輪迴滿養的粉塵（87）
+  const fullDust = () => starCap() + G().TRANSCEND.slice(0, 5).reduce((x, y) => x + y, 0);
   const starsOf = n => n < 1 ? 0 : G().STARS.filter(t => n >= t).length;    // 累計粉塵 → 幾顆星
   const maxStars = () => G().STARS.length;
   // 舊存檔沒有 dust：張數就是粉塵（跟 1.0 的 dust() 同一招）
@@ -557,9 +559,21 @@
   const availableDust = (a, id) => Math.max(0, dustOf(a, id) - starCap() - spentDust(a, id));
   const transcendCost = (a, id) => G().TRANSCEND[transcendOf(a, id)] || 0;
   const dustRate = id => G().DUST[poolById()[id]?.rarity] ?? 1;
-  const isMaxed = (a, id) => transcendOf(a, id) >= G().TRANSCEND.length && dustOf(a, id) >= fullDust();
-  const canTranscend = (a, id) => starsAt(a, id) >= maxStars() && transcendCost(a, id) > 0 && availableDust(a, id) >= transcendCost(a, id);
-  // 收下時自動升（第〇之五輪定案：升階／超越改成收下時自動做，詳情頁不再放那兩顆鍵）
+  const isMaxed = (a, id) => transcendOf(a, id) >= 5 && dustOf(a, id) >= fullDust();
+  const isFullyMaxed = (a, id) => transcendOf(a, id) >= G().TRANSCEND.length && dustOf(a, id) >= fullDustLoop();
+  const transcendLap = (a, id) => G().TRANSCEND_LAP[transcendOf(a, id)] || 0;
+  const transcendUnlocked = (a, id) => lapsOf(a) >= transcendLap(a, id);
+  // 目前圈數允許的粉塵上限（第 0 圈＝22 顆＝兩週滿養；每解鎖一級突破往上加）。
+  // ⚠ 重複卡的溢出要用**這個**當界，不是 87：不然輕度玩家（第 0 圈）的重複卡會囤在卡上、不再折成萬用粉塵，
+  //   兩週滿養那條線整個崩掉（Astra 第一版就是這樣，輕度三種子全 >14）。
+  const dustCapNow = a => starCap() + G().TRANSCEND.reduce((sum, cost, i) => sum + (lapsOf(a) >= G().TRANSCEND_LAP[i] ? cost : 0), 0);
+  const exchangeCapacity = (a, id) => Math.max(0, starCap() + G().TRANSCEND.reduce((sum, cost, i) => sum + (lapsOf(a) >= G().TRANSCEND_LAP[i] ? cost : 0), 0) - dustOf(a, id));
+  function transcend(a, id) {
+    if (!a.collection[id] || !canTranscend(a, id)) throw new Error('突破條件不足');
+    return { ...a, transcend: { ...(a.transcend || {}), [id]: transcendOf(a, id) + 1 } };
+  }
+  const canTranscend = (a, id) => transcendUnlocked(a, id) && starsAt(a, id) >= maxStars() && transcendCost(a, id) > 0 && availableDust(a, id) >= transcendCost(a, id);
+  // 收下時自動突破至本圈上限；新圈解鎖後，已存夠的粉塵也可在詳情頁手動突破。
   function autoGrow(a, ids) {
     const grows = [];
     for (const id of [...new Set(ids)]) {
@@ -582,7 +596,8 @@
     if (!poolById()[id]) throw new Error('卡片不在末世卡池裡');
     if (!Number.isSafeInteger(n) || n < 1) throw new Error('數量不對');
     if (!a.collection[id]) throw new Error('還沒抽到這張卡');
-    if (isMaxed(a, id)) throw new Error('這張已經滿養了');
+    if (isFullyMaxed(a, id)) throw new Error('這張已經輪迴滿養了');
+    if (n > exchangeCapacity(a, id)) throw new Error('已達本圈滿養上限，等待下一級解鎖');
     const cost = dustRate(id) * n;
     if ((a.universalDust || 0) < cost) throw new Error('萬用粉塵不足');
     const s = { ...a, universalDust: a.universalDust - cost, dust: { ...(a.dust || {}) }, collection: { ...a.collection }, transcend: { ...(a.transcend || {}) } };
@@ -824,7 +839,7 @@
     const pool = poolById();
     if (ids.some(id => !pool[id])) throw new Error('卡片不在末世卡池裡');   // 以前是默默過濾掉 → 券沒扣回來會憑空變多
     // 第十一輪：張數（collection）與粉塵（dust）分家——collection 是「抽到過幾張」（卡冊顯示用），
-    // dust 才是養成貨幣。已經滿養的卡再抽到不再累積粉塵，改成溢出萬用粉塵（同 1.0 receive 的語意）。
+    // dust 才是養成貨幣。累積到輪迴滿養上限才折萬用粉塵，圈數鎖不妨礙累積。
     const s = { ...a, collection: { ...a.collection }, dust: { ...(a.dust || {}) }, transcend: { ...(a.transcend || {}) }, roster: [...a.roster] };
     for (const id of ids) {
       // ⚠ 粉塵要先算再加張數：dustOf 對舊存檔會 fallback 到 collection[id]，
@@ -832,7 +847,7 @@
       const before = dustOf(s, id);
       s.pity = s.collection[id] ? (s.pity || 0) + 1 : 0;   // 抽到新卡就歸零（rollPack 照這個數字決定要不要保底）
       s.collection[id] = (s.collection[id] || 0) + 1;
-      if (isMaxed(s, id)) s.universalDust = (s.universalDust || 0) + dustRate(id);
+      if (before >= dustCapNow(s)) s.universalDust = (s.universalDust || 0) + dustRate(id);
       else s.dust[id] = before + 1;
       if (!s.roster.includes(id) && !dispatchedApoc(a, id) && s.roster.length < ROSTER_MAX && !rosterViolations(s.roster.concat(id)).length) s.roster.push(id);   // 新卡自動入隊（同 1.0）
     }
@@ -1025,6 +1040,7 @@
   const growView = a => ({
     stars: Object.fromEntries(Object.keys(a.collection || {}).filter(id => a.collection[id] > 0).map(id => [id, Math.max(1, starsAt(a, id))])),
     transcend: { ...(a.transcend || {}) }, dust: { ...(a.dust || {}) },
+    fullyMaxed: Object.keys(a.collection || {}).filter(id => isFullyMaxed(a, id)).length,
     universalDust: a.universalDust || 0, maxStars: maxStars(), fullDust: fullDust(),
   });
   const view = (a, now) => ({ ...growView(a), mutations: mutationView(a), purse:a.purse||0, rerollCost:RULES.LOOP.REROLL_COST, canReroll:canReroll(a), canSwap:canRescue(a), canDrop:canRescue(a,true), bossStreak:a.bossStreak, lapLog:a.lapLog||[], lapChest:a.lapChest||0, nextMutationCount:mutationCount(lapsOf(a)+1), recommendations:recommendations(a), revisitAt: a.revisitAt ?? null, coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
@@ -1044,6 +1060,6 @@
   root.ApocEconomy = { killsToday, dailyMul, trainCap, drawsToday, advancesToday, dayCapped, mechRules, mutationCount, drawMutations, recommendations, rerollMutations, swapMutation, dropMutation, lapChest, RULES, RATES, setBoostProvider, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, rawTapDamage, coinGain, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, skillInfo, canSkill, useSkill, powerMul,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
-    starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, isMaxed, dustRate, fullDust, starCap, exchangeDust, winDust };
+    starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, lapsOf, transcend, transcendLap, transcendUnlocked, exchangeCapacity, dustCapNow, isMaxed, isFullyMaxed, dustRate, fullDust, fullDustLoop, starCap, exchangeDust, winDust };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

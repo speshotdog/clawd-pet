@@ -22,10 +22,10 @@ test('每日節流全部關著：站數不設限、獎金不打折、抽卡不�
   assert.equal(A.drawCost(a, 10, day), A.drawCost({ ...a, dailyDraws: { day: null, count: 0 } }, 10, day), '抽卡價跟當天抽了幾次無關');
 });
 
-test('輪迴：血每圈 ×1.3、戰力每圈只 +5%、上限 20 圈、印記只算前 10 圈、每圈送 10 券', () => {
+test('輪迴：血每圈 ×1.39、戰力每圈只 +5%、上限 20 圈、印記只算前 10 圈、每圈送 10 券', () => {
   const R = A.RULES.LAP;
-  assert.equal(R.MAX, 20); assert.equal(R.MARK_LAPS, 10); assert.equal(R.HP_GROWTH, 1.3); assert.equal(R.POWER, .05);
-  assert.ok(Math.abs(A.lapHp({ laps: 10 }) - 10 * 1.3 ** 9) < 1e-9); assert.ok(Math.abs(A.lapPower({ laps: 10 }) - 1.5) < 1e-9);
+  assert.equal(R.MAX, 20); assert.equal(R.MARK_LAPS, 10); assert.equal(R.HP_GROWTH, 1.39); assert.equal(R.POWER, .05);
+  assert.ok(Math.abs(A.lapHp({ laps: 10 }) - 10 * 1.39 ** 9) < 1e-9); assert.ok(Math.abs(A.lapPower({ laps: 10 }) - 1.5) < 1e-9);
   assert.equal(A.RULES.LOOP.TICKETS, 10);
   let a = A.normalize({ ...A.gift(A.fresh()), unlocked: true, tutorial: 4, laps: 3, tickets: 0, progress: 19, stage: null });
   a = A.fight(a, day); a.stage.hp = 0; a.stage.wave = a.stage.waves;

@@ -64,7 +64,8 @@ window.ClickerAlbum = (() => {
       const AE = A(), d = AE.dustOf(a, id), st = AE.starsAt(a, id);
       if (!a.collection[id]) return '尚未抽到';
       if (st < AE.maxStars()) return `升星 ★${st + 1}　${d}/${AE.RULES.GROW.STARS[st]}`;
-      if (AE.isMaxed(a, id)) return '滿養 ★10';
+      if (AE.isFullyMaxed(a, id)) return '輪迴滿養';
+      if (AE.transcendOf(a, id) >= 5) return `突破 ${AE.transcendOf(a, id) + 1}／${AE.RULES.GROW.TRANSCEND.length}・${AE.transcendUnlocked(a, id) ? '已解鎖' : `第 ${AE.transcendLap(a, id)} 圈解鎖`}・要 ${AE.transcendCost(a, id)} 顆`;
       return `升星 ★${st + AE.transcendOf(a, id) + 1}　${AE.availableDust(a, id)}/${AE.transcendCost(a, id)}`;
     }
     function tierName(s, id) {
@@ -180,8 +181,8 @@ window.ClickerAlbum = (() => {
       if (apoc()) {
         const a = A().normalize(s.apoc), owned = Object.keys(a.collection).filter(k => a.collection[k] > 0).length;
         const maxed = IDS.filter(id => A().isMaxed(a, id)).length;
-        $('team-summary').innerHTML = `隊伍 <b>${a.roster.length}/20</b>・收藏 <b>${owned}/${IDS.length}</b>・滿養 <b>${maxed}/${IDS.length}</b>`;
-        $('team-summary').title = `重複卡變成該夥伴的粉塵：${A().starCap()} 顆滿星（每星 +25%），之後五級突破（每級 +10%），共 ${A().fullDust()} 顆滿養。`;
+        $('team-summary').innerHTML = `隊伍 <b>${a.roster.length}/20</b>・收藏 <b>${owned}/${IDS.length}</b>・滿養 <b>${maxed}/${IDS.length}</b>${A().lapsOf(a) >= 2 ? `・<small>輪迴滿養 ${IDS.filter(id => A().isFullyMaxed(a, id)).length}/${IDS.length}</small>` : ''}`;
+        $('team-summary').title = `重複卡變成該夥伴的粉塵：${A().starCap()} 顆滿星（每星 +25%），之後五級突破（每級 +10%），共 ${A().fullDust()} 顆滿養；輪迴解鎖至十級，共 ${A().fullDustLoop()} 顆輪迴滿養。`;
         for (const id of ['train-all', 'recall-all']) $(id).hidden = true;
         $('recommend-open').hidden = false;   // 2026-09-16：末世也有推薦組合（照稀有度的四格模板）
         // 第十一輪：末世也有萬用粉塵罐（而且是卡冊全收集唯一不看運氣的路），所以粉塵罐不再收起來
@@ -313,7 +314,7 @@ window.ClickerAlbum = (() => {
         const add = (k, v) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; info.append(dt, dd); };
         if (n) {
           add('戰力', `${format(A().cardPower(a, id))}（★${n}：每星 +25%、每突破 +10%）`);
-          add('粉塵', `${A().dustOf(a, id)} / ${A().fullDust()} 顆・${apocStep(a, id)}`);
+          add('粉塵', `${A().dustOf(a, id)} / ${A().fullDustLoop()} 顆・${apocStep(a, id)}`);
           add('編隊', inTeam ? `在隊伍裡（${a.roster.indexOf(id) + 1} / 20）` : ((a.dispatch || []).some(d => d.id === id) ? '派遣中（不算戰力）' : '不在隊伍（不算戰力）'));
           const sk = (a.skills || []).indexOf(id); add('獨立技能', sk >= 0 ? `技能格 ${sk + 1}` : '沒有裝');
         } else add('狀態', '還沒抽到（第一張只能從招募抽出來）');
@@ -324,6 +325,16 @@ window.ClickerAlbum = (() => {
             if (sb && sb.text !== si.text) add('王關', sb.text.slice(sb.text.indexOf('王關：') + 3)); } }
         right.append(info);
         const acts = document.createElement('div'); acts.className = 'detail-actions';
+        if (n && A().transcendOf(a, id) >= 5 && A().transcendCost(a, id) && A().transcendUnlocked(a, id)) {
+          const grow = document.createElement('button'); grow.dataset.apocTranscend = id;
+          grow.textContent = `突破第 ${A().transcendOf(a, id) + 1} 級（${A().transcendCost(a, id)} 顆）`;
+          grow.disabled = store.blocked || !A().canTranscend(a, id);
+          grow.onclick = () => action(() => {
+            const next = E.clone(store.state); next.apoc = A().transcend(A().normalize(next.apoc), id);
+            if (commit(next)) { sound('upgrade'); changed(); renderBook(); openDetail(id); }
+          });
+          acts.append(grow);
+        }
         if (n) {
           const t = document.createElement('button'); t.textContent = inTeam ? '移出隊伍' : '編入隊伍';
           t.onclick = () => action(() => {
@@ -633,13 +644,13 @@ window.ClickerAlbum = (() => {
         row.append(ap ? window.ClickerApocUI.sticker(entry) : card.art.create(entry));
         const name = document.createElement('b'); name.textContent = `${entry.name}`; row.append(name);
         const small = document.createElement('small');
-        small.textContent = ap ? (ap.collection[id] ? `${AE.dustOf(ap, id)}/${AE.fullDust()} 顆・${apocStep(ap, id)}` : '尚未抽到')
+        small.textContent = ap ? (ap.collection[id] ? `${AE.dustOf(ap, id)}/${AE.fullDustLoop()} 顆・${apocStep(ap, id)}` : '尚未抽到')
                                : (s.collection[id] ? `${E.dust(s, id)} 顆・${nextStep(s, id)}` : '尚未招募');
         row.append(small);
         for (const n of [1, 5]) {
           const btn = document.createElement('button'); btn.textContent = `+${n}（${rate * n}）`;
           btn.disabled = store.blocked || have0 < rate * n
-            || (ap ? (!ap.collection[id] || AE.isMaxed(ap, id)) : (!s.collection[id] || s.transcend?.[id] === 5));
+            || (ap ? (!ap.collection[id] || AE.exchangeCapacity(ap, id) < n) : (!s.collection[id] || s.transcend?.[id] === 5));
           btn.dataset.dust = `${id}:${n}`;
           btn.onclick = () => action(() => {
             const next = ap ? (() => { const c = E.clone(store.state); c.apoc = AE.exchangeDust(AE.normalize(c.apoc), id, n).state; return c; })()

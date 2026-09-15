@@ -130,12 +130,12 @@
   <!-- 末世全線通行：只出現一次（apoc.cleared） -->
   <section id="apoc-ending" class="small-panel" role="dialog" aria-modal="true" aria-label="末世全線通行" hidden><small>末世</small><h2>全線通行。</h2><p id="apoc-ending-text"></p><ul id="apoc-ending-stats"></ul>
     <div id="apoc-ending-actions">
-      <article class="ending-card"><h3 id="ending-lap-title">輪迴</h3><p>保留：卡冊、星、突破、派遣<br>歸零：進度、金幣、訓練</p><p id="apoc-lap-note"></p><button id="apoc-replay" type="button"></button></article>
+      <article class="ending-card"><h3 id="ending-lap-title">輪迴</h3><p>保留：卡冊、星、突破、派遣<br>歸零：進度、金幣、訓練</p><p id="apoc-lap-note"></p><p id="ending-lap-unlock"></p><button id="apoc-replay" type="button"></button></article>
       <article class="ending-card"><h3>無盡模式</h3><p>第 21 站起一直往下<br>每 10 站多一個變異</p><p id="ending-endless-best"></p><button id="apoc-endless" type="button">進入無盡</button></article>
       <article class="ending-card"><h3>留在這一圈</h3><p>場上常駐第 18 站<br>回顧任何一站</p><button id="apoc-ending-close" type="button">關閉</button></article>
     </div></section>
   <section id="mutation-draw" class="small-panel loop-panel" role="dialog" aria-modal="true" aria-labelledby="mutation-draw-title" hidden><small>輪迴啟程</small><h2 id="mutation-draw-title"></h2><div id="mutation-cards"></div><p id="mutation-recommend"></p><button id="mutation-team" type="button">去編隊</button><button id="mutation-close" type="button">前往地圖</button></section>
-  <section id="lap-done" class="small-panel loop-panel" role="dialog" aria-modal="true" aria-labelledby="lap-done-title" hidden><small>輪迴寶箱</small><h2 id="lap-done-title"></h2><p id="lap-done-time"></p><div id="lap-done-mutations"></div><p>寶箱開出 <b id="lap-done-dust" aria-live="polite"></b> 顆萬用粉塵</p><p id="lap-done-unlocks"></p><button id="lap-done-next" type="button">繼續</button></section>
+  <section id="lap-done" class="small-panel loop-panel" role="dialog" aria-modal="true" aria-labelledby="lap-done-title" hidden><small>輪迴寶箱</small><h2 id="lap-done-title"></h2><p id="lap-done-time"></p><div id="lap-done-mutations"></div><p>寶箱開出 <b id="lap-done-dust" aria-live="polite"></b> 顆萬用粉塵</p><p id="lap-done-unlocks"></p><p id="lap-done-transcend"></p><button id="lap-done-next" type="button">繼續</button></section>
   <section id="mutation-rescue" class="small-panel loop-panel" role="dialog" aria-modal="true" aria-label="選擇要調整的變異" hidden><h2 id="mutation-rescue-title"></h2><div id="mutation-rescue-options"></div><button id="mutation-rescue-close" type="button">返回</button></section>
 
   <!-- 這次更新改了什麼（任務書 A5）：seenNotes 對不上 update-notes.js 的 VERSION 就彈一次 -->

@@ -57,22 +57,24 @@ if (MARKS_ON) buyArtifacts();
 a = { ...a, boost: boostNow() };
 let now = 0, played = 0, draws = 0, bossFails = 0, farms = 0, done = null, exchanged = 0, one = oneCoins, lastFail = null, dispatched = 0;
 let lapStart = 0, lapTimes = [];
-let stop = false, collectedAt = null, maxedAt = null, day = 0;
+let stop = false, collectedAt = null, maxedAt = null, fullyMaxedAt = null, day = 0;
 const dustFrom = { boss: 0, endless: 0, dispatch: 0, draw: 0, chest: 0 };   // 萬用粉塵的四個來源（驗收判準：王要佔 15～30%）
 const mark = () => {
   const all = (global.ApocPool || []);
   if (!collectedAt && all.length && all.every(c => a.collection[c.id] > 0)) collectedAt = { day, min: Math.round(played / 60) };
   if (!maxedAt && all.length && all.every(c => A.isMaxed(a, c.id))) maxedAt = { day, min: Math.round(played / 60) };
+  if (!fullyMaxedAt && all.length && A.isFullyMaxed && all.every(c => A.isFullyMaxed(a, c.id))) fullyMaxedAt = { day, min: Math.round(played / 60) };
 };
 const log = [];
 // 第十一輪：萬用粉塵的花法。價值守恆（換出去與換進來同一張匯率表），所以「花在誰身上」不影響總量，
 // 只影響戰力長得快不快——玩家模型就先餵隊上的卡（有戰力），隊上都滿養了再去補卡冊（純收集）。
 const ALL = () => (global.ApocPool || []);
 function spendDust() {
+  A.autoGrow(a, ALL().map(c => c.id));
   for (;;) {
     // ⚠ 兌換所只補「已經抽到過」的卡（使用者退掉了「沒有的卡也能換」），沒抽到的一律跳過
-    const inTeam = a.roster.filter(id => a.collection[id] > 0 && !A.isMaxed(a, id));
-    const rest = ALL().map(c => c.id).filter(id => a.collection[id] > 0 && !A.isMaxed(a, id) && !a.roster.includes(id));
+    const inTeam = a.roster.filter(id => a.collection[id] > 0 && (A.exchangeCapacity ? A.exchangeCapacity(a, id) > 0 : !A.isMaxed(a, id)));
+    const rest = ALL().map(c => c.id).filter(id => a.collection[id] > 0 && (A.exchangeCapacity ? A.exchangeCapacity(a, id) > 0 : !A.isMaxed(a, id)) && !a.roster.includes(id));
     // 隊上：先餵匯率低的（同樣一顆萬用粉塵，換便宜的卡拿到的粉塵一樣多，但便宜的卡先滿養才能早點溢出）
     const pick = [...inTeam, ...rest].sort((x, y) => A.dustRate(x) - A.dustRate(y))
       .find(id => (a.universalDust || 0) >= A.dustRate(id));
@@ -168,7 +170,7 @@ for (day = 1; day <= DAYS && !stop; day++) {
     if (env('OFFLINE', 1) > 0) a = A.offline(a, now).state;   // 第十輪 D：末世離線收益（OFFLINE=0 關掉對照）
   }
 }
-return { done, log, a, played, lapTimes, bossFails, farms, draws, exchanged, dispatched, collectedAt, maxedAt, dustFrom, marks: { marks, claimed, bless, tapLv, spentLog } };
+return { done, log, a, played, lapTimes, bossFails, farms, draws, exchanged, dispatched, collectedAt, maxedAt, fullyMaxedAt, dustFrom, marks: { marks, claimed, bless, tapLv, spentLog } };
 }
 if (require.main !== module) { module.exports = { run, RULES: R }; return; }
 const res = run(SESSION_MIN, SESSIONS, DAYS);
@@ -179,6 +181,7 @@ console.log(`場次 ${SESSION_MIN} 分 × ${SESSIONS}／天　BASE_NEED=${R.BASE
 console.log('站　 累計分鐘  第幾天  戰力          卡種  抽數  全隊Lv 點擊Lv');
 for (const l of log) console.log(`${String(l.station).padStart(2)}   ${String(l.min).padStart(7)}  ${String(l.day).padStart(5)}   ${String(l.power).padStart(11)}  ${String(l.owned).padStart(4)}  ${String(l.draws).padStart(4)}  ${String(l.team).padStart(5)} ${String(l.click).padStart(6)}`);
 console.log(`輪迴：第 ${end.laps} 圈；每圈分鐘 ${JSON.stringify(res.lapTimes)}；寶箱合計 ${end.lapChest||0}；粉塵来源 ${JSON.stringify(res.dustFrom)}`);
+console.log(`輪迴滿養：${res.fullyMaxedAt ? '第 ' + res.fullyMaxedAt.day + ' 天' : DAYS + ' 天內未達'}（兩週滿養仍以突破 5 級計）`);
 console.log('圈內戰鬥紀錄：'+JSON.stringify(end.lapLog||[]));
 const boss = [4, 8, 12, 16, 20].map(s => log.find(l => l.station === s)?.min ?? '-').join('／');
 console.log(done ? `\n全線 20 站：第 ${done.day} 天、累計遊玩 ${done.min} 分鐘（王站 ${boss} 分、王關失敗 ${fails} 次、刷怪 ${res.farms} 場、換到券 ${res.exchanged} 張、派遣 ${res.dispatched} 次）`

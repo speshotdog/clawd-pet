@@ -517,11 +517,13 @@ test('星級看累計粉塵，滿星之後才會自動突破，滿養封頂', ()
   a = A.drawn({ ...a, tickets: 12 }, Array(12).fill('pufayueyue'));
   assert.ok(A.isMaxed(a, 'pufayueyue')); assert.equal(A.dustOf(a, 'pufayueyue'), full);
   assert.equal(A.transcendOf(a, 'pufayueyue'), 5);
-  // 滿養之後再抽到：粉塵不再長，改成溢出萬用粉塵
+  // 五級滿養之後（第 0 圈）重複卡照舊折成萬用粉塵——輕度玩家的兩週滿養靠這個；圈數解鎖了更高的突破才會繼續囤在卡上
   const before = a.universalDust || 0;
   a = A.drawn({ ...a, tickets: 3 }, Array(3).fill('pufayueyue'));
   assert.equal(A.dustOf(a, 'pufayueyue'), full);
   assert.equal(a.universalDust - before, 3 * A.dustRate('pufayueyue'));
+  a = A.drawn({ ...a, laps: 2, tickets: 3 }, Array(3).fill('pufayueyue'));
+  assert.equal(A.dustOf(a, 'pufayueyue'), full + 3, '第 2 圈解鎖第 6 級（8 顆）之後才繼續囤');
   // 戰力＝底 60 ×（1+.25×4）×（1+.1×5）
   assert.equal(A.cardPower(a, 'pufayueyue'), 60 * 2 * 1.5);
 });
@@ -581,7 +583,7 @@ test('normalize：舊存檔張數搬成粉塵、突破級數買不起就砍掉',
   // 舊存檔（第十輪以前）只有 collection，沒有 dust
   const old = A.normalize({ collection: { pufayueyue: 5, m1: 40 }, roster: ['pufayueyue'] });
   assert.equal(old.dust.pufayueyue, 5);
-  assert.equal(old.dust.m1, A.fullDust(), '超過滿養的張數夾到滿養，不會變成無限戰力');
+  assert.equal(old.dust.m1, 40, '未達輪迴滿養的粉塵保留');
   // 手改存檔：粉塵只有 8（剛好滿星）卻寫了突破 5 → 買得起幾級就留幾級
   const cheat = A.normalize({ collection: { pufayueyue: 1 }, dust: { pufayueyue: 8 }, transcend: { pufayueyue: 5 } });
   assert.equal(cheat.transcend.pufayueyue, undefined);
@@ -599,7 +601,7 @@ test('抽卡結算：升星只報到滿星，之後報突破', () => {
 });
 test('舊存檔遷移：超過滿養的重複卡折成萬用粉塵，不會白白蒸發，而且重跑不會重複加', () => {
   // 舊版是「張數＝星數、每張 +25% 無上限」，直接套新規則會把既有玩家的戰力腰斬
-  const full = A.fullDust(), extra = 10;
+  const full = A.fullDustLoop(), extra = 10;
   const old = { collection: { pufayueyue: full + extra, m1: 3 }, roster: ['pufayueyue'] };
   const a = A.normalize(old);
   assert.equal(A.dustOf(a, 'pufayueyue'), full);
