@@ -88,6 +88,7 @@ test('loop: waste halves offline kills without changing passive coin rate; absen
 });
 test('loop: completing all ten laps cannot exceed thirty chest dust',()=>{
  let a={...state(['thick','haste','lock']),lapChest:0};
- for(let lap=1;lap<=10;lap++){ a=won({...a,laps:lap,cleared:false,lapPlayMs:0,mutations:['thick','haste','lock']},19).state;assert.equal(a.lapChest,lap*3); }
+ // 每天最多推進 6 站（節流）：這裡一天打十次第 20 站，時間要往後撥一天
+ for(let lap=1;lap<=10;lap++){ a=won({...a,laps:lap,cleared:false,lapPlayMs:0,mutations:['thick','haste','lock']},19,1000+lap*86400000).state;assert.equal(a.lapChest,lap*3); }
  assert.equal(a.lapChest,30);assert.equal(A.lapChest(a),0);
 });

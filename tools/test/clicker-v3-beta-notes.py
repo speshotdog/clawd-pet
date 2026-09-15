@@ -57,15 +57,10 @@ with sync_playwright() as p:
     # --- 1) 沒看過就要彈
     v = pg.evaluate("() => window.ClickerUpdateNotes && window.ClickerUpdateNotes.VERSION")
     check(bool(v), f'update-notes.js 有 VERSION（{v}）')
+    # 2026-09-16 使用者：「公告會超出面板導致無法操作，直接移除」——載入後**不准**彈，seenNotes 直接寫成目前版本
     panel = pg.evaluate(PANEL)
-    check(panel is not None and panel['hidden'] is False, f'載入後看得到「這次更新改了什麼」（{panel and panel["hidden"]}）')
-    check(panel and len(panel['items']) >= 3, f'面板裡有條列內容（{panel and panel["items"]}）')
-    pg.screenshot(path=str(OUT / 'update-notes.png'))
-
-    # --- 2) 按「知道了」→ 寫回 seenNotes，重整不再出現
-    pg.evaluate("() => document.getElementById('update-notes-close').click()"); pg.wait_for_timeout(400)
-    check(pg.evaluate("() => document.getElementById('update-notes').hidden"), '按了之後面板收起來')
-    check(pg.evaluate("() => window.Clicker.state.seenNotes") == v, 'seenNotes 寫回存檔')
+    check(panel is None or panel['hidden'] is True, f'載入後不再彈「這次更新改了什麼」（{panel and panel["hidden"]}）')
+    check(pg.evaluate("() => window.Clicker.state.seenNotes") == v, 'seenNotes 仍寫回存檔（日後要回來只要拿掉那一段）')
     pg.reload(); pg.wait_for_function('window.Clicker?.state'); pg.wait_for_timeout(1800)
     again = pg.evaluate(PANEL)
     check(again['hidden'] is True, f'重整之後不再出現（{again["hidden"]}）')

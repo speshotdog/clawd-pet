@@ -26,6 +26,8 @@ for (const k of ['IDLE_MUL', 'BREAK_MS', 'BREAK_MUL', 'ROTATE_MS']) if (process.
 if (process.env.PITY_AT !== undefined) R.GROW.PITY.AT = Number(process.env.PITY_AT);
 // 六型技能：CAP_BOSS／CAP_NORMAL 覆寫單下傷害盾牌
 if (process.env.CAP_BOSS !== undefined) R.TAP_CAP.BOSS = Number(process.env.CAP_BOSS);
+// 節流旋鈕：DAILY_KILLS／DAILY_AFTER／DAILY_DRAWS／DRAW_SURCHARGE／TRAIN_GATE_PER
+for (const [k, path] of [['DAILY_KILLS', ['DAILY', 'FULL_KILLS']], ['DAILY_AFTER', ['DAILY', 'AFTER']], ['DAILY_DRAWS', ['DAILY', 'DRAWS']], ['DRAW_SURCHARGE', ['DAILY', 'DRAW_SURCHARGE']], ['TRAIN_GATE_PER', ['TRAIN_GATE', 'PER_STATION']], ['DAILY_STATIONS', ['DAILY', 'STATIONS']]]) if (process.env[k] !== undefined && R[path[0]]) R[path[0]][path[1]] = Number(process.env[k]);
 if (process.env.CAP_NORMAL !== undefined) R.TAP_CAP.NORMAL = Number(process.env.CAP_NORMAL);
 if (process.env.BOSS_DUST) R.GROW.BOSS = process.env.BOSS_DUST.split(',').map(Number);
 if (process.env.DISPATCH_KILLS !== undefined) R.DISPATCH.KILLS = Number(process.env.DISPATCH_KILLS);
@@ -81,15 +83,18 @@ function spendDust() {
 function spend() {
   spendDust();
   for (;;) {
-    if (!a.pending && a.coins >= A.drawCost(a, 10) && (KEEP || Object.keys(a.collection).length < DRAW_UNTIL)) {
+    if (!a.pending && a.coins >= A.drawCost(a, 10, now) && (KEEP || Object.keys(a.collection).length < DRAW_UNTIL)) {
       a = A.purchaseDraw(a, 10, now, rnd);
       { const r = A.collectDraw(a, a.pending.draw.id, now); dustFrom.draw += r.universalDust || 0; a = r.state; }
       draws += 10;
       const top = [...a.roster].sort((x, y) => A.cardPower(a, y) - A.cardPower(a, x)).slice(0, 4);
       a = A.setTeam(a, a.roster, top); continue;
     }
-    const kind = A.trainCost(a, 'team') <= A.trainCost(a, 'click') ? 'team' : 'click';
-    if (a.coins >= A.trainCost(a, kind)) { a = A.train(a, kind).state; continue; }
+    // 節流：訓練上限跟站數綁（A.trainCap），到頂的那一種就不練、換另一種；兩種都到頂就留著錢
+    const cap = A.trainCap ? A.trainCap(a) : Infinity;
+    const kinds = ['team', 'click'].filter(k => (a[k === 'team' ? 'teamLevel' : 'clickLevel'] || 0) < cap).sort((x, y) => A.trainCost(a, x) - A.trainCost(a, y));
+    const kind = kinds[0];
+    if (kind && a.coins >= A.trainCost(a, kind)) { a = A.train(a, kind).state; continue; }
     break;
   }
 }
@@ -111,6 +116,8 @@ for (day = 1; day <= DAYS && !stop; day++) {
         const i = a.progress, ready = !lastFail || lastFail.i !== i || A.power(a) >= lastFail.power / Math.max(.05, lastFail.dealt);
         if (A.isBoss(i) && a.bossFailed === i && (!A.canFight(a, now) || !ready)) { a = A.fight(a, now, true); farms++; }
         else if (A.canFight(a, now)) a = A.fight(a, now);
+        // 節流：今天推進到頂了 → 真人會回顧前一站刷錢（常駐式），模擬也照做，不然這段時間會被算成發呆
+        else if (A.dayCapped && A.dayCapped(a, now) && A.revisit && a.progress > 0 && now >= (a.farmNextAt || 0)) { try { a = A.revisit(a, now, A.incomeIndex(a), { walk: false }); farms++; } catch { /* 沒得回顧就等 */ } }
       }
       if (a.stage) {
         // 打王一定會點（60 秒而已）；TAP_SHARE 只套在一般站與刷怪。

@@ -65,22 +65,23 @@ test('抽卡直接花末世金幣：第一抽 1000、每付費抽一次漲 2%；
   const got = A.collectDraw(after, after.pending.draw.id, 0).state;
   assert.equal(got.tickets, 0); assert.equal(got.coins, after.coins); assert.equal(Object.values(got.collection).reduce((x, y) => x + y, 0), 10);
 });
-test('桌邊金幣換券（時薪券）：一張＝桌邊 10 分鐘收益，當天每換一張 ×1.25，隔天重置', () => {
+test('桌邊金幣換券（時薪券）：一張＝桌邊 10 分鐘收益，當天每換一張 ×GROWTH（節流後 1.6），隔天重置', () => {
+  const G = A.RULES.EXCHANGE.GROWTH;
   const day = 86400000 * 20000, P = 1e10;
   let a = A.fresh();
   assert.equal(A.exchangeCost(a, P, day), P * 600);
   let r = A.exchange(a, 1e20, P, day + 1000); a = r.state;
   assert.equal(r.cost, P * 600); assert.equal(a.tickets, 1);
-  assert.equal(A.exchangeCost(a, P, day + 2000), Math.ceil(P * 600 * 1.25));
+  assert.equal(A.exchangeCost(a, P, day + 2000), Math.ceil(P * 600 * G));
   a = A.exchange(a, 1e20, P, day + 3000).state;
-  assert.equal(A.exchangeCost(a, P, day + 4000), Math.ceil(P * 600 * 1.25 ** 2));
+  assert.equal(A.exchangeCost(a, P, day + 4000), Math.ceil(P * 600 * G ** 2));
   assert.equal(A.exchangeCost(a, P, day + 86400000), P * 600, '隔天回到原價');
   assert.equal(a.exchange.total, 2);
   assert.throws(() => A.exchange(a, P * 600, P, day + 5000), /不足/);
   assert.throws(() => A.exchange(a, 1e20, 0, day), /沒有每秒收益/);
   // 日期往回調不能重置加價（Codex 第三輪）：前進一天換一張，再調回原日，價格照最後紀錄那天算
   let b = A.exchange(a, 1e20, P, day + 86400000).state;
-  assert.equal(A.exchangeCost(b, P, day + 6000), Math.ceil(P * 600 * 1.25), '調回前一天：沿用最後那天的 1 張');
+  assert.equal(A.exchangeCost(b, P, day + 6000), Math.ceil(P * 600 * G), '調回前一天：沿用最後那天的 1 張');
   b = A.exchange(b, 1e20, P, day + 7000).state;
   assert.equal(b.exchange.day, Math.floor((day + 86400000) / 86400000), '日界不會往回退');
   assert.equal(A.normalize({ ...A.fresh(), onePeak: 'x' }).onePeak, 0);

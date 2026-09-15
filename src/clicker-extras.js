@@ -389,6 +389,11 @@
     // 存檔的 seenNotes 對不上 update-notes.js 的 VERSION 就彈一次；按「知道了」寫回去。
     function updateNotes() {
       const N = root.ClickerUpdateNotes, s = store.state;
+      // 2026-09-16 使用者：「公告會超出面板導致無法操作，把更新公告直接移除」——不再自動彈。
+      // 文案留在 update-notes.js 當紀錄；seenNotes 直接寫成目前版本，舊機制若日後要回來只要拿掉這一段。
+      if (N && s && s.seenNotes !== N.VERSION) { const next = E.clone(s); next.seenNotes = N.VERSION; commit(next); }
+      return false;
+      // eslint-disable-next-line no-unreachable
       if (!N || !s || store.blocked) return false;
       if (s.seenNotes === N.VERSION) return false;
       if (!$('update-notes')) return false;

@@ -90,7 +90,11 @@
     //   5 隻時慢的 329、很懶 435（第 8 天）、勤快 37。使用者選 5 隻。
     WAVES: 5,
     // 1.0 金幣換券（時薪券）：一張＝1.0 每秒收益 × SECONDS，當天第 k 張再 ×GROWTH^k
-    EXCHANGE: { SECONDS: 600, GROWTH: 1.25 },
+    EXCHANGE: { SECONDS: 600, GROWTH: 1.6 },   // 節流（2026-09-16）：每天第 N 次換券的漲幅 1.25 → 1.6（重度玩家全滿養第 3 天就是這條太鬆）
+    // 節流（2026-09-16，使用者：「朋友一天玩三小時，第 2 天就打到最後一關」）：2.0 的經濟本來是時間線性的，
+    // 這兩條把「一天能拿多少」跟天綁住。輕度（20 分 ×3）幾乎碰不到，重度才會被壓。
+    DAILY: { FULL_KILLS: 150, AFTER: .3, DRAWS: 400, DRAW_SURCHARGE: 1.03, STATIONS: 8 },   // 每天最多推進 8 站（含王）：這是唯一能把「全破」跟天綁住的旋鈕；付現抽 400 抽之後每抽 ×1.03 累乘。掃描見 HANDOFF §30   // 每天前 150 場擊殺拿全額站獎金，之後 ×.3（王首勝、離線、派遣不受影響）；每天前 40 抽付現原價，之後每抽再 ×1.2 累乘（券抽不算）
+    TRAIN_GATE: { BASE: 8, PER_STATION: 4 },    // 訓練等級上限 = 8 + 4 × 已通過的站數（第 20 站 88 級）
     // 訓練（花末世金幣）：全隊訓練 Lv L 全隊戰力 ×(1+MUL)^L；點擊力 Lv L 每下 ×(1+MUL)^L。第 L 級 COST×GROWTH^L
     // 第六輪改乘算：戰力 ∝ 花掉的錢^(ln1.1／ln1.3≈0.36)，越後面越沒效率——這就是 Sakura 的牆（收藏會抽滿，只有訓練能一直長）。
     //   第三輪是線性 +3%／+5%、費用 ×2：戰力停在兩三千，王一變成門檻就永遠過不去。
@@ -367,7 +371,7 @@
   const ROSTER_MAX = 20;   // 隊伍上限（同 1.0）
   function fresh() {
     return { unlocked: false, tutorial: 0, coins: 0, tickets: 0, progress: 0, cooldownUntil: 0, collection: {}, dust: {}, universalDust: 0, transcend: {}, bossDust: [], pity: 0, roster: [], skills: [null, null, null, null], stage: null, gifted: false, wins: 0,
-      paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, revisitAt: null, exchange: { day: null, count: 0, total: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
+      paidDraws: 0, teamLevel: 0, clickLevel: 0, onePeak: 0, bossFailed: null, farmNextAt: 0, revisitAt: null, exchange: { day: null, count: 0, total: 0 }, dailyKills: { day: null, count: 0 }, dailyDraws: { day: null, count: 0 }, dailyAdvance: { day: null, count: 0 }, stats: { taps: 0, maxHit: 0, shieldBreaks: 0, draws: 0 }, cosmetics: { owned: ['rust'], hitFx: 'rust' },
       mutations: [], baseMutations: [], purse: 0, rerolled: false, dropped: false, bossStreak: { index: null, fails: 0 }, lapLog: [], lapChest: 0, lapPlayMs: 0, lapBossFails: 0, lapStartedAt: 0, endlessMutationAt: 20,
       pending: null, cleared: false, laps: 0, endless: false, endlessBest: 0, seenAt: 0, dispatch: [], dispatchDone: 0, skillCd: [0, 0, 0, 0], fx: { clickLeft: 0, clickMul: 1, powerUntil: 0, powerMul: 1, mythic: false } };
   }
@@ -472,6 +476,9 @@
     a.onePeak = Number.isFinite(Number(a.onePeak)) && Number(a.onePeak) > 0 ? Number(a.onePeak) : 0;   // 桌邊歷史最高每秒收益（換券定價基準，換桌布不歸零）
     { const x = a.exchange && typeof a.exchange === 'object' ? a.exchange : {};
       a.exchange = { day: Number.isFinite(x.day) ? x.day : null, count: count(x.count), total: count(x.total) }; }
+    { const x = a.dailyKills && typeof a.dailyKills === 'object' ? a.dailyKills : {}; a.dailyKills = { day: Number.isFinite(x.day) ? x.day : null, count: count(x.count) }; }
+    { const x = a.dailyDraws && typeof a.dailyDraws === 'object' ? a.dailyDraws : {}; a.dailyDraws = { day: Number.isFinite(x.day) ? x.day : null, count: count(x.count) }; }
+    { const x = a.dailyAdvance && typeof a.dailyAdvance === 'object' ? a.dailyAdvance : {}; a.dailyAdvance = { day: Number.isFinite(x.day) ? x.day : null, count: count(x.count) }; }
     // 第十輪 B：2.0 新手引導走到第幾步（0～4，4＝看完）；UI 照這個數字決定要不要冒提示
     a.tutorial = Number.isInteger(a.tutorial) && a.tutorial > 0 ? Math.min(a.tutorial, 4) : 0;
     { const x = a.stats && typeof a.stats === 'object' ? a.stats : {};
@@ -524,8 +531,9 @@
   function train(a, kind, max = false) {
     const t = RULES.TRAIN[kind]; if (!t) throw new Error('沒有這種訓練');
     let L = a[LEVEL_KEY[kind]] || 0, coins = a.coins, levels = 0;
-    for (;;) { if (L >= RULES.TRAIN_MAX) break; const c = Math.round(t.COST * t.GROWTH ** L); if (coins < c) break; coins -= c; L++; levels++; if (!max || levels >= 1000) break; }
-    if (!levels) throw new Error(L >= RULES.TRAIN_MAX ? '已經練到頂了' : `末世金幣不足，下一級要 ${Math.round(t.COST * t.GROWTH ** L)}`);
+    const cap = trainCap(a);
+    for (;;) { if (L >= cap) break; const c = Math.round(t.COST * t.GROWTH ** L); if (coins < c) break; coins -= c; L++; levels++; if (!max || levels >= 1000) break; }
+    if (!levels) throw new Error(L >= RULES.TRAIN_MAX ? '已經練到頂了' : L >= cap ? `訓練上限 Lv.${cap}，通過下一站再練` : `末世金幣不足，下一級要 ${Math.round(t.COST * t.GROWTH ** L)}`);
     return { state: { ...a, coins, [LEVEL_KEY[kind]]: L }, levels };
   }
   // ---- 養成：粉塵／星級／突破（第十一輪，DESIGN-2026-09-14-apoc-growth.md）
@@ -596,7 +604,7 @@
     if (!isBoss(i) || (a.bossDust || []).includes(i)) return 0;
     return (RULES.GROW.BOSS[Math.min(RULES.GROW.BOSS.length - 1, Math.floor(i / 4))] || 0) + (boostOf(a).dust || 0);   // 粉塵祝福：王首勝多 1 顆/級
   }
-  const canFight = (a, now) => (!a.stage || !!a.stage.farm) && a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) && !(isBoss(a.progress) && a.cooldownUntil > now);
+  const canFight = (a, now) => (!a.stage || !!a.stage.farm) && a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) && !(isBoss(a.progress) && a.cooldownUntil > now) && !dayCapped(a, now);
   // 刷怪（第六輪，照 Sakura 的「打不過就回去刷怪」）：這一站的王輸過之後，回前一站一直打——拿那一站的獎勵、不推進度
   const canFarm = (a, now) => !a.stage && isBoss(a.progress) && a.bossFailed === a.progress && a.progress > 0 && now >= (a.farmNextAt || 0);
   // 回顧（第十二輪，使用者指定）：走過的站可以無限重打，拿那一站的獎勵、進度不動。
@@ -628,7 +636,7 @@
       const i = a.progress - 1;
       return { ...a, stage: { index: i, hp: need(i, a), need: need(i, a), boss: false, farm: true, startedAt: now, deadline: null, breakUntil: 0 } };
     }
-    if (!canFight(a, now)) throw new Error(a.progress >= RULES.STATIONS ? '全線已通行' : a.stage ? '戰鬥中' : '王關冷卻中');
+    if (!canFight(a, now)) throw new Error(a.progress >= RULES.STATIONS ? '全線已通行' : a.stage ? '戰鬥中' : dayCapped(a, now) ? `今天已經推進 ${RULES.DAILY.STATIONS} 站，明天再往下` : '王關冷卻中');
     if (power(a) <= 0) throw new Error('隊伍是空的，先去編隊');
     const i = a.progress, boss = isBoss(i);
     return { ...a, bossStreak: a.bossStreak?.index === i ? a.bossStreak : { index: null, fails: 0 }, stage: { index: i, hp: need(i, a), need: need(i, a), boss, wave: 1, waves: boss ? 1 : RULES.WAVES, startedAt: now, deadline: boss && RULES.BOSS_TIME ? now + bossTimeOf(a) : null, breakUntil: 0, ...(boss ? freshMech(i, need(i, a), a) : {}) } };
@@ -662,13 +670,13 @@
       if (st.boss && st.breakUntil && now >= st.breakUntil) st = { ...st, breakUntil: 0 };
       if (st.hp <= 0 && st.farm && st.revisit && (st.wave || 1) < (st.waves || 1)) {
         // 回顧的小怪站跟正規一樣打滿 WAVES 隻，進度不動
-        s.coins += killReward(st.index, s);
+        s.coins += Math.round(killReward(st.index, s) * dailyMul(s, now)); s = countKill(s, now);
         s.stage = { ...st, wave: (st.wave || 1) + 1, hp: need(st.index, s), startedAt: now };
         events.push({ type: 'wave', index: st.index, wave: st.wave || 1, waves: st.waves, reward: killReward(st.index, s) });
       }
       else if (st.hp <= 0 && st.farm) {
         // 刷怪：拿這一站的獎勵、不推進度（王那一站還等著玩家再挑戰）
-        s.coins += killReward(st.index, s); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
+        s.coins += Math.round(killReward(st.index, s) * dailyMul(s, now)); s = countKill(s, now); s.stage = null; s.farmNextAt = now + RULES.FARM_RESPAWN;
         // 回顧：往下一站走；打完這一區段的王（或走到目前站前一站）就結束回顧，autoFight 會接回目前站／全破後的常駐
         // 常駐（revisit 的 walk:false）就永遠留在同一站，不往下走、也不結束回顧
         if (st.revisit && !st.resident) s.revisitAt = isBoss(st.index) || st.index + 1 >= s.progress ? null : st.index + 1;
@@ -676,12 +684,15 @@
       }
       else if (st.hp <= 0 && (st.wave || 1) < (st.waves || 1)) {
         // 同一站的下一隻（第九輪）：給這一隻的獎勵、滿血換下一隻，進度不動
-        s.coins += killReward(st.index, s);
+        s.coins += Math.round(killReward(st.index, s) * dailyMul(s, now)); s = countKill(s, now);
         s.stage = { ...st, wave: (st.wave || 1) + 1, hp: need(st.index, s), startedAt: now };
         events.push({ type: 'wave', index: st.index, wave: st.wave || 1, waves: st.waves, reward: killReward(st.index, s) });
       }
       else if (st.hp <= 0) {
-        s.coins += killReward(st.index, s); s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null; s.bossStreak = { index: null, fails: 0 };
+        // 一般站的最後一隻也算當天場次（王首勝不算、也不打折：那是進度不是刷）
+        if (st.boss) s.coins += killReward(st.index, s); else { s.coins += Math.round(killReward(st.index, s) * dailyMul(s, now)); s = countKill(s, now); }
+        if (!s.endless && st.index < RULES.STATIONS) s = countAdvance(s, now);   // 正規站才算今天的推進數
+        s.progress = st.index + 1; s.wins = (s.wins || 0) + 1; s.stage = null; s.bossStreak = { index: null, fails: 0 };
         if (s.endless && s.progress >= 30 && s.progress % 10 === 0 && s.progress > (s.endlessMutationAt || 20)) { s.mutations = drawMutations(1, s.mutations, rng); s.endlessMutationAt = s.progress; }
         if (s.progress > RULES.STATIONS) s.endlessBest = Math.max(s.endlessBest || 0, s.progress - RULES.STATIONS);   // 無盡模式記最遠
         events.push({ type: 'win', index: st.index, reward: killReward(st.index, s) });
@@ -762,10 +773,24 @@
     return { ...a, stage: st, fx, skillCd: cd };
   }
   // ---- 抽卡價：n 抽裡先用券，剩下的才付末世金幣
-  const drawCost = (a, n = 1) => { const paid = Math.max(0, n - (a.tickets || 0)); let sum = 0; for (let i = 0; i < paid; i++) sum += Math.round(RULES.DRAW_COST * RULES.DRAW_GROWTH ** ((a.paidDraws || 0) + i)); return sum; };
+  // 節流：今天付現抽超過 DAILY.DRAWS 之後每一抽再 ×DRAW_SURCHARGE 累乘（重度玩家一天幾百抽把收集軸整個壓扁的根因就在這）
+  const drawsToday = (a, now) => a.dailyDraws && a.dailyDraws.day !== null && dayKey(now) <= a.dailyDraws.day ? a.dailyDraws.count : 0;
+  const drawCost = (a, n = 1, now = Date.now()) => { const paid = Math.max(0, n - (a.tickets || 0)), today = drawsToday(a, now); let sum = 0;
+    for (let i = 0; i < paid; i++) { const extra = Math.max(0, today + i + 1 - RULES.DAILY.DRAWS); sum += Math.round(RULES.DRAW_COST * RULES.DRAW_GROWTH ** ((a.paidDraws || 0) + i) * RULES.DAILY.DRAW_SURCHARGE ** extra); }
+    return sum; };
   // ---- 1.0 金幣換券（時薪券）。oneP＝1.0 當下每秒收益；錢從 1.0 扣，由呼叫端寫回 1.0 的 state
   // ⚠ 日期往回調不能重置當天加價（Codex 第三輪：同一天換兩張→日期前進→調回原日，價格回到 1 倍）。
   //   只有日期「往前」才算新的一天；往回一律沿用最後紀錄的那天與張數。
+  // 今天已經拿過幾場擊殺獎金；超過 DAILY.FULL_KILLS 之後的站獎金打折（王首勝不算場次也不打折）
+  const killsToday = (a, now) => a.dailyKills && a.dailyKills.day !== null && dayKey(now) <= a.dailyKills.day ? a.dailyKills.count : 0;
+  const dailyMul = (a, now) => killsToday(a, now) >= RULES.DAILY.FULL_KILLS ? RULES.DAILY.AFTER : 1;
+  // 每天推進站數上限：今天已經打贏幾站（正規站，含王；刷怪／回顧／無盡不算）
+  const advancesToday = (a, now) => a.dailyAdvance && a.dailyAdvance.day !== null && dayKey(now) <= a.dailyAdvance.day ? a.dailyAdvance.count : 0;
+  const dayCapped = (a, now) => !a.endless && a.progress < RULES.STATIONS && advancesToday(a, now) >= RULES.DAILY.STATIONS;
+  const countAdvance = (a, now) => ({ ...a, dailyAdvance: { day: Math.max(dayKey(now), a.dailyAdvance?.day ?? -Infinity), count: advancesToday(a, now) + 1 } });
+  const countKill = (a, now) => ({ ...a, dailyKills: { day: Math.max(dayKey(now), a.dailyKills?.day ?? -Infinity), count: killsToday(a, now) + 1 } });
+  // 訓練等級上限跟通過的站數綁（不然在前面的站刷到 Lv.80 再去輾王）
+  const trainCap = a => Math.min(RULES.TRAIN_MAX, RULES.TRAIN_GATE.BASE + RULES.TRAIN_GATE.PER_STATION * Math.max(a.progress || 0, RULES.STATIONS * (lapsOf(a) > 0 ? 1 : 0)));
   const exchangeToday = (a, now) => a.exchange && a.exchange.day !== null && dayKey(now) <= a.exchange.day ? a.exchange.count : 0;
   const exchangeCost = (a, oneP, now) => oneP > 0 && Number.isFinite(oneP) ? Math.ceil(oneP * RULES.EXCHANGE.SECONDS * RULES.EXCHANGE.GROWTH ** exchangeToday(a, now)) : Infinity;
   function exchange(a, oneCoins, oneP, now) {
@@ -865,9 +890,10 @@
   function purchaseDraw(a, n, now, rng) {
     if (!DRAW_COUNTS.includes(n)) throw new Error('只能單抽、五連或十連');
     if (a.pending) throw new Error('還有沒收下的結果');
-    const cost = drawCost(a, n), free = Math.min(a.tickets || 0, n);
+    const cost = drawCost(a, n, now), free = Math.min(a.tickets || 0, n);
     if (a.coins < cost) throw new Error(`末世金幣不足（還差 ${Math.ceil(cost - a.coins)}）`);
     return { ...a, coins: a.coins - cost, tickets: a.tickets - free, paidDraws: (a.paidDraws || 0) + (n - free),
+      dailyDraws: n - free > 0 ? { day: Math.max(dayKey(now), a.dailyDraws?.day ?? -Infinity), count: drawsToday(a, now) + (n - free) } : a.dailyDraws,
       stats: { ...a.stats, draws: (a.stats?.draws || 0) + n }, pending: { draw: rollPack(a, n, rng) } };
   }
   function collectDraw(a, drawId, now) {
@@ -996,18 +1022,18 @@
   const view = (a, now) => ({ ...growView(a), mutations: mutationView(a), purse:a.purse||0, rerollCost:RULES.LOOP.REROLL_COST, canReroll:canReroll(a), canSwap:canRescue(a), canDrop:canRescue(a,true), bossStreak:a.bossStreak, lapLog:a.lapLog||[], lapChest:a.lapChest||0, nextMutationCount:mutationCount(lapsOf(a)+1), recommendations:recommendations(a), revisitAt: a.revisitAt ?? null, coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
     skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null, cleared: !!a.cleared,
     skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { ...d, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) ? need(a.progress, a) : 0,
-    drawCost1: drawCost(a, 1), drawCost10: drawCost(a, 10), paidDraws: a.paidDraws || 0,
+    drawCost1: drawCost(a, 1, now), drawCost10: drawCost(a, 10, now), paidDraws: a.paidDraws || 0, drawsToday: drawsToday(a, now), dailyDraws: RULES.DAILY.DRAWS,
     // 「下一抽付現要多少」——不看手上的券。drawCost1 有券時會算成 0（因為那一抽不用付），
     // 拿它去寫「下一抽 X」會印出 0（第十二輪修）。
     drawCostNext: Math.round(RULES.DRAW_COST * RULES.DRAW_GROWTH ** (a.paidDraws || 0)),
     teamLevel: a.teamLevel || 0, clickLevel: a.clickLevel || 0, teamCost: trainCost(a, 'team'), clickCost: trainCost(a, 'click'),
     teamMul: trainMul('team', a.teamLevel), clickMul: trainMul('click', a.clickLevel), tapDamage: power(a) * powerMul(a, now) * clickShare(a) * trainMul('click', a.clickLevel) * boostOf(a).click, boost: boostOf(a),
-    exchangeToday: exchangeToday(a, now), exchangeTotal: a.exchange?.total || 0, stats: a.stats, wins: a.wins || 0, cosmetics: a.cosmetics,
+    exchangeToday: exchangeToday(a, now), exchangeTotal: a.exchange?.total || 0, killsToday: killsToday(a, now), dailyFull: RULES.DAILY.FULL_KILLS, advancesToday: advancesToday(a, now), dailyStations: RULES.DAILY.STATIONS, dayCapped: dayCapped(a, now), dailyMul: dailyMul(a, now), trainCap: trainCap(a), stats: a.stats, wins: a.wins || 0, cosmetics: a.cosmetics,
     roster: a.roster, skills: a.skills, owned: Object.keys(a.collection).filter(id => a.collection[id] > 0), collection: a.collection, stations: RULES.STATIONS,
     dispatch: a.dispatch || [], dispatchSlots: dispatchSlots(a), dispatchDone: a.dispatchDone || 0, skillSlots: boostOf(a).slot4 ? 4 : 3, marksGiven: a.marksGiven || null,
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
-  root.ApocEconomy = { mechRules, mutationCount, drawMutations, recommendations, rerollMutations, swapMutation, dropMutation, lapChest, RULES, RATES, setBoostProvider, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, rawTapDamage, coinGain, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { killsToday, dailyMul, trainCap, drawsToday, advancesToday, dayCapped, mechRules, mutationCount, drawMutations, recommendations, rerollMutations, swapMutation, dropMutation, lapChest, RULES, RATES, setBoostProvider, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, rawTapDamage, coinGain, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, skillInfo, canSkill, useSkill, powerMul,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
     starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, isMaxed, dustRate, fullDust, starCap, exchangeDust, winDust };
