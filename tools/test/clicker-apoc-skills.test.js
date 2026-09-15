@@ -8,10 +8,10 @@ const setup=(role,rarity='epic',boss=false)=>{
  a=A.fight(a,0); a.stage={...a.stage,need:1e8,hp:1e8}; return a;
 };
 const close=(x,y)=>assert.ok(Math.abs(x-y)<1e-6,`${x} != ${y}`);
-test('role：72 張、40 張同名依 1.0 對映、四階各含六型，開門禮 open',()=>{
+test('role：74 張、40 張同名依 1.0 對映、四階各含六型，開門禮 open',()=>{
  const B=require('../../src/clicker-balance.js'),P=require('../../src/gacha-pool.js');
  const map={click:'open',clickTime:'open',team:'train',self:'train',reload:'reset',energize:'reset',clickAdd:'coin',burst:'breach',bossDamage:'breach',passive:'idle'};
- assert.equal(ApocPool.length,72);let matched=0;   // 2026-09-16 加泡水大亨堡
+ assert.equal(ApocPool.length,74);let matched=0;   // 2026-09-16 加泡水大亨堡、瞌睡時光、珍的不是我
  for(const c of ApocPool){const id=Object.keys(B.characters).find(id=>P.byId[id]?.name===c.name);if(id){assert.equal(c.role,map[B.characters[id].kind]);matched++}}
  assert.equal(matched,40);
  for(const rarity of ['mythic','legendary','epic','rare']) assert.equal(new Set(ApocPool.filter(c=>(c.rarity==='common'?'rare':c.rarity)===rarity).map(c=>c.role)).size,6);

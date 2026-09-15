@@ -359,6 +359,15 @@
         ua: navigator.userAgent,
         dpr: window.devicePixelRatio,
         viewport: `${window.innerWidth}x${window.innerHeight}`,
+        // 09-16 iPhone 底部被網址列蓋住：各種視窗高度都記下來，回報時才知道哪個量法對
+        heights: (() => { try {
+          const p = document.createElement('div'); p.style.cssText = 'position:fixed;left:-9px;top:0;width:1px;visibility:hidden'; document.body.append(p);
+          const m = v => { p.style.height = v; return Math.round(p.getBoundingClientRect().height); };
+          const out = { svh: m('100svh'), dvh: m('100dvh'), lvh: m('100lvh'), safeBottom: m('env(safe-area-inset-bottom, 0px)'), client: document.documentElement.clientHeight,
+            visual: window.visualViewport ? Math.round(visualViewport.height) : null, zoomer: Math.round(document.getElementById('zoomer')?.getBoundingClientRect().height || 0),
+            teamBottom: Math.round(document.getElementById('team')?.getBoundingClientRect().bottom || 0), standalone: matchMedia('(display-mode: standalone)').matches };
+          p.remove(); return out;
+        } catch (e) { return { error: String(e) }; } })(),
         reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
         world: s.settings?.world ?? null,
         apoc: { progress: a.progress ?? null, laps: a.laps ?? null, revisitAt: a.revisitAt ?? null, cleared: !!a.cleared, endless: !!a.endless },

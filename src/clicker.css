@@ -1111,6 +1111,9 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
 @media (max-aspect-ratio: 3/4) {
   html, body { width:100%; height:100%; overflow:hidden; }
   #zoomer { position:fixed !important; inset:0 !important; transform:none !important; width:100%; height:100%; }
+  /* 09-16 玩家 iPhone 截圖：最底下的夥伴列被 Safari 浮動網址列蓋住。fixed inset:0 在 iOS 會延伸到工具列底下；
+     頁面不捲動、工具列一直展開，100svh（工具列展開時的可見高度）就是真正看得到的範圍。未實機驗證，診斷有記 svh／dvh／visualViewport。 */
+  @supports (height:100svh) { #zoomer { bottom:auto !important; height:100svh; } }
   #game { width:100%; height:100%; border-radius:0; }
   #game-content { position:absolute; inset:0; display:flex; flex-direction:column;
     gap:7px; padding:calc(6px + env(safe-area-inset-top)) 8px calc(6px + env(safe-area-inset-bottom)); }

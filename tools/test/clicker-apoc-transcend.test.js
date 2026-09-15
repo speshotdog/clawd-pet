@@ -48,7 +48,7 @@ test('全卡十級只增加輪迴滿養計數，不重發五級印記或新增�
     transcend:Object.fromEntries(ApocPool.map(c=>[c.id,10])),
     marksGiven:{boss:[],cleared:true,collected:true,maxed:true,laps:10}
   });
-  assert.equal(A.view(a,0).fullyMaxed,72);
+  assert.equal(A.view(a,0).fullyMaxed,74);
   assert.equal(A.markMilestones(a).gained,0);
   assert.equal(A.RULES.MARKS.MAXED,10);
 });

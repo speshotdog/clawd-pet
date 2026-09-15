@@ -409,6 +409,14 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
 .hcard[data-float] .art-media>img:not(.fx-hearts):not(.fx-ripples),.hcard[data-float] .art-media>.subject-mask{
  transform-origin:50% 50%;animation:fx-float 3.4s ease-in-out infinite alternate;will-change:transform}
 @keyframes fx-float{from{transform:translateY(-0.7%) rotate(-0.8deg)}to{transform:translateY(0.7%) rotate(0.8deg)}}
+/* 前景層（瞌睡時光的杯子）：疊在最上面、不動，跟主體同一個 Z。 */
+.fx-front{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+/* 打瞌睡點頭（瞌睡時光）：主體圖與反光遮罩同一組 transform；停一下→頭往下點→慢慢抬回（作者 GIF 1.8 秒一輪，這裡放慢）。 */
+.hcard[data-nod] .art-media>img:not(.fx-front),.hcard[data-nod] .art-media>.subject-mask{
+ transform-origin:39% 75%;animation:fx-nod 3s ease-in-out infinite;will-change:transform}
+@keyframes fx-nod{0%,35%{transform:none}55%{transform:translateY(.9%) rotate(-2.4deg)}68%{transform:translateY(.6%) rotate(-1.6deg)}100%{transform:none}}
+@media(prefers-reduced-motion:reduce){.hcard[data-nod] .art-media>img,.hcard[data-nod] .art-media>.subject-mask{animation:none}}
+.hcard[data-nod][data-small="true"] .art-media>img:not(.fx-front),.hcard[data-nod][data-small="true"] .art-media>.subject-mask{animation:none}
 @media(prefers-reduced-motion:reduce){.fx-hearts,.fx-ripples,.hcard[data-breathe] .art-media>img,.hcard[data-breathe] .art-media>.subject-mask,.hcard[data-float] .art-media>img,.hcard[data-float] .art-media>.subject-mask{animation:none}}
 /* 小卡（v3 夥伴列／挑選器，host <120px 時 data-small）不跑動畫：幾十張同時在畫面上，手機記憶體與合成成本不值得。 */
 .hcard[data-small="true"] .fx-hearts,.hcard[data-breathe][data-small="true"] .art-media>img:not(.fx-hearts),.hcard[data-breathe][data-small="true"] .art-media>.subject-mask{animation:none}
