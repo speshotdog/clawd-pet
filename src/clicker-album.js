@@ -171,8 +171,8 @@ window.ClickerAlbum = (() => {
       // 正常收尾時會被 cancel 掉；但只要中途被打斷（連點下一頁、面板重開）就會卡住，
       // 那一頁從此隱形。不在翻頁中的時候一律清乾淨，才有穩定的靜止狀態。
       if (!flipping) for (const id of ['album-left', 'album-right']) $(id).getAnimations().forEach(a => a.cancel());
-      // 末世的卡冊只有「卡」這一件事：1.0 的粉塵罐、平均訓練、派遣、推薦組合都收起來
-      for (const id of ['train-all', 'recommend-open', 'recall-all']) $(id).hidden = apoc() || $(id).hidden;
+      // 末世的卡冊：1.0 的平均訓練、派遣收起來（粉塵罐與推薦組合兩邊都有）
+      for (const id of ['train-all', 'recall-all']) $(id).hidden = apoc() || $(id).hidden;
       // 收藏卡卡冊：兩個世界都看得到（使用者第三輪：「之前說的收藏卡的卡冊做去哪了？」）。
       // ⚠ 這顆鍵以前兩邊都沒打開過——桌邊只把收藏卡排在最後一頁，末世的卡冊只列末世卡池，所以末世完全看不到。
       { const n = (s.collectibles || []).filter(id => Pool.byId[id]).length;
@@ -182,7 +182,8 @@ window.ClickerAlbum = (() => {
         const maxed = IDS.filter(id => A().isMaxed(a, id)).length;
         $('team-summary').innerHTML = `隊伍 <b>${a.roster.length}/20</b>・收藏 <b>${owned}/${IDS.length}</b>・滿養 <b>${maxed}/${IDS.length}</b>`;
         $('team-summary').title = `重複卡變成該夥伴的粉塵：${A().starCap()} 顆滿星（每星 +25%），之後五級突破（每級 +10%），共 ${A().fullDust()} 顆滿養。`;
-        for (const id of ['train-all', 'recommend-open', 'recall-all']) $(id).hidden = true;
+        for (const id of ['train-all', 'recall-all']) $(id).hidden = true;
+        $('recommend-open').hidden = false;   // 2026-09-16：末世也有推薦組合（照稀有度的四格模板）
         // 第十一輪：末世也有萬用粉塵罐（而且是卡冊全收集唯一不看運氣的路），所以粉塵罐不再收起來
         $('dust-open').hidden = false; $('dust-count').textContent = a.universalDust || 0;
       } else {

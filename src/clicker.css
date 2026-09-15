@@ -516,6 +516,9 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .recommend-slot .name { font-weight:700; }
 .recommend-slot .skill { color:#735E4E; font-size:10px; }
 .recommend-slot.missing { opacity:.55; } .recommend-slot.missing svg, .recommend-slot.missing .character-png { filter:grayscale(1); }
+body[data-world="apoc"] .recommend-slot .buddy-portrait.holo-slot { width:auto; height:56px; aspect-ratio:5/7; margin:0 auto; }
+body[data-world="apoc"] .recommend-slot .buddy-portrait.apoc-face-blank { display:block; width:40px; height:56px; border-radius:6px; background:#d9c7ad; }
+body[data-world="apoc"] .recommend-slot.missing::after { content:'缺'; }
 .recommend-slot.missing::after { content:'未招募'; position:absolute; right:3px; top:3px; font-size:9px; padding:1px 4px; border-radius:4px; background:#D9412F; color:#fff; }
 .recommend-slot.locked::after { content:'第四格未開'; position:absolute; right:3px; top:3px; font-size:9px; padding:1px 4px; border-radius:4px; background:#7a5a3a; color:#fff; }
 .recommend-card .order { margin:0; font-size:12px; font-weight:700; color:#54382B; }

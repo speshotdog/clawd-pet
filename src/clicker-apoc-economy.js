@@ -272,6 +272,45 @@
     }
     return oneSkills[c.name] || null;
   };
+  // 2.0 推薦組合（2026-09-16）：技能只看稀有度，所以模板是「四格各放哪一階」，套用時從你的隊伍裡挑該階戰力最高的卡填進去；
+  // 隊伍裡沒有那一階、卡冊裡有且塞得進隊伍（不撞前綴上限）就順手入隊；真的沒有那一階就那格保留原本的，畫面標「缺」。
+  const RECOMMENDATIONS = [
+    { name: '王關爆發', tag: '王關', stage: '中期', pattern: ['epic', 'mythic', 'legendary', 'rare'],
+      order: '全隊加訓 → 一口氣開封 → 尾巴節拍 → 重整',
+      desc: '先開「全隊加訓」把戰力 ×1.5 撐 20 秒，趁這 20 秒放「一口氣開封」10 下 ×10、再接「尾巴節拍」15 下 ×3；最後「重整」把前面三個冷卻各減 8 秒。王關 60 秒內能放兩輪。' },
+    { name: '雙神話連點', tag: '王關・手動', stage: '後期', pattern: ['mythic', 'mythic', 'epic', 'rare'],
+      order: '全隊加訓 → 神話 A → 神話 B → 重整',
+      desc: '兩張神話卡輪流開「一口氣開封」，20 下 ×10 全部落在「全隊加訓」的 20 秒裡。手要一直點，不點就浪費。' },
+    { name: '掛機常駐', tag: '掛機・放著', stage: '中期', pattern: ['epic', 'epic', 'epic', 'rare'],
+      order: '三張全隊加訓錯開 20 秒放',
+      desc: '「全隊加訓」20 秒、冷卻 60 秒，三張錯開就是 60 秒裡 60 秒都有 ×1.5；第四格「重整」每 45 秒幫大家減 8 秒，接縫更小。不用點螢幕。' },
+    { name: '傳說節拍', tag: '王關・省券', stage: '前中期', pattern: ['legendary', 'legendary', 'epic', 'rare'],
+      order: '全隊加訓 → 尾巴節拍 A → 尾巴節拍 B → 重整',
+      desc: '還沒抽到神話時的王關配法：兩張傳說各 15 下 ×3，冷卻只有 45 秒，比神話更常能放。' },
+    { name: '新手四格', tag: '剛開末世', stage: '前期', pattern: ['epic', 'rare', 'rare', 'rare'],
+      order: '全隊加訓 → 重整 ×3',
+      desc: '剛進 2.0 幾乎都是精良卡：一張「全隊加訓」＋三張「重整」互相減冷卻，讓加訓幾乎每 36 秒就能再放一次。抽到傳說再換「傳說節拍」。' },
+    { name: '全神話', tag: '炫耀用', stage: '後期', pattern: ['mythic', 'mythic', 'mythic', 'mythic'],
+      order: '四張輪流開',
+      desc: '40 下 ×10。沒有全隊加訓也沒有重整，純靠手速；適合已經全滿養、想一波帶走王的人。' },
+  ];
+  // 照模板從隊伍挑卡：每格取該階「還沒被用到」的戰力最高者；隊伍裡沒有就看卡冊，塞得進隊伍就入隊
+  function recommendTeam(a, index) {
+    const preset = RECOMMENDATIONS[index]; if (!preset) throw new Error('未知組合');
+    const slots = boostOf(a).slot4 ? 4 : 3, byRarity = id => { const c = poolById()[id]; return c ? (c.rarity === 'common' ? 'rare' : c.rarity) : null; };
+    const roster = [...a.roster], used = new Set(), skills = (a.skills || [null, null, null, null]).slice(0, 4), missing = [];
+    const owned = Object.keys(a.collection).filter(id => a.collection[id] > 0 && !dispatchedApoc(a, id)).sort((x, y) => cardPower(a, y) - cardPower(a, x));
+    for (let i = 0; i < slots; i++) {
+      const want = preset.pattern[i];
+      let pick = roster.find(id => byRarity(id) === want && !used.has(id));
+      if (!pick) { const cand = owned.find(id => byRarity(id) === want && !used.has(id) && !roster.includes(id));
+        if (cand && roster.length < 20 && !rosterViolations([...roster, cand]).length) { roster.push(cand); pick = cand; } }
+      if (!pick) { missing.push(i); continue; }
+      used.add(pick); skills[i] = pick;
+    }
+    // 同一張卡若原本就在別格，setTeam 會保留「新指定的那一格」把舊的清掉（Codex 第三輪 B1），這裡不用處理
+    return { preset, roster, skills, missing, slots };
+  }
   // 一張卡的技能說明（編隊畫面的懸浮提示與詳情用；不看有沒有裝進槽）
   const skillInfo = id => { const c = poolById()[id]; if (!c) return null; const base = RULES.SKILLS[c.rarity]; return { id, name: oneSkillName(c) || base.name, text: `${base.text}・冷卻 ${Math.round(base.cd / 1000)} 秒`, kind: base.kind }; };
   const skillOf = (a, slot) => { if (slot === 3 && !boostOf(a).slot4) return null; const id = a.skills?.[slot]; const c = id ? poolById()[id] : null; if (!c) return null; const base = RULES.SKILLS[c.rarity]; return { slot, id, card: c, ...base, name: oneSkillName(c) || base.name }; };
@@ -856,7 +895,7 @@
     dispatch: a.dispatch || [], dispatchSlots: dispatchSlots(a), dispatchDone: a.dispatchDone || 0, skillSlots: boostOf(a).slot4 ? 4 : 3, marksGiven: a.marksGiven || null,
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
-  root.ApocEconomy = { RULES, RATES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { RULES, RATES, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, skillInfo, canSkill, useSkill, powerMul,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
     starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, isMaxed, dustRate, fullDust, starCap, exchangeDust, winDust };

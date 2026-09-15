@@ -251,9 +251,38 @@ window.Clicker = (() => {
     if(!root.hidden){root.hidden=true;root.replaceChildren();return;}
     const s=store.state, el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
     root.replaceChildren(); root.hidden=false;
-    const head=el('div','recommend-head'); head.append(el('h3','','推薦組合'), el('p','',`技能槽 ${E.slotCount(s)} 格。按「套用」直接換上（缺的那格保留原本的）；換槽後 30 秒不能發動。四格組合要先在印記商店買第四技能槽。`));
-    const close=el('button','recommend-close','關閉'); close.type='button'; close.onclick=()=>showRecommendations(); head.append(close); root.append(head);
-    const list=el('div','recommend-list');
+    const head=el('div','recommend-head'); const list=el('div','recommend-list');
+    const close=el('button','recommend-close','關閉'); close.type='button'; close.onclick=()=>showRecommendations();
+    if(apocMode()){
+      // 2.0：技能只看稀有度，模板是「四格各放哪一階」，套用時從隊伍挑該階戰力最高的卡（ApocEconomy.recommendTeam）
+      const A=window.ApocEconomy, a=A.normalize(s.apoc), RAR={mythic:'神話',legendary:'傳說',epic:'史詩',rare:'精良'};
+      head.append(el('h3','','推薦組合'), el('p','',`末世的技能看稀有度：神話「一口氣開封」、傳說「尾巴節拍」、史詩「全隊加訓」、精良「重整」。模板寫的是四格各放哪一階，套用時自動從你的隊伍挑那一階戰力最高的卡（隊伍沒有、卡冊有且塞得下就順手入隊）。第四格要印記商店買。`), close); root.append(head);
+      A.RECOMMENDATIONS.forEach((preset,index)=>{
+        const r=A.recommendTeam(a,index), card=el('article','recommend-card'); card.dataset.index=index; if(r.missing.length) card.classList.add('incomplete');
+        const title=el('header',''); title.append(el('b','',preset.name), el('span','tag',preset.tag), el('span','stage',preset.stage)); card.append(title);
+        const row=el('div','recommend-slots');
+        preset.pattern.forEach((rar,i)=>{
+          const id=i<r.slots&&!r.missing.includes(i)?r.skills[i]:null, slot=el('div','recommend-slot'+(id?'':' missing')+(i>=r.slots?' locked':''));
+          slot.dataset.rarity=rar;
+          const face=id&&window.ClickerHolo?.ready()?window.ClickerHolo.face(window.ApocPool.find(c=>c.id===id)):null;
+          const art=el('span','buddy-portrait'+(face?' holo-slot':' apoc-face-blank')); if(face) art.append(face);
+          slot.append(el('i','n',String(i+1)), art, el('span','name',id?window.ApocPool.find(c=>c.id===id).name:`任一${RAR[rar]}`), el('span','skill',A.RULES.SKILLS[rar].name));
+          slot.title=A.skillInfo(id||'')?.text||`${RAR[rar]}：${A.RULES.SKILLS[rar].text}`;
+          row.append(slot);
+        });
+        card.append(row, el('p','order','順序：'+preset.order), el('p','desc',preset.desc));
+        const foot=el('div','recommend-foot');
+        const lack=r.missing.filter(i=>i<r.slots).map(i=>RAR[preset.pattern[i]]);
+        foot.append(el('span','status',lack.length?`缺 ${lack.length} 格：沒有${[...new Set(lack)].join('／')}卡`:'全部到齊'));
+        const apply=el('button','recommend-apply',lack.length?'先裝有的':'套用'); apply.type='button';
+        apply.disabled=store.blocked || !!a.pending || lack.length===r.slots;
+        apply.onclick=()=>action(()=>{const next=E.clone(store.state); next.apoc=A.setTeam(A.normalize(next.apoc),r.roster,r.skills);
+          if(commit(next)){changed();showRoster();root.hidden=true;showRecommendations();notice(`已套用${preset.name}`);}});
+        foot.append(apply); card.append(foot); list.append(card);
+      });
+      root.append(list); return;
+    }
+    head.append(el('h3','','推薦組合'), el('p','',`技能槽 ${E.slotCount(s)} 格。按「套用」直接換上（缺的那格保留原本的）；換槽後 30 秒不能發動。四格組合要先在印記商店買第四技能槽。`), close); root.append(head);
     B.recommendations.forEach((preset,index)=>{
       const missing=preset.slots.filter(id=>!s.collection[id]);
       const card=el('article','recommend-card'); card.dataset.index=index; if(missing.length) card.classList.add('incomplete');
