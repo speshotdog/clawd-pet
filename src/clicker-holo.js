@@ -35,13 +35,19 @@ window.ClickerHolo = (() => {
   }
   const sheetsReady = canAdopt ? Promise.allSettled(SHEET_NAMES.map(n => loadSheet(n).catch(e => { console.warn('ClickerHolo 樣式表', e); throw e; }))) : Promise.resolve([]);
   // 回傳實際同步掛上的檔名（測試用 host.dataset.holoSheets 看）；沒掛上的補 <link>
-  // 執行期補一張小表：拖曳中（host 掛 .holo-dragging）把愛心的飄浮動畫暫停——16 顆各自的 transform 動畫跟拖曳重畫搶合成層。
+  // 拖曳時暫停前景與背景收藏卡的愛心（飄浮 i 與擺動 b 都要停）。
+  // clicker.css 透過繼承變數同步各張卡；移除拖曳卡也會自動恢復，不會留下暫停狀態。
   // 放在 clicker-holo 而不是 holo-special.css，因為那張是 build_collect_card.py 的產出（不能手改）。
-  const runtimeSheet = (() => { if (!canAdopt) return null; const st = new CSSStyleSheet(); st.replaceSync(':host(.holo-dragging) .gift-hearts>i{animation-play-state:paused}'); return st; })();
+  const runtimeCss = ':host(.holo-dragging) .gift-hearts>i{animation-play-state:paused}'
+    + '.hcard .gift-hearts>i,.hcard .gift-hearts b{animation-play-state:var(--holo-heart-play-state,running)}'
+    // 大尺寸前景的愛心即使暫停，濾鏡／混色層仍有合成成本。暫時不畫，保留動畫進度。
+    + ':host(.holo-dragging) .gift-hearts{visibility:hidden}';
+  const runtimeSheet = (() => { if (!canAdopt) return null; const st = new CSSStyleSheet(); st.replaceSync(runtimeCss); return st; })();
   function attachSheets(sh, names) {
     const adopted = names.filter(n => sheets[n]);
     if (adopted.length) sh.adoptedStyleSheets = [...adopted.map(n => sheets[n]), ...(runtimeSheet ? [runtimeSheet] : [])];
     for (const n of names) if (!sheets[n]) { const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = url(n); sh.append(link); }
+    if (!adopted.length) { const st = document.createElement('style'); st.textContent = runtimeCss; sh.append(st); }
     return adopted;
   }
   // adoptedStyleSheets 在 cascade 裡排在 shadow root 裡的 <style> **之後**（規範：adopted 最後套用），
@@ -115,15 +121,29 @@ window.ClickerHolo = (() => {
   // 手感照精裝典藏包的 bindInteraction：拖曳 0.2°/px、±18° 封頂、四次方緩出回正。
   function interactive(host) {
     const face = host && host._face; if (!face) return;
+    const lift = face.querySelector('.card-lift');
+    // 收藏卡的獨立頁帶 700ms transform 過渡；這裡已經由 rAF 控制跟手與 280ms 回正，
+    // 再疊 CSS 過渡會一直追趕舊角度，甚至 JS 回正結束後畫面仍沒回正。
+    lift.style.transition = 'none';
     const rarity = face.dataset.rarity || [...face.classList].find(c => c.startsWith('r-'))?.slice(2) || 'rare';
     let rx = 0, ry = 0, lx = 0, ly = 0, drag = null, raf = 0;
-    const paint = (x, y) => { lx = x; ly = y; window.HoloCardFace.paint(face, rarity, x, y, { tilt: false });
-      face.style.setProperty('--rx', rx + 'deg'); face.style.setProperty('--ry', ry + 'deg'); };
+    const paint = (x, y) => { lx = x; ly = y;
+      // 拖曳／回正時固定反光，只轉動 lift。--rx/--ry 寫在 face 上會繼承到整棵卡面，
+      // 即使跳過 HoloCardFace.paint() 仍會反覆重算樣式。直接寫 transform 才避開這條路。
+      // hover 照常更新反光；回正終點恢復完整的中性卡面，主圖、遮罩與材質都不改。
+      if (!host.classList.contains('holo-dragging')) window.HoloCardFace.paint(face, rarity, x, y, { tilt: false });
+      lift.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`; };
     const stop = () => { cancelAnimationFrame(raf); raf = 0; };
     const release = () => {
-      drag = null; stop(); host.classList.remove('holo-dragging'); if (moveRaf) { cancelAnimationFrame(moveRaf); moveRaf = 0; pending = null; } const r0x = rx, r0y = ry, x0 = lx, y0 = ly, t0 = performance.now();
+      // 釋放捕捉後可能接著收到 pointerleave／cancel；不要把同一次回正重新計時。
+      if (!drag && raf) return;
+      drag = null; stop(); if (moveRaf) { cancelAnimationFrame(moveRaf); moveRaf = 0; pending = null; } const r0x = rx, r0y = ry, x0 = lx, y0 = ly, t0 = performance.now();
       const step = (now) => { const p = Math.min(1, (now - t0) / 280), k = Math.pow(1 - p, 4);
-        rx = r0x * k; ry = r0y * k; paint(x0 * k, y0 * k); raf = p < 1 ? requestAnimationFrame(step) : 0; };
+        rx = r0x * k; ry = r0y * k;
+        if (p === 1) host.classList.remove('holo-dragging');
+        paint(x0 * k, y0 * k);
+        if (p === 1) lift.style.removeProperty('transform');
+        raf = p < 1 ? requestAnimationFrame(step) : 0; };
       raf = requestAnimationFrame(step);
     };
     host.style.touchAction = 'none';

@@ -1803,6 +1803,12 @@ body[data-world="apoc"] #game #roster .album-slot { --button-bg:transparent; bac
 /* 1.0 的 .card 預設透明（要 .detail-card 才顯示）；放大層裡的 1.0 卡要自己打開 */
 #card-zoom .zoom-card > .card { opacity:1; pointer-events:auto; }
 #card-zoom { position:absolute; inset:0; z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:rgba(12,8,4,.8); }
+/* 拖曳／回正時遮實背景，讓後方的卡冊／詳情卡不必一起合成。
+   只暫停前景愛心仍不夠：半透明背景會保留後方動畫卡的繪製成本。回正後恢復原樣。 */
+#card-zoom:has(.holo-dragging) { background:rgb(12,8,4); }
+/* 不透明背景省掉後方合成，但 CSS 動畫仍會跑；拖曳時把各張收藏卡的愛心一起定格。
+   由 :has 決定狀態，放手回正或直接關掉卡面都會自動恢復。 */
+body:has(.holo-dragging) .holo-collect { --holo-heart-play-state:paused; }
 #card-zoom .zoom-card { position:relative; height:min(80%, 580px); width:auto; aspect-ratio:5/7; }
 /* 直式：畫面窄，改成以寬度為準（高度照 5:7 算）。以高度為準再壓 max-width 會把卡拉長（實測 359×580） */
 @media (max-aspect-ratio: 3/4) { #card-zoom .zoom-card { width:88%; height:auto; } }
