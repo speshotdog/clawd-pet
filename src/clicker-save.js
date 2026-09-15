@@ -43,7 +43,9 @@
     if (object(s) && s.version === 2) {
       const prestiges = Number.isSafeInteger(s.prestiges) ? s.prestiges : 0;
       s.legacy = { marksClaimed: s.marksClaimed || 0, blessing: s.blessing || 0, marks: s.marks || 0, lifetimeCoins: s.lifetimeCoins || 0, prestiges, migratedAt: Date.now() };
-      const shopSpent = Object.keys(s.markShop || {}).reduce((sum, id) => sum + (B.marks.find(m => m.id === id)?.cost || 0), 0);
+      // ⚠ 退役的六項也要算進「已花」：下面的退款段會把它們原價加回 marks，這裡沒承認的話帳就對不起來
+      //（2026-09-16 使用者朋友的 v2 存檔：買過 finger14 等六項，退了 14 枚但 marksClaimed 沒算到，驗證卡「印記商店」永遠匯不進）
+      const shopSpent = Object.keys(s.markShop || {}).reduce((sum, id) => sum + (B.marks.find(m => m.id === id)?.cost || B.RETIRED_MARKS?.[id] || 0), 0);
       const dustSpent = ((s.dustTrades || 0) * ((s.dustTrades || 0) + 1)) / 2;
       let pool = prestiges * B.V3.MARKS_PER_RUN, level = 0;
       while (level < B.BLESSING_MAX && pool >= level + 1) { pool -= level + 1; level++; }
@@ -270,6 +272,12 @@
     ['技能槽',       (s, n) => { s.skillSlots = slotArray(s, null); s.slotReadyAt = slotArray(s, 0); }],
     ['拆包進度',     (s, n) => { s.package = E.newPackage(s.settings?.scene || 'backyard'); }],
     ['場景與音量設定', (s, n) => { s.settings = fresh(n).settings; s.package = E.newPackage('backyard'); }],
+    // 印記對帳：手上的印記＋已買的祝福／神器／商店／粉塵兌換 > 累計領到的 → 把累計數補到對得起帳。
+    // 玩家手上的東西一件不少，唯一的代價是總量上限（MARKS_TOTAL_CAP）的剩餘空間少幾枚。
+    // 2026-09-16：朋友的 v2 存檔就是這種帳對不起來（退役商品退款沒進累計數）；根因已修在 v2 遷移，這步是保險。
+    ['印記對帳',     (s, n) => { const shop = Object.keys(s.markShop || {}).reduce((sum, id) => sum + (B.marks.find(m => m.id === id)?.cost || 0), 0);
+      const art = Object.values(s.artifacts || {}).reduce((sum, r) => sum + r * (r + 1) / 2, 0), d = s.dustTrades || 0, b = s.blessing || 0;
+      s.marksClaimed = Math.max(s.marksClaimed || 0, (s.marks || 0) + b * (b + 1) / 2 + art + d * (d + 1) / 2 + shop); }],
   ];
   /** 回傳 { state, applied:[步驟名] }；救不回來就回 null。
    *  兩輪：先單獨試每一步（大多數情況只壞一塊，這樣只賠那一塊），
