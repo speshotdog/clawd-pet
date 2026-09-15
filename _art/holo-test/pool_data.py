@@ -84,14 +84,16 @@ CARDS_CLIP = [
      'fx': {'ripples': 'layer-paoshuidahengbao-ripples.png', 'float': True}},
 ]
 
-# 2026-09-16 使用者給「瞌睡時光 藍卡」（有鳥／沒鳥兩張同場景＋杯子單層＋打瞌睡 GIF）→ 神話 depth：
-# 背景＝沒鳥的場景、主體＝兩張相減的鳥、杯子＝最前面不動的一層（front）、鳥本體點頭（nod）。prepare_keshui.py
-# 同日「珍的不是我」：單一角色透明底貼圖 → 傳說 framed。
+# 2026-09-16 使用者給「瞌睡時光 藍卡」→ 神話 depth（prepare_keshui.py 開頭有素材對照）：
+# 背景＝沒鳥的場景（杯子就用背景裡的）、主體＝作者 AVI 的鳥（fx.anim 逐格動畫、第 0 格當靜態主體），鳥在最上層。
+# 杯子單層試過當前景層，轉卡時跟背景裡的杯子錯位出重影 → 使用者：「杯子不要拆分，直接用背景」。
+# 同日「珍的不是我」：透明底貼圖 → 傳說 framed；「枝頭咩咩」（名字暫定）：同場景右上角兩隻玩偶 → 傳說 flat 裁窗。
 CARDS_0916 = [
-    {'id': 'keshuishiguang', 'name': '瞌睡時光', 'rarity': 'mythic', 'kind': 'depth', 'scene': True,
+    {'id': 'keshuishiguang', 'name': 'ㄎ睡時光', 'rarity': 'mythic', 'kind': 'depth', 'scene': True,   # 使用者 09-16 定名（原暫名瞌睡時光）
      'file': 'card-keshuishiguang.png',
-     'fx': {'front': 'layer-keshuishiguang-front.png', 'nod': True}},
+     'fx': {'anim': 'layer-keshuishiguang-anim.webp'}},
     {'id': 'zhendebushiwo', 'name': '珍的不是我', 'rarity': 'legendary', 'kind': 'framed', 'file': 'card-zhendebushiwo.png'},
+    {'id': 'zhitoumiemie', 'name': '枝頭咩咩', 'rarity': 'legendary', 'kind': 'flat', 'bleed': True, 'file': 'card-zhitoumiemie.png'},
 ]
 
 SOURCE_STEM = {'zhenzhen': '珍珍 神話'}

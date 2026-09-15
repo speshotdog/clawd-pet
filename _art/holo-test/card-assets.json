@@ -90,34 +90,24 @@
     "bytes": 340144
   },
   "layer-keshuishiguang-subject.png": {
-    "path": "card-assets/222f30eaf103df08bad80524a7344b7717e46ce1b8705409e5b820959d827de8.webp",
-    "sourceSha256": "222f30eaf103df08bad80524a7344b7717e46ce1b8705409e5b820959d827de8",
-    "sha256": "953314c7572fb6b9a9e072ae45850844b00b1d76dab66eb244313de3f9d3b4eb",
+    "path": "card-assets/7c31eefcd592b0ebd8e0e64d36e8ae06489feb54da6d676248b8951b3197921f.webp",
+    "sourceSha256": "7c31eefcd592b0ebd8e0e64d36e8ae06489feb54da6d676248b8951b3197921f",
+    "sha256": "94ab7370a4ebc3a919a42f673630927cb52a321f5dec790c31dce2774d158751",
     "size": [
       600,
       840
     ],
-    "bytes": 109356
+    "bytes": 43424
   },
   "layer-keshuishiguang-background.png": {
-    "path": "card-assets/936b47c83597b0adaca8b9c8598d276263667eac8f6d3e71fdb6056b3d867ba3.webp",
-    "sourceSha256": "936b47c83597b0adaca8b9c8598d276263667eac8f6d3e71fdb6056b3d867ba3",
-    "sha256": "c2183d4c62eb814351ae44cf8f1261fdafe28f3155b0387201c61093cfccd648",
+    "path": "card-assets/0ddf982d903805efbe81041c7ea30705897243eb104c4ea580e397abe80f61a4.webp",
+    "sourceSha256": "0ddf982d903805efbe81041c7ea30705897243eb104c4ea580e397abe80f61a4",
+    "sha256": "75fb08f87c7d2d29f11ebf08b9d3cb132459c835945f95086e340e24fb6227a6",
     "size": [
       600,
       840
     ],
-    "bytes": 490148
-  },
-  "layer-keshuishiguang-front.png": {
-    "path": "card-assets/cde7a975e95e2aa9a95121284b6d575c3fe2b0097176b23d5d15970fbfe1654f.webp",
-    "sourceSha256": "cde7a975e95e2aa9a95121284b6d575c3fe2b0097176b23d5d15970fbfe1654f",
-    "sha256": "3de1ca8a9be24b35ca7c9894ca39cb371dd85c25bceed9a91a90bdd238add39e",
-    "size": [
-      600,
-      840
-    ],
-    "bytes": 34296
+    "bytes": 490164
   },
   "card-liulangyueshou.png": {
     "path": "card-assets/f8c2043864b28096179d6d01a058202f316d9064e459213c3ebff1f67e1cf335.webp",
@@ -478,6 +468,16 @@
       507
     ],
     "bytes": 85020
+  },
+  "card-zhitoumiemie.png": {
+    "path": "card-assets/3b690c62146348c05a317fe95c966a451b163a298c1d198160f16e5da1dcb31c.webp",
+    "sourceSha256": "3b690c62146348c05a317fe95c966a451b163a298c1d198160f16e5da1dcb31c",
+    "sha256": "fdc6965782a84ab8a0e10498b0968e1ba6a7d08e5d1932975ab7920b6829731b",
+    "size": [
+      600,
+      840
+    ],
+    "bytes": 380054
   },
   "card-bianbiancaihua.png": {
     "path": "card-assets/b23788aa627c59fa74b166f7be715ebd6a9d3022b787678935b9f5ebfc74f2ec.webp",

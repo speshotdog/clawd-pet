@@ -627,15 +627,21 @@
   "ink": "#080c17"
  },
  "card-keshuishiguang.png": {
-  "base": "#b690cd",
-  "glow": "#b690cd",
-  "accent": "#b690cd",
+  "base": "#b087ca",
+  "glow": "#b087ca",
+  "accent": "#b087ca",
   "ink": "#080c17"
  },
  "card-zhendebushiwo.png": {
   "base": "#818181",
   "glow": "#818181",
   "accent": "#818181",
+  "ink": "#080c17"
+ },
+ "card-zhitoumiemie.png": {
+  "base": "#b96959",
+  "glow": "#b96959",
+  "accent": "#b96959",
   "ink": "#080c17"
  }
 }
