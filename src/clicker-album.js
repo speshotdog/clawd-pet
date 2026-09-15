@@ -262,13 +262,13 @@ window.ClickerAlbum = (() => {
       }).catch(settle);
     }
     function open(selected = null, slot = null) {
-      targetSlot = slot; $('recommendations')?.remove();
+      targetSlot = slot; closeRecommend();
       $('roster').hidden = false; $('game-content').inert = true;
       renderBook(true); refreshKey = '';
       if (selected) openDetail(selected); else { closeDetail(true); $('roster-close').focus(); }
     }
     function close() {
-      closeDetail(true); closeDustShop(); $('recommendations')?.remove();
+      closeDetail(true); closeDustShop(); closeRecommend();
       $('roster').hidden = true;
     }
 
@@ -652,6 +652,7 @@ window.ClickerAlbum = (() => {
         list.scrollTop = scrollTop;
       } else back.focus();
     }
+    function closeRecommend() { const r = $('recommend-page'); if (r && !r.hidden) { r.hidden = true; r.replaceChildren(); } }
     function closeDustShop() { const root = $('dust-shop'); root.hidden = true; root.replaceChildren(); }
 
     // ---------- 更衣室 ----------

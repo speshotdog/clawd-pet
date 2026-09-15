@@ -110,16 +110,15 @@ def main():
         # ---- 三之前、推薦組合不可以穿出紙面 ----
         pg.locator('#roster-open').click(); pg.wait_for_timeout(500)
         pg.locator('#recommend-open').click(); pg.wait_for_timeout(500)
-        rec = pg.evaluate("""() => { const r=document.getElementById('recommendations'); if(!r) return null;
-          const p=document.getElementById('roster').getBoundingClientRect();
-          const t=[...r.querySelectorAll('.recommend-ticket')].map(x=>x.getBoundingClientRect());
-          return {out:t.filter(x=>x.right>p.right+1||x.left<p.left-1).length, n:t.length,
-                  rows:new Set(t.map(x=>Math.round(x.top))).size}; }""")
-        check(rec and rec['n'] > 0, f"推薦組合開得起來：{rec and rec['n']} 張票券")
-        check(rec and rec['out'] == 0,
-              f"四張票券排成 {rec and rec['rows']} 列都在紙面內，沒有穿出去（穿出去的有 {rec and rec['out']} 張）")
+        # 2026-09-16 起推薦組合是獨立懸浮頁 #recommend-page（蓋在卡冊上），每組一張 .recommend-card
+        rec = pg.evaluate("""() => { const r=document.getElementById('recommend-page'); if(!r||r.hidden) return null;
+          const p=document.getElementById('roster').getBoundingClientRect(), rr=r.getBoundingClientRect();
+          const t=[...r.querySelectorAll('.recommend-card')].map(x=>x.getBoundingClientRect());
+          return {out:t.filter(x=>x.right>rr.right+1||x.left<rr.left-1).length, n:t.length, inside:rr.right<=p.right+1&&rr.left>=p.left-1&&rr.bottom<=p.bottom+1}; }""")
+        check(rec and rec['n'] >= 10, f"推薦組合頁開得起來：{rec and rec['n']} 組")
+        check(rec and rec['out'] == 0 and rec['inside'], f"組合卡全部在頁面裡、頁面在卡冊紙面內（穿出去的有 {rec and rec['out']} 張）")
         pg.screenshot(path=str(OUT / 'r26-recommend.png'))
-        pg.evaluate("() => document.getElementById('recommendations')?.remove()")
+        pg.locator('#recommend-page .recommend-close').click(); pg.wait_for_timeout(200)
 
         # ---- 三、粉塵罐：兌換後不跳回最上面 ----
         pg.locator('#dust-open').click(); pg.wait_for_timeout(400)

@@ -109,9 +109,10 @@
     const preset = B.recommendations[index];
     if (!preset) throw new Error('未知組合');
     let s = clone(state);
-    const desired = s.skillSlots.map((id,i) => i < slotCount(s) && s.collection[preset.slots[i]] ? preset.slots[i] : id);
+    // 四格組合在只有三格的存檔上只裝前三個（preset.slots[3] 會是 undefined → 保留原占位）
+    const desired = s.skillSlots.map((id,i) => i < slotCount(s) && preset.slots[i] && s.collection[preset.slots[i]] ? preset.slots[i] : id);
     // Missing-character slots retain their occupants; those occupants cannot also move.
-    for (let pass=0;pass<3;pass++) for (let i=0;i<3;i++) if (desired[i] !== s.skillSlots[i] && desired.some((id,j)=>j!==i && id===desired[i] && desired[j]===s.skillSlots[j])) desired[i]=s.skillSlots[i];
+    for (let pass=0;pass<3;pass++) for (let i=0;i<desired.length;i++) if (desired[i] !== s.skillSlots[i] && desired.some((id,j)=>j!==i && id===desired[i] && desired[j]===s.skillSlots[j])) desired[i]=s.skillSlots[i];
     for (let i=0;i<slotCount(s);i++) if (desired[i] !== s.skillSlots[i]) s=equip(s,i,null,now);
     for (let i=0;i<slotCount(s);i++) if (desired[i] !== s.skillSlots[i]) s=equip(s,i,desired[i],now);
     return s;

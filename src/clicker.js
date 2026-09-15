@@ -244,24 +244,39 @@ window.Clicker = (() => {
     tape.classList.toggle('visible',seconds>0);tape.dataset.count=chain?.count || 1;
     tape.textContent=chain?.count>=2 ? `連鎖 ×${chain.count} · ${seconds}s` : `連鎖 ${seconds}s`;
   }
+  // 推薦組合：獨立的懸浮頁（2026-09-16 重做）。以前是塞在卡冊上方的一排小票，字擠成一團、版面還會被撐壞（朋友截圖）。
+  // 現在跟粉塵罐一樣蓋在卡冊上面：每一組一張卡，寫用途、按的順序、為什麼、缺哪幾隻；「套用」直接換技能槽。
   function showRecommendations() {
-    let list=$('recommendations');
-    if (list) {list.remove();return;}
-    list=document.createElement('div');list.id='recommendations';
+    const root=$('recommend-page'); if(!root) return;
+    if(!root.hidden){root.hidden=true;root.replaceChildren();return;}
+    const s=store.state, el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
+    root.replaceChildren(); root.hidden=false;
+    const head=el('div','recommend-head'); head.append(el('h3','','推薦組合'), el('p','',`技能槽 ${E.slotCount(s)} 格。按「套用」直接換上（缺的那格保留原本的）；換槽後 30 秒不能發動。四格組合要先在印記商店買第四技能槽。`));
+    const close=el('button','recommend-close','關閉'); close.type='button'; close.onclick=()=>showRecommendations(); head.append(close); root.append(head);
+    const list=el('div','recommend-list');
     B.recommendations.forEach((preset,index)=>{
-      const ticket=document.createElement('button');ticket.className='recommend-ticket';ticket.dataset.index=index;
-      const portraits=document.createElement('span');portraits.className='recommend-portraits';
-      for(const id of [...preset.slots].sort((a,b)=>E.origin(a)-E.origin(b) || Pool.CHARACTER_IDS.indexOf(a)-Pool.CHARACTER_IDS.indexOf(b))) {const art=card.art.create(Pool.byId[id]);art.classList.toggle('missing',!store.state.collection[id]);art.setAttribute('aria-label',Pool.byId[id].name);portraits.append(art);}
-      const label=document.createElement('b');label.textContent=preset.name;
-      const desc=document.createElement('small');desc.textContent=preset.desc;
-      ticket.title=preset.slots.some(id=>!store.state.collection[id])?'招募到即可套用':'套用後更換槽位等待 30 秒';
-      ticket.append(portraits,label,desc);
-      if(preset.slots.some(id=>!store.state.collection[id])) {const missing=document.createElement('small');missing.textContent='招募到即可套用';ticket.append(missing);}
-      ticket.disabled=store.blocked || !!store.state.pending;
-      ticket.onclick=()=>action(()=>{if(commit(E.recommend(store.state,index,Date.now()))) {changed();showRoster();notice(`已套用${preset.name}，更換槽位等待 30 秒`);}});
-      list.append(ticket);
+      const missing=preset.slots.filter(id=>!s.collection[id]);
+      const card=el('article','recommend-card'); card.dataset.index=index; if(missing.length) card.classList.add('incomplete');
+      const title=el('header',''); title.append(el('b','',preset.name), el('span','tag',preset.tag), el('span','stage',preset.stage)); card.append(title);
+      const row=el('div','recommend-slots');
+      preset.slots.forEach((id,i)=>{
+        const e=Pool.byId[id], own=!!s.collection[id], slot=el('div','recommend-slot'+(own?'':' missing')+(i>=E.slotCount(s)?' locked':''));
+        const art=card_art(id); art.setAttribute('aria-label',e.name);
+        slot.append(el('i','n',String(i+1)), art, el('span','name',e.name), el('span','skill',B.characters[id].skill));
+        slot.title=own?skillTip(s,id):'還沒招募到';
+        row.append(slot);
+      });
+      card.append(row);
+      card.append(el('p','order','順序：'+preset.order), el('p','desc',preset.desc));
+      const foot=el('div','recommend-foot');
+      foot.append(el('span','status',missing.length?`缺 ${missing.length} 隻：${missing.map(id=>Pool.byId[id].name).join('、')}`:'全部到齊'));
+      const apply=el('button','recommend-apply',missing.length?'先裝有的':'套用'); apply.type='button';
+      apply.disabled=store.blocked || !!s.pending || missing.length===preset.slots.length;
+      apply.onclick=()=>action(()=>{if(commit(E.recommend(store.state,index,Date.now()))) {changed();showRoster();root.hidden=true;showRecommendations();notice(`已套用${preset.name}，更換槽位等待 30 秒`);}});
+      foot.append(apply); card.append(foot); list.append(card);
     });
-    $('album-book').before(list);
+    root.append(list);
+    function card_art(id){const art=card.art.create(Pool.byId[id]);return art;}
   }
   function renderSlots() {
     if (apocMode()) return;   // 末世的技能格由 clicker-apoc-ui.js 畫
@@ -355,7 +370,7 @@ window.Clicker = (() => {
   function showRoster(selected = null, targetSlot = null) { if (!ready || cutin?.active) return; album.open(selected, targetSlot); }
   function showRosterLegacy(selected = null, targetSlot = null) {
     if (!ready || cutin?.active) return;
-    const s = store.state; $('roster-grid').replaceChildren(); $('recommendations')?.remove();
+    const s = store.state; $('roster-grid').replaceChildren();
     for (const id of Object.keys(B.characters)) {
       const count = s.collection[id] || 0, el = document.createElement('article'); el.className = `roster-character${count ? '' : ' locked'}`;
       el.append(card.art.create(Pool.byId[id]));

@@ -120,12 +120,35 @@
     {pair:['yueyue','yueyue2'],name:'雙尾',effect:{chainWindowMs:11000}},
     {pair:['zhenzhen','zhenzhen2'],name:'雙球',effect:{selfDurationMul:1.25}},
   ];
+  // 推薦組合（2026-09-16 重做，使用者：「推薦組合有點舊了，重新設計、獨立一個頁面」）。
+  // slots 是技能槽的順序（第四格要印記商店買 slot4，沒買就只裝前三個）；order 是按的順序；
+  // tag 是用途、stage 是「大概什麼時候湊得齊」。⚠ 前三組的 slots 不要動：clicker-round9.test.js 拿它們當固定資料。
   const recommendations = [
-    {name:'連點流',slots:['yueyue','dog','jiaobu'],desc:'王關、限時包：狗 → 玥玥原版 → 膠布原版'},
-    {name:'放置流',slots:['yang','zhenzhen2','zhenmu'],desc:'掛機：珍珍 → 珍母 → 羊咩'},
-    {name:'爆發流',slots:['yang','fox','caihua'],desc:'冷凍包、王的最後一擊：羊咩 → 狐狐 → 采華'},
+    {name:'連點流',tag:'王關・限時包',stage:'前期',slots:['yueyue','dog','jiaobu'],
+      order:'狗 → 玥玥原版 → 膠布原版',desc:'先開「聞到零食」讓每一下都帶收益，再開「玥來越快」×3，最後「一刀開封」打最重的一下。手要一直點。'},
+    {name:'放置流',tag:'掛機',stage:'前期',slots:['yang','zhenzhen2','zhenmu'],
+      order:'珍珍 → 珍母 → 羊咩',desc:'「綿綿加班」先把珍珍撐到 ×4，珍母「這個頭我收下了」複製她的收益，羊咩再給全隊 +20%。三個都是長效，放著就好。'},
+    {name:'爆發流',tag:'冷凍包・王的最後一擊',stage:'前期',slots:['yang','fox','caihua'],
+      order:'羊咩 → 狐狐 → 采華',desc:'羊咩先把全隊墊高，狐狐「收拾桌面」拿全隊 ×15 的一發，采華補自身 ×20。全部一次放完，適合血量剩一點的王。'},
+    {name:'神話流',tag:'全面',stage:'後期',slots:['yueyuexian','zhenfang','zhenmoss','wanwumythic'],
+      order:'躺著也會贏 → 方方正正 → 苔原大團圓',desc:'玥來玥閒全隊 +100%，方方正正自身 ×5，苔原大團圓在加成最高時拿全隊 ×40 的一發；第四格「捧在手心」30 下點擊各追加 150% 每秒收益。'},
+    {name:'新手三寶',tag:'剛開局',stage:'前期',slots:['yueyue2','caihua','lk'],
+      order:'ㄌㄎ → 玥玥 → 采華',desc:'全部是精良卡，開局幾包就湊得齊。「穩穩站好」自身 ×3 先開，「尾巴節拍」10 下 ×2 點掉，采華「龍尾掃袋」收尾。'},
+    {name:'史詩中堅',tag:'王關・掛機都行',stage:'中期',slots:['zhenzhen2','jiaobu2','gebugou','zhenpete'],
+      order:'珍珍 → 珍彼特 → 膠布 → 哥不狗',desc:'全史詩、沒有傳說也能打。珍珍「綿綿加班」長效墊底，珍彼特 20 下追加 55%，膠布「俐落拆封」5 下 ×4，哥不狗「偷吃一口」全隊 ×18 收尾。'},
+    {name:'王關特化',tag:'王關',stage:'後期',slots:['mieshi','yuefeimo','seal','jiaobu'],
+      order:'海豹 → 滅世珍獸 → 飛沫月月 → 膠布原版',desc:'快樂海豹「快樂拍拍」讓下一個技能 ×2，接「滅世光線」直接扣王 22% 血（×2 就是 44%），飛沫再扣 8%，膠布原版一刀收尾。不打王時滅世光線退成 ×32 拆包力，不浪費。'},
+    {name:'循環流',tag:'王關・長戰',stage:'後期',slots:['chaichai','zhenmoss','foxfriend','mieshi'],
+      order:'苔蘚珍珍 → 摯友之狐 → 滅世珍獸 → 柴柴',desc:'三個 150 秒級的大招全放完，柴柴「柴柴打滾」把其他槽冷卻歸零，再放一輪。等於大招連放兩次。'},
+    {name:'合唱團',tag:'掛機・全隊',stage:'中後期',slots:['zhenzhen','yuesong','zhencao','qinghua'],
+      order:'任意順序，錯開放',desc:'四個都是「全隊每秒 +N%」：大團圓 50%、合唱一曲 45%、光合作用 30%、青花綻放 90%。冷卻都 120 秒左右，錯開放就有近乎常駐的加成。'},
+    {name:'獅王羈絆',tag:'王關・連點',stage:'中後期',slots:['lk','lksphinx','jinggou','shiyi'],
+      order:'ㄌㄎ → 謎語時間 → 警棍敲擊 → 十一連發',desc:'收齊 ㄌㄎ＋獅身ㄌㄎ 就有羈絆「獅王」（擁有即生效）：次數型技能各 +1 下。警棍 ×8 變 4 下、十一連發變 12 下，謎語時間 ×3.5 期間全部點完。'},
+    {name:'雙尾連鎖',tag:'限時包・連點',stage:'中期',slots:['yueyue','yueyue2','yuetrumpet','yangtuo'],
+      order:'玥玥原版 → 小號玥 → 玥玥 → 羊駝',desc:'收齊玥玥兩個版本就有「雙尾」（擁有即生效）：連鎖判定放寬到 11 秒，技能一個接一個放不會斷鏈。四個都是點擊倍率，限時包最吃這個。'},
+    {name:'苔球長效',tag:'掛機',stage:'中後期',slots:['zhenzhen','zhenmoss','wanwu','bingyang'],
+      order:'珍珍原版 → 冰羊咩 → 玩物 → 苔蘚珍珍',desc:'收齊珍珍原版＋苔蘚珍珍就有「苔球」（擁有即生效）：自身增益持續 ×1.25。玩物「玩到忘我」×5.2、冰羊咩 ×4.2 都變 37 秒，大團圓期間放苔原大團圓收一筆。'},
   ];
-  recommendations.push({name:'神話流',slots:['yueyuexian','zhenfang','zhenmoss'],desc:'躺著也會贏 → 方方正正 → 苔原大團圓'});
   const wardrobe = {
     sounds: ['soft','bubble','paper','coin','taiko','sticker','squish','bubblewrap','woodblock','jelly'].map((id,i)=>({id,name:['軟碰','泡泡','撕紙','金幣','太鼓','貼紙拍','擠壓','泡泡紙','木魚','果凍'][i]})),
     fx: [

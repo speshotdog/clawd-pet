@@ -544,7 +544,7 @@ def round9(browser):
     assert '羈絆' in page.locator('#album-detail').inner_text();shot('bonds-detail')
     page.keyboard.press('Escape');advance(400)
     page.locator('#recommend-open').click();shot('recommendations')
-    page.locator('.recommend-ticket').first.click()
+    page.locator('#recommend-page .recommend-card').first.locator('.recommend-apply').click()
     assert page.evaluate('Clicker.state.skillSlots')==['yueyue','dog','jiaobu']
     assert page.evaluate('Clicker.state.slotReadyAt[0]>Date.now()')
     page.locator('#roster-close').click();page.mouse.move(900,620);advance(31000)

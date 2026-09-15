@@ -447,7 +447,8 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 #boss-image { width:260px; height:300px; object-fit:contain; }
 #boss-health { position:absolute; left:-20px; bottom:-16px; width:300px; height:14px; background:#745E4A; border:2px solid #FFF6E6; border-radius:6px; }
 #boss-health i { display:block; height:100%; background:#E9B94E; border-radius:4px; }
-#boss-health b { position:absolute; top:-21px; left:0; width:100%; text-align:center; font-size:14px; color:#54382B; text-shadow:0 1px #FFF6E6; }
+/* 血量數字放在紙牌上：以前是裸字直接壓在王圖上，滿版王（滅世珍獸）整張是深色都市，字完全看不見（朋友 2026-09-16：「看不到血條數字」） */
+#boss-health b { position:absolute; top:-24px; left:50%; transform:translateX(-50%); width:auto; max-width:100%; padding:1px 10px; white-space:nowrap; text-align:center; font-size:14px; line-height:18px; font-weight:700; color:#54382B; background:#FFF6E6; border:2px solid #54382B; border-radius:999px; box-shadow:0 2px 0 #54382B55; }
 #boss-timer { position:absolute; left:24px; top:28px; width:560px; height:16px; z-index:14; background:#745E4A66; }
 #boss-timer i { display:block; width:100%; height:100%; transform-origin:left; background:url('clicker-ui-boss-tape.png') center/100% 100%; }
 #boss-timer.urgent i { filter:saturate(1.6) brightness(1.05); }
@@ -498,13 +499,35 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .bond-chain, .bond-chain img { width:24px; height:24px; }
 /* 四張 280px 的票券排一列 = 1120px，比卡冊紙面還寬，第四張會穿出去看不到
    （2026-09-08 使用者回報）。改成可換行，並給高度上限＋自己捲，才不會把下面的書擠出版面。 */
-#recommendations { flex:none; display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; max-height:140px; overflow-y:auto; }
-#roster .recommend-ticket { box-sizing:border-box; width:280px; height:64px; padding:3px 8px; border:10px solid transparent; border-image:url('clicker-ui-ticket.png') 24 fill / 10px; border-radius:0; box-shadow:none; background:transparent; text-align:left; }
-.recommend-ticket b { font-size:13px; }
-.recommend-ticket small { display:block; font-size:9px; white-space:nowrap; }
-.recommend-portraits { display:flex; float:right; }
-.recommend-portraits svg { width:24px!important; height:24px!important; }
-.recommend-portraits .character-png, .bond-row .character-png, .slot-pick .character-png, #parasite-label .character-png { width:24px; height:24px; margin:0; }
+/* 推薦組合：獨立懸浮頁（跟 #dust-shop 同一個位置與外框，見下面 #album-detail, #dust-shop 那條） */
+#recommend-page { flex-direction:column; gap:10px; }
+.recommend-head { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px; }
+.recommend-head h3 { margin:0; font-size:20px; } .recommend-head p { margin:0; font-size:12px; color:#735E4E; }
+.recommend-list { min-height:0; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(330px, 1fr)); gap:10px; padding:2px 4px 6px 2px; }
+.recommend-card { display:grid; gap:6px; padding:10px 12px; border:2px solid #96714f; border-radius:12px; background:#fff7e5; box-shadow:0 3px 0 #30251f33; }
+.recommend-card header { display:flex; align-items:center; gap:8px; }
+.recommend-card header b { font-size:16px; }
+.recommend-card .tag, .recommend-card .stage { flex:none; font-size:11px; line-height:1; padding:3px 8px; border-radius:999px; color:#fff; background:#a04a2a; }
+.recommend-card .stage { background:#5b7a3a; margin-left:auto; }
+.recommend-slots { display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; }
+.recommend-slot { position:relative; display:grid; justify-items:center; gap:2px; padding:6px 2px 4px; border:2px dashed #b89a7c; border-radius:10px; background:#fff1d5; font-size:11px; line-height:1.15; text-align:center; }
+.recommend-slot .n { position:absolute; left:4px; top:3px; width:16px; height:16px; border-radius:50%; background:#54382B; color:#fff; font-size:10px; font-style:normal; display:grid; place-items:center; }
+.recommend-slot svg, .recommend-slot .character-png { width:44px !important; height:44px !important; }
+.recommend-slot .name { font-weight:700; }
+.recommend-slot .skill { color:#735E4E; font-size:10px; }
+.recommend-slot.missing { opacity:.55; } .recommend-slot.missing svg, .recommend-slot.missing .character-png { filter:grayscale(1); }
+.recommend-slot.missing::after { content:'未招募'; position:absolute; right:3px; top:3px; font-size:9px; padding:1px 4px; border-radius:4px; background:#D9412F; color:#fff; }
+.recommend-slot.locked::after { content:'第四格未開'; position:absolute; right:3px; top:3px; font-size:9px; padding:1px 4px; border-radius:4px; background:#7a5a3a; color:#fff; }
+.recommend-card .order { margin:0; font-size:12px; font-weight:700; color:#54382B; }
+.recommend-card .desc { margin:0; font-size:12px; line-height:1.5; color:#5b4632; }
+.recommend-foot { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.recommend-foot .status { font-size:11px; color:#735E4E; } .recommend-card.incomplete .status { color:#a04a2a; }
+#game .recommend-apply { min-width:96px; }
+#roster .recommend-card header { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; gap:8px; padding:0; margin:0; }
+/* .panel header span 在直式會被拉成整行（flex:1 0 100%），組合卡的用途／時期標籤不是那種 span，釘回小藥丸 */
+#game #roster .recommend-card header span { flex:none; order:0; width:auto; display:inline-block; font-size:11px; line-height:1; }
+@media (max-width:700px) { .recommend-list { grid-template-columns:1fr; } .recommend-head { grid-template-columns:1fr auto; } .recommend-head p { grid-column:1 / -1; } #game .recommend-close { width:auto; } }
+..bond-row .character-png, .slot-pick .character-png, #parasite-label .character-png { width:24px; height:24px; margin:0; }
 .buddy-portrait .character-png, #game .skill-use .character-png { width:40px; height:40px; margin:0; }
 .joining-portrait .character-png, .roster-character > .character-png { width:64px; height:64px; }
 .dust-row .character-png { width:28px; height:28px; }
@@ -519,7 +542,6 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .mythic-stars::before { content:''; position:absolute; inset:0; border-radius:6px; background:var(--mythic-rainbow); opacity:.45; }
 .mythic-stars img { position:relative; mix-blend-mode:normal; }
 @media (prefers-reduced-motion:reduce) { #cutin-actor .character-png { transform:none; } }
-.recommend-portraits .missing { filter:grayscale(1); opacity:.35; }
 
 /* Round 10: 夥伴卡冊、展示頁、粉塵罐、更衣室 */
 #roster.album { display:flex; flex-direction:column; }
@@ -559,7 +581,7 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 #game .page-corner:active:enabled { transform:translateY(-50%); }
 #game .page-corner:disabled { opacity:.3; }
 .album-pageno { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); font-size:12px; color:#735E4E; }
-#album-detail, #dust-shop { position:absolute; inset:52px 20px 20px; z-index:5; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; padding:13px 17px; display:flex; gap:18px; overflow:hidden; }
+#album-detail, #dust-shop, #recommend-page { position:absolute; inset:52px 20px 20px; z-index:5; border:3px solid #30251F; border-radius:14px; background:#FCECC8; box-shadow:0 4px 0 #30251F; outline:2px dashed #30251F55; outline-offset:-7px; padding:13px 17px; display:flex; gap:18px; overflow:hidden; }
 .detail-left { width:220px; flex:none; display:flex; align-items:flex-start; justify-content:center; padding-top:16px; }
 .detail-card.card { position:relative; left:auto; top:auto; margin:0; opacity:1; transform:scale(1.15); transform-origin:center top; transition:none; pointer-events:auto; }
 .detail-card .face-art svg { animation:album-breathe 3.4s ease-in-out infinite; transform-origin:50% 100%; }
@@ -862,6 +884,10 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 #boss-health { width:calc(var(--boss-w,260px) + 40px); }
 /* 滿版王（滅世珍獸 632 寬、中心 316）：血條 left:-20px 會跑到 #game 的畫布外被切掉（Opus 群組 B B1 量到 x=35 < 40）。收進舞台裡。 */
 #boss-view.full-board #boss-health { left:20px; width:calc(var(--boss-w,632px) - 64px); }
+/* 滿版王的血條貼在舞台下緣，上方 24px 正好是舞台的畫框（z 更高）——數字牌放上面會被框蓋掉，改成畫在血條裡面：血條加高、字置中 */
+#boss-view.full-board #boss-health { height:22px; border-radius:11px; }
+#boss-view.full-board #boss-health i { border-radius:9px; }
+#boss-view.full-board #boss-health b { top:50%; transform:translate(-50%,-50%); font-size:13px; line-height:16px; padding:0 10px; border-width:1px; box-shadow:none; }
 #stage > #boss-challenge.long { font-size:13px; line-height:15px; white-space:normal; padding:2px 8px; }
 #stage[data-scene="nightmarket"] .desk-mat { filter:brightness(.72) saturate(.8); }
 #stage[data-scene="factory"] .desk-mat { filter:grayscale(.6); }
@@ -931,7 +957,7 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 #game .dust-row button { font-size:13px; padding:3px 10px 5px; --button-bg:#B48CCB; color:#30251F; }
 #game .dust-row button:disabled { --button-bg:#D9CCBB; background:var(--button-bg); }
 #game .album-slot:hover:enabled, #game .album-slot:active:enabled { background:transparent; filter:none; transform:none; }
-#album-detail, #dust-shop { z-index:20; }
+#album-detail, #dust-shop, #recommend-page { z-index:20; }
 #stage > #boss-challenge { background-size:100% 100%; }
 #stage > #boss-challenge { padding:4px 6px 6px 32px; text-align:left; font-size:14px; line-height:16px; }
 
@@ -1042,15 +1068,14 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
 #roster #train-all { flex:none; white-space:nowrap; font-size:12px; padding:5px 9px; }
 
 /* 貼圖熱區、圓貼紙與票券保留自己的輪廓。 */
-#game :is(#tap, .buddy, .slot-pick, .skill-use, #boss-challenge, .scene-ticket, .recommend-ticket, .album-slot, .mark-ticket, .sub-hot, #gift-hot, #daily-bag, #snack-thief):is(:hover, :active, :disabled),
-#game :is(#boss-challenge, .scene-ticket, .recommend-ticket, .mark-ticket) { box-shadow:none; outline:none; }
+#game :is(#tap, .buddy, .slot-pick, .skill-use, #boss-challenge, .scene-ticket, .album-slot, .mark-ticket, .sub-hot, #gift-hot, #daily-bag, #snack-thief):is(:hover, :active, :disabled),
+#game :is(#boss-challenge, .scene-ticket, .mark-ticket) { box-shadow:none; outline:none; }
 #game :is(#tap, .buddy, .slot-pick, .album-slot):hover:enabled { background:transparent; }
 #game .skill-use:hover:enabled { background:url('clicker-ui-sticker-badge.png') center/contain no-repeat; }
 #game .mark-ticket { border:0; border-radius:0; }
 #game :is(button, select):focus-visible { outline:3px solid #0070dd; outline-offset:3px; }
 #game :is(.text-button, #audio-panel button[aria-pressed]) { background:transparent; border:0; box-shadow:none; outline:none; }
 #game :is(.scene-ticket, .mark-ticket):hover:enabled { background:#FAEBC9; }
-#game #roster .recommend-ticket:hover:enabled { background:transparent; }
 #game #prestige-go { padding:3px 15px 6px; }
 
 /* 第二十輪：被動浮字與每秒收益關卡票券。 */
@@ -1329,7 +1354,7 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
   #album-left { padding:0 6px; }
   #game #album-prev { left:2px; } #game #album-next { right:2px; }
   /* 詳細頁與粉塵罐在直式改成直排（橫式是左右兩欄，390 寬會把右欄擠成一條） */
-  #album-detail, #dust-shop { inset:44px 10px 10px; flex-direction:column; gap:10px; padding:11px 13px;
+  #album-detail, #dust-shop, #recommend-page { inset:44px 10px 10px; flex-direction:column; gap:10px; padding:11px 13px;
     overflow-y:auto; }
   /* 直排時卡片在資訊的正上方。⚠ 卡片是 scale(1.15) 放大的，版面高度卻還是原本的 210——
      橫式左右分欄看不出來，直排會直接壓在名字上（實機看到「阿漉」被卡片蓋掉半個字）。

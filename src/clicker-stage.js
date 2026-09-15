@@ -539,8 +539,8 @@ window.ClickerStage = (() => {
       if(sec<=10 && sec>0 && heartbeat!==sec) {heartbeat=sec;motion($('boss-timer'),[{transform:'scale(1)'},{transform:'scale(1.03)',offset:.5},{transform:'scale(1)'}],200);sound('boss-heart');}
       const ratio=b.dealt/b.need, health=$('boss-health');health.firstElementChild.style.width=`${ratio*100}%`;
       health.firstElementChild.style.background=`color-mix(in srgb,#E9B94E ${100-ratio*100}%,#EF8E8E)`;
-      const n=v=>v>=10000?`${(v/10000).toFixed(1)}萬`:format(v);
-      health.lastElementChild.textContent=`${n(b.dealt)} / ${n(b.need)}`;
+      // 以前 ≥1 萬一律寫成「N 萬」，深層場景的王會變成「664083147.2萬」十幾位數塞爆血條（朋友 2026-09-16 截圖）。走 format 讓它升到億／兆。
+      health.lastElementChild.textContent=`${format(b.dealt)} / ${format(b.need)}`;
     }
     function cracks(value) {
       const el=$('boss-cracks');el.replaceChildren();
