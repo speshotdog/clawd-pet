@@ -13,6 +13,7 @@
 
 輸出（全部在 src/apoc/ 底下）：
   card-face.js      HoloCardFace 本體（從 holo-5.0 複製，不改）
+  card-fx.js        個別卡的特效層（玩物就玩物：愛心微晃、羊呼吸），建卡後 HoloCardFx.apply()
   holo.css          卡面 CSS（url() 改成相對路徑，字型拆成檔案）
   fonts/*.woff2     卡面字型
   art/<key>.webp    71 張精裝卡的圖層（framed 是去背主體、depth 是主體＋背景、flat 是滿版）
@@ -62,6 +63,7 @@ def main():
                     if not (baseline and baseline.start() <= m.start() < baseline.end()))
     css = css.replace('<style>', '')
     css += (HOLO / 'card-position.css').read_text(encoding='utf-8')
+    css += (HOLO / 'card-fx.css').read_text(encoding='utf-8')     # 特效層（card_fx.js：玩物就玩物的愛心、呼吸）
 
     # 字型：從 @font-face 的 data URI 拆成檔案
     total_font = 0
@@ -77,11 +79,14 @@ def main():
     from card_assets import assets as card_assets
     canonical = card_assets(cards)
     masks = json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>', demo, re.S)[1])
+    # 5.0 之後新卡的主體遮罩只有 layer-* 那些（depth 圖層）；masks-5.0.json 裡 framed／flat 的舊條目不拿，
+    # 免得順帶改到現有卡的箔光（2026-09-15 小丑玥玥就這樣多了一層，使用者沒要）。
+    masks.update({k: v for k, v in json.loads((HOLO / 'masks-5.0.json').read_text(encoding='utf-8')).items() if k.startswith('layer-')})
 
+    from card_assets import keys as asset_keys
     keys, total_art, total_mask = [], 0, 0
     for c in cards:
-        ks = [f"layer-{c['id']}-subject.png", f"layer-{c['id']}-background.png"] if c.get('scene') else [c['file']]
-        keys += ks
+        keys += asset_keys(c)      # 圖層＋特效層，跟編碼權威同一份規則
     art_names, mask_names = {}, {}
     for key in keys:
         d = save_asset(canonical[key], OUT / 'art', Path(key).stem)
@@ -108,6 +113,7 @@ def main():
         css = css.replace('cardback/deluxe-back.webp', 'art/deluxe-back.webp')
     (OUT / 'holo.css').write_text(css, encoding='utf-8')
     shutil.copy2(HOLO / 'card_face.js', OUT / 'card-face.js')
+    shutil.copy2(HOLO / 'card_fx.js', OUT / 'card-fx.js')
 
     # ---- 卡池
     pool = []
@@ -116,6 +122,7 @@ def main():
         if c.get('file'): e['file'] = c['file']
         if c.get('scene'): e['scene'] = True
         if c.get('bleed'): e['bleed'] = True
+        if c.get('fx'): e['fx'] = c['fx']
         p = pal.get(c.get('file') or '', {})
         if p: e['pal'] = p
         pool.append(e)

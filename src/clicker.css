@@ -2050,3 +2050,35 @@ body[data-world="apoc"][data-apoc-theme] #game .mut-chip.positive:hover:enabled 
   #game .loop-panel p { font-size:16px; }
   #game .loop-panel button { min-height:44px; }
 }
+
+/* ── 朋友 2026-09-16 三條建議：儲存隊伍／技能型分類／技能效果剩餘時間 ─────────────────── */
+/* 儲存的隊伍：編隊標題下一排三組（存＝照抄目前隊伍與技能槽；套用＝寫回）。兩個世界共用，末世改深色。 */
+.team-presets { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 6px; font-size:12px; }
+.team-presets .presets-label { font-weight:700; color:#7a5a3a; margin-right:2px; }
+/* 末世的編隊畫面也是紙色（舊化 1.0 主題），所以不做深色版 */
+.preset-chip { display:inline-flex; align-items:center; gap:4px; padding:3px 4px 3px 8px; border:2px solid #96714f; border-radius:999px; background:#fff7e5; max-width:100%; }
+.preset-chip.empty { border-style:dashed; }
+.preset-chip .preset-name { max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.preset-chip.empty .preset-name { color:#9a8672; font-weight:400; }
+.preset-chip button { font:inherit; font-size:11px; line-height:1; padding:4px 8px; border:1px solid #96714f; border-radius:999px; background:#fff; color:#30251f; cursor:pointer; min-height:24px; }
+.preset-chip button:disabled { opacity:.4; cursor:default; }
+.preset-chip .preset-save.armed { background:#f2b233; border-color:#b8862a; font-weight:700; }
+/* 技能型：挑選器上方一列篩選藥丸＋卡片左下角的型標籤（只有末世有型） */
+.picker-roles { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 8px; }
+.role-chip { font:inherit; font-size:12px; line-height:1; padding:6px 10px; border:2px solid #96714f; border-radius:999px; background:#fff7e5; color:#30251f; cursor:pointer; min-height:28px; }
+.role-chip[aria-pressed="true"] { background:#f2b233; border-color:#b8862a; color:#30251f; font-weight:700; }
+.team-proxy .proxy-role { position:absolute; right:3px; bottom:3px; font-size:9px; font-style:normal; font-weight:700; line-height:1; padding:2px 4px; border-radius:4px; background:#0E1520e6; color:#DDE6F4; border:1px solid #5C7CB8; pointer-events:none; }
+.team-proxy .proxy-role[data-role="open"] { border-color:#ff9f5a; } .team-proxy .proxy-role[data-role="train"] { border-color:#7dff9c; }
+.team-proxy .proxy-role[data-role="breach"] { border-color:#ff5a5a; } .team-proxy .proxy-role[data-role="coin"] { border-color:#ffd76a; }
+.team-proxy .proxy-role[data-role="idle"] { border-color:#5ad7ff; } .team-proxy .proxy-role[data-role="reset"] { border-color:#b48bff; }
+/* 技能效果剩餘：同型技能只覆蓋不相乘，玩家要知道「還有多久／幾下」才知道什麼時候接下一個（朋友 2026-09-16） */
+#slots .skill-slot .skill-left { display:none; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); width:max-content; max-width:110%; font-size:10px; line-height:12px; padding:1px 5px; border-radius:999px; background:#1f6b3a; color:#eaffef; border:1px solid #7dff9c; pointer-events:none; z-index:2; white-space:nowrap; }
+#slots .skill-slot[data-effect="on"] .skill-left { display:block; }
+#slots .skill-slot[data-effect="on"] .skill-use { filter:drop-shadow(0 0 6px #7dff9c99); }
+#slots .skill-slot .skill-ring { display:none; }   /* 環用獨立元素，::before 已被王關的「抵抗」標籤用掉 */
+#slots .skill-slot[data-effect="on"] .skill-ring { display:block; position:absolute; inset:-3px; border-radius:50%; background:conic-gradient(from 0deg, #2fd46a 0deg var(--effect,0deg), #2fd46a33 var(--effect,0deg) 360deg); -webkit-mask:radial-gradient(circle closest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3px)); mask:radial-gradient(circle closest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3px)); pointer-events:none; z-index:3; }
+/* 手機直式（同上面 1111 行那個 max-aspect-ratio 區塊的版面）：名字是靜態排在貼紙下面，剩餘標籤改貼在貼紙上緣。
+   要放在檔案最後：跟上面桌機版同特異性，寫在前面會被 bottom:-6px 蓋掉（實測標籤被拉成 73px 高的一塊）。 */
+@media (max-aspect-ratio: 3/4) {
+  #slots .skill-slot .skill-left { top:-7px; bottom:auto; right:auto; left:50%; width:max-content; height:auto; line-height:12px; font-size:9px; padding:1px 4px; }
+}

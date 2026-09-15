@@ -246,6 +246,12 @@
     while (E.rosterViolations(s.roster).length) s.roster.pop();
     if (!s.roster.length && Object.keys(s.collection).length) s.roster = E.autoRoster(s, s.skillSlots.filter(Boolean));   // 自動編隊時技能槽裡的先保住
     s.skillSlots = s.skillSlots.map(id => id && !s.roster.includes(id) ? null : id);
+    // 儲存的隊伍（1.0；末世那份在 ApocEconomy.normalize）：固定三組，壞的整組變 null，卡 id 只留認得的、去重（Astra 複檢必修 3）
+    s.teamPresets = (Array.isArray(s.teamPresets) ? s.teamPresets : []).slice(0, 3).map(p => object(p) && Array.isArray(p.roster)
+      ? { name: typeof p.name === 'string' ? p.name.slice(0, 24) : '', roster: [...new Set(p.roster.filter(id => typeof id === 'string' && known(id)))].slice(0, 20),
+          skills: [0, 1, 2, 3].map(i => (Array.isArray(p.skills) && typeof p.skills[i] === 'string' && known(p.skills[i])) ? p.skills[i] : null) }
+      : null);
+    while (s.teamPresets.length < 3) s.teamPresets.push(null);
     for (const id of Object.keys(B.characters).filter(id => !B.originalIds.includes(id))) {
       s.dust[id] ??= s.collection[id] || 0; s.promotions[id] ??= 0; s.transcend[id] ??= 0; s.partnerLevels[id] ??= 0;
     }

@@ -392,3 +392,24 @@ body.name-slant .r-legendary .face-name,body.name-slant .r-mythic .face-name{fon
 /* Round 43: translate the existing sheep and its registered foil mask together.
    No resampling, scale change, Z change, or change to the botanical background. */
 .hcard[data-id="zhenzhen"] .art-media{transform:translateY(-6%)}
+/* 卡面特效層（card_fx.js）：接在卡面 CSS 之後。 */
+/* 愛心層：疊在 .art-media 最上面，跟主體同一個 Z（一起吃 --ax/--ay 視差），只做微晃。 */
+.fx-hearts{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;
+ transform-origin:50% 45%;animation:fx-hearts-sway 3.6s ease-in-out infinite alternate;will-change:transform}
+@keyframes fx-hearts-sway{from{transform:translate(-1.2%,-0.6%) rotate(-1.6deg)}to{transform:translate(1.2%,0.6%) rotate(1.6deg)}}
+/* 羊本體呼吸：主體圖與它的反光遮罩層套同一組 transform（否則箔光會跟本體錯位），以腳底為原點微微長高。 */
+.hcard[data-breathe] .art-media>img:not(.fx-hearts),.hcard[data-breathe] .art-media>.subject-mask{
+ transform-origin:50% 85%;animation:fx-breathe 2.8s ease-in-out infinite alternate;will-change:transform}
+@keyframes fx-breathe{from{transform:scale(1,1)}to{transform:scale(1.008,1.018)}}
+/* 水波層（泡水大亨堡）：疊在最上面，只做很慢的橫向漂移＋極小的縮放，像水面在動。 */
+.fx-ripples{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;
+ transform-origin:50% 55%;animation:fx-ripples-drift 5.2s ease-in-out infinite alternate;will-change:transform}
+@keyframes fx-ripples-drift{from{transform:translate(-1.4%,0.4%) scale(1,1)}to{transform:translate(1.4%,-0.4%) scale(1.015,1.01)}}
+/* 熱狗本體漂浮：主體圖與反光遮罩同一組 transform，以圖中心為原點上下浮＋微微搖。 */
+.hcard[data-float] .art-media>img:not(.fx-hearts):not(.fx-ripples),.hcard[data-float] .art-media>.subject-mask{
+ transform-origin:50% 50%;animation:fx-float 3.4s ease-in-out infinite alternate;will-change:transform}
+@keyframes fx-float{from{transform:translateY(-0.7%) rotate(-0.8deg)}to{transform:translateY(0.7%) rotate(0.8deg)}}
+@media(prefers-reduced-motion:reduce){.fx-hearts,.fx-ripples,.hcard[data-breathe] .art-media>img,.hcard[data-breathe] .art-media>.subject-mask,.hcard[data-float] .art-media>img,.hcard[data-float] .art-media>.subject-mask{animation:none}}
+/* 小卡（v3 夥伴列／挑選器，host <120px 時 data-small）不跑動畫：幾十張同時在畫面上，手機記憶體與合成成本不值得。 */
+.hcard[data-small="true"] .fx-hearts,.hcard[data-breathe][data-small="true"] .art-media>img:not(.fx-hearts),.hcard[data-breathe][data-small="true"] .art-media>.subject-mask{animation:none}
+.hcard[data-small="true"] .fx-ripples,.hcard[data-float][data-small="true"] .art-media>img:not(.fx-ripples),.hcard[data-float][data-small="true"] .art-media>.subject-mask{animation:none}

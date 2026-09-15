@@ -107,6 +107,7 @@
       const img = el('span', 'proxy-image'); img.append(portrait(id, index === null));   // 候選卡（index null）＝挑選器，卡面懶載
       if (index !== null) img.append(el('span', 'proxy-index', String(index + 1).padStart(2, '0')));
       if (!apoc()) img.append(el('span', 'proxy-symbol', SYMBOLS[byId(id).rarity]));   // 精裝卡的卡框本身就是稀有度
+      if (apoc() && ROLE_NAME[roleOf(id)]) { const r = el('i', 'proxy-role', ROLE_NAME[roleOf(id)]); r.dataset.role = roleOf(id); img.append(r); }   // 技能型（朋友 2026-09-16：「技能類型能夠分類也比較好組隊」）
       b.append(img, el('span', 'proxy-name', byId(id).name.replace('（原版）', '')));
       if (!apoc() && E.champion(store.state, id)) b.append(el('i', 'champ-flag', '本輪當家'));
       const slot = skills().indexOf(id); if (slot >= 0) b.append(el('i', 'slot-stamp', `槽${slot + 1}`));
@@ -296,6 +297,68 @@
       } catch (err) { notice(err.message); $('t20-picker-status').textContent = err.message; } });
       return ok;
     }
+    // ---- 挑選器的技能型篩選（末世；朋友 2026-09-16：「技能類型能夠分類也比較好組隊」）。一列藥丸：全部＋六型，只影響候選列。
+    let roleFilter = '';
+    function renderRoleFilter() {
+      let row = $('t20-picker-roles');
+      if (!apoc()) { if (row) row.hidden = true; return; }
+      if (!row) { row = el('div', 'picker-roles'); row.id = 't20-picker-roles'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', '技能型篩選'); $('t20-picker-grid').before(row); }
+      row.hidden = false; row.replaceChildren();
+      for (const [k, name] of [['', '全部'], ...ROLE_ORDER.map(r => [r, ROLE_NAME[r]])]) {
+        const b = el('button', 'role-chip', name); b.type = 'button'; b.dataset.role = k; b.setAttribute('aria-pressed', String(roleFilter === k));
+        b.onclick = () => { roleFilter = k; openPicker(pickerMode, pickerSlot); }; row.append(b);
+      }
+    }
+    // ---- 儲存的隊伍（朋友 2026-09-16：「一直切技能的情況下，滿需要有儲存隊伍的功能」）
+    // 三組，末世存在 apoc.presets（規則在 economy 的 savePreset／applyPreset）、桌邊存在 state.teamPresets（setRoster＋equip 逐格裝）。
+    // 名字自動取技能槽的型（末世）或「隊伍 N」；「存」在非空格上要按兩次才覆蓋。
+    const PRESETS = 3;
+    const presetsOf = () => { const list = apoc() ? apocState().presets : store.state.teamPresets; const out = (Array.isArray(list) ? list : []).slice(0, PRESETS); while (out.length < PRESETS) out.push(null); return out; };
+    const autoName = i => { const roles = apoc() ? skills().filter(Boolean).map(id => ROLE_NAME[roleOf(id)]).filter(Boolean) : []; return roles.length ? [...new Set(roles)].join('／') : `隊伍 ${i + 1}`; };
+    let armed = null, armTimer = 0;
+    function savePresetAt(i) {
+      const cur = presetsOf()[i];
+      if (cur && armed !== i) { armed = i; clearTimeout(armTimer); armTimer = setTimeout(() => { armed = null; renderPresets(); }, 3000); renderPresets(); return; }
+      armed = null; clearTimeout(armTimer);
+      action(() => {
+        const next = E.clone(store.state);
+        if (apoc()) next.apoc = A().savePreset(apocState(), i, autoName(i));
+        else { const list = presetsOf(); list[i] = { name: autoName(i), roster: [...E.rosterOf(store.state)], skills: [...store.state.skillSlots] }; next.teamPresets = list; }
+        if (commit(next)) { changed(); renderPresets(); notice(`已存成「${presetsOf()[i].name}」`); }
+      });
+    }
+    function applyPresetAt(i) {
+      const p = presetsOf()[i]; if (!p) return;
+      action(() => {
+        let next = E.clone(store.state), missing = 0;
+        if (apoc()) { const r = A().applyPreset(apocState(), i); next.apoc = r.state; missing = r.missing; }
+        else {
+          const s = store.state, now = Date.now(), roster = p.roster.filter(id => s.collection[id] > 0 && !E.dispatched(s, id)); missing = p.roster.length - roster.length;
+          next = E.setRoster(s, roster, now);
+          // 目標槽先算好；所有跟目標不同的舊槽先清空（不然 [A,B] → [B,A] 這種交換會撞「角色已在其他槽位」；Astra 複檢必修 1）
+          const want = next.skillSlots.map((_, k) => (p.skills[k] && roster.includes(p.skills[k])) ? p.skills[k] : null);
+          for (let k = 0; k < next.skillSlots.length; k++) if (next.skillSlots[k] && next.skillSlots[k] !== want[k]) next = E.equip(next, k, null, now);
+          let failed = 0;
+          for (let k = 0; k < next.skillSlots.length; k++) { const id = want[k]; if (id && next.skillSlots[k] !== id) { try { next = E.equip(next, k, id, now); } catch { failed++; } } }
+          if (failed) notice(`有 ${failed} 格技能裝不進去（技能槽還沒解鎖或隊伍沒位子）`);
+        }
+        if (commit(next)) { changed(); selected = team()[0] || null; page = 0; render(); notice(missing ? `已套用「${p.name}」，有 ${missing} 張不在卡冊或派遣中，先跳過` : `已套用「${p.name}」`); }
+      });
+    }
+    function renderPresets() {
+      let bar = $('t20-presets');
+      if (!bar) { bar = el('div', 'team-presets'); bar.id = 't20-presets'; bar.setAttribute('aria-label', '儲存的隊伍'); $('team-editor').querySelector('header').after(bar); }
+      bar.replaceChildren(el('span', 'presets-label', '儲存的隊伍'));
+      presetsOf().forEach((p, i) => {
+        const chip = el('div', 'preset-chip'); chip.dataset.i = i; chip.classList.toggle('empty', !p);
+        chip.append(el('b', 'preset-name', p ? p.name : '（空）'));
+        const use = el('button', 'preset-use', '套用'); use.type = 'button'; use.disabled = !p; use.onclick = () => applyPresetAt(i);
+        if (p) use.title = `${p.roster.length} 張・技能槽 ${p.skills.filter(Boolean).length} 格`;
+        const save = el('button', 'preset-save', armed === i ? '再按一次覆蓋' : p ? '存' : '存目前隊伍'); save.type = 'button'; save.onclick = () => savePresetAt(i);
+        save.classList.toggle('armed', armed === i); save.title = p ? '把目前的隊伍與技能槽存進這一組（覆蓋）' : '把目前的隊伍與技能槽存進這一組';
+        chip.append(use, save); bar.append(chip);
+      });
+    }
     // ---- 挑選器（同 team20 openPicker：add／replace／skill 三模式）
     function openPicker(mode, slot = 0) {
       drag?.cancel(); clearOperation(); pending = null; picks = []; outs = mode === 'replace' && selected && team().includes(selected) ? [selected] : []; pickerMode = mode; pickerSlot = slot; $('t20-picker-confirm').textContent = '確認';
@@ -314,7 +377,9 @@
         grid.append(el('p', 'picker-section', '換入（點卡冊裡的卡）'));
       }
       { const head = document.querySelector('#t20-picker .picker-heading'); const sel = sortSelect('t20-sort-picker', () => { openPicker(pickerMode, pickerSlot); }); if (sel.parentElement !== head) head.insertBefore(sel, $('t20-picker-close')); }
-      for (const id of sortIds(mode === 'replace' ? pool.filter(id => !ids.includes(id)) : pool)) {   // 替換模式：隊伍成員只出現在上排「換出」
+      renderRoleFilter();
+      const cands = (mode === 'replace' ? pool.filter(id => !ids.includes(id)) : pool).filter(id => !apoc() || !roleFilter || roleOf(id) === roleFilter);   // 篩選只在末世（1.0 的 kind 沒有六型，套上去會全空；Astra 複檢必修 2）
+      for (const id of sortIds(cands)) {   // 替換模式：隊伍成員只出現在上排「換出」
         const b = proxy(id, null, () => {
           if (mode === 'skill') { pending = id; $('t20-picker-status').textContent = `技能槽 ${slot + 1} · ${byId(id).name}`; }
           else if (mode === 'add' || mode === 'replace') { togglePick(id, b); return; }   // 新增／替換：多選，按一次確認一起處理（參考薑餅人王國的編隊：點卡就進隊、上限條即時變）
@@ -325,6 +390,7 @@
         grid.append(b);
       }
       if (!pool.length) grid.append(el('p', 'team-empty', mode === 'skill' ? '隊伍是空的，先編入成員' : '沒有候選'));
+      else if (!cands.length) grid.append(el('p', 'team-empty', `沒有「${ROLE_NAME[roleFilter]}」型的候選`));
       if (mode === 'add' || mode === 'replace') { refreshPickable(); pickStatus(); }
       if (!$('t20-picker').open) $('t20-picker').showModal();
     }
@@ -357,10 +423,10 @@
     $('team-close').onclick = close;
     // 拖曳：從隊伍網格拖到技能槽（與舞台夥伴列共用 clicker-drag 的骨架）
     drag?.bind({ source: '#t20-grid', item: '.team-proxy', targets: '#t20-skills .skill-slot', drop: (index, id) => assignSkill(index, id), enabled: () => !$('team-editor').hidden });
-    function render() { hideTip(); renderRoster(); detail(); }
+    function render() { hideTip(); renderPresets(); renderRoster(); detail(); }
     function open() { clearOperation(); page = 0; selected = team()[0] || null; $('team-editor').hidden = false;
       // 第一次進末世的編隊指引（使用者 2026-09-16）：還沒打過任何一站時，頂欄寫清楚接下來要做什麼
-      { let hint = $('t20-first-hint'); if (!hint) { hint = el('p', 'team-first-hint'); hint.id = 't20-first-hint'; $('team-editor').querySelector('header').after(hint); }
+      { let hint = $('t20-first-hint'); if (!hint) { hint = el('p', 'team-first-hint'); hint.id = 't20-first-hint'; ($('t20-presets') || $('team-editor').querySelector('header')).after(hint); }
         const a = apoc() ? apocState() : null; hint.hidden = !(a && (a.progress || 0) === 0 && !(a.laps > 0));
         hint.textContent = '第一次來：隊伍裡的卡才有戰力，先「＋ 新增成員」或「自動編隊」，再把最強的卡放進下面的技能槽；編好按「返回」，回戰鬥畫面按「開戰」。'; } $('team-editor').classList.remove('detail-open'); $('game-content').inert = true; render(); $('team-close').focus(); }
     function close() { closePicker(); $('team-editor').hidden = true; $('game-content').inert = false; }

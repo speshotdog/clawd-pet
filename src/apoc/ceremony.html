@@ -4,7 +4,7 @@
 <title>精裝卡池 · 拆封</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="holo.css">
-<script src="card-face.js"></script><script src="pool.js"></script>
+<script src="card-face.js"></script><script src="card-fx.js"></script><script src="pool.js"></script>
 <link rel="stylesheet" href="ceremony.css">
 <main class="win" id="win" data-screen="entry">
  <div class="stage-background" aria-hidden="true">
@@ -201,6 +201,7 @@ function path(n){
 function makeFace(d){
   // 卡面完全交給共用建立器，抽卡頁不再自己拼一套 DOM
   const card=HoloCardFace.create(d,{masks,resolve:path});
+  HoloCardFx.apply(card,d,path);   // 個別卡的特效層（玩物就玩物的愛心、呼吸）
   HoloCardFace.observe(card);
   return card;
 }

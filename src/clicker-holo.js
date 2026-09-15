@@ -159,6 +159,7 @@ window.ClickerHolo = (() => {
     // 共用的 holo.css 沒有 .r-special（原頁註解：「只寫在這一頁」），收藏卡要多掛一張
     host.dataset.holoSheets = attachSheets(sh, collect ? ['holo.css', 'holo-special.css'] : ['holo.css']).join(' ');
     const f = window.HoloCardFace.create(entry, { masks: m, resolve });
+    if (window.HoloCardFx) window.HoloCardFx.apply(f, entry, resolve);   // 個別卡的特效層（玩物就玩物：愛心微晃、羊呼吸；card-fx.js）
     sh.append(f);
     if (collect) { host._collect = CF().enhance(f, sh, resolve, ++collectSeq); host.dataset.holoInline = String(adoptInlineStyles(sh)); }
     window.HoloCardFace.observe(f); window.HoloCardFace.refit(f);

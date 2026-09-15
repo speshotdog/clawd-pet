@@ -88,6 +88,7 @@
     // 第十輪 D 派遣（使用者：「派遣拿金幣，低機率拿到券」）：不在隊上的卡出去 MS，回來帶「目前這一站 KILLS 隻怪」的金幣 ×稀有度，TICKET 機率多一張券
     //   Codex 10D 值得修「派遣要算進平衡」：模擬器每場開頭把隊外的卡派滿（最勤快的派法），一般玩家三個種子平均
     //   不派 150 分／KILLS 2 → 129（−14%）／3 → 119／5 → 122（單種子）／20 → 81（全線少一半）→ 取 2
+    PRESETS: 3,   // 儲存的隊伍組數
     DISPATCH: { SLOTS: 3, MS: 2 * 3600000, KILLS: 2, TICKET: .12, RARITY: { mythic: 2, legendary: 1.6, epic: 1.3, rare: 1, common: 1 } },   // 無盡模式最多到第 100 站（血是 2.1^站，再往下數字會大到畫面寫不下）
     // 第九輪使用者：「可以利用增加每一站需要打的小站數量拉長遊戲時長，注意難度平衡」——一般站要連打 WAVES 隻（每隻給一次獎勵、滿血換下一隻，
     // 最後一隻才推進度）；王站還是一隻。
@@ -434,6 +435,13 @@
     a.bossDust = [...new Set((Array.isArray(a.bossDust) ? a.bossDust : []).filter(n => Number.isInteger(n) && n >= 0 && n <= RULES.ENDLESS_MAX))];
     if (!Array.isArray(a.roster)) a.roster = [];
     if (!Array.isArray(a.skills)) a.skills = []; a.skills = [0, 1, 2, 3].map(i => a.skills[i] || null);
+    // 儲存的隊伍（朋友 2026-09-16：「一直切技能的情況下，滿需要有儲存隊伍的功能」）：最多 PRESETS 組，壞資料整組丟；
+    // 卡是不是還在／有沒有被派遣不在這裡擋，套用時（applyPreset）才照當下狀態過濾。
+    a.presets = (Array.isArray(a.presets) ? a.presets : []).slice(0, RULES.PRESETS).map(p => p && typeof p === 'object' && Array.isArray(p.roster)
+      ? { name: typeof p.name === 'string' ? p.name.slice(0, 24) : '', roster: [...new Set(p.roster.filter(id => typeof id === 'string'))].slice(0, 20),
+          skills: [0, 1, 2, 3].map(i => (Array.isArray(p.skills) && typeof p.skills[i] === 'string') ? p.skills[i] : null) }
+      : null);
+    while (a.presets.length < RULES.PRESETS) a.presets.push(null);
     a.roster = a.roster.filter(id => a.collection[id] > 0);
     // 第十輪 D：派遣中的卡（壞資料整筆丟：沒抽到、在隊上、重複、時間不對）；離線基準時間
     { const seen = new Set(); a.dispatch = (Array.isArray(a.dispatch) ? a.dispatch : []).filter(d => d && typeof d.id === 'string' && a.collection[d.id] > 0 && !a.roster.includes(d.id) && !seen.has(d.id) && seen.add(d.id)
@@ -786,14 +794,16 @@
     let fx = { ...a.fx }, cd = [...(a.skillCd || [0, 0, 0, 0])];
     const k = boostOf(a);   // 1.0 的技能祝福放大效果量、冷卻祝福縮短冷卻（同 1.0 的 skillArt／cdArt）
     // mythic：神話卡的點擊加倍還在（第八輪：施放期間放神話技能曲，clicker-music.js 讀這個；傳說卡也是 clickMul，不算）
-    if (def.kind === 'clickMul') { fx.clickMul = def.value * k.skill; fx.clickLeft = def.uses; fx.mythic = def.card.rarity === 'mythic'; }
-    else if (def.kind === 'powerMul') { fx.powerMul = 1 + (def.value - 1) * k.skill; fx.powerUntil = now + def.ms; }
-    else if (def.kind === 'coin') { fx.coinValue = def.value * k.skill; fx.coinUntil = now + def.ms; }
-    else if (def.kind === 'idle') { fx.idleValue = def.value * k.skill; fx.idleUntil = now + def.ms; }
+    // *Ms／clickUses 是這一次效果的實際總量，給畫面畫「剩多少」的圓環當分母（王關抵抗後 breach 只有 ×.6，不能拿規則表的數）
+    if (def.kind === 'clickMul') { fx.clickMul = def.value * k.skill; fx.clickLeft = def.uses; fx.clickUses = def.uses; fx.mythic = def.card.rarity === 'mythic'; }
+    else if (def.kind === 'powerMul') { fx.powerMul = 1 + (def.value - 1) * k.skill; fx.powerUntil = now + def.ms; fx.powerMs = def.ms; }
+    else if (def.kind === 'coin') { fx.coinValue = def.value * k.skill; fx.coinUntil = now + def.ms; fx.coinMs = def.ms; }
+    else if (def.kind === 'idle') { fx.idleValue = def.value * k.skill; fx.idleUntil = now + def.ms; fx.idleMs = def.ms; }
     else if (def.kind === 'breach' && st) {
       const count = st.skillBreaks || 0;
       if (!st.boss || count < mechRules().RESIST.BREACH_LIMIT) {
         st.breakUntil = Math.max(st.breakUntil || 0, now + def.ms * k.skill * (st.boss ? mechRules().RESIST.BREACH_TIME : 1));
+        st.breakMs = st.breakUntil - now;
       } else st.breachFallbackUntil = now + mechRules().RESIST.FALLBACK_MS;
       if (st.boss) st.skillBreaks = count + 1;
     }
@@ -889,6 +899,19 @@
       }
     }
     return { ...a, roster, skills: skills.slice(0, 4) };
+  }
+  // ---- 儲存的隊伍：存＝把目前隊伍與技能槽照抄一份；套用＝過濾掉已經不在卡冊／派遣中的卡，其餘交給 setTeam 照規則寫回
+  function savePreset(a, i, name) {
+    if (!Number.isInteger(i) || i < 0 || i >= RULES.PRESETS) throw new Error('沒有這一組');
+    const presets = (a.presets || []).slice(0, RULES.PRESETS); while (presets.length < RULES.PRESETS) presets.push(null);
+    presets[i] = { name: String(name || '').slice(0, 24), roster: [...(a.roster || [])], skills: [0, 1, 2, 3].map(k => (a.skills || [])[k] || null) };
+    return { ...a, presets };
+  }
+  function applyPreset(a, i) {
+    const p = (a.presets || [])[i]; if (!p) throw new Error('這一組是空的');
+    const roster = p.roster.filter(id => a.collection[id] > 0 && !dispatchedApoc(a, id));
+    const missing = p.roster.length - roster.length;
+    return { state: setTeam(a, roster, p.skills.map(id => id && roster.includes(id) ? id : null)), missing };
   }
   // 末世的抽卡：卡池是 ApocPool，付的是券／末世金幣，但**產出的 draw 形狀跟 1.0 的 rollPack 完全一樣**，
   // 所以招募層、五種演出、收下流程全部共用（使用者：兩邊邏輯不要差太多）。
@@ -1064,7 +1087,7 @@
     dispatch: a.dispatch || [], dispatchSlots: dispatchSlots(a), dispatchDone: a.dispatchDone || 0, skillSlots: boostOf(a).slot4 ? 4 : 3, marksGiven: a.marksGiven || null,
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
-  root.ApocEconomy = { killsToday, dailyMul, trainCap, drawsToday, advancesToday, dayCapped, mechRules, mutationCount, drawMutations, recommendations, rerollMutations, swapMutation, dropMutation, lapChest, RULES, RATES, setBoostProvider, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, rawTapDamage, coinGain, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { killsToday, dailyMul, trainCap, drawsToday, advancesToday, dayCapped, mechRules, mutationCount, drawMutations, recommendations, rerollMutations, swapMutation, dropMutation, lapChest, RULES, RATES, setBoostProvider, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, rawTapDamage, coinGain, drawn, addCards, setTeam, savePreset, applyPreset, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, skillInfo, canSkill, useSkill, powerMul,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
     starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, lapsOf, transcend, transcendLap, transcendUnlocked, exchangeCapacity, dustCapNow, isMaxed, isFullyMaxed, dustRate, fullDust, fullDustLoop, starCap, exchangeDust, winDust };

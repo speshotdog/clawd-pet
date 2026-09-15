@@ -712,7 +712,10 @@ window.ClickerApocUI = (() => {
         b.title = locked ? '第四技能格：點一下直接去印記商店買「第四技能槽」（3 印記）' : def ? `${def.card}・${def.text}` : '點一下去編隊，把卡放進獨立技能格';
         b.onclick = () => locked ? (notice('第四技能格在印記商店解鎖'), openMarks?.()) : def ? cast(i) : openTeam();
         const name = document.createElement('span'); name.className = 'skill-name';
-        wrap.append(b, name); host.append(wrap);
+        const ring = document.createElement('i'); ring.className = 'skill-ring'; ring.setAttribute('aria-hidden', 'true');
+        const left = document.createElement('small'); left.className = 'skill-left';
+        b.append(ring);   // 環掛在圓貼紙按鈕裡，手機版格子不是正方形、掛在格子上會變成一塊橢圓蓋住貼紙
+        wrap.append(b, name, left); host.append(wrap);
       }
       updateSlots(v, now);
     }
@@ -740,7 +743,27 @@ window.ClickerApocUI = (() => {
         $('buddies')?.classList.toggle('apoc-frenzy', now < (v.fx?.idleUntil || 0));
         const total = def ? A.RULES.SKILLS[def.role]?.[def.rarity]?.cd || 60000 : 1;
         slot.style.setProperty('--cooldown', `${Math.min(1, Math.max(0, until - now) / total) * 360}deg`);
+        // 效果還剩多久／幾下（朋友 2026-09-16：「相同類型的技能不能乘上去的話，應該要有個顯示表示技能效果還有多久完，不然不知道什麼時候才要按下一個」）
+        // 效果是「型」的狀態（fx.coinUntil…），不是格子的：同型的兩格都會顯示，正好對到「同型覆蓋不相乘、要錯開放」。
+        const eff = effectLeft(def, v, now), tag = slot.querySelector('.skill-left');
+        slot.dataset.effect = eff ? 'on' : 'off';
+        if (tag) tag.textContent = eff ? eff.text : '';
+        slot.style.setProperty('--effect', `${eff ? eff.frac * 360 : 0}deg`);
       }
+    }
+    // 各型的效果剩餘：open 剩幾下（fx.clickLeft）、train／coin／idle 到期時間、breach 看這一場的破防／後備 ×1.3 到期；reset 是即時的沒有剩餘
+    function effectLeft(def, v, now) {
+      if (!def) return null;
+      const fx = v.fx || {}, st = v.stage || {};
+      const timed = (untilMs, ms, label) => { const left = untilMs - now; if (!(left > 0)) return null; return { text: `${label}${Math.ceil(left / 1000)}s`, frac: Math.min(1, left / Math.max(1, ms)) }; };
+      // 分母用 useSkill 記下的實際總量（同型兩格共用同一個），舊存檔沒有那些欄位才退回規則表
+      const rule = A.RULES.SKILLS[def.role]?.[def.rarity] || {};
+      if (def.role === 'open') return (fx.clickLeft || 0) > 0 ? { text: `剩 ${fx.clickLeft} 下`, frac: Math.min(1, fx.clickLeft / Math.max(1, fx.clickUses || rule.uses || 12)) } : null;
+      if (def.role === 'train') return timed(fx.powerUntil || 0, fx.powerMs || rule.ms, '效果 ');
+      if (def.role === 'coin') return timed(fx.coinUntil || 0, fx.coinMs || rule.ms, '效果 ');
+      if (def.role === 'idle') return timed(fx.idleUntil || 0, fx.idleMs || rule.ms, '效果 ');
+      if (def.role === 'breach') return timed(st.breakUntil || 0, st.breakMs || rule.ms, '破防 ') || timed(st.breachFallbackUntil || 0, A.mechRules().RESIST.FALLBACK_MS, '×1.3 ');
+      return null;
     }
     function renderShop(v) {
       // 使用者第三輪選 A：三張卡跟 1.0 一一對應——點擊力｜全隊訓練｜招募。前兩張花末世金幣；

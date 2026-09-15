@@ -103,7 +103,7 @@ parent!==window&&parent.postMessage({apocCeremony:'ready'},'*');
     html = tpl[tpl.index("HTML = r'''") + len("HTML = r'''"):]
     html = html[:html.index("'''")]
     html = must_replace(html, '__CARD_CSS__', '<link rel="stylesheet" href="holo.css">')
-    html = must_replace(html, '<script>__CARD_FACE_JS__</script>', '<script src="card-face.js"></script><script src="pool.js"></script>')
+    html = must_replace(html, '<script>__CARD_FACE_JS__</script>\n<script>__CARD_FX_JS__</script>', '<script src="card-face.js"></script><script src="card-fx.js"></script><script src="pool.js"></script>')
     html = must_replace(html, '<style>__CEREMONY_CSS__</style>', '<link rel="stylesheet" href="ceremony.css">')
     html = must_replace(html, '__BACKGROUND_GEOMETRY__', svg)
     html = must_replace(html, '<script type="application/json" id="mask-data">__MASKS__</script>\n', '')
