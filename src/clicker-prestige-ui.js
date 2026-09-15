@@ -6,7 +6,8 @@ window.ClickerPrestigeUI = (() => {
     let tab = 'prestige';
     function render() {
       const s = store.state, body = $('prestige-body'); body.replaceChildren();
-      $('prestige-summary').textContent = `印記 ${s.marks}（累計 ${s.marksClaimed} / ${B.MARKS_TOTAL_CAP}）・本輪已拿 ${P.marksTotal(s)} / ${B.V3.MARKS_PER_RUN}・已換 ${s.prestiges} 次`;
+      // 玩家回報（09-16）：「為什麼是 171/150」——上限與累計數字不上畫面，只留手上有幾顆
+      $('prestige-summary').textContent = `手上印記 ${s.marks} 顆・換過 ${s.prestiges} 次`;
       const tabs = document.createElement('div'); tabs.className = 'prestige-tabs';
       for (const [id, name] of [['prestige', '換桌布'], ['marks', '神器與商店'], ['finger', '電動手指']]) {
         const b = document.createElement('button'); b.textContent = name; b.classList.toggle('active', tab === id); b.onclick = () => { tab = id; render(); }; tabs.append(b);
@@ -16,15 +17,18 @@ window.ClickerPrestigeUI = (() => {
     }
     function renderPrestige(s, body) {
       // v3 D 路（DESIGN-balance-v3 §十五）：印記＝本輪做到的事，不看幣；畫面要讓玩家看懂「這輪拿了幾枚、還能拿幾枚、下一輪會快多少」
-      const why = P.canPrestige(s), gained = P.marksAvailable(s), wins = (s.runWins || []), packs = s.runPacks || 0;
+      const why = P.canPrestige(s), wins = (s.runWins || []);
+      // 實際入帳＝本輪做到的 與 上限剩餘 取小（prestige() 同一條）；以前鍵上寫「領 1 顆」、按下去 0 顆，玩家以為被吃掉
+      const room = Math.max(0, B.MARKS_TOTAL_CAP - (s.marksClaimed || 0)), gained = Math.min(P.marksAvailable(s), room);
       const scenes = window.ClickerScenes, order = ['backyard','kitchen','market','factory','nightmarket','fridge','city'];
-      const ledger = order.map(id => `<li class="${wins.includes(id) ? 'done' : ''}">${scenes[id]?.boss?.name || id} <b>${wins.includes(id) ? (id === 'city' ? '+4' : '+1') : '—'}</b></li>`).join('')
-        + `<li class="${packs >= 100 ? 'done' : ''}">本輪拆滿 100 包（${Math.min(packs,100)}/100）<b>${packs >= 100 ? '+1' : '—'}</b></li><li class="${packs >= 300 ? 'done' : ''}">本輪拆滿 300 包（${Math.min(packs,300)}/300）<b>${packs >= 300 ? '+1' : '—'}</b></li>`;
+      // 包數的 +1 在印記重設計（09-15）已經拿掉，帳上不再列
+      const ledger = order.map(id => `<li class="${wins.includes(id) ? 'done' : ''}">${scenes[id]?.boss?.name || id} <b>${wins.includes(id) ? (room <= 0 ? '已贏' : id === 'city' ? '+4' : '+1') : '—'}</b></li>`).join('');
+      const capLine = room <= 0 ? '<p><b>印記已領滿</b>，換桌布不會再給印記。</p>' : `<p>這次換桌布可以領 <b>${gained}</b> 顆印記。</p>`;
       const halved = (s.bossWins || []).filter(id => id !== 'city').length;
       const note = document.createElement('div'); note.className = 'prestige-note';
       // 第八輪：末世也打得開這個面板——要講清楚重置的是 1.0，不然「清除錢幣、攻擊力」會被看成末世的（Codex 第八輪）
       const inApoc = document.body.dataset.world === 'apoc';
-      note.innerHTML = `${inApoc ? '<p><b>這裡重置的是 1.0 桌邊的進度</b>；末世的金幣、訓練與關卡進度都保留。</p>' : ''}<p>本輪可領印記 <b>${gained}</b> / ${B.V3.MARKS_PER_RUN} 顆（累計上限 ${B.MARKS_TOTAL_CAP}，已領 ${s.marksClaimed}）。</p>
+      note.innerHTML = `${inApoc ? '<p><b>這裡重置的是 1.0 桌邊的進度</b>；末世的金幣、訓練與關卡進度都保留。</p>' : ''}${capLine}
         <ul class="run-ledger">${ledger}</ul>
         <p class="prestige-faster">下一輪會更快：贏過的 ${halved} 站門檻減半，神器加成照算，夥伴、粉塵、卡片全部帶著走。</p>
         <div class="prestige-cols"><div><b>${inApoc ? '1.0 會清除' : '會清除'}</b><ul><li>錢幣、攻擊力、全隊訓練</li><li>電動手指、夥伴訓練</li><li>當輪包數，回到後院草地</li><li>王包裂痕、技能效果與冷卻</li></ul></div>
@@ -32,7 +36,7 @@ window.ClickerPrestigeUI = (() => {
         <p>換桌布另送萬用粉塵 ${3 + (s.artifacts?.dust || 0)} 顆；本輪當家會重抽。</p>`;
       body.append(note);
       const row = document.createElement('div'); row.className = 'prestige-actions';
-      const go = document.createElement('button'); go.id = 'prestige-go'; go.textContent = why || `換桌布（領 ${gained} 顆印記）`; go.disabled = !!why || store.blocked;
+      const go = document.createElement('button'); go.id = 'prestige-go'; go.textContent = why || (gained ? `換桌布（領 ${gained} 顆印記）` : '換桌布'); go.disabled = !!why || store.blocked;
       go.onclick = () => { if (go.dataset.armed !== '1') { go.dataset.armed = '1'; go.textContent = `確定要重來嗎？再按一次`; return; } doPrestige(); };
       row.append(go); body.append(row);
     }
@@ -109,7 +113,7 @@ window.ClickerPrestigeUI = (() => {
     }
     function finish(gained) {
       stage?.confetti?.();
-      const stamp = document.createElement('div'); stamp.className = 'mark-stamp'; stamp.innerHTML = `<img src="clicker-ui-stamp-transcend.png" alt="" /><b>印記 +${gained}</b>`;
+      const stamp = document.createElement('div'); stamp.className = 'mark-stamp'; stamp.innerHTML = `<img src="clicker-ui-stamp-transcend.png" alt="" /><b>${gained ? `印記 +${gained}` : '換好桌布了'}</b>`;
       $('game').append(stamp);
       stamp.animate([{ transform: 'translate(-50%,-50%) scale(1.8)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.17,.89,.32,1.28)' }).finished.then(() => setTimeout(() => stamp.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300 }).finished.then(() => stamp.remove()).catch(() => stamp.remove()), 1400)).catch(() => stamp.remove());
       notice(`換了新桌布，永久倍率 ×${E.markMul(store.state).toFixed(2)}`);

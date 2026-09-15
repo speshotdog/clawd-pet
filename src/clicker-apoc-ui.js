@@ -97,7 +97,7 @@ window.ClickerApocUI = (() => {
         else if (ev.type === 'fail') notice(`王關失敗：回前一站刷錢變強，${Math.round(A.RULES.BOSS_COOLDOWN / 1000)} 秒後可以再次挑戰`);
         else if (ev.type === 'cleared') { showLapDone(ev.entry); sound('transcend'); }
         else if (ev.type === 'offline') showOffline(ev);
-        else if (ev.type === 'marks') { notice(`印記 +${ev.gained}：${ev.notes.join('、')}${ev.capped ? '（已達生涯上限）' : ''}`); if (ev.gained > 0) { try { sound('badge'); } catch {} } }   // ⚠ 初始化的第一次 apply 就可能入帳（舊存檔補發），這時舞台還沒建好，不能碰 DOM 特效
+        else if (ev.type === 'marks') { notice(ev.gained > 0 ? `印記 +${ev.gained}：${ev.notes.join('、')}` : `${ev.notes.join('、')}（印記已領滿）`); if (ev.gained > 0) { try { sound('badge'); } catch {} } }   // ⚠ 初始化的第一次 apply 就可能入帳（舊存檔補發），這時舞台還沒建好，不能碰 DOM 特效
       }
       changed();   // 讓招募層等其他模組也跟著重畫（價目、按鈕的可按狀態都在那邊算）
       return events;
@@ -794,7 +794,9 @@ window.ClickerApocUI = (() => {
       let note = $('draw-growth');
       if (!note) { note = document.createElement('small'); note.id = 'draw-growth'; $('single-note').after(note); }
       const pct = ((A.RULES.DRAW_GROWTH - 1) * 100).toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
-      note.textContent = v.tickets
+      // 玩家回報（09-16）：這行字太長又太淡——畫面上只留一句話，細節收進 title
+      note.textContent = v.tickets ? '用券抽不漲價' : '十連跟單抽一樣划算';
+      note.title = v.tickets
         ? `用券抽不漲價（還有 ${v.tickets} 張）；券用完後一抽 ${format(v.drawCostNext)}`
         : `每付費抽一次漲 ${pct}%・十連 ${format(v.drawCost10)}（每抽 ${format(Math.round(v.drawCost10 / 10))}，跟單抽一樣）`;
       // 換券入口：招募卡下面一行小字（樣張 A）→ 打開商店的兌換所

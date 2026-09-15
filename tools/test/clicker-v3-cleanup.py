@@ -59,7 +59,7 @@ with sync_playwright() as p:
     check(pg.evaluate("()=>document.getElementById('cleanup-explain').hidden"), '「這是怎麼算的」預設收起')
     pg.screenshot(path=str(OUT / '1-cleanup.png'))
     pg.click('#cleanup-why'); pg.wait_for_timeout(200)
-    check(not pg.evaluate("()=>document.getElementById('cleanup-explain').hidden") and '12 × 每輪上限 8' in pg.text_content('#cleanup-explain'), '展開算法')
+    check(not pg.evaluate("()=>document.getElementById('cleanup-explain').hidden") and '12 次 × 每輪上限 8' in pg.text_content('#cleanup-explain'), '展開算法')
     pg.screenshot(path=str(OUT / '2-cleanup-why.png'))
     pg.click('#cleanup-ok'); pg.wait_for_timeout(600)
     check(pg.evaluate("()=>document.getElementById('cleanup').hidden") and pg.evaluate("()=>!!Clicker.state.legacy.seen && Clicker.state.legacy.reset===false"), '保留進度：頁關閉、legacy.seen、reset=false')

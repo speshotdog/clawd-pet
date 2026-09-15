@@ -1964,8 +1964,8 @@ body[data-world="apoc"] #game .detail-actions button:disabled { opacity:.55; cur
 body:not([data-world="apoc"]) #draw-growth { display:none; }
 /* ⚠ 招募卡在 2.0 本來是「固定高 132px ＋ 五個固定列」，多一行字就會把「用桌邊金幣換券」壓扁
    （UI 體檢：內容 16px 被塞進 11px 的框）。2.0 改成高度由內容決定、列也自動排。 */
-body[data-world="apoc"] #shop .recruit { height:auto; min-height:132px; grid-template-rows:none; grid-auto-rows:min-content; }
-body[data-world="apoc"] #draw-growth { color:#A79579; }
+body[data-world="apoc"] #shop .recruit { height:auto; min-height:132px; grid-template-rows:none; grid-auto-rows:min-content; row-gap:2px; padding-bottom:10px; }   /* 09-16 玩家截圖：底下三行字擠在一起、「用桌邊金幣換券」壓到框線 */
+body[data-world="apoc"] #draw-growth { color:var(--t-muted, #A79579); font-size:12px; font-weight:600; }   /* 09-16 玩家回報太淡：舊化主題底色上 #A79579 幾乎看不見 */
 /* 六型技能：既有受擊字、裂痕與夥伴動畫。 */
 body[data-world="apoc"] .apoc-hit b { white-space:pre-line; }
 body[data-world="apoc"] .apoc-coin-hit { color:#ffd65a !important; }

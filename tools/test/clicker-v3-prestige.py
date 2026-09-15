@@ -48,9 +48,9 @@ def open_page(p):
 with sync_playwright() as p:
     b, pg, errors = open_page(p)
     pg.click('#prestige-open'); pg.wait_for_timeout(400)
-    summary = pg.text_content('#prestige-summary'); check('本輪已拿 2 / 8' in summary and '/ 150' in summary, '摘要：' + summary)   # 印記重設計：包數不給、每輪 8、生涯 150
+    summary = pg.text_content('#prestige-summary'); check('手上印記 9 顆' in summary and '150' not in summary, '摘要：' + summary)   # 09-16：上限與累計數字不上畫面
     ledger = pg.evaluate("()=>[...document.querySelectorAll('.run-ledger li')].map(li=>li.className+':'+li.textContent)")
-    check(len(ledger) == 9 and sum(1 for x in ledger if x.startswith('done')) == 3, '本輪帳 9 列、3 列完成：' + ' | '.join(ledger)[:200])
+    check(len(ledger) == 7 and sum(1 for x in ledger if x.startswith('done')) == 2, '本輪帳 7 列（只列王）、2 列完成：' + ' | '.join(ledger)[:200])
     go = pg.text_content('#prestige-go'); check('領 2 顆' in go, '換桌布鍵：' + go)
     pg.screenshot(path=str(OUT / '1-prestige-tab.png'))
     pg.click('.prestige-tabs button:nth-child(2)'); pg.wait_for_timeout(300)

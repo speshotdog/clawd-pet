@@ -558,21 +558,22 @@ window.Clicker = (() => {
   function cleanupPage(force = false) {
     const s = store.state, L = s.legacy;
     if (!L || (L.seen && !force)) return false;
-    const kept = [`夥伴 ${Object.keys(s.collection).filter(id => s.collection[id] > 0).length} 隻、星與超越`, `徽章 ${s.badges.length} 枚、更衣室、桌面裝飾`, `輪迴 ${L.prestiges} 次的紀錄、王的勝利`];
+    // 玩家回報（09-16）：舊玩家導入看不懂——字改短、改成人話
+    const n = v => v.toLocaleString('zh-TW'), per = B.V3.MARKS_PER_RUN;
+    const kept = [`夥伴 ${Object.keys(s.collection).filter(id => s.collection[id] > 0).length} 隻、星與超越`, `徽章 ${s.badges.length} 枚、更衣室、桌面裝飾`, `換過 ${L.prestiges} 次桌布的紀錄、王的勝利`, '印記與神器等級（兩條路都帶著）'];
     const artsSpent = (s.blessing || 0) * ((s.blessing || 0) + 1) / 2;
-    const tidy = [`印記 ${L.marksClaimed.toLocaleString('zh-TW')} → ${(s.marksClaimed).toLocaleString('zh-TW')}（新版印記照「每輪做到的事」算，每輪最多 ${B.V3.MARKS_PER_RUN} 枚）`,
-      `收益祝福 Lv.${L.blessing.toLocaleString('zh-TW')} → Lv.${s.blessing}（已用 ${artsSpent} 枚幫你買到；手上還有 ${s.marks} 枚可以投其他神器）`,
-      `永久倍率：拿掉（以前是 ×${(1 + .5 * Math.sqrt(L.marksClaimed)).toFixed(0)}，所有王都變成秒殺）`];
-    const gifts = ['徽章「舊時代的珍母」', '魔花少女・精裝收藏卡（末世的收藏卡分頁）',
-      `印記 ${s.marksClaimed.toLocaleString('zh-TW')} 枚與神器等級照帶（輪迴紀錄不歸零）`,
-      '⚠ 只有選「從零開始」才拿得到：夥伴、粉塵、幣全部歸零'];
-    const why = `新印記 ＝ 換桌布次數 ${L.prestiges} × 每輪上限 ${B.V3.MARKS_PER_RUN} ＝ ${L.prestiges * B.V3.MARKS_PER_RUN} 枚（反推不到的一律給上界，寧可多給）。祝福第 L 級收 L 枚，先幫你買到買不起為止。永久倍率的根因：它跟生涯幣掛鉤、又乘回幣上，兩條互餵沒有頂；新版換成有頂的神器。`;
+    const tidy = [`印記 ${n(L.marksClaimed)} → ${n(s.marksClaimed)} 顆`,
+      `收益祝福 Lv.${n(L.blessing)} → Lv.${s.blessing}（已用 ${artsSpent} 顆幫你升好，剩 ${s.marks} 顆）`,
+      '舊的永久倍率拿掉了'];
+    const gifts = ['徽章「舊時代的珍母」', '魔花少女・精裝收藏卡',
+      '⚠ 要選「從零開始」才拿得到，夥伴、粉塵、金幣會清空'];
+    const why = `新印記＝換過桌布 ${L.prestiges} 次 × 每輪上限 ${per} 顆，再加上以前花掉的。`;
     $('cleanup-body').innerHTML = `<div class="cleanup-cols">
       <div><b>保留</b><ul>${kept.map(t => `<li>${t}</li>`).join('')}</ul></div>
       <div><b>整理</b><ul>${tidy.map(t => `<li>${t}</li>`).join('')}</ul></div>
       <div><b>補償</b><ul>${gifts.map(t => `<li>${t}</li>`).join('')}</ul></div></div>
       <p id="cleanup-explain" hidden>${why}</p>
-      <p class="cleanup-choice">兩條路選一條：<b>保留進度</b>（照上面「整理」的數字繼續玩）或 <b>從零開始</b>（放棄全部進度，換魔花少女精裝收藏卡與徽章）。</p>`;
+      <p class="cleanup-choice">兩條路選一條：<b>保留進度</b>（照上面的數字繼續玩）或 <b>從零開始</b>（夥伴、粉塵、金幣全部清空，換魔花少女精裝收藏卡＋徽章）。</p>`;
     $('cleanup').hidden = false; $('game-content').inert = true; $('cleanup-ok').focus();
     $('cleanup-why').onclick = () => { const el = $('cleanup-explain'); el.hidden = !el.hidden; };
     $('cleanup-ok').onclick = () => { const next = E.clone(store.state); next.legacy = { ...next.legacy, seen: Date.now(), reset: false }; if (commit(next)) { $('cleanup').hidden = true; $('game-content').inert = gacha?.active || false; changed(); } };
