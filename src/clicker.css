@@ -1235,7 +1235,8 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
     padding:0; font-size:11px; line-height:1.2; white-space:nowrap; }
   .purchase { grid-column:3; grid-row:1; display:flex; align-items:center; gap:6px; }
   .price-ticket { font-size:11px; } .price-ticket img { height:16px; }
-  #click-max, #training-max { display:none; }
+  /* 「最多」以前在直式整顆藏掉（朋友 2026-09-16：「手機直式點不到升級的最大按鈕」）——縮小留著 */
+  #game #click-max, #game #training-max { display:inline-block; flex:0 0 auto; min-width:0; font-size:11px; line-height:1.2; padding:4px 6px; }
 
   /* 4 夥伴列：一條左右滑，高度**釘死 100px**。
      ⚠ 不要用 flex:1 讓它吸收剩餘空間——實機上它會漲到 299px、中間一大片空白（使用者回報）。
@@ -1265,6 +1266,8 @@ body.dragging { cursor:grabbing; user-select:none; -webkit-user-select:none; }
     text-align:center; font-size:13px; line-height:1.5; color:var(--text-secondary); }
   footer #completed { top:78px; }
   footer #next-goal { top:98px; }
+  /* 末世的直式版面沒有那段留白（面板直接頂到頭），這兩行會壓在「點擊力」面板上（2026-09-16 朋友截圖），末世直式一律收掉 */
+  body[data-world="apoc"] footer #completed, body[data-world="apoc"] footer #next-goal { display:none; }
 
   /* 粒子畫布與浮字層是照 960×640 的遊戲座標畫死的（落點來自 pointOf：x=16+…、y=72+…）。
      ⚠ 舊寫法是 left:0;top:0;width:608px;height:360px：

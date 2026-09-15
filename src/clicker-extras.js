@@ -365,6 +365,16 @@
         marks: s.marks ?? null, marksClaimed: s.marksClaimed ?? null, markShop: s.markShop || {}, artifacts: s.artifacts || {},
         collection: { kinds: Object.keys(s.collection || {}).length, cards: count(s.collection), apocKinds: Object.keys(a.collection || {}).length, apocCards: count(a.collection) },
         notices: (recentNotices ? recentNotices() : []).slice(-3),
+        // 精裝卡字級體檢（朋友 2026-09-16 Edge：夥伴列的卡面字疊成一團、字型也不對）：
+        // 拿夥伴列第一張精裝卡，看 --cw／--name-fs 有沒有量到、實際 font-size 是不是被瀏覽器「最小字型大小」拉大、字型有沒有載到。
+        holo: (() => { try {
+          const h = document.querySelector('#buddies .holo-face') || document.querySelector('.holo-face'); if (!h || !h._face) return null;
+          const f = h._face, name = f.querySelector('.face-name'), rar = f.querySelector('.face-rarity'), cs = name && getComputedStyle(name);
+          return { where: h.closest('#buddies') ? 'buddies' : 'other', cw: f.style.getPropertyValue('--cw') || null, nameFs: f.style.getPropertyValue('--name-fs') || null,
+            width: f.clientWidth, nameComputed: cs ? cs.fontSize : null, rarityComputed: rar ? getComputedStyle(rar).fontSize : null,
+            font: cs ? cs.fontFamily.slice(0, 60) : null, sheets: h.dataset.holoSheets || null, adopted: h.shadowRoot ? h.shadowRoot.adoptedStyleSheets.length : null,
+            fonts: [...document.fonts].map(x => `${x.family}:${x.status}`).slice(0, 8), zoom: Math.round((window.outerWidth / window.innerWidth) * 100) / 100 };
+        } catch (e) { return { error: String(e) }; } })(),
         at: new Date().toISOString(),
       };
     }

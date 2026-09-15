@@ -88,6 +88,26 @@ window.ClickerHolo = (() => {
   function prune(now) {
     for (const h of live) if (!h.isConnected && now - h._born > 5000) { window.HoloCardFace.unobserve(h._face); h._collect?.stop(); live.delete(h); }
   }
+  // 小卡防「最小字型大小」：瀏覽器的最小字型設定（edge://settings/fonts、chrome://settings/fonts）會把 3px 的卡名硬拉到 12px，
+  // 夥伴列 37px 寬的精裝卡整張變成大字疊在一起、字型也換成系統字（朋友 2026-09-16 Edge 截圖；本機把 Edge 最小字型設 12 就重現）。
+  // CSS 擋不掉這個設定，但它只看「版面上的字級」：把小卡改成用 300px 的版面畫、再 transform 縮到格子大小，
+  // 名字 25px／稀有度 14px 都在 12px 之上，縮完視覺上一模一樣。寬度 ≥120px 的卡（詳情、放大、編隊）不動。
+  const COMPACT_BELOW = 120, COMPACT_BASE = 300;
+  let compactRO = null;
+  function compact(host) {
+    const f = host._face; if (!f || !host.isConnected) return;
+    const w = host.clientWidth; if (!w) return;
+    if (w < COMPACT_BELOW) {
+      const k = w / COMPACT_BASE;
+      if (f.dataset.compact !== String(w)) { f.dataset.compact = String(w);
+        f.style.inset = 'auto'; f.style.left = '0'; f.style.top = '0'; f.style.width = COMPACT_BASE + 'px'; f.style.height = (COMPACT_BASE * 7 / 5) + 'px';
+        f.style.transformOrigin = '0 0'; f.style.transform = `scale(${k.toFixed(4)})`; window.HoloCardFace.refit(f); }
+    } else if (f.dataset.compact) { delete f.dataset.compact; for (const k of ['inset', 'left', 'top', 'width', 'height', 'transform-origin', 'transform']) f.style.removeProperty(k); window.HoloCardFace.refit(f); }
+  }
+  function compactObserver() {
+    if (!compactRO) compactRO = new ResizeObserver(list => { for (const e of list) compact(e.target); });
+    return compactRO;
+  }
   // 尺寸保險：卡面的字級全靠 --cw（HoloCardFace 用 ResizeObserver 量），量不到就退回 holo.css 的預設 262px——
   // 在 46px 寬的夥伴列上就是「阿巴阿巴／精良／RARE」整排大字疊在一起（朋友 2026-09-16 截圖，本機重現不出來）。
   // 不管是哪條路漏掉了量測，這裡每 1.5 秒把還在畫面上的卡對一次：--cw 跟實際寬度差超過 1px 就重量、沒被觀察的補回觀察。
@@ -125,6 +145,7 @@ window.ClickerHolo = (() => {
     sh.append(f);
     if (collect) { host._collect = CF().enhance(f, sh, resolve, ++collectSeq); host.dataset.holoInline = String(adoptInlineStyles(sh)); }
     window.HoloCardFace.observe(f); window.HoloCardFace.refit(f);
+    compactObserver().observe(host);
     window.HoloCardFace.paint(f, entry.rarity, 0, 0, { tilt });
     host._face = f; host._born = Date.now();
     prune(host._born); live.add(host);
