@@ -230,8 +230,9 @@ def main():
                 pg.wait_for_timeout(600)
                 if not pg.locator('#collect').is_hidden(): break
             # 第四輪：「新夥伴／升星」直接標在結果卡上（不再有收下後的「收下了！」視窗）。
-            # 五連一定會有新夥伴或升星，徽章就一定要出現——「有才掃」等於沒驗（Codex 第二輪 A11）
-            scan('招募總覽', ['#cards .card', '#cards .draw-badge'])
+            # 2026-09-16 起 1.0 只留卡面右上角的 .face-tag（NEW／2★ → 3★／升星進度），卡頂 .draw-badge 只剩升階／超越；
+            # 五連一定會有 NEW 或升星，卡面標籤就一定要出現——「有才掃」等於沒驗（Codex 第二輪 A11）
+            scan('招募總覽', ['#cards .card', '#cards .face-tag'])
             pg.eval_on_selector('#collect', 'e=>e.click()'); pg.wait_for_timeout(1200)
 
             # ---- 末世（從模式面板走過去）

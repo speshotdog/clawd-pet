@@ -201,9 +201,13 @@ window.ClickerGacha = (() => {
       const put = (i, b) => { if (i >= 0) badges[i].push(b); };
       const RAR = { rare: '精良', epic: '史詩', legendary: '傳說', mythic: '神話' };
       const isNew = new Set(r.newIds || []);
-      for (const id of isNew) put(ids.indexOf(id), { kind: 'new', text: '新夥伴' });
+      // 1.0 的卡面右上角本來就有 E.tagFor 的「NEW／2★ → 3★／升星進度 7/8／熟練」小標，
+      // 卡頂再掛一顆「新夥伴／★2→★3」就是同一件事寫兩遍（使用者 2026-09-16 截圖：兩個疊在一起）。
+      // 1.0 只留卡面那個，卡頂只標卡面沒有的升階／超越；2.0 照舊不動。
+      const faceHasIt = !apoc();
+      if (!faceHasIt) for (const id of isNew) put(ids.indexOf(id), { kind: 'new', text: '新夥伴' });
       // 升星標在同一隻的最後一張（那張收下時才升上去）；新夥伴自己不另外標升星
-      for (const u of r.starUps || []) if (u.to > u.from && !isNew.has(u.id)) put(ids.lastIndexOf(u.id), { kind: 'star', text: `★${u.from}→★${u.to}` });
+      if (!faceHasIt) for (const u of r.starUps || []) if (u.to > u.from && !isNew.has(u.id)) put(ids.lastIndexOf(u.id), { kind: 'star', text: `★${u.from}→★${u.to}` });
       // 同一隻連升好幾階併成一個（「采華 精良→史詩、史詩→傳說」讀起來像壞掉）
       const grows = new Map();
       for (const g of r.grows || []) { const key = `${g.kind}:${g.id}`, cur = grows.get(key); grows.set(key, { ...g, from: cur ? cur.from : g.from }); }

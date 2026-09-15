@@ -828,12 +828,13 @@ footer > span:first-child, #next-goal { white-space:nowrap; overflow:hidden; tex
 .mythic-fx { position:absolute; z-index:8; pointer-events:none; }
 .mythic-fx * { pointer-events:none; }
 .mythic-beam-layer { inset:0; overflow:hidden; }
-.mythic-flash { position:absolute; inset:0; background:#fffef0; opacity:0; }
+.mythic-fx .mythic-flash { position:absolute; inset:0; background:#fffef0; opacity:0; }   /* 限定在技能層：gacha-card 的抽卡白閃也叫 .mythic-flash */
 .mythic-beam { position:absolute; left:430px; top:120px; width:560px; height:60px; transform-origin:0 50%; opacity:0; border-radius:40% 12% 12% 40%; background:linear-gradient(0deg,transparent 0%,#edb62680 18%,#ffe58c 36%,#fffef5 47%,#fff 50%,#fffef5 53%,#ffe58c 64%,#edb62680 82%,transparent 100%); box-shadow:0 0 24px 8px #ffd45499; }
 .mythic-bloom { width:176px; height:176px; opacity:0; border:2px solid #a6dcff; border-radius:50%; background:radial-gradient(circle,transparent 34%,#e8f8ff55 48%,#428bd255 61%,transparent 71%); box-shadow:0 0 18px #9edbff88,inset 0 0 16px #dff5ff88; }
 .mythic-petal { position:absolute; left:calc(50% - 13px); top:calc(50% - 25px); width:26px; height:50px; border:1px solid #679acb; border-radius:70% 30% 65% 35%; background:radial-gradient(ellipse at 50% 28%,#fff 8%,#edfaff 38%,#8cc5ef 66%,#2864a5 100%); box-shadow:0 0 7px #e0f6ff99; }
 /* 玥來玥閒「躺著也會贏」：懶洋洋的暖橘金漣漪＋打瞌睡的 Z */
-.mythic-ripple { width:150px; height:150px; opacity:0; border:3px solid #F5C26B; border-radius:50%; background:radial-gradient(circle,transparent 58%,#F5C26B44 70%,transparent 80%); box-shadow:0 0 16px #F5C26B66; }
+/* ⚠ 一定要掛在 .mythic-fx 下：gacha-card 的神話卡翻開時也會掛 .mythic-ripple 這個 class，不限定的話卡會被壓成 150×150 的圓（2026-09-16 使用者截圖「神話卡變超短」） */
+.mythic-fx.mythic-ripple { width:150px; height:150px; opacity:0; border:3px solid #F5C26B; border-radius:50%; background:radial-gradient(circle,transparent 58%,#F5C26B44 70%,transparent 80%); box-shadow:0 0 16px #F5C26B66; }
 .mythic-zzz { width:0; height:0; opacity:0; font:800 26px/1 system-ui,sans-serif; font-style:normal; color:#F7D89A; text-shadow:0 2px 0 #9A6B23,0 0 10px #F5C26B99; display:grid; place-items:center; }
 /* 玩物就玩物「捧在手心」：往上托起的粉色柔光＋六顆愛心 */
 .mythic-cradle { width:132px; height:132px; opacity:0; border:2px solid #F2A0B4; border-radius:50%; background:radial-gradient(circle,#FFF0F4 20%,#F7C2D0aa 55%,transparent 74%); box-shadow:0 0 18px #F7C2D099,inset 0 0 14px #FFF0F4aa; }

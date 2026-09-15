@@ -398,8 +398,9 @@
 .r-mythic .card-glow, .skin-af .r-mythic .card-glow { box-shadow:0 0 42px 16px #ff4fd888,0 0 110px 40px #5ad7ff66; }
 .card.r-mythic:hover .card-glow, .card.r-mythic.charging .card-glow,
 .skin-af .card.r-mythic:not(.flipped):hover .card-glow, .skin-af .card.r-mythic.charging .card-glow { animation:glow-throb .8s ease-in-out infinite; }
-.mythic-ripple::after { content:''; position:absolute; inset:-15px; pointer-events:none; border:6px solid #ff4fd8; border-image:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8) 1; animation:mythic-ripple .8s ease-out both; }
-.mythic-flash { position:absolute; inset:0; z-index:50; background:white; pointer-events:none; }
+/* 只套在卡上：clicker.css 的技能漣漪節點也叫 .mythic-ripple（1.0 玥來玥閒），不限定會在技能特效上長出彩虹方框 */
+.card.mythic-ripple::after { content:''; position:absolute; inset:-15px; pointer-events:none; border:6px solid #ff4fd8; border-image:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8) 1; animation:mythic-ripple .8s ease-out both; }
+.mythic-flash:not(.mythic-fx .mythic-flash) { position:absolute; inset:0; z-index:50; background:white; pointer-events:none; }
 .dim.mythic-dim { background:#080313ed; opacity:1; }
 .mythic-pack::after { content:''; position:absolute; inset:5%; background:var(--mythic-rainbow); mix-blend-mode:screen; opacity:.65; pointer-events:none; }
 .mythic-circle::after { content:''; position:absolute; inset:0; background:conic-gradient(#ff4fd8,#fff275,#7dff9c,#5ad7ff,#b48bff,#ff4fd8); mask:url('gacha-summon-circle.png') center/contain no-repeat; mix-blend-mode:screen; animation:mythic-hue 3s linear infinite; }
@@ -424,6 +425,6 @@
 }
 @media (prefers-reduced-motion:reduce) {
   .card.r-mythic, .skin-af .card.r-mythic, .card.r-mythic .card-glow, .mythic-circle::after, .mythic-sweep { animation:none !important; }
-  .mythic-ripple::after { display:none; }
+  .card.mythic-ripple::after { display:none; }
   .card.unveiling::after { display:none; }
 }
