@@ -272,6 +272,8 @@
     }
     return oneSkills[c.name] || null;
   };
+  // 一張卡的技能說明（編隊畫面的懸浮提示與詳情用；不看有沒有裝進槽）
+  const skillInfo = id => { const c = poolById()[id]; if (!c) return null; const base = RULES.SKILLS[c.rarity]; return { id, name: oneSkillName(c) || base.name, text: `${base.text}・冷卻 ${Math.round(base.cd / 1000)} 秒`, kind: base.kind }; };
   const skillOf = (a, slot) => { if (slot === 3 && !boostOf(a).slot4) return null; const id = a.skills?.[slot]; const c = id ? poolById()[id] : null; if (!c) return null; const base = RULES.SKILLS[c.rarity]; return { slot, id, card: c, ...base, name: oneSkillName(c) || base.name }; };
   // 1.0 的印記／祝福加成（使用者第四輪：「1.0 的印記加成直接套進 2.0」）。畫面層每次從 1.0 存檔現算後掛在 a.boost，不寫進存檔。
   // 印記重設計：加成物件多了離線倍率、派遣券機率加成、王首勝粉塵加成，與四個兌換解鎖旗標。
@@ -855,7 +857,7 @@
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
   root.ApocEconomy = { RULES, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
-    drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, canSkill, useSkill, powerMul,
+    drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, skillInfo, canSkill, useSkill, powerMul,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
     starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, isMaxed, dustRate, fullDust, starCap, exchangeDust, winDust };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.ApocEconomy;

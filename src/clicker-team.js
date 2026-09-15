@@ -26,6 +26,38 @@
       next.apoc = A().setTeam(apocState(), roster, nextSkills || apocState().skills);
       return next;
     }
+    // 技能說明（使用者 2026-09-16：「指上去卡片會浮出他的技能效果，不然玩家不好配置」）
+    // 1.0 照名冊的 skillTip（現在這一星＋下一星）；2.0 照稀有度表（名字沿用 1.0）。兩邊回同一個形狀 { name, text }。
+    function skillInfo(id) {
+      const s = store.state;
+      if (apoc()) return A().skillInfo?.(id) || null;
+      const def = B.characters[id]; if (!def) return null;
+      if (!def.kind) return { name: def.skill, text: '後續開放' };
+      const star = Math.max(1, E.stars(E.dust(s, id) || 0)), now = E.skillAt(s, id, star);
+      return { name: def.skill, text: `現在：${now.desc(now)}` + (star < 5 ? `
+下一星：${now.desc(E.skillAt(s, id, star + 1))}` : '') };
+    }
+    // 懸浮提示：一個共用的浮層跟著卡走（放在 #team-editor 裡，不會被網格的 overflow 切掉）。
+    // 手機沒有 hover，同一份文字也寫在詳情面板（#t20-detail-skill），點卡就看得到。
+    let tip = null, tipFor = null;
+    function tipNode() { if (!tip) { tip = el('div', 'team-tip'); tip.hidden = true; tip.setAttribute('role', 'tooltip'); $('team-editor').append(tip); } return tip; }
+    function showTip(anchor, id) {
+      const info = skillInfo(id); if (!info) return hideTip();
+      const n = tipNode(); n.replaceChildren(el('b', '', info.name), el('span', '', info.text)); n.hidden = false; tipFor = anchor;
+      // 先放在卡的右邊；右邊放不下就放左邊；上下不超出編隊畫面。
+      // ⚠ 整個遊戲是 transform:scale 縮放的：getBoundingClientRect 是螢幕座標、left/top 是版面座標，要除掉縮放比才對得上
+      const ed = $('team-editor'), host = ed.getBoundingClientRect(), k = host.width / (ed.offsetWidth || host.width) || 1;
+      const a = anchor.getBoundingClientRect(), w = n.offsetWidth, h = n.offsetHeight, W = ed.offsetWidth, H = ed.offsetHeight;
+      let x = (a.right - host.left) / k + 8; if (x + w > W - 8) x = (a.left - host.left) / k - w - 8; if (x < 8) x = 8;
+      let y = (a.top - host.top) / k; if (y + h > H - 8) y = H - 8 - h; if (y < 8) y = 8;
+      n.style.left = `${x}px`; n.style.top = `${y}px`;
+    }
+    function hideTip() { if (tip) tip.hidden = true; tipFor = null; }
+    function attachTip(node, id) {
+      node.addEventListener('pointerenter', e => { if (e.pointerType === 'touch') return; showTip(node, id); });
+      node.addEventListener('pointerleave', () => { if (tipFor === node) hideTip(); });
+      node.addEventListener('focus', () => showTip(node, id)); node.addEventListener('blur', () => { if (tipFor === node) hideTip(); });
+    }
     const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
     function portrait(id) {
       const p = el('span', 'buddy-portrait');
@@ -44,7 +76,7 @@
       b.append(img, el('span', 'proxy-name', byId(id).name.replace('（原版）', '')));
       if (!apoc() && E.champion(store.state, id)) b.append(el('i', 'champ-flag', '本輪當家'));
       const slot = skills().indexOf(id); if (slot >= 0) b.append(el('i', 'slot-stamp', `槽${slot + 1}`));
-      b.onclick = handler; return b;
+      b.onclick = handler; attachTip(b, id); return b;
     }
     // ---- 累加上限：一條 20 格的長條（使用者 2026-09-14：「可能一行就好，格子用顏色區別然後加字」）
     // 以前是四條列各一行，「神話＋傳說」「神話＋傳說＋史詩」在窄欄被截成「神話…」「神…」，
@@ -97,7 +129,7 @@
         // 直式只放卡不放名字，名字要留在 title／aria-label（Codex 複檢 C）
         const label = id ? `技能槽 ${i + 1}：${byId(id).name}` : `技能槽 ${i + 1}：挑選`; b.title = label; b.setAttribute('aria-label', label);
         if (!apoc() && i >= E.slotCount(s)) { b.disabled = true; b.append(el('span', 'slot-name', '未解鎖')); }
-        else if (id) { b.append(portrait(id), el('span', 'slot-name', byId(id).name.replace('（原版）', ''))); }
+        else if (id) { b.append(portrait(id), el('span', 'slot-name', byId(id).name.replace('（原版）', ''))); attachTip(b, id); }
         else b.append(el('span', 'slot-name', '＋ 挑選'));
         b.onclick = () => openPicker('skill', i); box.append(b);
       }
@@ -106,25 +138,35 @@
     function detail() {
       const s = store.state, own = apoc() ? apocState().collection : s.collection;
       const ids = team(), id = selected && own[selected] ? selected : ids[0];
-      if (!id) { $('t20-detail-name').textContent = '尚未編入'; $('t20-detail-number').textContent = '—'; $('t20-detail-rarity').textContent = ''; $('t20-detail-op').textContent = '選擇成員以編入'; $('t20-card').replaceChildren(); $('t20-remove').disabled = true; $('t20-replace').disabled = true; return; }
+      if (!id) { const sk = $('t20-detail-skill'); if (sk) sk.hidden = true; $('t20-detail-name').textContent = '尚未編入'; $('t20-detail-number').textContent = '—'; $('t20-detail-rarity').textContent = ''; $('t20-detail-op').textContent = '選擇成員以編入'; $('t20-card').replaceChildren(); $('t20-remove').disabled = true; $('t20-replace').disabled = true; return; }
       selected = id; const index = ids.indexOf(id), serial = index >= 0 ? String(index + 1).padStart(2, '0') : '候選';
       $('t20-detail-number').textContent = serial; $('t20-detail-name').textContent = byId(id).name;
       $('t20-detail-rarity').textContent = apoc()
         ? `${RAR[byId(id).rarity]}・★${apocState().collection[id] || 1}・戰力 ${format(power(id))}`
         : `${RAR[Pool.byId[id].rarity]}・每秒 ${format(E.individual(s, id))}${E.champion(s, id) ? '・本輪當家 ×1.5' : ''}`;
       $('t20-detail-op').textContent = `${serial} · ${index >= 0 ? '已編入' : '尚未編入'} · ${byId(id).name}`;
+      { const info = skillInfo(id), sk = $('t20-detail-skill'); if (sk) { sk.hidden = !info; if (info) sk.replaceChildren(el('b', '', info.name), el('span', '', info.text)); } }
       const host = $('t20-card'); host.replaceChildren();
       if (apoc() && window.ClickerHolo?.ready()) {
         const wrap = document.createElement('div'); wrap.className = 'card flipped album-card detail-card holo-card';
-        const f = window.ClickerHolo.face(byId(id)); if (f) wrap.append(f); host.append(wrap);
+        const f = window.ClickerHolo.face(byId(id)); if (f) wrap.append(f); host.append(wrap); fitDetailCard();
         $('t20-remove').disabled = index < 0; $('t20-replace').disabled = index < 0;
         document.querySelectorAll('#t20-grid .team-proxy').forEach(b => b.setAttribute('aria-selected', String(b.dataset.id === selected)));
         return;
       }
-      if (apoc()) { const b = document.createElement('div'); b.className = 'card flipped album-card detail-card apoc-face-blank'; host.append(b); return; }   // 末世不准退回 1.0 卡面
-      const face = card.create({ ...byId(id), rarity: E.rarity(s, id) }, { tag: false }); face.classList.add('flipped', 'album-card', 'detail-card'); host.append(face);
+      if (apoc()) { const b = document.createElement('div'); b.className = 'card flipped album-card detail-card apoc-face-blank'; host.append(b); fitDetailCard(); return; }   // 末世不准退回 1.0 卡面
+      const face = card.create({ ...byId(id), rarity: E.rarity(s, id) }, { tag: false }); face.classList.add('flipped', 'album-card', 'detail-card'); host.append(face); fitDetailCard();
       $('t20-remove').disabled = index < 0; $('t20-replace').disabled = index < 0;
       document.querySelectorAll('#t20-grid .team-proxy').forEach(b => b.setAttribute('aria-selected', String(b.dataset.id === selected)));
+    }
+    // 詳情卡是固定 150×210 的版面，技能列加進來之後那一格常常不夠高，卡會壓到下面的字——
+    // 量格子有多高，卡整張等比縮到塞得進去（1fr 那一格有多大就多大）
+    function fitDetailCard() {
+      const box = $('t20-card'), c = box.firstElementChild; if (!c) return;
+      c.style.transform = ''; c.style.transformOrigin = '';
+      requestAnimationFrame(() => { if (!box.isConnected || box.firstElementChild !== c) return;
+        const k = Math.min(1, box.clientHeight / 210, box.clientWidth / 150);
+        if (k < .999) { c.style.transformOrigin = '50% 0'; c.style.transform = `scale(${k.toFixed(3)})`; } });
     }
     function select(id, open = false) { clearOperation(); selected = id; const i = team().indexOf(id); if (i >= 0 && Math.floor(i / 10) !== page) { page = Math.floor(i / 10); renderRoster(); } detail(); if (open) $('team-editor').classList.add('detail-open'); }
     // ---- 預覽與加入（同 team20 preview／add）：撞上限時逐層寫出「合計已達 n，加入後將為 m」
@@ -216,7 +258,7 @@
     $('team-close').onclick = close;
     // 拖曳：從隊伍網格拖到技能槽（與舞台夥伴列共用 clicker-drag 的骨架）
     drag?.bind({ source: '#t20-grid', item: '.team-proxy', targets: '#t20-skills .skill-slot', drop: (index, id) => assignSkill(index, id), enabled: () => !$('team-editor').hidden });
-    function render() { renderRoster(); detail(); }
+    function render() { hideTip(); renderRoster(); detail(); }
     function open() { clearOperation(); page = 0; selected = team()[0] || null; $('team-editor').hidden = false; $('team-editor').classList.remove('detail-open'); $('game-content').inert = true; render(); $('team-close').focus(); }
     function close() { closePicker(); $('team-editor').hidden = true; $('game-content').inert = false; }
     return { open, close, render, openPicker, add, remove, get isOpen() { return !$('team-editor').hidden; }, get selected() { return selected; }, get page() { return page; } };

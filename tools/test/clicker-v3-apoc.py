@@ -51,8 +51,9 @@ with sync_playwright() as p:
         if pg.locator('#collect').is_visible(): break
         pg.evaluate("()=>{const b=document.getElementById('skip'); if(b&&!b.hidden) b.click();}"); pg.wait_for_timeout(900)
     check(pg.locator('#collect').is_visible(), '1.0 五連演出跑完、收下鍵出現')
-    home_badges = pg.evaluate("()=>[...document.querySelectorAll('#cards .draw-badge')].map(b=>b.textContent)")
-    check(len(home_badges) > 0, f'1.0 結果卡上直接標徽章：{home_badges}')
+    # 2026-09-16 起 1.0 的「新夥伴／升星」只留卡面右上角的 .face-tag（卡頂 .draw-badge 只剩升階／超越）
+    home_badges = pg.evaluate("()=>[...document.querySelectorAll('#cards .card .face-tag')].map(b=>b.textContent)")
+    check(len(home_badges) > 0 and all(home_badges), f'1.0 結果卡的卡面標籤（NEW／升星）：{home_badges}')
     pg.screenshot(path=str(OUT / '00-home-badges.png'))
     pg.eval_on_selector('#collect', 'e=>e.click()'); pg.wait_for_timeout(1200)
     check(pg.locator('#recruit-layer').is_hidden() and pg.locator('#draw-summary').count() == 0, '收下就回遊戲，沒有「收下了！」視窗')
