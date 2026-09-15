@@ -604,8 +604,7 @@ window.ClickerApocUI = (() => {
       const wait = Math.max(0, Math.ceil((v.cooldownUntil - Date.now()) / 1000));
       go.textContent = rev && v.progress < v.stations ? '回到目前站' : !(v.power > 0) ? '先去編隊' : A.isBoss(v.progress) ? (store.state.apoc?.bossFailed === v.progress ? (wait ? `再次挑戰・${wait}秒` : '再次挑戰') : '挑戰王關') : '開戰';
       go.classList.toggle('glow', !!(v.canFight && v.power > 0));
-      const throttle = v.dayCapped ? `今天已推進 ${v.dailyStations} 站，明天再往下；先在這裡刷錢、回顧或輪迴。` : v.dailyMul < 1 ? `今天的刷怪獎金已領滿（${v.dailyFull} 場），之後 ×${v.dailyMul}；王首勝、派遣不受影響。` : '';
-      $('package-result').textContent = throttle ? throttle : over ? (v.endless ? '無盡模式到底了。' : '全線已通行。')
+      $('package-result').textContent = over ? (v.endless ? '無盡模式到底了。' : '全線已通行。')
         : failed ? (v.canFight ? '王關失敗：在前一站刷錢變強，準備好就按「再次挑戰」。' : '王關失敗：先在前一站刷錢變強，冷卻結束後可以「再次挑戰」。')
         : rev ? (v.progress >= v.stations ? '全線已通行：這一隻會一直在，點著賺錢就好。' : `回顧第 ${i + 1} 站：從這裡往下走到這一段的王為止，不會推進度。要回去推進度就按下面的「回到目前站」。`)
         : v.stage ? '點怪攻擊；隊伍放著也會打。'
@@ -751,9 +750,6 @@ window.ClickerApocUI = (() => {
       // 朋友回饋：「我發現只是抽卡而已，下一次抽卡也會變貴，這樣單抽不就很虧」。
       // 其實只有**付金幣**的那一抽才會漲（用券抽不算 paidDraws），而且十連的每抽均價跟單抽一樣——
       // 漲價是按「第幾次付費抽」算的，不是按「按了幾次按鈕」。這件事以前只寫在 tooltip 裡，等於沒講。
-      // 節流：今天付現抽超過 DAILY.DRAWS 之後每抽再 ×1.03
-      { let dn = $('draw-daily'); if (!dn) { dn = document.createElement('small'); dn.id = 'draw-daily'; $('single-note').after(dn); }
-        dn.hidden = !(v.drawsToday >= v.dailyDraws); dn.textContent = `今天付現已抽 ${v.drawsToday}（超過 ${v.dailyDraws} 之後每抽再 +3%，明天重置；用券抽不算）`; }
       let note = $('draw-growth');
       if (!note) { note = document.createElement('small'); note.id = 'draw-growth'; $('single-note').after(note); }
       const pct = ((A.RULES.DRAW_GROWTH - 1) * 100).toFixed(2).replace(/0+$/, '').replace(/\.$/, '');

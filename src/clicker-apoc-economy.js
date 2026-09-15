@@ -66,8 +66,12 @@
     // 第十輪 C 重走廢土（使用者：「兩個都做」，幅度交給模擬器）：全線通行後重來一圈，保留收藏、金幣與訓練歸零；
     //   第 n 圈敵人血與獎勵 ×HP_FIRST×HP_GROWTH^(n−1)、戰力 ×(1＋POWER×n)，最多 MAX 圈。
     //   scratchpad ngplus_sim.js 一般玩家：HP_FIRST 3／4／6／10／16 第二圈 59／51／76／109／137 分 → 取 10（第一圈 146，第二圈快約 25%，之後 48→41→40）
-    LAP: { MAX: 10, HP_FIRST: 10, HP_GROWTH: 1.1, POWER: .25 },
-    LOOP: { REROLL_COST: 80000, CHEST_MAX: 3, CHEST_TOTAL: 30 },
+    // 輪迴倍率（2026-09-16 晚重調，使用者：「輪迴倍率拉高，讓玩家可以一直玩下去，為了抽卡」）：
+    //   血：第 1 圈 ×10、之後每圈 ×1.3（第 10 圈 ×106、第 20 圈 ×1460）；圈數上限 10 → 20（印記照舊只算前 10 圈）。
+    //   每圈免費的戰力加成 .25 → .05：以前一圈送 25% 戰力，玩家不用抽卡也能追上，跟「輪迴是為了抽卡」相反。
+    //   訓練上限跟站數綁（TRAIN_GATE，每圈重算但頂都是 88 級）→ 過了第 3～4 圈只剩卡（新卡、星、突破）能追血量，這就是抽卡的理由。
+    LAP: { MAX: 20, MARK_LAPS: 10, HP_FIRST: 10, HP_GROWTH: 1.3, POWER: .05 },
+    LOOP: { REROLL_COST: 80000, CHEST_MAX: 3, CHEST_TOTAL: 30, TICKETS: 10 },   // 每圈打完送 10 張券（一次十連）：輪迴是為了抽卡，獎勵就直接是抽卡
     MUTATIONS: [
       ['thick','厚甲','王關血量 ×1.3','breach'], ['haste','倒數','王關基本期限 60 → 45 秒，額外 15 秒照加','open'],
       ['pack','狗海','初次狗群 5 → 8 隻，再召喚 3 → 4 隻','idle'], ['shell','硬殼','王血 25% 時再多一層外殼','open'],
@@ -93,7 +97,9 @@
     EXCHANGE: { SECONDS: 600, GROWTH: 1.6 },   // 節流（2026-09-16）：每天第 N 次換券的漲幅 1.25 → 1.6（重度玩家全滿養第 3 天就是這條太鬆）
     // 節流（2026-09-16，使用者：「朋友一天玩三小時，第 2 天就打到最後一關」）：2.0 的經濟本來是時間線性的，
     // 這兩條把「一天能拿多少」跟天綁住。輕度（20 分 ×3）幾乎碰不到，重度才會被壓。
-    DAILY: { FULL_KILLS: 150, AFTER: .3, DRAWS: 400, DRAW_SURCHARGE: 1.03, STATIONS: 8 },   // 每天最多推進 8 站（含王）：這是唯一能把「全破」跟天綁住的旋鈕；付現抽 400 抽之後每抽 ×1.03 累乘。掃描見 HANDOFF §30   // 每天前 150 場擊殺拿全額站獎金，之後 ×.3（王首勝、離線、派遣不受影響）；每天前 40 抽付現原價，之後每抽再 ×1.2 累乘（券抽不算）
+    // 2026-09-16 晚：每日站數上限／每日獎金遞減／每日抽卡加價全部撤掉（使用者：「是不好的設計」）——重度玩家的去處改成輪迴（LAP 倍率拉高，玩家為了抽卡一直玩）。
+    // 常數留著全部關掉（Infinity／1）是為了 sim 旋鈕與舊測試還能跑；不要再打開。
+    DAILY: { FULL_KILLS: Infinity, AFTER: 1, DRAWS: Infinity, DRAW_SURCHARGE: 1, STATIONS: Infinity },   // 每天前 150 場擊殺拿全額站獎金，之後 ×.3（王首勝、離線、派遣不受影響）；每天前 40 抽付現原價，之後每抽再 ×1.2 累乘（券抽不算）
     TRAIN_GATE: { BASE: 8, PER_STATION: 4 },    // 訓練等級上限 = 8 + 4 × 已通過的站數（第 20 站 88 級）
     // 訓練（花末世金幣）：全隊訓練 Lv L 全隊戰力 ×(1+MUL)^L；點擊力 Lv L 每下 ×(1+MUL)^L。第 L 級 COST×GROWTH^L
     // 第六輪改乘算：戰力 ∝ 花掉的錢^(ln1.1／ln1.3≈0.36)，越後面越沒效率——這就是 Sakura 的牆（收藏會抽滿，只有訓練能一直長）。
@@ -704,7 +710,8 @@
           } }
         // 全線通行只報一次；之後留在末世繼續放置與補收藏
         if (s.progress >= RULES.STATIONS && !s.cleared) { s.cleared = true; const dust = lapChest(s); s.lapChest = (s.lapChest || 0) + dust; s.universalDust += dust;
-          const entry = { lap: lapsOf(s), mutations: [...(s.mutations || [])], seconds: Math.floor((s.lapPlayMs || 0)/1000), bossFails: s.lapBossFails || 0, dust, at: now };
+          const tickets = lapsOf(s) > 0 ? RULES.LOOP.TICKETS : 0; s.tickets = (s.tickets || 0) + tickets;   // 第 0 圈（第一次全破）不送，從第 1 圈起每圈十連
+          const entry = { lap: lapsOf(s), mutations: [...(s.mutations || [])], seconds: Math.floor((s.lapPlayMs || 0)/1000), bossFails: s.lapBossFails || 0, dust, tickets, at: now };
           s.lapLog = [...(s.lapLog || []), entry];
           const unlocked = RULES.HIT_FX.filter(f => f.unlockLap === entry.lap).map(f => f.id);
           s.cosmetics = { ...s.cosmetics, owned: [...new Set([...s.cosmetics.owned, ...unlocked])] };
@@ -927,7 +934,8 @@
     const all = (root.ApocPool || []).map(c => c.id);
     if (!collected && all.length && all.every(id => a.collection[id] > 0)) { collected = true; gained += M.COLLECTED; notes.push(`卡冊全收集 +${M.COLLECTED}`); }
     if (!maxed && all.length && all.every(id => isMaxed(a, id))) { maxed = true; gained += M.MAXED; notes.push(`全滿養 +${M.MAXED}`); }
-    const L = lapsOf(a); if (L > laps) { gained += M.LAP * (L - laps); notes.push(`重走廢土第 ${L} 圈 +${M.LAP * (L - laps)}`); laps = L; }
+    // 印記只算前 MARK_LAPS 圈（鐵律：印記來源有頂；圈數上限拉到 20 不能跟著漲）
+    const L = Math.min(lapsOf(a), RULES.LAP.MARK_LAPS || RULES.LAP.MAX); if (L > laps) { gained += M.LAP * (L - laps); notes.push(`重走廢土第 ${L} 圈 +${M.LAP * (L - laps)}`); laps = L; }
     return { state: gained ? { ...a, marksGiven: { boss, cleared, collected, maxed, laps } } : a, gained, notes };
   }
   const mutationCount = lap => lap === 0 ? 0 : lap === 1 ? 1 : lap < 5 ? 2 : 3;

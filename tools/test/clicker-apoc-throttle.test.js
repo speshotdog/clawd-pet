@@ -1,29 +1,8 @@
-// 節流（2026-09-16）：重度玩家一天玩三小時第 2 天就到最後一關——把「一天能拿多少」跟天綁。
+// 2026-09-16：訓練上限跟站數綁（留著）；每日站數／每日獎金／每日抽卡加價全部撤掉（使用者：「是不好的設計」），這裡鎖住它們是關的。
 const test = require('node:test'), assert = require('node:assert');
 globalThis.ApocPool = [{ id: 'pufayueyue', name: '玥', rarity: 'rare', role: 'reset' }];
 const A = require('../../src/clicker-apoc-economy.js');
-const D = A.RULES.DAILY, day = 86400000 * 20000;
-
-test('每日獎金遞減：前 FULL_KILLS 場全額、之後 ×AFTER，隔天重置；王首勝不算場次', () => {
-  let a = A.normalize({ ...A.gift(A.fresh()), unlocked: true, tutorial: 4 });
-  assert.equal(A.dailyMul(a, day), 1);
-  a.dailyKills = { day: Math.floor(day / 86400000), count: D.FULL_KILLS - 1 };
-  assert.equal(A.dailyMul(a, day), 1, '第 150 場前一場還是全額');
-  a.dailyKills.count = D.FULL_KILLS;
-  assert.equal(A.dailyMul(a, day), D.AFTER, '到 150 場之後打折');
-  assert.equal(A.dailyMul(a, day + 86400000), 1, '隔天回到全額');
-  assert.equal(A.killsToday(a, day + 86400000), 0);
-});
-
-test('擊殺會累計當天場次，超過上限後金幣照 ×AFTER 入帳', () => {
-  const base = A.normalize({ ...A.gift(A.fresh()), unlocked: true, tutorial: 4, coins: 0 });
-  const won = (a, at) => { a = A.fight({ ...a, progress: 1, stage: null, cooldownUntil: 0 }, at); a.stage.hp = 0; a.stage.wave = a.stage.waves; return A.settle(a, at + 1000, 1, () => 0).state; };
-  const r1 = won(base, day); const c1 = r1.coins;
-  assert.equal(r1.dailyKills.count, 1); assert.ok(c1 > 0);
-  const r2 = won({ ...base, dailyKills: { day: Math.floor(day / 86400000), count: D.FULL_KILLS } }, day + 5000);
-  assert.ok(Math.abs(r2.coins - Math.round(c1 * D.AFTER)) <= 1, `打折後 ${r2.coins} ≈ ${c1} × ${D.AFTER}`);
-  assert.equal(r2.dailyKills.count, D.FULL_KILLS + 1);
-});
+const day = 86400000 * 20000;
 
 test('訓練上限跟站數綁：8 + 4×站數；輪迴過的人上限照 20 站算', () => {
   let a = A.normalize({ ...A.gift(A.fresh()), unlocked: true, tutorial: 4, coins: 1e15 });
@@ -34,13 +13,22 @@ test('訓練上限跟站數綁：8 + 4×站數；輪迴過的人上限照 20 站
   a.laps = 1; a.progress = 0; assert.equal(A.trainCap(a), 8 + 4 * 20, '重走過的人不會被壓回 8 級');
 });
 
-test('每天最多推進 STATIONS 站：到頂後 canFight 為 false、fight 丟明確訊息；隔天恢復；刷怪／回顧不受影響', () => {
-  const S = A.RULES.DAILY.STATIONS;
-  let a = A.normalize({ ...A.gift(A.fresh()), unlocked: true, tutorial: 4, coins: 0 });
-  a.dailyAdvance = { day: Math.floor(day / 86400000), count: S };
+test('每日節流全部關著：站數不設限、獎金不打折、抽卡不加價', () => {
+  let a = A.normalize({ ...A.gift(A.fresh()), unlocked: true, tutorial: 4, coins: 1e12 });
+  a.dailyAdvance = { day: Math.floor(day / 86400000), count: 999 }; a.dailyKills = { day: Math.floor(day / 86400000), count: 99999 }; a.dailyDraws = { day: Math.floor(day / 86400000), count: 99999 };
   a.progress = 5; a.stage = null;
-  assert.equal(A.dayCapped(a, day), true); assert.equal(A.canFight(a, day), false);
-  assert.throws(() => A.fight(a, day), /明天再往下/);
-  assert.equal(A.canFight(a, day + 86400000), true, '隔天恢復');
-  const r = A.revisit(a, day, 3, { walk: false }); assert.ok(r.stage, '回顧照常');
+  assert.equal(A.dayCapped(a, day), false); assert.equal(A.canFight(a, day), true);
+  assert.equal(A.dailyMul(a, day), 1);
+  assert.equal(A.drawCost(a, 10, day), A.drawCost({ ...a, dailyDraws: { day: null, count: 0 } }, 10, day), '抽卡價跟當天抽了幾次無關');
+});
+
+test('輪迴：血每圈 ×1.3、戰力每圈只 +5%、上限 20 圈、印記只算前 10 圈、每圈送 10 券', () => {
+  const R = A.RULES.LAP;
+  assert.equal(R.MAX, 20); assert.equal(R.MARK_LAPS, 10); assert.equal(R.HP_GROWTH, 1.3); assert.equal(R.POWER, .05);
+  assert.ok(Math.abs(A.lapHp({ laps: 10 }) - 10 * 1.3 ** 9) < 1e-9); assert.ok(Math.abs(A.lapPower({ laps: 10 }) - 1.5) < 1e-9);
+  assert.equal(A.RULES.LOOP.TICKETS, 10);
+  let a = A.normalize({ ...A.gift(A.fresh()), unlocked: true, tutorial: 4, laps: 3, tickets: 0, progress: 19, stage: null });
+  a = A.fight(a, day); a.stage.hp = 0; a.stage.wave = a.stage.waves;
+  const r = A.settle(a, day + 1000, 1, () => 0).state;
+  assert.equal(r.cleared, true); assert.equal(r.tickets, 10, '第 3 圈打完送 10 券');
 });
