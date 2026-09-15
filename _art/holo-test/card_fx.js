@@ -29,8 +29,16 @@
       r.src = resolve(fx.ripples);
       media.append(r);
     }
+    // 前景層（瞌睡時光的杯子）：在主體前面、不動
+    if (fx.front && !media.querySelector('.fx-front')) {
+      var f = document.createElement('img');
+      f.className = 'fx-front'; f.alt = ''; f.draggable = false;
+      f.src = resolve(fx.front);
+      media.append(f);
+    }
     if (fx.breathe) card.dataset.breathe = '';
     if (fx.float) card.dataset.float = '';
+    if (fx.nod) card.dataset.nod = '';
     return card;
   }
   root.HoloCardFx = { apply: apply };

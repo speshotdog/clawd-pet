@@ -625,5 +625,17 @@
   "glow": "#dba061",
   "accent": "#dba061",
   "ink": "#080c17"
+ },
+ "card-keshuishiguang.png": {
+  "base": "#b690cd",
+  "glow": "#b690cd",
+  "accent": "#b690cd",
+  "ink": "#080c17"
+ },
+ "card-zhendebushiwo.png": {
+  "base": "#818181",
+  "glow": "#818181",
+  "accent": "#818181",
+  "ink": "#080c17"
  }
 }

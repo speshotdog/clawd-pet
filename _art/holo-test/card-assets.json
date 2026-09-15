@@ -89,6 +89,36 @@
     ],
     "bytes": 340144
   },
+  "layer-keshuishiguang-subject.png": {
+    "path": "card-assets/222f30eaf103df08bad80524a7344b7717e46ce1b8705409e5b820959d827de8.webp",
+    "sourceSha256": "222f30eaf103df08bad80524a7344b7717e46ce1b8705409e5b820959d827de8",
+    "sha256": "953314c7572fb6b9a9e072ae45850844b00b1d76dab66eb244313de3f9d3b4eb",
+    "size": [
+      600,
+      840
+    ],
+    "bytes": 109356
+  },
+  "layer-keshuishiguang-background.png": {
+    "path": "card-assets/936b47c83597b0adaca8b9c8598d276263667eac8f6d3e71fdb6056b3d867ba3.webp",
+    "sourceSha256": "936b47c83597b0adaca8b9c8598d276263667eac8f6d3e71fdb6056b3d867ba3",
+    "sha256": "c2183d4c62eb814351ae44cf8f1261fdafe28f3155b0387201c61093cfccd648",
+    "size": [
+      600,
+      840
+    ],
+    "bytes": 490148
+  },
+  "layer-keshuishiguang-front.png": {
+    "path": "card-assets/cde7a975e95e2aa9a95121284b6d575c3fe2b0097176b23d5d15970fbfe1654f.webp",
+    "sourceSha256": "cde7a975e95e2aa9a95121284b6d575c3fe2b0097176b23d5d15970fbfe1654f",
+    "sha256": "3de1ca8a9be24b35ca7c9894ca39cb371dd85c25bceed9a91a90bdd238add39e",
+    "size": [
+      600,
+      840
+    ],
+    "bytes": 34296
+  },
   "card-liulangyueshou.png": {
     "path": "card-assets/f8c2043864b28096179d6d01a058202f316d9064e459213c3ebff1f67e1cf335.webp",
     "sourceSha256": "f8c2043864b28096179d6d01a058202f316d9064e459213c3ebff1f67e1cf335",
@@ -418,6 +448,16 @@
       580
     ],
     "bytes": 78802
+  },
+  "card-zhendebushiwo.png": {
+    "path": "card-assets/1bf2bdb70f836e0124904d815f8a7b2bc05e63be7e8a32be23a1dca7c0b83671.webp",
+    "sourceSha256": "1bf2bdb70f836e0124904d815f8a7b2bc05e63be7e8a32be23a1dca7c0b83671",
+    "sha256": "f16467a79ac5abc32ea484b08e339a36749691fcf62072902270506efb6ef047",
+    "size": [
+      297,
+      265
+    ],
+    "bytes": 24868
   },
   "card-zhenfang.png": {
     "path": "card-assets/fbf49a25b8ae94ff340e66e53d8aede9678dc56786fe95b074e735312459d4f3.webp",

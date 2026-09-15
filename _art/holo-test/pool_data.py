@@ -84,6 +84,16 @@ CARDS_CLIP = [
      'fx': {'ripples': 'layer-paoshuidahengbao-ripples.png', 'float': True}},
 ]
 
+# 2026-09-16 使用者給「瞌睡時光 藍卡」（有鳥／沒鳥兩張同場景＋杯子單層＋打瞌睡 GIF）→ 神話 depth：
+# 背景＝沒鳥的場景、主體＝兩張相減的鳥、杯子＝最前面不動的一層（front）、鳥本體點頭（nod）。prepare_keshui.py
+# 同日「珍的不是我」：單一角色透明底貼圖 → 傳說 framed。
+CARDS_0916 = [
+    {'id': 'keshuishiguang', 'name': '瞌睡時光', 'rarity': 'mythic', 'kind': 'depth', 'scene': True,
+     'file': 'card-keshuishiguang.png',
+     'fx': {'front': 'layer-keshuishiguang-front.png', 'nod': True}},
+    {'id': 'zhendebushiwo', 'name': '珍的不是我', 'rarity': 'legendary', 'kind': 'framed', 'file': 'card-zhendebushiwo.png'},
+]
+
 SOURCE_STEM = {'zhenzhen': '珍珍 神話'}
 
 # 2026-09-15 作者給了玩物就玩物的 PSD 拆分（手／羊／愛心），改成 depth：手＝背景層、羊＝主體層，
@@ -141,7 +151,7 @@ def palettes():
 
 
 def pool(with_scenes=True, with_palette=True, sort_by_rarity=True):
-    cards = catalog() + [dict(c) for c in EXTRA_CARDS + CARDS_5_0 + CARDS_CLIP]
+    cards = catalog() + [dict(c) for c in EXTRA_CARDS + CARDS_5_0 + CARDS_CLIP + CARDS_0916]
     for c in cards:
         for k, v in OVERRIDES.get(c['id'], {}).items():
             if v is None: c.pop(k, None)
