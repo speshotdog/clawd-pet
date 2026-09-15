@@ -457,7 +457,11 @@ window.ClickerApocUI = (() => {
       parts.hidden = m !== 3 || !eb;
       if (!parts.hidden) {
         // 截圖看過：頭再往上會壓到效果標籤；尾巴在右側偏高的地方
-        const pos = { head: [-.28, -.14], body: [.02, .12], tail: [.4, -.02] };
+        // 滿版王（滅世珍獸）的 #apoc-enemy 是鋪滿舞台的 632×360、左上角在 (−12,0)，不是置中的那套座標：
+        // 用中心式的比例算，頭跟尾會落到舞台外、身體壓在左上角的效果標籤底下（朋友 2026-09-16：「跑位，看不到身體標記」）。
+        // 滿版改用「舞台的比例」直接釘在珍獸身上：頭＝臉、身＝肚子、尾＝右下的尾巴。
+        const full = enemy.classList.contains('full-board');
+        const pos = full ? { head: [.50, .46], body: [.76, .46], tail: [.88, .74] } : { head: [-.28, -.14], body: [.02, .12], tail: [.4, -.02] };
         for (const b of parts.children) {
           const [dx, dy] = pos[b.dataset.part];
           b.style.left = `${eb.l + dx * eb.w}px`; b.style.top = `${eb.t + dy * eb.h}px`;
