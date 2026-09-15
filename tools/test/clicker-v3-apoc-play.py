@@ -170,7 +170,7 @@ with sync_playwright() as p:
     check(not btn.is_disabled(), '技能格 1 可以按（%s）' % mythic)
     btn.click(); pg.wait_for_timeout(600)
     fx = pg.evaluate("()=>Clicker.state.apoc.fx")
-    check(fx['clickLeft'] == 10 and fx['clickMul'] == 10, '神話技能：接下來 10 下 ×10 ' + str(fx))
+    check(fx['clickLeft'] == 12 and fx['clickMul'] == 8, '神話技能：接下來 12 下 ×8 ' + str(fx))
 
     # 全線通行
     pg.evaluate("()=>{const s=Clicker.state.apoc; s.progress=19; s.stage=null;}"); pg.wait_for_timeout(1300)

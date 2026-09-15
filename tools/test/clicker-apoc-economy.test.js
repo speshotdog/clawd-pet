@@ -2,8 +2,8 @@
 const test = require('node:test');
 const assert = require('node:assert');
 globalThis.ApocPool = [
-  { id: 'pufayueyue', name: '普發玥玥', rarity: 'rare' }, { id: 'm1', name: 'M1', rarity: 'mythic' }, { id: 'm2', name: 'M2', rarity: 'mythic' }, { id: 'm3', name: 'M3', rarity: 'mythic' },
-  { id: 'l1', name: 'L1', rarity: 'legendary' }, { id: 'e1', name: 'E1', rarity: 'epic' },
+  { id: 'pufayueyue', name: '普發玥玥', rarity: 'rare', role: 'reset' }, { id: 'm1', name: 'M1', rarity: 'mythic', role: 'open' }, { id: 'm2', name: 'M2', rarity: 'mythic', role: 'open' }, { id: 'm3', name: 'M3', rarity: 'mythic', role: 'open' },
+  { id: 'l1', name: 'L1', rarity: 'legendary', role: 'open' }, { id: 'e1', name: 'E1', rarity: 'epic', role: 'train' },
 ];
 require('../../src/clicker-apoc-economy.js');
 const A = globalThis.ApocEconomy, R = A.RULES;
@@ -211,7 +211,7 @@ test('一般關沒有王關機制，放置照原速', () => {
 
 // --- 獨立技能格：沿用 1.0 語意（點擊倍率／全隊加成／冷卻縮短）
 const teamed = (skills) => A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1, l1: 1, e1: 1, pufayueyue: 1 }, roster: ['m1', 'l1', 'e1', 'pufayueyue'], skills });
-test('技能由卡的稀有度決定；神話＝次數型 ×10、史詩＝全隊 ×1.5、精良＝縮短其他格冷卻', () => {
+test('技能依 role 與稀有度：神話開封 ×8、史詩加訓 ×1.5、精良重整 −6 秒', () => {
   let a = teamed(['m1', 'e1', 'pufayueyue', null]);
   assert.equal(A.skillOf(a, 0).kind, 'clickMul'); assert.equal(A.skillOf(a, 1).kind, 'powerMul'); assert.equal(A.skillOf(a, 2).kind, 'cool');
   assert.equal(A.skillOf(a, 3), null);
@@ -219,13 +219,14 @@ test('技能由卡的稀有度決定；神話＝次數型 ×10、史詩＝全隊
 
   // 次數型：接下來 10 下 ×10，用完自動退掉
   let b = A.fight(A.useSkill(a, 0, 0), 0);
+  b.stage = { ...b.stage, need: 1e8, hp: 1e8 };
   const base = A.power(b) * R.CLICK_SHARE;
   let hp = b.stage.hp; b = A.tap(b, 0);
-  assert.ok(Math.abs((hp - b.stage.hp) - base * 10) < 1e-6, '第一下 ×10');
-  for (let i = 1; i < 10; i++) b = A.tap(b, 0);
+  assert.ok(Math.abs((hp - b.stage.hp) - base * 8) < 1e-6, '第一下 ×8');
+  for (let i = 1; i < 12; i++) b = A.tap(b, 0);
   assert.equal(b.fx.clickLeft, 0);
   hp = b.stage.hp; b = A.tap(b, 0);
-  assert.ok(Math.abs((hp - b.stage.hp) - base) < 1e-6, '第 11 下回到原本');
+  assert.ok(Math.abs((hp - b.stage.hp) - base) < 1e-6, '第 13 下回到原本');
   assert.throws(() => A.useSkill(b, 0, 1000), /冷卻中/);
 
   // 全隊加成：20 秒內戰力 ×1.5，到期自動退
@@ -236,8 +237,8 @@ test('技能由卡的稀有度決定；神話＝次數型 ×10、史詩＝全隊
 
   // 重整：自己照常進冷卻，其他格各減 8 秒
   let d = A.useSkill(A.useSkill(a, 0, 0), 2, 0);
-  assert.equal(d.skillCd[0], R.SKILLS.mythic.cd - R.SKILLS.rare.value);
-  assert.equal(d.skillCd[2], R.SKILLS.rare.cd);
+  assert.equal(d.skillCd[0], R.SKILLS.open.mythic.cd - R.SKILLS.reset.rare.value);
+  assert.equal(d.skillCd[2], R.SKILLS.reset.rare.cd);
   assert.ok(!A.canSkill(d, 0, 0) && A.canSkill(d, 0, d.skillCd[0]));
 });
 
@@ -364,11 +365,11 @@ test('五連：扣款、pending 經過 normalize（重開／tick）還在、收�
 });
 
 // --- 第八輪：神話卡技能施放期間放專屬 BGM（clicker-music.js 讀 fx.mythic）
-test('神話卡施放：fx.mythic 開著直到 10 下用完；傳說卡不算；normalize 清掉沒有次數的 mythic', () => {
+test('神話卡施放：fx.mythic 開著直到 12 下用完；傳說卡不算；normalize 清掉沒有次數的 mythic', () => {
   let a = A.fight(A.normalize({ ...A.fresh(), unlocked: true, collection: { m1: 1, l1: 1 }, roster: ['m1', 'l1'], skills: ['m1', 'l1', null, null] }), 0);
   a = A.useSkill(a, 0, 0);
-  assert.equal(a.fx.mythic, true); assert.equal(a.fx.clickLeft, R.SKILLS.mythic.uses);
-  for (let i = 0; i < R.SKILLS.mythic.uses - 1; i++) a = { ...A.tap(a, 0), stage: { ...a.stage, hp: 1e12 } };
+  assert.equal(a.fx.mythic, true); assert.equal(a.fx.clickLeft, R.SKILLS.open.mythic.uses);
+  for (let i = 0; i < R.SKILLS.open.mythic.uses - 1; i++) a = { ...A.tap(a, 0), stage: { ...a.stage, hp: 1e12 } };
   assert.equal(a.fx.mythic, true, '還剩一下');
   a = A.tap(a, 0); assert.equal(a.fx.mythic, false, '10 下用完就收掉');
   const legend = A.useSkill(a, 1, 0); assert.equal(legend.fx.mythic, false, '傳說卡的點擊加倍不放神話技能曲');
@@ -590,7 +591,7 @@ test('normalize：舊存檔張數搬成粉塵、突破級數買不起就砍掉',
 test('抽卡結算：升星只報到滿星，之後報突破', () => {
   let a = A.gift(A.fresh());
   a = A.drawn({ ...a, tickets: 7 }, Array(7).fill('pufayueyue'));   // 8 粉塵＝滿星
-  const pack = { draw: { id: 'x', entries: [0, 1].map(k => ({ key: 'x:' + k, entry: { id: 'pufayueyue', rarity: 'rare', name: '普發玥玥' }, dup: true, owned: 8 })) } };
+  const pack = { draw: { id: 'x', entries: [0, 1].map(k => ({ key: 'x:' + k, entry: { id: 'pufayueyue', rarity: 'rare', role: 'reset', name: '普發玥玥' }, dup: true, owned: 8 })) } };
   const r = A.collectDraw({ ...a, pending: pack }, 'x', 0);
   assert.deepEqual(r.starUps, [], '已經滿星就不該再報升星');
   assert.deepEqual(r.grows, [{ id: 'pufayueyue', kind: 'transcend', from: 0, to: 1 }]);

@@ -178,6 +178,12 @@ window.ClickerHolo = (() => {
     host.addEventListener('pointerup', e => { if (host.hasPointerCapture(e.pointerId)) host.releasePointerCapture(e.pointerId); release(); });
     host.addEventListener('pointercancel', release);
     host.addEventListener('pointerleave', () => { if (!drag) release(); });
+    // ⚠ 按下時 host 有 setPointerCapture，click 會被重新指派到 host（pointerdown 在 shadow 裡、pointerup 在 host，共同祖先是 host），
+    //   collect-face.js 掛在 .hcard 上的 click 永遠收不到——真人點魔花少女從來觸發不了替身動作，只有測試用 JS click 才會
+    //   （朋友 2026-09-16：「不回跳到砍人那張」）。這裡在 host 上補：沒拖動（<8px）的點擊就轉給替身。
+    let tapAt = null;
+    host.addEventListener('pointerdown', e => { tapAt = { x: e.clientX, y: e.clientY }; });
+    host.addEventListener('click', e => { const d = tapAt; tapAt = null; if (!d || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 8) return; host._collect?.trigger?.(); });
     host.classList.add('holo-interactive');
   }
   // 卡面的字級是用容器寬度算的，容器改變大小要重量一次

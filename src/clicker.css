@@ -1944,3 +1944,13 @@ body:not([data-world="apoc"]) #draw-growth { display:none; }
    （UI 體檢：內容 16px 被塞進 11px 的框）。2.0 改成高度由內容決定、列也自動排。 */
 body[data-world="apoc"] #shop .recruit { height:auto; min-height:132px; grid-template-rows:none; grid-auto-rows:min-content; }
 body[data-world="apoc"] #draw-growth { color:#A79579; }
+/* 六型技能：既有受擊字、裂痕與夥伴動畫。 */
+body[data-world="apoc"] .apoc-hit b { white-space:pre-line; }
+body[data-world="apoc"] .apoc-coin-hit { color:#ffd65a !important; }
+body[data-world="apoc"] .skill-slot.coin-active .skill-use { box-shadow:0 0 0 3px #ffd65a,0 0 18px #efb523; }
+body[data-world="apoc"] .skill-slot.idle-active .skill-use { box-shadow:0 0 0 3px #ff963d,0 0 18px #e66d23; }
+body[data-world="apoc"] .skill-slot.resisted .skill-use::before { content:'抵抗'; position:absolute; right:-4px; bottom:0; z-index:3; padding:1px 3px; border:1px solid #7291a8; border-radius:3px; background:#233644; color:#e7f4ff; font-size:10px; line-height:14px; pointer-events:none; }
+body[data-world="apoc"] #apoc-enemy.breaking::after { content:''; position:absolute; inset:8%; pointer-events:none; background:linear-gradient(115deg,transparent 46%,#ffd48b 47%,transparent 49%),linear-gradient(55deg,transparent 48%,#fff0c2 49%,transparent 51%); opacity:.8; }
+body[data-world="apoc"] #buddies.apoc-frenzy .buddy { animation:apoc-frenzy .14s ease-in-out infinite alternate; }
+@keyframes apoc-frenzy { to { transform:scale(1.08); filter:drop-shadow(0 0 4px #ff963d); } }
+@media (prefers-reduced-motion:reduce) { body[data-world="apoc"] #buddies.apoc-frenzy .buddy { animation:none; outline:2px solid #ff963d; } }

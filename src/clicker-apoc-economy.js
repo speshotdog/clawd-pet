@@ -102,20 +102,30 @@
     //   破防（breakUntil）是共用的：外殼剝掉一層、節拍連中 CHAIN 下、部位順序打完一輪都會破防，破防中全部傷害 ×BREAK_MUL。
     //   一般關完全不受影響。
     BOSS_MECH: {
+      RESIST: { OPEN_ABOVE: 4, OPEN_SHARE: .5, BREACH_TIME: .6, BREACH_LIMIT: 2, FALLBACK_MUL: 1.3, FALLBACK_MS: 3000 },
       IDLE_MUL: .35, BREAK_MS: 8000, BREAK_MUL: 2, ROTATE_MS: 15000,
       SUMMON: { COUNT: 5, HP: .06, AGAIN_MS: 20000, AGAIN: 3 },           // 狗群：每隻血＝王血 ×HP，清光才打得到王，AGAIN_MS 後再來 AGAIN 隻；放置也打得到狗
       SHELL: { AT: [.75, .5, .25], HP: .08, STAGGER_MS: 3000 },           // 外殼：王血掉到 AT 時長出殼（血＝王血 ×HP），只有點擊剝得掉；剝掉一層破防 3 秒
       RHYTHM: { MS: 1170, WINDOW: 200, HIT_MUL: 3, MISS_MUL: .5, CHAIN: 8 },   // 節拍＝扛槌兔 9 格 ×130ms 的揮槌週期；拍子上 ±WINDOW 內點 ×3、沒對上 ×.5，連中 CHAIN 下破防
       ORDER: { PARTS: ['head', 'body', 'tail'], LEN: 4 },                  // 部位：照亮起的圓鈕順序點 LEN 下破防；點錯從頭；點空白處普通傷害
     },
-    // 獨立技能格 4 格：沿用 1.0 的語意（點擊倍率／全隊加成／冷卻縮短），技能由卡的稀有度決定
-    SKILLS: {
-      mythic:    { name: '一口氣開封', kind: 'clickMul', value: 10, uses: 10, cd: 60000, text: '接下來 10 次點擊 ×10' },
-      legendary: { name: '尾巴節拍',   kind: 'clickMul', value: 3,  uses: 15, cd: 45000, text: '接下來 15 次點擊 ×3' },
-      epic:      { name: '全隊加訓',   kind: 'powerMul', value: 1.5, ms: 20000, cd: 60000, text: '全隊戰力 ×1.5，20 秒' },
-      rare:      { name: '重整',       kind: 'cool',     value: 8000, cd: 45000, text: '其他技能冷卻 −8 秒' },
-      common:    { name: '重整',       kind: 'cool',     value: 8000, cd: 45000, text: '其他技能冷卻 −8 秒' },
-    },
+    // 角色定型、稀有度定量；一般與精良共用第四階。
+    TAP_CAP: { NORMAL: .10, BOSS: .04 },
+    SKILLS: Object.fromEntries(['open', 'train', 'reset', 'coin', 'breach', 'idle'].map(role => [role,
+      Object.fromEntries(Object.entries({ mythic: 1.6, legendary: 1.3, epic: 1, rare: .7, common: .7 }).map(([rarity, k]) => {
+        const n = x => Math.round(x * 10000) / 10000;
+        const defs = {
+          open: { name: '一口氣開封', kind: 'clickMul', value: n(5*k), uses: 12, cd: 60000, text: `接下來 12 次點擊 ×${n(5*k)}` },
+          train: { name: '全隊加訓', kind: 'powerMul', value: n(1+.5*k), ms: 20000, cd: 60000, text: `全隊戰力 ×${n(1+.5*k)}，20 秒` },
+          reset: { name: '重整', kind: 'cool', value: Math.round(8*k)*1000, cd: 45000, text: `其他技能冷卻 −${Math.round(8*k)} 秒` },
+          coin: { name: '撿金幣', kind: 'coin', value: n(.006*k), ms: 20000, cd: 75000, text: `20 秒內每下點擊多掉這站獎金 ${n(.6*k)}% 的金幣` },
+          breach: { name: '破防', kind: 'breach', value: 2, ms: n(10000*k), cd: 90000, text: `立刻破防 ${n(10*k)} 秒，傷害 ×2` },
+          idle: { name: '放置狂熱', kind: 'idle', value: n(.5+.5*k), ms: 15000, cd: 75000, text: `15 秒內放置傷害像在點一樣（×${n(.5+.5*k)}）` },
+        };
+        // 精良的放置量由企劃指定為 .8（不是線性算出的 .85）。
+        if (k === .7) { defs.idle.value = .8; defs.idle.text = '15 秒內放置傷害像在點一樣（×0.8）'; }
+        return [rarity, defs[role]];
+      }))])),
     GIFT: { card: 'pufayueyue', tickets: 10 },   // 開門禮：普發玥玥＋一次十連
     // 末世商店的外觀（同 1.0 商店賣點擊特效）：受擊時碎片／火花的配色，花末世金幣、買了永久保留、沒有數值
     HIT_FX: [
@@ -140,7 +150,7 @@
   const onBeat = (st, now) => { const ms = M().RHYTHM.MS, ph = ((now - (st.startedAt || 0)) % ms + ms) % ms; return Math.min(ph, ms - ph) <= M().RHYTHM.WINDOW; };
   const breaking = (st, now) => now < (st?.breakUntil || 0);
   // 點一下的倍率：破防 ×2；節拍時拍子上 ×3、沒對上 ×.5
-  const tapMul = (st, now) => !st?.boss ? 1 : (breaking(st, now) ? M().BREAK_MUL : 1) * (mechAt(st, now) === 2 ? (onBeat(st, now) ? M().RHYTHM.HIT_MUL : M().RHYTHM.MISS_MUL) : 1);
+  const tapMul = (st, now) => !st?.boss ? (breaking(st, now) ? 2 : 1) : (breaking(st, now) ? M().BREAK_MUL : 1) * (mechAt(st, now) === 2 ? (onBeat(st, now) ? M().RHYTHM.HIT_MUL : M().RHYTHM.MISS_MUL) : 1);
   // 放置的倍率：破防 ×2；節拍與部位時放置只剩 IDLE_MUL（要人在場點）；外殼長出來時放置打不動殼
   const idleMul = (st, now) => {
     if (!st?.boss) return 1;
@@ -203,7 +213,7 @@
     const inside = x => Math.min(Math.max(x, s0), s1 - Math.min(1, (s1 - s0) / 2));
     for (let guard = 0; t < s1 && guard < 2000; guard++) {
       st = respawn(st, t);
-      const rate = dps * idleMul(st, mid) / 1000;   // 每毫秒
+      const rate = Math.min(dps * idleMul(st, mid), damageCap(st)) / 1000;   // 每毫秒
       if (!(rate > 0)) {
         // 殼擋住放置：這一段剩下的時間打不動（狗群輪不到這裡）
         break;
@@ -261,8 +271,8 @@
       rotateIn: st.mech === 4 ? M().ROTATE_MS - (Math.max(0, now - (st.startedAt || 0)) % M().ROTATE_MS) : 0 };
   }
   // 技能名沿用 1.0（使用者第四輪：「2.0 技能雖然重新設計，但技能名稱不要改，1.0 有的名稱就直接沿用」）：
-  // 同名角色用 1.0 的技能名（ClickerBalance.characters[id].skill），效果仍照稀有度；1.0 沒有這張卡才用稀有度的名字。
-  // 瀏覽器裡 clicker-balance.js／gacha-pool.js 比這支先載入；node 測試沒有它們就一律用稀有度的名字。
+  // 同名角色用 1.0 的技能名（ClickerBalance.characters[id].skill），效果依型別與稀有度；1.0 沒有這張卡才用該型預設名字。
+  // 瀏覽器裡 clicker-balance.js／gacha-pool.js 比這支先載入；node 測試沒有它們就用該型預設名字。
   let oneSkills = null;
   const oneSkillName = c => {
     if (!oneSkills) {
@@ -272,38 +282,26 @@
     }
     return oneSkills[c.name] || null;
   };
-  // 2.0 推薦組合（2026-09-16）：技能只看稀有度，所以模板是「四格各放哪一階」，套用時從你的隊伍裡挑該階戰力最高的卡填進去；
-  // 隊伍裡沒有那一階、卡冊裡有且塞得進隊伍（不撞前綴上限）就順手入隊；真的沒有那一階就那格保留原本的，畫面標「缺」。
+  // 2.0 推薦組合（2026-09-16）：模板指定四格技能型別，套用時從隊伍挑該型戰力最高的卡；
+  // 隊伍裡沒有那一型、卡冊裡有且塞得進隊伍（不撞前綴上限）就順手入隊；真的沒有那一型就那格保留原本的，畫面標「缺」。
   const RECOMMENDATIONS = [
-    { name: '王關爆發', tag: '王關', stage: '中期', pattern: ['epic', 'mythic', 'legendary', 'rare'],
-      order: '全隊加訓 → 一口氣開封 → 尾巴節拍 → 重整',
-      desc: '先開「全隊加訓」把戰力 ×1.5 撐 20 秒，趁這 20 秒放「一口氣開封」10 下 ×10、再接「尾巴節拍」15 下 ×3；最後「重整」把前面三個冷卻各減 8 秒。王關 60 秒內能放兩輪。' },
-    { name: '雙神話連點', tag: '王關・手動', stage: '後期', pattern: ['mythic', 'mythic', 'epic', 'rare'],
-      order: '全隊加訓 → 神話 A → 神話 B → 重整',
-      desc: '兩張神話卡輪流開「一口氣開封」，20 下 ×10 全部落在「全隊加訓」的 20 秒裡。手要一直點，不點就浪費。' },
-    { name: '掛機常駐', tag: '掛機・放著', stage: '中期', pattern: ['epic', 'epic', 'epic', 'rare'],
-      order: '三張全隊加訓錯開 20 秒放',
-      desc: '「全隊加訓」20 秒、冷卻 60 秒，三張錯開就是 60 秒裡 60 秒都有 ×1.5；第四格「重整」每 45 秒幫大家減 8 秒，接縫更小。不用點螢幕。' },
-    { name: '傳說節拍', tag: '王關・省券', stage: '前中期', pattern: ['legendary', 'legendary', 'epic', 'rare'],
-      order: '全隊加訓 → 尾巴節拍 A → 尾巴節拍 B → 重整',
-      desc: '還沒抽到神話時的王關配法：兩張傳說各 15 下 ×3，冷卻只有 45 秒，比神話更常能放。' },
-    { name: '新手四格', tag: '剛開末世', stage: '前期', pattern: ['epic', 'rare', 'rare', 'rare'],
-      order: '全隊加訓 → 重整 ×3',
-      desc: '剛進 2.0 幾乎都是精良卡：一張「全隊加訓」＋三張「重整」互相減冷卻，讓加訓幾乎每 36 秒就能再放一次。抽到傳說再換「傳說節拍」。' },
-    { name: '全神話', tag: '炫耀用', stage: '後期', pattern: ['mythic', 'mythic', 'mythic', 'mythic'],
-      order: '四張輪流開',
-      desc: '40 下 ×10。沒有全隊加訓也沒有重整，純靠手速；適合已經全滿養、想一波帶走王的人。' },
+    { name: '王關爆發', tag: '王關', stage: '中期', pattern: ['train', 'breach', 'open', 'reset'], order: '全隊加訓 → 破防 → 一口氣開封 → 重整', desc: '先加訓再破防，接開封連點。王關會抵抗開封與破防，每場技能破防最多兩次；每下傷害最多王總血量 4%。' },
+    { name: '雙開封連點', tag: '手動', stage: '後期', pattern: ['open', 'open', 'train', 'reset'], order: '全隊加訓 → 開封 A 用完 → 開封 B → 重整', desc: '兩張開封輪流用完各 12 下，再接下一張；同型效果不相乘，提早施放會覆蓋剩餘次數。' },
+    { name: '掛機常駐', tag: '掛機', stage: '中期', pattern: ['train', 'train', 'idle', 'reset'], order: '加訓 A → 放置狂熱 → 加訓 B 錯開 → 重整', desc: '加訓兩張錯開 20 秒，放置狂熱提高 15 秒放置傷害，重整縮短其他技能冷卻。' },
+    { name: '農幣小隊', tag: '金幣', stage: '中期', pattern: ['coin', 'coin', 'train', 'reset'], order: '撿金幣 A → 全隊加訓 → 20 秒後撿金幣 B → 重整', desc: '撿金幣期間每下額外入帳。同型不相加，請錯開施放；王關使用前一個一般站獎金計算。' },
+    { name: '新手四格', tag: '剛開末世', stage: '前期', pattern: ['train', 'reset', 'reset', 'reset'], order: '全隊加訓 → 重整 ×3', desc: '加訓提高全隊戰力，重整縮短其他技能冷卻。依持有角色選出各型戰力最高的夥伴。' },
+    { name: '全開封', tag: '手動', stage: '後期', pattern: ['open', 'open', 'open', 'open'], order: '每張 12 下用完再接下一張', desc: '四張輪流開封共 48 下，各張倍率依稀有度決定；王關抵抗與傷害上限仍會生效。' },
   ];
-  // 照模板從隊伍挑卡：每格取該階「還沒被用到」的戰力最高者；隊伍裡沒有就看卡冊，塞得進隊伍就入隊
+  // 照模板從隊伍挑卡：每格取該型「還沒被用到」的戰力最高者；隊伍裡沒有就看卡冊，塞得進隊伍就入隊
   function recommendTeam(a, index) {
     const preset = RECOMMENDATIONS[index]; if (!preset) throw new Error('未知組合');
-    const slots = boostOf(a).slot4 ? 4 : 3, byRarity = id => { const c = poolById()[id]; return c ? (c.rarity === 'common' ? 'rare' : c.rarity) : null; };
+    const slots = boostOf(a).slot4 ? 4 : 3, byRole = id => poolById()[id]?.role;
     const roster = [...a.roster], used = new Set(), skills = (a.skills || [null, null, null, null]).slice(0, 4), missing = [];
     const owned = Object.keys(a.collection).filter(id => a.collection[id] > 0 && !dispatchedApoc(a, id)).sort((x, y) => cardPower(a, y) - cardPower(a, x));
     for (let i = 0; i < slots; i++) {
       const want = preset.pattern[i];
-      let pick = roster.find(id => byRarity(id) === want && !used.has(id));
-      if (!pick) { const cand = owned.find(id => byRarity(id) === want && !used.has(id) && !roster.includes(id));
+      let pick = [...roster].sort((x, y) => cardPower(a, y) - cardPower(a, x)).find(id => byRole(id) === want && !used.has(id));
+      if (!pick) { const cand = owned.find(id => byRole(id) === want && !used.has(id) && !roster.includes(id) && !rosterViolations([...roster, id]).length);
         if (cand && roster.length < 20 && !rosterViolations([...roster, cand]).length) { roster.push(cand); pick = cand; } }
       if (!pick) { missing.push(i); continue; }
       used.add(pick); skills[i] = pick;
@@ -312,8 +310,21 @@
     return { preset, roster, skills, missing, slots };
   }
   // 一張卡的技能說明（編隊畫面的懸浮提示與詳情用；不看有沒有裝進槽）
-  const skillInfo = id => { const c = poolById()[id]; if (!c) return null; const base = RULES.SKILLS[c.rarity]; return { id, name: oneSkillName(c) || base.name, text: `${base.text}・冷卻 ${Math.round(base.cd / 1000)} 秒`, kind: base.kind }; };
-  const skillOf = (a, slot) => { if (slot === 3 && !boostOf(a).slot4) return null; const id = a.skills?.[slot]; const c = id ? poolById()[id] : null; if (!c) return null; const base = RULES.SKILLS[c.rarity]; return { slot, id, card: c, ...base, name: oneSkillName(c) || base.name }; };
+  const resistedOpen = value => value > M().RESIST.OPEN_ABOVE ? M().RESIST.OPEN_ABOVE + (value - M().RESIST.OPEN_ABOVE) * M().RESIST.OPEN_SHARE : value;
+  const skillInfo = (id, { boss = false } = {}) => {
+    const c = poolById()[id]; if (!c) return null;
+    const base = RULES.SKILLS[c.role]?.[c.rarity]; if (!base) return null;
+    let resist = '';
+    if (boss && c.role === 'open') resist = `・王關：抵抗，×${resistedOpen(base.value)}`;
+    if (boss && c.role === 'breach') resist = `・王關：抵抗，${base.ms * M().RESIST.BREACH_TIME / 1000} 秒；每場限 2 次，其後 ×1.3、3 秒`;
+    if (boss && c.role === 'coin') resist = '・王關：抵抗，改用前一個一般站獎金';
+    return { id, ...base, role: c.role, name: oneSkillName(c) || base.name, text: `${base.text}・冷卻 ${base.cd / 1000} 秒${resist}` };
+  };
+  const skillOf = (a, slot) => {
+    if (slot === 3 && !boostOf(a).slot4) return null;
+    const id = a.skills?.[slot], c = poolById()[id], info = skillInfo(id, { boss: !!a.stage?.boss });
+    return info ? { ...info, slot, card: c } : null;
+  };
   // 1.0 的印記／祝福加成（使用者第四輪：「1.0 的印記加成直接套進 2.0」）。畫面層每次從 1.0 存檔現算後掛在 a.boost，不寫進存檔。
   // 印記重設計：加成物件多了離線倍率、派遣券機率加成、王首勝粉塵加成，與四個兌換解鎖旗標。
   // 純邏輯（測試、模擬）沒有 1.0 存檔時 slot4 視為已開，畫面層一律由 oneBoost() 照 markShop 覆寫。
@@ -321,7 +332,12 @@
   const bossTimeOf = a => RULES.BOSS_TIME + (boostOf(a).bossTime ? 15000 : 0);
   const clickShare = a => RULES.CLICK_SHARE + .05 * (boostOf(a).tapShare || 0);
   const dispatchSlots = a => RULES.DISPATCH.SLOTS + (boostOf(a).dispatch4 ? 1 : 0);
-  const boostOf = a => a.boost || NO_BOOST;
+  // a.boost 是畫面層（clicker-apoc-ui boosted()）從 1.0 的印記／神器算好掛上來的，**不存檔**。
+  // 卡冊／編隊那邊呼叫 startDispatch／exchange／setTeam 時拿的是 normalize 過的裸 apoc，沒有 boost → 全部退回 NO_BOOST，
+  // 買了「派遣位 +1」畫面寫 3/4、按下去卻丟「位子滿了（3 個）」（朋友 2026-09-16）。所以讓畫面層登記一個 provider，沒掛 boost 就問它。
+  let boostProvider = null;
+  const setBoostProvider = fn => { boostProvider = fn; };
+  const boostOf = a => a.boost || (boostProvider && boostProvider()) || NO_BOOST;
   const powerMul = (a, now) => (a.fx && now < (a.fx.powerUntil || 0)) ? (a.fx.powerMul || 1) : 1;
   // ⚠ 這個表每次點擊都會被查好幾十次（power() → cardPower() → poolById()），
   //   原本每次都重建一個 71 筆的物件；快取起來，卡池換了才重算。
@@ -389,7 +405,7 @@
     // ⚠ 這一行以前無條件清 boss:false，線上實測變成「回顧永遠沒有王、每殺一隻停 1 秒」（使用者：「怪物會生很慢、看不到王」）。
     // ⚠ resident（常駐）也要留著：清掉的話重整之後那一隻又會開始往下走，走到王站（任務書 A2）
     if (a.stage?.farm) { const rb = !!a.stage.revisit && isBoss(a.stage.index);
-      a.stage = { ...a.stage, farm: true, boss: rb, resident: !!a.stage.revisit && !!a.stage.resident, deadline: rb ? (a.stage.deadline || null) : null, breakUntil: rb ? (a.stage.breakUntil || 0) : 0 }; }
+      a.stage = { ...a.stage, farm: true, boss: rb, resident: !!a.stage.revisit && !!a.stage.resident, deadline: rb ? (a.stage.deadline || null) : null, breakUntil: a.stage.breakUntil || 0 }; }
     // 第十輪：舊存檔的王關是護盾版（shield），換成這一隻王自己的機制狀態
     if (a.stage && a.stage.boss && (a.stage.mech === undefined || !a.stage.minions || !a.stage.shell || !a.stage.rhythm || !a.stage.order)) {
       a.stage = { ...a.stage, ...freshMech(a.stage.index, need(a.stage.index, a)), breakUntil: 0 };
@@ -602,11 +618,11 @@
       const t0 = now - dt * 1000, tEnd = st.deadline ? Math.min(now, st.deadline) : now;
       if (tEnd > t0) {
         // 切段：破防結束、技能到期、滅世珍獸換機制（段內倍率與機制固定）；王的段內再照事件時間推進（idleBoss）
-        const cuts = [t0, ...[st.breakUntil, a.fx?.powerUntil, ...rotateCuts(st, t0, tEnd)].filter(t => t > t0 && t < tEnd), tEnd].sort((x, y) => x - y);
+        const cuts = [t0, ...[st.breakUntil, st.breachFallbackUntil, a.fx?.powerUntil, a.fx?.idleUntil, ...rotateCuts(st, t0, tEnd)].filter(t => t > t0 && t < tEnd), tEnd].sort((x, y) => x - y);
         for (let k = 1; k < cuts.length; k++) {
-          const mid = (cuts[k - 1] + cuts[k]) / 2, dps = power(a) * powerMul(a, mid);
+          const mid = (cuts[k - 1] + cuts[k]) / 2, dps = power(a) * powerMul(a, mid) * frenzyMul(a, mid) * fallbackMul(st, mid);
           if (st.boss) st = idleBoss(st, dps, cuts[k - 1], cuts[k]);
-          else st.hp -= dps * (cuts[k] - cuts[k - 1]) / 1000;
+          else st.hp -= Math.min(dps * (breaking(st, mid) ? 2 : 1), damageCap(st)) * (cuts[k] - cuts[k - 1]) / 1000;
         }
       }
       // 結算到的時間點（期限以內）狗群剛好到點：補上重生（dt 0 的結算不會走上面的推進；期限後才到點的不算）
@@ -654,12 +670,18 @@
     }
     return { state: s, events };
   }
-  // 這一下點擊的傷害（畫面浮字要跟實際扣血一致，打死那一下也要顯示整下的量，不是剩下的血）
-  const tapDamage = (a, now) => !a.stage || (a.stage.deadline && now >= a.stage.deadline) ? 0 : power(a) * powerMul(a, now) * clickShare(a) * trainMul('click', a.clickLevel) * boostOf(a).click
-    * (a.fx?.clickLeft > 0 ? (a.fx.clickMul || 1) : 1) * tapMul(a.stage, now);
+  const damageCap = st => st.need * (st.boss ? RULES.TAP_CAP.BOSS : RULES.TAP_CAP.NORMAL);
+  const fallbackMul = (st, now) => now < (st?.breachFallbackUntil || 0) ? M().RESIST.FALLBACK_MUL : 1;
+  // 狂熱把既有 .35 放置倍率提升為技能量；一般關也按同一比例加速，保留原有無技能節奏。
+  const frenzyMul = (a, now) => now < (a.fx?.idleUntil || 0) ? (a.fx.idleValue || 1) / M().IDLE_MUL : 1;
+  const rawTapDamage = (a, now) => !a.stage || a.stage.hp <= 0 || (a.stage.deadline && now >= a.stage.deadline) ? 0 : power(a) * powerMul(a, now) * clickShare(a) * trainMul('click', a.clickLevel) * boostOf(a).click
+    * (a.fx?.clickLeft > 0 ? (a.stage.boss ? resistedOpen(a.fx.clickMul || 1) : (a.fx.clickMul || 1)) : 1) * tapMul(a.stage, now) * fallbackMul(a.stage, now);
+  const tapDamage = (a, now) => a.stage ? Math.min(rawTapDamage(a, now), damageCap(a.stage)) : 0;
+  const coinGain = (a, now) => a.stage && a.stage.hp > 0 && !(a.stage.deadline && now >= a.stage.deadline) && now < (a.fx?.coinUntil || 0)
+    ? reward(a.stage.boss ? Math.max(0, a.stage.index - 1) : a.stage.index, a) * (a.fx.coinValue || 0) : 0;
   // opt.part：王④部位圓鈕（head／body／tail）；點空白處不帶
   function tap(a, now, opt = {}) {
-    if (!a.stage) return a;
+    if (!a.stage || a.stage.hp <= 0) return a;
     if (a.stage.deadline && now >= a.stage.deadline) return a;   // 期限過了的點擊不算（結算時會判輸）
     const dmg = tapDamage(a, now);
     // 次數型增益（尾巴節拍／一口氣開封）在這裡消耗一格
@@ -668,21 +690,39 @@
     let st = { ...a.stage }, broke = false;
     if (st.boss) ({ st, broke } = routeDamage(respawn(st, now), dmg, now, true, opt.part));   // 第十輪：五種王關機制（點之前先補到點的狗群重生）
     else st.hp -= dmg;
-    const stats = { ...a.stats, taps: (a.stats?.taps || 0) + 1, maxHit: Math.max(a.stats?.maxHit || 0, dmg), shieldBreaks: (a.stats?.shieldBreaks || 0) + (broke ? 1 : 0) };
-    return { ...a, stage: st, fx, stats };
+    const actual = absorbedDamage(a.stage, st, now);
+    const hit = { damage: actual, capped: rawTapDamage(a, now) > damageCap(a.stage), coins: coinGain(a, now) };
+    const stats = { ...a.stats, taps: (a.stats?.taps || 0) + 1, maxHit: Math.max(a.stats?.maxHit || 0, actual), shieldBreaks: (a.stats?.shieldBreaks || 0) + (broke ? 1 : 0) };
+    return { ...a, stage: st, fx, stats, coins: a.coins + hit.coins, lastHit: hit };
+  }
+  function absorbedDamage(before, after, now) {
+    const m = mechAt(before, now), st = respawn(before, now);
+    if (m === 0 && st.minions?.left > 0) return st.minions.left > after.minions.left ? st.minions.hp : st.minions.hp - after.minions.hp;
+    if (m === 1 && st.shell?.hp > 0) return st.shell.hp - after.shell.hp;
+    return Math.min(before.hp, Math.max(0, before.hp - after.hp));
   }
   function canSkill(a, slot, now) { return !!skillOf(a, slot) && now >= (a.skillCd?.[slot] || 0); }
   function useSkill(a, slot, now) {
     const def = skillOf(a, slot); if (!def) throw new Error('這格還沒放卡');
     if (now < (a.skillCd?.[slot] || 0)) throw new Error('技能冷卻中');
+    let st = a.stage ? { ...a.stage } : null;
     let fx = { ...a.fx }, cd = [...(a.skillCd || [0, 0, 0, 0])];
     const k = boostOf(a);   // 1.0 的技能祝福放大效果量、冷卻祝福縮短冷卻（同 1.0 的 skillArt／cdArt）
     // mythic：神話卡的點擊加倍還在（第八輪：施放期間放神話技能曲，clicker-music.js 讀這個；傳說卡也是 clickMul，不算）
     if (def.kind === 'clickMul') { fx.clickMul = def.value * k.skill; fx.clickLeft = def.uses; fx.mythic = def.card.rarity === 'mythic'; }
     else if (def.kind === 'powerMul') { fx.powerMul = 1 + (def.value - 1) * k.skill; fx.powerUntil = now + def.ms; }
+    else if (def.kind === 'coin') { fx.coinValue = def.value * k.skill; fx.coinUntil = now + def.ms; }
+    else if (def.kind === 'idle') { fx.idleValue = def.value * k.skill; fx.idleUntil = now + def.ms; }
+    else if (def.kind === 'breach' && st) {
+      const count = st.skillBreaks || 0;
+      if (!st.boss || count < M().RESIST.BREACH_LIMIT) {
+        st.breakUntil = Math.max(st.breakUntil || 0, now + def.ms * k.skill * (st.boss ? M().RESIST.BREACH_TIME : 1));
+      } else st.breachFallbackUntil = now + M().RESIST.FALLBACK_MS;
+      if (st.boss) st.skillBreaks = count + 1;
+    }
     else if (def.kind === 'cool') cd = cd.map((t, i) => i === slot ? t : Math.max(now, t - def.value * k.skill));
     cd[slot] = now + def.cd * k.cd;
-    return { ...a, fx, skillCd: cd };
+    return { ...a, stage: st, fx, skillCd: cd };
   }
   // ---- 抽卡價：n 抽裡先用券，剩下的才付末世金幣
   const drawCost = (a, n = 1) => { const paid = Math.max(0, n - (a.tickets || 0)); let sum = 0; for (let i = 0; i < paid; i++) sum += Math.round(RULES.DRAW_COST * RULES.DRAW_GROWTH ** ((a.paidDraws || 0) + i)); return sum; };
@@ -883,7 +923,7 @@
   });
   const view = (a, now) => ({ ...growView(a), revisitAt: a.revisitAt ?? null, coins: Math.floor(a.coins), tickets: a.tickets, progress: a.progress, cooldownUntil: a.cooldownUntil, stage: a.stage, power: power(a) * powerMul(a, now),
     skillCd: a.skillCd, fx: a.fx, now, pending: a.pending || null, cleared: !!a.cleared,
-    skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { name: d.name, text: d.text, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) ? need(a.progress, a) : 0,
+    skillDefs: [0, 1, 2, 3].map(i => { const d = skillOf(a, i); return d ? { ...d, card: d.card.name, rarity: d.card.rarity } : null; }), canFight: canFight(a, now), need: a.progress < (a.endless ? RULES.ENDLESS_MAX : RULES.STATIONS) ? need(a.progress, a) : 0,
     drawCost1: drawCost(a, 1), drawCost10: drawCost(a, 10), paidDraws: a.paidDraws || 0,
     // 「下一抽付現要多少」——不看手上的券。drawCost1 有券時會算成 0（因為那一抽不用付），
     // 拿它去寫「下一抽 X」會印出 0（第十二輪修）。
@@ -895,7 +935,7 @@
     dispatch: a.dispatch || [], dispatchSlots: dispatchSlots(a), dispatchDone: a.dispatchDone || 0, skillSlots: boostOf(a).slot4 ? 4 : 3, marksGiven: a.marksGiven || null,
     laps: lapsOf(a), endless: !!a.endless, endlessBest: a.endlessBest || 0, lapHp: lapHp(a), lapPower: lapPower(a),
     canReplay: !!a.cleared && lapsOf(a) < RULES.LAP.MAX, nextLapHp: lapHp({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }), nextLapPower: lapPower({ laps: Math.min(RULES.LAP.MAX, lapsOf(a) + 1) }) });
-  root.ApocEconomy = { RULES, RATES, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
+  root.ApocEconomy = { RULES, RATES, setBoostProvider, RECOMMENDATIONS, recommendTeam, fresh, normalize, gift, power, cardPower, need, reward, lapHp, lapPower, replay, setEndless, offline, markMilestones, bossTimeOf, clickShare, dispatchSlots, incomeIndex, startDispatch, collectDispatch, dispatchCoins, isBoss, canFight, canFarm, canRevisit, revisit, leaveRevisit, fight, mechAt, bossInfo, tapMul, idleMul, settle, tap, tapDamage, rawTapDamage, coinGain, drawn, addCards, setTeam, rosterCounts, rosterViolations, view,
     drawCost, exchangeCost, exchangeToday, exchange, train, trainCost, trainMul, buyCosmetic, wearCosmetic, rollPack, purchaseDraw, collectDraw, skillOf, skillInfo, canSkill, useSkill, powerMul,
     // 第十一輪 養成（DESIGN-2026-09-14-apoc-growth.md）
     starsOf, starsAt, maxStars, dustOf, availableDust, spentDust, transcendOf, transcendCost, canTranscend, autoGrow, isMaxed, dustRate, fullDust, starCap, exchangeDust, winDust };

@@ -254,20 +254,20 @@ window.Clicker = (() => {
     const head=el('div','recommend-head'); const list=el('div','recommend-list');
     const close=el('button','recommend-close','關閉'); close.type='button'; close.onclick=()=>showRecommendations();
     if(apocMode()){
-      // 2.0：技能只看稀有度，模板是「四格各放哪一階」，套用時從隊伍挑該階戰力最高的卡（ApocEconomy.recommendTeam）
-      const A=window.ApocEconomy, a=A.normalize(s.apoc), RAR={mythic:'神話',legendary:'傳說',epic:'史詩',rare:'精良'};
-      head.append(el('h3','','推薦組合'), el('p','',`末世的技能看稀有度：神話「一口氣開封」、傳說「尾巴節拍」、史詩「全隊加訓」、精良「重整」。模板寫的是四格各放哪一階，套用時自動從你的隊伍挑那一階戰力最高的卡（隊伍沒有、卡冊有且塞得下就順手入隊）。第四格要印記商店買。`), close); root.append(head);
+      // 2.0：模板指定技能型別，套用時從隊伍挑該型戰力最高的卡（ApocEconomy.recommendTeam）
+      const A=window.ApocEconomy, a=A.normalize(s.apoc), RAR={open:'開封',train:'加訓',reset:'重整',coin:'撿金幣',breach:'破防',idle:'放置狂熱'};
+      head.append(el('h3','','推薦組合'), el('p','',`末世技能由角色決定型別，稀有度決定強度。套用會從隊伍選該型戰力最高的卡；隊伍沒有時，會從卡冊補入能入隊的夥伴。第四格在印記商店解鎖。`), close); root.append(head);
       A.RECOMMENDATIONS.forEach((preset,index)=>{
         const r=A.recommendTeam(a,index), card=el('article','recommend-card'); card.dataset.index=index; if(r.missing.length) card.classList.add('incomplete');
         const title=el('header',''); title.append(el('b','',preset.name), el('span','tag',preset.tag), el('span','stage',preset.stage)); card.append(title);
         const row=el('div','recommend-slots');
         preset.pattern.forEach((rar,i)=>{
           const id=i<r.slots&&!r.missing.includes(i)?r.skills[i]:null, slot=el('div','recommend-slot'+(id?'':' missing')+(i>=r.slots?' locked':''));
-          slot.dataset.rarity=rar;
+          slot.dataset.role=rar; slot.dataset.rarity=id?window.ApocPool.find(c=>c.id===id).rarity:'';
           const face=id&&window.ClickerHolo?.ready()?window.ClickerHolo.face(window.ApocPool.find(c=>c.id===id)):null;
           const art=el('span','buddy-portrait'+(face?' holo-slot':' apoc-face-blank')); if(face) art.append(face);
-          slot.append(el('i','n',String(i+1)), art, el('span','name',id?window.ApocPool.find(c=>c.id===id).name:`任一${RAR[rar]}`), el('span','skill',A.RULES.SKILLS[rar].name));
-          slot.title=A.skillInfo(id||'')?.text||`${RAR[rar]}：${A.RULES.SKILLS[rar].text}`;
+          slot.append(el('i','n',String(i+1)), art, el('span','name',id?window.ApocPool.find(c=>c.id===id).name:`任一${RAR[rar]}`), el('span','skill',RAR[rar]));
+          slot.title=A.skillInfo(id||'')?.text||`${RAR[rar]}：${A.RULES.SKILLS[rar].epic.text}`;
           row.append(slot);
         });
         card.append(row, el('p','order','順序：'+preset.order), el('p','desc',preset.desc));

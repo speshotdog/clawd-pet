@@ -75,6 +75,7 @@ window.ClickerApocUI = (() => {
         slot4: !!shop.slot4, bossTime: !!shop.bossTime, offline12: !!shop.offline12, tapShare: (shop.tapShare1 ? 1 : 0) + (shop.tapShare2 ? 1 : 0), dispatch4: !!shop.dispatch4 };
     }
     const boosted = (a, s = store.state) => { a.boost = oneBoost(s); return a; };
+    A.setBoostProvider(() => oneBoost(store.state));   // 卡冊／編隊直接呼叫經濟層時也拿得到印記商店的解鎖（派遣位 +1 等）
     const view = () => A.view(boosted(A.normalize(store.state.apoc)), Date.now());
     // 對 s.apoc 做一次純函式變換並提交
     function apply(fn, silent = false) {
@@ -249,7 +250,7 @@ window.ClickerApocUI = (() => {
       const skin = A.RULES.HIT_FX.find(f => f.id === store.state?.apoc?.cosmetics?.hitFx) || A.RULES.HIT_FX[0];
       const level = HIT_LEVEL[kind] ?? 0, H = window.ClickerHitFx; if (!H) return;
       H.impact(fx, cv, level, { spark: kind === 'shield' ? skin.shield : skin.spark, shards: skin.shards, u });
-      H.coins(fx, cv, H.COINS[level], { canvas: $('click-fx'), stage: $('stage'), wallet: document.querySelector('.wallet img'), floor: document.querySelector('.package-meter'), u });
+      H.coins(fx, cv, H.COINS[level] * (Date.now() < (store.state.apoc?.fx?.coinUntil || 0) ? 2 : 1), { canvas: $('click-fx'), stage: $('stage'), wallet: document.querySelector('.wallet img'), floor: document.querySelector('.package-meter'), u });
     }
     const HIT_LEVEL = { hit: 0, shield: 0, crit: 1, break: 2, kill: 3 };
     // 滿版王的受擊閃光：舞台上一層白色淡入淡出（不動 DOM 結構，用 #stage 的 --flash 變數配 CSS）
@@ -345,7 +346,10 @@ window.ClickerApocUI = (() => {
       const broke = boss && !wasBroken && !won && after.stage?.index === idx && (after.stage.breakUntil || 0) > now;
       sound(broke ? 'skill' : crit ? 'skill' : 'click');
       const kind = won ? 'kill' : broke ? 'break' : crit ? 'crit' : absorbed ? 'shield' : 'hit';
-      hitFx(null, kind, broke ? `破防！-${format(dmg)}` : dmg > 0 ? `${beat ? '準！' : ''}-${format(dmg)}` : '擊倒！');   // dmg 0 還贏＝期限前的放置傷害補算打死的
+      const hit = after.lastHit || { damage: dmg, coins: 0, capped: false };
+      hitFx(null, kind, `${broke ? '破防！' : beat ? '準！' : ''}-${format(hit.damage)}${hit.capped ? ' 盾' : ''}${hit.coins > 0 ? `\n+${format(hit.coins)} 幣` : ''}`);
+      const floater = $('floaters').lastElementChild;
+      if (floater?.classList.contains('apoc-hit')) { floater.classList.toggle('apoc-coin-hit', hit.coins > 0); floater.dataset.damage = hit.damage; floater.dataset.capped = hit.capped; }   // dmg 0 還贏＝期限前的放置傷害補算打死的
       renderMech(store.state.apoc?.stage);
     }
     function tick() {
@@ -440,7 +444,7 @@ window.ClickerApocUI = (() => {
       if (enemy) {
         enemy.classList.toggle('far', dogCount > 0);
         enemy.classList.toggle('shelled', m === 1 && info.shellHp > 0);
-        enemy.classList.toggle('breaking', !!info?.breaking);
+        enemy.classList.toggle('breaking', Date.now() < (st?.breakUntil || 0));
       }
     }
 
@@ -593,7 +597,8 @@ window.ClickerApocUI = (() => {
       if (!def || !entry) return;
       const events = apply((x, n) => A.useSkill(x, i, n));
       const after = view(); if ((after.skillCd?.[i] || 0) === (before.skillCd?.[i] || 0)) return;   // 冷卻中之類被擋下，apply 已經講原因
-      const d = A.RULES.SKILLS[entry.rarity], stamp = d.kind === 'clickMul' ? `×${d.value}` : d.kind === 'powerMul' ? `×${d.value}` : `−${d.value / 1000} 秒`;
+      const d = A.RULES.SKILLS[entry.role][entry.rarity], stamp = d.kind === 'cool' ? `−${d.value / 1000} 秒` : d.kind === 'coin' ? `+${+(d.value * 100).toFixed(4)}%` : d.kind === 'breach' ? `${d.ms / 1000} 秒` : `×${d.value}`;
+      if (entry.role === 'breach' && (store.state.apoc?.stage?.breakUntil || 0) > Date.now() && (store.state.apoc.stage.skillBreaks || 0) <= 2) { shakeStage(8, 240); renderMech(store.state.apoc.stage); }
       const [color, stripe] = SKILL_COLOR[entry.rarity] || SKILL_COLOR.rare;
       const name = def.name.length >= 6 ? def.name.slice(0, Math.floor(def.name.length / 2)) + '\n' + def.name.slice(Math.floor(def.name.length / 2)) : def.name;
       cutin?.play({ source: id, entry: { ...entry, rarity: entry.rarity }, actor: () => faceOf(entry),
@@ -640,7 +645,13 @@ window.ClickerApocUI = (() => {
         if (name) name.textContent = (i === 3 && v.skillSlots < 4) ? '未解鎖' : def ? (left ? `${def.name}・${left}s` : def.name) : '選夥伴';
         // 冷卻用 1.0 同一個圓形遮罩（.skill-slot[data-state="cooldown"] .skill-use::after 讀 --cooldown）
         slot.dataset.state = !def ? 'empty' : left ? 'cooldown' : v.stage ? 'ready' : 'unavailable';
-        const total = def ? A.RULES.SKILLS[def.rarity]?.cd || 60000 : 1;
+        if (def) b.title = `${def.card}・${A.skillInfo(v.skills[i], { boss: !!v.stage?.boss }).text}`;
+        slot.dataset.role = def?.role || '';
+        slot.classList.toggle('coin-active', def?.role === 'coin' && now < (v.fx?.coinUntil || 0));
+        slot.classList.toggle('idle-active', def?.role === 'idle' && now < (v.fx?.idleUntil || 0));
+        slot.classList.toggle('resisted', !!v.stage?.boss && ['open', 'breach', 'coin'].includes(def?.role));
+        $('buddies')?.classList.toggle('apoc-frenzy', now < (v.fx?.idleUntil || 0));
+        const total = def ? A.RULES.SKILLS[def.role]?.[def.rarity]?.cd || 60000 : 1;
         slot.style.setProperty('--cooldown', `${Math.min(1, Math.max(0, until - now) / total) * 360}deg`);
       }
     }

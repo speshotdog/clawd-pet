@@ -114,7 +114,11 @@ def run(pg, world):
     # 替身動作（2.5 MB／90 幀）：詳情頁點卡片要真的載、真的疊上去（B2 的延遲載入不能把它弄不見）。
     # ⚠ 一定要點 shadow root 裡的 .hcard（處理器在那裡），而且要在**詳情頁**點——
     #   收藏卡頁格子上點下去會冒泡到 .album-slot 那顆按鈕、整張卡被換掉，替身 decode 完發現卡已離開 DOM 就自己釋放了。
-    pg.evaluate("() => document.querySelector('#album-detail .holo-face')?.shadowRoot?.querySelector('.hcard')?.click()")
+    # 2026-09-16：改用**真的滑鼠點**。以前 JS 直接 click .hcard 一直是綠的，但真人點從來觸發不了——
+    #   host 按下時 setPointerCapture，click 被重新指派到 host，.hcard 的處理器收不到（朋友回報「不回跳到砍人那張」）。
+    #   現在 clicker-holo.js 在 host 上補了「沒拖動的點擊轉給替身」，這條要驗真的點。
+    hb = pg.evaluate("() => { const r = document.querySelector('#album-detail .holo-face').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }")
+    pg.mouse.click(hb[0], hb[1])
     pg.wait_for_timeout(2500)
     alt = pg.evaluate(ALT_LOADED)
     check(alt >= 1, f'{world}：詳情頁點卡片會載入替身動作（實得 {alt}）')

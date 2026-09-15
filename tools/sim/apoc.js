@@ -23,6 +23,9 @@ for (const k of ['IDLE_MUL', 'BREAK_MS', 'BREAK_MUL', 'ROTATE_MS']) if (process.
 // 第十輪 D：DISPATCH=0 關掉派遣；DISPATCH_KILLS／DISPATCH_TICKET 覆寫派遣收益
 // 第十一輪：養成旋鈕 PITY_AT（保底門檻）、BOSS_DUST（五隻王首勝的萬用粉塵，逗號分隔）
 if (process.env.PITY_AT !== undefined) R.GROW.PITY.AT = Number(process.env.PITY_AT);
+// 六型技能：CAP_BOSS／CAP_NORMAL 覆寫單下傷害盾牌
+if (process.env.CAP_BOSS !== undefined) R.TAP_CAP.BOSS = Number(process.env.CAP_BOSS);
+if (process.env.CAP_NORMAL !== undefined) R.TAP_CAP.NORMAL = Number(process.env.CAP_NORMAL);
 if (process.env.BOSS_DUST) R.GROW.BOSS = process.env.BOSS_DUST.split(',').map(Number);
 if (process.env.DISPATCH_KILLS !== undefined) R.DISPATCH.KILLS = Number(process.env.DISPATCH_KILLS);
 if (process.env.DISPATCH_TICKET !== undefined) R.DISPATCH.TICKET = Number(process.env.DISPATCH_TICKET);
@@ -127,7 +130,11 @@ for (day = 1; day <= DAYS && !stop; day++) {
             a = A.tap(a, at, { part });
           }
         }
-        if (USE_SKILLS) for (let slot = 0; slot < 4; slot++) if (A.canSkill(a, slot, now)) a = A.useSkill(a, slot, now);
+        if (USE_SKILLS) {
+          const slots = [0, 1, 2, 3];
+          if (a.stage?.boss) { const order = ['train', 'breach', 'open', 'coin', 'idle', 'reset']; slots.sort((x, y) => order.indexOf(A.skillOf(a, x)?.role) - order.indexOf(A.skillOf(a, y)?.role)); }
+          for (const slot of slots) if (A.canSkill(a, slot, now)) a = A.useSkill(a, slot, now);
+        }
       }
       const st = a.stage, r = A.settle(a, now, 1); a = r.state;
       if (MARKS_ON) { const m = A.markMilestones(a); if (m.gained) { const got = Math.min(m.gained, Math.max(0, CAP - claimed)); marks += got; claimed += got; a = m.state; buyArtifacts(); spentLog.push({ day, notes: m.notes, bless, tapLv }); } a = { ...a, boost: boostNow() }; }
