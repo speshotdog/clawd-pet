@@ -16,7 +16,12 @@ HERE = Path(__file__).resolve().parent
 MANIFEST = HERE / 'card-assets.json'
 
 def keys(card):
-    return [f"layer-{card['id']}-{part}.png" for part in ('subject','background')] if card.get('scene') else [card['file']]
+    ks = [f"layer-{card['id']}-{part}.png" for part in ('subject','background')] if card.get('scene') else [card['file']]
+    # 特效層（例：玩物就玩物的愛心）跟圖層走同一份編碼權威
+    fx = card.get('fx') or {}
+    for part in ('hearts', 'ripples'):
+        if fx.get(part): ks.append(fx[part])
+    return ks
 
 def build():
     target = HERE / 'card-assets'

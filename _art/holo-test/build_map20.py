@@ -65,6 +65,7 @@ def build(evidence_dir=None):
         if not baseline.start() <= m.start() < baseline.end())
     styles = styles.replace('<style>','') # source has a nested opening style tag
     styles += (HERE/'card-position.css').read_text(encoding='utf-8')
+    styles += (HERE/'card-fx.css').read_text(encoding='utf-8')   # 特效層（card_fx.js）
     def embed_url(m):
         name=m.group(1).strip('"\'')
         if name.startswith('data:') or name.startswith('#'): return m.group(0)
@@ -73,11 +74,12 @@ def build(evidence_dir=None):
         return 'url("'+encode(Image.open(path).convert('RGBA'))+'")'
     styles=re.sub(r'url\(([^)]+)\)',embed_url,styles)
     masks=json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>',demo,re.S)[1])
-    from card_assets import assets as card_assets
+    masks.update(json.loads((HERE/'masks-5.0.json').read_text(encoding='utf-8')))   # 5.0 之後新卡的主體遮罩
+    from card_assets import assets as card_assets, keys as asset_keys
     canonical = card_assets(cards)
     images={};used={'frame','glitter'}
     for c in cards:
-        keys=[f"layer-{c['id']}-subject.png",f"layer-{c['id']}-background.png"] if c.get('scene') else [c['file']]
+        keys=asset_keys(c)      # 圖層＋特效層，跟編碼權威同一份規則
         for key in keys:
             path=HERE/key if key.startswith('layer-') else HERE/'art'/key
             images[key]=canonical[key]
@@ -106,7 +108,7 @@ def build(evidence_dir=None):
         payload['css']=payload['css'].replace(rule,f'/* SHARED_FONT_{i} */')
     restore="TEAM_DATA.css=TEAM_DATA.css.replace(/\/\* SHARED_FONT_(\\d+) \*\//g,(_,i)=>document.querySelector('#team-fonts').textContent.match(/@font-face\\s*\\{[^}]+\\}/g)[+i]);"
     template=template.replace('/* TEAM_DATA */','const TEAM_DATA='+json.dumps(payload,ensure_ascii=False,separators=(',',':'))+';'+restore)
-    template=template.replace('/* CARD_FACE */',(HERE/'card_face.js').read_text(encoding='utf-8'))
+    template=template.replace('/* CARD_FACE */',(HERE/'card_face.js').read_text(encoding='utf-8')+'\n'+(HERE/'card_fx.js').read_text(encoding='utf-8'))
     template=template.replace('/* TEAM_CSS */',(HERE/'team20.css').read_text(encoding='utf-8'))
     template=template.replace('/* TEAM_JS */',(HERE/'team20.js').read_text(encoding='utf-8'))
     # User approved larger files for identical full-resolution card bytes.

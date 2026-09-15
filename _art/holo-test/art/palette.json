@@ -619,5 +619,11 @@
   "glow": "#ac8f64",
   "accent": "#ac8f64",
   "ink": "#080c17"
+ },
+ "card-paoshuidahengbao.png": {
+  "base": "#dba061",
+  "glow": "#dba061",
+  "accent": "#dba061",
+  "ink": "#080c17"
  }
 }

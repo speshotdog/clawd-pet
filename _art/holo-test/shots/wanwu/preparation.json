@@ -1,0 +1,41 @@
+{
+  "psd": "C:\\Users\\spesh\\OneDrive\\Desktop\\玩物就玩物.psd",
+  "psd_size": [
+    1000,
+    1500
+  ],
+  "window": [
+    203,
+    244,
+    744,
+    1001
+  ],
+  "face_center_source": [
+    470.0,
+    548.0
+  ],
+  "face_center_card": [
+    0.49353049907578556,
+    0.40158520475561427
+  ],
+  "subject_bbox": [
+    24,
+    102,
+    576,
+    712
+  ],
+  "hearts_bbox": [
+    94,
+    58,
+    508,
+    566
+  ],
+  "hands_bbox_card": [
+    0,
+    54,
+    600,
+    840
+  ],
+  "subject_bottom_ratio": 0.8476190476190476,
+  "plate_top": 0.8039999999999999
+}

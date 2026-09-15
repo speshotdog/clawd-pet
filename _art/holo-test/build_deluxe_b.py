@@ -16,7 +16,9 @@ tpl = re.search(r'<template id="baseline-css">.*?</template>', demo, re.S)
 styles = [m.group(0) for m in re.finditer(r'<style[^>]*>.*?</style>', demo, re.S)
           if not (tpl.start() <= m.start() < tpl.end())]
 masks = json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>', demo, re.S).group(1))
+masks.update(json.loads((OUT / 'masks-5.0.json').read_text(encoding='utf-8')))   # 5.0 之後新卡的靜態主體遮罩（含玩物就玩物）
 styles.append('<style>' + (OUT / 'card-position.css').read_text(encoding='utf-8') + '</style>')
+styles.append('<style>' + (OUT / 'card-fx.css').read_text(encoding='utf-8') + '</style>')   # 特效層（card_fx.js）
 
 # 卡池與卡型只有一個來源：pool_data.py（HANDOFF 三節的定案寫在那裡）
 from pool_data import pool
@@ -28,6 +30,7 @@ HTML = r'''<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 __CARD_CSS__
 <script>__CARD_FACE_JS__</script>
+<script>__CARD_FX_JS__</script>
 <style>__CEREMONY_CSS__</style>
 <main class="win" id="win" data-screen="entry">
  <div class="stage-background" aria-hidden="true">
@@ -90,6 +93,7 @@ function path(n){
 function makeFace(d){
   // 卡面完全交給共用建立器，抽卡頁不再自己拼一套 DOM
   const card=HoloCardFace.create(d,{masks,resolve:path});
+  HoloCardFx.apply(card,d,path);   // 個別卡的特效層（玩物就玩物的愛心、呼吸）
   HoloCardFace.observe(card);
   return card;
 }
@@ -112,7 +116,7 @@ __CEREMONY_JS__
 </script>
 '''
 
-page = HTML.replace('__CEREMONY_JS__', '\n'.join((OUT / name).read_text(encoding='utf-8') for name in ['ceremony-layout.js','ceremony-fx.js','ceremony-audio.js','ceremony.js'])).replace('__CEREMONY_CSS__', (OUT / 'ceremony.css').read_text(encoding='utf-8')).replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))\
+page = HTML.replace('__CEREMONY_JS__', '\n'.join((OUT / name).read_text(encoding='utf-8') for name in ['ceremony-layout.js','ceremony-fx.js','ceremony-audio.js','ceremony.js'])).replace('__CEREMONY_CSS__', (OUT / 'ceremony.css').read_text(encoding='utf-8')).replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))           .replace('__CARD_FX_JS__', (OUT / 'card_fx.js').read_text(encoding='utf-8'))\
            .replace('__CARD_CSS__', '\n'.join(styles)) \
            .replace('__MASKS__', json.dumps(masks, separators=(',', ':'))) \
            .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':')))

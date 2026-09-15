@@ -76,7 +76,27 @@ CARDS_5_0 = [
     ]
 ]
 
+# 2026-09-15 作者給了「熱狗池整理.clip」三層拆分（水池／熱狗／水波），使用者定名「泡水大亨堡」、神話、新卡。
+# 水池＝背景層、熱狗＝主體層、水波＝第三層在最上面慢慢漂、熱狗本體上下浮（prepare_paoshui.py；fx 由 card_fx.js 掛）。
+CARDS_CLIP = [
+    {'id': 'paoshuidahengbao', 'name': '泡水大亨堡', 'rarity': 'mythic', 'kind': 'depth', 'scene': True,
+     'file': 'card-paoshuidahengbao.png',
+     'fx': {'ripples': 'layer-paoshuidahengbao-ripples.png', 'float': True}},
+]
+
 SOURCE_STEM = {'zhenzhen': '珍珍 神話'}
+
+# 2026-09-15 作者給了玩物就玩物的 PSD 拆分（手／羊／愛心），改成 depth：手＝背景層、羊＝主體層，
+# 愛心是第三層疊在最上面微晃、羊本體有呼吸感（prepare_wanwu.py）。
+# CATALOG 裡它仍標 bleed（1.0 的舊卡不升級），所以卡型在這裡覆寫，不動 src/gacha-pool.js。
+# fx 由 card_fx.js 掛（card_face.js 是凍結檔，只認 subject／background）。
+OVERRIDES = {
+    'wanwumythic': {'kind': 'depth', 'scene': True, 'bleed': None,
+                    'fx': {'hearts': 'layer-wanwumythic-hearts.png', 'breathe': True}},
+    # v3 遊戲端 09-14 直接改在 src/apoc/pool.js 的名字（HANDOFF-2026-09-14-r12 §5）；寫回這裡，重跑 build_holo 才不會蓋回舊名。
+    'danngaomie': {'name': '珍的一口'},
+    'jiujixiaochouyueyue': {'name': '究極小丑薯條'},
+}
 
 RARITY_LABEL = {'rare': '精良', 'epic': '史詩', 'legendary': '傳說', 'mythic': '神話'}
 
@@ -121,7 +141,11 @@ def palettes():
 
 
 def pool(with_scenes=True, with_palette=True, sort_by_rarity=True):
-    cards = catalog() + [dict(c) for c in EXTRA_CARDS + CARDS_5_0]
+    cards = catalog() + [dict(c) for c in EXTRA_CARDS + CARDS_5_0 + CARDS_CLIP]
+    for c in cards:
+        for k, v in OVERRIDES.get(c['id'], {}).items():
+            if v is None: c.pop(k, None)
+            else: c[k] = v
     if with_palette:
         pal = palettes()
         for c in cards:

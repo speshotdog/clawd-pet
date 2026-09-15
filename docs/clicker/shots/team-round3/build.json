@@ -1,13 +1,21 @@
 {
-  "html_bytes": 5984460,
-  "html_sha256": "869687695204abe91dbdabc49c8f5682547645b6e68b97584e9c89083ad0a8fd",
+  "html_bytes": 12001213,
+  "html_sha256": "14d941a3016453f8390f9ec52e38998b3d380f1f10a8a7eb3ee86abaada233eb",
   "terrain_quality": 94,
+  "old_max_bytes": 6000000,
+  "max_bytes": 20000000,
   "team_cards": [
     {
       "id": "rocketdog",
       "name": "宇宙冒險羊",
       "rarity": "mythic",
       "kind": "depth"
+    },
+    {
+      "id": "aomijiapaoxiaoshou",
+      "name": "奧米加咆嘯獸",
+      "rarity": "mythic",
+      "kind": "flat"
     },
     {
       "id": "liulangyueshou",
@@ -20,12 +28,6 @@
       "name": "滅世珍獸",
       "rarity": "mythic",
       "kind": "flat"
-    },
-    {
-      "id": "qinghua",
-      "name": "青花膠",
-      "rarity": "mythic",
-      "kind": "framed"
     },
     {
       "id": "alienkitty",
@@ -58,8 +60,8 @@
       "kind": "framed"
     },
     {
-      "id": "lksphinx",
-      "name": "獅身ㄌㄎ",
+      "id": "jiujixiaochouyueyue",
+      "name": "究極小丑薯條",
       "rarity": "legendary",
       "kind": "framed"
     },
@@ -94,10 +96,10 @@
       "kind": "framed"
     },
     {
-      "id": "gebugou",
-      "name": "哥不狗",
+      "id": "danngaomie",
+      "name": "珍的一口",
       "rarity": "epic",
-      "kind": "framed"
+      "kind": "flat"
     },
     {
       "id": "alu",
@@ -148,7 +150,7 @@
       "kind": "framed"
     }
   ],
-  "frozen_css_sha256": "bb6df798b9e356c44aa875ce6605d55498adea3ba2432f439e1409809e182389",
+  "frozen_css_sha256": "dcad3dead0e63ac084f17e8ce8c5d5ad4a39fc6bcdb8dafd3726b9a129972dcc",
   "terrain_size": [
     971,
     1619

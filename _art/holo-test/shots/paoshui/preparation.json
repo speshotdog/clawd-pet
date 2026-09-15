@@ -1,0 +1,42 @@
+{
+  "source": "D:\\claude研究\\clawd-pet-50\\_art\\holo-test\\art\\paoshui",
+  "size": [
+    1000,
+    1500
+  ],
+  "window": [
+    108,
+    136,
+    867,
+    1198
+  ],
+  "pool_rect": [
+    64,
+    136,
+    911,
+    1198
+  ],
+  "face_center_source": [
+    563.0,
+    469.0
+  ],
+  "face_center_card": [
+    0.5994729907773386,
+    0.3135593220338983
+  ],
+  "subject_bbox": [
+    70,
+    168,
+    538,
+    621
+  ],
+  "ripples_bbox": [
+    6,
+    304,
+    580,
+    705
+  ],
+  "subject_bottom_ratio": 0.7392857142857143,
+  "plate_top": 0.8039999999999999,
+  "extended_rows_top": 0
+}

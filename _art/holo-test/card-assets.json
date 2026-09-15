@@ -109,6 +109,36 @@
     ],
     "bytes": 355142
   },
+  "layer-paoshuidahengbao-subject.png": {
+    "path": "card-assets/055bef400eb6b2cb47d1330fc056ca42188b2a1235c39843113576475b774399.webp",
+    "sourceSha256": "055bef400eb6b2cb47d1330fc056ca42188b2a1235c39843113576475b774399",
+    "sha256": "48fcb02d868f43f669052c6624d7d8f15cbd230a7115f432654b33bf85c3eaef",
+    "size": [
+      600,
+      840
+    ],
+    "bytes": 91744
+  },
+  "layer-paoshuidahengbao-background.png": {
+    "path": "card-assets/1cd987c4a9f218b02d72a78b2965e34ee4e0e4926b47500985fd440c5269e275.webp",
+    "sourceSha256": "1cd987c4a9f218b02d72a78b2965e34ee4e0e4926b47500985fd440c5269e275",
+    "sha256": "77d07e73dc299a224203ab14cf56e003a6488b049382fe94c288b5952e0c9f59",
+    "size": [
+      600,
+      840
+    ],
+    "bytes": 34442
+  },
+  "layer-paoshuidahengbao-ripples.png": {
+    "path": "card-assets/c6e31032ec90ae1c2451916d4455aee57652e339697a5846f83ac55a05f9635b.webp",
+    "sourceSha256": "c6e31032ec90ae1c2451916d4455aee57652e339697a5846f83ac55a05f9635b",
+    "sha256": "6e7a64a8fd144786405237727c769aac739aa8dd336bef70c00481661059a523",
+    "size": [
+      600,
+      840
+    ],
+    "bytes": 17474
+  },
   "card-qinghua.png": {
     "path": "card-assets/3977482738e5d3f1060de1e141a245878ad48dcd358917f4d99bc7c5f7a04f20.webp",
     "sourceSha256": "3977482738e5d3f1060de1e141a245878ad48dcd358917f4d99bc7c5f7a04f20",
@@ -159,15 +189,35 @@
     ],
     "bytes": 229768
   },
-  "card-wanwumythic.png": {
-    "path": "card-assets/eef815fe47472c6cfbc58b95b5ba99bf17f18df09169d1cf573b862cbbc2cebd.webp",
-    "sourceSha256": "eef815fe47472c6cfbc58b95b5ba99bf17f18df09169d1cf573b862cbbc2cebd",
-    "sha256": "7cc7f87f78a9461e0e99ba824f8ea7e9b6f797954b9f98589767de9e7f769740",
+  "layer-wanwumythic-subject.png": {
+    "path": "card-assets/8489a1c5e0248933a36455addcb4226e149f41acc3c8a9f70a8628b5df814376.webp",
+    "sourceSha256": "8489a1c5e0248933a36455addcb4226e149f41acc3c8a9f70a8628b5df814376",
+    "sha256": "5399ae558bfff27f76aed3090e2834df40749a9d97f11965893227aa0d88468a",
     "size": [
-      509,
-      490
+      600,
+      840
     ],
-    "bytes": 116862
+    "bytes": 147944
+  },
+  "layer-wanwumythic-background.png": {
+    "path": "card-assets/ae684ba4808620b1b9abb3f3ee25054d9b4141b455b49fbcd8e46b2cc24e85e8.webp",
+    "sourceSha256": "ae684ba4808620b1b9abb3f3ee25054d9b4141b455b49fbcd8e46b2cc24e85e8",
+    "sha256": "a43ad3d9069f866b551391ff1da604930ac2f0e6ecc7bcd246d8db3e1b8b6bbe",
+    "size": [
+      600,
+      840
+    ],
+    "bytes": 113640
+  },
+  "layer-wanwumythic-hearts.png": {
+    "path": "card-assets/93a4149cffb82fc56ec588d673c526638a300c9a3d58c3480dfadd13044f250b.webp",
+    "sourceSha256": "93a4149cffb82fc56ec588d673c526638a300c9a3d58c3480dfadd13044f250b",
+    "sha256": "9527966e9d48699835e4eddc46f094d19e9ab63c4cf0ba304efbf51c0269a564",
+    "size": [
+      600,
+      840
+    ],
+    "bytes": 18816
   },
   "card-xingyejiao.png": {
     "path": "card-assets/f7ea82bc99d86190875b74ef076a620c01d33411a39edda890c44e1b6cdda653.webp",

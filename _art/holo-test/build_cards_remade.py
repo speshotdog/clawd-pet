@@ -21,6 +21,7 @@ styles = [m.group(0) for m in re.finditer(r'<style[^>]*>.*?</style>', demo, re.S
 masks = json.loads(re.search(r'<script type="application/json" id="mask-data">(.*?)</script>', demo, re.S).group(1))
 masks.update(json.loads((OUT / 'masks-5.0.json').read_text(encoding='utf-8')))
 styles.append('<style>' + (OUT / 'card-position.css').read_text(encoding='utf-8') + '</style>')
+styles.append('<style>' + (OUT / 'card-fx.css').read_text(encoding='utf-8') + '</style>')   # 特效層（card_fx.js）
 manifest = json.loads((OUT / 'art' / 'manifest.json').read_text(encoding='utf-8'))
 
 # 卡池與卡型只有一個來源：pool_data.py（HANDOFF 三節的定案寫在那裡）
@@ -33,6 +34,7 @@ HTML = r'''<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 __CARD_CSS__
 <script>__CARD_FACE_JS__</script>
+<script>__CARD_FX_JS__</script>
 <style id="remade">
 *{box-sizing:border-box}
 body{margin:0;background:#07080d;color:#dbe7ff;padding:28px 22px 70px;
@@ -80,7 +82,9 @@ function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x!=
 
 function build(d,host,capHtml){
  const cell=node('div','cell'),hit=node('div','hit');
- const card=HoloCardFace.create(d,{masks,resolve:n=>(typeof __A!=='undefined'&&__A[n])||(n.startsWith('layer-')?n:'art/'+n)});
+ const resolve=n=>(typeof __A!=='undefined'&&__A[n])||(n.startsWith('layer-')?n:'art/'+n);
+ const card=HoloCardFace.create(d,{masks,resolve});
+ HoloCardFx.apply(card,d,resolve);
  hit.append(card);
  const cap=node('p','cap');
  cap.innerHTML=capHtml!==undefined?capHtml:`${LABEL[d.rarity]}・${d.name}`;
@@ -112,6 +116,7 @@ if(mieshi){
 '''
 
 page = (HTML.replace('__CARD_COUNT__', str(len(cards))).replace('__CARD_FACE_JS__', (OUT / 'card_face.js').read_text(encoding='utf-8'))
+            .replace('__CARD_FX_JS__', (OUT / 'card_fx.js').read_text(encoding='utf-8'))
             .replace('__CARD_CSS__', '\n'.join(styles))
             .replace('__MASKS__', json.dumps(masks, separators=(',', ':')))
             .replace('__POOL__', json.dumps(cards, ensure_ascii=False, separators=(',', ':'))))
