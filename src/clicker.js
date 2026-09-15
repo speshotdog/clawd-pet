@@ -820,18 +820,23 @@ window.Clicker = (() => {
       if (stage.bossBusy || cutin.active) return;
       const list = $('mode-list'); list.replaceChildren();
       const inApoc = apocMode();
-      for (const m of [
+      // 第三張「輪迴」（使用者 2026-09-16：「直接改到模式那，根本找不到；打完 2.0 才出現，圖上一層噩夢濾鏡；玩法就是一直重複 2.0 的地圖然後越來越難」）
+      const ap = store.state.apoc || {}, cleared = !!(ap.cleared || ap.laps > 0);
+      const modes = [
         { id:'home', name:'珍母點點', desc:'桌邊拆零食包・七個場景', img:'clicker-scene1-thumb.png', locked:false },
-        { id:'apoc', name:'末世', desc:store.state.apoc?.unlocked ? '二十站關卡地圖・精裝卡' : '打贏第七站的滅世珍獸解鎖', img:'clicker-boss7-mieshi.png', locked:!store.state.apoc?.unlocked },
-      ]) {
+        { id:'apoc', name:'末世', desc:ap.unlocked ? '二十站關卡地圖・精裝卡' : '打贏第七站的滅世珍獸解鎖', img:'clicker-boss7-mieshi.png', locked:!ap.unlocked },
+      ];
+      if (cleared) modes.push({ id:'loop', name:`輪迴${ap.laps ? `・第 ${ap.laps} 圈` : ''}`, desc:'一直重複末世的地圖，每一圈都更難：血量更厚、抽到變異；打完一圈送十連，突破上限跟著圈數開。', img:'clicker-boss7-mieshi.png', locked:false, nightmare:true });
+      list.classList.toggle('three', modes.length === 3);
+      for (const m of modes) {
         const b=document.createElement('button'); b.className='mode-card'; b.dataset.mode=m.id;
-        const current = (m.id==='apoc')===inApoc;
-        const thumb=document.createElement('span'); thumb.className='mode-thumb';
+        const current = m.id!=='loop' && (m.id==='apoc')===inApoc;
+        const thumb=document.createElement('span'); thumb.className='mode-thumb'+(m.nightmare?' nightmare':'');
         const img=document.createElement('img'); img.src=m.img; img.alt=''; img.onerror=()=>{img.hidden=true;}; thumb.append(img);
         const text=document.createElement('span'), name=document.createElement('b'), small=document.createElement('small');
         name.textContent=m.name; small.textContent=current?'目前在玩':m.desc; text.append(name,small);
         b.append(thumb,text); b.disabled=current || m.locked;
-        b.onclick=()=>action(()=>setWorld(m.id));
+        b.onclick=()=>action(()=>{ if (m.id==='loop') { if (!apocMode()) setWorld('apoc'); else { $('modes').hidden=true; $('game-content').inert=false; } apocUI?.openEnding?.(); return; } setWorld(m.id); });
         list.append(b);
       }
       $('modes').hidden=false; $('game-content').inert=true; $('modes-close').focus();
