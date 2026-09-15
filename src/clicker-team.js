@@ -46,7 +46,10 @@
       const n = tipNode(); n.replaceChildren(el('b', '', info.name), el('span', '', info.text)); n.hidden = false; tipFor = anchor;
       // 先放在卡的右邊；右邊放不下就放左邊；上下不超出編隊畫面。
       // ⚠ 整個遊戲是 transform:scale 縮放的：getBoundingClientRect 是螢幕座標、left/top 是版面座標，要除掉縮放比才對得上
-      const ed = $('team-editor'), host = ed.getBoundingClientRect(), k = host.width / (ed.offsetWidth || host.width) || 1;
+      // 挑選器是 <dialog> showModal（top layer），掛在 #team-editor 的浮層會被它整個蓋住（使用者 2026-09-16 截圖）——
+      // 卡在 dialog 裡就把浮層搬進 dialog，座標也改以 dialog 為準
+      const ed = anchor.closest('dialog[open]') || $('team-editor'); if (n.parentElement !== ed) ed.append(n);
+      const host = ed.getBoundingClientRect(), k = host.width / (ed.offsetWidth || host.width) || 1;
       const a = anchor.getBoundingClientRect(), w = n.offsetWidth, h = n.offsetHeight, W = ed.offsetWidth, H = ed.offsetHeight;
       let x = (a.right - host.left) / k + 8; if (x + w > W - 8) x = (a.left - host.left) / k - w - 8; if (x < 8) x = 8;
       let y = (a.top - host.top) / k; if (y + h > H - 8) y = H - 8 - h; if (y < 8) y = 8;

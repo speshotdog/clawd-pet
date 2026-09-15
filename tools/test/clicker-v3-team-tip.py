@@ -64,6 +64,12 @@ def main():
             pg.locator('#t20-skills .skill-slot').first.hover(); pg.wait_for_timeout(250)
             t = pg.evaluate(TIP); check(bool(t and t['name'] and t['inside']), f'{world}：技能槽也浮出提示、而且在畫面裡：{t}')
             pg.mouse.move(5, 5); pg.wait_for_timeout(200)
+            # 挑選器（<dialog> top layer）裡指到候選卡，提示要在 dialog 裡、看得到（2026-09-16：以前被 dialog 蓋住）
+            pg.evaluate("()=>document.getElementById('t20-add').click()"); pg.wait_for_timeout(500)
+            cand = pg.locator('#t20-picker-grid .team-proxy').first; cand.hover(); pg.wait_for_timeout(250)
+            pt = pg.evaluate("()=>{const t=document.querySelector('#t20-picker .team-tip'); if(!t||t.hidden) return null; const r=t.getBoundingClientRect(); t.style.pointerEvents='auto'; const top=document.elementFromPoint(r.left+r.width/2, r.top+r.height/2); t.style.pointerEvents=''; return {inDialog:true, text:t.textContent.slice(0,20), visible: !!top && (t===top || t.contains(top))};}")
+            check(bool(pt and pt['visible']), f'{world}：挑選器裡的提示在 dialog 內且沒被蓋住：{pt}')
+            pg.evaluate("()=>document.getElementById('t20-picker-close').click()"); pg.wait_for_timeout(300)
             # 點卡 → 詳情換人、技能列跟著換
             second.click(); pg.wait_for_timeout(400); d2 = pg.evaluate(DETAIL)
             check(bool(d2 and d2 != d), f'{world}：點另一張卡，詳情技能列跟著換：{d2}')

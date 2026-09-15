@@ -317,6 +317,11 @@ window.ClickerAlbum = (() => {
           add('編隊', inTeam ? `在隊伍裡（${a.roster.indexOf(id) + 1} / 20）` : ((a.dispatch || []).some(d => d.id === id) ? '派遣中（不算戰力）' : '不在隊伍（不算戰力）'));
           const sk = (a.skills || []).indexOf(id); add('獨立技能', sk >= 0 ? `技能格 ${sk + 1}` : '沒有裝');
         } else add('狀態', '還沒抽到（第一張只能從招募抽出來）');
+        // 技能效果直接寫在卡上（使用者 2026-09-16：「每張卡上也要寫上他的技能效果」）；還沒抽到的也給看，知道值不值得追
+        { const ROLE = { open: '開封', train: '加訓', reset: '重整', coin: '撿金幣', breach: '破防', idle: '放置狂熱' };
+          const si = A().skillInfo?.(id), sb = A().skillInfo?.(id, { boss: true });
+          if (si) { add(`技能・${si.name}`, `${ROLE[si.role] || si.role}型：${si.text}`);
+            if (sb && sb.text !== si.text) add('王關', sb.text.slice(sb.text.indexOf('王關：') + 3)); } }
         right.append(info);
         const acts = document.createElement('div'); acts.className = 'detail-actions';
         if (n) {
