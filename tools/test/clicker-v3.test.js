@@ -102,6 +102,15 @@ test('v3 重整／充能：重整清其他槽 CD、充能讓下一個技能 ×2�
   near(r.effect.multiplier - 1, (plain - 1) * 2, 1e-9);   // 連鎖窗到第三個就關（重整、充能各吃掉一格），第四個從 ×1 起算，再充能 ×2
   S.validate(JSON.parse(JSON.stringify(r.state)), Pool);
 });
+test('v3 重整：其他槽的持續效果還在跑時按柴柴，冷卻歸零的快照要能過驗證（玩家回報 2026-09-16 柴柴技能會當機）', () => {
+  const s = seed(); for (const id of ['chaichai', 'yueyue', 'qinghua']) { s.collection[id] = 1; s.dust[id] = 1; }
+  s.roster = ['zhenmu', 'chaichai', 'yueyue', 'qinghua']; s.lifetimeCoins = 2e5; s.coins = 2e5; s.skillSlots = ['yueyue', 'qinghua', 'chaichai']; s.slotReadyAt = [0, 0, 0];
+  let a = E.activate(s, 0, 0).state; a = E.activate(a, 1, 500).state;   // clickTime 12s ＋ team 22s 都還在
+  a = E.activate(a, 2, 1000).state;
+  assert.equal(a.effects.length, 2, '重整不砍持續效果'); assert.equal(a.cooldownUntil.yueyue, 0); assert.equal(a.cooldownUntil.qinghua, 0);
+  S.validate(JSON.parse(JSON.stringify(a)), Pool);   // 修前：效果冷卻 → 存檔被擋 → 畫面凍住
+  const later = E.settle(a, 30000).state; assert.equal(later.effects.length, 0); S.validate(JSON.parse(JSON.stringify(later)), Pool);
+});
 test('v3 寶箱包：種子決定、率 3%＋Lv150 隊員各 1%、拆完加 requirement×8、離線不出', () => {
   const s = seed(); s.chestSeed = 12345;
   const hits = Array.from({ length: 2000 }, (_, i) => E.isChest(s, i + 1)).filter(Boolean).length;

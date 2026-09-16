@@ -160,7 +160,9 @@
       const artSkill = 1 + .05 * (e.arts?.skill || 0), artCd = 1 - .02 * (e.arts?.cd || 0);
       const mult = def.multiplier === undefined ? undefined : 1+(def.multiplier-1)*[1,1.3,1.6][e.chain-1]*(e.energized || 1)*artSkill;
       check(def.kind && e.kind === def.kind && number(e.startedAt) && number(e.expiresAt) && Math.abs(e.expiresAt - e.startedAt - def.duration * 1000) < .001 && e.startedAt <= s.settledAt, '效果期限');
-      check(Math.abs(s.cooldownUntil[e.source] - e.startedAt - def.cd * 1000 * artCd) < .001, '效果冷卻');
+      // 柴柴打滾（reload）會把其他槽的冷卻歸零，但那些卡的持續效果還在跑：冷卻 0 也算合法（2026-09-16 玩家回報「柴柴技能會當機」，
+      // 真兇是這一行把存檔擋掉 → store.blocked → settle／autoTick 全停，畫面就凍住）
+      check(s.cooldownUntil[e.source] === 0 || Math.abs(s.cooldownUntil[e.source] - e.startedAt - def.cd * 1000 * artCd) < .001, '效果冷卻');
       if (e.kind === 'click') check(e.multiplier === mult && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '次數效果');
       else if (e.kind === 'clickTime') check(e.multiplier === mult, '時間倍率');
       else if (e.kind === 'clickAdd') check(number(e.value) && integer(e.remaining) && e.remaining > 0 && e.remaining <= def.charges, '點擊加法');
